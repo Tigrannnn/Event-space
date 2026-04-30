@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+dist
+.next
+apps/web/.next
+apps/api/.next
+**/.next
+.env
+*.log
+.git
+.github
+.vscode
+coverage

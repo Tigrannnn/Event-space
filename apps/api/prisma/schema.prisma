@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator zod {
+  provider                = "zod-prisma-types"
+  output                  = "../../../packages/shared/src/generated"
+  useMultipleFiles        = true
+  writeBarrelFiles        = true
+  createInputTypes        = true
+  createModelTypes        = true
+  addSelectQueries        = true
+  addIncludeQueries       = true
+  prismaJsonNullability   = true
+  coerceLazyConfig        = true
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ORGANIZER
+  ADMIN
+}
+
+enum EventDifficulty {
+  EASY
+  MODERATE
+  HARD
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  passwordHash  String?  @map("password_hash")
+  image         String?
+  role          UserRole @default(USER)
+  emailVerified Boolean  @default(false) @map("email_verified")
+
+  googleId  String?  @unique @map("google_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  events        Event[]        @relation("user_events")
+  refreshTokens RefreshToken[] @relation("refresh_tokens")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  hashedToken String   @map("hashed_token")
+  userId      String   @map("user_id")
+  user        User     @relation("refresh_tokens", fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Event {
+  id                  String          @id @default(uuid())
+  title               String          @db.VarChar(100)
+  description         String          @db.VarChar(1000)
+  images              String[]        @db.VarChar(1000)
+  location            String          @db.VarChar(200)
+  date                DateTime
+  difficulty          EventDifficulty
+  price               Decimal         @db.Decimal(10, 2)
+  maxParticipants     Int             @default(100) @map("max_participants")
+  currentParticipants Int             @default(0) @map("current_participants")
+  category            String          @db.VarChar(50)
+  whatsIncluded       String[]        @map("whats_included") @db.VarChar(1000)
+  duration            Int // Minutes
+
+  status EventStatus @default(DRAFT)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId    String @map("user_id")
+  organizer User   @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([date])
+  @@index([category])
+  @@map("events")
+}

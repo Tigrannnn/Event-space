@@ -1,0 +1,88 @@
+import type { Metadata, Viewport } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import QueryProvider from '@/providers/QueryProvider';
+import { HeaderWrapper } from '@/features/layout';
+import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
+import { ToastContainer } from '@/components/ui/Toast';
+import { BottomNavbar } from '@/features/layout';
+import { siteConfig } from '../../site.config';
+import GoogleProvider from '@/components/shared/GoogleProvider/GoogleProvider';
+import { EnvKey } from '@event-space/shared';
+
+const geistSans = Geist({
+	variable: '--font-geist-sans',
+	subsets: ['latin'],
+});
+
+const geistMono = Geist_Mono({
+	variable: '--font-geist-mono',
+	subsets: ['latin'],
+});
+
+export const metadata: Metadata = {
+	metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+	title: `${siteConfig.name} | Local Events & Adventures`,
+	description: `${siteConfig.description}`,
+	icons: {
+		icon: '/favicon.ico',
+		shortcut: '/favicon.ico',
+		apple: [{ url: siteConfig.ogImage, sizes: '180x180', type: 'image/png' }],
+	},
+	openGraph: {
+		title: `${siteConfig.name} | Local Events & Adventures`,
+		description: `${siteConfig.description}`,
+		images: [
+			{
+				url: siteConfig.ogImage,
+				width: 1200,
+				height: 630,
+				alt: `${siteConfig.name} Logo`,
+			},
+		],
+		type: 'website',
+		locale: 'en_US',
+	},
+	twitter: {
+		card: 'summary_large_image',
+		title: `${siteConfig.name} | Local Events & Adventures`,
+		description: `${siteConfig.description}`,
+		images: [siteConfig.ogImage],
+	},
+};
+
+export const viewport: Viewport = {
+	width: 'device-width',
+	initialScale: 1,
+	maximumScale: 1,
+};
+
+export default function RootLayout({
+	children,
+}: Readonly<{
+	children: React.ReactNode;
+}>) {
+	const googleClientId = process.env[EnvKey.GOOGLE_CLIENT_ID];
+
+	if (!googleClientId) {
+		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
+	}
+
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<body
+				className={`${geistSans.variable} ${geistMono.variable} text-primary bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
+			>
+				<QueryProvider>
+					<GoogleProvider clientId={googleClientId}>
+						<HeaderWrapper />
+						<main className="min-h-[85vh] pb-16 sm:pb-14 lg:pb-0">{children}</main>
+						<ModalRoot />
+						<BottomNavbar />
+						<ToastContainer />
+					</GoogleProvider>
+				</QueryProvider>
+			</body>
+		</html>
+	);
+}

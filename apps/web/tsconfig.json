@@ -1,0 +1,43 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"tsBuildInfoFile": ".next/.tsbuildinfo",
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@event-space/shared": ["../../packages/shared/src/index.ts"],
+			"@event-space/shared/schemas": ["../../packages/shared/src/schemas/index.ts"],
+			"@event-space/shared/types": ["../../packages/shared/src/types/index.ts"],
+			"@event-space/shared/utils": ["../../packages/shared/src/utils/index.ts"],
+			"@event-space/shared/constants": ["../../packages/shared/src/constants/index.ts"],
+			"@event-space/shared/enums": ["../../packages/shared/src/enums/index.ts"]
+		}
+	},
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".next/dev/types/**/*.ts",
+		"**/*.mts",
+		"src/types/**/*.d.ts"
+	],
+	"exclude": ["node_modules"],
+	"references": [{ "path": "../../packages/shared" }]
+}

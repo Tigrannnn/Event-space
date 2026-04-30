@@ -1,0 +1,51 @@
+{
+	"name": "@event-space/shared",
+	"version": "1.0.0",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		"./schemas": {
+			"types": "./src/schemas/index.ts",
+			"import": "./src/schemas/index.ts",
+			"require": "./dist/schemas/index.js"
+		},
+		"./types": {
+			"types": "./src/types/index.ts",
+			"import": "./src/types/index.ts",
+			"require": "./dist/types/index.js"
+		},
+		"./utils": {
+			"types": "./src/utils/index.ts",
+			"import": "./src/utils/index.ts",
+			"require": "./dist/utils/index.js"
+		},
+		"./constants": {
+			"types": "./src/constants/index.ts",
+			"import": "./src/constants/index.ts",
+			"require": "./dist/constants/index.js"
+		},
+		"./enums": {
+			"types": "./src/enums/index.ts",
+			"import": "./src/enums/index.ts",
+			"require": "./dist/enums/index.js"
+		},
+		".": {
+			"types": "./src/index.ts",
+			"import": "./src/index.ts",
+			"require": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"@asteasolutions/zod-to-openapi": "^8.5.0",
+		"@prisma/client": "^6.19.2",
+		"axios": "^1.14.0",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"typescript": "^5.7.3"
+	}
+}

@@ -1,0 +1,73 @@
+<mj-wrapper padding="0px 20px 40px 20px">
+	<mj-section
+		background-color="#ffffff"
+		border-radius="40px"
+		padding="40px"
+		css-class="card-bg shadow-card"
+	>
+		<mj-column>
+			<mj-text
+				align="center"
+				font-size="22px"
+				font-weight="900"
+				color="#1b4c00"
+				padding="0px 0px 8px 0px"
+				css-class="text-main"
+			>
+				Verify your email
+			</mj-text>
+			<mj-text
+				align="center"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 32px 0px"
+				css-class="text-muted"
+			>
+				Enter this code to complete {{ ACTION }}:
+			</mj-text>
+			<mj-table padding="0px" container-background-color="#f0fdf9" css-class="code-box-table">
+				<tr>
+					<td style="padding: 28px 16px; border-radius: 16px; text-align: center">
+						<div
+							style="
+								font-size: 40px;
+								font-weight: 900;
+								color: #00a5ba;
+								letter-spacing: 12px;
+								font-family:
+									system-ui,
+									-apple-system,
+									'Segoe UI',
+									Roboto,
+									Helvetica,
+									Arial,
+									sans-serif;
+							"
+						>
+							{{ CODE }}
+						</div>
+					</td>
+				</tr>
+			</mj-table>
+			<mj-text
+				align="center"
+				font-size="13px"
+				color="#9ca3af"
+				padding="24px 0px 32px 0px"
+				css-class="text-muted"
+			>
+				Expires in 15 minutes
+			</mj-text>
+			<mj-divider border-width="1px" border-color="#e5e7eb" padding="0px" css-class="divider-color" />
+			<mj-text
+				align="center"
+				font-size="13px"
+				color="#9ca3af"
+				padding="32px 0px 0px 0px"
+				css-class="text-muted"
+			>
+				If you didn't request this, you can safely ignore this email.
+			</mj-text>
+		</mj-column>
+	</mj-section>
+</mj-wrapper>

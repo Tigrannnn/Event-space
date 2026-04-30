@@ -1,0 +1,57 @@
+<mjml>
+	<mj-head>
+		<mj-title>Event Space</mj-title>
+		<mj-attributes>
+			<mj-all
+				font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+			/>
+			<mj-text font-size="16px" color="#2C4D33" line-height="24px" />
+			<mj-section padding="0px" />
+		</mj-attributes>
+		<mj-style>
+			.shadow-card {
+				box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+			}
+			@media (prefers-color-scheme: dark) {
+				.body-bg > table {
+					background-color: #111827 !important;
+				}
+				.card-bg > table {
+					background-color: #1f2937 !important;
+					border-radius: 40px !important;
+				}
+				.text-main div {
+					color: #f3f4f6 !important;
+				}
+				.text-muted div {
+					color: #9ca3af !important;
+				}
+				.code-box-table {
+					background-color: #1e3a2f !important;
+				}
+				.divider-color p {
+					border-top: 1px solid #374151 !important;
+				}
+			}
+		</mj-style>
+	</mj-head>
+	<mj-body background-color="#F9FAFB" css-class="body-bg">
+		<mj-section padding="40px 20px 24px 20px">
+			<mj-column>
+				<mj-text align="center" font-size="28px" font-weight="900" letter-spacing="-1px" padding="0px">
+					<span style="color: #1b4c00">Event</span> <span style="color: #00a5ba">Space</span>
+				</mj-text>
+			</mj-column>
+		</mj-section>
+
+		{{ CONTENT }}
+
+		<mj-section padding="0px 20px 40px 20px">
+			<mj-column>
+				<mj-text align="center" font-size="13px" color="#9ca3af" padding="0px" css-class="text-muted">
+					&copy; 2026 EventSpace. All rights reserved.
+				</mj-text>
+			</mj-column>
+		</mj-section>
+	</mj-body>
+</mjml>

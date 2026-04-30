@@ -1,0 +1,36 @@
+{
+	"name": "event-space",
+	"version": "1.0.0",
+	"main": "index.js",
+	"private": true,
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"shared:build": "npm --workspace packages/shared run build",
+		"shared:dev": "npm --workspace packages/shared run dev",
+		"web:dev": "npm --workspace apps/web run dev",
+		"web:build": "npm run shared:build && npm --workspace apps/web run build",
+		"api:dev": "npm run shared:build && npm --workspace apps/api run start:dev",
+		"api:build": "npm run shared:build && npm --workspace apps/api run build",
+		"build:all": "npm run shared:build && npm run web:build && npm run api:build",
+		"clean": "rm -rf packages/shared/dist apps/web/.next apps/api/dist",
+		"prisma:migrate": "npm --workspace apps/api run prisma:migrate",
+		"prisma:generate": "npm --workspace apps/api run prisma:generate",
+		"prisma:studio": "npm --workspace apps/api run prisma:studio"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@types/cron": "^2.0.1",
+		"dotenv-cli": "^11.0.0"
+	},
+	"dependencies": {
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"tailwind-merge": "^3.5.0"
+	}
+}
