@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { UserRoleSchema } from './UserRoleSchema';
 import { RefreshTokenCreateNestedManyWithoutUserInputSchema } from './RefreshTokenCreateNestedManyWithoutUserInputSchema';
+import { BookingCreateNestedManyWithoutUserInputSchema } from './BookingCreateNestedManyWithoutUserInputSchema';
 
 export const UserCreateWithoutEventsInputSchema: z.ZodType<Prisma.UserCreateWithoutEventsInput> = z.object({
   id: z.uuid().optional(),
@@ -16,6 +17,7 @@ export const UserCreateWithoutEventsInputSchema: z.ZodType<Prisma.UserCreateWith
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   refreshTokens: z.lazy(() => RefreshTokenCreateNestedManyWithoutUserInputSchema).optional(),
+  bookings: z.lazy(() => BookingCreateNestedManyWithoutUserInputSchema).optional(),
 }).strict();
 
 export default UserCreateWithoutEventsInputSchema;

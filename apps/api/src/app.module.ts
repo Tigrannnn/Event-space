@@ -7,7 +7,7 @@ import { EventModule } from '@modules/event/event.module';
 import { UserModule } from '@modules/user/user.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { AppController } from './app.controller';
-
+import { BookingModule } from '@modules/booking/booking.module';
 import { UploadModule } from '@modules/upload/upload.module';
 
 @Module({
@@ -20,6 +20,7 @@ import { UploadModule } from '@modules/upload/upload.module';
 		RateLimiterModule,
 		MailModule,
 		UploadModule,
+		BookingModule,
 	],
 	controllers: [AppController],
 })

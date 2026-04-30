@@ -3,16 +3,16 @@ generator client {
 }
 
 generator zod {
-  provider                = "zod-prisma-types"
-  output                  = "../../../packages/shared/src/generated"
-  useMultipleFiles        = true
-  writeBarrelFiles        = true
-  createInputTypes        = true
-  createModelTypes        = true
-  addSelectQueries        = true
-  addIncludeQueries       = true
-  prismaJsonNullability   = true
-  coerceLazyConfig        = true
+  provider              = "zod-prisma-types"
+  output                = "../../../packages/shared/src/generated"
+  useMultipleFiles      = true
+  writeBarrelFiles      = true
+  createInputTypes      = true
+  createModelTypes      = true
+  addSelectQueries      = true
+  addIncludeQueries     = true
+  prismaJsonNullability = true
+  coerceLazyConfig      = true
 }
 
 datasource db {
@@ -38,6 +38,12 @@ enum EventStatus {
   CANCELLED
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -53,6 +59,8 @@ model User {
 
   events        Event[]        @relation("user_events")
   refreshTokens RefreshToken[] @relation("refresh_tokens")
+
+  bookings Booking[] @relation("user_bookings")
 
   @@map("users")
 }
@@ -93,7 +101,27 @@ model Event {
   userId    String @map("user_id")
   organizer User   @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
 
+  bookings Booking[] @relation("event_bookings")
+
   @@index([date])
   @@index([category])
   @@map("events")
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  userId    String        @map("user_id")
+  eventId   String        @map("event_id")
+  status    BookingStatus @default(PENDING)
+  quantity  Int           @default(1)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  user  User  @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@map("bookings")
 }

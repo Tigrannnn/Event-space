@@ -8,6 +8,7 @@ import { EnumUserRoleFieldUpdateOperationsInputSchema } from './EnumUserRoleFiel
 import { BoolFieldUpdateOperationsInputSchema } from './BoolFieldUpdateOperationsInputSchema';
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { EventUpdateManyWithoutOrganizerNestedInputSchema } from './EventUpdateManyWithoutOrganizerNestedInputSchema';
+import { BookingUpdateManyWithoutUserNestedInputSchema } from './BookingUpdateManyWithoutUserNestedInputSchema';
 
 export const UserUpdateWithoutRefreshTokensInputSchema: z.ZodType<Prisma.UserUpdateWithoutRefreshTokensInput> = z.object({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -21,6 +22,7 @@ export const UserUpdateWithoutRefreshTokensInputSchema: z.ZodType<Prisma.UserUpd
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   events: z.lazy(() => EventUpdateManyWithoutOrganizerNestedInputSchema).optional(),
+  bookings: z.lazy(() => BookingUpdateManyWithoutUserNestedInputSchema).optional(),
 }).strict();
 
 export default UserUpdateWithoutRefreshTokensInputSchema;

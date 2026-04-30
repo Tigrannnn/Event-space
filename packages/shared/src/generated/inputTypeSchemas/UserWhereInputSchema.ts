@@ -9,6 +9,7 @@ import { BoolFilterSchema } from './BoolFilterSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { EventListRelationFilterSchema } from './EventListRelationFilterSchema';
 import { RefreshTokenListRelationFilterSchema } from './RefreshTokenListRelationFilterSchema';
+import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 
 export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
   AND: z.union([ z.lazy(() => UserWhereInputSchema), z.lazy(() => UserWhereInputSchema).array() ]).optional(),
@@ -26,6 +27,7 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.object({
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   events: z.lazy(() => EventListRelationFilterSchema).optional(),
   refreshTokens: z.lazy(() => RefreshTokenListRelationFilterSchema).optional(),
+  bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
 }).strict();
 
 export default UserWhereInputSchema;

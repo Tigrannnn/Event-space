@@ -4,6 +4,8 @@ import { EventIncludeSchema } from '../inputTypeSchemas/EventIncludeSchema'
 import { EventCreateInputSchema } from '../inputTypeSchemas/EventCreateInputSchema'
 import { EventUncheckedCreateInputSchema } from '../inputTypeSchemas/EventUncheckedCreateInputSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
+import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
 
@@ -26,6 +28,8 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   updatedAt: z.boolean().optional(),
   userId: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => EventCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
 export const EventCreateArgsSchema: z.ZodType<Prisma.EventCreateArgs> = z.object({

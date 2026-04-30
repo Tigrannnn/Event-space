@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
+import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountOutputTypeArgsSchema"
 
 export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   id: z.boolean().optional(),
@@ -21,6 +23,8 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   updatedAt: z.boolean().optional(),
   userId: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => EventCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
 export default EventSelectSchema;

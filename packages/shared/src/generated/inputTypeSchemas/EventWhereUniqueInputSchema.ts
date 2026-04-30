@@ -15,6 +15,7 @@ import { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
+import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 
 export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput> = z.object({
   id: z.uuid(),
@@ -41,6 +42,7 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   organizer: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
+  bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
 }).strict());
 
 export default EventWhereUniqueInputSchema;

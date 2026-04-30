@@ -7,6 +7,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EventCreatewhatsIncludedInputSchema } from './EventCreatewhatsIncludedInputSchema';
 import { EventStatusSchema } from './EventStatusSchema';
+import { BookingUncheckedCreateNestedManyWithoutEventInputSchema } from './BookingUncheckedCreateNestedManyWithoutEventInputSchema';
 
 export const EventUncheckedCreateWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUncheckedCreateWithoutOrganizerInput> = z.object({
   id: z.uuid().optional(),
@@ -25,6 +26,7 @@ export const EventUncheckedCreateWithoutOrganizerInputSchema: z.ZodType<Prisma.E
   status: z.lazy(() => EventStatusSchema).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  bookings: z.lazy(() => BookingUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
 }).strict();
 
 export default EventUncheckedCreateWithoutOrganizerInputSchema;

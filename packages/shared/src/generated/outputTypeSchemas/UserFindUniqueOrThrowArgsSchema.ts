@@ -4,6 +4,7 @@ import { UserIncludeSchema } from '../inputTypeSchemas/UserIncludeSchema'
 import { UserWhereUniqueInputSchema } from '../inputTypeSchemas/UserWhereUniqueInputSchema'
 import { EventFindManyArgsSchema } from "../outputTypeSchemas/EventFindManyArgsSchema"
 import { RefreshTokenFindManyArgsSchema } from "../outputTypeSchemas/RefreshTokenFindManyArgsSchema"
+import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
 import { UserCountOutputTypeArgsSchema } from "../outputTypeSchemas/UserCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
@@ -21,6 +22,7 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   updatedAt: z.boolean().optional(),
   events: z.union([z.boolean(),z.lazy(() => EventFindManyArgsSchema)]).optional(),
   refreshTokens: z.union([z.boolean(),z.lazy(() => RefreshTokenFindManyArgsSchema)]).optional(),
+  bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
