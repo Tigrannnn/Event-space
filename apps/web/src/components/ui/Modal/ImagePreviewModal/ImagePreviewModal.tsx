@@ -16,13 +16,6 @@ export default function ImagePreviewModal() {
 
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
-	// Synchronize currentIndex when the modal opens or initialIndex changes
-	useEffect(() => {
-		if (activeModal === ModalType.ImagePreview && typeof initialIndex === 'number') {
-			setCurrentIndex(initialIndex);
-		}
-	}, [activeModal, initialIndex]);
-
 	const handlePrevious = useCallback(() => {
 		setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
 	}, [images.length]);
@@ -46,14 +39,11 @@ export default function ImagePreviewModal() {
 		}
 	}, [activeModal, handleKeyDown]);
 
-	const isOpen = activeModal === ModalType.ImagePreview;
-
 	// Guard against empty images or invalid index to prevent Next.js Image errors
 	const currentImage = images[currentIndex];
 
 	return (
 		<Modal
-			isOpen={isOpen}
 			onClose={closeModal}
 			size="full"
 			position="center"
@@ -61,7 +51,7 @@ export default function ImagePreviewModal() {
 			backdropClassName="bg-black/95 backdrop-blur-sm"
 			ariaLabel="Image preview"
 		>
-			{isOpen && currentImage && (
+			{currentImage && (
 				<div className="relative flex min-h-[90vh] items-center justify-center">
 					{/* Close button */}
 					<button

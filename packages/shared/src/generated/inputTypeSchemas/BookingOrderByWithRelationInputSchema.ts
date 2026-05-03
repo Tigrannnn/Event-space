@@ -10,6 +10,7 @@ export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrde
   userId: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
+  quantity: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),

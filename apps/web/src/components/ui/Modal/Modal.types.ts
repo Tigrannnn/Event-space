@@ -16,8 +16,6 @@ export type ModalPosition = 'center' | 'top' | 'bottom' | 'left' | 'right';
  * Props for the Modal component.
  */
 export interface ModalProps {
-  /** Whether the modal is open or closed */
-  isOpen: boolean;
 
   /** Callback function to close the modal */
   onClose: () => void;

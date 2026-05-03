@@ -1,11 +1,15 @@
+import { Event, Booking } from '@event-space/shared';
+
 export enum ModalType {
 	Register = 'register',
 	Login = 'login',
-	VerifyEmail = 'verifyEmail',
-	ForgotPassword = 'forgotPassword',
-	ImagePreview = 'imagePreview',
+	VerifyEmail = 'verify-email',
+	ForgotPassword = 'forgot-password',
+	ImagePreview = 'image-preview',
 	Confirm = 'confirm',
 	EditProfile = 'edit-profile',
+	CreateBooking = 'create-booking',
+	UpdateBooking = 'update-booking',
 }
 
 export interface ImagePreviewData {
@@ -31,6 +35,14 @@ export interface ConfirmModalData {
 	onCancel?: () => void;
 }
 
+export interface CreateBookingModalData {
+	event: Event;
+}
+
+export interface UpdateBookingModalData {
+	booking: Booking & { event?: Event };
+}
+
 export interface ModalDataMap {
 	[ModalType.Register]: null;
 	[ModalType.Login]: null;
@@ -39,10 +51,13 @@ export interface ModalDataMap {
 	[ModalType.ImagePreview]: ImagePreviewData;
 	[ModalType.Confirm]: ConfirmModalData;
 	[ModalType.EditProfile]: null;
+	[ModalType.CreateBooking]: CreateBookingModalData;
+	[ModalType.UpdateBooking]: UpdateBookingModalData;
 }
 
 export interface ModalState {
 	activeModal: ModalType | null;
+	isExiting: boolean;
 	modalData: ModalDataMap[keyof ModalDataMap] | null;
 }
 
@@ -51,6 +66,7 @@ export interface ModalActions {
 		...args: ModalDataMap[T] extends null ? [modalType: T] : [modalType: T, data: ModalDataMap[T]]
 	) => void;
 	closeModal: () => void;
+	clearModalData: () => void;
 }
 
 export type ModalStore = ModalState & ModalActions;

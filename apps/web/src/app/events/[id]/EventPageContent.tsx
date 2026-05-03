@@ -8,11 +8,12 @@ import { ModalType } from '@/stores/modalStore/types';
 import { ArrowLeft, Share2, MapPin, Clock, Mountain, Users } from 'lucide-react';
 import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
-import { BookingSidebar } from '@/components/ui/BookingSidebar';
+
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { Event } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
+import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -31,10 +32,6 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	};
 
 	const allImagesFailed = event && event.images.length > 0 && failedImages >= event.images.length;
-
-	const handleJoinClick = () => {
-		openModal(ModalType.Register);
-	};
 
 	const handleShareClick = async () => {
 		const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -159,7 +156,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 					{/* Right Column - Booking Sidebar */}
 					<div className="lg:col-span-1">
 						<div className="sticky top-24">
-							<BookingSidebar event={event} onJoinClick={handleJoinClick} />
+							<BookingSidebar event={event} />
 						</div>
 					</div>
 				</div>

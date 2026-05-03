@@ -23,12 +23,10 @@ export default function AuthModal() {
 		ModalType.VerifyEmail,
 		ModalType.ForgotPassword,
 	];
-	const isOpen = activeModal !== null && authTypes.includes(activeModal);
 	const config = authModalConfig[activeModal as ModalType];
 
 	return (
 		<Modal
-			isOpen={isOpen}
 			onClose={closeModal}
 			size="lg"
 			position="center"

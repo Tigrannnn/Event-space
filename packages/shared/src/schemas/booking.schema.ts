@@ -1,5 +1,6 @@
 import { z } from './openapi';
-import { BookingSchema as GeneratedBookingSchema, BookingStatusSchema } from '../generated';
+import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
+import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 
 export const BookingSchema = GeneratedBookingSchema.openapi({
 	description: 'Booking information',

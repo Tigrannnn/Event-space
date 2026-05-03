@@ -21,13 +21,12 @@ import { useClickOutside } from '@/hooks/clickOutside';
  *
  * Usage:
  * ```tsx
- * <Modal isOpen={isOpen} onClose={closeModal}>
+ * <Modal>
  *   <YourContent />
  * </Modal>
  * ```
  */
 export default function Modal({
-	isOpen,
 	onClose,
 	children,
 	size = 'md',
@@ -42,15 +41,15 @@ export default function Modal({
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// Accessibility hooks
-	useFocusTrap({ isOpen, containerRef: containerRef as React.RefObject<HTMLElement> });
-	useEscapeKey({ isOpen, onClose, disabled: disableEscapeClose });
-	usePreventScroll({ isDisabled: !isOpen || !preventScroll });
+	useFocusTrap({ containerRef: containerRef as React.RefObject<HTMLElement> });
+	useEscapeKey({ onClose, disabled: disableEscapeClose });
+	usePreventScroll({ isDisabled: !preventScroll });
 
 	// Close on click outside modal (document level)
 	useClickOutside({
 		ref: containerRef,
 		onClickOutside: onClose,
-		enabled: isOpen && !disableBackdropClose,
+		enabled: !disableBackdropClose,
 		ignoreRefs: [],
 	});
 

@@ -15,13 +15,35 @@ export interface EventCardProps {
 	event: Event;
 }
 
+import { useCurrentUser } from '@/features/users';
+import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useRouter } from 'next/navigation';
+import { Ticket } from 'lucide-react';
+
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
+	const router = useRouter();
+	const { data: user } = useCurrentUser();
+	const { data: myBookings } = useGetMyBookings();
+
+	const hasBooking = myBookings?.some(
+		(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
+	);
 
 	const handleJoinClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		openModal(ModalType.Register);
+		if (user) {
+			openModal(ModalType.CreateBooking, { event });
+		} else {
+			openModal(ModalType.Register);
+		}
+	};
+
+	const handleViewBooking = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
+		router.push('/bookings');
 	};
 
 	return (
@@ -66,9 +88,16 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
 
-					<Button variant="primary" className="w-full" onClick={handleJoinClick}>
-						Join Adventure
-					</Button>
+					{hasBooking ? (
+						<Button variant="secondary" className="w-full" onClick={handleViewBooking}>
+							<Ticket className="h-4 w-4" />
+							View My Booking
+						</Button>
+					) : (
+						<Button variant="primary" className="w-full" onClick={handleJoinClick}>
+							Join Adventure
+						</Button>
+					)}
 				</div>
 			</div>
 		</Link>

@@ -1,8 +1,6 @@
 import { useEffect, RefObject } from 'react';
 
 interface UseFocusTrapProps {
-  /** Whether the modal is currently open */
-  isOpen: boolean;
   /** Ref to the modal container element */
   containerRef: RefObject<HTMLElement>;
 }
@@ -19,13 +17,13 @@ interface UseFocusTrapProps {
  * @example
  * ```tsx
  * const containerRef = useRef<HTMLDivElement>(null);
- * useFocusTrap({ isOpen, containerRef });
+ * useFocusTrap({ containerRef });
  * ```
  */
-export function useFocusTrap({ isOpen, containerRef }: UseFocusTrapProps) {
+export function useFocusTrap({ containerRef }: UseFocusTrapProps) {
   useEffect(() => {
     // If modal is closed or no container, do nothing
-    if (!isOpen || !containerRef.current) return;
+    if (!containerRef.current) return;
 
     const container = containerRef.current;
 
@@ -80,5 +78,5 @@ export function useFocusTrap({ isOpen, containerRef }: UseFocusTrapProps) {
       // This is critical for keyboard accessibility (WCAG 2.1 Level A)
       previousFocus?.focus();
     };
-  }, [isOpen, containerRef]);
+  }, [containerRef]);
 }

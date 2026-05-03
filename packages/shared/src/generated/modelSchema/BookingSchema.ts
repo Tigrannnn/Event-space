@@ -10,6 +10,7 @@ export const BookingSchema = z.object({
   id: z.string().uuid(),
   userId: z.string(),
   eventId: z.string(),
+  quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })

@@ -3,24 +3,30 @@ import type { ModalDataMap, ModalStore, ModalType } from './types';
 
 export const useModalStore = create<ModalStore>((set) => ({
 	activeModal: null,
+	isExiting: false,
 	modalData: null,
 
 	openModal: (...args) => {
 		const [modalType, data] = args as [ModalType, ModalDataMap[ModalType] | undefined];
 		set({
 			activeModal: modalType,
+			isExiting: false,
 			modalData: (data ?? null) as ModalDataMap[keyof ModalDataMap] | null,
 		});
 	},
 
 	closeModal: () => {
-		set({ activeModal: null, modalData: null });
+		set(() => ({ isExiting: true }));
+	},
+
+	clearModalData: () => {
+		set(() => ({ isExiting: false, modalData: null, activeModal: null }));
 	},
 }));
 
 /**
  * Typed selector for modal data.
- * Returns null if the active modal does not match the requested type.
+ * Keeps data available while the modal is playing its exit animation.
  */
 export function useModalData<T extends ModalType>(type: T): ModalDataMap[T] | null {
 	return useModalStore((state) =>

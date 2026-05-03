@@ -8,6 +8,7 @@ export const BookingUncheckedCreateInputSchema: z.ZodType<Prisma.BookingUnchecke
   userId: z.string(),
   eventId: z.string(),
   status: z.lazy(() => BookingStatusSchema).optional(),
+  quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
 }).strict();

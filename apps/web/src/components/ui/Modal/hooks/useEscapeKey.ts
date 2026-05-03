@@ -1,8 +1,6 @@
 import { useEffect, useCallback } from 'react';
 
 interface UseEscapeKeyProps {
-  /** Whether the modal is currently open */
-  isOpen: boolean;
   /** Callback to close the modal */
   onClose: () => void;
   /** Whether to disable ESC key closing (e.g., for important forms) */
@@ -15,20 +13,19 @@ interface UseEscapeKeyProps {
  * This is a standard accessibility feature that users expect.
  * Can be disabled for important modals where accidental closing should be prevented.
  * 
- * @param isOpen - Whether the modal is open
  * @param onClose - Callback to close the modal
  * @param disabled - Whether to disable ESC key closing
  * 
  * @example
  * ```tsx
  * // Basic usage
- * useEscapeKey({ isOpen, onClose });
+ * useEscapeKey({ onClose });
  * 
  * // Disable for important forms
- * useEscapeKey({ isOpen, onClose, disabled: isImportantForm });
+ * useEscapeKey({ onClose, disabled: isImportantForm });
  * ```
  */
-export function useEscapeKey({ isOpen, onClose, disabled = false }: UseEscapeKeyProps) {
+export function useEscapeKey({ onClose, disabled = false }: UseEscapeKeyProps) {
   /**
    * Handle Escape key press to close the modal.
    * Using useCallback to memoize the function and prevent unnecessary re-renders.
@@ -44,13 +41,11 @@ export function useEscapeKey({ isOpen, onClose, disabled = false }: UseEscapeKey
 
   useEffect(() => {
     // Only listen for key events when modal is open
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      
-      // Cleanup: remove event listener when modal closes
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-      };
-    }
-  }, [isOpen, handleKeyDown]);
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Cleanup: remove event listener when modal closes
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 }
