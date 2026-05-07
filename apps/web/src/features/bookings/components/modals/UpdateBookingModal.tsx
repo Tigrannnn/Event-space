@@ -3,7 +3,7 @@
 import { Modal } from '@/components/ui/Modal';
 import { useModalStore, ModalType, useModalData } from '@/stores/modalStore';
 import { useUpdateBooking } from '@/features/bookings/hooks/useBookings';
-import { BookingForm } from '@/features/bookings/components';
+import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 
 export default function UpdateBookingModal() {
 	const { mutate: updateBooking, isPending: isLoading } = useUpdateBooking();

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import {
+	AuthAction,
 	ForgotPasswordData,
 	getApiErrorMessage,
 	LoginData,
@@ -13,19 +14,28 @@ import { useToastStore } from '@/stores/toastStore';
 import { ToastType } from '@/stores/toastStore/types';
 import { ModalType, useModalStore } from '@/stores';
 import { useRouter } from 'next/navigation';
+import { useCooldown } from './useCooldown';
 
 export const useRegister = () => {
 	const { openModal } = useModalStore();
 	const { addToast } = useToastStore();
+	const { startCooldown } = useCooldown({
+		email: '',
+		action: AuthAction.REGISTER,
+	});
 
 	return useMutation({
 		mutationFn: (data: RegisterData) => authApi.register(data),
-		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Registration failed');
-			addToast(message, ToastType.ERROR);
-		},
-		onSettled: (_, __, variables) => {
+		onSuccess: (_, variables) => {
 			openModal(ModalType.VerifyEmail, { email: variables.email });
+			startCooldown(variables.email);
+		},
+		onError: (error: unknown, variables: RegisterData) => {
+			const message = getApiErrorMessage(error, 'Registration failed');
+			if (message.includes('wait before')) {
+				openModal(ModalType.VerifyEmail, { email: variables.email });
+			}
+			addToast(message, ToastType.ERROR);
 		},
 	});
 };
@@ -92,6 +102,9 @@ export const useForgotPassword = () => {
 
 	return useMutation({
 		mutationFn: (data: ForgotPasswordData) => authApi.forgotPassword(data),
+		onSuccess: ({ data }) => {
+			addToast(data.message, ToastType.SUCCESS);
+		},
 		onError: (error: unknown) => {
 			const message = getApiErrorMessage(error, 'Failed to send reset code');
 			addToast(message, ToastType.ERROR);

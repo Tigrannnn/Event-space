@@ -1,6 +1,11 @@
 import { z } from './openapi';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
+import { EventSchema } from './event.schema';
+import { SafeUserSchema } from './user.schema';
+
+export const BookingStatusEnum = BookingStatusSchema;
+export type BookingStatus = z.infer<typeof BookingStatusEnum>;
 
 export const BookingSchema = GeneratedBookingSchema.openapi({
 	description: 'Booking information',
@@ -15,7 +20,25 @@ export const BookingSchema = GeneratedBookingSchema.openapi({
 	},
 });
 
+export const BookingWithDetailsSchema = BookingSchema.extend({
+	user: SafeUserSchema.optional(),
+	event: EventSchema.optional(),
+});
+
 export type Booking = z.infer<typeof BookingSchema>;
+export type BookingWithDetails = z.infer<typeof BookingWithDetailsSchema>;
+
+import { TimeFilterSchema } from './common.schema';
+
+export const BookingFiltersSchema = z.object({
+	skip: z.coerce.number().optional(),
+	limit: z.coerce.number().optional(),
+	status: BookingStatusEnum.optional(),
+	search: z.string().optional(),
+	time: TimeFilterSchema.optional(),
+});
+
+export type BookingFilters = z.infer<typeof BookingFiltersSchema>;
 
 // === CREATE BOOKING ===
 export const CreateBookingSchema = z.object({

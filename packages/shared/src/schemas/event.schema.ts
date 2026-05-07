@@ -1,9 +1,18 @@
 import { z } from './openapi';
 import { EventSchema as GeneratedEventSchema } from '../generated/modelSchema/EventSchema';
 import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSchema';
+import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
+import { SafeUserSchema } from './user.schema';
+
+export const EventStatusEnum = EventStatusSchema;
+export type EventStatus = z.infer<typeof EventStatusEnum>;
+
+export const EventDifficultyEnum = EventDifficultySchema;
+export type EventDifficulty = z.infer<typeof EventDifficultyEnum>;
 
 export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number().openapi({ example: 5000 }),
+	// organizer: SafeUserSchema.optional(),
 }).openapi({
 	description: 'Event information',
 	example: {
@@ -28,6 +37,20 @@ export const EventSchema = GeneratedEventSchema.extend({
 });
 
 export type Event = z.infer<typeof EventSchema>;
+
+import { TimeFilterSchema } from './common.schema';
+
+// === QUERIES ===
+export const EventFiltersSchema = z.object({
+	skip: z.coerce.number().optional(),
+	limit: z.coerce.number().optional(),
+	search: z.string().optional(),
+	status: EventStatusEnum.optional(),
+	difficulty: EventDifficultyEnum.optional(),
+	time: TimeFilterSchema.optional(),
+});
+
+export type EventFilters = z.infer<typeof EventFiltersSchema>;
 
 // === CREATE EVENT ===
 export const CreateEventSchema = EventSchema.omit({

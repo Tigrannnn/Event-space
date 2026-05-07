@@ -1,0 +1,54 @@
+import Link from 'next/link';
+import type { DashboardStats } from '@event-space/shared';
+import { formatDate, getPercent } from '../DashboardUtils';
+
+interface UpcomingEventsListProps {
+	stats: DashboardStats;
+}
+
+export default function UpcomingEventsList({ stats }: UpcomingEventsListProps) {
+	return (
+		<section className="rounded-lg border border-gray-500 p-5 shadow-sm">
+			<div className="mb-4 flex items-center justify-between">
+				<div>
+					<h2 className="font-semibold text-gray-900 dark:text-gray-100">Upcoming events</h2>
+					<p className="text-sm text-gray-500">Next events on the calendar</p>
+				</div>
+				<Link href="/admin/events" className="text-primary text-sm font-semibold">
+					View all
+				</Link>
+			</div>
+
+			<div className="space-y-3">
+				{stats.upcomingEvents.length === 0 && (
+					<p className="rounded-md border border-gray-500 p-4 text-sm text-gray-500">
+						No upcoming events.
+					</p>
+				)}
+				{stats.upcomingEvents.map((event) => (
+					<div key={event.id} className="rounded-md border border-gray-500 p-4">
+						<div className="flex items-start justify-between gap-4">
+							<div className="min-w-0">
+								<p className="truncate font-medium text-gray-900 dark:text-gray-100">{event.title}</p>
+								<p className="mt-1 text-sm text-gray-500">
+									{formatDate(event.date)} · {event.location}
+								</p>
+							</div>
+							<p className="text-sm font-semibold">
+								{event.currentParticipants}/{event.maxParticipants}
+							</p>
+						</div>
+						<div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+							<div
+								className="bg-primary h-full rounded-full"
+								style={{
+									width: `${getPercent(event.currentParticipants, event.maxParticipants)}%`,
+								}}
+							/>
+						</div>
+					</div>
+				))}
+			</div>
+		</section>
+	);
+}

@@ -25,17 +25,8 @@ export default function RegisterForm() {
 		},
 	});
 
-	const { startCooldown } = useCooldown({
-		email: '',
-		action: AuthAction.REGISTER,
-	});
-
 	const onFormSubmit = (data: RegisterData) => {
-		registerUser(data, {
-			onSuccess: () => {
-				startCooldown(data.email);
-			},
-		});
+		registerUser(data);
 	};
 
 	return (

@@ -3,7 +3,7 @@
 import { Modal } from '@/components/ui/Modal';
 import { useModalStore, ModalType, useModalData } from '@/stores/modalStore';
 import { useCreateBooking } from '@/features/bookings/hooks/useBookings';
-import { BookingForm } from '@/features/bookings/components';
+import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isLoading } = useCreateBooking();

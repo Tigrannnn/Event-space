@@ -86,7 +86,7 @@ export default function EventsList({
 	// Error state
 	if (isError) {
 		return (
-			<div className="flex min-h-[60vh] items-center justify-center">
+			<div className="flex min-h-full items-center justify-center">
 				<div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-red-900/30 dark:bg-red-900/20">
 					<p className="mb-2 text-lg font-black text-red-600 uppercase sm:text-xl dark:text-red-400">
 						Error Loading Events
@@ -108,7 +108,7 @@ export default function EventsList({
 	// Empty state
 	if (!events?.length) {
 		return (
-			<div className="flex min-h-[60vh] items-center justify-center">
+			<div className="flex min-h-full items-center justify-center">
 				<div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-gray-700 dark:bg-gray-800">
 					<p className="text-primary mb-2 text-lg font-black uppercase sm:text-xl">
 						{searchQuery ? 'No Events Found' : 'No Events Yet'}

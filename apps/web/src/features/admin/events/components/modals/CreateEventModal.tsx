@@ -1,0 +1,30 @@
+'use client';
+
+import { useCreateEvent } from '@/features/admin/hooks/useAdmin';
+import EventForm from '../EventForm';
+import { useModalStore } from '@/stores';
+import { Modal } from '@/components/ui/Modal';
+
+export default function CreateEventModal() {
+	const { closeModal } = useModalStore();
+	const { mutateAsync: createEvent, isPending } = useCreateEvent();
+
+	return (
+		<Modal
+			onClose={closeModal}
+			size="full"
+			position="center"
+			ariaLabel="Create Event Modal"
+			disableBackdropClose={isPending}
+			disableEscapeClose={isPending}
+		>
+			<EventForm
+				isPending={isPending}
+				submitLabel={isPending ? 'Creating...' : 'Create event'}
+				onCancel={closeModal}
+				event={undefined}
+				onSubmit={(data) => createEvent(data)}
+			/>
+		</Modal>
+	);
+}

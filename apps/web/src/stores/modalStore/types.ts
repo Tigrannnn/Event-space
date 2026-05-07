@@ -10,6 +10,8 @@ export enum ModalType {
 	EditProfile = 'edit-profile',
 	CreateBooking = 'create-booking',
 	UpdateBooking = 'update-booking',
+	CreateEvent = 'create-event',
+	UpdateEvent = 'update-event',
 }
 
 export interface ImagePreviewData {
@@ -43,6 +45,10 @@ export interface UpdateBookingModalData {
 	booking: Booking & { event?: Event };
 }
 
+export interface UpdateEventModalData {
+	event: Event;
+}
+
 export interface ModalDataMap {
 	[ModalType.Register]: null;
 	[ModalType.Login]: null;
@@ -53,6 +59,8 @@ export interface ModalDataMap {
 	[ModalType.EditProfile]: null;
 	[ModalType.CreateBooking]: CreateBookingModalData;
 	[ModalType.UpdateBooking]: UpdateBookingModalData;
+	[ModalType.CreateEvent]: null;
+	[ModalType.UpdateEvent]: UpdateEventModalData;
 }
 
 export interface ModalState {

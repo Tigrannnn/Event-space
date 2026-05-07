@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { CreateEventData, UpdateEventData, UserRoleType } from '@event-space/shared';
+import { CreateEventData, EventDifficulty, EventStatus, UpdateEventData, UserRoleType } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class EventService {
 		},
 	};
 
-	async findAll(cursor?: string, limit: number = 8, search?: string, isAdmin = false) {
+	async findAll(cursor?: string, limit: number = 8, search?: string) {
 		// Parse cursor: "date_id" format
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
@@ -45,11 +45,8 @@ export class EventService {
 					}
 				: {};
 
-		// Build status filter (public sees only PUBLISHED, admin sees all)
-		const statusFilter = isAdmin ? {} : { status: 'PUBLISHED' as const };
-
-		// Combine filters: search AND cursor AND status
-		const filters = [searchFilter, cursorFilter, statusFilter].filter(
+		// Combine filters: search AND cursor
+		const filters = [searchFilter, cursorFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
 		const where = filters.length > 0 ? { AND: filters } : {};

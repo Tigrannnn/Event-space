@@ -404,9 +404,11 @@ export class AuthService {
 				data: { passwordHash: hashedPassword },
 			});
 
-			const tokens = await this.generateAndSaveTokens(user.id, user.email, user.role);
-
 			await this.rateLimiter.clean(action, email, ip);
+
+			await tx.refreshToken.deleteMany({ where: { userId: user.id } });
+
+			const tokens = await this.generateAndSaveTokens(user.id, user.email, user.role, tx);
 
 			const { passwordHash, ...safeUser } = user;
 

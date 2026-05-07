@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { RegisterData, SafeUserData, UpdateUserData } from '@event-space/shared';
+import { SafeUserData, UpdateUserData } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
 @Injectable()
@@ -34,21 +34,5 @@ export class UserService {
 			this.prisma.refreshToken.deleteMany({ where: { userId } }),
 			this.prisma.user.delete({ where: { id: userId } }),
 		]);
-	}
-
-	async findAll() {
-		return this.prisma.user.findMany();
-	}
-
-	async findOne(id: string) {
-		return this.prisma.user.findUnique({ where: { id } });
-	}
-
-	async create(data: RegisterData) {
-		return this.prisma.user.create({ data: data });
-	}
-
-	async delete(id: string) {
-		return this.prisma.user.delete({ where: { id } });
 	}
 }

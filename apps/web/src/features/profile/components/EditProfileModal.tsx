@@ -46,29 +46,27 @@ export default function EditProfileModal() {
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={closeModal} size="md" position="center" ariaLabel="Edit Profile">
-			{isOpen && (
-				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
-					<ModalHeader title="Edit Profile" onClose={closeModal} />
+		<Modal onClose={closeModal} size="md" position="center" ariaLabel="Edit Profile">
+			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
+				<ModalHeader title="Edit Profile" onClose={closeModal} />
 
-					<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
-						<Input label="Full Name" {...register('name')} error={errors.name?.message} />
+				<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
+					<Input label="Full Name" {...register('name')} error={errors.name?.message} />
 
-						<Button type="button" onClick={handleChangePassword}>
-							Change password
+					<Button type="button" onClick={handleChangePassword}>
+						Change password
+					</Button>
+
+					<div className="flex gap-3 pt-2">
+						<Button type="button" variant="secondary" onClick={closeModal} className="flex-1">
+							Cancel
 						</Button>
-
-						<div className="flex gap-3 pt-2">
-							<Button type="button" variant="secondary" onClick={closeModal} className="flex-1">
-								Cancel
-							</Button>
-							<Button type="submit" variant="primary" isLoading={isUpdating} className="flex-1">
-								Save Changes
-							</Button>
-						</div>
-					</form>
-				</div>
-			)}
+						<Button type="submit" variant="primary" isLoading={isUpdating} className="flex-1">
+							Save Changes
+						</Button>
+					</div>
+				</form>
+			</div>
 		</Modal>
 	);
 }

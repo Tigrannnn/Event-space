@@ -6,7 +6,7 @@ import { CategoryBadge } from '../CategoryBadge';
 import { CapacityBar } from '../CapacityBar';
 
 import { ModalType, useModalStore } from '@/stores';
-import { formatDate } from '@/utils/date';
+import { formatDateTime } from '@/utils/date';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
 import { Event } from '@event-space/shared';
@@ -66,7 +66,7 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mb-3 flex items-center gap-2">
 					<span className="bg-accent h-2 w-2 animate-pulse rounded-full" />
 					<span className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs">
-						{formatDate(event.date)}
+						{formatDateTime(event.date)}
 					</span>
 				</div>
 

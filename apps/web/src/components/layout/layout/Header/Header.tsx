@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
+import { useHydrated } from '@/hooks/useHydrated';
 
 /**
  * Main header component.
@@ -17,19 +18,9 @@ export default function Header() {
 	const searchParams = useSearchParams();
 	const urlSearchQuery = searchParams.get('search') || '';
 	const [inputValue, setInputValue] = useState(urlSearchQuery);
-	const [mounted, setMounted] = useState(false);
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-
-	// Prevent hydration mismatch
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// Sync input with URL when it changes externally
-	useEffect(() => {
-		setInputValue(urlSearchQuery);
-	}, [urlSearchQuery]);
+	const isHydrated = useHydrated();
 
 	const handleSubmitSearch = useCallback(() => {
 		const params = new URLSearchParams(searchParams);
@@ -95,10 +86,15 @@ export default function Header() {
 
 					{/* Auth buttons */}
 					<nav className="hidden shrink-0 items-center gap-3 md:flex">
-						{!mounted || isUserLoading ? (
+						{!isHydrated || isUserLoading ? (
 							<></>
 						) : user ? (
 							<>
+								{user.role === 'ADMIN' && (
+									<Button variant="secondary" onClick={() => router.push('/admin/dashboard')}>
+										Admin
+									</Button>
+								)}
 								<Button variant="secondary" onClick={() => router.push('/profile')}>
 									{user?.name.split(' ')[0] || 'Profile'}
 								</Button>

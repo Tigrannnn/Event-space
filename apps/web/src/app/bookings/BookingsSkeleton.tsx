@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 
 export default function BookingsSkeleton() {
 	return (
-		<div className="max-w-full px-4 py-8">
+		<div className="min-h-full max-w-full px-4 py-8">
 			{/* Header */}
 			<Skeleton className="mb-6 h-10 w-48 rounded" />
 

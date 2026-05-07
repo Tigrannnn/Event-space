@@ -2,7 +2,7 @@
  * Date formatting utilities
  */
 
-export const formatDate = (date: string | Date, locale = 'en-US'): string => {
+export const formatDateYear = (date: string | Date, locale = 'en-US'): string => {
 	const d = typeof date === 'string' ? new Date(date) : date;
 	return d.toLocaleDateString(locale, {
 		day: 'numeric',

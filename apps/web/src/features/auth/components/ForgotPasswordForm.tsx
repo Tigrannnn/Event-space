@@ -12,6 +12,7 @@ import {
 	AuthAction,
 	ForgotPasswordData,
 	ForgotPasswordSchema,
+	getApiErrorMessage,
 	ResetPasswordSchema,
 } from '@event-space/shared';
 import z from 'zod';
@@ -55,6 +56,12 @@ export default function ForgotPasswordForm() {
 				setStep('code');
 				startCooldown(data.email);
 			},
+			onError: (error) => {
+				const message = getApiErrorMessage(error, 'Failed to send reset code');
+				if (message.includes('wait before')) {
+					setStep('code');
+				}
+			},
 		});
 	};
 
@@ -63,8 +70,11 @@ export default function ForgotPasswordForm() {
 	};
 
 	const onResendCode = (email: string) => {
-		resendCode({ email, action: AuthAction.RESET_PASSWORD });
-		startCooldown();
+		resendCode({ email, action: AuthAction.RESET_PASSWORD }, {
+			onSuccess: () => {
+				startCooldown(email);
+			},
+		});
 	};
 
 	return (

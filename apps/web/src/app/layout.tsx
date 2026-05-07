@@ -2,10 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import QueryProvider from '@/providers/QueryProvider';
-import { HeaderWrapper } from '@/features/layout';
+import { BottomNavbar, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
-import { BottomNavbar } from '@/features/layout';
 import { siteConfig } from '../../site.config';
 import GoogleProvider from '@/components/shared/GoogleProvider/GoogleProvider';
 import { EnvKey } from '@event-space/shared';
@@ -70,19 +69,19 @@ export default function RootLayout({
 
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} text-primary bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
-			>
-				<QueryProvider>
-					<GoogleProvider clientId={googleClientId}>
-						<HeaderWrapper />
-						<main className="min-h-[85vh] pb-16 sm:pb-14 lg:pb-0">{children}</main>
-						<ModalRoot />
-						<BottomNavbar />
-						<ToastContainer />
-					</GoogleProvider>
-				</QueryProvider>
-			</body>
+		<body
+			className={`${geistSans.variable} ${geistMono.variable} text-primary bg-gray-100 antialiased dark:bg-gray-900 dark:text-white flex h-screen flex-col overflow-hidden`}
+		>
+			<QueryProvider>
+				<GoogleProvider clientId={googleClientId}>
+					<HeaderWrapper />
+					<MainContent>{children}</MainContent>
+					<ModalRoot />
+					<BottomNavbar />
+					<ToastContainer />
+				</GoogleProvider>
+			</QueryProvider>
+		</body>
 		</html>
 	);
 }

@@ -28,13 +28,16 @@ export default function TablePagination({
 
 	return (
 		<div
-			className={cn('flex items-center justify-between border-t border-gray-500 px-5 py-4', className)}
+			className={cn(
+				'flex flex-col gap-3 border-t border-gray-500 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4',
+				className,
+			)}
 		>
 			<p className="text-sm text-gray-500">
 				Page {currentPage}
 				{isLoading ? ' · Updating...' : ''}
 			</p>
-			<div className="flex gap-2">
+			<div className="flex gap-2 sm:justify-end">
 				<Button
 					type="button"
 					size="sm"

@@ -42,6 +42,16 @@ export type SafeUserData = z.infer<typeof SafeUserSchema>;
 export { UserRoleSchema };
 export type UserRoleType = z.infer<typeof UserRoleSchema>;
 
+export const UserFiltersSchema = z.object({
+	skip: z.coerce.number().optional(),
+	limit: z.coerce.number().optional(),
+	search: z.string().optional(),
+	role: UserRoleSchema.optional(),
+	emailVerified: z.coerce.boolean().optional(),
+});
+
+export type UserFilters = z.infer<typeof UserFiltersSchema>;
+
 export const CreateUserSchema = UserSchema.omit({
 	createdAt: true,
 	updatedAt: true,

@@ -2,13 +2,13 @@ import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonListItem } from '@/comp
 
 export default function ProfileSkeleton() {
 	return (
-		<div className="min-h-[calc(100vh-64px)]">
+		<div className="min-h-full">
 			{/* Header */}
 			<div className="bg-white shadow-sm dark:bg-gray-800">
 				<div className="mx-auto max-w-3xl px-4 py-6">
-					<div className="flex items-center gap-4">
+					<div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
 						<SkeletonAvatar size="xl" />
-						<div className="flex-1 space-y-2">
+						<div className="w-full space-y-2 text-center sm:flex-1 sm:text-left">
 							<Skeleton className="h-8 w-48" />
 							<Skeleton className="h-5 w-64" />
 							<Skeleton className="h-6 w-20 rounded-full" />

@@ -1,35 +1,20 @@
 import {
 	Controller,
 	Get,
-	Post,
 	Delete,
 	Patch,
 	Body,
-	Param,
 	Res,
 	UseGuards,
-	UsePipes,
 	HttpCode,
 	HttpStatus,
 } from '@nestjs/common';
 import * as express from 'express';
 import { UserService } from './user.service';
-import {
-	ApiTags,
-	ApiOperation,
-	ApiResponse,
-	ApiParam,
-	ApiBody,
-	ApiBearerAuth,
-} from '@nestjs/swagger';
-import { RegisterSchema, UpdateUserSchema, UserRoleSchema, AUTH_CONFIG } from '@event-space/shared';
-import type {
-	RegisterData,
-	SafeUserData,
-	UpdateUserData,
-	MessageResponse,
-} from '@event-space/shared';
-import { GetCurrentUserId, Roles, RolesGuard, ZodValidationPipe } from '@shared';
+import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { UpdateUserSchema } from '@event-space/shared';
+import type { SafeUserData, UpdateUserData, MessageResponse } from '@event-space/shared';
+import { GetCurrentUserId, ZodValidationPipe } from '@shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { getReference } from '@infra/swagger/swagger.utils';
 
@@ -83,45 +68,5 @@ export class UserController {
 		});
 
 		return { message: 'Account deleted successfully' };
-	}
-
-	@Get()
-	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Get all users' })
-	@ApiResponse({ status: 200, description: 'Returns a list of all users' })
-	findAll() {
-		return this.userService.findAll();
-	}
-
-	@Get(':id')
-	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Get user by ID' })
-	@ApiParam({ name: 'id', description: 'User ID' })
-	@ApiResponse({ status: 200, description: 'User found' })
-	@ApiResponse({ status: 404, description: 'User not found' })
-	findOne(@Param('id') id: string) {
-		return this.userService.findOne(id);
-	}
-
-	@Post()
-	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Create a new user' })
-	@ApiResponse({ status: 201, description: 'User successfully created' })
-	@ApiBody(getReference('CreateUserSchema'))
-	create(@Body(new ZodValidationPipe(RegisterSchema)) data: RegisterData) {
-		return this.userService.create(data);
-	}
-
-	@Delete(':id')
-	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Delete a user' })
-	@ApiParam({ name: 'id', description: 'User ID' })
-	@ApiResponse({ status: 200, description: 'User successfully deleted' })
-	delete(@Param('id') id: string) {
-		return this.userService.delete(id);
 	}
 }

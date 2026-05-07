@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
-import { formatDate } from '@/utils/date';
+import { formatDateTime } from '@/utils/date';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import type { BookingCardProps } from './types';
 import { useConfirm } from '@/hooks/confirmModal';
@@ -76,7 +76,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
-						<span>{formatDate(event.date)}</span>
+						<span>{formatDateTime(event.date)}</span>
 					</div>
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />

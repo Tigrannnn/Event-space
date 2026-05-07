@@ -3,7 +3,16 @@
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
-import { ArrowRight, CogIcon, LogOut, Ticket, Trash2, User, UserCog } from 'lucide-react';
+import {
+	ArrowRight,
+	CogIcon,
+	LogOut,
+	ShieldCheck,
+	Ticket,
+	Trash2,
+	User,
+	UserCog,
+} from 'lucide-react';
 import { useConfirm } from '@/hooks/confirmModal';
 import { SafeUserData } from '@event-space/shared';
 import { useCurrentUser, useDeleteCurrentUser } from '@/features/users';
@@ -32,16 +41,18 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	// Show login prompt for unauthenticated users
 	if (!user) {
 		return (
-			<div className="flex min-h-[75vh] items-center justify-center px-4">
+			<div className="flex min-h-full items-center justify-center px-4">
 				<div className="mx-auto max-w-md text-center">
 					{/* Icon */}
-					<div className="bg-primary/10 shadow-primary/10 mx-auto mb-8 flex h-36 w-36 items-center justify-center rounded-full shadow-lg">
-						<User className="text-primary h-16 w-16" strokeWidth={1.5} />
+					<div className="bg-primary/10 shadow-primary/10 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full shadow-lg sm:mb-8 sm:h-36 sm:w-36">
+						<User className="text-primary h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
 					</div>
 
 					{/* Heading */}
-					<h2 className="text-3xl font-black text-gray-900">Welcome Back!</h2>
-					<p className="mt-3 text-lg text-gray-500">
+					<h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 sm:text-3xl">
+						Welcome Back!
+					</h2>
+					<p className="mt-3 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
 						Sign in to access your profile, manage events, and more.
 					</p>
 
@@ -61,7 +72,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					</div>
 
 					{/* Decorative bottom accent */}
-					<div className="bg-primary/5 mx-auto mt-12 h-1 w-24 rounded-full" />
+					<div className="bg-primary/5 mx-auto mt-10 h-1 w-24 rounded-full sm:mt-12" />
 				</div>
 			</div>
 		);
@@ -100,11 +111,11 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	};
 
 	return (
-		<div className="min-h-[calc(100vh-64px)">
+		<div className="min-h-0">
 			{/* Header */}
 			<div className="bg-white shadow-sm dark:bg-gray-800">
-				<div className="mx-auto max-w-3xl px-4 py-6">
-					<div className="flex items-center gap-4">
+				<div className="mx-auto max-w-3xl px-4 py-4 sm:py-6">
+					<div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
 						{(() => {
 							const initials = user.image ? (
 								<img src={user.image} alt={user.name} className="h-full w-full rounded-full" />
@@ -121,9 +132,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 								</div>
 							);
 						})()}
-						<div className="flex-1">
-							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
-							<p className="text-gray-500 dark:text-gray-400">{user.email}</p>
+						<div className="w-full text-center sm:flex-1 sm:text-left">
+							<h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">{user.name}</h1>
+							<p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">{user.email}</p>
 							<span className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 capitalize dark:bg-blue-900 dark:text-blue-200">
 								<UserCog className="mr-1 h-3 w-3" />
 								{user.role.toLowerCase()}
@@ -134,10 +145,10 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 			</div>
 
 			{/* Content */}
-			<div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
+			<div className="mx-auto max-w-3xl space-y-4 px-4 py-4 sm:py-6">
 				{/* Settings */}
 				<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-					<div className="border-b border-gray-100 p-4 dark:border-gray-700">
+					<div className="border-b border-gray-100 p-3 sm:p-4 dark:border-gray-700">
 						<h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
 							<CogIcon className="h-5 w-5" />
 							Settings
@@ -146,44 +157,64 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					<div className="divide-y divide-gray-100 dark:divide-gray-700">
 						<button
 							onClick={handleOpenEditProfile}
-							className="flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 						>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-									<User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 sm:h-10 sm:w-10">
+									<User className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
 								</div>
 								<div className="text-left">
 									<p className="font-medium text-gray-900 dark:text-white">Edit Profile</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">Update your name and password</p>
 								</div>
 							</div>
-							<ArrowRight className="h-5 w-5 text-gray-400" />
+							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
 						</button>
 
 						<button
 							onClick={() => router.push('/bookings')}
-							className="flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 						>
 							<div className="flex items-center gap-3">
-								<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-									<Ticket className="h-5 w-5 text-green-600 dark:text-green-400" />
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30 sm:h-10 sm:w-10">
+									<Ticket className="h-4 w-4 text-green-600 dark:text-green-400 sm:h-5 sm:w-5" />
 								</div>
 								<div className="text-left">
 									<p className="font-medium text-gray-900 dark:text-white">My Bookings</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">View your event bookings</p>
 								</div>
 							</div>
-							<ArrowRight className="h-5 w-5 text-gray-400" />
+							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
 						</button>
+
+						{user.role === 'ADMIN' && (
+							<button
+								onClick={() => router.push('/admin/dashboard')}
+								className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
+							>
+								<div className="flex items-center gap-3">
+									<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/30 sm:h-10 sm:w-10">
+										<ShieldCheck className="h-4 w-4 text-violet-600 dark:text-violet-300 sm:h-5 sm:w-5" />
+									</div>
+									<div className="text-left">
+										<p className="font-medium text-gray-900 dark:text-white">Admin Panel</p>
+										<p className="text-sm text-gray-500 dark:text-gray-400">
+											Manage events, bookings, and users
+										</p>
+									</div>
+								</div>
+								<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+							</button>
+						)}
 					</div>
 				</div>
 
 				{/* Account Actions */}
 				<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-					<div className="border-b border-gray-100 p-4 dark:border-gray-700">
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">Account</h2>
+					<div className="border-b border-gray-100 p-3 sm:p-4 dark:border-gray-700">
+						<h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Account</h2>
 					</div>
-					<div className="space-y-3 p-4">
+					<div className="space-y-3 p-3 sm:p-4">
 						<Button
 							variant="secondary"
 							className="w-full justify-start gap-2 border-red-800 hover:bg-red-900 dark:border-red-800 dark:hover:bg-red-900"
