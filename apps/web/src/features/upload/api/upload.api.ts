@@ -5,11 +5,7 @@ export const uploadApi = {
 		const formData = new FormData();
 		formData.append('file', file);
 
-		const response = await clientApi.post<{ url: string }>('/upload/image', formData, {
-			headers: {
-				'Content-Type': 'multipart/form-data',
-			},
-		});
+		const response = await clientApi.post<{ url: string }>('/upload/image', formData);
 
 		return response.data;
 	},

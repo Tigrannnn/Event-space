@@ -2,12 +2,10 @@ import clientApi from '@/lib/client.api';
 import type {
 	Booking,
 	BookingFilters,
-	CreateEventData,
 	Event,
 	EventFilters,
 	PaginatedResponse,
 	SafeUserData,
-	UpdateEventData,
 	UserRoleType,
 	UserFilters,
 	EventStatus,
@@ -22,10 +20,11 @@ export const adminApi = {
 		clientApi.patch<Booking>(`/admin/bookings/${id}/status`, { status }),
 	getEvents: (params?: EventFilters) =>
 		clientApi.get<PaginatedResponse<Event>>('/admin/events', { params }),
-	createEvent: (data: CreateEventData) => clientApi.post<Event>('/events', data),
-	updateEvent: (id: string, data: UpdateEventData) => clientApi.put<Event>(`/events/${id}`, data),
+	createEvent: (formData: FormData) => clientApi.post<Event>('/events', formData),
+	updateEvent: (id: string, formData: FormData) =>
+		clientApi.put<Event>(`/events/${id}`, formData),
 	updateEventStatus: (id: string, status: EventStatus) =>
-		clientApi.put<Event>(`/events/${id}`, { status }),
+		clientApi.patch<Event>(`/events/${id}/status`, { status }),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`),
 	getUsers: (params?: UserFilters) =>
 		clientApi.get<PaginatedResponse<SafeUserData>>('/admin/users', { params }),

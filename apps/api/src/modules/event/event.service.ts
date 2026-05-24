@@ -1,10 +1,28 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { CreateEventData, EventDifficulty, EventStatus, UpdateEventData, UserRoleType } from '@event-space/shared';
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
+import {
+	CreateEventData,
+	EventImageFileItem,
+	EventImageItem,
+	EventStatus,
+	EventStatusEnum,
+	UpdateEventData,
+	UserRoleType,
+} from '@event-space/shared';
+import { UploadService } from '@infra/upload/upload.service';
 import { PrismaService } from '@infra/prisma/prisma.service';
+import { EventImage, Prisma } from '@prisma/client';
 
 @Injectable()
 export class EventService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly uploadService: UploadService,
+	) {}
 
 	private readonly organizerInclude = {
 		select: {
@@ -15,11 +33,18 @@ export class EventService {
 		},
 	};
 
+	private readonly imagesInclude = {
+		orderBy: { order: 'asc' as const },
+	};
+
+	private readonly eventInclude = {
+		organizer: this.organizerInclude,
+		images: this.imagesInclude,
+	};
+
 	async findAll(cursor?: string, limit: number = 8, search?: string) {
-		// Parse cursor: "date_id" format
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
-		// Build search filter if search query provided
 		const searchFilter = search
 			? {
 					OR: [
@@ -31,7 +56,6 @@ export class EventService {
 				}
 			: {};
 
-		// Build cursor filter for pagination
 		const cursorFilter =
 			cursorDate && cursorId
 				? {
@@ -45,80 +69,223 @@ export class EventService {
 					}
 				: {};
 
-		// Combine filters: search AND cursor
-		const filters = [searchFilter, cursorFilter].filter(
-			(f) => Object.keys(f).length > 0,
-		);
+		const statusFilter = {status: EventStatusEnum.enum.PUBLISHED};
+
+		const filters = [statusFilter, searchFilter, cursorFilter].filter((f) => Object.keys(f).length > 0);
 		const where = filters.length > 0 ? { AND: filters } : {};
 
 		const events = await this.prisma.event.findMany({
 			where,
-			take: limit + 1, // Take one extra to check if there are more
+			take: limit + 1,
 			orderBy: [{ date: 'asc' }, { id: 'asc' }],
-			include: { organizer: this.organizerInclude },
+			include: this.eventInclude,
 		});
 
 		const hasMore = events.length > limit;
 		const data = hasMore ? events.slice(0, limit) : events;
 
-		// Build next cursor from last item: "date_id"
 		const lastEvent = data[data.length - 1];
 		const nextCursor =
 			hasMore && lastEvent ? `${lastEvent.date.toISOString()}_${lastEvent.id}` : null;
 
-		return {
-			data,
-			nextCursor,
-			hasMore,
-		};
+		return { data, nextCursor, hasMore };
 	}
 
 	async findOne(id: string) {
 		const event = await this.prisma.event.findUnique({
 			where: { id },
-			include: { organizer: this.organizerInclude },
+			include: this.eventInclude,
 		});
 
+		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
+		if (event.status !== 'PUBLISHED') throw new NotFoundException(`Event with ID ${id} not found`);
+		return event;
+	}
+
+	private async findOneAny(id: string) {
+		const event = await this.prisma.event.findUnique({
+			where: { id },
+			include: this.eventInclude,
+		});
 		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
 		return event;
 	}
 
-	async create(userId: string, data: CreateEventData) {
-		return await this.prisma.event.create({
-			data: {
-				...data,
-				userId,
-			},
-			include: { organizer: this.organizerInclude },
-		});
+	async create(
+		userId: string,
+		eventData: CreateEventData,
+		imageItems: EventImageFileItem[] = [],
+		files: Express.Multer.File[] = [],
+	) {
+		const sortedItems = this.sortByOrder(imageItems);
+		const uploads = await this.uploadNewFiles(files);
+
+		try {
+			return await this.prisma.$transaction(async (tx) => {
+				const created = await tx.event.create({
+					data: { ...eventData, userId },
+				});
+
+				const rows = this.buildNewImageRows(created.id, sortedItems, uploads);
+				if (rows.length) {
+					await tx.eventImage.createMany({ data: rows });
+				}
+
+				return tx.event.findUniqueOrThrow({
+					where: { id: created.id },
+					include: this.eventInclude,
+				});
+			});
+		} catch (error) {
+			await this.uploadService.deleteMultipleByPublicId(uploads.map((u) => u.publicId));
+			throw error;
+		}
 	}
 
-	async update(id: string, userId: string, role: UserRoleType, data: UpdateEventData) {
-		const event = await this.findOne(id);
+	async update(
+		id: string,
+		userId: string,
+		role: UserRoleType,
+		eventData: UpdateEventData,
+		imageItems: EventImageItem[],
+		files: Express.Multer.File[] = [],
+	) {
+		const event = await this.findOneAny(id);
+		this.assertCanModify(event.userId, userId, role);
 
-		const isOwner = event.userId === userId;
-		const isAdmin = role === 'ADMIN';
+		const sortedItems = this.sortByOrder(imageItems);
+		const existingImages = event.images ?? [];
+		this.validateExistingImageRefs(sortedItems, existingImages);
 
-		if (!isOwner && !isAdmin) {
-			throw new ForbiddenException('You do not have permission to update this event');
+		const uploads = await this.uploadNewFiles(files);
+		const removedImages = this.findRemovedImages(existingImages, sortedItems);
+
+		try {
+			const updated = await this.prisma.$transaction(async (tx) => {
+				if (Object.keys(eventData).length > 0) {
+					await tx.event.update({ where: { id }, data: eventData });
+				}
+
+				if (removedImages.length) {
+					await tx.eventImage.deleteMany({
+						where: { id: { in: removedImages.map((img) => img.id) } },
+					});
+				}
+
+				let uploadIndex = 0;
+				for (const item of sortedItems) {
+					if (item.kind === 'existing') {
+						await tx.eventImage.update({
+							where: { id: item.id },
+							data: { order: item.order },
+						});
+						continue;
+					}
+
+					const upload = uploads[uploadIndex++];
+					await tx.eventImage.create({
+						data: {
+							eventId: id,
+							url: upload.url,
+							publicId: upload.publicId,
+							order: item.order,
+						},
+					});
+				}
+
+				return tx.event.findUniqueOrThrow({
+					where: { id },
+					include: this.eventInclude,
+				});
+			});
+
+			await this.uploadService.deleteMultipleByPublicId(
+				removedImages.map((img) => img.publicId),
+			);
+
+			return updated;
+		} catch (error) {
+			await this.uploadService.deleteMultipleByPublicId(uploads.map((u) => u.publicId));
+			throw error;
 		}
-		return await this.prisma.event.update({
+	}
+
+	async updateStatus(id: string, userId: string, role: UserRoleType, status: EventStatus) {
+		const event = await this.findOneAny(id);
+		this.assertCanModify(event.userId, userId, role);
+
+		return this.prisma.event.update({
 			where: { id },
-			data,
-			include: { organizer: this.organizerInclude },
+			data: { status },
+			include: this.eventInclude,
 		});
 	}
 
 	async delete(id: string, userId: string, role: UserRoleType) {
-		const event = await this.findOne(id);
+		const event = await this.findOneAny(id);
+		this.assertCanModify(event.userId, userId, role);
 
-		const isOwner = event.userId === userId;
-		const isAdmin = role === 'ADMIN';
+		const publicIds = (event.images ?? []).map((img) => img.publicId);
 
-		if (!isOwner && !isAdmin) {
-			throw new ForbiddenException('You do not have permission to delete this event');
+		await this.prisma.event.delete({ where: { id } });
+		await this.uploadService.deleteMultipleByPublicId(publicIds);
+
+		return event;
+	}
+
+	private sortByOrder<T extends { order: number }>(items: T[]): T[] {
+		return [...items].sort((a, b) => a.order - b.order);
+	}
+
+	private async uploadNewFiles(files: Express.Multer.File[]) {
+		if (!files.length) return [];
+		return this.uploadService.uploadImages(files);
+	}
+
+	private buildNewImageRows(
+		eventId: string,
+		imageItems: EventImageFileItem[],
+		uploads: Awaited<ReturnType<UploadService['uploadImages']>>,
+	): Prisma.EventImageCreateManyInput[] {
+		return imageItems.map((item, index) => ({
+			eventId,
+			url: uploads[index].url,
+			publicId: uploads[index].publicId,
+			order: item.order,
+		}));
+	}
+
+	private validateExistingImageRefs(
+		imageItems: EventImageItem[],
+		existingImages: EventImage[],
+	) {
+		const existingIds = new Set(existingImages.map((img) => img.id));
+		const payloadExistingIds = imageItems
+			.filter((item) => item.kind === 'existing')
+			.map((item) => item.id);
+
+		for (const id of payloadExistingIds) {
+			if (!existingIds.has(id)) {
+				throw new BadRequestException(`Event image ${id} does not belong to this event`);
+			}
 		}
 
-		return this.prisma.event.delete({ where: { id } });
+		const unique = new Set(payloadExistingIds);
+		if (unique.size !== payloadExistingIds.length) {
+			throw new BadRequestException('Duplicate existing image ids in payload');
+		}
+	}
+
+	private findRemovedImages(existingImages: EventImage[], imageItems: EventImageItem[]) {
+		const keptIds = new Set(
+			imageItems.filter((item) => item.kind === 'existing').map((item) => item.id),
+		);
+		return existingImages.filter((img) => !keptIds.has(img.id));
+	}
+
+	private assertCanModify(ownerId: string, userId: string, role: UserRoleType) {
+		if (ownerId !== userId && role !== 'ADMIN') {
+			throw new ForbiddenException('You do not have permission to modify this event');
+		}
 	}
 }

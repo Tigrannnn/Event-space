@@ -9,7 +9,7 @@ import { ModalType, useModalStore } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
-import { Event } from '@event-space/shared';
+import { Event, getEventCoverImageUrl } from '@event-space/shared';
 
 export interface EventCardProps {
 	event: Event;
@@ -55,9 +55,8 @@ export default function EventCard({ event }: EventCardProps) {
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{event.category}</CategoryBadge>
 				<EventImageWithFallback
-					src={event.images[0]}
+					src={getEventCoverImageUrl(event) ?? ''}
 					alt={event.title}
-					onError={() => console.log('Image failed to load')}
 				/>
 			</div>
 

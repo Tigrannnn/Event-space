@@ -1,298 +1,401 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { AppModule } from '@src/app.module';
-import cookieParser from 'cookie-parser';
 import supertest from 'supertest';
-import { PrismaService } from '@infra/prisma/prisma.service';
-import { RedisService } from '@infra/redis/redis.service';
-import { ZodExceptionFilter } from '@shared';
-import { AUTH_CONFIG, AuthAction, AuthKeyType, RegisterData } from '@event-space/shared';
+import {
+	AUTH_CONFIG,
+	AuthAction,
+} from '@event-space/shared';
+import {
+	buildRegisterData,
+	clearAuthRateLimits,
+	createGoogleOnlyUser,
+	createVerifiedUserWithPassword,
+	expectHttpOnlyCookies,
+	joinCookies,
+	loginUser,
+	otpKey,
+	registerUser,
+	testPassword,
+	uniqueEmail,
+	waitForRedisKey,
+} from './helpers/auth-test.utils';
+import { createE2eApp, destroyE2eApp, E2eContext } from './helpers/e2e-app';
 
-/**
- * Retries fetching a value from Redis until it's found or timeout is reached.
- * This is much faster and more reliable than a fixed setTimeout.
- */
-async function waitForRedisKey(
-	redis: RedisService,
-	key: string,
-	maxAttempts = 20,
-	interval = 50,
-): Promise<string> {
-	for (let i = 0; i < maxAttempts; i++) {
-		const value = await redis.get(key);
-		if (value) return value;
-		await new Promise((resolve) => setTimeout(resolve, interval));
-	}
-	throw new Error(`Redis key "${key}" not found after ${maxAttempts} attempts`);
-}
-
-describe('Auth System (e2e)', () => {
-	let app: INestApplication;
-	let prisma: PrismaService;
-	let redis: RedisService;
+describe('Auth (e2e)', () => {
+	let ctx: E2eContext;
+	const primaryEmail = uniqueEmail('primary');
+	const primaryPassword = testPassword();
 
 	beforeAll(async () => {
-		const moduleFixture: TestingModule = await Test.createTestingModule({
-			imports: [AppModule],
-		}).compile();
-
-		app = moduleFixture.createNestApplication();
-		prisma = moduleFixture.get<PrismaService>(PrismaService);
-		redis = moduleFixture.get<RedisService>(RedisService);
-
-		app.use(cookieParser());
-		app.useGlobalFilters(new ZodExceptionFilter());
-
-		await app.init();
-	});
-
-	const testUser: RegisterData = {
-		email: `test-${Date.now()}@example.com`,
-		password: 'Password123!',
-		name: 'Auto Test',
-	};
-
-	it('Health Check - Server should be up', () => {
-		return supertest(app.getHttpServer())
-			.get('/')
-			.expect((res) => {
-				expect(res.status).not.toBe(500);
-			});
-	});
-
-	describe('/auth/register (POST)', () => {
-		it('should successfully register a new user', async () => {
-			const response = await supertest(app.getHttpServer())
-				.post('/auth/register')
-				.send(testUser)
-				.expect(201);
-
-			expect(response.body).toHaveProperty('userId');
-			expect(response.body.message).toContain('successful');
-		});
-
-		it('should allow re-registration if email is NOT verified (update logic)', async () => {
-			await redis.del(
-				`${AUTH_CONFIG.KEY_PREFIX}:limit:cooldown:${AuthAction.REGISTER}:${testUser.email}`,
-			);
-			await redis.del(
-				`${AUTH_CONFIG.KEY_PREFIX}:limit:attempts:${AuthAction.REGISTER}:${testUser.email}:*`,
-			);
-
-			const updatedData = { ...testUser, name: 'Updated Name' };
-
-			const response = await supertest(app.getHttpServer())
-				.post('/auth/register')
-				.send(updatedData)
-				.expect(201);
-
-			expect(response.body.message).toContain('successful');
-
-			const user = await prisma.user.findUnique({ where: { email: testUser.email } });
-			expect(user?.name).toBe('Updated Name');
-		});
-
-		it('should throw 409 Conflict if email is already verified', async () => {
-			await redis.del(
-				`${AUTH_CONFIG.KEY_PREFIX}:limit:cooldown:${AuthAction.REGISTER}:${testUser.email}`,
-			);
-			await redis.del(
-				`${AUTH_CONFIG.KEY_PREFIX}:limit:attempts:${AuthAction.REGISTER}:${testUser.email}:*`,
-			);
-
-			// Simulate verified status in DB
-			await prisma.user.update({
-				where: { email: testUser.email },
-				data: { emailVerified: true },
-			});
-
-			await supertest(app.getHttpServer()).post('/auth/register').send(testUser).expect(409);
-		});
-
-		it('should throw 400 for invalid email format', async () => {
-			await supertest(app.getHttpServer())
-				.post('/auth/register')
-				.send({ ...testUser, email: 'not-an-email' })
-				.expect(400);
-		});
-
-		it('should throw 400 if password is too short', async () => {
-			await supertest(app.getHttpServer())
-				.post('/auth/register')
-				.send({
-					...testUser,
-					email: `short-pass-${Date.now()}@test.com`,
-					password: '123',
-				})
-				.expect(400);
-		});
-
-		it('should throw 400 when required fields are missing', async () => {
-			const response = await supertest(app.getHttpServer())
-				.post('/auth/register')
-				.send({})
-				.expect(400);
-
-			expect(response.body.error).toBeDefined();
-		});
-	});
-
-	describe('/auth/verify-email (POST)', () => {
-		it('should successfully verify email with OTP from Redis', async () => {
-			const otpCode = await waitForRedisKey(
-				redis,
-				`${AUTH_CONFIG.KEY_PREFIX}:${AuthKeyType.OTP}:${AuthAction.REGISTER}:${testUser.email}`,
-			);
-
-			expect(otpCode).toBeDefined();
-
-			const response = await supertest(app.getHttpServer())
-				.post('/auth/verify-email')
-				.send({
-					email: testUser.email,
-					code: otpCode,
-				})
-				.expect(200);
-
-			expect(response.body.message).toContain('verified');
-
-			// Check if tokens were issued in cookies
-			const cookies = response.get('Set-Cookie')?.join(' ') || '';
-			expect(cookies).toContain('accessToken');
-			expect(cookies).toContain('refreshToken');
-			expect(cookies).toContain('HttpOnly');
-
-			// Double check DB status
-			const user = await prisma.user.findUnique({ where: { email: testUser.email } });
-			expect(user?.emailVerified).toBe(true);
-		});
-	});
-
-	describe('/auth/login (POST)', () => {
-		it('should successfully login and return secure cookies', async () => {
-			const response = await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({
-					email: testUser.email,
-					password: testUser.password,
-				})
-				.expect(200);
-
-			expect(response.body).toHaveProperty('user');
-			expect(response.body.user.email).toBe(testUser.email);
-
-			const cookies = response.get('Set-Cookie');
-			expect(cookies).toBeDefined();
-
-			const cookieString = cookies?.join(' ') || '';
-
-			// Verify both tokens are present in cookies for SSR support
-			expect(cookieString).toContain('accessToken');
-			expect(cookieString).toContain('refreshToken');
-			expect(cookieString).toContain('HttpOnly');
-		});
-
-		it('should throw 401 Unauthorized for wrong password', async () => {
-			await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({
-					email: testUser.email,
-					password: 'WrongPassword123!',
-				})
-				.expect(401);
-		});
-
-		it('should throw 401 Unauthorized if user does not exist', async () => {
-			await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({
-					email: 'non-existent@test.com',
-					password: 'SomePassword123!',
-				})
-				.expect(401);
-		});
-	});
-
-	describe('/auth/me (GET)', () => {
-		it('should return current user profile', async () => {
-			const loginRes = await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({ email: testUser.email, password: testUser.password });
-
-			const authCookies: string[] | undefined = loginRes.get('Set-Cookie');
-
-			expect(authCookies).toBeDefined();
-
-			const response = await supertest(app.getHttpServer())
-				.get('/auth/me')
-				.set('Cookie', authCookies!.join('; '))
-				.expect(200);
-
-			expect(response.body).toMatchObject({
-				email: testUser.email,
-				emailVerified: true,
-			});
-			expect(response.body).not.toHaveProperty('passwordHash');
-		});
-
-		it('should throw 401 if no tokens provided', async () => {
-			await supertest(app.getHttpServer()).get('/auth/me').expect(401);
-		});
-	});
-
-	describe('/auth/refresh (POST)', () => {
-		it('should refresh tokens and rotate the refresh token', async () => {
-			// Login
-			const loginRes = await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({ email: testUser.email, password: testUser.password });
-
-			const oldCookies: string[] | undefined = loginRes.get('Set-Cookie');
-
-			expect(oldCookies).toBeDefined();
-
-			// Wait a bit to ensure token timestamps differ (for rotation test)
-			await new Promise((res) => setTimeout(res, 100));
-
-			// Refresh tokens
-			const refreshRes = await supertest(app.getHttpServer())
-				.post('/auth/refresh')
-				.set('Cookie', oldCookies!)
-				.expect(200);
-
-			const newCookies = refreshRes.get('Set-Cookie')?.join(' ') || '';
-			expect(newCookies).toContain('accessToken');
-			expect(newCookies).toContain('refreshToken');
-
-			// Old refresh token should be invalidated
-			await supertest(app.getHttpServer())
-				.post('/auth/refresh')
-				.set('Cookie', oldCookies!)
-				.expect(403);
-		});
-	});
-
-	describe('/auth/logout (POST)', () => {
-		it('should clear session and return 200', async () => {
-			const loginRes = await supertest(app.getHttpServer())
-				.post('/auth/login')
-				.send({ email: testUser.email, password: testUser.password });
-
-			const authCookies = loginRes.get('Set-Cookie');
-
-			await supertest(app.getHttpServer())
-				.post('/auth/logout')
-				.set('Cookie', authCookies!)
-				.expect(200);
-
-			await supertest(app.getHttpServer())
-				.post('/auth/refresh')
-				.set('Cookie', authCookies!)
-				.expect(403);
-		});
+		ctx = await createE2eApp();
 	});
 
 	afterAll(async () => {
-		await app.close();
+		await destroyE2eApp(ctx);
+	});
+
+	describe('GET /health', () => {
+		it('returns ok', async () => {
+			const res = await supertest(ctx.httpServer).get('/health').expect(200);
+			expect(res.body).toEqual({ status: 'ok' });
+		});
+	});
+
+	describe('POST /auth/register', () => {
+		it('creates user and stores OTP in Redis', async () => {
+			const res = await registerUser(ctx.httpServer, buildRegisterData(primaryEmail)).expect(201);
+
+			expect(res.body.userId).toBeDefined();
+			expect(res.body.message).toMatch(/successful/i);
+
+			const otp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.REGISTER, primaryEmail));
+			expect(otp).toMatch(/^\d{6}$/);
+		});
+
+		it('rejects duplicate email when already verified', async () => {
+			await clearAuthRateLimits(ctx.redis, AuthAction.REGISTER, primaryEmail);
+			await ctx.prisma.user.update({
+				where: { email: primaryEmail },
+				data: { emailVerified: true },
+			});
+
+			await registerUser(ctx.httpServer, buildRegisterData(primaryEmail)).expect(409);
+		});
+
+		it('allows re-register for unverified email and updates profile', async () => {
+			const email = uniqueEmail('reregister');
+			await registerUser(ctx.httpServer, buildRegisterData(email, 'First')).expect(201);
+			await clearAuthRateLimits(ctx.redis, AuthAction.REGISTER, email);
+
+			await registerUser(ctx.httpServer, buildRegisterData(email, 'Second')).expect(201);
+
+			const user = await ctx.prisma.user.findUnique({ where: { email } });
+			expect(user?.name).toBe('Second');
+			expect(user?.emailVerified).toBe(false);
+		});
+
+		it('returns 400 for invalid payload', async () => {
+			await supertest(ctx.httpServer)
+				.post('/auth/register')
+				.send({ email: 'bad', password: '1', name: '' })
+				.expect(400);
+		});
+
+		it('enforces resend cooldown on immediate second register', async () => {
+			const email = uniqueEmail('cooldown-reg');
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(201);
+
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(403);
+		});
+	});
+
+	describe('POST /auth/verify-email', () => {
+		const verifyEmail_user = uniqueEmail('verify');
+
+		beforeAll(async () => {
+			await registerUser(ctx.httpServer, buildRegisterData(verifyEmail_user)).expect(201);
+		});
+
+		it('verifies email, issues httpOnly cookies, deletes OTP', async () => {
+			const otp = await waitForRedisKey(
+				ctx.redis,
+				otpKey(AuthAction.REGISTER, verifyEmail_user),
+			);
+
+			const res = await supertest(ctx.httpServer)
+				.post('/auth/verify-email')
+				.send({ email: verifyEmail_user, code: otp })
+				.expect(200);
+
+			expect(res.body.message).toMatch(/verified/i);
+			expect(joinCookies(res.get('Set-Cookie'))).toContain('accessToken');
+			expectHttpOnlyCookies(res.get('Set-Cookie'));
+
+			const user = await ctx.prisma.user.findUnique({ where: { email: verifyEmail_user } });
+			expect(user?.emailVerified).toBe(true);
+
+			const otpAfter = await ctx.redis.get(otpKey(AuthAction.REGISTER, verifyEmail_user));
+			expect(otpAfter).toBeNull();
+		});
+
+		it('rejects invalid OTP and increments rate limit counters', async () => {
+			const email = uniqueEmail('bad-otp');
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(201);
+			await clearAuthRateLimits(ctx.redis, AuthAction.REGISTER, email);
+
+			for (let i = 0; i < AUTH_CONFIG.RATE_LIMITS.OTP_LOCAL_MAX_ATTEMPTS; i++) {
+				await supertest(ctx.httpServer)
+					.post('/auth/verify-email')
+					.send({ email, code: '000000' })
+					.expect(400);
+			}
+
+			await supertest(ctx.httpServer)
+				.post('/auth/verify-email')
+				.send({ email, code: '000000' })
+				.expect(403);
+		});
+	});
+
+	describe('POST /auth/resend-code', () => {
+		it('resends OTP for existing user', async () => {
+			const email = uniqueEmail('resend');
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(201);
+			const firstOtp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.REGISTER, email));
+
+			await clearAuthRateLimits(ctx.redis, AuthAction.REGISTER, email);
+
+			await supertest(ctx.httpServer)
+				.post('/auth/resend-code')
+				.send({ email, action: AuthAction.REGISTER })
+				.expect(200);
+
+			const secondOtp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.REGISTER, email));
+			expect(secondOtp).toBeDefined();
+			expect(secondOtp).not.toBe(firstOtp);
+		});
+
+		it('returns 200 for unknown email without creating OTP', async () => {
+			const email = uniqueEmail('ghost');
+			await supertest(ctx.httpServer)
+				.post('/auth/resend-code')
+				.send({ email, action: AuthAction.REGISTER })
+				.expect(200);
+
+			const otp = await ctx.redis.get(otpKey(AuthAction.REGISTER, email));
+			expect(otp).toBeNull();
+		});
+
+		it('blocks resend during cooldown', async () => {
+			const email = uniqueEmail('resend-cooldown');
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(201);
+
+			await supertest(ctx.httpServer)
+				.post('/auth/resend-code')
+				.send({ email, action: AuthAction.REGISTER })
+				.expect(403);
+		});
+	});
+
+	describe('POST /auth/login', () => {
+		it('logs in verified user with cookies', async () => {
+			const res = await loginUser(ctx.httpServer, primaryEmail, primaryPassword).expect(200);
+
+			expect(res.body.user.email).toBe(primaryEmail);
+			expect(joinCookies(res.get('Set-Cookie'))).toContain('accessToken');
+			expectHttpOnlyCookies(res.get('Set-Cookie'));
+		});
+
+		it('returns 401 for wrong password', async () => {
+			await loginUser(ctx.httpServer, primaryEmail, 'WrongPassword123!').expect(401);
+		});
+
+		it('returns 401 for unknown email', async () => {
+			await loginUser(ctx.httpServer, uniqueEmail('unknown')).expect(401);
+		});
+
+		it('returns 403 when email is not verified', async () => {
+			const email = uniqueEmail('unverified');
+			await registerUser(ctx.httpServer, buildRegisterData(email)).expect(201);
+
+			await loginUser(ctx.httpServer, email).expect(403);
+		});
+
+		it('returns 400 for Google-only account', async () => {
+			const email = uniqueEmail('google-only');
+			await createGoogleOnlyUser(ctx.prisma, email);
+
+			const res = await loginUser(ctx.httpServer, email).expect(400);
+			expect(res.body.message).toMatch(/social login/i);
+		});
+	});
+
+	describe('GET /users/me', () => {
+		it('returns profile when authenticated', async () => {
+			const loginRes = await loginUser(ctx.httpServer, primaryEmail, primaryPassword).expect(200);
+
+			const res = await supertest(ctx.httpServer)
+				.get('/users/me')
+				.set('Cookie', joinCookies(loginRes.get('Set-Cookie')))
+				.expect(200);
+
+			expect(res.body.email).toBe(primaryEmail);
+			expect(res.body.emailVerified).toBe(true);
+			expect(res.body).not.toHaveProperty('passwordHash');
+		});
+
+		it('returns 401 without cookies', async () => {
+			await supertest(ctx.httpServer).get('/users/me').expect(401);
+		});
+	});
+
+	describe('POST /auth/refresh', () => {
+		it('rotates refresh token and invalidates the old one', async () => {
+			const loginRes = await loginUser(ctx.httpServer, primaryEmail, primaryPassword).expect(200);
+			const oldCookies = loginRes.get('Set-Cookie')!;
+
+			await new Promise((r) => setTimeout(r, 50));
+
+			const refreshRes = await supertest(ctx.httpServer)
+				.post('/auth/refresh')
+				.set('Cookie', joinCookies(oldCookies))
+				.expect(200);
+
+			expect(joinCookies(refreshRes.get('Set-Cookie'))).toContain('refreshToken');
+
+			await supertest(ctx.httpServer)
+				.post('/auth/refresh')
+				.set('Cookie', joinCookies(oldCookies))
+				.expect(403);
+		});
+
+		it('returns 401 when refresh cookie is missing', async () => {
+			await supertest(ctx.httpServer).post('/auth/refresh').expect(401);
+		});
+
+		it('returns 401 for malformed refresh token', async () => {
+			await supertest(ctx.httpServer)
+				.post('/auth/refresh')
+				.set('Cookie', 'refreshToken=not-a-valid-token')
+				.expect(401);
+		});
+	});
+
+	describe('POST /auth/logout', () => {
+		it('revokes refresh token and clears session', async () => {
+			const loginRes = await loginUser(ctx.httpServer, primaryEmail, primaryPassword).expect(200);
+			const cookies = loginRes.get('Set-Cookie')!;
+
+			await supertest(ctx.httpServer)
+				.post('/auth/logout')
+				.set('Cookie', joinCookies(cookies))
+				.expect(200);
+
+			await supertest(ctx.httpServer)
+				.post('/auth/refresh')
+				.set('Cookie', joinCookies(cookies))
+				.expect(403);
+		});
+	});
+
+	describe('Forgot password & reset password', () => {
+		const resetEmail = uniqueEmail('reset');
+		const newPassword = 'NewPassword456!';
+
+		beforeAll(async () => {
+			await createVerifiedUserWithPassword(ctx.prisma, resetEmail, testPassword());
+		});
+
+		it('POST /auth/forgot-password always returns 200', async () => {
+			await supertest(ctx.httpServer)
+				.post('/auth/forgot-password')
+				.send({ email: uniqueEmail('missing-user') })
+				.expect(200);
+
+			await clearAuthRateLimits(ctx.redis, AuthAction.RESET_PASSWORD, resetEmail);
+			await supertest(ctx.httpServer)
+				.post('/auth/forgot-password')
+				.send({ email: resetEmail })
+				.expect(200);
+
+			const otp = await waitForRedisKey(
+				ctx.redis,
+				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
+			);
+			expect(otp).toMatch(/^\d{6}$/);
+		});
+
+		it('POST /auth/reset-password updates password, logs in, removes OTP', async () => {
+			await clearAuthRateLimits(ctx.redis, AuthAction.RESET_PASSWORD, resetEmail);
+			await supertest(ctx.httpServer)
+				.post('/auth/forgot-password')
+				.send({ email: resetEmail })
+				.expect(200);
+
+			const otp = await waitForRedisKey(
+				ctx.redis,
+				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
+			);
+
+			const res = await supertest(ctx.httpServer)
+				.post('/auth/reset-password')
+				.send({ email: resetEmail, code: otp, newPassword })
+				.expect(200);
+
+			expect(res.body.message).toMatch(/reset successfully/i);
+			expect(joinCookies(res.get('Set-Cookie'))).toContain('accessToken');
+
+			const otpAfter = await ctx.redis.get(otpKey(AuthAction.RESET_PASSWORD, resetEmail));
+			expect(otpAfter).toBeNull();
+
+			await loginUser(ctx.httpServer, resetEmail, testPassword()).expect(401);
+			await loginUser(ctx.httpServer, resetEmail, newPassword).expect(200);
+		});
+
+		it('rejects reused OTP after successful reset', async () => {
+			await clearAuthRateLimits(ctx.redis, AuthAction.RESET_PASSWORD, resetEmail);
+			await supertest(ctx.httpServer)
+				.post('/auth/forgot-password')
+				.send({ email: resetEmail })
+				.expect(200);
+
+			const otp = await waitForRedisKey(
+				ctx.redis,
+				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
+			);
+
+			await supertest(ctx.httpServer)
+				.post('/auth/reset-password')
+				.send({ email: resetEmail, code: otp, newPassword: 'AnotherPass789!' })
+				.expect(200);
+
+			await clearAuthRateLimits(ctx.redis, AuthAction.RESET_PASSWORD, resetEmail);
+
+			await supertest(ctx.httpServer)
+				.post('/auth/reset-password')
+				.send({ email: resetEmail, code: otp, newPassword: 'YetAnother99!' })
+				.expect(400);
+		});
+
+		it('increments rate limits on invalid reset code', async () => {
+			const email = uniqueEmail('reset-bad');
+			await createVerifiedUserWithPassword(ctx.prisma, email);
+			await clearAuthRateLimits(ctx.redis, AuthAction.RESET_PASSWORD, email);
+
+			for (let i = 0; i < AUTH_CONFIG.RATE_LIMITS.OTP_LOCAL_MAX_ATTEMPTS; i++) {
+				await supertest(ctx.httpServer)
+					.post('/auth/reset-password')
+					.send({ email, code: '000000', newPassword: testPassword() })
+					.expect(400);
+			}
+
+			await supertest(ctx.httpServer)
+				.post('/auth/reset-password')
+				.send({ email, code: '000000', newPassword: testPassword() })
+				.expect(403);
+		});
+	});
+
+	describe('POST /auth/google', () => {
+		it('rejects invalid Google authorization code', async () => {
+			const res = await supertest(ctx.httpServer)
+				.post('/auth/google')
+				.send({ token: 'invalid-google-code' })
+				.expect(401);
+
+			expect(res.body.message).toMatch(/Google authentication failed/i);
+		});
+	});
+
+	describe('Login brute-force rate limiting', () => {
+		it('locks out after max failed login attempts', async () => {
+			const email = uniqueEmail('login-bruteforce');
+			await createVerifiedUserWithPassword(ctx.prisma, email);
+			await clearAuthRateLimits(ctx.redis, AuthAction.LOGIN, email);
+
+			for (let i = 0; i < AUTH_CONFIG.RATE_LIMITS.OTP_LOCAL_MAX_ATTEMPTS; i++) {
+				await loginUser(ctx.httpServer, email, 'WrongPassword123!').expect(401);
+			}
+
+			await loginUser(ctx.httpServer, email, testPassword()).expect(403);
+		});
 	});
 });

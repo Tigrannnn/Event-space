@@ -1,14 +1,18 @@
 import { z } from 'zod';
+import { MAX_EVENT_IMAGES } from '../constants/event-images.constant';
 import { EventDifficultyEnum, EventStatusEnum } from './event.schema';
+import type { ImageUploaderItem } from '../types/event-image.types';
 
 /**
- * Схема для UI-формы. Здесь все поля, которые приходят из инпутов как строки, 
- * описаны как строки, чтобы RHF и Zod не конфликтовали с типами HTML.
+ * UI form schema. String fields match HTML inputs; images hold local File + existing rows.
  */
 export const EventFormSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	description: z.string().min(1, 'Description is required'),
-	images: z.string().min(1, 'At least one image URL is required'),
+	images: z
+		.array(z.custom<ImageUploaderItem>())
+		.min(1, 'At least one image is required')
+		.max(MAX_EVENT_IMAGES),
 	location: z.string().min(1, 'Location is required'),
 	date: z.string().min(1, 'Date is required'),
 	difficulty: EventDifficultyEnum,

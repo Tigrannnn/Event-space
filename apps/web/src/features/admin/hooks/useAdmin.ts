@@ -1,14 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type {
-	Booking,
-	BookingFilters,
-	CreateEventData,
-	Event,
-	EventFilters,
-	UpdateEventData,
-	UserRoleType,
-	UserFilters,
+import {
+	getApiErrorMessage,
+	type Booking,
+	type BookingFilters,
+	type Event,
+	type EventFilters,
+	type UserRoleType,
+	type UserFilters,
 } from '@event-space/shared';
+import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useModalStore } from '@/stores';
 import { adminApi } from '../api/admin.api';
 
 export const useStats = () => {
@@ -57,28 +58,42 @@ export const useUpdateBookingStatus = () => {
 
 export const useCreateEvent = () => {
 	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
 
 	return useMutation({
-		mutationFn: (data: CreateEventData) => adminApi.createEvent(data),
+		mutationFn: (formData: FormData) => adminApi.createEvent(formData),
 		onSuccess: () => {
+			addToast('Event created successfully', ToastType.SUCCESS);
+			closeModal();
 			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
 			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to create event'), ToastType.ERROR);
 		},
 	});
 };
 
 export const useUpdateEvent = () => {
 	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateEventData }) =>
-			adminApi.updateEvent(id, data),
+		mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+			adminApi.updateEvent(id, formData),
 		onSuccess: () => {
+			addToast('Event updated successfully', ToastType.SUCCESS);
+			closeModal();
 			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
 			queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
 			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to update event'), ToastType.ERROR);
 		},
 	});
 };

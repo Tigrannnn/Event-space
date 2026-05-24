@@ -40,9 +40,16 @@ export class MailService {
 			});
 		} catch (error) {
 			this.logger.error(`Failed to send email to ${email}`);
-			if (this.config.get(EnvKey.NODE_ENV) === 'development') {
-				this.logger.warn(`[DEV] Verification code: ${code}`);
+			const devOrTest =
+				this.config.get(EnvKey.MAIL_DEV_MODE) === 'true' ||
+				this.config.get(EnvKey.NODE_ENV) === 'development' ||
+				this.config.get(EnvKey.NODE_ENV) === 'test';
+
+			if (devOrTest) {
+				this.logger.warn(`[DEV] Verification code for ${email}: ${code}`);
+				return;
 			}
+
 			throw new Error('Email service unavailable');
 		}
 	}

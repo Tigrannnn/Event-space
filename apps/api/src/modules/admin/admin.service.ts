@@ -25,7 +25,9 @@ const bookingInclude = {
 	user: {
 		select: safeUserSelect,
 	},
-	event: true,
+	event: {
+		include: { images: true },
+	},
 } as const;
 
 
@@ -305,51 +307,67 @@ export class AdminService {
 	}
 
 	async updateBookingStatus(id: string, status: BookingStatus) {
-		const booking = await this.prisma.booking.findUnique({
-			where: { id },
-			include: { event: true },
-		});
-
-		if (!booking) {
-			throw new NotFoundException('Booking not found');
-		}
-
-		if (booking.status === status) {
-			return this.prisma.booking.findUnique({
+		return this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({
 				where: { id },
-				include: bookingInclude,
+				include: { event: true },
 			});
-		}
 
-		const wasConfirmed = booking.status === 'CONFIRMED';
-		const willBeConfirmed = status === 'CONFIRMED';
-		const participantDelta =
-			Number(willBeConfirmed) * booking.quantity - Number(wasConfirmed) * booking.quantity;
-
-		if (participantDelta > 0) {
-			const spotsLeft = booking.event.maxParticipants - booking.event.currentParticipants;
-			if (participantDelta > spotsLeft) {
-				throw new ConflictException(`Only ${spotsLeft} spots available`);
+			if (!booking) {
+				throw new NotFoundException('Booking not found');
 			}
-		}
 
-		const [updated] = await this.prisma.$transaction([
-			this.prisma.booking.update({
+			if (booking.status === status) {
+				return tx.booking.findUnique({
+					where: { id },
+					include: bookingInclude,
+				});
+			}
+
+			const wasConfirmed = booking.status === 'CONFIRMED';
+			const willBeConfirmed = status === 'CONFIRMED';
+			const participantDelta =
+				Number(willBeConfirmed) * booking.quantity - Number(wasConfirmed) * booking.quantity;
+
+			if (participantDelta > 0) {
+				const reserved = await tx.event.updateMany({
+					where: {
+						id: booking.eventId,
+						currentParticipants: { lte: booking.event.maxParticipants - participantDelta },
+					},
+					data: { currentParticipants: { increment: participantDelta } },
+				});
+
+				if (reserved.count === 0) {
+					const spotsLeft = Math.max(
+						0,
+						booking.event.maxParticipants - booking.event.currentParticipants,
+					);
+					throw new ConflictException(
+						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
+					);
+				}
+			} else if (participantDelta < 0) {
+				const releaseQty = -participantDelta;
+				const released = await tx.event.updateMany({
+					where: {
+						id: booking.eventId,
+						currentParticipants: { gte: releaseQty },
+					},
+					data: { currentParticipants: { decrement: releaseQty } },
+				});
+
+				if (released.count === 0) {
+					throw new ConflictException('Unable to release spots');
+				}
+			}
+
+			return tx.booking.update({
 				where: { id },
 				data: { status },
 				include: bookingInclude,
-			}),
-			...(participantDelta
-				? [
-						this.prisma.event.update({
-							where: { id: booking.eventId },
-							data: { currentParticipants: { increment: participantDelta } },
-						}),
-					]
-				: []),
-		]);
-
-		return updated;
+			});
+		});
 	}
 
 	async findAllEvents({
@@ -393,6 +411,7 @@ export class AdminService {
 							image: true,
 						},
 					},
+					images: { orderBy: { order: 'asc' } },
 				},
 			}),
 			this.prisma.event.count({ where }),

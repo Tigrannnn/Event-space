@@ -10,7 +10,7 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Event } from '@event-space/shared';
+import { Event, getEventImageUrls } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -31,7 +31,8 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 		setFailedImages((prev) => prev + 1);
 	};
 
-	const allImagesFailed = event && event.images.length > 0 && failedImages >= event.images.length;
+	const imageUrls = getEventImageUrls(event.images);
+	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
 
 	const handleShareClick = async () => {
 		const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -54,12 +55,12 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 				) : (
 					<div className="scrollbar-hide h-full w-full snap-x snap-mandatory overflow-x-auto">
 						<div className="flex h-full items-center">
-							{event.images.map((imgSrc, index) => (
+							{imageUrls.map((imgSrc, index) => (
 								<button
-									key={imgSrc}
+									key={`${imgSrc}-${index}`}
 									onClick={() =>
 										openModal(ModalType.ImagePreview, {
-											images: event.images,
+											images: imageUrls,
 											initialIndex: index,
 										})
 									}

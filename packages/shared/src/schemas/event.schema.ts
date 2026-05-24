@@ -10,8 +10,18 @@ export type EventStatus = z.infer<typeof EventStatusEnum>;
 export const EventDifficultyEnum = EventDifficultySchema;
 export type EventDifficulty = z.infer<typeof EventDifficultyEnum>;
 
+export const EventImageSchema = z.object({
+	id: z.string().uuid(),
+	url: z.string(),
+	publicId: z.string(),
+	order: z.number().int(),
+});
+
+export type EventImage = z.infer<typeof EventImageSchema>;
+
 export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number().openapi({ example: 5000 }),
+	images: z.array(EventImageSchema).optional(),
 	// organizer: SafeUserSchema.optional(),
 }).openapi({
 	description: 'Event information',
@@ -19,7 +29,6 @@ export const EventSchema = GeneratedEventSchema.extend({
 		id: '550e8400-e29b-41d4-a716-446655440000',
 		title: 'Mountain Hike',
 		description: 'A scenic mountain trail hike with beautiful views',
-		images: ['https://example.com/image1.jpg'],
 		location: 'Almaty, Kazakhstan',
 		date: new Date('2026-06-15T10:00:00Z'),
 		difficulty: 'MODERATE',
@@ -59,6 +68,7 @@ export const CreateEventSchema = EventSchema.omit({
 	currentParticipants: true,
 	createdAt: true,
 	updatedAt: true,
+	images: true,
 });
 
 export type CreateEventData = z.infer<typeof CreateEventSchema>;

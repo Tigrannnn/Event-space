@@ -2,6 +2,8 @@
 
 import { useCreateEvent } from '@/features/admin/hooks/useAdmin';
 import EventForm from '../EventForm';
+import { buildCreateEventFormData } from '../EventForm/form-mappers';
+import type { EventFormValues } from '@event-space/shared';
 import { useModalStore } from '@/stores';
 import { Modal } from '@/components/ui/Modal';
 
@@ -23,7 +25,7 @@ export default function CreateEventModal() {
 				submitLabel={isPending ? 'Creating...' : 'Create event'}
 				onCancel={closeModal}
 				event={undefined}
-				onSubmit={(data) => createEvent(data)}
+				onSubmit={(values: EventFormValues) => createEvent(buildCreateEventFormData(values))}
 			/>
 		</Modal>
 	);

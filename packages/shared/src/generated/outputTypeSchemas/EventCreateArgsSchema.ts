@@ -5,6 +5,7 @@ import { EventCreateInputSchema } from '../inputTypeSchemas/EventCreateInputSche
 import { EventUncheckedCreateInputSchema } from '../inputTypeSchemas/EventUncheckedCreateInputSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
 import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { EventImageFindManyArgsSchema } from "../outputTypeSchemas/EventImageFindManyArgsSchema"
 import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
@@ -13,7 +14,6 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   id: z.boolean().optional(),
   title: z.boolean().optional(),
   description: z.boolean().optional(),
-  images: z.boolean().optional(),
   location: z.boolean().optional(),
   date: z.boolean().optional(),
   difficulty: z.boolean().optional(),
@@ -29,6 +29,7 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   userId: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => EventCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 

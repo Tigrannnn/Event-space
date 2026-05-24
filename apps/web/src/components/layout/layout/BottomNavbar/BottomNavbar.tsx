@@ -41,17 +41,6 @@ export default function BottomNavbar() {
 					{isHydrated && user ? 'Profile' : 'Sign Up'}
 				</span>
 			</button>
-
-			{isHydrated && user?.role === 'ADMIN' && (
-				<button
-					onClick={() => router.push('/admin/dashboard')}
-					className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-					aria-label="Go to admin panel"
-				>
-					<ShieldCheck />
-					<span className="mt-1 text-[13px] font-medium sm:text-xs">Admin</span>
-				</button>
-			)}
 		</nav>
 	);
 }

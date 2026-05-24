@@ -8,7 +8,7 @@ import { UserModule } from '@modules/user/user.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { AppController } from './app.controller';
 import { BookingModule } from '@modules/booking/booking.module';
-import { UploadModule } from '@modules/upload/upload.module';
+import { UploadModule } from '@infra/upload/upload.module';
 import { AdminModule } from '@modules/admin/admin.module';
 
 @Module({

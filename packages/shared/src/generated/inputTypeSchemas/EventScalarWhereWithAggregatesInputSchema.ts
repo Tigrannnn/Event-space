@@ -2,7 +2,6 @@ import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
-import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
 import { EnumEventDifficultyWithAggregatesFilterSchema } from './EnumEventDifficultyWithAggregatesFilterSchema';
 import { EventDifficultySchema } from './EventDifficultySchema';
@@ -10,6 +9,7 @@ import { DecimalWithAggregatesFilterSchema } from './DecimalWithAggregatesFilter
 import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
+import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 import { EnumEventStatusWithAggregatesFilterSchema } from './EnumEventStatusWithAggregatesFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 
@@ -20,7 +20,6 @@ export const EventScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.EventSc
   id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  images: z.lazy(() => StringNullableListFilterSchema).optional(),
   location: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   date: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   difficulty: z.union([ z.lazy(() => EnumEventDifficultyWithAggregatesFilterSchema), z.lazy(() => EventDifficultySchema) ]).optional(),

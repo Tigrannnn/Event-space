@@ -2,6 +2,8 @@
 
 import { useUpdateEvent } from '@/features/admin/hooks/useAdmin';
 import EventForm from '../EventForm';
+import { buildUpdateEventFormData } from '../EventForm/form-mappers';
+import type { EventFormValues } from '@event-space/shared';
 import { useModalStore } from '@/stores';
 import { ModalType, useModalData } from '@/stores/modalStore';
 import { Modal } from '@/components/ui/Modal';
@@ -28,7 +30,9 @@ export default function UpdateEventModal() {
 				onCancel={closeModal}
 				submitLabel={isPending ? 'Saving...' : 'Save changes'}
 				isPending={isPending}
-				onSubmit={(data) => updateEvent({ id: eventToUpdate.id, data })}
+				onSubmit={(values: EventFormValues) =>
+					updateEvent({ id: eventToUpdate.id, formData: buildUpdateEventFormData(values) })
+				}
 			/>
 		</Modal>
 	);

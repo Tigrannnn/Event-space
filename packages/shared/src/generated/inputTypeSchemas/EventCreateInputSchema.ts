@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
-import { EventCreateimagesInputSchema } from './EventCreateimagesInputSchema';
 import { EventDifficultySchema } from './EventDifficultySchema';
 import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
@@ -9,12 +8,12 @@ import { EventCreatewhatsIncludedInputSchema } from './EventCreatewhatsIncludedI
 import { EventStatusSchema } from './EventStatusSchema';
 import { UserCreateNestedOneWithoutEventsInputSchema } from './UserCreateNestedOneWithoutEventsInputSchema';
 import { BookingCreateNestedManyWithoutEventInputSchema } from './BookingCreateNestedManyWithoutEventInputSchema';
+import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageCreateNestedManyWithoutEventInputSchema';
 
 export const EventCreateInputSchema: z.ZodType<Prisma.EventCreateInput> = z.object({
   id: z.uuid().optional(),
   title: z.string(),
   description: z.string(),
-  images: z.union([ z.lazy(() => EventCreateimagesInputSchema), z.string().array() ]).optional(),
   location: z.string(),
   date: z.coerce.date(),
   difficulty: z.lazy(() => EventDifficultySchema),
@@ -29,6 +28,7 @@ export const EventCreateInputSchema: z.ZodType<Prisma.EventCreateInput> = z.obje
   updatedAt: z.coerce.date().optional(),
   organizer: z.lazy(() => UserCreateNestedOneWithoutEventsInputSchema),
   bookings: z.lazy(() => BookingCreateNestedManyWithoutEventInputSchema).optional(),
+  images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
 }).strict();
 
 export default EventCreateInputSchema;

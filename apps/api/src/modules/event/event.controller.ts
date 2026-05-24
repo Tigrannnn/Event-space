@@ -1,8 +1,10 @@
 import {
+	BadRequestException,
 	Controller,
 	Get,
 	Post,
 	Put,
+	Patch,
 	Delete,
 	Body,
 	Param,
@@ -10,7 +12,10 @@ import {
 	UseGuards,
 	DefaultValuePipe,
 	ParseIntPipe,
+	UseInterceptors,
+	UploadedFiles,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { EventService } from './event.service';
 import {
 	ApiTags,
@@ -19,12 +24,13 @@ import {
 	ApiParam,
 	ApiBearerAuth,
 	ApiBody,
+	ApiConsumes,
 } from '@nestjs/swagger';
-import { CreateEventSchema, UserRoleSchema } from '@event-space/shared';
-import type { CreateEventData, UpdateEventData, UserRoleType } from '@event-space/shared';
+import { EventStatusEnum, MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/shared';
+import type { EventStatus, UserRoleType } from '@event-space/shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard, ZodValidationPipe } from '@shared';
-import { getReference } from '@infra/swagger/swagger.utils';
+import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard } from '@shared';
+import { parseCreateEventMultipart, parseUpdateEventMultipart } from './mappers/event-multipart.mapper';
 
 @ApiTags('events')
 @Controller('events')
@@ -56,31 +62,97 @@ export class EventController {
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Create a new event' })
+	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
+	@ApiConsumes('multipart/form-data')
+	@ApiOperation({ summary: 'Create a new event with images' })
 	@ApiResponse({ status: 201, description: 'Event successfully created' })
-	@ApiBody(getReference('CreateEventSchema'))
+	@ApiBody({
+		schema: {
+			type: 'object',
+			required: ['payload'],
+			properties: {
+				payload: {
+					type: 'string',
+					description: 'JSON: event fields + images[] ({ kind: "file", order })',
+				},
+				files: {
+					type: 'array',
+					items: { type: 'string', format: 'binary' },
+					description: 'New image files in the same order as file items in payload.images',
+				},
+			},
+		},
+	})
 	create(
 		@GetCurrentUserId() userId: string,
-		@Body(new ZodValidationPipe(CreateEventSchema)) data: CreateEventData,
+		@Body('payload') payload: string,
+		@UploadedFiles() files?: Express.Multer.File[],
 	) {
-		return this.eventService.create(userId, data);
+		const parsed = parseCreateEventMultipart(payload, files);
+		return this.eventService.create(userId, parsed.eventData, parsed.imageItems, parsed.files);
+	}
+
+	@Patch(':id/status')
+	@ApiBearerAuth()
+	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
+	@UseGuards(AccessTokenGuard, RolesGuard)
+	@ApiOperation({ summary: 'Update event status only' })
+	@ApiParam({ name: 'id', description: 'Event ID' })
+	updateStatus(
+		@Param('id') id: string,
+		@GetCurrentUserId() userId: string,
+		@GetCurrentUser('role') role: UserRoleType,
+		@Body('status') status: EventStatus,
+	) {
+		if (!EventStatusEnum.options.includes(status)) {
+			throw new BadRequestException('Invalid status');
+		}
+		return this.eventService.updateStatus(id, userId, role, status);
 	}
 
 	@Put(':id')
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Update an event' })
+	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
+	@ApiConsumes('multipart/form-data')
+	@ApiOperation({ summary: 'Update an event with images' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
 	@ApiResponse({ status: 200, description: 'Event successfully updated' })
-	@ApiBody(getReference('UpdateEventSchema'))
+	@ApiBody({
+		schema: {
+			type: 'object',
+			required: ['payload'],
+			properties: {
+				payload: {
+					type: 'string',
+					description:
+						'JSON: partial event fields + images[] ({ kind: "existing"|"file", order, id? })',
+				},
+				files: {
+					type: 'array',
+					items: { type: 'string', format: 'binary' },
+					description: 'New image files in the same order as file items in payload.images',
+				},
+			},
+		},
+	})
 	update(
 		@Param('id') id: string,
 		@GetCurrentUserId() userId: string,
 		@GetCurrentUser('role') role: UserRoleType,
-		@Body() data: UpdateEventData,
+		@Body('payload') payload: string,
+		@UploadedFiles() files?: Express.Multer.File[],
 	) {
-		return this.eventService.update(id, userId, role, data);
+		const parsed = parseUpdateEventMultipart(payload, files);
+		return this.eventService.update(
+			id,
+			userId,
+			role,
+			parsed.eventData,
+			parsed.imageItems,
+			parsed.files,
+		);
 	}
 
 	@Delete(':id')

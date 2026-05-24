@@ -18,7 +18,9 @@
 		"clean": "rm -rf packages/shared/dist apps/web/.next apps/api/dist",
 		"prisma:migrate": "npm --workspace apps/api run prisma:migrate",
 		"prisma:generate": "npm --workspace apps/api run prisma:generate",
-		"prisma:studio": "npm --workspace apps/api run prisma:studio"
+		"prisma:studio": "npm --workspace apps/api run prisma:studio",
+		"test:e2e": "npm --workspace apps/api run test:e2e",
+		"test:e2e:prepare": "npm --workspace apps/api run test:e2e:prepare"
 	},
 	"keywords": [],
 	"author": "",

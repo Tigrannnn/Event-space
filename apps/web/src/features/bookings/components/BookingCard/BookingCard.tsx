@@ -4,10 +4,11 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { Calendar, MapPin, Users } from 'lucide-react';
+import { getEventCoverImageUrl } from '@event-space/shared';
 import type { BookingCardProps } from './types';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
-import { EventImageFallback } from '@/features/events';
+import { EventImageWithFallback } from '@/features/events';
 import { useModalStore } from '@/stores';
 import { ModalType } from '@/stores/modalStore';
 
@@ -36,21 +37,19 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		}
 	};
 
+	console.log(booking);
+
 	if (!event) return null;
 
 	return (
 		<div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
 			{/* Event Image */}
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
-				{event.images[0] ? (
-					<img
-						src={event.images[0]}
-						alt={event.title}
-						className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-					/>
-				) : (
-					<EventImageFallback alt={event.title} />
-				)}
+				<EventImageWithFallback
+					src={getEventCoverImageUrl(event) ?? ''}
+					alt={event.title}
+					className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+				/>
 
 				{/* Status Badge */}
 				<span

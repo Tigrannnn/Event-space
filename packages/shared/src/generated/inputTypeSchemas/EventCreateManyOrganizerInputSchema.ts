@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
-import { EventCreateimagesInputSchema } from './EventCreateimagesInputSchema';
 import { EventDifficultySchema } from './EventDifficultySchema';
 import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
@@ -12,7 +11,6 @@ export const EventCreateManyOrganizerInputSchema: z.ZodType<Prisma.EventCreateMa
   id: z.uuid().optional(),
   title: z.string(),
   description: z.string(),
-  images: z.union([ z.lazy(() => EventCreateimagesInputSchema), z.string().array() ]).optional(),
   location: z.string(),
   date: z.coerce.date(),
   difficulty: z.lazy(() => EventDifficultySchema),

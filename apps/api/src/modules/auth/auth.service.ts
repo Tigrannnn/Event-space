@@ -404,6 +404,8 @@ export class AuthService {
 				data: { passwordHash: hashedPassword },
 			});
 
+			await this.redis.del(this.getOtpKey(action, email));
+
 			await this.rateLimiter.clean(action, email, ip);
 
 			await tx.refreshToken.deleteMany({ where: { userId: user.id } });
