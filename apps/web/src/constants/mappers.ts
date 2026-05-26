@@ -1,4 +1,10 @@
-import type { EventStatus, EventDifficulty, TimeFilterType, BookingStatus } from '@event-space/shared';
+import type {
+	EventStatus,
+	EventDifficulty,
+	TimeFilterType,
+	BookingStatus,
+	UserRoleType,
+} from '@event-space/shared';
 
 export const EVENT_STATUS_LABELS: Record<EventStatus, string> = {
 	DRAFT: 'Draft (Not public)',
@@ -21,4 +27,9 @@ export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
 	PENDING: 'Pending',
 	CONFIRMED: 'Confirmed',
 	CANCELLED: 'Cancelled',
+};
+
+export const USER_ROLE_LABELS: Record<UserRoleType, string> = {
+	USER: 'User',
+	ADMIN: 'Admin',
 };

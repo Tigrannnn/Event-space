@@ -3,7 +3,6 @@ import { join } from 'path';
 import { expand } from 'dotenv-expand';
 import { EnvKey } from '@event-space/shared';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
@@ -28,25 +27,30 @@ async function bootstrap() {
 		credentials: true,
 	});
 
-	const config = new DocumentBuilder()
-		.setTitle('Event Space API')
-		.setDescription('API for Event Space - tour and events platform')
-		.setVersion('1.0')
-		.addBearerAuth()
-		.build();
+	if(configService.get<string>(EnvKey.NODE_ENV) !== 'production') {
+		const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
 
-	const document = SwaggerModule.createDocument(app, config);
-	const zodSchemas = generateOpenApiComponents();
-	if (zodSchemas) {
-		document.components = document.components || {};
-		document.components.schemas = document.components.schemas || {};
+		const config = new DocumentBuilder()
+			.setTitle('Event Space API')
+			.setDescription('API for Event Space - tour and events platform')
+			.setVersion('1.0')
+			.addBearerAuth()
+			.build();
 
-		Object.assign(document.components.schemas, zodSchemas);
+		const document = SwaggerModule.createDocument(app, config);
+		const zodSchemas = generateOpenApiComponents();
+		if (zodSchemas) {
+			document.components = document.components || {};
+			document.components.schemas = document.components.schemas || {};
 
-		console.log(`[Main] Injected ${Object.keys(zodSchemas).length} Zod schemas into Swagger`);
+			Object.assign(document.components.schemas, zodSchemas);
+
+			console.log(`[Main] Injected ${Object.keys(zodSchemas).length} Zod schemas into Swagger`);
+		}
+		
+
+		SwaggerModule.setup('api', app, document);
 	}
-
-	SwaggerModule.setup('api', app, document);
 
 	const port = configService.get<number>(EnvKey.API_PORT) ?? 5000;
 	await app.listen(port);

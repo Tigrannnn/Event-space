@@ -253,7 +253,7 @@ export class AdminService {
 		]);
 	}
 
-	async updateUserRole(id: string, role: 'USER' | 'ORGANIZER' | 'ADMIN'): Promise<SafeUserData> {
+	async updateUserRole(id: string, role: UserRoleType): Promise<SafeUserData> {
 		const user = await this.prisma.user.update({
 			where: { id },
 			data: { role },

@@ -1,6 +1,5 @@
 import {
 	Controller,
-	BadRequestException,
 	Get,
 	Query,
 	UseGuards,
@@ -33,7 +32,6 @@ import type { BookingStatus, EventDifficulty, EventStatus, UserRoleType, TimeFil
 export class AdminController {
 	constructor(
 		private readonly adminService: AdminService,
-		private readonly eventService: EventService,
 	) {}
 
 	@Get('stats')
@@ -130,15 +128,20 @@ export class AdminController {
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
 		@Query('search') search?: string,
 		@Query('role') role?: UserRoleType,
-		@Query('emailVerified') emailVerified?: boolean,
+		@Query('emailVerified') emailVerified?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
+		const parsedEmailVerified =
+			emailVerified === 'true' ? true :
+        	emailVerified === 'false' ? false :
+        	undefined;
+			
 		return this.adminService.findAllUsers({
 			skip,
 			limit: safeLimit,
 			search,
 			role,
-			emailVerified,
+			emailVerified: parsedEmailVerified,
 		});
 	}
 
@@ -154,7 +157,7 @@ export class AdminController {
 
 	@Patch('users/:id/role')
 	@ApiOperation({ summary: 'Update user role (admin only)' })
-	async updateUserRole(@Param('id') id: string, @Body('role') role: 'USER' | 'ORGANIZER' | 'ADMIN') {
+	async updateUserRole(@Param('id') id: string, @Body('role') role: UserRoleType) {
 		return this.adminService.updateUserRole(id, role);
 	}
 

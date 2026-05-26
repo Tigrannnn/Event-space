@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from 'react';
 import { Search, SlidersHorizontal, Trash2, X } from 'lucide-react';
-import type { PaginatedResponse, SafeUserData, UserRoleType } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -16,24 +15,38 @@ import {
 } from '@/components/ui/Table';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useAdminUsers, useDeleteUser, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
+import {
+	PaginatedResponse,
+	SafeUserData,
+	UserRoleSchema,
+	UserRoleType,
+} from '@event-space/shared';
+import { USER_ROLE_LABELS } from '@/constants/mappers';
+
+const roleFilterOptions = [
+	{ value: '', label: 'All roles' },
+	...UserRoleSchema.options.map((role) => ({ value: role, label: USER_ROLE_LABELS[role] })),
+];
+
+const emailVerifiedFilterOptions = [
+	{ value: '', label: 'All statuses' },
+	{ value: 'true', label: 'Verified' },
+	{ value: 'false', label: 'Pending' },
+];
+
+const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
+	value: String(pageSize),
+	label: `${pageSize} / page`,
+}));
+
+const userRoleOptions = UserRoleSchema.options.map((role) => ({
+	value: role,
+	label: USER_ROLE_LABELS[role],
+}));
 
 interface UsersTableProps {
 	initialUsers: PaginatedResponse<SafeUserData>;
 }
-
-const roles: UserRoleType[] = ['USER', 'ORGANIZER', 'ADMIN'];
-const pageSizes = [10, 20, 50, 100];
-const roleOptions = roles.map((role) => ({ value: role, label: role }));
-const roleFilterOptions = [{ value: 'ALL', label: 'All roles' }, ...roleOptions];
-const emailVerifiedOptions = [
-	{ value: 'ALL', label: 'All statuses' },
-	{ value: 'true', label: 'Verified' },
-	{ value: 'false', label: 'Pending' },
-];
-const pageSizeOptions = pageSizes.map((pageSize) => ({
-	value: String(pageSize),
-	label: `${pageSize} / page`,
-}));
 
 function formatDate(value: SafeUserData['createdAt']) {
 	return new Intl.DateTimeFormat('en', {
@@ -48,15 +61,15 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const [limit, setLimit] = useState(initialUsers.take);
 	const [searchInput, setSearchInput] = useState('');
 	const [search, setSearch] = useState('');
-	const [role, setRole] = useState<UserRoleType | 'ALL'>('ALL');
-	const [emailVerified, setEmailVerified] = useState<'ALL' | 'true' | 'false'>('ALL');
+	const [role, setRole] = useState<UserRoleType | undefined>();
+	const [emailVerified, setEmailVerified] = useState<boolean | undefined>();
 	const confirm = useConfirm();
 	const { data, isFetching } = useAdminUsers({
 		skip,
 		limit,
 		search: search || undefined,
-		role: role === 'ALL' ? undefined : role,
-		emailVerified: emailVerified === 'ALL' ? undefined : emailVerified === 'true',
+		role,
+		emailVerified,
 	});
 	const updateUserRole = useUpdateUserRole();
 	const deleteUser = useDeleteUser();
@@ -65,7 +78,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
 	const canGoPrevious = usersResponse.skip > 0;
 	const canGoNext = usersResponse.hasMore && usersResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search || role !== 'ALL' || emailVerified !== 'ALL');
+	const hasActiveFilters = Boolean(search || role !== undefined || emailVerified !== undefined);
 
 	const resetPagination = () => {
 		setSkip(0);
@@ -78,12 +91,12 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	};
 
 	const handleRoleFilterChange = (value: string) => {
-		setRole(value as UserRoleType | 'ALL');
+		setRole(value ? (value as UserRoleType) : undefined);
 		resetPagination();
 	};
 
 	const handleEmailVerifiedFilterChange = (value: string) => {
-		setEmailVerified(value as 'ALL' | 'true' | 'false');
+		setEmailVerified(value === '' ? undefined : value === 'true');
 		resetPagination();
 	};
 
@@ -95,13 +108,13 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const handleResetFilters = () => {
 		setSearchInput('');
 		setSearch('');
-		setRole('ALL');
-		setEmailVerified('ALL');
+		setRole(undefined);
+		setEmailVerified(undefined);
 		resetPagination();
 	};
 
-	const handleRoleChange = (userId: string, role: UserRoleType) => {
-		updateUserRole.mutate({ id: userId, role });
+	const handleRoleChange = (userId: string, nextRole: UserRoleType) => {
+		updateUserRole.mutate({ id: userId, role: nextRole });
 	};
 
 	const handlePreviousPage = () => {
@@ -126,6 +139,9 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 			deleteUser.mutate(user.id);
 		}
 	};
+
+	const emailVerifiedFilterValue =
+		emailVerified === undefined ? '' : emailVerified ? 'true' : 'false';
 
 	return (
 		<div className="overflow-hidden rounded-lg border border-gray-500 shadow-sm">
@@ -159,12 +175,16 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 							Filters
 						</div>
 
-						<Select value={role} onValueChange={handleRoleFilterChange} options={roleFilterOptions} />
+						<Select
+							value={role ?? ''}
+							onValueChange={handleRoleFilterChange}
+							options={roleFilterOptions}
+						/>
 
 						<Select
-							value={emailVerified}
+							value={emailVerifiedFilterValue}
 							onValueChange={handleEmailVerifiedFilterChange}
-							options={emailVerifiedOptions}
+							options={emailVerifiedFilterOptions}
 						/>
 
 						<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
@@ -186,7 +206,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 						<TableHead>Role</TableHead>
 						<TableHead>Status</TableHead>
 						<TableHead>Created</TableHead>
-						<TableHead className="w-24">Actions</TableHead>
+						<TableHead className="w-32">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -212,7 +232,8 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 									onValueChange={(value) => handleRoleChange(user.id, value as UserRoleType)}
 									disabled={updateUserRole.isPending}
 									size="sm"
-									options={roleOptions}
+									aria-label={`Update ${user.name} role`}
+									options={userRoleOptions}
 								/>
 							</TableCell>
 							<TableCell>
@@ -227,17 +248,19 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 								</span>
 							</TableCell>
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
-							<TableCell className="text-right">
-								<Button
-									type="button"
-									size="xs"
-									variant="danger"
-									onClick={() => handleDelete(user)}
-									isLoading={deleteUser.isPending}
-									aria-label={`Delete ${user.name}`}
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
+							<TableCell>
+								<div className="flex gap-2">
+									<Button
+										type="button"
+										size="xs"
+										variant="danger"
+										onClick={() => handleDelete(user)}
+										isLoading={deleteUser.isPending}
+										aria-label={`Delete ${user.name}`}
+									>
+										<Trash2 className="h-4 w-4" />
+									</Button>
+								</div>
 							</TableCell>
 						</TableRow>
 					))}

@@ -17,7 +17,7 @@ ENV NODE_ENV=production
 ARG GOOGLE_CLIENT_ID
 ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app ./
 COPY . .
 
 RUN npx prisma generate --schema=apps/api/prisma/schema.prisma

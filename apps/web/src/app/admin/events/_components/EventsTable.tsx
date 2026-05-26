@@ -94,6 +94,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	});
 	const updateEventStatus = useUpdateEventStatus();
 	const deleteEvent = useDeleteEvent();
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const eventsResponse = data?.data ?? initialEvents;
 	const pageStart = eventsResponse.total === 0 ? 0 : eventsResponse.skip + 1;
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
@@ -165,7 +166,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		});
 
 		if (confirmed) {
-			deleteEvent.mutate(event.id);
+			setDeletingId(event.id);
+			deleteEvent.mutate(event.id, {
+				onSettled: () => setDeletingId(null),
+			});
 		}
 	};
 
@@ -304,7 +308,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 											size="xs"
 											variant="danger"
 											onClick={() => handleDelete(event)}
-											isLoading={deleteEvent.isPending}
+											isLoading={deletingId === event.id && deleteEvent.isPending}
 											aria-label={`Delete ${event.title}`}
 										>
 											<Trash2 className="h-4 w-4" />

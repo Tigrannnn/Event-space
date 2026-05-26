@@ -60,7 +60,7 @@ export class EventController {
 
 	@Post()
 	@ApiBearerAuth()
-	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
+	@Roles(UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
 	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
 	@ApiConsumes('multipart/form-data')
@@ -94,7 +94,7 @@ export class EventController {
 
 	@Patch(':id/status')
 	@ApiBearerAuth()
-	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
+	@Roles(UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
 	@ApiOperation({ summary: 'Update event status only' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
@@ -112,7 +112,7 @@ export class EventController {
 
 	@Put(':id')
 	@ApiBearerAuth()
-	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
+	@Roles(UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
 	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
 	@ApiConsumes('multipart/form-data')
@@ -157,7 +157,7 @@ export class EventController {
 
 	@Delete(':id')
 	@ApiBearerAuth()
-	@Roles(UserRoleSchema.enum.ORGANIZER, UserRoleSchema.enum.ADMIN)
+	@Roles(UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
 	@ApiOperation({ summary: 'Delete an event' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
