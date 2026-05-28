@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { BookingController } from './booking.controller';
+import { StripeModule } from '@infra/stripe/stripe.module';
 
 @Module({
-  providers: [BookingService],
-  controllers: [BookingController]
+	imports: [StripeModule],
+	providers: [BookingService],
+	controllers: [BookingController],
 })
 export class BookingModule {}

@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import { StripeService } from '@infra/stripe/stripe.service';
 
 @Injectable()
 export class BookingService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly stripe: StripeService,
+	) {}
 
 	async create(userId: string, data: CreateBookingData) {
 		const { eventId, quantity = 1 } = data;
@@ -44,11 +48,19 @@ export class BookingService {
 				);
 			}
 
-			return tx.booking.upsert({
-				where: { userId_eventId: { userId, eventId } },
-				update: { status: 'CONFIRMED', quantity },
-				create: { userId, eventId, status: 'CONFIRMED', quantity },
+			const amount = Number(event.price) * quantity;
+			const paymentIntent = await this.stripe.createPaymentIntent(amount, 'usd', {
+				userId,
+				eventId,
 			});
+
+			const booking = await tx.booking.upsert({
+				where: { userId_eventId: { userId, eventId } },
+				update: { status: 'PENDING', quantity, paymentIntentId: paymentIntent.id },
+				create: { userId, eventId, status: 'PENDING', quantity, paymentIntentId: paymentIntent.id },
+			});
+
+			return { booking, clientSecret: paymentIntent.client_secret };
 		});
 	}
 
@@ -117,6 +129,10 @@ export class BookingService {
 			if (!booking) throw new NotFoundException('Booking not found');
 			if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
 			if (booking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
+
+			if (booking.status === 'CONFIRMED' && booking.paymentIntentId) {
+				await this.stripe.refund(booking.paymentIntentId);
+			}
 
 			const released = await tx.event.updateMany({
 				where: {
