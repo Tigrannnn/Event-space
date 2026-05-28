@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Pencil, Plus, Search, SlidersHorizontal, Trash2, X } from 'lucide-react';
+import { CalendarDays, Pencil, Plus, Search, Trash2, Users, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -31,16 +32,26 @@ import {
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
-import { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS, TIME_FILTER_LABELS } from '@/constants/mappers';
+import {
+	EVENT_STATUS_LABELS,
+	EVENT_DIFFICULTY_LABELS,
+	TIME_FILTER_LABELS,
+} from '@/constants/mappers';
 
 const statusFilterOptions = [
 	{ value: '', label: 'All statuses' },
-	...EventStatusEnum.options.map((status) => ({ value: status, label: EVENT_STATUS_LABELS[status] })),
+	...EventStatusEnum.options.map((status) => ({
+		value: status,
+		label: EVENT_STATUS_LABELS[status],
+	})),
 ];
 
 const difficultyFilterOptions = [
 	{ value: '', label: 'All difficulty' },
-	...EventDifficultyEnum.options.map((difficulty) => ({ value: difficulty, label: EVENT_DIFFICULTY_LABELS[difficulty] })),
+	...EventDifficultyEnum.options.map((difficulty) => ({
+		value: difficulty,
+		label: EVENT_DIFFICULTY_LABELS[difficulty],
+	})),
 ];
 
 const timeFilterOptions = [
@@ -95,6 +106,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const updateEventStatus = useUpdateEventStatus();
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const router = useRouter();
 	const eventsResponse = data?.data ?? initialEvents;
 	const pageStart = eventsResponse.total === 0 ? 0 : eventsResponse.skip + 1;
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
@@ -207,11 +219,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						</form>
 
 						<div className="flex flex-wrap items-center gap-2">
-							<div className="flex h-10 items-center gap-2 rounded-md border border-gray-500 px-3 text-sm text-gray-500">
-								<SlidersHorizontal className="h-4 w-4" />
-								Filters
-							</div>
-
 							<Select
 								value={status ?? ''}
 								onValueChange={handleStatusFilterChange}
@@ -224,7 +231,11 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								options={difficultyFilterOptions}
 							/>
 
-							<Select value={time ?? ''} onValueChange={handleTimeFilterChange} options={timeFilterOptions} />
+							<Select
+								value={time ?? ''}
+								onValueChange={handleTimeFilterChange}
+								options={timeFilterOptions}
+							/>
 
 							<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
 
@@ -302,6 +313,15 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 											aria-label={`Edit ${event.title}`}
 										>
 											<Pencil className="h-4 w-4" />
+										</Button>
+										<Button
+											type="button"
+											size="xs"
+											variant="secondary"
+											onClick={() => router.push(`/admin/bookings?eventId=${event.id}`)}
+											aria-label={`View bookings for ${event.title}`}
+										>
+											<Users className="h-4 w-4" />
 										</Button>
 										<Button
 											type="button"

@@ -30,7 +30,6 @@ const bookingInclude = {
 	},
 } as const;
 
-
 interface FindAllUsersParams {
 	skip?: number;
 	limit?: number;
@@ -45,6 +44,7 @@ interface FindAllBookingsParams {
 	search?: string;
 	status?: BookingStatus;
 	time?: TimeFilterType;
+	eventId?: string;
 }
 
 interface FindAllEventsParams {
@@ -262,9 +262,14 @@ export class AdminService {
 		return user;
 	}
 
-
-
-	async findAllBookings({ skip = 0, limit = 20, search, status, time }: FindAllBookingsParams = {}) {
+	async findAllBookings({
+		skip = 0,
+		limit = 20,
+		search,
+		status,
+		time,
+		eventId,
+	}: FindAllBookingsParams = {}) {
 		const now = new Date();
 		const where = {
 			...(search
@@ -280,6 +285,7 @@ export class AdminService {
 			...(status ? { status } : {}),
 			...(time === 'upcoming' ? { event: { date: { gte: now } } } : {}),
 			...(time === 'completed' ? { event: { date: { lt: now } } } : {}),
+			...(eventId ? { eventId } : {}),
 		};
 
 		const [bookings, total] = await Promise.all([

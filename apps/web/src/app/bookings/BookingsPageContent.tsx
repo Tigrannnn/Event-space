@@ -22,7 +22,7 @@ export default function BookingsPageContent() {
 				</div>
 				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">No bookings yet</h2>
 				<p className="mt-2 text-gray-500 dark:text-gray-400">
-					Start exploring events and book your next adventure!
+					Start exploring events and book your next tour!
 				</p>
 				<Link href="/">
 					<Button variant="primary" className="mt-6">

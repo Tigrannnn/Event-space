@@ -54,10 +54,7 @@ export default function EventCard({ event }: EventCardProps) {
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{event.category}</CategoryBadge>
-				<EventImageWithFallback
-					src={getEventCoverImageUrl(event) ?? ''}
-					alt={event.title}
-				/>
+				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={event.title} />
 			</div>
 
 			{/* Content Section */}
@@ -94,7 +91,7 @@ export default function EventCard({ event }: EventCardProps) {
 						</Button>
 					) : (
 						<Button variant="primary" className="w-full" onClick={handleJoinClick}>
-							Join Adventure
+							Book Tour
 						</Button>
 					)}
 				</div>

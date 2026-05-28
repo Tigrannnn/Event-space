@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Search, SlidersHorizontal, X } from 'lucide-react';
+import { CalendarDays, Search, X } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -14,14 +15,22 @@ import {
 	TableRow,
 } from '@/components/ui/Table';
 import { useAdminBookings, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
-import type { BookingStatus, BookingWithDetails, PaginatedResponse, TimeFilterType } from '@event-space/shared';
+import type {
+	BookingStatus,
+	BookingWithDetails,
+	PaginatedResponse,
+	TimeFilterType,
+} from '@event-space/shared';
 import { BookingStatusEnum, TimeFilterSchema } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { BOOKING_STATUS_LABELS, TIME_FILTER_LABELS } from '@/constants/mappers';
 
 const statusFilterOptions = [
 	{ value: '', label: 'All statuses' },
-	...BookingStatusEnum.options.map((status) => ({ value: status, label: BOOKING_STATUS_LABELS[status] })),
+	...BookingStatusEnum.options.map((status) => ({
+		value: status,
+		label: BOOKING_STATUS_LABELS[status],
+	})),
 ];
 
 const timeFilterOptions = [
@@ -58,16 +67,19 @@ function formatCurrency(price: number | string, quantity: number) {
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const [skip, setSkip] = useState(initialBookings.skip);
 	const [limit, setLimit] = useState(initialBookings.take);
+	const searchParams = useSearchParams();
 	const [searchInput, setSearchInput] = useState('');
 	const [search, setSearch] = useState('');
 	const [status, setStatus] = useState<BookingStatus | undefined>();
 	const [time, setTime] = useState<TimeFilterType | undefined>();
+	const [eventId, setEventId] = useState(searchParams.get('eventId') ?? undefined);
 	const { data, isFetching } = useAdminBookings({
 		skip,
 		limit,
 		search: search || undefined,
 		status,
 		time,
+		eventId,
 	});
 	const updateBookingStatus = useUpdateBookingStatus();
 	const bookingsResponse = data?.data ?? initialBookings;
@@ -78,7 +90,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	);
 	const canGoPrevious = bookingsResponse.skip > 0;
 	const canGoNext = bookingsResponse.hasMore && bookingsResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search || status !== undefined || time !== undefined);
+	const hasActiveFilters = Boolean(
+		search || status !== undefined || time !== undefined || eventId !== undefined,
+	);
 
 	const resetPagination = () => {
 		setSkip(0);
@@ -110,6 +124,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		setSearch('');
 		setStatus(undefined);
 		setTime(undefined);
+		setEventId(undefined);
 		resetPagination();
 	};
 
@@ -154,18 +169,17 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 					</form>
 
 					<div className="flex flex-wrap items-center gap-2">
-						<div className="flex h-10 items-center gap-2 rounded-md border border-gray-500 px-3 text-sm text-gray-500">
-							<SlidersHorizontal className="h-4 w-4" />
-							Filters
-						</div>
-
 						<Select
 							value={status ?? ''}
 							onValueChange={handleStatusFilterChange}
 							options={statusFilterOptions}
 						/>
 
-						<Select value={time ?? ''} onValueChange={handleTimeFilterChange} options={timeFilterOptions} />
+						<Select
+							value={time ?? ''}
+							onValueChange={handleTimeFilterChange}
+							options={timeFilterOptions}
+						/>
 
 						<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
 
@@ -203,7 +217,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableRow key={booking.id}>
 							<TableCell className="px-3 sm:px-5">
 								<div className="min-w-0">
-									<p className="font-medium text-gray-900 dark:text-gray-100">{booking.user?.name || 'Unknown'}</p>
+									<p className="font-medium text-gray-900 dark:text-gray-100">
+										{booking.user?.name || 'Unknown'}
+									</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user?.email || '—'}</p>
 								</div>
 							</TableCell>
@@ -221,9 +237,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								<div className="flex items-center gap-2">
 									<Select
 										value={booking.status}
-										onValueChange={(value) =>
-											handleBookingStatusChange(booking.id, value as BookingStatus)
-										}
+										onValueChange={(value) => handleBookingStatusChange(booking.id, value as BookingStatus)}
 										disabled={updateBookingStatus.isPending}
 										size="sm"
 										aria-label={`Update booking for ${booking.user?.name || 'Unknown'}`}
@@ -232,7 +246,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</div>
 							</TableCell>
 							<TableCell>{booking.quantity}</TableCell>
-							<TableCell>{booking.event ? formatCurrency(booking.event.price, booking.quantity) : '—'}</TableCell>
+							<TableCell>
+								{booking.event ? formatCurrency(booking.event.price, booking.quantity) : '—'}
+							</TableCell>
 							<TableCell>
 								<div className="flex items-center gap-2 text-sm">
 									<CalendarDays className="h-4 w-4 text-gray-400" />

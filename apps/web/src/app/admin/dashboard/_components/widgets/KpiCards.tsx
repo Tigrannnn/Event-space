@@ -9,7 +9,7 @@ interface KpiCardsProps {
 export default function KpiCards({ stats }: KpiCardsProps) {
 	const kpis = [
 		{
-			label: 'Revenue',
+			label: 'Booking Value',
 			value: formatCurrency(stats.totalRevenue),
 			hint: `${stats.confirmedBookings.toLocaleString()} confirmed bookings`,
 			icon: DollarSign,

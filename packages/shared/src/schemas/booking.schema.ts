@@ -36,6 +36,7 @@ export const BookingFiltersSchema = z.object({
 	status: BookingStatusEnum.optional(),
 	search: z.string().optional(),
 	time: TimeFilterSchema.optional(),
+	eventId: z.string().optional(),
 });
 
 export type BookingFilters = z.infer<typeof BookingFiltersSchema>;

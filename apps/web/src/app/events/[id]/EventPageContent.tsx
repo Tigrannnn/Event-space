@@ -134,7 +134,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 						{/* Description */}
 						<div>
 							<h2 className="text-primary mb-3 text-xl font-black sm:mb-4 sm:text-2xl">
-								About this adventure
+								About this tour
 							</h2>
 							<div className="prose prose-base sm:prose-lg max-w-none leading-relaxed text-gray-600">
 								<p>{event.description}</p>

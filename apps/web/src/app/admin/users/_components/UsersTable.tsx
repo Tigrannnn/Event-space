@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Search, SlidersHorizontal, Trash2, X } from 'lucide-react';
+import { Search, Trash2, X } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -15,12 +15,7 @@ import {
 } from '@/components/ui/Table';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useAdminUsers, useDeleteUser, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
-import {
-	PaginatedResponse,
-	SafeUserData,
-	UserRoleSchema,
-	UserRoleType,
-} from '@event-space/shared';
+import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { USER_ROLE_LABELS } from '@/constants/mappers';
 
 const roleFilterOptions = [
@@ -170,11 +165,6 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 					</form>
 
 					<div className="flex flex-wrap items-center gap-2">
-						<div className="flex h-10 items-center gap-2 rounded-md border border-gray-500 px-3 text-sm text-gray-500">
-							<SlidersHorizontal className="h-4 w-4" />
-							Filters
-						</div>
-
 						<Select
 							value={role ?? ''}
 							onValueChange={handleRoleFilterChange}

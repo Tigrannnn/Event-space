@@ -28,9 +28,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	const hasBooking = useMemo(
 		() =>
-			myBookings?.some(
-				(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
-			),
+			myBookings?.some((booking) => booking.eventId === event.id && booking.status !== 'CANCELLED'),
 		[myBookings, event.id],
 	);
 
@@ -121,7 +119,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						className="w-full py-4 text-base sm:py-5 sm:text-lg"
 						onClick={handleJoinClick}
 					>
-						Join Adventure
+						Book Tour
 					</Button>
 				)}
 

@@ -22,7 +22,13 @@ import {
 	UserRoleSchema,
 	TimeFilterSchema,
 } from '@event-space/shared';
-import type { BookingStatus, EventDifficulty, EventStatus, UserRoleType, TimeFilterType } from '@event-space/shared';
+import type {
+	BookingStatus,
+	EventDifficulty,
+	EventStatus,
+	UserRoleType,
+	TimeFilterType,
+} from '@event-space/shared';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -30,9 +36,7 @@ import type { BookingStatus, EventDifficulty, EventStatus, UserRoleType, TimeFil
 @Roles('ADMIN')
 @Controller('admin')
 export class AdminController {
-	constructor(
-		private readonly adminService: AdminService,
-	) {}
+	constructor(private readonly adminService: AdminService) {}
 
 	@Get('stats')
 	@ApiOperation({ summary: 'Get dashboard statistics' })
@@ -49,6 +53,7 @@ export class AdminController {
 		description: 'Items per page (max 100)',
 		type: Number,
 	})
+	@ApiQuery({ name: 'eventId', required: false })
 	@ApiQuery({ name: 'search', required: false, description: 'Search in user and event fields' })
 	@ApiQuery({ name: 'status', required: false, enum: BookingStatusEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
@@ -58,6 +63,7 @@ export class AdminController {
 		@Query('search') search?: string,
 		@Query('status') status?: BookingStatus,
 		@Query('time') time?: TimeFilterType,
+		@Query('eventId') eventId?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		return this.adminService.findAllBookings({
@@ -66,6 +72,7 @@ export class AdminController {
 			search,
 			status,
 			time,
+			eventId,
 		});
 	}
 
@@ -132,10 +139,8 @@ export class AdminController {
 	) {
 		const safeLimit = Math.min(limit, 100);
 		const parsedEmailVerified =
-			emailVerified === 'true' ? true :
-        	emailVerified === 'false' ? false :
-        	undefined;
-			
+			emailVerified === 'true' ? true : emailVerified === 'false' ? false : undefined;
+
 		return this.adminService.findAllUsers({
 			skip,
 			limit: safeLimit,
