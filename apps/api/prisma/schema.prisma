@@ -99,7 +99,7 @@ model Event {
   userId    String @map("user_id")
   organizer User   @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
 
-  bookings Booking[] @relation("event_bookings")
+  bookings Booking[]    @relation("event_bookings")
   images   EventImage[] @relation("event_images")
 
   @@index([date])
@@ -130,6 +130,8 @@ model Booking {
   quantity  Int           @default(1)
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
+
+  paymentIntentId String? @unique @map("payment_intent_id")
 
   user  User  @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
   event Event @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)

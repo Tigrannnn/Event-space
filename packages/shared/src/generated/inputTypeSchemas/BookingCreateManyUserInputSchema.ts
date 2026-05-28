@@ -10,6 +10,7 @@ export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateMan
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  paymentIntentId: z.string().optional().nullable(),
 }).strict();
 
 export default BookingCreateManyUserInputSchema;

@@ -13,7 +13,7 @@ export const EnvSchema = z.object({
 	[EnvKey.GOOGLE_CLIENT_ID]: z.string(),
 	[EnvKey.GOOGLE_CLIENT_SECRET]: z.string(),
 	[EnvKey.SMTP_HOST]: z.string(),
-	[EnvKey.SMTP_PORT]: z.number(),
+	[EnvKey.SMTP_PORT]: z.coerce.number(),
 	[EnvKey.SMTP_USER]: z.string(),
 	[EnvKey.SMTP_PASS]: z.string(),
 	[EnvKey.SMTP_FROM]: z.email(),
@@ -21,4 +21,7 @@ export const EnvSchema = z.object({
 	[EnvKey.CLOUDINARY_CLOUD_NAME]: z.string(),
 	[EnvKey.CLOUDINARY_API_KEY]: z.string(),
 	[EnvKey.CLOUDINARY_API_SECRET]: z.string(),
+	[EnvKey.STRIPE_PUBLISHABLE_KEY]: z.string(),
+	[EnvKey.STRIPE_SECRET_KEY]: z.string(),
+	[EnvKey.STRIPE_WEBHOOK_SECRET]: z.string(),
 });

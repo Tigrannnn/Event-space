@@ -16,10 +16,26 @@ import { EventWhereInputSchema } from './EventWhereInputSchema';
 export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueInput> = z.union([
   z.object({
     id: z.uuid(),
+    paymentIntentId: z.string(),
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
+    paymentIntentId: z.string(),
+  }),
+  z.object({
+    id: z.uuid(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    id: z.uuid(),
+  }),
+  z.object({
+    paymentIntentId: z.string(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    paymentIntentId: z.string(),
   }),
   z.object({
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
@@ -27,6 +43,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
 ])
 .and(z.object({
   id: z.uuid().optional(),
+  paymentIntentId: z.string().optional(),
   userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => BookingWhereInputSchema), z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingWhereInputSchema).array().optional(),

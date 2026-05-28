@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { join } from 'path';
+import { EnvSchema } from '@event-space/shared';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { RateLimiterModule } from './infrastructure/rate-limiter/rate-limiter.module';
@@ -10,9 +13,16 @@ import { AppController } from './app.controller';
 import { BookingModule } from '@modules/booking/booking.module';
 import { UploadModule } from '@infra/upload/upload.module';
 import { AdminModule } from '@modules/admin/admin.module';
+import { StripeModule } from './infrastructure/stripe/stripe.module';
 
 @Module({
 	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: [join(__dirname, '../../../.env')],
+			expandVariables: true,
+			validate: (config) => EnvSchema.parse(config),
+		}),
 		PrismaModule,
 		UserModule,
 		EventModule,
@@ -23,6 +33,7 @@ import { AdminModule } from '@modules/admin/admin.module';
 		UploadModule,
 		BookingModule,
 		AdminModule,
+		StripeModule,
 	],
 	controllers: [AppController],
 })

@@ -13,6 +13,7 @@ export const BookingSchema = z.object({
   quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  paymentIntentId: z.string().nullable(),
 })
 
 export type Booking = z.infer<typeof BookingSchema>

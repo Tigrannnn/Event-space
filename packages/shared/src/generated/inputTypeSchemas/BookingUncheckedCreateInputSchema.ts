@@ -11,6 +11,7 @@ export const BookingUncheckedCreateInputSchema: z.ZodType<Prisma.BookingUnchecke
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  paymentIntentId: z.string().optional().nullable(),
 }).strict();
 
 export default BookingUncheckedCreateInputSchema;
