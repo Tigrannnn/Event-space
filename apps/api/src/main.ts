@@ -1,16 +1,24 @@
 import * as dotenv from 'dotenv';
 import { join } from 'path';
 import { expand } from 'dotenv-expand';
-import { EnvKey } from '@event-space/shared';
+import { EnvKey, EVENT_UPLOAD_TIMEOUTS } from '@event-space/shared';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { ZodExceptionFilter } from './shared';
 import { generateOpenApiComponents } from '@infra/swagger/swagger.registry';
+import type { Server } from 'http';
 
 const myEnv = dotenv.config({ path: join(process.cwd(), '../../.env') });
 expand(myEnv);
+
+function configureHttpUploadTimeouts(server: Server): void {
+	const timeoutMs = EVENT_UPLOAD_TIMEOUTS.HTTP_SERVER_MS;
+	server.setTimeout(timeoutMs);
+	server.requestTimeout = timeoutMs;
+	server.headersTimeout = timeoutMs + 5_000;
+}
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -53,7 +61,8 @@ async function bootstrap() {
 	}
 
 	const port = configService.get<number>(EnvKey.API_PORT) ?? 5000;
-	await app.listen(port);
+	const server = await app.listen(port);
+	configureHttpUploadTimeouts(server);
 
 	console.log(`🚀 Server is running on: http://localhost:${port}`);
 }

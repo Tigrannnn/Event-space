@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { GripVertical, Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { MAX_EVENT_IMAGES, type ImageUploaderItem } from '@event-space/shared';
@@ -32,6 +32,12 @@ function reorderItems(items: ImageUploaderItem[]): ImageUploaderItem[] {
 	return items.map((item, order) => ({ ...item, order }));
 }
 
+function revokeFilePreview(item: ImageUploaderItem): void {
+	if (item.kind === 'file' && item.previewUrl.startsWith('blob:')) {
+		URL.revokeObjectURL(item.previewUrl);
+	}
+}
+
 function isFileDragEvent(event: React.DragEvent): boolean {
 	return Array.from(event.dataTransfer.types).includes('Files');
 }
@@ -45,6 +51,7 @@ export default function ImageUploader({
 	const inputId = useId();
 	const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 	const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+	const fileItemsRef = useRef<ImageUploaderItem[]>([]);
 
 	const sorted = useMemo(
 		() => [...value].sort((a, b) => a.order - b.order),
@@ -53,6 +60,16 @@ export default function ImageUploader({
 
 	const canAddMore = sorted.length < maxImages;
 	const canReorder = sorted.length > 1 && !disabled;
+
+	fileItemsRef.current = sorted.filter((item) => item.kind === 'file');
+
+	useEffect(() => {
+		return () => {
+			for (const item of fileItemsRef.current) {
+				revokeFilePreview(item);
+			}
+		};
+	}, []);
 
 	const addFiles = useCallback(
 		(files: File[]) => {
@@ -84,6 +101,10 @@ export default function ImageUploader({
 	});
 
 	const removeAt = (index: number) => {
+		const removed = sorted[index];
+		if (removed) {
+			revokeFilePreview(removed);
+		}
 		const next = sorted.filter((_, i) => i !== index);
 		onChange(reorderItems(next));
 	};

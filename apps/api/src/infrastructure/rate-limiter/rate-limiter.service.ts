@@ -1,4 +1,4 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { AUTH_CONFIG, AuthAction, AuthKeyType, Email } from '@event-space/shared';
 
@@ -120,5 +120,22 @@ export class RateLimiterService {
 			this.redis.del(globalKey),
 			this.redis.del(cooldownKey),
 		]);
+	}
+
+	/**
+	 * Fixed-window counter. Increments on each call; rejects when count exceeds max.
+	 * TTL is set on first increment so the window does not slide.
+	 */
+	async consumeFixedWindow(key: string, max: number, windowSec: number): Promise<void> {
+		const count = await this.redis.incr(key);
+		if (count === 1) {
+			await this.redis.expire(key, windowSec);
+		}
+		if (count > max) {
+			throw new HttpException(
+				'Too many requests. Please try again later.',
+				HttpStatus.TOO_MANY_REQUESTS,
+			);
+		}
 	}
 }

@@ -194,11 +194,13 @@ npm --workspace apps/api run start:dev
 
 ## Production (Docker)
 
-Full stack (API, web, Postgres, Redis):
+Full stack (API behind nginx body-size limit, web, Postgres, Redis):
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
+
+Public API traffic goes through `nginx-api` on `${API_PORT:-5000}` with `client_max_body_size 26m` (see `MAX_EVENT_MULTIPART_BODY_NGINX` in `@event-space/shared`). The Nest API container is internal-only on the Docker network; set `API_URL` in `.env` to the host URL clients use (e.g. `http://localhost:5000`).
 
 Ensure production `.env` has strong secrets, `NODE_ENV=production`, and real SMTP/Cloudinary credentials.
 

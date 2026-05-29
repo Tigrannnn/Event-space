@@ -30,7 +30,13 @@ import { EventStatusEnum, MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/
 import type { EventStatus, UserRoleType } from '@event-space/shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard } from '@shared';
-import { parseCreateEventMultipart, parseUpdateEventMultipart } from './mappers/event-multipart.mapper';
+import {
+	parseCreateEventMultipart,
+	parseUpdateEventMultipart,
+} from './mappers/event-multipart.mapper';
+import { eventImageUploadOptions } from './event-upload.options';
+import { RateLimitEventMutation } from './decorators/rate-limit-event-mutation.decorator';
+import { EventMutationRateLimitGuard } from './guards/event-mutation-rate-limit.guard';
 
 @ApiTags('events')
 @Controller('events')
@@ -61,11 +67,13 @@ export class EventController {
 	@Post()
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
+	@RateLimitEventMutation('create')
+	@UseGuards(AccessTokenGuard, RolesGuard, EventMutationRateLimitGuard)
+	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES, eventImageUploadOptions))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Create a new event with images' })
 	@ApiResponse({ status: 201, description: 'Event successfully created' })
+	@ApiResponse({ status: 429, description: 'Too many create requests' })
 	@ApiBody({
 		schema: {
 			type: 'object',
@@ -113,12 +121,14 @@ export class EventController {
 	@Put(':id')
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES))
+	@RateLimitEventMutation('update')
+	@UseGuards(AccessTokenGuard, RolesGuard, EventMutationRateLimitGuard)
+	@UseInterceptors(FilesInterceptor('files', MAX_EVENT_IMAGES, eventImageUploadOptions))
 	@ApiConsumes('multipart/form-data')
 	@ApiOperation({ summary: 'Update an event with images' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
 	@ApiResponse({ status: 200, description: 'Event successfully updated' })
+	@ApiResponse({ status: 429, description: 'Too many update requests' })
 	@ApiBody({
 		schema: {
 			type: 'object',
@@ -126,8 +136,7 @@ export class EventController {
 			properties: {
 				payload: {
 					type: 'string',
-					description:
-						'JSON: partial event fields + images[] ({ kind: "existing"|"file", order, id? })',
+					description: 'JSON: partial event fields + images[] ({ kind: "existing"|"file", order, id? })',
 				},
 				files: {
 					type: 'array',

@@ -1,16 +1,18 @@
 import { z } from 'zod';
 import { MAX_EVENT_IMAGES } from '../constants/event-images.constant';
 import { EventDifficultyEnum, EventStatusEnum } from './event.schema';
-import type { ImageUploaderItem } from '../types/event-image.types';
+import { ImageUploaderItemSchema } from './event-image.schema';
 
 /**
- * UI form schema. String fields match HTML inputs; images hold local File + existing rows.
+ * UI form schema for creating/editing events.
+ * String fields match HTML inputs; images array holds local File + existing rows.
+ * Used in web admin panel for form validation and state management.
  */
 export const EventFormSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	description: z.string().min(1, 'Description is required'),
 	images: z
-		.array(z.custom<ImageUploaderItem>())
+		.array(ImageUploaderItemSchema)
 		.min(1, 'At least one image is required')
 		.max(MAX_EVENT_IMAGES),
 	location: z.string().min(1, 'Location is required'),

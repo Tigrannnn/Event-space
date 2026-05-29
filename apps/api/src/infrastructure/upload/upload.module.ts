@@ -1,13 +1,20 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UploadController } from './upload.controller';
+import {
+	CloudinaryDeleteQueueService,
+	CloudinaryDeleteRetryWorker,
+	CloudinaryOrphanReconciliationService,
+} from './cloudinary';
 import { UploadService } from './upload.service';
-import { CloudinaryProvider } from './cloudinary.provider';
 
 @Module({
 	imports: [ConfigModule],
-	controllers: [UploadController],
-	providers: [UploadService, CloudinaryProvider],
+	providers: [
+		UploadService,
+		CloudinaryDeleteQueueService,
+		CloudinaryDeleteRetryWorker,
+		CloudinaryOrphanReconciliationService,
+	],
 	exports: [UploadService],
 })
 export class UploadModule {}

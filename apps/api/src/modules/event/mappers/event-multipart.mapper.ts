@@ -3,15 +3,13 @@ import {
 	CreateEventMultipartPayloadSchema,
 	EventImageFileItem,
 	EventImageItem,
+	MAX_EVENT_IMAGE_FILE_SIZE_BYTES,
 	MAX_EVENT_IMAGES,
 	UpdateEventMultipartPayloadSchema,
 	type CreateEventData,
 	type UpdateEventData,
 } from '@event-space/shared';
-
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
-const ALLOWED_MIME_PATTERN = /^image\/(png|jpe?g|webp|avif)$/i;
-const ALLOWED_EXT_PATTERN = /\.(png|jpe?g|webp|avif)$/i;
+import { assertValidImageFile } from '@shared';
 
 export type ParsedCreateEventMultipart = {
 	eventData: CreateEventData;
@@ -159,17 +157,6 @@ function assertWithinImageLimit(count: number): void {
 
 function validateImageFiles(files: Express.Multer.File[]): void {
 	for (const file of files) {
-		if (file.size > MAX_FILE_SIZE_BYTES) {
-			throw new BadRequestException(`File ${file.originalname} exceeds 5MB limit`);
-		}
-
-		const mimeOk = file.mimetype && ALLOWED_MIME_PATTERN.test(file.mimetype);
-		const extOk = ALLOWED_EXT_PATTERN.test(file.originalname);
-
-		if (!mimeOk && !extOk) {
-			throw new BadRequestException(
-				`File ${file.originalname} must be png, jpeg, jpg, webp, or avif`,
-			);
-		}
+		assertValidImageFile(file, { maxSizeBytes: MAX_EVENT_IMAGE_FILE_SIZE_BYTES });
 	}
 }

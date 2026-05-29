@@ -1,4 +1,28 @@
-import type { Event, EventFormValues, EventImageItem, ImageUploaderItem } from '@event-space/shared';
+import {
+	EventDifficultyEnum,
+	EventStatusEnum,
+	type Event,
+	type EventFormValues,
+	type EventImageItem,
+	type ImageUploaderItem,
+} from '@event-space/shared';
+
+export function getDefaultEventFormValues(): EventFormValues {
+	return {
+		title: '',
+		description: '',
+		images: [],
+		location: '',
+		date: '',
+		difficulty: EventDifficultyEnum.enum.EASY,
+		status: EventStatusEnum.enum.DRAFT,
+		price: '',
+		maxParticipants: '',
+		category: '',
+		whatsIncluded: '',
+		duration: '',
+	};
+}
 
 function parseList(val: string): string[] {
 	return val
@@ -43,8 +67,8 @@ function buildPayloadImages(items: ImageUploaderItem[]): {
 	return { imageItems, files };
 }
 
-export function mapEventToFormValues(event?: Event): Partial<EventFormValues> {
-	if (!event) return { images: [] };
+export function mapEventToFormValues(event?: Event): EventFormValues {
+	if (!event) return getDefaultEventFormValues();
 
 	const d = new Date(event.date);
 	const dateStr = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);

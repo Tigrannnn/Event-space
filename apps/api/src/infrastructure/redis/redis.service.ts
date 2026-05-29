@@ -43,4 +43,24 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 	async expire(key: string, seconds: number): Promise<number> {
 		return await this.client.expire(key, seconds);
 	}
+
+	async zadd(key: string, score: number, member: string): Promise<number> {
+		return await this.client.zadd(key, score, member);
+	}
+
+	async zrangebyscore(
+		key: string,
+		min: number | string,
+		max: number | string,
+		limit?: number,
+	): Promise<string[]> {
+		if (limit !== undefined) {
+			return await this.client.zrangebyscore(key, min, max, 'LIMIT', 0, limit);
+		}
+		return await this.client.zrangebyscore(key, min, max);
+	}
+
+	async zrem(key: string, ...members: string[]): Promise<number> {
+		return await this.client.zrem(key, ...members);
+	}
 }

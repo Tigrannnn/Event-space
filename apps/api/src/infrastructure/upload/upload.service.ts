@@ -1,6 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { CLOUDINARY_CONFIG, EnvKey } from '@event-space/shared';
 import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import * as streamifier from 'streamifier';
+import { CloudinaryDeleteQueueService } from './cloudinary/delete-queue.service';
 
 export interface CloudinaryUploadResult {
 	url: string;
@@ -8,23 +11,66 @@ export interface CloudinaryUploadResult {
 }
 
 @Injectable()
-export class UploadService {
+export class UploadService implements OnModuleInit {
 	private readonly logger = new Logger(UploadService.name);
+
+	constructor(
+		private readonly configService: ConfigService,
+		private readonly deleteQueue: CloudinaryDeleteQueueService,
+	) {}
+
+	onModuleInit(): void {
+		cloudinary.config({
+			cloud_name: this.configService.getOrThrow<string>(EnvKey.CLOUDINARY_CLOUD_NAME),
+			api_key: this.configService.getOrThrow<string>(EnvKey.CLOUDINARY_API_KEY),
+			api_secret: this.configService.getOrThrow<string>(EnvKey.CLOUDINARY_API_SECRET),
+		});
+	}
 
 	uploadImage(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
 		if (!file) {
 			throw new BadRequestException('No file provided');
 		}
+		if (!file.buffer?.length) {
+			throw new BadRequestException('File buffer is empty');
+		}
 
 		return this.uploadBuffer(file.buffer);
 	}
 
-	uploadImages(files: Express.Multer.File[]): Promise<CloudinaryUploadResult[]> {
+	async uploadImages(files: Express.Multer.File[]): Promise<CloudinaryUploadResult[]> {
 		if (!files?.length) {
-			return Promise.resolve([]);
+			return [];
 		}
 
-		return Promise.all(files.map((file) => this.uploadImage(file)));
+		const results: CloudinaryUploadResult[] = [];
+
+		try {
+			for (const file of files) {
+				results.push(await this.uploadImage(file));
+			}
+			return results;
+		} catch (error) {
+			await this.deleteMultipleByPublicId(results.map((r) => r.publicId));
+			throw error;
+		}
+	}
+
+	/**
+	 * Attempts to delete a Cloudinary asset. Returns true when deleted or already absent.
+	 */
+	async tryDeletePublicId(publicId: string): Promise<boolean> {
+		try {
+			const result = await cloudinary.uploader.destroy(publicId);
+			if (result.result === 'ok' || result.result === 'not found') {
+				return true;
+			}
+			this.logger.warn(`Cloudinary delete unexpected result for ${publicId}: ${result.result}`);
+			return false;
+		} catch (error) {
+			this.logger.warn(`Cloudinary delete failed for ${publicId}`, error);
+			return false;
+		}
 	}
 
 	async deleteByPublicId(publicId: string): Promise<void> {
@@ -32,10 +78,9 @@ export class UploadService {
 			throw new BadRequestException('publicId is required');
 		}
 
-		const result = await cloudinary.uploader.destroy(publicId);
-
-		if (result.result !== 'ok' && result.result !== 'not found') {
-			this.logger.warn(`Cloudinary delete unexpected result for ${publicId}: ${result.result}`);
+		const deleted = await this.tryDeletePublicId(publicId);
+		if (!deleted) {
+			await this.deleteQueue.enqueue(publicId);
 		}
 	}
 
@@ -45,13 +90,19 @@ export class UploadService {
 			return;
 		}
 
-		const results = await Promise.allSettled(
-			uniqueIds.map((publicId) => this.deleteByPublicId(publicId)),
-		);
+		const failed: string[] = [];
+		for (const publicId of uniqueIds) {
+			const deleted = await this.tryDeletePublicId(publicId);
+			if (!deleted) {
+				failed.push(publicId);
+			}
+		}
 
-		const failures = results.filter((r) => r.status === 'rejected');
-		if (failures.length) {
-			this.logger.error(`Failed to delete ${failures.length}/${uniqueIds.length} Cloudinary asset(s)`);
+		if (failed.length) {
+			this.logger.error(
+				`Failed to delete ${failed.length}/${uniqueIds.length} Cloudinary asset(s); queued for retry`,
+			);
+			await this.deleteQueue.enqueueMany(failed);
 		}
 	}
 
@@ -59,7 +110,8 @@ export class UploadService {
 		return new Promise((resolve, reject) => {
 			const uploadStream = cloudinary.uploader.upload_stream(
 				{
-					folder: 'event-space',
+					folder: CLOUDINARY_CONFIG.UPLOAD_FOLDER,
+					resource_type: 'image',
 					allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
 					transformation: [
 						{ width: 1200, crop: 'limit' },
