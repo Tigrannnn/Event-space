@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
 	transpilePackages: ['@event-space/shared'],
 	env: {
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+		STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
 	},
 	images: {
 		remotePatterns: [

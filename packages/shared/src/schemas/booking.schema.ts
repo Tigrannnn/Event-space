@@ -55,6 +55,11 @@ export const CreateBookingSchema = z.object({
 
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;
 
+export type CreateBookingResponse = {
+	booking: Booking;
+	clientSecret: string | null;
+};
+
 // === UPDATE BOOKING ===
 export const UpdateBookingSchema = z.object({
 	quantity: z.number().int().min(1).max(4).openapi({

@@ -1,9 +1,14 @@
 import clientApi from '@/lib/client.api';
-import type { Booking, CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import type {
+	Booking,
+	CreateBookingData,
+	CreateBookingResponse,
+	UpdateBookingData,
+} from '@event-space/shared';
 
 export const bookingApi = {
 	createBooking: (data: CreateBookingData) =>
-		clientApi.post<Booking>('/bookings', data).then((res) => res.data),
+		clientApi.post<CreateBookingResponse>('/bookings', data).then((res) => res.data),
 
 	getMyBookings: () => clientApi.get<Booking[]>('/bookings/my').then((res) => res.data),
 

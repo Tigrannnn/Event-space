@@ -13,18 +13,9 @@ export const useGetMyBookings = () => {
 
 export const useCreateBooking = () => {
 	const { addToast } = useToastStore();
-	const { closeModal } = useModalStore();
-	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (data: CreateBookingData) => bookingApi.createBooking(data),
-		onSuccess: (_, variables) => {
-			addToast('Booking created successfully', ToastType.SUCCESS);
-			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['event', variables.eventId] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
-		},
 		onError: (error) => {
 			const message = getApiErrorMessage(error, 'Failed to create booking');
 			addToast(message, ToastType.ERROR);

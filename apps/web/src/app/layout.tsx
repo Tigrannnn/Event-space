@@ -8,6 +8,7 @@ import { ToastContainer } from '@/components/ui/Toast';
 import { siteConfig } from '../../site.config';
 import GoogleProvider from '@/components/shared/GoogleProvider/GoogleProvider';
 import { EnvKey } from '@event-space/shared';
+import { clientEnv } from '@/config/env';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -20,7 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+	metadataBase: new URL(clientEnv[EnvKey.FRONTEND_URL] || 'http://localhost:3000'),
 	title: `${siteConfig.name} | Local Events & Adventures`,
 	description: `${siteConfig.description}`,
 	icons: {
@@ -61,7 +62,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const googleClientId = process.env[EnvKey.GOOGLE_CLIENT_ID];
+	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
 
 	if (!googleClientId) {
 		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');

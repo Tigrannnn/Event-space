@@ -1,14 +1,33 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { useGetMyBookings } from '../../features/bookings/hooks/useBookings';
 import BookingCard from '../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import Button from '@/components/ui/Buttons/Button';
 import Link from 'next/link';
 import { CalendarX } from 'lucide-react';
+import { ToastType, useToastStore } from '@/stores/toastStore';
 
 export default function BookingsPageContent() {
+	const searchParams = useSearchParams();
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
 	const { data: bookings, isLoading } = useGetMyBookings();
+
+	useEffect(() => {
+		const paymentStatus = searchParams.get('payment');
+		const redirectStatus = searchParams.get('redirect_status');
+
+		if (paymentStatus === 'success' || redirectStatus === 'succeeded') {
+			addToast('Payment successful! Your booking will be confirmed shortly.', ToastType.SUCCESS);
+			void queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+			void queryClient.invalidateQueries({ queryKey: ['events'] });
+			window.history.replaceState({}, '', '/bookings');
+		}
+	}, [searchParams, addToast, queryClient]);
 
 	if (isLoading) {
 		return <BookingsSkeleton />;

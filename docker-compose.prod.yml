@@ -57,6 +57,7 @@ services:
       target: runner
       args:
         GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
     container_name: event-space-web
     env_file:
       - .env

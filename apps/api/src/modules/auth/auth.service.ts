@@ -348,9 +348,13 @@ export class AuthService {
 				throw new ForbiddenException('Refresh token expired');
 			}
 
-			await tx.refreshToken.delete({
+			const deleted = await tx.refreshToken.deleteMany({
 				where: { id: tokenRecord.id },
 			});
+
+			if (deleted.count === 0) {
+				throw new ForbiddenException('Refresh token already used');
+			}
 
 			return this.generateAndSaveTokens(
 				tokenRecord.user.id,

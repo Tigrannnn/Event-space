@@ -3,6 +3,7 @@ import {
 	NotFoundException,
 	ConflictException,
 	ForbiddenException,
+	ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
@@ -18,7 +19,7 @@ export class BookingService {
 	async create(userId: string, data: CreateBookingData) {
 		const { eventId, quantity = 1 } = data;
 
-		return this.prisma.$transaction(async (tx) => {
+		const { booking, amount } = await this.prisma.$transaction(async (tx) => {
 			const event = await tx.event.findUnique({ where: { id: eventId } });
 			if (!event) throw new NotFoundException('Event not found');
 			if (event.status !== 'PUBLISHED') {
@@ -48,20 +49,31 @@ export class BookingService {
 				);
 			}
 
-			const amount = Number(event.price) * quantity;
+			const upserted = await tx.booking.upsert({
+				where: { userId_eventId: { userId, eventId } },
+				update: { status: 'PENDING', quantity, paymentIntentId: null },
+				create: { userId, eventId, status: 'PENDING', quantity },
+			});
+
+			return { booking: upserted, amount: Number(event.price) * quantity };
+		});
+
+		try {
 			const paymentIntent = await this.stripe.createPaymentIntent(amount, 'usd', {
 				userId,
 				eventId,
 			});
 
-			const booking = await tx.booking.upsert({
-				where: { userId_eventId: { userId, eventId } },
-				update: { status: 'PENDING', quantity, paymentIntentId: paymentIntent.id },
-				create: { userId, eventId, status: 'PENDING', quantity, paymentIntentId: paymentIntent.id },
+			const updatedBooking = await this.prisma.booking.update({
+				where: { id: booking.id },
+				data: { paymentIntentId: paymentIntent.id },
 			});
 
-			return { booking, clientSecret: paymentIntent.client_secret };
-		});
+			return { booking: updatedBooking, clientSecret: paymentIntent.client_secret };
+		} catch (error) {
+			await this.releasePendingBooking(booking.id, eventId, quantity);
+			this.rethrowStripeError(error);
+		}
 	}
 
 	async update(userId: string, bookingId: string, data: UpdateBookingData) {
@@ -132,6 +144,8 @@ export class BookingService {
 
 			if (booking.status === 'CONFIRMED' && booking.paymentIntentId) {
 				await this.stripe.refund(booking.paymentIntentId);
+			} else if (booking.status === 'PENDING' && booking.paymentIntentId) {
+				await this.stripe.cancelPaymentIntent(booking.paymentIntentId);
 			}
 
 			const released = await tx.event.updateMany({
@@ -148,5 +162,41 @@ export class BookingService {
 
 			return tx.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
 		});
+	}
+
+	private async releasePendingBooking(
+		bookingId: string,
+		eventId: string,
+		quantity: number,
+	): Promise<void> {
+		await this.prisma.$transaction(async (tx) => {
+			await tx.event.updateMany({
+				where: {
+					id: eventId,
+					currentParticipants: { gte: quantity },
+				},
+				data: { currentParticipants: { decrement: quantity } },
+			});
+
+			await tx.booking.update({
+				where: { id: bookingId },
+				data: { status: 'CANCELLED', paymentIntentId: null },
+			});
+		});
+	}
+
+	private rethrowStripeError(error: unknown): never {
+		if (
+			error &&
+			typeof error === 'object' &&
+			'type' in error &&
+			(error as { type: string }).type === 'StripeConnectionError'
+		) {
+			throw new ServiceUnavailableException(
+				'Payment service is unavailable. Check your internet connection and try again.',
+			);
+		}
+
+		throw error;
 	}
 }
