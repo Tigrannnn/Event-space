@@ -97,56 +97,56 @@ export class BookingService {
 		}
 	}
 
-	async update(userId: string, bookingId: string, data: UpdateBookingData) {
-		const { quantity } = data;
+	// async update(userId: string, bookingId: string, data: UpdateBookingData) {
+	// 	const { quantity } = data;
 
-		return this.prisma.$transaction(async (tx) => {
-			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
-			if (!booking) throw new NotFoundException('Booking not found');
-			if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
-			if (booking.status === 'CANCELLED') {
-				throw new ConflictException('Cannot update cancelled booking');
-			}
+	// 	return this.prisma.$transaction(async (tx) => {
+	// 		const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+	// 		if (!booking) throw new NotFoundException('Booking not found');
+	// 		if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
+	// 		if (booking.status === 'CANCELLED') {
+	// 			throw new ConflictException('Cannot update cancelled booking');
+	// 		}
 
-			const diff = quantity - booking.quantity;
-			if (diff === 0) return booking;
+	// 		const diff = quantity - booking.quantity;
+	// 		if (diff === 0) return booking;
 
-			if (diff > 0) {
-				const event = await tx.event.findUnique({ where: { id: booking.eventId } });
-				if (!event) throw new NotFoundException('Event not found');
+	// 		if (diff > 0) {
+	// 			const event = await tx.event.findUnique({ where: { id: booking.eventId } });
+	// 			if (!event) throw new NotFoundException('Event not found');
 
-				const reserved = await tx.event.updateMany({
-					where: {
-						id: booking.eventId,
-						status: 'PUBLISHED',
-						currentParticipants: { lte: event.maxParticipants - diff },
-					},
-					data: { currentParticipants: { increment: diff } },
-				});
+	// 			const reserved = await tx.event.updateMany({
+	// 				where: {
+	// 					id: booking.eventId,
+	// 					status: 'PUBLISHED',
+	// 					currentParticipants: { lte: event.maxParticipants - diff },
+	// 				},
+	// 				data: { currentParticipants: { increment: diff } },
+	// 			});
 
-				if (reserved.count === 0) {
-					const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
-					throw new ConflictException(
-						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-					);
-				}
-			} else {
-				const released = await tx.event.updateMany({
-					where: {
-						id: booking.eventId,
-						currentParticipants: { gte: -diff },
-					},
-					data: { currentParticipants: { decrement: -diff } },
-				});
+	// 			if (reserved.count === 0) {
+	// 				const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
+	// 				throw new ConflictException(
+	// 					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
+	// 				);
+	// 			}
+	// 		} else {
+	// 			const released = await tx.event.updateMany({
+	// 				where: {
+	// 					id: booking.eventId,
+	// 					currentParticipants: { gte: -diff },
+	// 				},
+	// 				data: { currentParticipants: { decrement: -diff } },
+	// 			});
 
-				if (released.count === 0) {
-					throw new ConflictException('Unable to release spots');
-				}
-			}
+	// 			if (released.count === 0) {
+	// 				throw new ConflictException('Unable to release spots');
+	// 			}
+	// 		}
 
-			return tx.booking.update({ where: { id: bookingId }, data: { quantity } });
-		});
-	}
+	// 		return tx.booking.update({ where: { id: bookingId }, data: { quantity } });
+	// 	});
+	// }
 
 	async findByUser(userId: string) {
 		return this.prisma.booking.findMany({

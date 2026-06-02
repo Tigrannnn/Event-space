@@ -6,8 +6,6 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EventCreatewhatsIncludedInputSchema } from './EventCreatewhatsIncludedInputSchema';
 import { EventStatusSchema } from './EventStatusSchema';
-import { NullableJsonNullValueInputSchema } from './NullableJsonNullValueInputSchema';
-import { InputJsonValueSchema } from './InputJsonValueSchema';
 
 export const EventCreateManyOrganizerInputSchema: z.ZodType<Prisma.EventCreateManyOrganizerInput> = z.object({
   id: z.uuid().optional(),
@@ -25,7 +23,6 @@ export const EventCreateManyOrganizerInputSchema: z.ZodType<Prisma.EventCreateMa
   status: z.lazy(() => EventStatusSchema).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  cancellationPolicy: z.union([ z.lazy(() => NullableJsonNullValueInputSchema), InputJsonValueSchema ]).optional(),
 }).strict();
 
 export default EventCreateManyOrganizerInputSchema;

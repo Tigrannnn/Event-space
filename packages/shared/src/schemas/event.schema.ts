@@ -2,7 +2,13 @@ import { z } from './openapi';
 import { EventSchema as GeneratedEventSchema } from '../generated/modelSchema/EventSchema';
 import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSchema';
 import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
-import { SafeUserSchema } from './user.schema';
+import { TimeFilterSchema } from './common.schema';
+import { CancellationPolicyRuleSchema as GeneratedRuleSchema } from '../generated';
+
+export const CancellationPolicyRuleInputSchema = GeneratedRuleSchema.omit({
+	id: true,
+	eventId: true,
+});
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -22,7 +28,7 @@ export type EventImage = z.infer<typeof EventImageSchema>;
 export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number().openapi({ example: 5000 }),
 	images: z.array(EventImageSchema).optional(),
-	// organizer: SafeUserSchema.optional(),
+	cancellationRules: z.array(GeneratedRuleSchema).default([]),
 }).openapi({
 	description: 'Event information',
 	example: {
@@ -47,8 +53,6 @@ export const EventSchema = GeneratedEventSchema.extend({
 
 export type Event = z.infer<typeof EventSchema>;
 
-import { TimeFilterSchema } from './common.schema';
-
 // === QUERIES ===
 export const EventFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),
@@ -69,6 +73,8 @@ export const CreateEventSchema = EventSchema.omit({
 	createdAt: true,
 	updatedAt: true,
 	images: true,
+}).extend({
+	cancellationRules: z.array(CancellationPolicyRuleInputSchema).default([]),
 });
 
 export type CreateEventData = z.infer<typeof CreateEventSchema>;

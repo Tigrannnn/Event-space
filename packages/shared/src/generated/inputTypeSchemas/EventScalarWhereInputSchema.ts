@@ -12,7 +12,6 @@ import { IntFilterSchema } from './IntFilterSchema';
 import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 import { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
-import { JsonNullableFilterSchema } from './JsonNullableFilterSchema';
 
 export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput> = z.object({
   AND: z.union([ z.lazy(() => EventScalarWhereInputSchema), z.lazy(() => EventScalarWhereInputSchema).array() ]).optional(),
@@ -34,7 +33,6 @@ export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  cancellationPolicy: z.lazy(() => JsonNullableFilterSchema).optional(),
 }).strict();
 
 export default EventScalarWhereInputSchema;

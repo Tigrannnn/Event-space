@@ -151,7 +151,7 @@ model Event {
   bookings Booking[]    @relation("event_bookings")
   images   EventImage[] @relation("event_images")
 
-  cancellationPolicy Json? @map("cancellation_policy")
+  cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
 
   @@index([date])
   @@index([category])
@@ -171,6 +171,18 @@ model EventImage {
 
   @@index([eventId])
   @@map("event_images")
+}
+
+model CancellationPolicyRule {
+  id               String @id @default(uuid())
+  eventId          String @map("event_id")
+  hoursBeforeEvent Int    @map("hours_before_event")
+  refundPercentage Int    @map("refund_percentage")
+
+  event            Event  @relation("event_cancellation_rules", fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, hoursBeforeEvent])
+  @@map("cancellation_policy_rules")
 }
 
 model Booking {

@@ -9,19 +9,21 @@ import type { BookingCardProps } from './types';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
-import { useModalStore } from '@/stores';
-import { ModalType } from '@/stores/modalStore';
+import { useRouter } from 'next/router';
+// import { useModalStore } from '@/stores';
+// import { ModalType } from '@/stores/modalStore';
 
 export default function BookingCard({ booking }: BookingCardProps) {
 	const { event, quantity, status } = booking;
 	const { mutate: cancelBooking } = useCancelBooking();
-	const { openModal } = useModalStore();
+	// const { openModal } = useModalStore();
 
 	const confirm = useConfirm();
+	const router = useRouter();
 
-	const handleUpdate = () => {
-		openModal(ModalType.UpdateBooking, { booking });
-	};
+	// const handleUpdate = () => {
+	// 	openModal(ModalType.UpdateBooking, { booking });
+	// };
 
 	const handleCancel = async () => {
 		const isConfirmed = await confirm({
@@ -99,8 +101,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex gap-2">
-					<Button variant="primary" size="sm" className="flex-1" onClick={handleUpdate}>
+					{/* <Button variant="primary" size="sm" className="flex-1" onClick={handleUpdate}>
 						Update
+					</Button> */}
+					<Button
+						variant="primary"
+						size="sm"
+						className="flex-1"
+						onClick={() => router.push(`/events/${event.id}`)}
+					>
+						View Event
 					</Button>
 					<Button variant="danger" size="sm" className="flex-1" onClick={handleCancel}>
 						Cancel

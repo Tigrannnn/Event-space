@@ -40,6 +40,7 @@ export class EventService {
 	private readonly eventInclude = {
 		organizer: this.organizerInclude,
 		images: this.imagesInclude,
+		cancellationRules: true,
 	};
 
 	async findAll(cursor?: string, limit: number = 8, search?: string) {
@@ -69,9 +70,11 @@ export class EventService {
 					}
 				: {};
 
-		const statusFilter = {status: EventStatusEnum.enum.PUBLISHED};
+		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED };
 
-		const filters = [statusFilter, searchFilter, cursorFilter].filter((f) => Object.keys(f).length > 0);
+		const filters = [statusFilter, searchFilter, cursorFilter].filter(
+			(f) => Object.keys(f).length > 0,
+		);
 		const where = filters.length > 0 ? { AND: filters } : {};
 
 		const events = await this.prisma.event.findMany({
@@ -119,11 +122,19 @@ export class EventService {
 	) {
 		const sortedItems = this.sortByOrder(imageItems);
 		const uploads = await this.uploadNewFiles(files);
+		const { cancellationRules, ...pureEventData } = eventData;
 
 		try {
 			return await this.prisma.$transaction(async (tx) => {
 				const created = await tx.event.create({
-					data: { ...eventData, userId },
+					data: {
+						...pureEventData,
+						userId,
+						cancellationRules:
+							cancellationRules && cancellationRules.length > 0
+								? { create: cancellationRules }
+								: undefined,
+					},
 				});
 
 				const rows = this.buildNewImageRows(created.id, sortedItems, uploads);
@@ -159,11 +170,21 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
+		const { cancellationRules, ...pureEventData } = eventData;
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
-				if (Object.keys(eventData).length > 0) {
-					await tx.event.update({ where: { id }, data: eventData });
+				const updateData: Prisma.EventUpdateInput = { ...pureEventData };
+
+				if (cancellationRules !== undefined) {
+					updateData.cancellationRules = {
+						deleteMany: {},
+						create: cancellationRules,
+					};
+				}
+
+				if ((Object.keys(pureEventData).length > 0 || cancellationRules !== undefined)) {
+					await tx.event.update({ where: { id }, data: updateData });
 				}
 
 				if (removedImages.length) {
@@ -199,9 +220,7 @@ export class EventService {
 				});
 			});
 
-			await this.uploadService.deleteMultipleByPublicId(
-				removedImages.map((img) => img.publicId),
-			);
+			await this.uploadService.deleteMultipleByPublicId(removedImages.map((img) => img.publicId));
 
 			return updated;
 		} catch (error) {
@@ -255,10 +274,7 @@ export class EventService {
 		}));
 	}
 
-	private validateExistingImageRefs(
-		imageItems: EventImageItem[],
-		existingImages: EventImage[],
-	) {
+	private validateExistingImageRefs(imageItems: EventImageItem[], existingImages: EventImage[]) {
 		const existingIds = new Set(existingImages.map((img) => img.id));
 		const payloadExistingIds = imageItems
 			.filter((item) => item.kind === 'existing')

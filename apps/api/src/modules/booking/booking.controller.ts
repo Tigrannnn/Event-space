@@ -58,21 +58,21 @@ export class BookingController {
 		return this.bookingService.cancel(userId, id);
 	}
 
-	@Patch(':id')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
-	@ApiOperation({ summary: 'Update booking quantity' })
-	@ApiParam({ name: 'id', description: 'Booking ID' })
-	@ApiResponse({ status: 200, description: 'Booking updated successfully' })
-	@ApiResponse({ status: 404, description: 'Booking not found' })
-	@ApiResponse({ status: 403, description: 'Not your booking' })
-	@ApiResponse({ status: 409, description: 'Not enough spots available' })
-	@ApiBody(getReference('UpdateBookingSchema'))
-	update(
-		@GetCurrentUserId() userId: string,
-		@Param('id') id: string,
-		@Body(new ZodValidationPipe(UpdateBookingSchema)) data: UpdateBookingData,
-	) {
-		return this.bookingService.update(userId, id, data);
-	}
+	// @Patch(':id')
+	// @ApiBearerAuth()
+	// @UseGuards(AccessTokenGuard)
+	// @ApiOperation({ summary: 'Update booking quantity' })
+	// @ApiParam({ name: 'id', description: 'Booking ID' })
+	// @ApiResponse({ status: 200, description: 'Booking updated successfully' })
+	// @ApiResponse({ status: 404, description: 'Booking not found' })
+	// @ApiResponse({ status: 403, description: 'Not your booking' })
+	// @ApiResponse({ status: 409, description: 'Not enough spots available' })
+	// @ApiBody(getReference('UpdateBookingSchema'))
+	// update(
+	// 	@GetCurrentUserId() userId: string,
+	// 	@Param('id') id: string,
+	// 	@Body(new ZodValidationPipe(UpdateBookingSchema)) data: UpdateBookingData,
+	// ) {
+	// 	return this.bookingService.update(userId, id, data);
+	// }
 }

@@ -5,7 +5,7 @@ import { AuthModal } from '@/features/auth';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { AnimatePresence } from 'framer-motion';
 import { EditProfileModal } from '@/features/profile';
-import { CreateBookingModal, UpdateBookingModal } from '@/features/bookings/components';
+import { CreateBookingModal } from '@/features/bookings/components';
 import { UpdateEventModal, CreateEventModal } from '@/features/admin/events';
 
 /**
@@ -26,7 +26,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.Confirm && <ConfirmModal key="confirm" />}
 					{activeModal === ModalType.EditProfile && <EditProfileModal key="edit-profile" />}
 					{activeModal === ModalType.CreateBooking && <CreateBookingModal key="create-booking" />}
-					{activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />}
+					{/* {activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />} */}
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}
 					{activeModal === ModalType.UpdateEvent && <UpdateEventModal key="edit-event" />}
 				</>

@@ -6,10 +6,9 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EventCreatewhatsIncludedInputSchema } from './EventCreatewhatsIncludedInputSchema';
 import { EventStatusSchema } from './EventStatusSchema';
-import { NullableJsonNullValueInputSchema } from './NullableJsonNullValueInputSchema';
-import { InputJsonValueSchema } from './InputJsonValueSchema';
 import { UserCreateNestedOneWithoutEventsInputSchema } from './UserCreateNestedOneWithoutEventsInputSchema';
 import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageCreateNestedManyWithoutEventInputSchema';
+import { CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema';
 
 export const EventCreateWithoutBookingsInputSchema: z.ZodType<Prisma.EventCreateWithoutBookingsInput> = z.object({
   id: z.uuid().optional(),
@@ -27,9 +26,9 @@ export const EventCreateWithoutBookingsInputSchema: z.ZodType<Prisma.EventCreate
   status: z.lazy(() => EventStatusSchema).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  cancellationPolicy: z.union([ z.lazy(() => NullableJsonNullValueInputSchema), InputJsonValueSchema ]).optional(),
   organizer: z.lazy(() => UserCreateNestedOneWithoutEventsInputSchema),
   images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
+  cancellationRules: z.lazy(() => CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema).optional(),
 }).strict();
 
 export default EventCreateWithoutBookingsInputSchema;
