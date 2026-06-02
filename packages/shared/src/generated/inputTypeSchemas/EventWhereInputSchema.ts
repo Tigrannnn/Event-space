@@ -12,6 +12,7 @@ import { IntFilterSchema } from './IntFilterSchema';
 import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 import { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
+import { JsonNullableFilterSchema } from './JsonNullableFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
@@ -37,6 +38,7 @@ export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.object
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  cancellationPolicy: z.lazy(() => JsonNullableFilterSchema).optional(),
   organizer: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),

@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
+import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { EventCountOrderByAggregateInputSchema } from './EventCountOrderByAggregateInputSchema';
 import { EventAvgOrderByAggregateInputSchema } from './EventAvgOrderByAggregateInputSchema';
 import { EventMaxOrderByAggregateInputSchema } from './EventMaxOrderByAggregateInputSchema';
@@ -25,6 +26,7 @@ export const EventOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOrder
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
+  cancellationPolicy: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => EventCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => EventAvgOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => EventMaxOrderByAggregateInputSchema).optional(),

@@ -134,6 +134,7 @@ export { RefreshTokenMinOrderByAggregateInputSchema } from './RefreshTokenMinOrd
 export { EnumEventDifficultyFilterSchema } from './EnumEventDifficultyFilterSchema';
 export { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 export { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
+export { JsonNullableFilterSchema } from './JsonNullableFilterSchema';
 export { EventImageListRelationFilterSchema } from './EventImageListRelationFilterSchema';
 export { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
 export { EventCountOrderByAggregateInputSchema } from './EventCountOrderByAggregateInputSchema';
@@ -143,6 +144,7 @@ export { EventMinOrderByAggregateInputSchema } from './EventMinOrderByAggregateI
 export { EventSumOrderByAggregateInputSchema } from './EventSumOrderByAggregateInputSchema';
 export { EnumEventDifficultyWithAggregatesFilterSchema } from './EnumEventDifficultyWithAggregatesFilterSchema';
 export { EnumEventStatusWithAggregatesFilterSchema } from './EnumEventStatusWithAggregatesFilterSchema';
+export { JsonNullableWithAggregatesFilterSchema } from './JsonNullableWithAggregatesFilterSchema';
 export { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 export { EventImageCountOrderByAggregateInputSchema } from './EventImageCountOrderByAggregateInputSchema';
 export { EventImageAvgOrderByAggregateInputSchema } from './EventImageAvgOrderByAggregateInputSchema';
@@ -243,6 +245,7 @@ export { NestedEnumEventDifficultyFilterSchema } from './NestedEnumEventDifficul
 export { NestedEnumEventStatusFilterSchema } from './NestedEnumEventStatusFilterSchema';
 export { NestedEnumEventDifficultyWithAggregatesFilterSchema } from './NestedEnumEventDifficultyWithAggregatesFilterSchema';
 export { NestedEnumEventStatusWithAggregatesFilterSchema } from './NestedEnumEventStatusWithAggregatesFilterSchema';
+export { NestedJsonNullableFilterSchema } from './NestedJsonNullableFilterSchema';
 export { NestedEnumBookingStatusFilterSchema } from './NestedEnumBookingStatusFilterSchema';
 export { NestedDecimalNullableFilterSchema } from './NestedDecimalNullableFilterSchema';
 export { NestedEnumBookingStatusWithAggregatesFilterSchema } from './NestedEnumBookingStatusWithAggregatesFilterSchema';
@@ -370,6 +373,7 @@ export { EventImageScalarFieldEnumSchema } from './EventImageScalarFieldEnumSche
 export { BookingScalarFieldEnumSchema } from './BookingScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { JsonNullValueInputSchema } from './JsonNullValueInputSchema';
+export { NullableJsonNullValueInputSchema } from './NullableJsonNullValueInputSchema';
 export { QueryModeSchema } from './QueryModeSchema';
 export { JsonNullValueFilterSchema } from './JsonNullValueFilterSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';

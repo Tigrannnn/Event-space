@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { JsonValueSchema } from '../inputTypeSchemas/JsonValueSchema'
 import { Prisma } from '@prisma/client'
 import { EventDifficultySchema } from '../inputTypeSchemas/EventDifficultySchema'
 import { EventStatusSchema } from '../inputTypeSchemas/EventStatusSchema'
@@ -24,6 +25,7 @@ export const EventSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   userId: z.string(),
+  cancellationPolicy: JsonValueSchema.nullable(),
 })
 
 export type Event = z.infer<typeof EventSchema>

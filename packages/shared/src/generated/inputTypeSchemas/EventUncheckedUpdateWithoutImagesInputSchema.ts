@@ -12,6 +12,8 @@ import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsI
 import { EventUpdatewhatsIncludedInputSchema } from './EventUpdatewhatsIncludedInputSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 import { EnumEventStatusFieldUpdateOperationsInputSchema } from './EnumEventStatusFieldUpdateOperationsInputSchema';
+import { NullableJsonNullValueInputSchema } from './NullableJsonNullValueInputSchema';
+import { InputJsonValueSchema } from './InputJsonValueSchema';
 import { BookingUncheckedUpdateManyWithoutEventNestedInputSchema } from './BookingUncheckedUpdateManyWithoutEventNestedInputSchema';
 
 export const EventUncheckedUpdateWithoutImagesInputSchema: z.ZodType<Prisma.EventUncheckedUpdateWithoutImagesInput> = z.object({
@@ -31,6 +33,7 @@ export const EventUncheckedUpdateWithoutImagesInputSchema: z.ZodType<Prisma.Even
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
+  cancellationPolicy: z.union([ z.lazy(() => NullableJsonNullValueInputSchema), InputJsonValueSchema ]).optional(),
   bookings: z.lazy(() => BookingUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
 }).strict();
 

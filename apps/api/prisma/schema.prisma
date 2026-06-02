@@ -151,6 +151,8 @@ model Event {
   bookings Booking[]    @relation("event_bookings")
   images   EventImage[] @relation("event_images")
 
+  cancellationPolicy Json? @map("cancellation_policy")
+
   @@index([date])
   @@index([category])
   @@map("events")

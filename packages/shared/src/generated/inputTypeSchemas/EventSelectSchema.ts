@@ -22,6 +22,7 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   userId: z.boolean().optional(),
+  cancellationPolicy: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
   images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
