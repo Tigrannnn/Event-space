@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
 import { EnvSchema } from '@event-space/shared';
@@ -23,6 +24,7 @@ import { StripeModule } from './infrastructure/stripe/stripe.module';
 			expandVariables: true,
 			validate: (config) => EnvSchema.parse(config),
 		}),
+		ScheduleModule.forRoot(),
 		PrismaModule,
 		UserModule,
 		EventModule,

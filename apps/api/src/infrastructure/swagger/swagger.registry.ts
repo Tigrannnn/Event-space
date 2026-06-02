@@ -1,5 +1,5 @@
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
-import * as allExports from '@event-space/shared';
+import * as allExports from '@event-space/shared/schemas';
 import z from 'zod';
 
 /**
@@ -7,9 +7,24 @@ import z from 'zod';
  */
 export const registry = new OpenAPIRegistry();
 
+const IGNORED_SCHEMA_NAMES = new Set([
+	'EnvSchema',
+	'ImageUploaderFileItemSchema',
+	'ImageUploaderExistingItemSchema',
+	'ImageUploaderItemSchema',
+]);
+
+const isZodType = (value: unknown): value is z.ZodType => {
+	return (
+		value !== null &&
+		typeof value === 'object' &&
+		'_def' in value &&
+		typeof (value as any)._def === 'object'
+	);
+};
+
 /**
- * Automatically discovers and registers Zod schemas from the shared library.
- * It recursively traverses exports to handle nested barrel exports (index.ts files).
+ * Automatically discovers and registers Zod schemas from the shared schemas package.
  */
 export function generateOpenApiComponents() {
 	const registeredNames = new Set<string>();
@@ -18,18 +33,18 @@ export function generateOpenApiComponents() {
 		if (!obj || typeof obj !== 'object') return;
 
 		Object.entries(obj).forEach(([name, item]) => {
-			const isZod =
-				item &&
-				typeof item === 'object' &&
-				('_def' in item || 'parse' in item || item instanceof z.ZodType);
+			if (IGNORED_SCHEMA_NAMES.has(name)) {
+				console.debug(`[Swagger] Skipping unsupported schema: ${name}`);
+				return;
+			}
 
-			if (isZod) {
+			if (isZodType(item)) {
 				if (!registeredNames.has(name)) {
 					try {
 						registry.register(name, item as any);
 						registeredNames.add(name);
 					} catch (error) {
-						console.warn(`[Swagger] Failed to register ${name}:`, error.message);
+						console.warn(`[Swagger] Failed to register ${name}:`, (error as Error).message);
 					}
 				}
 			} else if (item && typeof item === 'object' && !Array.isArray(item)) {
@@ -50,7 +65,7 @@ export function generateOpenApiComponents() {
 		);
 		return result.components?.schemas;
 	} catch (error) {
-		console.error('[Swagger] Failed to generate components:', error.message);
+		console.error('[Swagger] Failed to generate components:', (error as Error).message);
 		console.error('[Swagger] Error details:', error);
 		return undefined;
 	}

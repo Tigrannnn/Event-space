@@ -11,7 +11,7 @@ generator zod {
   createModelTypes      = true
   addSelectQueries      = true
   addIncludeQueries     = true
-  prismaJsonNullability = true
+  prismaJsonNullability = false
   coerceLazyConfig      = true
 }
 
@@ -41,6 +41,55 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum AdjustmentType {
+  CHARGE
+  REFUND
+}
+
+enum AdjustmentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum OutboxStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
+model OutboxEvent {
+  id          String      @id @default(cuid())
+  action      String
+  payload     Json
+  status      OutboxStatus @default(PENDING)
+  attempts    Int         @default(0)
+  lastError   String?
+  createdAt   DateTime    @default(now())
+  processedAt DateTime?
+
+  @@map("outbox_events")
+}
+
+model BookingAdjustment {
+  id                   String           @id @default(uuid())
+  bookingId            String           @map("booking_id")
+  type                 AdjustmentType
+  amount               Decimal          @db.Decimal(10, 2)
+  currency             String           @default("usd")
+  stripePaymentIntentId String?         @unique @map("stripe_payment_intent_id")
+  stripeRefundId       String?          @unique @map("stripe_refund_id")
+  status               AdjustmentStatus
+  reason               String?
+  createdAt            DateTime         @default(now()) @map("created_at")
+  updatedAt            DateTime         @updatedAt @map("updated_at")
+
+  booking Booking @relation("booking_adjustments", fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_adjustments")
 }
 
 model User {
@@ -131,10 +180,13 @@ model Booking {
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
 
+  amount        Decimal?       @db.Decimal(10, 2)
+
   paymentIntentId String? @unique @map("payment_intent_id")
 
   user  User  @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
   event Event @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)
+  adjustments BookingAdjustment[] @relation("booking_adjustments")
   
   @@unique([userId, eventId])
   @@index([userId])

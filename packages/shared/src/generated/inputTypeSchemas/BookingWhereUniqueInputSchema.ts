@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { BookingUserIdEventIdCompoundUniqueInputSchema } from './BookingUserIdEventIdCompoundUniqueInputSchema';
@@ -8,10 +8,14 @@ import { EnumBookingStatusFilterSchema } from './EnumBookingStatusFilterSchema';
 import { BookingStatusSchema } from './BookingStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
+import { DecimalNullableFilterSchema } from './DecimalNullableFilterSchema';
+import { isValidDecimalInput } from './isValidDecimalInput';
+import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
+import { BookingAdjustmentListRelationFilterSchema } from './BookingAdjustmentListRelationFilterSchema';
 
 export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueInput> = z.union([
   z.object({
@@ -54,8 +58,10 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   quantity: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalNullableFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
+  adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),
 }).strict());
 
 export default BookingWhereUniqueInputSchema;

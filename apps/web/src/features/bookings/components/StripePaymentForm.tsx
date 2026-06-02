@@ -1,23 +1,24 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
-import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { FormEvent, useMemo, useState } from 'react';
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-
-interface Booking {
-	eventId: string;
-	status: string;
-}
+import { Booking, EnvKey } from '@event-space/shared';
+import { clientEnv } from '@/config/env';
+import useSystemTheme from '@/hooks/systemTheme';
 
 interface StripePaymentFormProps {
 	eventId: string;
 	onClose: () => void;
+	clientSecret: string;
+	expectedQuantity?: number;
 }
 
-export default function StripePaymentForm({ eventId, onClose }: StripePaymentFormProps) {
+function StripePaymentFormContent({ eventId, onClose, expectedQuantity }: Omit<StripePaymentFormProps, 'clientSecret'>) {
 	const stripe = useStripe();
 	const elements = useElements();
 	const queryClient = useQueryClient();
@@ -32,7 +33,12 @@ export default function StripePaymentForm({ eventId, onClose }: StripePaymentFor
 			const bookings = queryClient.getQueryData<Booking[]>(['my-bookings']);
 			const booking = bookings?.find((b) => b.eventId === eventId);
 
-			if (booking?.status === 'CONFIRMED') break;
+			if (!booking) continue;
+			if (expectedQuantity !== undefined) {
+				if (booking.quantity === expectedQuantity) break;
+			} else if (booking.status === 'CONFIRMED') {
+				break;
+			}
 		}
 	};
 
@@ -104,5 +110,33 @@ export default function StripePaymentForm({ eventId, onClose }: StripePaymentFor
 				</Button>
 			</div>
 		</form>
+	);
+}
+
+export default function StripePaymentForm({ eventId, onClose, clientSecret, expectedQuantity }: StripePaymentFormProps) {
+	const theme = useSystemTheme();
+	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
+
+	const stripePromise = useMemo(() => {
+		if (!publishableKey) {
+			return null;
+		}
+
+		return loadStripe(publishableKey);
+	}, [publishableKey]);
+
+	if (!stripePromise) {
+		return (
+			<div className="space-y-5 p-5 sm:p-6">
+				<ModalHeader title="Complete payment" onClose={onClose} />
+				<p className="text-sm text-red-500">Stripe is not configured properly. Please contact support.</p>
+			</div>
+		);
+	}
+
+	return (
+		<Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}>
+			<StripePaymentFormContent eventId={eventId} onClose={onClose} expectedQuantity={expectedQuantity} />
+		</Elements>
 	);
 }

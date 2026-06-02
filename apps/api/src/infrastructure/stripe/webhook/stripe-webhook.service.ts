@@ -16,9 +16,12 @@ export class StripeWebhookService {
 
 		try {
 			event = this.stripe.constructWebhookEvent(payload, signature);
-		} catch {
+		} catch (error) {
+			this.logger.error('Failed to validate Stripe webhook signature', error as Error);
 			throw new BadRequestException('Invalid webhook signature');
 		}
+
+		this.logger.log(`Stripe webhook received: ${event.type}`);
 
 		switch (event.type) {
 			case 'payment_intent.succeeded':
@@ -31,10 +34,18 @@ export class StripeWebhookService {
 	}
 
 	private async handlePaymentSucceeded(paymentIntentId: string): Promise<void> {
-		await this.prisma.booking.updateMany({
+		const result = await this.prisma.booking.updateMany({
 			where: { paymentIntentId, status: 'PENDING' },
 			data: { status: 'CONFIRMED' },
 		});
+
+		if (result.count === 0) {
+			this.logger.warn(
+				`payment_intent.succeeded received for ${paymentIntentId} but no PENDING booking was updated`,
+			);
+		} else {
+			this.logger.log(`payment_intent.succeeded updated ${result.count} booking(s)`);
+		}
 	}
 
 	private async handlePaymentFailed(paymentIntentId: string): Promise<void> {

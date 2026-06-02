@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Prisma } from '@prisma/client'
 import { BookingStatusSchema } from '../inputTypeSchemas/BookingStatusSchema'
 
 /////////////////////////////////////////
@@ -7,12 +8,13 @@ import { BookingStatusSchema } from '../inputTypeSchemas/BookingStatusSchema'
 
 export const BookingSchema = z.object({
   status: BookingStatusSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   userId: z.string(),
   eventId: z.string(),
   quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}).nullable(),
   paymentIntentId: z.string().nullable(),
 })
 

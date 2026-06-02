@@ -10,7 +10,7 @@ import { EventStatusSchema } from '../inputTypeSchemas/EventStatusSchema'
 export const EventSchema = z.object({
   difficulty: EventDifficultySchema,
   status: EventStatusSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   title: z.string(),
   description: z.string(),
   location: z.string(),

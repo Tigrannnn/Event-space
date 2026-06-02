@@ -5,6 +5,7 @@ import { SortOrderSchema } from './SortOrderSchema';
 import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInputSchema';
 import { EventOrderByWithRelationInputSchema } from './EventOrderByWithRelationInputSchema';
+import { BookingAdjustmentOrderByRelationAggregateInputSchema } from './BookingAdjustmentOrderByRelationAggregateInputSchema';
 
 export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
@@ -14,9 +15,11 @@ export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrde
   quantity: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
+  amount: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   paymentIntentId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   event: z.lazy(() => EventOrderByWithRelationInputSchema).optional(),
+  adjustments: z.lazy(() => BookingAdjustmentOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export default BookingOrderByWithRelationInputSchema;

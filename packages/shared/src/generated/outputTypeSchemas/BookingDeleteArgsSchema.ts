@@ -4,6 +4,8 @@ import { BookingIncludeSchema } from '../inputTypeSchemas/BookingIncludeSchema'
 import { BookingWhereUniqueInputSchema } from '../inputTypeSchemas/BookingWhereUniqueInputSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
 import { EventArgsSchema } from "../outputTypeSchemas/EventArgsSchema"
+import { BookingAdjustmentFindManyArgsSchema } from "../outputTypeSchemas/BookingAdjustmentFindManyArgsSchema"
+import { BookingCountOutputTypeArgsSchema } from "../outputTypeSchemas/BookingCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
 
@@ -15,9 +17,12 @@ export const BookingSelectSchema: z.ZodType<Prisma.BookingSelect> = z.object({
   quantity: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
+  amount: z.boolean().optional(),
   paymentIntentId: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   event: z.union([z.boolean(),z.lazy(() => EventArgsSchema)]).optional(),
+  adjustments: z.union([z.boolean(),z.lazy(() => BookingAdjustmentFindManyArgsSchema)]).optional(),
+  _count: z.union([z.boolean(),z.lazy(() => BookingCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 
 export const BookingDeleteArgsSchema: z.ZodType<Prisma.BookingDeleteArgs> = z.object({

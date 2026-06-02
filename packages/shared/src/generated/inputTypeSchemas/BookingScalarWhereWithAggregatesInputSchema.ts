@@ -1,4 +1,4 @@
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
@@ -6,6 +6,9 @@ import { EnumBookingStatusWithAggregatesFilterSchema } from './EnumBookingStatus
 import { BookingStatusSchema } from './BookingStatusSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
+import { DecimalNullableWithAggregatesFilterSchema } from './DecimalNullableWithAggregatesFilterSchema';
+import { isValidDecimalInput } from './isValidDecimalInput';
+import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAggregatesFilterSchema';
 
 export const BookingScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BookingScalarWhereWithAggregatesInput> = z.object({
@@ -19,6 +22,7 @@ export const BookingScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Booki
   quantity: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
+  amount: z.union([ z.lazy(() => DecimalNullableWithAggregatesFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
   paymentIntentId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
 }).strict();
 
