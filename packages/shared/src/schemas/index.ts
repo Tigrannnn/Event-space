@@ -10,4 +10,3 @@ export * from './env.schema';
 export * from './event-form.schema';
 export * from './admin.schema';
 export * from './booking-adjustment.schema';
-export * from './cancellation-policy.schema';

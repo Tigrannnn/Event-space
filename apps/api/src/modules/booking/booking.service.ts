@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { CancellationPolicyRule } from '@event-space/shared';
 import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
@@ -157,86 +158,112 @@ export class BookingService {
 	}
 
 	async cancel(userId: string, bookingId: string) {
-		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
-		if (!booking) throw new NotFoundException('Booking not found');
-		if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
-		if (booking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
+		const { booking, event } = await this.prisma.$transaction(async (tx) => {
+			const currentBooking = await tx.booking.findUnique({
+				where: { id: bookingId },
+				include: { event: { include: { cancellationRules: true } } },
+			});
+
+			if (!currentBooking) throw new NotFoundException('Booking not found');
+			if (currentBooking.userId !== userId) throw new ForbiddenException('Not your booking');
+			if (currentBooking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
+
+			await tx.event.update({
+				where: { id: currentBooking.eventId },
+				data: { currentParticipants: { decrement: currentBooking.quantity } },
+			});
+
+			const updated = await tx.booking.update({
+				where: { id: bookingId },
+				data: { status: 'CANCELLED' },
+			});
+
+			return { booking: updated, event: currentBooking.event };
+		});
+
+		if (!booking.paymentIntentId || Number(booking.amount) === 0) {
+			return booking;
+		}
 
 		let refundResult: { amount: number; id: string } | null = null;
 
-		if (booking.paymentIntentId) {
+		try {
 			const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
 
 			if (paymentIntent.status === 'succeeded') {
-				const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
-				const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
-				const refundAmount = Number(booking.amount) - balanceTx.fee / 100;
-				const amountInCents = Math.round(refundAmount * 100);
-
-				const refund = await this.stripe.refund(
-					booking.paymentIntentId,
-					`refund-${booking.paymentIntentId}-${amountInCents}`,
-					amountInCents,
+				const refundPercentage = this.calculateRefundPercentage(
+					new Date(),
+					new Date(event.date),
+					event.cancellationRules,
 				);
 
-				refundResult = { amount: refund.amount, id: refund.id };
+				if (refundPercentage > 0) {
+					const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
+					const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
+					const stripeFeeInCents = balanceTx.fee;
+
+					const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+					const calculatedRefundInCents = Math.round((baseAmountInCents * refundPercentage) / 100);
+
+					const finalRefundAmountInCents = calculatedRefundInCents - stripeFeeInCents;
+
+					if (finalRefundAmountInCents > 0) {
+						const refund = await this.stripe.refund(
+							booking.paymentIntentId,
+							`refund-${booking.paymentIntentId}-${finalRefundAmountInCents}`,
+							finalRefundAmountInCents,
+						);
+						refundResult = { amount: refund.amount, id: refund.id };
+					}
+				}
 			} else if (
 				CANCELABLE_PAYMENT_INTENT_STATUSES.includes(
 					paymentIntent.status as CancelablePaymentIntentStatus,
 				)
 			) {
 				await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `cancel-${booking.id}`);
-			} else {
-				const refundAmountInCents = Math.round(Number(booking.amount) * 100);
-				const refund = await this.stripe.refund(
-					booking.paymentIntentId,
-					`refund-${booking.paymentIntentId}-${refundAmountInCents}`,
-					refundAmountInCents,
-				);
-
-				refundResult = { amount: refund.amount, id: refund.id };
 			}
+		} catch (stripeError) {
+			this.logger.error(`Stripe refund failed for booking ${bookingId}:`, stripeError);
 		}
-
-		const cancelledBooking = await this.prisma.$transaction(async (tx) => {
-			const latestBooking = await tx.booking.findUnique({ where: { id: bookingId } });
-			if (!latestBooking) throw new NotFoundException('Booking not found');
-			if (latestBooking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
-
-			const released = await tx.event.updateMany({
-				where: {
-					id: latestBooking.eventId,
-					currentParticipants: { gte: latestBooking.quantity },
-				},
-				data: { currentParticipants: { decrement: latestBooking.quantity } },
-			});
-
-			if (released.count === 0) {
-				throw new ConflictException('Unable to release spots');
-			}
-
-			return tx.booking.update({
-				where: { id: bookingId },
-				data: { status: 'CANCELLED' },
-			});
-		});
 
 		if (refundResult) {
 			await this.prisma.bookingAdjustment.create({
 				data: {
-					bookingId: cancelledBooking.id,
+					bookingId: booking.id,
 					type: 'REFUND',
 					amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
 					currency: 'usd',
 					stripePaymentIntentId: booking.paymentIntentId,
 					stripeRefundId: refundResult.id,
 					status: 'SUCCEEDED',
-					reason: 'Booking cancelled',
+					reason: 'Booking cancelled. Stripe fee withheld.',
 				},
 			});
 		}
 
-		return cancelledBooking;
+		return booking;
+	}
+
+	private calculateRefundPercentage(
+		now: Date,
+		eventDate: Date,
+		rules: CancellationPolicyRule[],
+	): number {
+		const msLeft = eventDate.getTime() - now.getTime();
+		const hoursLeft = msLeft / (1000 * 60 * 60); // ms to hours
+
+		if (hoursLeft <= 0) return 0;
+
+		const sortedRules = [...rules].sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent);
+
+		for (const rule of sortedRules) {
+			if (hoursLeft >= rule.hoursBeforeEvent) {
+				return rule.refundPercentage;
+			}
+		}
+
+		return rules.length > 0 ? 0 : 100;
 	}
 
 	private async releasePendingBooking(

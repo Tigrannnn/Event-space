@@ -10,6 +10,9 @@ export const CancellationPolicyRuleInputSchema = GeneratedRuleSchema.omit({
 	eventId: true,
 });
 
+export const CancellationPolicyRuleSchema = GeneratedRuleSchema;
+export type CancellationPolicyRule = z.infer<typeof CancellationPolicyRuleSchema>;
+
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
 

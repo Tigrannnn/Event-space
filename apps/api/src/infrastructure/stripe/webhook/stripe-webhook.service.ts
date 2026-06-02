@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '../stripe.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StripeWebhookService {
@@ -23,51 +24,93 @@ export class StripeWebhookService {
 
 		this.logger.log(`Stripe webhook received: ${event.type}`);
 
+		const session = event.data.object as any;
+		const bookingId = session.metadata?.bookingId;
+
 		switch (event.type) {
 			case 'payment_intent.succeeded':
-				await this.handlePaymentSucceeded(event.data.object.id);
+				await this.handlePaymentSucceeded(bookingId, session.id);
 				break;
 			case 'payment_intent.payment_failed':
-				await this.handlePaymentFailed(event.data.object.id);
+				await this.handlePaymentFailed(bookingId, session.id);
+				break;
+			case 'payment_intent.canceled':
+				await this.handlePaymentCanceled(bookingId, session.id);
 				break;
 		}
 	}
 
-	private async handlePaymentSucceeded(paymentIntentId: string): Promise<void> {
-		const result = await this.prisma.booking.updateMany({
-			where: { paymentIntentId, status: 'PENDING' },
-			data: { status: 'CONFIRMED' },
-		});
-
-		if (result.count === 0) {
-			this.logger.warn(
-				`payment_intent.succeeded received for ${paymentIntentId} but no PENDING booking was updated`,
+	private async handlePaymentSucceeded(
+		bookingId: string | undefined,
+		paymentIntentId: string,
+	): Promise<void> {
+		if (!bookingId) {
+			this.logger.error(
+				`payment_intent.succeeded missing bookingId in metadata. PI: ${paymentIntentId}`,
 			);
-		} else {
-			this.logger.log(`payment_intent.succeeded updated ${result.count} booking(s)`);
-		}
-	}
-
-	private async handlePaymentFailed(paymentIntentId: string): Promise<void> {
-		const booking = await this.prisma.booking.findFirst({
-			where: { paymentIntentId, status: 'PENDING' },
-		});
-
-		if (!booking) {
-			this.logger.warn(`No PENDING booking for paymentIntentId: ${paymentIntentId}`);
 			return;
 		}
 
 		await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+
+			if (!booking) {
+				this.logger.error(`Booking ${bookingId} not found for successful payment`);
+				return;
+			}
+
+			if (booking.status === 'CONFIRMED') return;
+
 			await tx.booking.update({
-				where: { id: booking.id },
+				where: { id: bookingId },
+				data: { status: 'CONFIRMED', paymentIntentId },
+			});
+
+			await tx.bookingAdjustment.create({
+				data: {
+					bookingId,
+					type: 'CHARGE',
+					amount: new Prisma.Decimal(booking.amount.toString()),
+					currency: 'usd',
+					stripePaymentIntentId: paymentIntentId,
+					status: 'SUCCEEDED',
+					reason: 'Payment captured via webhook',
+				},
+			});
+		});
+
+		this.logger.log(`Booking ${bookingId} successfully CONFIRMED via webhook`);
+	}
+
+	private async handlePaymentFailed(
+		bookingId: string | undefined,
+		paymentIntentId: string,
+	): Promise<void> {
+		if (!bookingId) return;
+
+		await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+			if (!booking || booking.status === 'CANCELLED') return;
+
+			await tx.booking.update({
+				where: { id: bookingId },
 				data: { status: 'CANCELLED' },
 			});
 
+			// Возвращаем места обратно ивенту
 			await tx.event.update({
 				where: { id: booking.eventId },
 				data: { currentParticipants: { decrement: booking.quantity } },
 			});
 		});
+
+		this.logger.warn(`Booking ${bookingId} CANCELLED due to failed payment`);
+	}
+
+	private async handlePaymentCanceled(
+		bookingId: string | undefined,
+		paymentIntentId: string,
+	): Promise<void> {
+		await this.handlePaymentFailed(bookingId, paymentIntentId);
 	}
 }
