@@ -21,6 +21,16 @@ export function getDefaultEventFormValues(): EventFormValues {
 		category: '',
 		whatsIncluded: '',
 		duration: '',
+		cancellationRules: [
+			{
+				hoursBeforeEvent: 72,
+				refundPercentage: 100,
+			},
+			{
+				hoursBeforeEvent: 24,
+				refundPercentage: 50,
+			},
+		],
 	};
 }
 
@@ -44,6 +54,7 @@ function buildEventFields(values: EventFormValues) {
 		whatsIncluded: parseList(values.whatsIncluded),
 		duration: Number(values.duration),
 		status: values.status,
+		cancellationRules: values.cancellationRules,
 	};
 }
 
@@ -97,6 +108,13 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		whatsIncluded: event.whatsIncluded.join('\n'),
 		duration: String(event.duration),
 		status: event.status,
+		cancellationRules: (event.cancellationRules ?? [])
+			.slice()
+			.sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent)
+			.map((rule) => ({
+				hoursBeforeEvent: rule.hoursBeforeEvent,
+				refundPercentage: rule.refundPercentage,
+			})),
 	};
 }
 

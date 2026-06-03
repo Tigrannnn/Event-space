@@ -26,7 +26,7 @@ const bookingInclude = {
 		select: safeUserSelect,
 	},
 	event: {
-		include: { images: true },
+		include: { images: true, cancellationRules: true },
 	},
 } as const;
 
@@ -116,6 +116,7 @@ export class AdminService {
 				take: 5,
 				orderBy: { createdAt: 'desc' },
 				include: {
+					cancellationRules: true,
 					organizer: {
 						select: {
 							id: true,
@@ -131,6 +132,7 @@ export class AdminService {
 				where: { date: { gte: now } },
 				orderBy: [{ date: 'asc' }, { id: 'asc' }],
 				include: {
+					cancellationRules: true,
 					organizer: {
 						select: {
 							id: true,
@@ -193,8 +195,16 @@ export class AdminService {
 				event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
 			})),
 			recentUsers,
-			recentEvents: recentEvents.map((e) => ({ ...e, price: Number(e.price) })),
-			upcomingEvents: upcomingEvents.map((e) => ({ ...e, price: Number(e.price) })),
+			recentEvents: recentEvents.map((e) => ({
+				...e,
+				price: Number(e.price),
+				cancellationRules: e.cancellationRules ?? [],
+			})),
+			upcomingEvents: upcomingEvents.map((e) => ({
+				...e,
+				price: Number(e.price),
+				cancellationRules: e.cancellationRules ?? [],
+			})),
 		};
 	}
 
@@ -409,6 +419,7 @@ export class AdminService {
 				take: limit + 1,
 				orderBy: [{ date: 'asc' }, { id: 'asc' }],
 				include: {
+					cancellationRules: true,
 					organizer: {
 						select: {
 							id: true,

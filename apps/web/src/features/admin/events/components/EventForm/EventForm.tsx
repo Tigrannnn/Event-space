@@ -1,6 +1,6 @@
 'use client';
 
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	type Event,
@@ -40,8 +40,7 @@ const fieldClassName =
 	'[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
 const dateTimeInputClassName =
-	fieldClassName +
-	' cursor-pointer [color-scheme:light] dark:[color-scheme:dark]';
+	fieldClassName + ' cursor-pointer [color-scheme:light] dark:[color-scheme:dark]';
 
 const textareaClassName =
 	'focus:border-primary w-full resize-y rounded-md border border-gray-500 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-gray-400 text-gray-900 dark:text-gray-100 min-h-[100px]';
@@ -61,6 +60,11 @@ export default function EventForm({
 	} = useForm<EventFormValues>({
 		resolver: zodResolver(EventFormSchema),
 		defaultValues: mapEventToFormValues(event),
+	});
+
+	const { fields, append, remove } = useFieldArray({
+		control,
+		name: 'cancellationRules',
 	});
 
 	return (
@@ -123,9 +127,7 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.difficulty && (
-							<p className="text-xs text-red-500">{errors.difficulty.message}</p>
-						)}
+						{errors.difficulty && <p className="text-xs text-red-500">{errors.difficulty.message}</p>}
 					</div>
 					<div className="space-y-1.5">
 						<span className="text-sm font-semibold">Status</span>
@@ -184,25 +186,98 @@ export default function EventForm({
 
 				<hr className="border-gray-200 dark:border-gray-700" />
 
+				<div className="space-y-3">
+					<div className="flex items-center justify-between">
+						<div>
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+								Cancellation Rules
+							</h3>
+							<p className="text-xs text-gray-500">
+								Define refund percentages based on time thresholds before the event starts.
+							</p>
+						</div>
+						<Button
+							type="button"
+							variant="secondary"
+							className="h-8 text-xs"
+							disabled={isPending}
+							onClick={() => append({ hoursBeforeEvent: 24, refundPercentage: 50 })}
+						>
+							+ Add Rule
+						</Button>
+					</div>
+
+					{fields.length > 0 ? (
+						<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+							{fields.map((field, index) => (
+								<div key={field.id} className="flex items-end gap-4">
+									<label className="flex-1 space-y-1">
+										<span className="text-xs font-medium text-gray-500">Hours before event</span>
+										<input
+											type="number"
+											{...register(`cancellationRules.${index}.hoursBeforeEvent`, { valueAsNumber: true })}
+											className={fieldClassName}
+											disabled={isPending}
+											placeholder="e.g. 48"
+											min="1"
+										/>
+										{errors.cancellationRules?.[index]?.hoursBeforeEvent && (
+											<p className="text-xs text-red-500">
+												{errors.cancellationRules[index]?.hoursBeforeEvent?.message}
+											</p>
+										)}
+									</label>
+
+									<label className="flex-1 space-y-1">
+										<span className="text-xs font-medium text-gray-500">Refund Percentage (%)</span>
+										<input
+											type="number"
+											{...register(`cancellationRules.${index}.refundPercentage`, { valueAsNumber: true })}
+											className={fieldClassName}
+											disabled={isPending}
+											placeholder="e.g. 100"
+											min="0"
+											max="100"
+										/>
+										{errors.cancellationRules?.[index]?.refundPercentage && (
+											<p className="text-xs text-red-500">
+												{errors.cancellationRules[index]?.refundPercentage?.message}
+											</p>
+										)}
+									</label>
+
+									<Button
+										type="button"
+										variant="secondary"
+										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+										disabled={isPending}
+										onClick={() => remove(index)}
+									>
+										Delete
+									</Button>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
+							<p className="text-xs text-gray-500">
+								No custom rules set. By default, users get a 100% refund up until the event starts.
+							</p>
+						</div>
+					)}
+				</div>
+
+				<hr className="border-gray-200 dark:border-gray-700" />
+
 				<label className="block space-y-1.5">
 					<span className="text-sm font-semibold">Description</span>
-					<textarea
-						{...register('description')}
-						className={textareaClassName}
-						disabled={isPending}
-					/>
-					{errors.description && (
-						<p className="text-xs text-red-500">{errors.description.message}</p>
-					)}
+					<textarea {...register('description')} className={textareaClassName} disabled={isPending} />
+					{errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
 				</label>
 
 				<label className="block space-y-1.5">
 					<span className="text-sm font-semibold">Included items (one per line)</span>
-					<textarea
-						{...register('whatsIncluded')}
-						className={textareaClassName}
-						disabled={isPending}
-					/>
+					<textarea {...register('whatsIncluded')} className={textareaClassName} disabled={isPending} />
 					{errors.whatsIncluded && (
 						<p className="text-xs text-red-500">{errors.whatsIncluded.message}</p>
 					)}
@@ -214,11 +289,7 @@ export default function EventForm({
 						name="images"
 						control={control}
 						render={({ field }) => (
-							<ImageUploader
-								value={field.value ?? []}
-								onChange={field.onChange}
-								disabled={isPending}
-							/>
+							<ImageUploader value={field.value ?? []} onChange={field.onChange} disabled={isPending} />
 						)}
 					/>
 					{errors.images && <p className="text-xs text-red-500">{errors.images.message}</p>}

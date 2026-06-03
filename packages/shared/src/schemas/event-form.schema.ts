@@ -3,6 +3,16 @@ import { MAX_EVENT_IMAGES } from '../constants/event-images.constant';
 import { EventDifficultyEnum, EventStatusEnum } from './event.schema';
 import { ImageUploaderItemSchema } from './event-image.schema';
 
+export const CancellationRuleFormSchema = z.object({
+    hoursBeforeEvent: z
+        .number({ message: 'Must be a number' })
+        .min(1, 'Hours must be at least 1'),
+    refundPercentage: z
+        .number({ message: 'Must be a number' })
+        .min(0, 'Percentage cannot be negative')
+        .max(100, 'Percentage cannot exceed 100'),
+});
+
 /**
  * UI form schema for creating/editing events.
  * String fields match HTML inputs; images array holds local File + existing rows.
@@ -24,6 +34,7 @@ export const EventFormSchema = z.object({
 	whatsIncluded: z.string().min(1, 'Included items are required'),
 	duration: z.string().min(1, 'Duration is required'),
 	status: EventStatusEnum,
+	cancellationRules: z.array(CancellationRuleFormSchema).default([]).optional(),
 });
 
 export type EventFormValues = z.infer<typeof EventFormSchema>;

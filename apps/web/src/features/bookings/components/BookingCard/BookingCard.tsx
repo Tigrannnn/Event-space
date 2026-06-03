@@ -9,7 +9,7 @@ import type { BookingCardProps } from './types';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
