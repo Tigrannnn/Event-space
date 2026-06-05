@@ -24,4 +24,5 @@ export const EnvSchema = z.object({
 	[EnvKey.STRIPE_PUBLISHABLE_KEY]: z.string(),
 	[EnvKey.STRIPE_SECRET_KEY]: z.string(),
 	[EnvKey.STRIPE_WEBHOOK_SECRET]: z.string(),
+	[EnvKey.BOOKING_RESERVATION_TTL_SECONDS]: z.coerce.number().default(120),
 });

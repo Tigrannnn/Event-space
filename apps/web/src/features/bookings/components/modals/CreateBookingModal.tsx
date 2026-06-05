@@ -16,6 +16,13 @@ export default function CreateBookingModal() {
 	const event = modalData?.event;
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
+	const [bookingId, setBookingId] = useState<string | null>(null);
+
+	const handleClose = () => {
+		setClientSecret(null);
+		setBookingId(null);
+		closeModal();
+	};
 
 	if (!event) {
 		return null;
@@ -33,6 +40,7 @@ export default function CreateBookingModal() {
 						addToast('Unable to start payment. Please try again.', ToastType.ERROR);
 						return;
 					}
+					setBookingId(data.booking.id);
 					setClientSecret(data.clientSecret);
 				},
 				onError: () => {
@@ -43,9 +51,14 @@ export default function CreateBookingModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} ariaLabel="Confirm booking">
+		<Modal onClose={handleClose} ariaLabel="Confirm booking">
 			{clientSecret ? (
-				<StripePaymentForm eventId={event.id} onClose={closeModal} clientSecret={clientSecret} />
+				<StripePaymentForm
+					eventId={event.id}
+					bookingId={bookingId}
+					onClose={handleClose}
+					clientSecret={clientSecret}
+				/>
 			) : (
 				<BookingForm
 					event={event}
