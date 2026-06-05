@@ -27,6 +27,7 @@ import {
 	ApiConsumes,
 } from '@nestjs/swagger';
 import { EventStatusEnum, MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/shared';
+import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type { EventStatus, UserRoleType } from '@event-space/shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard } from '@shared';
@@ -37,11 +38,15 @@ import {
 import { eventImageUploadOptions } from './event-upload.options';
 import { RateLimitEventMutation } from './decorators/rate-limit-event-mutation.decorator';
 import { EventMutationRateLimitGuard } from './guards/event-mutation-rate-limit.guard';
+import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 
 @ApiTags('events')
 @Controller('events')
 export class EventController {
-	constructor(private readonly eventService: EventService) {}
+	constructor(
+		private readonly eventService: EventService,
+		private readonly rateLimiter: RateLimiterService,
+	) {}
 
 	@Get()
 	@ApiOperation({ summary: 'Get events with cursor pagination and search' })
@@ -106,12 +111,19 @@ export class EventController {
 	@UseGuards(AccessTokenGuard, RolesGuard)
 	@ApiOperation({ summary: 'Update event status only' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
-	updateStatus(
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async updateStatus(
 		@Param('id') id: string,
 		@GetCurrentUserId() userId: string,
 		@GetCurrentUser('role') role: UserRoleType,
 		@Body('status') status: EventStatus,
 	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			userId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
 		if (!EventStatusEnum.options.includes(status)) {
 			throw new BadRequestException('Invalid status');
 		}
@@ -171,11 +183,18 @@ export class EventController {
 	@ApiOperation({ summary: 'Delete an event' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
 	@ApiResponse({ status: 200, description: 'Event successfully deleted' })
-	delete(
+	@ApiResponse({ status: 429, description: 'Too many deletion attempts' })
+	async delete(
 		@Param('id') id: string,
 		@GetCurrentUserId() userId: string,
 		@GetCurrentUser('role') role: UserRoleType,
 	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:delete`,
+			userId,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
+		);
 		return this.eventService.delete(id, userId, role);
 	}
 }

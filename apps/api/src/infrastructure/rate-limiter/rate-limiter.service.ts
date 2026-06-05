@@ -138,4 +138,26 @@ export class RateLimiterService {
 			);
 		}
 	}
+
+	/**
+	 * Per-user rate limiting with fixed window.
+	 * Useful for booking, payment, and other user-specific operations.
+	 */
+	async consumePerUser(
+		keyPrefix: string,
+		userId: string,
+		max: number,
+		windowSec: number,
+	): Promise<void> {
+		const key = `${keyPrefix}:${userId}`;
+		await this.consumeFixedWindow(key, max, windowSec);
+	}
+
+	/**
+	 * Clear per-user rate limit counter (for cleanup or admin purposes).
+	 */
+	async clearPerUser(keyPrefix: string, userId: string): Promise<void> {
+		const key = `${keyPrefix}:${userId}`;
+		await this.redis.del(key);
+	}
 }

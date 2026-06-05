@@ -10,11 +10,12 @@ import {
 	Body,
 	Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { EventService } from '@modules/event/event.service';
-import { Roles, RolesGuard } from '@shared';
+import { Roles, RolesGuard, GetCurrentUserId } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
+import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
 	BookingStatusEnum,
 	EventStatusEnum,
@@ -22,6 +23,7 @@ import {
 	UserRoleSchema,
 	TimeFilterSchema,
 } from '@event-space/shared';
+import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type {
 	BookingStatus,
 	EventDifficulty,
@@ -36,7 +38,10 @@ import type {
 @Roles('ADMIN')
 @Controller('admin')
 export class AdminController {
-	constructor(private readonly adminService: AdminService) {}
+	constructor(
+		private readonly adminService: AdminService,
+		private readonly rateLimiter: RateLimiterService,
+	) {}
 
 	@Get('stats')
 	@ApiOperation({ summary: 'Get dashboard statistics' })
@@ -78,7 +83,18 @@ export class AdminController {
 
 	@Patch('bookings/:id/status')
 	@ApiOperation({ summary: 'Update booking status (admin only)' })
-	async updateBookingStatus(@Param('id') id: string, @Body('status') status: BookingStatus) {
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async updateBookingStatus(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body('status') status: BookingStatus,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
 		return this.adminService.updateBookingStatus(id, status);
 	}
 
@@ -162,13 +178,32 @@ export class AdminController {
 
 	@Patch('users/:id/role')
 	@ApiOperation({ summary: 'Update user role (admin only)' })
-	async updateUserRole(@Param('id') id: string, @Body('role') role: UserRoleType) {
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async updateUserRole(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body('role') role: UserRoleType,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
 		return this.adminService.updateUserRole(id, role);
 	}
 
 	@Delete('users/:id')
 	@ApiOperation({ summary: 'Delete user (admin only)' })
-	async deleteUser(@Param('id') id: string) {
+	@ApiResponse({ status: 429, description: 'Too many deletion attempts' })
+	async deleteUser(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		// Stricter rate limit for deletions
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:delete`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
+		);
 		await this.adminService.deleteUser(id);
 		return { message: 'User deleted successfully' };
 	}

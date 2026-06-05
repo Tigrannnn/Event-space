@@ -228,8 +228,9 @@ export class BookingService {
 		}
 
 		if (refundResult) {
-			await this.prisma.bookingAdjustment.create({
-				data: {
+			await this.prisma.bookingAdjustment.upsert({
+				where: { stripePaymentIntentId: booking.paymentIntentId },
+				create: {
 					bookingId: booking.id,
 					type: 'REFUND',
 					amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
@@ -238,6 +239,10 @@ export class BookingService {
 					stripeRefundId: refundResult.id,
 					status: 'SUCCEEDED',
 					reason: 'Booking cancelled. Stripe fee withheld.',
+				},
+				update: {
+					stripeRefundId: refundResult.id,
+					status: 'SUCCEEDED',
 				},
 			});
 		}
