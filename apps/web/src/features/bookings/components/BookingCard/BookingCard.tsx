@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 
 export default function BookingCard({ booking }: BookingCardProps) {
 	const { event, quantity, status } = booking;
-	const { mutate: cancelBooking } = useCancelBooking();
+	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
 
 	const confirm = useConfirm();
@@ -112,7 +112,13 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						View Event
 					</Button>
-					<Button variant="danger" size="sm" className="flex-1" onClick={handleCancel}>
+					<Button
+						variant="danger"
+						size="sm"
+						className="flex-1"
+						onClick={handleCancel}
+						isLoading={isCancelling}
+					>
 						Cancel
 					</Button>
 				</div>

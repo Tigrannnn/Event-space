@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Booking, EnvKey } from '@event-space/shared';
+import { Booking, EnvKey, getApiErrorMessage } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
@@ -32,23 +32,27 @@ function StripePaymentFormContent({
 	const { addToast } = useToastStore();
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 
-	const waitForConfirmation = async () => {
-		for (let i = 0; i < 10; i++) {
+	const waitForConfirmation: () => Promise<'confirmed' | 'cancelled' | 'timeout'> = async () => {
+		for (let i = 0; i < 15; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 
 			const bookings = queryClient.getQueryData<Booking[]>(['my-bookings']);
-			const booking = bookings?.find((b) => b.eventId === eventId);
-
+			const booking = bookings?.find((b) => b.id === bookingId);
 			if (!booking) continue;
-			if (expectedQuantity !== undefined) {
-				if (booking.quantity === expectedQuantity) break;
-			} else if (booking.status === 'CONFIRMED') {
-				break;
+
+			if (booking.status === 'CONFIRMED') {
+				return 'confirmed';
+			}
+			if (booking.status === 'CANCELLED') {
+				return 'cancelled';
 			}
 		}
+
+		return 'timeout';
 	};
 
 	const handleSubmit = async (event: FormEvent) => {
@@ -70,30 +74,49 @@ function StripePaymentFormContent({
 
 		if (error) {
 			setIsProcessing(false);
-			addToast('Payment failed. Please try again.', ToastType.ERROR);
+			addToast(getApiErrorMessage(error, 'Payment failed. Please try again.'), ToastType.ERROR);
 			return;
 		}
 
 		setHasSubmittedPayment(true);
-		addToast('Payment successful! Your booking will be confirmed shortly.', ToastType.SUCCESS);
+		addToast('Payment submitted. Waiting for confirmation...', ToastType.INFO);
 
-		await waitForConfirmation();
+		const confirmation = await waitForConfirmation();
 
-		await Promise.all([
-			queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
-			queryClient.invalidateQueries({ queryKey: ['events'] }),
-		]);
+		if (confirmation === 'confirmed') {
+			addToast('Payment confirmed! Your booking is complete.', ToastType.SUCCESS);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+			]);
+			setIsProcessing(false);
+			onClose();
+			return;
+		}
+
+		if (confirmation === 'cancelled') {
+			setIsProcessing(false);
+			addToast('Payment was cancelled. Your booking has been released.', ToastType.ERROR);
+			onClose();
+			return;
+		}
 
 		setIsProcessing(false);
-		onClose();
+		addToast(
+			'Payment is still pending. Please wait a moment and refresh your bookings page if needed.',
+			ToastType.INFO,
+		);
 	};
 
 	const handleClose = async () => {
 		if (bookingId && !hasSubmittedPayment) {
+			setIsCancelling(true);
 			try {
 				await cancelBooking(bookingId);
 			} catch {
 				// ignore cancellation failure on modal close
+			} finally {
+				setIsCancelling(false);
 			}
 		}
 
@@ -150,7 +173,8 @@ function StripePaymentFormContent({
 					type="button"
 					variant="secondary"
 					onClick={handleClose}
-					disabled={isProcessing}
+					isLoading={isCancelling}
+					disabled={isProcessing || isCancelling}
 					className="flex-1"
 				>
 					Cancel
@@ -158,7 +182,7 @@ function StripePaymentFormContent({
 				<Button
 					type="submit"
 					isLoading={isProcessing}
-					disabled={!stripe || !elements || isProcessing}
+					disabled={!stripe || !elements || isProcessing || isCancelling}
 					className="flex-1"
 				>
 					{isProcessing ? 'Confirming...' : 'Pay now'}
