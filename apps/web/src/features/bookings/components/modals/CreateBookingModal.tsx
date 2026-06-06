@@ -29,7 +29,6 @@ export default function CreateBookingModal() {
 	}
 
 	const spotsLeft = event.maxParticipants - event.currentParticipants;
-	const maxQuantity = Math.min(4, spotsLeft);
 
 	const handleConfirm = (quantity: number) => {
 		createBooking(
@@ -63,7 +62,7 @@ export default function CreateBookingModal() {
 				<BookingForm
 					event={event}
 					initialQuantity={1}
-					maxQuantity={maxQuantity}
+					maxQuantity={spotsLeft}
 					onSubmit={handleConfirm}
 					isLoading={isLoading}
 					submitLabel={isLoading ? 'Preparing payment...' : 'Continue to payment'}

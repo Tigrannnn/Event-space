@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Booking, EnvKey, getApiErrorMessage } from '@event-space/shared';
+import { Booking, BookingWithEstimate, EnvKey, getApiErrorMessage } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
@@ -35,12 +35,22 @@ function StripePaymentFormContent({
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 
+	// Estimate commission and refund using cached event/booking data
+
+	const bookingCache = bookingId
+		? queryClient
+				.getQueryData<BookingWithEstimate[]>(['my-bookings'])
+				?.find((b) => b.id === bookingId)
+		: null;
+
+	const formatCents = (cents: number) => (cents / 100).toFixed(2);
+
 	const waitForConfirmation: () => Promise<'confirmed' | 'cancelled' | 'timeout'> = async () => {
 		for (let i = 0; i < 15; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 
-			const bookings = queryClient.getQueryData<Booking[]>(['my-bookings']);
+			const bookings = queryClient.getQueryData<BookingWithEstimate[]>(['my-bookings']);
 			const booking = bookings?.find((b) => b.id === bookingId);
 			if (!booking) continue;
 
@@ -167,6 +177,32 @@ function StripePaymentFormContent({
 			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
 				<PaymentElement />
 			</div>
+
+			{bookingCache &&
+				(() => {
+					const refundPercentage = bookingCache.refundPercentage ?? 0;
+					const estimatedRefundInCents = bookingCache.estimatedRefundInCents ?? 0;
+					const estimatedStripeFeeInCents = bookingCache.estimatedStripeFeeInCents ?? 0;
+
+					if (refundPercentage === 0 || estimatedRefundInCents === 0) {
+						return <div className="text-sm text-gray-500">No refund available if cancelled</div>;
+					}
+
+					if (estimatedRefundInCents <= 0) {
+						return (
+							<div className="text-sm text-gray-500">
+								Stripe fee will cover the entire amount — no refund
+							</div>
+						);
+					}
+
+					return (
+						<div className="text-sm text-gray-500">
+							Estimated fee: ${formatCents(estimatedStripeFeeInCents)} — You'll get back: $
+							{formatCents(estimatedRefundInCents)}
+						</div>
+					);
+				})()}
 
 			<div className="flex gap-3">
 				<Button

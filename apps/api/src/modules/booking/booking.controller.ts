@@ -12,7 +12,7 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { GetCurrentUserId, ZodValidationPipe } from '@shared';
 import { CreateBookingSchema, UpdateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
-import type { CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import type { BookingWithEstimate, CreateBookingData, UpdateBookingData } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 
@@ -54,8 +54,8 @@ export class BookingController {
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)
 	@ApiOperation({ summary: 'Get my bookings' })
-	@ApiResponse({ status: 200, description: 'List of user bookings' })
-	findMy(@GetCurrentUserId() userId: string) {
+	@ApiResponse({ status: 200, description: 'List of user bookings with refund estimates' })
+	async findMy(@GetCurrentUserId() userId: string): Promise<BookingWithEstimate[]> {
 		return this.bookingService.findByUser(userId);
 	}
 

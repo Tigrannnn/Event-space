@@ -13,12 +13,21 @@ export const useGetMyBookings = () => {
 
 export const useCreateBooking = () => {
 	const { addToast } = useToastStore();
+	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: (data: CreateBookingData) => bookingApi.createBooking(data),
 		onError: (error) => {
 			const message = getApiErrorMessage(error, 'Failed to create booking');
 			addToast(message, ToastType.ERROR);
+		},
+		onSuccess: (result) => {
+			// invalidate event and bookings so UI reflects reserved spot immediately
+			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+			if (result?.booking?.eventId) {
+				queryClient.invalidateQueries({ queryKey: ['event', result.booking.eventId] });
+				queryClient.invalidateQueries({ queryKey: ['events'] });
+			}
 		},
 	});
 };

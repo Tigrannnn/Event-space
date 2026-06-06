@@ -79,3 +79,12 @@ export const CancelBookingSchema = z.object({
 });
 
 export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
+
+export const BookingWithEstimateSchema = BookingSchema.extend({
+	event: EventSchema.optional(),
+	refundPercentage: z.number(),
+	estimatedStripeFeeInCents: z.number(),
+	estimatedRefundInCents: z.number(),
+});
+
+export type BookingWithEstimate = z.infer<typeof BookingWithEstimateSchema>;

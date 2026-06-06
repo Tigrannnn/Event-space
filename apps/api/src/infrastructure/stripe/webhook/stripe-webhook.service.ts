@@ -29,7 +29,7 @@ export class StripeWebhookService {
 
 		switch (event.type) {
 			case 'payment_intent.succeeded':
-				await this.handlePaymentSucceeded(bookingId, session.id);
+				await this.handlePaymentSucceeded(bookingId, session.id, session.amount);
 				break;
 			case 'payment_intent.payment_failed':
 				await this.handlePaymentFailed(bookingId, session.id);
@@ -43,6 +43,7 @@ export class StripeWebhookService {
 	private async handlePaymentSucceeded(
 		bookingId: string | undefined,
 		paymentIntentId: string,
+		amountReceived: number,
 	): Promise<void> {
 		if (!bookingId) {
 			this.logger.error(
@@ -55,12 +56,31 @@ export class StripeWebhookService {
 			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
 
 			if (!booking) {
-				this.logger.error(`Booking ${bookingId} not found for successful payment`);
+				this.logger.error(`Booking ${bookingId} not found for payment intent ${paymentIntentId}`);
 				return;
 			}
 
-			if (booking.status === 'CONFIRMED') return;
+			if (booking.status === 'CANCELLED') {
+				// Cron успел отменить пока юзер вводил карту — места уже освобождены,
+				// деньги пришли — нужно вернуть полностью
+				this.logger.warn(
+					`Booking ${bookingId} was cancelled before payment arrived — issuing full refund`,
+				);
+				try {
+					await this.stripe.refund(paymentIntentId, `auto-refund-expired-${bookingId}`, amountReceived);
+				} catch (e) {
+					this.logger.error(`Failed to auto-refund expired booking ${bookingId}`, e as Error);
+				}
+				return;
+			}
 
+			if (booking.status === 'CONFIRMED') {
+				// Webhook дублируется — идемпотентно игнорируем
+				this.logger.warn(`Booking ${bookingId} already confirmed, skipping`);
+				return;
+			}
+
+			// Места уже заняты с момента create() — currentParticipants не трогаем
 			await tx.booking.update({
 				where: { id: bookingId },
 				data: { status: 'CONFIRMED', paymentIntentId },
@@ -79,7 +99,7 @@ export class StripeWebhookService {
 			});
 		});
 
-		this.logger.log(`Booking ${bookingId} successfully CONFIRMED via webhook`);
+		this.logger.log(`Booking ${bookingId} confirmed via webhook`);
 	}
 
 	private async handlePaymentFailed(
@@ -90,21 +110,27 @@ export class StripeWebhookService {
 
 		await this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
-			if (!booking || booking.status === 'CANCELLED') return;
+
+			if (!booking || booking.status === 'CANCELLED') {
+				// Cron уже отменил — места освобождены, ничего не делаем
+				this.logger.warn(
+					`Booking ${bookingId} not found or already cancelled for PI ${paymentIntentId} — skipping`,
+				);
+				return;
+			}
 
 			await tx.booking.update({
 				where: { id: bookingId },
 				data: { status: 'CANCELLED' },
 			});
 
-			// Возвращаем места обратно ивенту
-			await tx.event.update({
-				where: { id: booking.eventId },
+			await tx.event.updateMany({
+				where: { id: booking.eventId, currentParticipants: { gte: booking.quantity } },
 				data: { currentParticipants: { decrement: booking.quantity } },
 			});
 		});
 
-		this.logger.warn(`Booking ${bookingId} CANCELLED due to failed payment`);
+		this.logger.warn(`Booking ${bookingId} cancelled due to failed payment`);
 	}
 
 	private async handlePaymentCanceled(

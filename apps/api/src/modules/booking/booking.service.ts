@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CancellationPolicyRule } from '@event-space/shared';
+import { CancellationPolicyRule, BookingWithEstimate } from '@event-space/shared';
 import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
@@ -149,12 +149,67 @@ export class BookingService {
 	// 	});
 	// }
 
-	async findByUser(userId: string) {
-		return this.prisma.booking.findMany({
+	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
+		const bookings = await this.prisma.booking.findMany({
 			where: { userId, status: { not: 'CANCELLED' } },
-			include: { event: { include: { images: true } } },
+			include: { event: { include: { images: true, cancellationRules: true } } },
 			orderBy: { createdAt: 'desc' },
 		});
+
+		const now = new Date();
+		const enrichedBookings = await Promise.all(
+			bookings.map(async (booking) => {
+				const event = booking.event;
+				if (!event || !booking.paymentIntentId || Number(booking.amount) === 0) {
+					return {
+						...booking,
+						amount: Number(booking.amount),
+						event: event ? { ...event, price: Number(event.price) } : undefined,
+						refundPercentage: 0,
+						estimatedStripeFeeInCents: 0,
+						estimatedRefundInCents: 0,
+					} as unknown as BookingWithEstimate;
+				}
+
+				// Get actual Stripe fee from payment intent
+				let stripeFeeInCents = 0;
+				try {
+					const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+					if (paymentIntent.status === 'succeeded' && paymentIntent.latest_charge) {
+						const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
+						const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
+						stripeFeeInCents = balanceTx.fee;
+					}
+				} catch (error) {
+					this.logger.warn(`Failed to get Stripe fee for booking ${booking.id}, using estimate`, error);
+				}
+
+				const refundPercentage = this.calculateRefundPercentage(
+					now,
+					new Date(event.date),
+					event.cancellationRules,
+				);
+				const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+				const calculatedRefundInCents = Math.round((baseAmountInCents * refundPercentage) / 100);
+
+				// Use actual Stripe fee if available, otherwise use estimate (2.9% + $0.30)
+				const estimatedStripeFeeInCents =
+					stripeFeeInCents > 0 ? stripeFeeInCents : Math.round(baseAmountInCents * 0.029) + 30;
+
+				const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - estimatedStripeFeeInCents);
+
+				return {
+					...booking,
+					amount: Number(booking.amount),
+					event: { ...event, price: Number(event.price) },
+					refundPercentage,
+					estimatedStripeFeeInCents,
+					estimatedRefundInCents,
+				} as unknown as BookingWithEstimate;
+			}),
+		);
+
+		return enrichedBookings;
 	}
 
 	async cancel(userId: string, bookingId: string) {
@@ -168,17 +223,17 @@ export class BookingService {
 			if (currentBooking.userId !== userId) throw new ForbiddenException('Not your booking');
 			if (currentBooking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
 
-			await tx.event.update({
-				where: { id: currentBooking.eventId },
+			await tx.event.updateMany({
+				where: { id: currentBooking.eventId, currentParticipants: { gte: currentBooking.quantity } },
 				data: { currentParticipants: { decrement: currentBooking.quantity } },
 			});
 
-			const updated = await tx.booking.update({
+			const updatedBooking = await tx.booking.update({
 				where: { id: bookingId },
 				data: { status: 'CANCELLED' },
 			});
 
-			return { booking: updated, event: currentBooking.event };
+			return { booking: updatedBooking, event: currentBooking.event };
 		});
 
 		if (!booking.paymentIntentId || Number(booking.amount) === 0) {

@@ -5,16 +5,31 @@ import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { getEventCoverImageUrl } from '@event-space/shared';
-import type { BookingCardProps } from './types';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
 import { useRouter } from 'next/navigation';
+import type { BookingWithEstimate } from '@event-space/shared';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
+interface BookingCardProps {
+	booking: BookingWithEstimate;
+}
+
+function centsToDollars(cents: number) {
+	return (cents / 100).toFixed(2);
+}
+
 export default function BookingCard({ booking }: BookingCardProps) {
-	const { event, quantity, status } = booking;
+	const {
+		event,
+		quantity,
+		status,
+		refundPercentage,
+		estimatedRefundInCents,
+		estimatedStripeFeeInCents,
+	} = booking;
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
 
@@ -26,11 +41,20 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// };
 
 	const handleCancel = async () => {
+		if (!event) return;
+
+		let refundMessage = 'No refund available';
+		if (refundPercentage > 0 && estimatedRefundInCents > 0) {
+			refundMessage = `You will receive: $${centsToDollars(estimatedRefundInCents)} (Fee: $${centsToDollars(estimatedStripeFeeInCents)})`;
+		} else if (refundPercentage > 0 && estimatedRefundInCents === 0) {
+			refundMessage = 'Fee will cover the entire amount — no refund';
+		}
+
 		const isConfirmed = await confirm({
 			title: 'Cancel Booking',
-			message: 'Are you sure you want to cancel this booking?',
+			message: `Are you sure? ${refundMessage}`,
 			confirmText: 'Yes, Cancel',
-			cancelText: 'Cancel',
+			cancelText: 'Close',
 			variant: 'danger',
 		});
 
@@ -38,8 +62,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			cancelBooking(booking.id);
 		}
 	};
-
-	console.log(booking);
 
 	if (!event) return null;
 
@@ -96,6 +118,30 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					<div className="text-right">
 						<span className="text-primary text-xl font-bold">${event.price * quantity}</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500"> total</span>
+
+						{/* Refund estimate & commission */}
+						{(() => {
+							if (refundPercentage === 0 || estimatedRefundInCents === 0) {
+								return (
+									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">No refund available</div>
+								);
+							}
+
+							if (estimatedRefundInCents <= 0) {
+								return (
+									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+										Fee will cover the entire amount — no refund
+									</div>
+								);
+							}
+
+							return (
+								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+									Refund: ${centsToDollars(estimatedRefundInCents)} (fee: $
+									{centsToDollars(estimatedStripeFeeInCents)})
+								</div>
+							);
+						})()}
 					</div>
 				</div>
 
