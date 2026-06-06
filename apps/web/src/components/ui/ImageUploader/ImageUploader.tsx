@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { GripVertical, Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-import { MAX_EVENT_IMAGES, type ImageUploaderItem } from '@event-space/shared';
+import { MAX_EVENT_IMAGES } from '@event-space/shared';
+import type { ImageUploaderItem } from './types';
 
 const ACCEPTED_IMAGE_TYPES = {
 	'image/png': ['.png'],
@@ -53,10 +54,7 @@ export default function ImageUploader({
 	const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 	const fileItemsRef = useRef<ImageUploaderItem[]>([]);
 
-	const sorted = useMemo(
-		() => [...value].sort((a, b) => a.order - b.order),
-		[value],
-	);
+	const sorted = useMemo(() => [...value].sort((a, b) => a.order - b.order), [value]);
 
 	const canAddMore = sorted.length < maxImages;
 	const canReorder = sorted.length > 1 && !disabled;
@@ -164,7 +162,7 @@ export default function ImageUploader({
 				{...getRootProps()}
 				className={[
 					'flex flex-wrap gap-4 rounded-xl p-1 transition-colors',
-					isDragActive ? 'bg-primary/10 ring-primary ring-2 ring-dashed' : '',
+					isDragActive ? 'bg-primary/10 ring-primary ring-dashed ring-2' : '',
 				].join(' ')}
 			>
 				<input {...getInputProps({ id: inputId })} />
@@ -224,9 +222,7 @@ export default function ImageUploader({
 						onClick={open}
 						className={[
 							'hover:border-primary flex h-32 w-32 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50',
-							isDragActive
-								? 'border-primary bg-primary/5'
-								: 'border-gray-300 dark:border-gray-600',
+							isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600',
 						].join(' ')}
 					>
 						<Plus className="text-primary mb-1 h-8 w-8" />

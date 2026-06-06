@@ -2,13 +2,8 @@
 
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-	type Event,
-	EventFormSchema,
-	type EventFormValues,
-	EventStatusEnum,
-	EventDifficultyEnum,
-} from '@event-space/shared';
+import { type Event, EventStatusEnum, EventDifficultyEnum } from '@event-space/shared';
+import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
 import Button from '@/components/ui/Buttons/Button';

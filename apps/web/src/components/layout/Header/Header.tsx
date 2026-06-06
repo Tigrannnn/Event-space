@@ -90,11 +90,10 @@ export default function Header() {
 							<></>
 						) : user ? (
 							<>
-								{user.role === 'ADMIN' && (
-									<Button variant="secondary" onClick={() => router.push('/admin/dashboard')}>
-										Admin
-									</Button>
-								)}
+								<Button variant="secondary" onClick={() => router.push('/bookings')}>
+									Bookings
+								</Button>
+
 								<Button variant="secondary" onClick={() => router.push('/profile')}>
 									{user?.name.split(' ')[0] || 'Profile'}
 								</Button>

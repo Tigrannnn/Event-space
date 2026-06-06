@@ -2,10 +2,10 @@ import {
 	EventDifficultyEnum,
 	EventStatusEnum,
 	type Event,
-	type EventFormValues,
 	type EventImageItem,
-	type ImageUploaderItem,
 } from '@event-space/shared';
+import type { EventFormValues } from './event-form.schema';
+import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
 export function getDefaultEventFormValues(): EventFormValues {
 	return {

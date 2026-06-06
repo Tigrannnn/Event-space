@@ -1,2 +1,2 @@
 export { default as ImageUploader } from './ImageUploader';
-export type { ImageUploaderItem } from '@event-space/shared';
+export type { ImageUploaderItem } from './types';

@@ -3,7 +3,7 @@
 import { useUpdateEvent } from '@/features/admin/hooks/useAdmin';
 import EventForm from '../EventForm';
 import { buildUpdateEventFormData } from '../EventForm/form-mappers';
-import type { EventFormValues } from '@event-space/shared';
+import type { EventFormValues } from '../EventForm/event-form.schema';
 import { useModalStore } from '@/stores';
 import { ModalType, useModalData } from '@/stores/modalStore';
 import { Modal } from '@/components/ui/Modal';
