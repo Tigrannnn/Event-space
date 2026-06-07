@@ -112,11 +112,20 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{event.title}
 							</h1>
 
-							<div className="mb-4 flex items-center gap-3 sm:mb-6 sm:gap-4 md:gap-6">
-								<div className="flex items-center gap-2 text-gray-600">
-									<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+							<div className="mb-4 flex items-center gap-2 sm:mb-6 text-gray-700 dark:text-gray-300">
+								<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+								{event.locationUrl ? (
+									<a
+										href={event.locationUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+									>
+										{event.location}
+									</a>
+								) : (
 									<span className="text-sm font-medium sm:text-base">{event.location}</span>
-								</div>
+								)}
 							</div>
 
 							<span className="bg-primary/10 text-primary inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase sm:px-5 sm:py-2.5 sm:text-sm">
@@ -133,9 +142,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 
 						{/* Description */}
 						<div>
-							<h2 className="text-primary mb-3 text-xl font-black sm:mb-4 sm:text-2xl">
-								About this tour
-							</h2>
+							<h2 className="text-primary mb-3 text-xl font-black sm:mb-4 sm:text-2xl">About this tour</h2>
 							<div className="prose prose-base sm:prose-lg max-w-none leading-relaxed text-gray-600">
 								<p>{event.description}</p>
 							</div>

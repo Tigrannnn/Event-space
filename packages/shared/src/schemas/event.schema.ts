@@ -32,6 +32,7 @@ export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number().openapi({ example: 5000 }),
 	images: z.array(EventImageSchema).optional(),
 	cancellationRules: z.array(GeneratedRuleSchema).default([]),
+	locationUrl: z.string().url().nullable().optional(),
 }).openapi({
 	description: 'Event information',
 	example: {

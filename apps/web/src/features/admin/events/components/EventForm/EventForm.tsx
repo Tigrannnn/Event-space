@@ -62,8 +62,12 @@ export default function EventForm({
 		name: 'cancellationRules',
 	});
 
+	const handleFormSubmit = (values: EventFormValues) => {
+		onSubmit(values);
+	};
+
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5 sm:p-6">
+		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 p-5 sm:p-6">
 			<ModalHeader title={event ? 'Update Event' : 'Create Event'} onClose={onCancel} />
 
 			<div className="space-y-4">
@@ -86,22 +90,33 @@ export default function EventForm({
 						<input {...register('location')} className={fieldClassName} disabled={isPending} />
 						{errors.location && <p className="text-xs text-red-500">{errors.location.message}</p>}
 					</label>
-					<div className="space-y-1.5">
-						<span className="text-sm font-semibold">Date & time</span>
-						<Controller
-							name="date"
-							control={control}
-							render={({ field }) => (
-								<DateTimeField
-									value={field.value}
-									onChange={field.onChange}
-									disabled={isPending}
-									inputClassName={dateTimeInputClassName}
-								/>
-							)}
+					<label className="space-y-1.5">
+						<span className="text-sm font-semibold">Google Maps URL</span>
+						<input
+							{...register('locationUrl')}
+							className={fieldClassName}
+							disabled={isPending}
+							placeholder="https://maps.app.goo.gl/..."
 						/>
-						{errors.date && <p className="text-xs text-red-500">{errors.date.message}</p>}
-					</div>
+						{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
+					</label>
+				</div>
+
+				<div className="space-y-1.5">
+					<span className="text-sm font-semibold">Date & time</span>
+					<Controller
+						name="date"
+						control={control}
+						render={({ field }) => (
+							<DateTimeField
+								value={field.value}
+								onChange={field.onChange}
+								disabled={isPending}
+								inputClassName={dateTimeInputClassName}
+							/>
+						)}
+					/>
+					{errors.date && <p className="text-xs text-red-500">{errors.date.message}</p>}
 				</div>
 
 				<hr className="border-gray-200 dark:border-gray-700" />

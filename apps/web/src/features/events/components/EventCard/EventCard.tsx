@@ -18,13 +18,14 @@ export interface EventCardProps {
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useRouter } from 'next/navigation';
-import { Ticket } from 'lucide-react';
+import { MapPin, Ticket } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
 	const router = useRouter();
 	const { data: user } = useCurrentUser();
-	const { data: myBookings } = useGetMyBookings();
+	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
 	const hasBooking = myBookings?.some(
 		(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
@@ -47,10 +48,12 @@ export default function EventCard({ event }: EventCardProps) {
 	};
 
 	return (
-		<Link
-			href={`/events/${event.id}`}
-			className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20"
-		>
+		<article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
+			<Link
+				href={`/events/${event.id}`}
+				aria-label={`View details for ${event.title}`}
+				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
+			/>
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{event.category}</CategoryBadge>
@@ -74,28 +77,40 @@ export default function EventCard({ event }: EventCardProps) {
 					{event.description}
 				</p>
 
-				<div className="mb-4 flex items-center gap-2 sm:mb-6">
-					<span className="text-base font-medium text-gray-400 italic sm:text-sm dark:text-gray-500">
-						📍 {event.location}
-					</span>
+				<div className="mb-4 flex items-center gap-2 text-gray-600 sm:mb-6 dark:text-gray-400">
+					<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+					{event.locationUrl ? (
+						<a
+							href={event.locationUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="hover:text-primary relative z-20 cursor-pointer text-left text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+						>
+							{event.location}
+						</a>
+					) : (
+						<span className="text-sm font-medium sm:text-base">{event.location}</span>
+					)}
 				</div>
 
 				{/* Footer Section: Metrics & Action - always at bottom */}
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
 
-					{hasBooking ? (
-						<Button variant="secondary" className="w-full" onClick={handleViewBooking}>
+					{isMyBookingsLoading ? (
+						<Skeleton className="h-12 w-full rounded-xl" />
+					) : hasBooking ? (
+						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
 							<Ticket className="h-4 w-4" />
 							View My Booking
 						</Button>
 					) : (
-						<Button variant="primary" className="w-full" onClick={handleJoinClick}>
+						<Button variant="primary" className="relative z-20 w-full" onClick={handleJoinClick}>
 							Book Tour
 						</Button>
 					)}
 				</div>
 			</div>
-		</Link>
+		</article>
 	);
 }

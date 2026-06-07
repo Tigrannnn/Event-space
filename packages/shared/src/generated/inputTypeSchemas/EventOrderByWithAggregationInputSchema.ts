@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
+import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { EventCountOrderByAggregateInputSchema } from './EventCountOrderByAggregateInputSchema';
 import { EventAvgOrderByAggregateInputSchema } from './EventAvgOrderByAggregateInputSchema';
 import { EventMaxOrderByAggregateInputSchema } from './EventMaxOrderByAggregateInputSchema';
@@ -13,6 +14,7 @@ export const EventOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOrder
   title: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
   location: z.lazy(() => SortOrderSchema).optional(),
+  locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   difficulty: z.lazy(() => SortOrderSchema).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),

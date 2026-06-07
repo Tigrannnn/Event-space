@@ -14,6 +14,7 @@ export const EventUncheckedCreateWithoutCancellationRulesInputSchema: z.ZodType<
   title: z.string(),
   description: z.string(),
   location: z.string(),
+  locationUrl: z.string().optional().nullable(),
   date: z.coerce.date(),
   difficulty: z.lazy(() => EventDifficultySchema),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),

@@ -7,18 +7,37 @@ import type { EventFormValues } from '../EventForm/event-form.schema';
 import { useModalStore } from '@/stores';
 import { ModalType, useModalData } from '@/stores/modalStore';
 import { Modal } from '@/components/ui/Modal';
+import { useRef } from 'react';
 
 export default function UpdateEventModal() {
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.UpdateEvent);
 	const eventToUpdate = modalData?.event;
+	const isClosingRef = useRef(false);
+
 	if (!eventToUpdate) return null;
 
 	const { mutateAsync: updateEvent, isPending } = useUpdateEvent();
 
+
+
+	const handleSubmit = (values: EventFormValues) => {
+		if (isClosingRef.current) {
+			return;
+		}
+		return updateEvent({ id: eventToUpdate.id, formData: buildUpdateEventFormData(values) });
+	};
+
+	const handleCancel = () => {
+		isClosingRef.current = true;
+		closeModal();
+	};
+
 	return (
 		<Modal
-			onClose={closeModal}
+			onClose={() => {
+				closeModal();
+			}}
 			size="full"
 			position="center"
 			ariaLabel="Update Event Modal"
@@ -27,12 +46,10 @@ export default function UpdateEventModal() {
 		>
 			<EventForm
 				event={eventToUpdate}
-				onCancel={closeModal}
+				onCancel={handleCancel}
 				submitLabel={isPending ? 'Saving...' : 'Save changes'}
 				isPending={isPending}
-				onSubmit={(values: EventFormValues) =>
-					updateEvent({ id: eventToUpdate.id, formData: buildUpdateEventFormData(values) })
-				}
+				onSubmit={handleSubmit}
 			/>
 		</Modal>
 	);

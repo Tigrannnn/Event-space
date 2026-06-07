@@ -112,6 +112,7 @@ model Event {
   title               String          @db.VarChar(100)
   description         String          @db.VarChar(1000)
   location            String          @db.VarChar(200)
+  locationUrl         String?         @map("location_url") @db.VarChar(1000)
   date                DateTime
   difficulty          EventDifficulty
   price               Decimal         @db.Decimal(10, 2)

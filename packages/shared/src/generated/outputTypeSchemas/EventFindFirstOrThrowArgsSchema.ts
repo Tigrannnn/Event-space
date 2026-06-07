@@ -18,6 +18,7 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   title: z.boolean().optional(),
   description: z.boolean().optional(),
   location: z.boolean().optional(),
+  locationUrl: z.boolean().optional(),
   date: z.boolean().optional(),
   difficulty: z.boolean().optional(),
   price: z.boolean().optional(),

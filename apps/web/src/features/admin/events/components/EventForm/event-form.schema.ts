@@ -37,6 +37,7 @@ export const EventFormSchema = z.object({
 		.min(1, 'At least one image is required')
 		.max(MAX_EVENT_IMAGES),
 	location: z.string().min(1, 'Location is required'),
+	locationUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 	date: z.string().min(1, 'Date is required'),
 	difficulty: EventDifficultyEnum,
 	price: z.string().min(1, 'Price is required'),

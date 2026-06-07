@@ -81,24 +81,33 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="mb-6 space-y-2.5 sm:mb-8 sm:space-y-3">
 					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
 						<Calendar className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
-						<div>
-							<p className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
+						<div className="flex flex-col">
+							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
 								Date
-							</p>
-							<p className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
+							</span>
+							<span className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
 								{formatDateTime(event.date)}
-							</p>
+							</span>
 						</div>
 					</div>
 					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
 						<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
-						<div>
-							<p className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
+						<div className="flex flex-col">
+							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
 								Location
-							</p>
-							<p className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
-								{event.location}
-							</p>
+							</span>
+							{event.locationUrl ? (
+								<a
+									href={event.locationUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+								>
+									{event.location}
+								</a>
+							) : (
+								<span className="text-sm font-medium sm:text-base">{event.location}</span>
+							)}
 						</div>
 					</div>
 				</div>
