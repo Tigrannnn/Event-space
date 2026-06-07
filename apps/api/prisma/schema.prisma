@@ -54,25 +54,6 @@ enum AdjustmentStatus {
   FAILED
 }
 
-enum OutboxStatus {
-  PENDING
-  DONE
-  FAILED
-}
-
-model OutboxEvent {
-  id          String      @id @default(cuid())
-  action      String
-  payload     Json
-  status      OutboxStatus @default(PENDING)
-  attempts    Int         @default(0)
-  lastError   String?
-  createdAt   DateTime    @default(now())
-  processedAt DateTime?
-
-  @@map("outbox_events")
-}
-
 model BookingAdjustment {
   id                   String           @id @default(uuid())
   bookingId            String           @map("booking_id")
