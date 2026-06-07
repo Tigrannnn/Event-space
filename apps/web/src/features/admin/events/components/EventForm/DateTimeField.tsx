@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef } from 'react';
+
 interface DateTimeFieldProps {
 	value: string;
 	onChange: (value: string) => void;
@@ -30,19 +32,27 @@ export default function DateTimeField({
 }: DateTimeFieldProps) {
 	const { date, time } = splitDateTime(value);
 
+	const dateInputRef = useRef<HTMLInputElement | null>(null);
+
+	const timeInputRef = useRef<HTMLInputElement | null>(null);
+
 	return (
 		<div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
 			<input
+				ref={dateInputRef}
 				type="date"
 				value={date}
 				disabled={disabled}
+				onClick={() => dateInputRef.current?.showPicker?.()}
 				onChange={(event) => onChange(combineDateTime(event.target.value, time))}
 				className={inputClassName}
 			/>
 			<input
+				ref={timeInputRef}
 				type="time"
 				value={time}
 				disabled={disabled}
+				onClick={() => timeInputRef.current?.showPicker?.()}
 				onChange={(event) => onChange(combineDateTime(date, event.target.value))}
 				className={inputClassName}
 			/>
