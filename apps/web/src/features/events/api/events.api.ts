@@ -1,23 +1,18 @@
 import clientApi from '@/lib/client.api';
-import { Event } from '@event-space/shared';
+import { Event, PaginatedCursorParams, PaginatedCursorResponse } from '@event-space/shared';
 
-export interface PaginatedEventsResponse {
-	data: Event[];
-	nextCursor: string | null;
-	hasMore: boolean;
-}
-
-export interface GetEventsParams {
-	cursor?: string;
-	limit?: number;
+export interface GetEventsParams extends PaginatedCursorParams {
 	search?: string;
 }
 
+export type PaginatedEventsResponse = PaginatedCursorResponse<Event>;
+
 export const eventApi = {
-	getEvents: ({ cursor, limit = 8, search }: GetEventsParams = {}) =>
+	getEvents: ({ cursor, limit = 8, search }: GetEventsParams = {}, signal?: AbortSignal) =>
 		clientApi
 			.get<PaginatedEventsResponse>('/events', {
 				params: { cursor, limit, search },
+				signal,
 			})
 			.then((res) => res.data),
 

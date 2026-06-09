@@ -8,6 +8,7 @@ import type {
 	EventDifficulty,
 	BookingStatus,
 	DashboardStats,
+	PaginatedParams,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -30,26 +31,20 @@ const bookingInclude = {
 	},
 } as const;
 
-interface FindAllUsersParams {
-	skip?: number;
-	limit?: number;
+interface FindAllUsersParams extends PaginatedParams {
 	search?: string;
 	role?: UserRoleType;
 	emailVerified?: boolean;
 }
 
-interface FindAllBookingsParams {
-	skip?: number;
-	limit?: number;
+interface FindAllBookingsParams extends PaginatedParams {
 	search?: string;
 	status?: BookingStatus;
 	time?: TimeFilterType;
 	eventId?: string;
 }
 
-interface FindAllEventsParams {
-	skip?: number;
-	limit?: number;
+interface FindAllEventsParams extends PaginatedParams {
 	search?: string;
 	status?: EventStatus;
 	difficulty?: EventDifficulty;

@@ -18,13 +18,13 @@ export interface EventCardProps {
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useRouter } from 'next/navigation';
-import { MapPin, Ticket } from 'lucide-react';
+import { BookOpen, MapPin, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
 	const router = useRouter();
-	const { data: user } = useCurrentUser();
+	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
 	const hasBooking = myBookings?.some(
@@ -97,7 +97,7 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
 
-					{isMyBookingsLoading ? (
+					{user && isUserLoading && isMyBookingsLoading ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
@@ -106,6 +106,7 @@ export default function EventCard({ event }: EventCardProps) {
 						</Button>
 					) : (
 						<Button variant="primary" className="relative z-20 w-full" onClick={handleJoinClick}>
+							<BookOpen className="h-4 w-4" />
 							Book Tour
 						</Button>
 					)}

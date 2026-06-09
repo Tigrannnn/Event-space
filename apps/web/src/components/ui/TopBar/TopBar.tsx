@@ -1,0 +1,75 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Mail, Phone, Instagram } from 'lucide-react';
+import { COMPANY_CONFIG } from '@/config/сompany';
+
+export default function TopBar() {
+	const [isVisible, setIsVisible] = useState(true);
+	const [lastScrollY, setLastScrollY] = useState(0);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			const currentScrollY = window.scrollY;
+
+			if (currentScrollY < 10) {
+				// Always show at top
+				setIsVisible(true);
+			} else if (currentScrollY > lastScrollY) {
+				// Scrolling down - hide
+				setIsVisible(false);
+			} else {
+				// Scrolling up - show
+				setIsVisible(true);
+			}
+
+			setLastScrollY(currentScrollY);
+		};
+
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		return () => window.removeEventListener('scroll', handleScroll);
+	}, [lastScrollY]);
+
+	return (
+		<div
+			className={`from-primary to-accent sticky top-0 z-50 h-9 border-b border-white/10 bg-linear-to-br px-2 py-1.5 transition-all duration-300 ease-out sm:h-10 sm:px-8 sm:py-2 ${
+				isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+			}`}
+		>
+			<div className="mx-auto flex h-full items-center justify-end gap-4 px-4 sm:gap-6 sm:px-6 lg:px-8">
+				{/* Instagram - visible on all devices */}
+				<Link
+					href={COMPANY_CONFIG.instagram}
+					target="_blank"
+					rel="noopener noreferrer"
+					className="group flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+					aria-label="Visit Instagram"
+				>
+					<Instagram className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
+					<span className="hidden text-xs font-medium sm:inline">Instagram</span>
+				</Link>
+
+				{/* Phone - hidden on mobile, visible on sm+ */}
+				<a
+					href={`tel:${COMPANY_CONFIG.phone.replace(/\s/g, '')}`}
+					className="hidden items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:flex sm:gap-1.5"
+					aria-label={`Call ${COMPANY_CONFIG.phone}`}
+				>
+					<Phone className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
+					<span className="text-xs font-medium">{COMPANY_CONFIG.phone}</span>
+				</a>
+
+				{/* Email - hidden on mobile, visible on md+ */}
+				<a
+					href={`mailto:${COMPANY_CONFIG.email}`}
+					className="hidden items-center gap-1 text-white transition-all duration-200 hover:text-white/80 md:flex md:gap-1.5"
+					aria-label={`Email ${COMPANY_CONFIG.email}`}
+				>
+					<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
+					<span className="text-xs font-medium">{COMPANY_CONFIG.email}</span>
+				</a>
+			</div>
+		</div>
+	);
+}

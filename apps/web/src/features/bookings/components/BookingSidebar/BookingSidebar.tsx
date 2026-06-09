@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Calendar, MapPin, Ticket } from 'lucide-react';
+import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { CheckIcon } from '../../../../components/ui/Icons';
 import { Event } from '@event-space/shared';
@@ -8,6 +8,7 @@ import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useRouter } from 'next/navigation';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -23,8 +24,8 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const { openModal } = useModalStore();
 	const router = useRouter();
 
-	const { data: user } = useCurrentUser();
-	const { data: myBookings } = useGetMyBookings();
+	const { data: user, isLoading: isUserLoading } = useCurrentUser();
+	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
 	const hasBooking = useMemo(
 		() =>
@@ -113,13 +114,15 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				</div>
 
 				{/* Join Button */}
-				{hasBooking ? (
+				{user && isUserLoading && isMyBookingsLoading ? (
+					<Skeleton className="h-12 w-full rounded-xl" />
+				) : hasBooking ? (
 					<Button
 						variant="secondary"
 						className="w-full py-4 text-base sm:py-5 sm:text-lg"
 						onClick={handleViewBooking}
 					>
-						<Ticket className="h-5 w-5" />
+						<Ticket className="h-4 w-4" />
 						View My Booking
 					</Button>
 				) : (
@@ -128,6 +131,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						className="w-full py-4 text-base sm:py-5 sm:text-lg"
 						onClick={handleJoinClick}
 					>
+						<BookOpen className="h-4 w-4" />
 						Book Tour
 					</Button>
 				)}

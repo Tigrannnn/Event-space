@@ -16,12 +16,15 @@ export const useEvents = (options: UseEventsOptions = {}) => {
 
 	return useInfiniteQuery({
 		queryKey: ['events', 'infinite', search, limit],
-		queryFn: async ({ pageParam }): Promise<PaginatedEventsResponse> => {
-			return eventApi.getEvents({
-				cursor: pageParam as string | undefined,
-				limit,
-				search: search || undefined,
-			});
+		queryFn: async ({ pageParam, signal }): Promise<PaginatedEventsResponse> => {
+			return eventApi.getEvents(
+				{
+					cursor: pageParam as string | undefined,
+					limit,
+					search: search || undefined,
+				},
+				signal,
+			);
 		},
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (lastPage) => lastPage.nextCursor,
