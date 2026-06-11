@@ -55,17 +55,17 @@ enum AdjustmentStatus {
 }
 
 model BookingAdjustment {
-  id                   String           @id @default(uuid())
-  bookingId            String           @map("booking_id")
-  type                 AdjustmentType
-  amount               Decimal          @db.Decimal(10, 2)
-  currency             String           @default("usd")
-  stripePaymentIntentId String?         @unique @map("stripe_payment_intent_id")
-  stripeRefundId       String?          @unique @map("stripe_refund_id")
-  status               AdjustmentStatus
-  reason               String?
-  createdAt            DateTime         @default(now()) @map("created_at")
-  updatedAt            DateTime         @updatedAt @map("updated_at")
+  id                    String           @id @default(uuid())
+  bookingId             String           @map("booking_id")
+  type                  AdjustmentType
+  amount                Decimal          @db.Decimal(10, 2)
+  currency              String           @default("usd")
+  stripePaymentIntentId String?          @unique @map("stripe_payment_intent_id")
+  stripeRefundId        String?          @unique @map("stripe_refund_id")
+  status                AdjustmentStatus
+  reason                String?
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
 
   booking Booking @relation("booking_adjustments", fields: [bookingId], references: [id], onDelete: Cascade)
 
@@ -161,7 +161,7 @@ model CancellationPolicyRule {
   hoursBeforeEvent Int    @map("hours_before_event")
   refundPercentage Int    @map("refund_percentage")
 
-  event            Event  @relation("event_cancellation_rules", fields: [eventId], references: [id], onDelete: Cascade)
+  event Event @relation("event_cancellation_rules", fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, hoursBeforeEvent])
   @@map("cancellation_policy_rules")
@@ -175,15 +175,16 @@ model Booking {
   quantity  Int           @default(1)
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
+  expiresAt DateTime?     @map("expires_at")
 
-  amount        Decimal       @db.Decimal(10, 2)
+  amount Decimal @db.Decimal(10, 2)
 
   paymentIntentId String? @unique @map("payment_intent_id")
 
-  user  User  @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
-  event Event @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)
+  user        User                @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
+  event       Event               @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)
   adjustments BookingAdjustment[] @relation("booking_adjustments")
-  
+
   @@unique([userId, eventId])
   @@index([userId])
   @@index([eventId])

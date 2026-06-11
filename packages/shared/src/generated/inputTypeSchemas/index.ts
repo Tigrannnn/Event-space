@@ -147,6 +147,7 @@ export { CancellationPolicyRuleMaxOrderByAggregateInputSchema } from './Cancella
 export { CancellationPolicyRuleMinOrderByAggregateInputSchema } from './CancellationPolicyRuleMinOrderByAggregateInputSchema';
 export { CancellationPolicyRuleSumOrderByAggregateInputSchema } from './CancellationPolicyRuleSumOrderByAggregateInputSchema';
 export { EnumBookingStatusFilterSchema } from './EnumBookingStatusFilterSchema';
+export { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 export { BookingAdjustmentListRelationFilterSchema } from './BookingAdjustmentListRelationFilterSchema';
 export { BookingAdjustmentOrderByRelationAggregateInputSchema } from './BookingAdjustmentOrderByRelationAggregateInputSchema';
 export { BookingUserIdEventIdCompoundUniqueInputSchema } from './BookingUserIdEventIdCompoundUniqueInputSchema';
@@ -156,6 +157,7 @@ export { BookingMaxOrderByAggregateInputSchema } from './BookingMaxOrderByAggreg
 export { BookingMinOrderByAggregateInputSchema } from './BookingMinOrderByAggregateInputSchema';
 export { BookingSumOrderByAggregateInputSchema } from './BookingSumOrderByAggregateInputSchema';
 export { EnumBookingStatusWithAggregatesFilterSchema } from './EnumBookingStatusWithAggregatesFilterSchema';
+export { DateTimeNullableWithAggregatesFilterSchema } from './DateTimeNullableWithAggregatesFilterSchema';
 export { BookingCreateNestedOneWithoutAdjustmentsInputSchema } from './BookingCreateNestedOneWithoutAdjustmentsInputSchema';
 export { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOperationsInputSchema';
 export { EnumAdjustmentTypeFieldUpdateOperationsInputSchema } from './EnumAdjustmentTypeFieldUpdateOperationsInputSchema';
@@ -208,6 +210,7 @@ export { EventCreateNestedOneWithoutBookingsInputSchema } from './EventCreateNes
 export { BookingAdjustmentCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentCreateNestedManyWithoutBookingInputSchema';
 export { BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema';
 export { EnumBookingStatusFieldUpdateOperationsInputSchema } from './EnumBookingStatusFieldUpdateOperationsInputSchema';
+export { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
 export { UserUpdateOneRequiredWithoutBookingsNestedInputSchema } from './UserUpdateOneRequiredWithoutBookingsNestedInputSchema';
 export { EventUpdateOneRequiredWithoutBookingsNestedInputSchema } from './EventUpdateOneRequiredWithoutBookingsNestedInputSchema';
 export { BookingAdjustmentUpdateManyWithoutBookingNestedInputSchema } from './BookingAdjustmentUpdateManyWithoutBookingNestedInputSchema';
@@ -237,7 +240,9 @@ export { NestedIntWithAggregatesFilterSchema } from './NestedIntWithAggregatesFi
 export { NestedFloatFilterSchema } from './NestedFloatFilterSchema';
 export { NestedEnumEventStatusWithAggregatesFilterSchema } from './NestedEnumEventStatusWithAggregatesFilterSchema';
 export { NestedEnumBookingStatusFilterSchema } from './NestedEnumBookingStatusFilterSchema';
+export { NestedDateTimeNullableFilterSchema } from './NestedDateTimeNullableFilterSchema';
 export { NestedEnumBookingStatusWithAggregatesFilterSchema } from './NestedEnumBookingStatusWithAggregatesFilterSchema';
+export { NestedDateTimeNullableWithAggregatesFilterSchema } from './NestedDateTimeNullableWithAggregatesFilterSchema';
 export { BookingCreateWithoutAdjustmentsInputSchema } from './BookingCreateWithoutAdjustmentsInputSchema';
 export { BookingUncheckedCreateWithoutAdjustmentsInputSchema } from './BookingUncheckedCreateWithoutAdjustmentsInputSchema';
 export { BookingCreateOrConnectWithoutAdjustmentsInputSchema } from './BookingCreateOrConnectWithoutAdjustmentsInputSchema';

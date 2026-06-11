@@ -14,6 +14,7 @@ export const BookingSchema = z.object({
   quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  expiresAt: z.coerce.date().nullable(),
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}),
   paymentIntentId: z.string().nullable(),
 })

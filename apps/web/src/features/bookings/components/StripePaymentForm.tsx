@@ -18,6 +18,7 @@ interface StripePaymentFormProps {
 	onClose: () => void;
 	clientSecret: string;
 	expectedQuantity?: number;
+	expiresAt?: string | null;
 }
 
 function StripePaymentFormContent({
@@ -34,6 +35,7 @@ function StripePaymentFormContent({
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
+	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
 	// Estimate commission and refund using cached event/booking data
 
@@ -44,6 +46,39 @@ function StripePaymentFormContent({
 		: null;
 
 	const formatCents = (cents: number) => (cents / 100).toFixed(2);
+
+	// Timer logic
+	useEffect(() => {
+		const expiresAtValue = bookingCache?.expiresAt;
+		if (!expiresAtValue || hasSubmittedPayment) return;
+
+		const updateTimer = () => {
+			const now = new Date();
+			const expiresAt = new Date(expiresAtValue);
+			const remaining = Math.max(0, expiresAt.getTime() - now.getTime());
+
+			setTimeRemaining(remaining);
+
+			if (remaining === 0) {
+				addToast('Time expired, please try again', ToastType.ERROR);
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+				onClose();
+			}
+		};
+
+		updateTimer();
+		const interval = setInterval(updateTimer, 1000);
+		return () => clearInterval(interval);
+	}, [bookingCache?.expiresAt, hasSubmittedPayment, addToast, onClose, queryClient]);
+
+	const formatTimeRemaining = (ms: number): string => {
+		const totalSeconds = Math.floor(ms / 1000);
+		const minutes = Math.floor(totalSeconds / 60);
+		const seconds = totalSeconds % 60;
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	};
+
+	const isTimeWarning = timeRemaining !== null && timeRemaining < 2 * 60 * 1000;
 
 	const waitForConfirmation: () => Promise<'confirmed' | 'cancelled' | 'timeout'> = async () => {
 		for (let i = 0; i < 15; i++) {
@@ -171,8 +206,20 @@ function StripePaymentFormContent({
 			<ModalHeader title="Complete payment" onClose={handleClose} />
 
 			<p className="text-sm text-gray-500 dark:text-gray-400">
-				Enter your card details to confirm the booking. Test card: 4242 4242 4242 4242.
+				Enter your card details to confirm the booking.
 			</p>
+
+			{timeRemaining !== null && (
+				<div
+					className={`rounded-lg p-3 text-center font-semibold ${
+						isTimeWarning
+							? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+							: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+					}`}
+				>
+					Time remaining: {formatTimeRemaining(timeRemaining)}
+				</div>
+			)}
 
 			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
 				<PaymentElement />
@@ -234,6 +281,7 @@ export default function StripePaymentForm({
 	onClose,
 	clientSecret,
 	expectedQuantity,
+    expiresAt,
 }: StripePaymentFormProps) {
 	const theme = useSystemTheme();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
@@ -262,11 +310,12 @@ export default function StripePaymentForm({
 			stripe={stripePromise}
 			options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}
 		>
-			<StripePaymentFormContent
+            <StripePaymentFormContent
 				eventId={eventId}
 				bookingId={bookingId}
 				onClose={onClose}
 				expectedQuantity={expectedQuantity}
+				expiresAt={expiresAt}
 			/>
 		</Elements>
 	);

@@ -5,7 +5,7 @@ import { StripeService } from '@infra/stripe/stripe.service';
 import { ConfigService } from '@nestjs/config';
 import { EnvKey } from '@event-space/shared/enums';
 
-const DEFAULT_RESERVATION_TTL_SECONDS = 120;
+const DEFAULT_RESERVATION_TTL_SECONDS = 900;
 
 @Injectable()
 export class BookingExpiryService {
@@ -19,19 +19,14 @@ export class BookingExpiryService {
 
 	@Cron('*/1 * * * *')
 	async handleExpiry() {
-		const ttl = Number(
-			this.config.get(EnvKey.BOOKING_RESERVATION_TTL_SECONDS) ?? DEFAULT_RESERVATION_TTL_SECONDS,
-		);
-		const cutoff = new Date(Date.now() - ttl * 1000);
-
 		const expired = await this.prisma.booking.findMany({
-			where: { status: 'PENDING', createdAt: { lt: cutoff } },
+			where: { status: 'PENDING', expiresAt: { lt: new Date() } },
 			take: 50,
 		});
 
 		if (expired.length === 0) return;
 
-		this.logger.log(`Expiring ${expired.length} pending bookings older than ${cutoff.toISOString()}`);
+		this.logger.log(`Expiring ${expired.length} pending bookings`);
 
 		for (const b of expired) {
 			try {

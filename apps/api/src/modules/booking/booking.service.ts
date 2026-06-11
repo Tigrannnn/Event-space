@@ -60,13 +60,13 @@ export class BookingService {
 			}
 
 			const amount = Number(event.price) * quantity;
+			const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_eventId: { userId, eventId } },
-				update: { status: 'PENDING', quantity, paymentIntentId: null, amount },
-				create: { userId, eventId, status: 'PENDING', quantity, amount },
+				update: { status: 'PENDING', quantity, paymentIntentId: null, amount, expiresAt },
+				create: { userId, eventId, status: 'PENDING', quantity, amount, expiresAt },
 			});
-
 			return { booking: upserted };
 		});
 
@@ -151,7 +151,7 @@ export class BookingService {
 
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
-			where: { userId, status: { not: 'CANCELLED' } },
+			where: { userId, status: 'CONFIRMED' },
 			include: { event: { include: { images: true, cancellationRules: true } } },
 			orderBy: { createdAt: 'desc' },
 		});
@@ -178,7 +178,9 @@ export class BookingService {
 					if (paymentIntent.status === 'succeeded' && paymentIntent.latest_charge) {
 						const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
 						const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
-						stripeFeeInCents = balanceTx.fee;
+						if (balanceTx && typeof balanceTx === 'object' && 'fee' in balanceTx) {
+							stripeFeeInCents = (balanceTx as StripeBalanceTransaction).fee;
+						}
 					}
 				} catch (error) {
 					this.logger.warn(`Failed to get Stripe fee for booking ${booking.id}, using estimate`, error);
@@ -221,7 +223,9 @@ export class BookingService {
 
 			if (!currentBooking) throw new NotFoundException('Booking not found');
 			if (currentBooking.userId !== userId) throw new ForbiddenException('Not your booking');
-			if (currentBooking.status === 'CANCELLED') throw new ConflictException('Already cancelled');
+			if (currentBooking.status === 'CANCELLED') {
+				return { booking: currentBooking, event: currentBooking.event };
+			}
 
 			await tx.event.updateMany({
 				where: { id: currentBooking.eventId, currentParticipants: { gte: currentBooking.quantity } },
@@ -276,7 +280,10 @@ export class BookingService {
 					paymentIntent.status as CancelablePaymentIntentStatus,
 				)
 			) {
-				await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `cancel-${booking.id}`);
+				await this.stripe.cancelPaymentIntent(
+					booking.paymentIntentId,
+					`cancel-${booking.paymentIntentId}`,
+				);
 			}
 		} catch (stripeError) {
 			this.logger.error(`Stripe refund failed for booking ${bookingId}:`, stripeError);

@@ -13,6 +13,7 @@ export const BookingCreateManyInputSchema: z.ZodType<Prisma.BookingCreateManyInp
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  expiresAt: z.coerce.date().optional().nullable(),
   amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   paymentIntentId: z.string().optional().nullable(),
 }).strict();

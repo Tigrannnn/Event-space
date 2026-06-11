@@ -17,10 +17,12 @@ export default function CreateBookingModal() {
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
 	const [bookingId, setBookingId] = useState<string | null>(null);
+	const [bookingExpiresAt, setBookingExpiresAt] = useState<string | null>(null);
 
 	const handleClose = () => {
 		setClientSecret(null);
 		setBookingId(null);
+		setBookingExpiresAt(null);
 		closeModal();
 	};
 
@@ -40,6 +42,13 @@ export default function CreateBookingModal() {
 						return;
 					}
 					setBookingId(data.booking.id);
+					const expiresRaw = (data as any).booking?.expiresAt;
+					const expires = expiresRaw
+						? typeof expiresRaw === 'string'
+							? expiresRaw
+							: new Date(expiresRaw).toISOString()
+						: null;
+					setBookingExpiresAt(expires);
 					setClientSecret(data.clientSecret);
 				},
 				onError: () => {
@@ -56,6 +65,7 @@ export default function CreateBookingModal() {
 					eventId={event.id}
 					bookingId={bookingId}
 					onClose={handleClose}
+					expiresAt={bookingExpiresAt}
 					clientSecret={clientSecret}
 				/>
 			) : (

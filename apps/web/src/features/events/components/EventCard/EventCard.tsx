@@ -97,7 +97,7 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
 
-					{user && isUserLoading && isMyBookingsLoading ? (
+					{isUserLoading && isMyBookingsLoading ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
