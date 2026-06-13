@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CancellationPolicyRule, BookingWithEstimate } from '@event-space/shared';
+import { CancellationPolicyRule, BookingWithEstimate, isEventAvailable } from '@event-space/shared';
 import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
@@ -32,7 +32,7 @@ export class BookingService {
 		const { booking } = await this.prisma.$transaction(async (tx) => {
 			const event = await tx.event.findUnique({ where: { id: eventId } });
 			if (!event) throw new NotFoundException('Event not found');
-			if (event.status !== 'PUBLISHED') {
+			if (!isEventAvailable(event)) {
 				throw new ForbiddenException('Event is not available for booking');
 			}
 

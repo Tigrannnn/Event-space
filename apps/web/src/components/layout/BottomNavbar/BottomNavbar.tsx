@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
 import { useHydrated } from '@/hooks/useHydrated';
-import { HomeIcon, ShieldCheck, UserIcon } from 'lucide-react';
+import { HomeIcon, UserIcon } from 'lucide-react';
 
 export default function BottomNavbar() {
 	const pathname = usePathname();

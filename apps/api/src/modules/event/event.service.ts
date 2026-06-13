@@ -70,7 +70,7 @@ export class EventService {
 					}
 				: {};
 
-		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED };
+		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: { gt: new Date() } };
 
 		const filters = [statusFilter, searchFilter, cursorFilter].filter(
 			(f) => Object.keys(f).length > 0,
@@ -183,7 +183,7 @@ export class EventService {
 					};
 				}
 
-				if ((Object.keys(pureEventData).length > 0 || cancellationRules !== undefined)) {
+				if (Object.keys(pureEventData).length > 0 || cancellationRules !== undefined) {
 					await tx.event.update({ where: { id }, data: updateData });
 				}
 

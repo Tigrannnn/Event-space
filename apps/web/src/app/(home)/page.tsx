@@ -11,8 +11,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 	// SSR: Initial load with search and pagination
 	const initialData = await eventApi.getEvents({
-		limit: 8,
 		search: searchQuery || undefined,
+	}).catch((error) => {
+		console.error('Error fetching events:', error);
+		return { data: [], nextCursor: null, hasMore: false };
 	});
 
 	return (

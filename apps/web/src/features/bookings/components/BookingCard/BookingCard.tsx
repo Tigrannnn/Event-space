@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { getEventCoverImageUrl } from '@event-space/shared';
+import { getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
@@ -30,6 +30,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		estimatedRefundInCents,
 		estimatedStripeFeeInCents,
 	} = booking;
+	const eventIsAvailable = event ? isEventAvailable(event) : false;
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
 
@@ -158,15 +159,17 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						View Event
 					</Button>
-					<Button
-						variant="danger"
-						size="sm"
-						className="flex-1"
-						onClick={handleCancel}
-						isLoading={isCancelling}
-					>
-						Cancel
-					</Button>
+					{eventIsAvailable && (
+						<Button
+							variant="danger"
+							size="sm"
+							className="flex-1"
+							onClick={handleCancel}
+							isLoading={isCancelling}
+						>
+							Cancel
+						</Button>
+					)}
 				</div>
 			</div>
 		</div>

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { CheckIcon } from '../../../../components/ui/Icons';
-import { Event } from '@event-space/shared';
+import { Event, isEventAvailable } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
@@ -48,6 +48,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 		e.preventDefault();
 		router.push('/bookings');
 	};
+
+	const eventIsAvailable = isEventAvailable(event);
+
 	return (
 		<div className="sticky top-10">
 			<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
@@ -114,7 +117,11 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				</div>
 
 				{/* Join Button */}
-				{user && isUserLoading && isMyBookingsLoading ? (
+				{!eventIsAvailable ? (
+					<div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700 dark:border-red-700/40 dark:bg-red-900/20 dark:text-red-200">
+						This event has ended
+					</div>
+				) : user && isUserLoading && isMyBookingsLoading ? (
 					<Skeleton className="h-12 w-full rounded-xl" />
 				) : hasBooking ? (
 					<Button

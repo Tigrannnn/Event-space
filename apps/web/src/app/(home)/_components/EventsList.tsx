@@ -8,6 +8,7 @@ import { useEvents } from '@/features/events';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import LoadMoreTrigger from './LoadMoreTrigger';
 import type { Event } from '@event-space/shared';
+import HomeError from '../error';
 
 interface EventsListProps {
 	initialEvents: Event[];
@@ -86,29 +87,14 @@ export default function EventsList({
 	// Error state
 	if (isError) {
 		return (
-			<div className="flex min-h-full items-center justify-center">
-				<div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-red-900/30 dark:bg-red-900/20">
-					<p className="mb-2 text-lg font-black text-red-600 uppercase sm:text-xl dark:text-red-400">
-						Error Loading Events
-					</p>
-					<p className="mb-4 text-[15px] text-red-400 sm:text-sm dark:text-red-300/70">
-						{error?.message || 'Please check your connection and try again.'}
-					</p>
-					<button
-						onClick={() => refetch()}
-						className="rounded-xl bg-red-500 px-4 py-2 font-bold text-white hover:bg-red-600"
-					>
-						Retry
-					</button>
-				</div>
-			</div>
+			<HomeError />
 		);
 	}
 
 	// Empty state
 	if (!events?.length) {
 		return (
-			<div className="flex min-h-full items-center justify-center">
+			<div className="flex min-h-screen items-center justify-center">
 				<div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-gray-700 dark:bg-gray-800">
 					<p className="text-primary mb-2 text-lg font-black uppercase sm:text-xl">
 						{searchQuery ? 'No Events Found' : 'No Events Yet'}

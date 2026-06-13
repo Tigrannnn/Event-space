@@ -1,40 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Mail, Phone, Instagram } from 'lucide-react';
 import { COMPANY_CONFIG } from '@/config/сompany';
 
-export default function TopBar() {
-	const [isVisible, setIsVisible] = useState(true);
-	const [lastScrollY, setLastScrollY] = useState(0);
-
-	useEffect(() => {
-		const handleScroll = () => {
-			const currentScrollY = window.scrollY;
-
-			if (currentScrollY < 10) {
-				// Always show at top
-				setIsVisible(true);
-			} else if (currentScrollY > lastScrollY) {
-				// Scrolling down - hide
-				setIsVisible(false);
-			} else {
-				// Scrolling up - show
-				setIsVisible(true);
-			}
-
-			setLastScrollY(currentScrollY);
-		};
-
-		window.addEventListener('scroll', handleScroll, { passive: true });
-		return () => window.removeEventListener('scroll', handleScroll);
-	}, [lastScrollY]);
-
+export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
 	return (
 		<div
-			className={`from-primary to-accent sticky top-0 z-50 h-9 border-b border-white/10 bg-linear-to-br px-2 py-1.5 transition-all duration-300 ease-out sm:h-10 sm:px-8 sm:py-2 ${
-				isVisible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+			className={`from-primary to-accent overflow-hidden bg-linear-to-br px-2 transition-[max-height,padding,opacity,border-width] duration-500 ease-in-out sm:px-2 ${
+				isTopBarVisible
+					? 'max-h-12 border-b border-white/10 py-1 opacity-100 sm:py-2'
+					: 'max-h-0 border-b-0 py-0 opacity-0 sm:py-0'
 			}`}
 		>
 			<div className="mx-auto flex h-full items-center justify-end gap-4 px-4 sm:gap-6 sm:px-6 lg:px-8">

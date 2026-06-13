@@ -42,7 +42,7 @@ export default function Header() {
 	);
 
 	return (
-		<header className="from-primary to-accent sticky top-0 z-40 bg-linear-to-br px-2 py-4 sm:px-8 md:py-6 lg:py-10">
+		<header className="from-primary to-accent relative top-0 z-40 bg-linear-to-br px-2 py-4 sm:px-8 md:py-6 lg:py-10">
 			<div className="mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center justify-between gap-4">
 					{/* Logo */}

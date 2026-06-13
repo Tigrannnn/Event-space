@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { ConfigService } from '@nestjs/config';
-import { EnvKey } from '@event-space/shared/enums';
-
-const DEFAULT_RESERVATION_TTL_SECONDS = 900;
 
 @Injectable()
 export class BookingExpiryService {
@@ -17,7 +14,7 @@ export class BookingExpiryService {
 		private readonly config: ConfigService,
 	) {}
 
-	@Cron('*/1 * * * *')
+	@Cron(CronExpression.EVERY_MINUTE)
 	async handleExpiry() {
 		const expired = await this.prisma.booking.findMany({
 			where: { status: 'PENDING', expiresAt: { lt: new Date() } },

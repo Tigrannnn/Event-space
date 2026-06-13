@@ -9,7 +9,7 @@ import { ModalType, useModalStore } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
-import { Event, getEventCoverImageUrl } from '@event-space/shared';
+import { Event, getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
 
 export interface EventCardProps {
 	event: Event;
@@ -26,6 +26,8 @@ export default function EventCard({ event }: EventCardProps) {
 	const router = useRouter();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
+
+	const eventIsAvailable = isEventAvailable(event);
 
 	const hasBooking = myBookings?.some(
 		(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
@@ -97,7 +99,11 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
 
-					{isUserLoading && isMyBookingsLoading ? (
+					{!eventIsAvailable ? (
+						<Button disabled variant="secondary" className="relative z-20 w-full">
+							Event Ended
+						</Button>
+					) : isUserLoading && isMyBookingsLoading ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>

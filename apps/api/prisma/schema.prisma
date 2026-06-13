@@ -20,10 +20,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  ADMIN
-}
 
 enum EventDifficulty {
   EASY
@@ -35,76 +31,6 @@ enum EventStatus {
   DRAFT
   PUBLISHED
   CANCELLED
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-}
-
-enum AdjustmentType {
-  CHARGE
-  REFUND
-}
-
-enum AdjustmentStatus {
-  PENDING
-  SUCCEEDED
-  FAILED
-}
-
-model BookingAdjustment {
-  id                    String           @id @default(uuid())
-  bookingId             String           @map("booking_id")
-  type                  AdjustmentType
-  amount                Decimal          @db.Decimal(10, 2)
-  currency              String           @default("usd")
-  stripePaymentIntentId String?          @unique @map("stripe_payment_intent_id")
-  stripeRefundId        String?          @unique @map("stripe_refund_id")
-  status                AdjustmentStatus
-  reason                String?
-  createdAt             DateTime         @default(now()) @map("created_at")
-  updatedAt             DateTime         @updatedAt @map("updated_at")
-
-  booking Booking @relation("booking_adjustments", fields: [bookingId], references: [id], onDelete: Cascade)
-
-  @@index([bookingId])
-  @@map("booking_adjustments")
-}
-
-model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  name          String
-  passwordHash  String?  @map("password_hash")
-  image         String?
-  role          UserRole @default(USER)
-  emailVerified Boolean  @default(false) @map("email_verified")
-
-  googleId  String?  @unique @map("google_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  events        Event[]        @relation("user_events")
-  refreshTokens RefreshToken[] @relation("refresh_tokens")
-
-  bookings Booking[] @relation("user_bookings")
-
-  @@map("users")
-}
-
-model RefreshToken {
-  id          String   @id @default(uuid())
-  hashedToken String   @map("hashed_token")
-  userId      String   @map("user_id")
-  user        User     @relation("refresh_tokens", fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt   DateTime @map("expires_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  @@index([userId])
-  @@map("refresh_tokens")
 }
 
 model Event {
@@ -167,6 +93,14 @@ model CancellationPolicyRule {
   @@map("cancellation_policy_rules")
 }
 
+
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 model Booking {
   id        String        @id @default(uuid())
   userId    String        @map("user_id")
@@ -189,4 +123,75 @@ model Booking {
   @@index([userId])
   @@index([eventId])
   @@map("bookings")
+}
+
+
+enum AdjustmentType {
+  CHARGE
+  REFUND
+}
+
+enum AdjustmentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model BookingAdjustment {
+  id                    String           @id @default(uuid())
+  bookingId             String           @map("booking_id")
+  type                  AdjustmentType
+  amount                Decimal          @db.Decimal(10, 2)
+  currency              String           @default("usd")
+  stripePaymentIntentId String?          @unique @map("stripe_payment_intent_id")
+  stripeRefundId        String?          @unique @map("stripe_refund_id")
+  status                AdjustmentStatus
+  reason                String?
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+
+  booking Booking @relation("booking_adjustments", fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_adjustments")
+}
+
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String
+  passwordHash  String?  @map("password_hash")
+  image         String?
+  role          UserRole @default(USER)
+  emailVerified Boolean  @default(false) @map("email_verified")
+
+  googleId  String?  @unique @map("google_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  events        Event[]        @relation("user_events")
+  refreshTokens RefreshToken[] @relation("refresh_tokens")
+
+  bookings Booking[] @relation("user_bookings")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  hashedToken String   @map("hashed_token")
+  userId      String   @map("user_id")
+  user        User     @relation("refresh_tokens", fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("refresh_tokens")
 }
