@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '@infra/stripe/stripe.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class BookingExpiryService {
@@ -11,13 +10,13 @@ export class BookingExpiryService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly stripe: StripeService,
-		private readonly config: ConfigService,
 	) {}
 
 	@Cron(CronExpression.EVERY_MINUTE)
 	async handleExpiry() {
+		const cutoff = new Date(Date.now() - 30 * 60 * 1000);
 		const expired = await this.prisma.booking.findMany({
-			where: { status: 'PENDING', expiresAt: { lt: new Date() } },
+			where: { status: 'PENDING', createdAt: { lt: cutoff } },
 			take: 50,
 		});
 
@@ -27,34 +26,27 @@ export class BookingExpiryService {
 
 		for (const b of expired) {
 			try {
-				let paymentIntentId: string | null = null;
-
-				await this.prisma.$transaction(async (tx) => {
+				const paymentIntentId = await this.prisma.$transaction(async (tx) => {
 					// Re-fetch inside transaction to get row-level lock
 					const booking = await tx.booking.findUnique({ where: { id: b.id } });
 
 					if (!booking || booking.status !== 'PENDING') {
 						// Already cancelled by user or another cron run — skip
-						return;
+						return null;
 					}
-
-					await tx.event.updateMany({
-						where: { id: booking.eventId, currentParticipants: { gte: booking.quantity } },
-						data: { currentParticipants: { decrement: booking.quantity } },
-					});
 
 					await tx.booking.update({
 						where: { id: booking.id },
 						data: { status: 'CANCELLED', paymentIntentId: null },
 					});
 
-					paymentIntentId = booking.paymentIntentId;
+					return booking.paymentIntentId;
 				});
 
 				if (paymentIntentId) {
 					try {
 						await this.stripe.cancelPaymentIntent(paymentIntentId, `expiry-${b.id}`);
-					} catch (e) {
+					} catch {
 						this.logger.warn(
 							`Failed to cancel payment intent ${paymentIntentId} for expired booking ${b.id}`,
 						);

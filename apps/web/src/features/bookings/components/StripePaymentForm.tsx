@@ -7,25 +7,23 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Booking, BookingWithEstimate, EnvKey, getApiErrorMessage } from '@event-space/shared';
+import { BookingWithEstimate, EnvKey, getApiErrorMessage } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
+import { bookingApi } from '@/features/bookings/api/bookings.api';
 
 interface StripePaymentFormProps {
 	eventId: string;
 	bookingId?: string | null;
 	onClose: () => void;
 	clientSecret: string;
-	expectedQuantity?: number;
-	expiresAt?: string | null;
 }
 
 function StripePaymentFormContent({
 	eventId,
 	onClose,
 	bookingId,
-	expectedQuantity,
 }: Omit<StripePaymentFormProps, 'clientSecret'>) {
 	const stripe = useStripe();
 	const elements = useElements();
@@ -35,7 +33,6 @@ function StripePaymentFormContent({
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
-	const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
 	// Estimate commission and refund using cached event/booking data
 
@@ -47,53 +44,18 @@ function StripePaymentFormContent({
 
 	const formatCents = (cents: number) => (cents / 100).toFixed(2);
 
-	// Timer logic
-	useEffect(() => {
-		const expiresAtValue = bookingCache?.expiresAt;
-		if (!expiresAtValue || hasSubmittedPayment) return;
+	const waitForConfirmation: () => Promise<'confirmed' | 'no_spots_left' | 'timeout'> = async () => {
+		if (!bookingId) return 'timeout';
 
-		const updateTimer = () => {
-			const now = new Date();
-			const expiresAt = new Date(expiresAtValue);
-			const remaining = Math.max(0, expiresAt.getTime() - now.getTime());
-
-			setTimeRemaining(remaining);
-
-			if (remaining === 0) {
-				addToast('Time expired, please try again', ToastType.ERROR);
-				queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-				onClose();
-			}
-		};
-
-		updateTimer();
-		const interval = setInterval(updateTimer, 1000);
-		return () => clearInterval(interval);
-	}, [bookingCache?.expiresAt, hasSubmittedPayment, addToast, onClose, queryClient]);
-
-	const formatTimeRemaining = (ms: number): string => {
-		const totalSeconds = Math.floor(ms / 1000);
-		const minutes = Math.floor(totalSeconds / 60);
-		const seconds = totalSeconds % 60;
-		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-	};
-
-	const isTimeWarning = timeRemaining !== null && timeRemaining < 2 * 60 * 1000;
-
-	const waitForConfirmation: () => Promise<'confirmed' | 'cancelled' | 'timeout'> = async () => {
 		for (let i = 0; i < 15; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-
-			const bookings = queryClient.getQueryData<BookingWithEstimate[]>(['my-bookings']);
-			const booking = bookings?.find((b) => b.id === bookingId);
-			if (!booking) continue;
+			const booking = await bookingApi.getBooking(bookingId);
 
 			if (booking.status === 'CONFIRMED') {
 				return 'confirmed';
 			}
 			if (booking.status === 'CANCELLED') {
-				return 'cancelled';
+				return 'no_spots_left';
 			}
 		}
 
@@ -131,6 +93,7 @@ function StripePaymentFormContent({
 		if (confirmation === 'confirmed') {
 			addToast('Payment confirmed! Your booking is complete.', ToastType.SUCCESS);
 			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
 				queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 			]);
@@ -139,9 +102,14 @@ function StripePaymentFormContent({
 			return;
 		}
 
-		if (confirmation === 'cancelled') {
+		if (confirmation === 'no_spots_left') {
 			setIsProcessing(false);
-			addToast('Payment was cancelled. Your booking has been released.', ToastType.ERROR);
+			addToast('Sorry, someone was faster than you! No spots left.', ToastType.ERROR);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+			]);
 			onClose();
 			return;
 		}
@@ -181,9 +149,8 @@ function StripePaymentFormContent({
 			});
 		};
 
-		const onBeforeUnload = (e: BeforeUnloadEvent) => {
+		const onBeforeUnload = () => {
 			tryCancel();
-			// Some browsers require returnValue to show prompt; we don't show prompt, so nothing set.
 		};
 
 		const onVisibilityChange = () => {
@@ -209,18 +176,6 @@ function StripePaymentFormContent({
 				Enter your card details to confirm the booking.
 			</p>
 
-			{timeRemaining !== null && (
-				<div
-					className={`rounded-lg p-3 text-center font-semibold ${
-						isTimeWarning
-							? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-							: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-					}`}
-				>
-					Time remaining: {formatTimeRemaining(timeRemaining)}
-				</div>
-			)}
-
 			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
 				<PaymentElement />
 			</div>
@@ -245,7 +200,7 @@ function StripePaymentFormContent({
 
 					return (
 						<div className="text-sm text-gray-500">
-							Estimated fee: ${formatCents(estimatedStripeFeeInCents)} — You'll get back: $
+							Estimated fee: ${formatCents(estimatedStripeFeeInCents)} — You&apos;ll get back: $
 							{formatCents(estimatedRefundInCents)}
 						</div>
 					);
@@ -280,8 +235,6 @@ export default function StripePaymentForm({
 	bookingId,
 	onClose,
 	clientSecret,
-	expectedQuantity,
-    expiresAt,
 }: StripePaymentFormProps) {
 	const theme = useSystemTheme();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
@@ -310,12 +263,10 @@ export default function StripePaymentForm({
 			stripe={stripePromise}
 			options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}
 		>
-            <StripePaymentFormContent
+			<StripePaymentFormContent
 				eventId={eventId}
 				bookingId={bookingId}
 				onClose={onClose}
-				expectedQuantity={expectedQuantity}
-				expiresAt={expiresAt}
 			/>
 		</Elements>
 	);

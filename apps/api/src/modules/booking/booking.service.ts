@@ -9,12 +9,13 @@ import {
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CancellationPolicyRule, BookingWithEstimate, isEventAvailable } from '@event-space/shared';
-import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import { CreateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
 	CancelablePaymentIntentStatus,
 	StripeBalanceTransaction,
+	StripePaymentIntent,
 } from '@infra/stripe/stripe.types';
 
 @Injectable()
@@ -43,16 +44,7 @@ export class BookingService {
 				throw new ConflictException('Already booked');
 			}
 
-			const reserved = await tx.event.updateMany({
-				where: {
-					id: eventId,
-					status: 'PUBLISHED',
-					currentParticipants: { lte: event.maxParticipants - quantity },
-				},
-				data: { currentParticipants: { increment: quantity } },
-			});
-
-			if (reserved.count === 0) {
+			if (event.currentParticipants > event.maxParticipants - quantity) {
 				const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
 				throw new ConflictException(
 					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
@@ -60,17 +52,16 @@ export class BookingService {
 			}
 
 			const amount = Number(event.price) * quantity;
-			const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_eventId: { userId, eventId } },
-				update: { status: 'PENDING', quantity, paymentIntentId: null, amount, expiresAt },
-				create: { userId, eventId, status: 'PENDING', quantity, amount, expiresAt },
+				update: { status: 'PENDING', quantity, paymentIntentId: null, amount, expiresAt: null },
+				create: { userId, eventId, status: 'PENDING', quantity, amount },
 			});
 			return { booking: upserted };
 		});
 
-		let paymentIntent: any;
+		let paymentIntent: StripePaymentIntent | null = null;
 		try {
 			paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'usd', {
 				userId,
@@ -85,7 +76,7 @@ export class BookingService {
 
 			return { booking: updatedBooking, clientSecret: paymentIntent.client_secret };
 		} catch (error) {
-			if (paymentIntent && paymentIntent.id) {
+			if (paymentIntent) {
 				try {
 					await this.stripe.cancelPaymentIntent(paymentIntent.id);
 				} catch (e) {
@@ -93,7 +84,7 @@ export class BookingService {
 				}
 			}
 
-			await this.releasePendingBooking(booking.id, eventId, quantity);
+			await this.cancelPendingBooking(booking.id);
 			this.rethrowStripeError(error);
 		}
 	}
@@ -179,7 +170,7 @@ export class BookingService {
 						const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
 						const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
 						if (balanceTx && typeof balanceTx === 'object' && 'fee' in balanceTx) {
-							stripeFeeInCents = (balanceTx as StripeBalanceTransaction).fee;
+							stripeFeeInCents = balanceTx.fee;
 						}
 					}
 				} catch (error) {
@@ -214,6 +205,15 @@ export class BookingService {
 		return enrichedBookings;
 	}
 
+	async findOneForUser(userId: string, bookingId: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+
+		if (!booking) throw new NotFoundException('Booking not found');
+		if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
+
+		return booking;
+	}
+
 	async cancel(userId: string, bookingId: string) {
 		const { booking, event } = await this.prisma.$transaction(async (tx) => {
 			const currentBooking = await tx.booking.findUnique({
@@ -227,10 +227,15 @@ export class BookingService {
 				return { booking: currentBooking, event: currentBooking.event };
 			}
 
-			await tx.event.updateMany({
-				where: { id: currentBooking.eventId, currentParticipants: { gte: currentBooking.quantity } },
-				data: { currentParticipants: { decrement: currentBooking.quantity } },
-			});
+			if (currentBooking.status === 'CONFIRMED') {
+				await tx.event.updateMany({
+					where: {
+						id: currentBooking.eventId,
+						currentParticipants: { gte: currentBooking.quantity },
+					},
+					data: { currentParticipants: { decrement: currentBooking.quantity } },
+				});
+			}
 
 			const updatedBooking = await tx.booking.update({
 				where: { id: bookingId },
@@ -333,24 +338,10 @@ export class BookingService {
 		return rules.length > 0 ? 0 : 100;
 	}
 
-	private async releasePendingBooking(
-		bookingId: string,
-		eventId: string,
-		quantity: number,
-	): Promise<void> {
-		await this.prisma.$transaction(async (tx) => {
-			await tx.event.updateMany({
-				where: {
-					id: eventId,
-					currentParticipants: { gte: quantity },
-				},
-				data: { currentParticipants: { decrement: quantity } },
-			});
-
-			await tx.booking.update({
-				where: { id: bookingId },
-				data: { status: 'CANCELLED', paymentIntentId: null },
-			});
+	private async cancelPendingBooking(bookingId: string): Promise<void> {
+		await this.prisma.booking.update({
+			where: { id: bookingId },
+			data: { status: 'CANCELLED', paymentIntentId: null },
 		});
 	}
 

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
 	ApiTags,
@@ -10,9 +10,9 @@ import {
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { GetCurrentUserId, ZodValidationPipe } from '@shared';
-import { CreateBookingSchema, UpdateBookingSchema } from '@event-space/shared';
+import { CreateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
-import type { BookingWithEstimate, CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 
@@ -57,6 +57,18 @@ export class BookingController {
 	@ApiResponse({ status: 200, description: 'List of user bookings with refund estimates' })
 	async findMy(@GetCurrentUserId() userId: string): Promise<BookingWithEstimate[]> {
 		return this.bookingService.findByUser(userId);
+	}
+
+	@Get(':id')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Get booking by ID' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiResponse({ status: 200, description: 'Booking details' })
+	@ApiResponse({ status: 404, description: 'Booking not found' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	async findOne(@GetCurrentUserId() userId: string, @Param('id') id: string) {
+		return this.bookingService.findOneForUser(userId, id);
 	}
 
 	@Patch(':id/cancel')

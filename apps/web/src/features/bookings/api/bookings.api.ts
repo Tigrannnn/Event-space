@@ -13,6 +13,8 @@ export const bookingApi = {
 
 	getMyBookings: () => clientApi.get<BookingWithEstimate[]>('/bookings/my').then((res) => res.data),
 
+	getBooking: (id: string) => clientApi.get<Booking>(`/bookings/${id}`).then((res) => res.data),
+
 	cancelBooking: (id: string) =>
 		clientApi.patch<Booking>(`/bookings/${id}/cancel`).then((res) => res.data),
 

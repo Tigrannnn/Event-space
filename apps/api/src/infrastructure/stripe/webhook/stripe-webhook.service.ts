@@ -3,6 +3,14 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '../stripe.service';
 import { Prisma } from '@prisma/client';
 
+type StripePaymentIntentPayload = {
+	id: string;
+	amount: number;
+	metadata?: {
+		bookingId?: string;
+	};
+};
+
 @Injectable()
 export class StripeWebhookService {
 	private readonly logger = new Logger(StripeWebhookService.name);
@@ -24,18 +32,18 @@ export class StripeWebhookService {
 
 		this.logger.log(`Stripe webhook received: ${event.type}`);
 
-		const session = event.data.object as any;
-		const bookingId = session.metadata?.bookingId;
+		const paymentIntent = event.data.object as StripePaymentIntentPayload;
+		const bookingId = paymentIntent.metadata?.bookingId;
 
 		switch (event.type) {
 			case 'payment_intent.succeeded':
-				await this.handlePaymentSucceeded(bookingId, session.id, session.amount);
+				await this.handlePaymentSucceeded(bookingId, paymentIntent.id, paymentIntent.amount);
 				break;
 			case 'payment_intent.payment_failed':
-				await this.handlePaymentFailed(bookingId, session.id);
+				await this.handlePaymentFailed(bookingId, paymentIntent.id);
 				break;
 			case 'payment_intent.canceled':
-				await this.handlePaymentCanceled(bookingId, session.id);
+				await this.handlePaymentCanceled(bookingId, paymentIntent.id);
 				break;
 		}
 	}
@@ -52,35 +60,61 @@ export class StripeWebhookService {
 			return;
 		}
 
-		await this.prisma.$transaction(async (tx) => {
-			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+		const result = await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({
+				where: { id: bookingId },
+				include: { event: { select: { maxParticipants: true } } },
+			});
 
 			if (!booking) {
 				this.logger.error(`Booking ${bookingId} not found for payment intent ${paymentIntentId}`);
-				return;
+				return { action: 'skipped' as const };
 			}
 
 			if (booking.status === 'CANCELLED') {
-				// Cron успел отменить пока юзер вводил карту — места уже освобождены,
-				// деньги пришли — нужно вернуть полностью
 				this.logger.warn(
 					`Booking ${bookingId} was cancelled before payment arrived — issuing full refund`,
 				);
-				try {
-					await this.stripe.refund(paymentIntentId, `auto-refund-expired-${bookingId}`, amountReceived);
-				} catch (e) {
-					this.logger.error(`Failed to auto-refund expired booking ${bookingId}`, e as Error);
-				}
-				return;
+				return {
+					action: 'refund' as const,
+					bookingId,
+					paymentIntentId,
+					amountReceived,
+					idempotencyKey: `auto-refund-cancelled-${bookingId}`,
+					reason: 'Payment captured after booking was cancelled.',
+				};
 			}
 
 			if (booking.status === 'CONFIRMED') {
-				// Webhook дублируется — идемпотентно игнорируем
 				this.logger.warn(`Booking ${bookingId} already confirmed, skipping`);
-				return;
+				return { action: 'skipped' as const };
 			}
 
-			// Места уже заняты с момента create() — currentParticipants не трогаем
+			const reserved = await tx.event.updateMany({
+				where: {
+					id: booking.eventId,
+					currentParticipants: { lte: booking.event.maxParticipants - booking.quantity },
+				},
+				data: { currentParticipants: { increment: booking.quantity } },
+			});
+
+			if (reserved.count === 0) {
+				await tx.booking.update({
+					where: { id: booking.id },
+					data: { status: 'CANCELLED', paymentIntentId },
+				});
+
+				this.logger.warn(`No spots left for booking ${bookingId}; issuing automatic refund`);
+				return {
+					action: 'refund' as const,
+					bookingId,
+					paymentIntentId,
+					amountReceived,
+					idempotencyKey: `auto-refund-no-spots-${bookingId}`,
+					reason: 'NO_SPOTS_LEFT',
+				};
+			}
+
 			await tx.booking.update({
 				where: { id: bookingId },
 				data: { status: 'CONFIRMED', paymentIntentId },
@@ -97,9 +131,46 @@ export class StripeWebhookService {
 					reason: 'Payment captured via webhook',
 				},
 			});
+
+			return { action: 'confirmed' as const };
 		});
 
-		this.logger.log(`Booking ${bookingId} confirmed via webhook`);
+		if (result.action === 'refund') {
+			try {
+				const stripeRefund = await this.stripe.refund(
+					result.paymentIntentId,
+					result.idempotencyKey,
+					result.amountReceived,
+				);
+
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: result.paymentIntentId },
+					create: {
+						bookingId: result.bookingId,
+						type: 'REFUND',
+						amount: new Prisma.Decimal((stripeRefund.amount / 100).toString()),
+						currency: 'usd',
+						stripePaymentIntentId: result.paymentIntentId,
+						stripeRefundId: stripeRefund.id,
+						status: 'SUCCEEDED',
+						reason: result.reason,
+					},
+					update: {
+						stripeRefundId: stripeRefund.id,
+						status: 'SUCCEEDED',
+						reason: result.reason,
+					},
+				});
+			} catch (e) {
+				this.logger.error(`Failed to auto-refund booking ${result.bookingId}`, e as Error);
+			}
+
+			return;
+		}
+
+		if (result.action === 'confirmed') {
+			this.logger.log(`Booking ${bookingId} confirmed via webhook`);
+		}
 	}
 
 	private async handlePaymentFailed(
@@ -111,10 +182,9 @@ export class StripeWebhookService {
 		await this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
 
-			if (!booking || booking.status === 'CANCELLED') {
-				// Cron уже отменил — места освобождены, ничего не делаем
+			if (!booking || booking.status !== 'PENDING') {
 				this.logger.warn(
-					`Booking ${bookingId} not found or already cancelled for PI ${paymentIntentId} — skipping`,
+					`Booking ${bookingId} not found or not pending for PI ${paymentIntentId} — skipping`,
 				);
 				return;
 			}
@@ -122,11 +192,6 @@ export class StripeWebhookService {
 			await tx.booking.update({
 				where: { id: bookingId },
 				data: { status: 'CANCELLED' },
-			});
-
-			await tx.event.updateMany({
-				where: { id: booking.eventId, currentParticipants: { gte: booking.quantity } },
-				data: { currentParticipants: { decrement: booking.quantity } },
 			});
 		});
 

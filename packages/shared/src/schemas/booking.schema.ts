@@ -47,8 +47,8 @@ export const CreateBookingSchema = z.object({
 		description: 'Event ID to book',
 		example: '550e8400-e29b-41d4-a716-446655440002',
 	}),
-	quantity: z.number().int().min(1).max(4).default(1).openapi({
-		description: 'Number of spots to book (1-4)',
+	quantity: z.number().int().min(1).default(1).openapi({
+		description: 'Number of spots to book',
 		example: 2,
 	}),
 });
@@ -62,8 +62,8 @@ export type CreateBookingResponse = {
 
 // === UPDATE BOOKING ===
 export const UpdateBookingSchema = z.object({
-	quantity: z.number().int().min(1).max(4).openapi({
-		description: 'New number of spots (1-4)',
+	quantity: z.number().int().min(1).openapi({
+		description: 'New number of spots',
 		example: 3,
 	}),
 });

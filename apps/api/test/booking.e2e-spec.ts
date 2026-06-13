@@ -1,17 +1,33 @@
 import supertest from 'supertest';
 import { createE2eApp, destroyE2eApp, E2eContext } from './helpers/e2e-app';
-import {
-	registerVerifyAndLogin,
-	uniqueEmail,
-} from './helpers/auth-test.utils';
+import { registerVerifyAndLogin, uniqueEmail } from './helpers/auth-test.utils';
 import { createTestEvent } from './helpers/seed-event';
 import { EventStatus } from '@prisma/client';
+import { StripeService } from '@infra/stripe/stripe.service';
+import type { Booking, CreateBookingResponse } from '@event-space/shared';
 
 describe('Booking (e2e)', () => {
 	let ctx: E2eContext;
 	let organizerId: string;
+	let stripe: StripeService;
 	beforeAll(async () => {
 		ctx = await createE2eApp();
+		stripe = ctx.app.get(StripeService);
+
+		let paymentIntentCounter = 0;
+		jest.spyOn(stripe, 'createPaymentIntent').mockImplementation(() => {
+			paymentIntentCounter += 1;
+			const id = `pi_test_booking_${paymentIntentCounter}`;
+			return Promise.resolve({
+				id,
+				client_secret: `${id}_secret`,
+			} as Awaited<ReturnType<StripeService['createPaymentIntent']>>);
+		});
+		jest.spyOn(stripe, 'retrievePaymentIntent').mockResolvedValue({
+			id: 'pi_test_booking',
+			status: 'requires_payment_method',
+		} as Awaited<ReturnType<StripeService['retrievePaymentIntent']>>);
+		jest.spyOn(stripe, 'cancelPaymentIntent').mockResolvedValue(undefined);
 
 		const organizer = await registerVerifyAndLogin(
 			ctx.httpServer,
@@ -27,7 +43,7 @@ describe('Booking (e2e)', () => {
 	});
 
 	describe('POST /bookings', () => {
-		it('creates a confirmed booking and increments participants', async () => {
+		it('creates a pending booking without reserving participants', async () => {
 			const event = await createTestEvent(ctx.prisma, organizerId, {
 				maxParticipants: 5,
 			});
@@ -44,11 +60,14 @@ describe('Booking (e2e)', () => {
 				.send({ eventId: event.id, quantity: 2 })
 				.expect(201);
 
-			expect(res.body.status).toBe('CONFIRMED');
-			expect(res.body.quantity).toBe(2);
+			const body = res.body as CreateBookingResponse;
+			expect(body.clientSecret).toEqual(expect.stringMatching(/^pi_test_booking_\d+_secret$/));
+			expect(body.booking.status).toBe('PENDING');
+			expect(body.booking.quantity).toBe(2);
+			expect(body.booking.expiresAt).toBeNull();
 
 			const updated = await ctx.prisma.event.findUniqueOrThrow({ where: { id: event.id } });
-			expect(updated.currentParticipants).toBe(2);
+			expect(updated.currentParticipants).toBe(0);
 		});
 
 		it('returns 401 without authentication', async () => {
@@ -99,7 +118,7 @@ describe('Booking (e2e)', () => {
 				.expect(409);
 		});
 
-		it('allows only one winner when two users book the last spot concurrently', async () => {
+		it('allows concurrent pending bookings without reserving the last spot', async () => {
 			const event = await createTestEvent(ctx.prisma, organizerId, {
 				maxParticipants: 1,
 				currentParticipants: 0,
@@ -130,73 +149,20 @@ describe('Booking (e2e)', () => {
 			]);
 
 			const statuses = [resA.status, resB.status].sort();
-			expect(statuses).toEqual([201, 409]);
+			expect(statuses).toEqual([201, 201]);
 
 			const updated = await ctx.prisma.event.findUniqueOrThrow({ where: { id: event.id } });
-			expect(updated.currentParticipants).toBe(1);
+			expect(updated.currentParticipants).toBe(0);
 
-			const confirmed = await ctx.prisma.booking.count({
-				where: { eventId: event.id, status: 'CONFIRMED' },
+			const pending = await ctx.prisma.booking.count({
+				where: { eventId: event.id, status: 'PENDING' },
 			});
-			expect(confirmed).toBe(1);
-		});
-	});
-
-	describe('PATCH /bookings/:id', () => {
-		it('increases quantity when spots are available', async () => {
-			const event = await createTestEvent(ctx.prisma, organizerId, {
-				maxParticipants: 5,
-			});
-			const { cookies } = await registerVerifyAndLogin(
-				ctx.httpServer,
-				ctx.prisma,
-				ctx.redis,
-				uniqueEmail('update-qty'),
-			);
-
-			const created = await supertest(ctx.httpServer)
-				.post('/bookings')
-				.set('Cookie', cookies)
-				.send({ eventId: event.id, quantity: 1 })
-				.expect(201);
-
-			await supertest(ctx.httpServer)
-				.patch(`/bookings/${created.body.id}`)
-				.set('Cookie', cookies)
-				.send({ quantity: 3 })
-				.expect(200);
-
-			const updated = await ctx.prisma.event.findUniqueOrThrow({ where: { id: event.id } });
-			expect(updated.currentParticipants).toBe(3);
-		});
-
-		it('returns 409 when increasing beyond capacity', async () => {
-			const event = await createTestEvent(ctx.prisma, organizerId, {
-				maxParticipants: 2,
-			});
-			const { cookies } = await registerVerifyAndLogin(
-				ctx.httpServer,
-				ctx.prisma,
-				ctx.redis,
-				uniqueEmail('over-cap'),
-			);
-
-			const created = await supertest(ctx.httpServer)
-				.post('/bookings')
-				.set('Cookie', cookies)
-				.send({ eventId: event.id, quantity: 2 })
-				.expect(201);
-
-			await supertest(ctx.httpServer)
-				.patch(`/bookings/${created.body.id}`)
-				.set('Cookie', cookies)
-				.send({ quantity: 3 })
-				.expect(409);
+			expect(pending).toBe(2);
 		});
 	});
 
 	describe('PATCH /bookings/:id/cancel', () => {
-		it('cancels booking and releases capacity', async () => {
+		it('cancels a pending booking without changing capacity', async () => {
 			const event = await createTestEvent(ctx.prisma, organizerId, {
 				maxParticipants: 3,
 			});
@@ -212,9 +178,10 @@ describe('Booking (e2e)', () => {
 				.set('Cookie', cookies)
 				.send({ eventId: event.id, quantity: 2 })
 				.expect(201);
+			const body = created.body as CreateBookingResponse;
 
 			await supertest(ctx.httpServer)
-				.patch(`/bookings/${created.body.id}/cancel`)
+				.patch(`/bookings/${body.booking.id}/cancel`)
 				.set('Cookie', cookies)
 				.expect(200);
 
@@ -222,7 +189,7 @@ describe('Booking (e2e)', () => {
 			expect(updated.currentParticipants).toBe(0);
 
 			const booking = await ctx.prisma.booking.findUniqueOrThrow({
-				where: { id: created.body.id },
+				where: { id: body.booking.id },
 			});
 			expect(booking.status).toBe('CANCELLED');
 		});
@@ -241,9 +208,10 @@ describe('Booking (e2e)', () => {
 				.set('Cookie', cookies)
 				.send({ eventId: event.id, quantity: 1 })
 				.expect(201);
+			const body = created.body as CreateBookingResponse;
 
 			await supertest(ctx.httpServer)
-				.patch(`/bookings/${created.body.id}/cancel`)
+				.patch(`/bookings/${body.booking.id}/cancel`)
 				.set('Cookie', cookies)
 				.expect(200);
 
@@ -254,25 +222,30 @@ describe('Booking (e2e)', () => {
 				.expect(201);
 
 			const updated = await ctx.prisma.event.findUniqueOrThrow({ where: { id: event.id } });
-			expect(updated.currentParticipants).toBe(1);
+			expect(updated.currentParticipants).toBe(0);
 		});
 	});
 
 	describe('GET /bookings/my', () => {
-		it('lists active bookings for the current user', async () => {
+		it('lists confirmed bookings for the current user', async () => {
 			const event = await createTestEvent(ctx.prisma, organizerId);
-			const { cookies } = await registerVerifyAndLogin(
+			const { cookies, userId } = await registerVerifyAndLogin(
 				ctx.httpServer,
 				ctx.prisma,
 				ctx.redis,
 				uniqueEmail('my-list'),
 			);
 
-			await supertest(ctx.httpServer)
-				.post('/bookings')
-				.set('Cookie', cookies)
-				.send({ eventId: event.id, quantity: 1 })
-				.expect(201);
+			await ctx.prisma.booking.create({
+				data: {
+					userId,
+					eventId: event.id,
+					status: 'CONFIRMED',
+					quantity: 1,
+					amount: event.price,
+					paymentIntentId: 'pi_confirmed_my_list',
+				},
+			});
 
 			const res = await supertest(ctx.httpServer)
 				.get('/bookings/my')
@@ -280,7 +253,36 @@ describe('Booking (e2e)', () => {
 				.expect(200);
 
 			expect(res.body).toHaveLength(1);
-			expect(res.body[0].eventId).toBe(event.id);
+			const body = res.body as Booking[];
+			expect(body[0].eventId).toBe(event.id);
+		});
+	});
+
+	describe('GET /bookings/:id', () => {
+		it('returns the current user booking for payment polling', async () => {
+			const event = await createTestEvent(ctx.prisma, organizerId);
+			const { cookies } = await registerVerifyAndLogin(
+				ctx.httpServer,
+				ctx.prisma,
+				ctx.redis,
+				uniqueEmail('poll-booking'),
+			);
+
+			const created = await supertest(ctx.httpServer)
+				.post('/bookings')
+				.set('Cookie', cookies)
+				.send({ eventId: event.id, quantity: 1 })
+				.expect(201);
+			const createdBody = created.body as CreateBookingResponse;
+
+			const res = await supertest(ctx.httpServer)
+				.get(`/bookings/${createdBody.booking.id}`)
+				.set('Cookie', cookies)
+				.expect(200);
+			const body = res.body as Booking;
+
+			expect(body.id).toBe(createdBody.booking.id);
+			expect(body.status).toBe('PENDING');
 		});
 	});
 });
