@@ -117,9 +117,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 				<div className="mx-auto max-w-3xl px-4 py-4 sm:py-6">
 					<div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
 						{(() => {
-							const initials = user.image ? (
-								<img src={user.image} alt={user.name} className="h-full w-full rounded-full" />
-							) : user.name
+							const initials = user.name
 								? user.name
 										.split(' ')
 										.map((n) => n[0])

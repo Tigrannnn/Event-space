@@ -54,9 +54,6 @@ function StripePaymentFormContent({
 			if (booking.status === 'CONFIRMED') {
 				return 'confirmed';
 			}
-			if (booking.status === 'CANCELLED') {
-				return 'no_spots_left';
-			}
 		}
 
 		return 'timeout';
@@ -114,11 +111,14 @@ function StripePaymentFormContent({
 			return;
 		}
 
-		setIsProcessing(false);
-		addToast(
-			'Payment is still pending. Please wait a moment and refresh your bookings page if needed.',
-			ToastType.INFO,
-		);
+		if (confirmation === 'timeout') {
+			setIsProcessing(false);
+			addToast(
+				'Payment is taking longer than expected. Please try again later',
+				ToastType.ERROR,
+			);
+			return;
+		}
 	};
 
 	const handleClose = async () => {

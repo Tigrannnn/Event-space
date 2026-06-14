@@ -12,7 +12,10 @@ import Input from '@/components/ui/Inputs/Input';
 import { useForgotPassword } from '@/features/auth';
 
 const editProfileSchema = z.object({
-	name: z.string().min(2, 'Name must be at least 2 characters'),
+	name: z
+		.string()
+		.min(2, 'Name must be at least 2 characters')
+		.max(50, 'Name cannot exceed 50 characters'),
 });
 
 type EditProfileForm = z.infer<typeof editProfileSchema>;

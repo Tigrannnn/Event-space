@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Search, Trash2, X } from 'lucide-react';
+import { Search, Trash2, X, Eye } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/Table';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useAdminUsers, useDeleteUser, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
+import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { USER_ROLE_LABELS } from '@/constants/mappers';
 
@@ -66,6 +67,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 		role,
 		emailVerified,
 	});
+	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
 	const deleteUser = useDeleteUser();
 	const usersResponse = data?.data ?? initialUsers;
@@ -240,6 +242,15 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
 							<TableCell>
 								<div className="flex gap-2">
+									<Button
+										type="button"
+										size="xs"
+										variant="secondary"
+										onClick={() => openModal(ModalType.UserDetails, { user })}
+										aria-label={`View ${user.name} details`}
+									>
+										<Eye className="h-4 w-4" />
+									</Button>
 									<Button
 										type="button"
 										size="xs"

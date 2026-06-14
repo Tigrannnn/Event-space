@@ -3,6 +3,7 @@ import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchem
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 import { EventSchema } from './event.schema';
 import { SafeUserSchema } from './user.schema';
+import { BookingAdjustmentSchema } from './booking-adjustment.schema';
 
 export const BookingStatusEnum = BookingStatusSchema;
 export type BookingStatus = z.infer<typeof BookingStatusEnum>;
@@ -23,6 +24,7 @@ export const BookingSchema = GeneratedBookingSchema.openapi({
 export const BookingWithDetailsSchema = BookingSchema.extend({
 	user: SafeUserSchema.optional(),
 	event: EventSchema.optional(),
+	adjustments: z.array(BookingAdjustmentSchema).optional(),
 });
 
 export type Booking = z.infer<typeof BookingSchema>;
@@ -82,6 +84,7 @@ export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
 
 export const BookingWithEstimateSchema = BookingSchema.extend({
 	event: EventSchema.optional(),
+	adjustments: z.array(BookingAdjustmentSchema).optional(),
 	refundPercentage: z.number(),
 	estimatedStripeFeeInCents: z.number(),
 	estimatedRefundInCents: z.number(),

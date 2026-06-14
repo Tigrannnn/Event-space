@@ -1,0 +1,76 @@
+'use client';
+
+import Image from 'next/image';
+import { Modal, ModalHeader } from '@/components/ui/Modal';
+import { useModalData, useModalStore } from '@/stores/modalStore';
+import { ModalType } from '@/stores';
+import type { SafeUserData } from '@event-space/shared';
+import { formatDateTime } from '@/utils/date';
+
+export default function UserDetailsModal() {
+	const { closeModal } = useModalStore();
+	const modalData = useModalData(ModalType.UserDetails);
+	const user = modalData?.user;
+
+	if (!user) {
+		return null;
+	}
+
+	return (
+		<Modal onClose={closeModal} size="lg" ariaLabel="User details">
+			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
+				<ModalHeader title="User details" onClose={closeModal} />
+
+				<div className="grid gap-6">
+					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
+						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+							Account information
+						</p>
+						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
+							<div>
+								<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
+								<p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+							</div>
+
+							<div className="grid gap-3 sm:grid-cols-2">
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Role
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{user.role}</p>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Email status
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{user.emailVerified ? 'Verified' : 'Pending'}
+									</p>
+								</div>
+							</div>
+
+							<div className="grid gap-3 sm:grid-cols-2">
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Created at
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{formatDateTime(user.createdAt)}
+									</p>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Updated at
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{formatDateTime(user.updatedAt)}
+									</p>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</Modal>
+	);
+}

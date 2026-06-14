@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Search, X } from 'lucide-react';
+import { CalendarDays, Search, X, Eye } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -15,6 +15,7 @@ import {
 	TableRow,
 } from '@/components/ui/Table';
 import { useAdminBookings, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
+import { useModalStore } from '@/stores/modalStore';
 import type {
 	BookingStatus,
 	BookingWithDetails,
@@ -22,6 +23,7 @@ import type {
 	TimeFilterType,
 } from '@event-space/shared';
 import { BookingStatusEnum, TimeFilterSchema } from '@event-space/shared';
+import { ModalType } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import { BOOKING_STATUS_LABELS, TIME_FILTER_LABELS } from '@/constants/mappers';
 
@@ -94,6 +96,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		search || status !== undefined || time !== undefined || eventId !== undefined,
 	);
 
+	const { openModal } = useModalStore();
+
 	const resetPagination = () => {
 		setSkip(0);
 	};
@@ -130,6 +134,10 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 	const handleBookingStatusChange = (bookingId: string, nextStatus: BookingStatus) => {
 		updateBookingStatus.mutate({ id: bookingId, status: nextStatus });
+	};
+
+	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
+		openModal(ModalType.BookingDetails, { booking });
 	};
 
 	const handlePreviousPage = () => {
@@ -202,12 +210,13 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableHead>Qty</TableHead>
 						<TableHead>Total</TableHead>
 						<TableHead>Booked</TableHead>
+						<TableHead>Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{bookingsResponse.data.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={6} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+							<TableCell colSpan={7} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								No bookings found
 							</TableCell>
 						</TableRow>
@@ -254,6 +263,12 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									<CalendarDays className="h-4 w-4 text-gray-400" />
 									{formatDateTime(booking.createdAt)}
 								</div>
+							</TableCell>
+							<TableCell>
+								<Button type="button" size="sm" variant="secondary" onClick={() => handleOpenBookingDetails(booking)}>
+									<Eye className="mr-2 h-4 w-4" />
+									Details
+								</Button>
 							</TableCell>
 						</TableRow>
 					))}

@@ -40,7 +40,7 @@ export class BookingService {
 			const existing = await tx.booking.findUnique({
 				where: { userId_eventId: { userId, eventId } },
 			});
-			if (existing && existing.status !== 'CANCELLED') {
+			if (existing && existing.status === 'CONFIRMED') {
 				throw new ConflictException('Already booked');
 			}
 
@@ -309,6 +309,22 @@ export class BookingService {
 				},
 				update: {
 					stripeRefundId: refundResult.id,
+					status: 'SUCCEEDED',
+				},
+			});
+		} else if (booking.paymentIntentId) {
+			await this.prisma.bookingAdjustment.upsert({
+				where: { stripePaymentIntentId: booking.paymentIntentId },
+				create: {
+					bookingId: booking.id,
+					type: 'REFUND',
+					amount: new Prisma.Decimal('0'),
+					currency: 'usd',
+					stripePaymentIntentId: booking.paymentIntentId,
+					stripeRefundId: null,
+					status: 'SUCCEEDED',
+				},
+				update: {
 					status: 'SUCCEEDED',
 				},
 			});

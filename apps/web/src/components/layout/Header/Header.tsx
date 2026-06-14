@@ -95,7 +95,7 @@ export default function Header() {
 								</Button>
 
 								<Button variant="secondary" onClick={() => router.push('/profile')}>
-									{user?.name.split(' ')[0] || 'Profile'}
+									{user.name.trim().length <= 10 ? user.name.split(' ')[0] : 'Profile'}
 								</Button>
 							</>
 						) : (

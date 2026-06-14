@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Pencil, Plus, Search, Trash2, Users, X } from 'lucide-react';
+import { CalendarDays, Pencil, Plus, Search, Trash2, Users, X, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -305,6 +305,15 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								<TableCell>{formatCurrency(event.price)}</TableCell>
 								<TableCell>
 									<div className="flex gap-2">
+										<Button
+											type="button"
+											size="xs"
+											variant="secondary"
+											onClick={() => openModal(ModalType.EventDetails, { event })}
+											aria-label={`View ${event.title} details`}
+										>
+											<Eye className="h-4 w-4" />
+										</Button>
 										<Button
 											type="button"
 											size="xs"

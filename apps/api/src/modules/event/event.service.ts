@@ -122,7 +122,7 @@ export class EventService {
 	) {
 		const sortedItems = this.sortByOrder(imageItems);
 		const uploads = await this.uploadNewFiles(files);
-		const { cancellationRules, ...pureEventData } = eventData;
+		const { cancellationRules, organizer, ...pureEventData } = eventData;
 
 		try {
 			return await this.prisma.$transaction(async (tx) => {
@@ -174,7 +174,7 @@ export class EventService {
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
-				const updateData: Prisma.EventUpdateInput = { ...pureEventData };
+				const updateData = { ...pureEventData } as Prisma.EventUpdateInput;
 
 				if (cancellationRules !== undefined) {
 					updateData.cancellationRules = {

@@ -1,4 +1,4 @@
-import { Event, Booking } from '@event-space/shared';
+import { Event, Booking, BookingWithDetails, SafeUserData } from '@event-space/shared';
 
 export enum ModalType {
 	Register = 'register',
@@ -10,6 +10,9 @@ export enum ModalType {
 	EditProfile = 'edit-profile',
 	CreateBooking = 'create-booking',
 	UpdateBooking = 'update-booking',
+	BookingDetails = 'booking-details',
+	UserDetails = 'user-details',
+	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
 }
@@ -45,6 +48,18 @@ export interface UpdateBookingModalData {
 	booking: Booking & { event?: Event };
 }
 
+export interface BookingDetailsModalData {
+	booking: BookingWithDetails;
+}
+
+export interface UserDetailsModalData {
+	user: SafeUserData;
+}
+
+export interface EventDetailsModalData {
+	event: Event;
+}
+
 export interface UpdateEventModalData {
 	event: Event;
 }
@@ -59,6 +74,9 @@ export interface ModalDataMap {
 	[ModalType.EditProfile]: null;
 	[ModalType.CreateBooking]: CreateBookingModalData;
 	[ModalType.UpdateBooking]: UpdateBookingModalData;
+	[ModalType.BookingDetails]: BookingDetailsModalData;
+	[ModalType.UserDetails]: UserDetailsModalData;
+	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;
 }

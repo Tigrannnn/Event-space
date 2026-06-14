@@ -29,6 +29,7 @@ const bookingInclude = {
 	event: {
 		include: { images: true, cancellationRules: true },
 	},
+	adjustments: true,
 } as const;
 
 interface FindAllUsersParams extends PaginatedParams {
@@ -113,12 +114,7 @@ export class AdminService {
 				include: {
 					cancellationRules: true,
 					organizer: {
-						select: {
-							id: true,
-							name: true,
-							email: true,
-							image: true,
-						},
+						select: safeUserSelect,
 					},
 				},
 			}),
@@ -129,12 +125,7 @@ export class AdminService {
 				include: {
 					cancellationRules: true,
 					organizer: {
-						select: {
-							id: true,
-							name: true,
-							email: true,
-							image: true,
-						},
+						select: safeUserSelect,
 					},
 				},
 			}),
@@ -307,8 +298,15 @@ export class AdminService {
 		const hasMore = bookings.length > limit;
 		const data = hasMore ? bookings.slice(0, limit) : bookings;
 
+		// Normalize decimals to plain numbers for JSON/clients
+		const normalized = data.map((b) => ({
+			...b,
+			event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
+			adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [],
+		}));
+
 		return {
-			data,
+			data: normalized,
 			total,
 			skip,
 			take: limit,
