@@ -7,23 +7,56 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { BookingWithEstimate, EnvKey, getApiErrorMessage } from '@event-space/shared';
+import { BookingWithEstimate, EnvKey, Event, getApiErrorMessage } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
+import { formatDateTime } from '@/utils/date';
 
 interface StripePaymentFormProps {
-	eventId: string;
-	bookingId?: string | null;
+	event: Event;
+	booking: BookingWithEstimate;
 	onClose: () => void;
 	clientSecret: string;
 }
 
+type ConfirmationResult = 'confirmed' | 'cancelled' | 'timeout';
+
+function CancellationPolicyInfo({ event }: { event: Event }) {
+	if (!event.cancellationRules || event.cancellationRules.length === 0) {
+		return null;
+	}
+
+	const sortedRules = [...event.cancellationRules].sort(
+		(a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent,
+	);
+
+	const eventDate = new Date(event.date);
+
+	const deadlineFor = (hoursBeforeEvent: number) =>
+		new Date(eventDate.getTime() - hoursBeforeEvent * 60 * 60 * 1000);
+
+	return (
+		<div className="rounded-md border border-gray-200 p-3 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-400">
+			<p className="mb-1 font-medium text-gray-800 dark:text-white">Cancellation policy</p>
+			<ul className="space-y-1">
+				{sortedRules.map((rule) => (
+					<li key={rule.id}>
+						{rule.refundPercentage > 0
+							? `${rule.refundPercentage}% refund until ${formatDateTime(deadlineFor(rule.hoursBeforeEvent))}`
+							: `No refund after ${formatDateTime(deadlineFor(rule.hoursBeforeEvent))}`}
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
 function StripePaymentFormContent({
-	eventId,
+	event,
+	booking,
 	onClose,
-	bookingId,
 }: Omit<StripePaymentFormProps, 'clientSecret'>) {
 	const stripe = useStripe();
 	const elements = useElements();
@@ -34,33 +67,32 @@ function StripePaymentFormContent({
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 
-	// Estimate commission and refund using cached event/booking data
-
-	const bookingCache = bookingId
-		? queryClient
-				.getQueryData<BookingWithEstimate[]>(['my-bookings'])
-				?.find((b) => b.id === bookingId)
-		: null;
-
-	const formatCents = (cents: number) => (cents / 100).toFixed(2);
-
-	const waitForConfirmation: () => Promise<'confirmed' | 'no_spots_left' | 'timeout'> = async () => {
-		if (!bookingId) return 'timeout';
-
+	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			const booking = await bookingApi.getBooking(bookingId);
+			const updated = await bookingApi.getBooking(booking.id);
 
-			if (booking.status === 'CONFIRMED') {
+			if (updated.status === 'CONFIRMED') {
 				return 'confirmed';
+			}
+
+			if (updated.status === 'CANCELLED') {
+				return 'cancelled';
 			}
 		}
 
 		return 'timeout';
 	};
 
-	const handleSubmit = async (event: FormEvent) => {
-		event.preventDefault();
+	const invalidateAfterResolution = () =>
+		Promise.all([
+			queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+			queryClient.invalidateQueries({ queryKey: ['event', event.id] }),
+			queryClient.invalidateQueries({ queryKey: ['events'] }),
+		]);
+
+	const handleSubmit = async (formEvent: FormEvent) => {
+		formEvent.preventDefault();
 
 		if (!stripe || !elements) {
 			return;
@@ -85,47 +117,36 @@ function StripePaymentFormContent({
 		setHasSubmittedPayment(true);
 		addToast('Payment submitted. Waiting for confirmation...', ToastType.INFO);
 
-		const confirmation = await waitForConfirmation();
+		const result = await waitForConfirmation();
+		setIsProcessing(false);
 
-		if (confirmation === 'confirmed') {
-			addToast('Payment confirmed! Your booking is complete.', ToastType.SUCCESS);
-			await Promise.all([
-				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
-				queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
-				queryClient.invalidateQueries({ queryKey: ['events'] }),
-			]);
-			setIsProcessing(false);
-			onClose();
-			return;
-		}
+		switch (result) {
+			case 'confirmed':
+				addToast('Payment confirmed! Your booking is complete.', ToastType.SUCCESS);
+				await invalidateAfterResolution();
+				onClose();
+				break;
 
-		if (confirmation === 'no_spots_left') {
-			setIsProcessing(false);
-			addToast('Sorry, someone was faster than you! No spots left.', ToastType.ERROR);
-			await Promise.all([
-				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
-				queryClient.invalidateQueries({ queryKey: ['event', eventId] }),
-				queryClient.invalidateQueries({ queryKey: ['events'] }),
-			]);
-			onClose();
-			return;
-		}
+			case 'cancelled':
+				addToast(
+					'Your booking could not be completed. If you were charged, you will be refunded automatically.',
+					ToastType.ERROR,
+				);
+				await invalidateAfterResolution();
+				onClose();
+				break;
 
-		if (confirmation === 'timeout') {
-			setIsProcessing(false);
-			addToast(
-				'Payment is taking longer than expected. Please try again later',
-				ToastType.ERROR,
-			);
-			return;
+			case 'timeout':
+				addToast('Payment is taking longer than expected. Check your bookings later.', ToastType.INFO);
+				break;
 		}
 	};
 
 	const handleClose = async () => {
-		if (bookingId && !hasSubmittedPayment) {
+		if (!hasSubmittedPayment) {
 			setIsCancelling(true);
 			try {
-				await cancelBooking(bookingId);
+				await cancelBooking(booking.id);
 			} catch {
 				// ignore cancellation failure on modal close
 			} finally {
@@ -139,12 +160,10 @@ function StripePaymentFormContent({
 	// Try to cancel pending booking on page unload/visibility change.
 	// Note: browsers may not wait for async calls on unload; server-side TTL is recommended as a fallback.
 	useEffect(() => {
-		if (!bookingId) return;
-
 		const tryCancel = () => {
-			if (!bookingId || hasSubmittedPayment) return;
+			if (hasSubmittedPayment) return;
 			// best-effort: fire-and-forget cancellation
-			cancelBooking(bookingId).catch(() => {
+			cancelBooking(booking.id).catch(() => {
 				/* ignore */
 			});
 		};
@@ -166,7 +185,17 @@ function StripePaymentFormContent({
 			window.removeEventListener('beforeunload', onBeforeUnload);
 			document.removeEventListener('visibilitychange', onVisibilityChange);
 		};
-	}, [bookingId, hasSubmittedPayment, cancelBooking]);
+	}, [booking.id, hasSubmittedPayment, cancelBooking]);
+
+	// Auto-close after 1 hour as a fallback in case user leaves page open without completing payment
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			handleClose();
+			addToast('Booking expired due to inactivity. Please try again.', ToastType.ERROR);
+		}, 60 * 60 * 1000);
+
+		return () => clearTimeout(timer);
+	}, []);
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
@@ -176,35 +205,20 @@ function StripePaymentFormContent({
 				Enter your card details to confirm the booking.
 			</p>
 
+			<div className="bg-gray-100 p-4 dark:bg-gray-800">
+				<p>
+					Amount: <span className="font-medium">${Number(booking.amount).toFixed(2)}</span>
+				</p>
+				<p>
+					Quantity: <span className="font-medium">{booking.quantity}</span>
+				</p>
+			</div>
+
+			<CancellationPolicyInfo event={event} />
+
 			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
 				<PaymentElement />
 			</div>
-
-			{bookingCache &&
-				(() => {
-					const refundPercentage = bookingCache.refundPercentage ?? 0;
-					const estimatedRefundInCents = bookingCache.estimatedRefundInCents ?? 0;
-					const estimatedStripeFeeInCents = bookingCache.estimatedStripeFeeInCents ?? 0;
-
-					if (refundPercentage === 0 || estimatedRefundInCents === 0) {
-						return <div className="text-sm text-gray-500">No refund available if cancelled</div>;
-					}
-
-					if (estimatedRefundInCents <= 0) {
-						return (
-							<div className="text-sm text-gray-500">
-								Stripe fee will cover the entire amount — no refund
-							</div>
-						);
-					}
-
-					return (
-						<div className="text-sm text-gray-500">
-							Estimated fee: ${formatCents(estimatedStripeFeeInCents)} — You&apos;ll get back: $
-							{formatCents(estimatedRefundInCents)}
-						</div>
-					);
-				})()}
 
 			<div className="flex gap-3">
 				<Button
@@ -231,8 +245,8 @@ function StripePaymentFormContent({
 }
 
 export default function StripePaymentForm({
-	eventId,
-	bookingId,
+	event,
+	booking,
 	onClose,
 	clientSecret,
 }: StripePaymentFormProps) {
@@ -263,11 +277,7 @@ export default function StripePaymentForm({
 			stripe={stripePromise}
 			options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}
 		>
-			<StripePaymentFormContent
-				eventId={eventId}
-				bookingId={bookingId}
-				onClose={onClose}
-			/>
+			<StripePaymentFormContent event={event} booking={booking} onClose={onClose} />
 		</Elements>
 	);
 }

@@ -7,6 +7,7 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useCreateBooking } from '@/features/bookings/hooks/useBookings';
 import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
+import { BookingWithEstimate } from '@event-space/shared';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isLoading } = useCreateBooking();
@@ -16,11 +17,11 @@ export default function CreateBookingModal() {
 	const event = modalData?.event;
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
-	const [bookingId, setBookingId] = useState<string | null>(null);
+	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);
 
 	const handleClose = () => {
 		setClientSecret(null);
-		setBookingId(null);
+		setBooking(null);
 		closeModal();
 	};
 
@@ -39,7 +40,7 @@ export default function CreateBookingModal() {
 						addToast('Unable to start payment. Please try again.', ToastType.ERROR);
 						return;
 					}
-					setBookingId(data.booking.id);
+					setBooking(data.booking as BookingWithEstimate);
 					setClientSecret(data.clientSecret);
 				},
 				onError: () => {
@@ -51,10 +52,10 @@ export default function CreateBookingModal() {
 
 	return (
 		<Modal onClose={handleClose} ariaLabel="Confirm booking">
-			{clientSecret ? (
+			{clientSecret && booking ? (
 				<StripePaymentForm
-					eventId={event.id}
-					bookingId={bookingId}
+					event={event}
+					booking={booking}
 					onClose={handleClose}
 					clientSecret={clientSecret}
 				/>

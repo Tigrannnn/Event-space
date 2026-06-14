@@ -14,7 +14,7 @@ export class BookingExpiryService {
 
 	@Cron(CronExpression.EVERY_MINUTE)
 	async handleExpiry() {
-		const cutoff = new Date(Date.now() - 30 * 60 * 1000);
+		const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
 		const expired = await this.prisma.booking.findMany({
 			where: { status: 'PENDING', createdAt: { lt: cutoff } },
 			take: 50,
@@ -26,6 +26,21 @@ export class BookingExpiryService {
 
 		for (const b of expired) {
 			try {
+				// Skip if user is actively confirming payment right now
+				if (b.paymentIntentId) {
+					try {
+						const intent = await this.stripe.retrievePaymentIntent(b.paymentIntentId);
+						if (intent.status === 'processing' || intent.status === 'requires_confirmation') {
+							this.logger.log(
+								`Skipping booking ${b.id} — PaymentIntent is ${intent.status}`,
+							);
+							continue;
+						}
+					} catch {
+						// If retrieval fails, fall through and expire as usual
+					}
+				}
+
 				const paymentIntentId = await this.prisma.$transaction(async (tx) => {
 					// Re-fetch inside transaction to get row-level lock
 					const booking = await tx.booking.findUnique({ where: { id: b.id } });

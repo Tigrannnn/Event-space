@@ -6,6 +6,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
+import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useHydrated } from '@/hooks/useHydrated';
 
 /**
@@ -20,6 +21,8 @@ export default function Header() {
 	const [inputValue, setInputValue] = useState(urlSearchQuery);
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
+	const { data: myBookings } = useGetMyBookings();
+	const myBookingsCount = myBookings?.length ?? 0;
 	const isHydrated = useHydrated();
 
 	const handleSubmitSearch = useCallback(() => {
@@ -90,8 +93,13 @@ export default function Header() {
 							<></>
 						) : user ? (
 							<>
-								<Button variant="secondary" onClick={() => router.push('/bookings')}>
+								<Button variant="secondary" onClick={() => router.push('/bookings')} className="relative">
 									Bookings
+									{myBookingsCount > 0 && (
+										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+											{myBookingsCount}
+										</span>
+									)}
 								</Button>
 
 								<Button variant="secondary" onClick={() => router.push('/profile')}>

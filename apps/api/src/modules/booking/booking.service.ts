@@ -8,7 +8,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CancellationPolicyRule, BookingWithEstimate, isEventAvailable } from '@event-space/shared';
+import {
+	CancellationPolicyRule,
+	BookingWithEstimate,
+	estimateStripeFeeInCents,
+	isEventAvailable,
+} from '@event-space/shared';
 import { CreateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
@@ -30,8 +35,11 @@ export class BookingService {
 	async create(userId: string, data: CreateBookingData) {
 		const { eventId, quantity = 1 } = data;
 
-		const { booking } = await this.prisma.$transaction(async (tx) => {
-			const event = await tx.event.findUnique({ where: { id: eventId } });
+		const { booking, event } = await this.prisma.$transaction(async (tx) => {
+			const event = await tx.event.findUnique({
+				where: { id: eventId },
+				include: { cancellationRules: true },
+			});
 			if (!event) throw new NotFoundException('Event not found');
 			if (!isEventAvailable(event)) {
 				throw new ForbiddenException('Event is not available for booking');
@@ -58,7 +66,8 @@ export class BookingService {
 				update: { status: 'PENDING', quantity, paymentIntentId: null, amount, expiresAt: null },
 				create: { userId, eventId, status: 'PENDING', quantity, amount },
 			});
-			return { booking: upserted };
+
+			return { booking: upserted, event };
 		});
 
 		let paymentIntent: StripePaymentIntent | null = null;
@@ -74,7 +83,31 @@ export class BookingService {
 				data: { paymentIntentId: paymentIntent.id },
 			});
 
-			return { booking: updatedBooking, clientSecret: paymentIntent.client_secret };
+			const refundPercentage = this.calculateRefundPercentage(
+				new Date(),
+				new Date(event.date),
+				event.cancellationRules,
+			);
+			const estimatedStripeFeeInCents = estimateStripeFeeInCents(Number(updatedBooking.amount));
+			const baseAmountInCents = Math.round(Number(updatedBooking.amount) * 100);
+			const estimatedRefundInCents = Math.max(
+				0,
+				Math.round((baseAmountInCents * refundPercentage) / 100) - estimatedStripeFeeInCents,
+			);
+
+			const bookingWithEstimate = {
+				...updatedBooking,
+				amount: Number(updatedBooking.amount),
+				event: { ...event, price: Number(event.price) },
+				refundPercentage,
+				estimatedStripeFeeInCents,
+				estimatedRefundInCents,
+			};
+
+			return {
+				booking: bookingWithEstimate as unknown as BookingWithEstimate,
+				clientSecret: paymentIntent.client_secret,
+			};
 		} catch (error) {
 			if (paymentIntent) {
 				try {
@@ -162,7 +195,6 @@ export class BookingService {
 					} as unknown as BookingWithEstimate;
 				}
 
-				// Get actual Stripe fee from payment intent
 				let stripeFeeInCents = 0;
 				try {
 					const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
@@ -185,9 +217,8 @@ export class BookingService {
 				const baseAmountInCents = Math.round(Number(booking.amount) * 100);
 				const calculatedRefundInCents = Math.round((baseAmountInCents * refundPercentage) / 100);
 
-				// Use actual Stripe fee if available, otherwise use estimate (2.9% + $0.30)
 				const estimatedStripeFeeInCents =
-					stripeFeeInCents > 0 ? stripeFeeInCents : Math.round(baseAmountInCents * 0.029) + 30;
+					stripeFeeInCents > 0 ? stripeFeeInCents : estimateStripeFeeInCents(Number(booking.amount));
 
 				const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - estimatedStripeFeeInCents);
 

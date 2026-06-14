@@ -58,7 +58,7 @@ export const CreateBookingSchema = z.object({
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;
 
 export type CreateBookingResponse = {
-	booking: Booking;
+	booking: BookingWithEstimate;
 	clientSecret: string | null;
 };
 
