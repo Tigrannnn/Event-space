@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { Search, Trash2, X, Eye } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
+import Badge from '@/components/ui/Badge';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
 import {
@@ -229,15 +230,10 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 								/>
 							</TableCell>
 							<TableCell>
-								<span
-									className={
-										user.emailVerified
-											? 'rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
-											: 'rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'
-									}
-								>
-									{user.emailVerified ? 'Verified' : 'Pending'}
-								</span>
+								<Badge
+									variant={user.emailVerified ? 'success' : 'warning'}
+									label={user.emailVerified ? 'Verified' : 'Pending'}
+								/>
 							</TableCell>
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
 							<TableCell>
