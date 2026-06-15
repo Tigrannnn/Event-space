@@ -12,7 +12,7 @@ import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
-import { formatDateTime } from '@/utils/date';
+import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 
 interface StripePaymentFormProps {
 	event: Event;
@@ -22,36 +22,6 @@ interface StripePaymentFormProps {
 }
 
 type ConfirmationResult = 'confirmed' | 'cancelled' | 'timeout';
-
-function CancellationPolicyInfo({ event }: { event: Event }) {
-	if (!event.cancellationRules || event.cancellationRules.length === 0) {
-		return null;
-	}
-
-	const sortedRules = [...event.cancellationRules].sort(
-		(a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent,
-	);
-
-	const eventDate = new Date(event.date);
-
-	const deadlineFor = (hoursBeforeEvent: number) =>
-		new Date(eventDate.getTime() - hoursBeforeEvent * 60 * 60 * 1000);
-
-	return (
-		<div className="rounded-md border border-gray-200 p-3 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-400">
-			<p className="mb-1 font-medium text-gray-800 dark:text-white">Cancellation policy</p>
-			<ul className="space-y-1">
-				{sortedRules.map((rule) => (
-					<li key={rule.id}>
-						{rule.refundPercentage > 0
-							? `${rule.refundPercentage}% refund until ${formatDateTime(deadlineFor(rule.hoursBeforeEvent))}`
-							: `No refund after ${formatDateTime(deadlineFor(rule.hoursBeforeEvent))}`}
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
 
 function StripePaymentFormContent({
 	event,
@@ -189,10 +159,13 @@ function StripePaymentFormContent({
 
 	// Auto-close after 1 hour as a fallback in case user leaves page open without completing payment
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			handleClose();
-			addToast('Booking expired due to inactivity. Please try again.', ToastType.ERROR);
-		}, 60 * 60 * 1000);
+		const timer = setTimeout(
+			() => {
+				handleClose();
+				addToast('Booking expired due to inactivity. Please try again.', ToastType.ERROR);
+			},
+			60 * 60 * 1000,
+		);
 
 		return () => clearTimeout(timer);
 	}, []);
@@ -214,7 +187,12 @@ function StripePaymentFormContent({
 				</p>
 			</div>
 
-			<CancellationPolicyInfo event={event} />
+			<CancellationPolicyInfo
+				eventDate={event.date}
+				price={event.price}
+				cancellationRules={event.cancellationRules ?? []}
+				booking={booking}
+			/>
 
 			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
 				<PaymentElement />

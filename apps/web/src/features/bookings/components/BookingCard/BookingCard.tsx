@@ -5,6 +5,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
+import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
@@ -46,14 +47,25 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 		let refundMessage = 'No refund available';
 		if (refundPercentage > 0 && estimatedRefundInCents > 0) {
-			refundMessage = `You will receive: $${centsToDollars(estimatedRefundInCents)} (Fee: $${centsToDollars(estimatedStripeFeeInCents)})`;
+			refundMessage = `You will receive: ~$${centsToDollars(estimatedRefundInCents)}`;
 		} else if (refundPercentage > 0 && estimatedRefundInCents === 0) {
 			refundMessage = 'Fee will cover the entire amount — no refund';
 		}
 
 		const isConfirmed = await confirm({
 			title: 'Cancel Booking',
-			message: `Are you sure? ${refundMessage}`,
+			message: (
+				<div className="space-y-3">
+					<p>{`Are you sure? ${refundMessage}`}</p>
+					<CancellationPolicyInfo
+						eventDate={event.date}
+						price={event.price}
+						cancellationRules={event.cancellationRules ?? []}
+						booking={booking}
+					/>
+				</div>
+			),
+			size: 'md',
 			confirmText: 'Yes, Cancel',
 			cancelText: 'Close',
 			variant: 'danger',
@@ -138,8 +150,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 							return (
 								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-									Refund: ${centsToDollars(estimatedRefundInCents)} (fee: $
-									{centsToDollars(estimatedStripeFeeInCents)})
+									Refund: ~${centsToDollars(estimatedRefundInCents)}
 								</div>
 							);
 						})()}

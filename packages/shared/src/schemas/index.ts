@@ -9,3 +9,4 @@ export * from './auth.schema';
 export * from './env.schema';
 export * from './admin.schema';
 export * from './booking-adjustment.schema';
+export * from './cancellation-policy-rule.schema';

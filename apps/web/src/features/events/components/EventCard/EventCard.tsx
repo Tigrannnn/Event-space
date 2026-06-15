@@ -3,6 +3,7 @@
 import React from 'react';
 import Button from '@/components/ui/Buttons/Button';
 import { CategoryBadge } from '../CategoryBadge';
+import { PriceBadge } from '../PriceBadge';
 import { CapacityBar } from '../CapacityBar';
 
 import { ModalType, useModalStore } from '@/stores';
@@ -59,6 +60,7 @@ export default function EventCard({ event }: EventCardProps) {
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{event.category}</CategoryBadge>
+				<PriceBadge price={event.price} />
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={event.title} />
 			</div>
 
@@ -98,6 +100,9 @@ export default function EventCard({ event }: EventCardProps) {
 				{/* Footer Section: Metrics & Action - always at bottom */}
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
+					{/* <span className="text-primary text-lg font-bold whitespace-nowrap">
+						${Number(event.price)}
+					</span> */}
 
 					{!eventIsAvailable ? (
 						<Button disabled variant="secondary" className="relative z-20 w-full">

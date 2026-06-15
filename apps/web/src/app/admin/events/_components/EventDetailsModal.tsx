@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
@@ -17,6 +18,7 @@ function formatCurrency(value: number | string) {
 }
 
 export default function EventDetailsModal() {
+	const router = useRouter();
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.EventDetails);
 	const event = modalData?.event;
@@ -56,7 +58,16 @@ export default function EventDetailsModal() {
 						</p>
 						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
-								<p className="text-lg font-semibold text-gray-900 dark:text-white">{event.title}</p>
+								<button
+									type="button"
+									onClick={() => {
+										closeModal();
+										router.push(`/events/${event.id}`);
+									}}
+									className="text-left text-lg font-semibold text-gray-900 transition hover:underline dark:text-white"
+								>
+									{event.title}
+								</button>
 								<p className="text-sm text-gray-500 dark:text-gray-400">{event.category}</p>
 							</div>
 

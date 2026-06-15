@@ -14,6 +14,7 @@ import { Event, getEventImageUrls } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
+import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -112,7 +113,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{event.title}
 							</h1>
 
-							<div className="mb-4 flex items-center gap-2 sm:mb-6 text-gray-700 dark:text-gray-300">
+							<div className="mb-4 flex items-center gap-2 text-gray-700 sm:mb-6 dark:text-gray-300">
 								<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 								{event.locationUrl ? (
 									<a

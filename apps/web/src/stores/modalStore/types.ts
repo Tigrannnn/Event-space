@@ -1,4 +1,6 @@
 import { Event, Booking, BookingWithDetails, SafeUserData } from '@event-space/shared';
+import type { ReactNode } from 'react';
+import type { ModalSize } from '@/components/ui/Modal/Modal.types';
 
 export enum ModalType {
 	Register = 'register',
@@ -32,7 +34,8 @@ export interface ForgotPasswordModalData {
 
 export interface ConfirmModalData {
 	title: string;
-	message: string;
+	message: ReactNode;
+	size?: ModalSize;
 	confirmText?: string;
 	cancelText?: string;
 	variant?: 'danger' | 'primary';

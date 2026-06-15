@@ -274,7 +274,13 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							<TableRow key={event.id}>
 								<TableCell className="px-3 sm:px-5">
 									<div className="max-w-md min-w-0">
-										<p className="truncate font-medium text-gray-900 dark:text-gray-100">{event.title}</p>
+										<button
+											type="button"
+											onClick={() => router.push(`/events/${event.id}`)}
+											className="text-primary cursor-pointer truncate text-left font-medium transition hover:underline"
+										>
+											{event.title}
+										</button>
 										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
 											{event.category} · {event.location}
 										</p>

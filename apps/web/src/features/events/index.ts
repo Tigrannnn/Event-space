@@ -8,6 +8,7 @@ export { useEvents, useEventById } from './hooks/useEvents';
 // Components
 export { default as EventCard } from './components/EventCard';
 export { CategoryBadge } from './components/CategoryBadge';
+export { PriceBadge } from './components/PriceBadge';
 export { CapacityBar } from './components/CapacityBar';
 export { EventImage, EventImageWithFallback } from './components/EventImage';
 export { EventImageFallback } from './components/EventImage/EventImageFallback';

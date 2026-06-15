@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
-import { SearchBar } from '@/components/shared/SearchBar';
+import { SearchBar } from '@/components/ui/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';

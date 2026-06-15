@@ -1,6 +1,6 @@
 'use client';
 
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type Event, EventStatusEnum, EventDifficultyEnum } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
@@ -11,6 +11,7 @@ import Select from '@/components/ui/Select';
 import { ModalHeader } from '@/components/ui/Modal';
 import { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } from '@/constants/mappers';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -56,6 +57,10 @@ export default function EventForm({
 		resolver: zodResolver(EventFormSchema),
 		defaultValues: mapEventToFormValues(event),
 	});
+
+	const watchedDate = useWatch({ control, name: 'date' });
+	const watchedPrice = useWatch({ control, name: 'price' });
+	const watchedRules = useWatch({ control, name: 'cancellationRules' });
 
 	const { fields, append, remove } = useFieldArray({
 		control,
@@ -276,6 +281,14 @@ export default function EventForm({
 						</div>
 					)}
 				</div>
+
+				{watchedDate && watchedPrice && (
+					<CancellationPolicyInfo
+						eventDate={watchedDate}
+						price={Number(watchedPrice) || 0}
+						cancellationRules={watchedRules ?? []}
+					/>
+				)}
 
 				<hr className="border-gray-200 dark:border-gray-700" />
 

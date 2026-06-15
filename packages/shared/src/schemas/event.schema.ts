@@ -3,16 +3,8 @@ import { EventSchema as GeneratedEventSchema } from '../generated/modelSchema/Ev
 import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSchema';
 import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
 import { TimeFilterSchema } from './common.schema';
-import { CancellationPolicyRuleSchema as GeneratedRuleSchema } from '../generated';
 import { SafeUserSchema } from './user.schema';
-
-export const CancellationPolicyRuleInputSchema = GeneratedRuleSchema.omit({
-	id: true,
-	eventId: true,
-});
-
-export const CancellationPolicyRuleSchema = GeneratedRuleSchema;
-export type CancellationPolicyRule = z.infer<typeof CancellationPolicyRuleSchema>;
+import { CancellationPolicyRuleInputSchema, CancellationPolicyRuleSchema } from './cancellation-policy-rule.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -33,7 +25,7 @@ export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number().openapi({ example: 5000 }),
 	images: z.array(EventImageSchema).optional(),
 	organizer: SafeUserSchema.optional(),
-	cancellationRules: z.array(GeneratedRuleSchema).default([]),
+	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
 	locationUrl: z.string().url().nullable().optional(),
 }).openapi({
 	description: 'Event information',

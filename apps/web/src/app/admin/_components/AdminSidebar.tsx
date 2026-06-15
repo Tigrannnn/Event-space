@@ -24,7 +24,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		<aside
 			className={cn(
 				'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-300 bg-white transition-transform duration-200 ease-out dark:border-gray-700 dark:bg-gray-900',
-				'lg:static lg:z-auto lg:h-full lg:flex-shrink-0 lg:translate-x-0',
+				'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:translate-x-0',
 				mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
 			)}
 		>
