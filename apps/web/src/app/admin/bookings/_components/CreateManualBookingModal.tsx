@@ -6,16 +6,10 @@ import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input/Input';
 import { useModalStore } from '@/stores';
-import { ModalType } from '@/stores';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
 import type { CreateManualBookingData } from '@event-space/shared';
-
-const initialFormState = {
-	quantity: 1,
-	eventId: '',
-	userId: '',
-	shadowUserName: '',
-};
+import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
+import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 
 export default function CreateManualBookingModal() {
 	const { closeModal } = useModalStore();
@@ -43,8 +37,13 @@ export default function CreateManualBookingModal() {
 			shadowUserName: formState.shadowUserName?.trim() || undefined,
 		};
 
+		if (!data.eventId) {
+			setError('Please select an event');
+			return;
+		}
+
 		if (!data.userId && !data.shadowUserName) {
-			setError('Provide user ID or shadow user name');
+			setError('Please select an existing user or enter a name for a new user');
 			return;
 		}
 
@@ -63,11 +62,22 @@ export default function CreateManualBookingModal() {
 				<ModalHeader title="Create manual booking" onClose={closeModal} />
 
 				<div className="grid gap-4">
-					<Input
-						label="Event ID"
+					<EventSearchSelect
 						value={formState.eventId}
-						onChange={(event) => handleChange('eventId', event.target.value)}
-						placeholder="Enter event id"
+						onChange={(eventId) => handleChange('eventId', eventId)}
+						label="Event"
+					/>
+
+					<UserSearchSelect
+						label="User"
+						existingUserId={formState.userId ?? ''}
+						newUserName={formState.shadowUserName ?? ''}
+						onExistingUserSelect={(userId) =>
+							setFormState((s) => ({ ...s, userId: userId || undefined, shadowUserName: undefined }))
+						}
+						onNewUserName={(name) =>
+							setFormState((s) => ({ ...s, shadowUserName: name || undefined, userId: undefined }))
+						}
 					/>
 
 					<Input
@@ -77,20 +87,7 @@ export default function CreateManualBookingModal() {
 						value={formState.quantity}
 						onChange={(event) => handleChange('quantity', Number(event.target.value))}
 						placeholder="Number of spots"
-					/>
-
-					<Input
-						label="Existing user ID"
-						value={formState.userId ?? ''}
-						onChange={(event) => handleChange('userId', event.target.value)}
-						placeholder="Optional existing user id"
-					/>
-
-					<Input
-						label="Shadow user name"
-						value={formState.shadowUserName ?? ''}
-						onChange={(event) => handleChange('shadowUserName', event.target.value)}
-						placeholder="Optional shadow user name"
+						className="h-10 w-full font-medium bg-transparent border border-gray-500 rounded-md px-3 text-sm focus:border-primary transition outline-none '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'"
 					/>
 
 					{error && <p className="text-sm text-red-500">{error}</p>}

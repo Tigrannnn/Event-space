@@ -381,6 +381,11 @@ export class BookingService {
 			return booking;
 		}
 
+		if (!event) {
+			this.logger.warn(`Event not found for booking ${bookingId} during cancel — skipping refund`);
+			return booking;
+		}
+
 		let refundResult: { amount: number; id: string } | null = null;
 
 		try {

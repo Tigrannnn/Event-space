@@ -1,3 +1,4 @@
+import { cn } from '@/utils/cn';
 import { forwardRef } from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -19,9 +20,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 				)}
 				<input
 					ref={ref}
-					className={`focus:border-primary w-full rounded-xl border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 ${
+					className={cn(`focus:border-primary w-full rounded-xl border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 ${
 						error ? 'border-red-500 dark:border-red-400' : ''
-					} ${className || ''}`}
+					}`, className)}
 					{...props}
 				/>
 				{error && <p className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</p>}

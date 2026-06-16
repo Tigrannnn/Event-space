@@ -153,11 +153,22 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	return (
 		<div className="overflow-hidden rounded-lg border border-gray-500 shadow-sm">
 			<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
-				<div>
-					<p className="font-semibold text-gray-900 dark:text-gray-100">All bookings</p>
-					<p className="text-sm text-gray-500">
-						Showing {pageStart}-{pageEnd} of {bookingsResponse.total} bookings
-					</p>
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<p className="font-semibold text-gray-900 dark:text-gray-100">All bookings</p>
+						<p className="text-sm text-gray-500">
+							Showing {pageStart}-{pageEnd} of {bookingsResponse.total} bookings
+						</p>
+					</div>
+
+					<Button
+						type="button"
+						size="sm"
+						variant="primary"
+						onClick={() => openModal(ModalType.CreateManualBooking)}
+					>
+						Create manual booking
+					</Button>
 				</div>
 
 				<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
@@ -190,15 +201,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						/>
 
 						<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
-
-						<Button
-							type="button"
-							size="sm"
-							variant="primary"
-							onClick={() => openModal(ModalType.CreateManualBooking)}
-						>
-							Create manual booking
-						</Button>
 
 						{hasActiveFilters && (
 							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
