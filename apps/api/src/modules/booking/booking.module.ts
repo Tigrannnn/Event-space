@@ -6,6 +6,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 @Module({
 	imports: [StripeModule],
 	providers: [BookingService],
+	exports: [BookingService],
 	controllers: [BookingController],
 })
 export class BookingModule {}

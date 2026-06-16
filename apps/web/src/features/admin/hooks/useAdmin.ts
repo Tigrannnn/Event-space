@@ -3,6 +3,7 @@ import {
 	getApiErrorMessage,
 	type Booking,
 	type BookingFilters,
+	type CreateManualBookingData,
 	type Event,
 	type EventFilters,
 	type UserRoleType,
@@ -145,6 +146,28 @@ export const useDeleteUser = () => {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
 			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+		},
+	});
+};
+
+export const useCreateManualBooking = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	return useMutation({
+		mutationFn: (data: CreateManualBookingData) => adminApi.createManualBooking(data),
+		onSuccess: () => {
+			addToast('Manual booking created successfully', ToastType.SUCCESS);
+			closeModal();
+			queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['events'] });
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to create manual booking'), ToastType.ERROR);
 		},
 	});
 };

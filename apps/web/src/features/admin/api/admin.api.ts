@@ -3,6 +3,7 @@ import { EVENT_UPLOAD_TIMEOUTS } from '@event-space/shared';
 import type {
 	Booking,
 	BookingFilters,
+	CreateManualBookingData,
 	Event,
 	EventFilters,
 	PaginatedResponse,
@@ -37,4 +38,6 @@ export const adminApi = {
 	updateUserRole: (id: string, role: UserRoleType) =>
 		clientApi.patch<SafeUserData>(`/admin/users/${id}/role`, { role }),
 	deleteUser: (id: string) => clientApi.delete<{ message: string }>(`/admin/users/${id}`),
+	createManualBooking: (data: CreateManualBookingData) =>
+		clientApi.post<Booking>('/admin/bookings/manual', data),
 };

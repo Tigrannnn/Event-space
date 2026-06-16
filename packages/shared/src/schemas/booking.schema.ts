@@ -91,3 +91,21 @@ export const BookingWithEstimateSchema = BookingSchema.extend({
 });
 
 export type BookingWithEstimate = z.infer<typeof BookingWithEstimateSchema>;
+
+// === CREATE MANUAL BOOKING ===
+export const CreateManualBookingSchema = z
+	.object({
+		eventId: z.string().uuid().openapi({ description: 'Event ID to book' }),
+		quantity: z.number().int().min(1).default(1).openapi({ description: 'Number of spots to book' }),
+		userId: z.string().uuid().optional().openapi({ description: 'Existing user id (optional)' }),
+		shadowUserName: z
+			.string()
+			.min(1)
+			.optional()
+			.openapi({ description: 'Name for shadow (temporary) user' }),
+	})
+	.refine((data) => !!data.userId !== !!data.shadowUserName, {
+		message: 'Provide either userId or shadowUserName, not both',
+	});
+
+export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;

@@ -6,6 +6,7 @@ import {
 	ServiceUnavailableException,
 	Logger,
 } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
@@ -22,6 +23,7 @@ import {
 	StripeBalanceTransaction,
 	StripePaymentIntent,
 } from '@infra/stripe/stripe.types';
+import { CreateManualBookingData } from '@event-space/shared';
 
 @Injectable()
 export class BookingService {
@@ -63,7 +65,7 @@ export class BookingService {
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_eventId: { userId, eventId } },
-				update: { status: 'PENDING', quantity, paymentIntentId: null, amount, expiresAt: null },
+				update: { status: 'PENDING', quantity, paymentIntentId: null, amount },
 				create: { userId, eventId, status: 'PENDING', quantity, amount },
 			});
 
@@ -120,6 +122,105 @@ export class BookingService {
 			await this.cancelPendingBooking(booking.id);
 			this.rethrowStripeError(error);
 		}
+	}
+
+	async createManualBooking(adminId: string, data: CreateManualBookingData) {
+		const { eventId, quantity = 1, userId, shadowUserName } = data;
+
+		const result = await this.prisma.$transaction(async (tx) => {
+			const event = await tx.event.findUnique({ where: { id: eventId } });
+			if (!event) throw new NotFoundException('Event not found');
+			if (!isEventAvailable(event)) {
+				throw new ForbiddenException('Event is not available for booking');
+			}
+
+			let targetUserId = userId;
+			let cancelledPaymentIntentId: string | null = null;
+
+			if (shadowUserName) {
+				const shadowUser = await tx.user.create({
+					data: {
+						email: `shadow-${randomUUID()}@internal.local`,
+						name: shadowUserName,
+						isShadow: true,
+						emailVerified: false,
+					},
+				});
+				targetUserId = shadowUser.id;
+			}
+
+			if (!targetUserId) {
+				throw new ConflictException('userId or shadowUserName is required');
+			}
+
+			const existing = await tx.booking.findUnique({
+				where: { userId_eventId: { userId: targetUserId, eventId } },
+			});
+
+			if (existing && existing.status === 'CONFIRMED') {
+				throw new ConflictException('User already has a confirmed booking for this event');
+			}
+
+			if (existing?.paymentIntentId) {
+				cancelledPaymentIntentId = existing.paymentIntentId;
+			}
+
+			const reserved = await tx.event.updateMany({
+				where: {
+					id: eventId,
+					currentParticipants: { lte: event.maxParticipants - quantity },
+				},
+				data: { currentParticipants: { increment: quantity } },
+			});
+
+			if (reserved.count === 0) {
+				const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
+				throw new ConflictException(
+					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
+				);
+			}
+
+			const amount = Number(event.price) * quantity;
+
+			const booking = await tx.booking.upsert({
+				where: { userId_eventId: { userId: targetUserId, eventId } },
+				update: {
+					status: 'CONFIRMED',
+					quantity,
+					amount,
+					paymentIntentId: null,
+					paymentMethod: 'OFFLINE',
+					createdByAdminId: adminId,
+				},
+				create: {
+					userId: targetUserId,
+					eventId,
+					status: 'CONFIRMED',
+					quantity,
+					amount,
+					paymentMethod: 'OFFLINE',
+					createdByAdminId: adminId,
+				},
+			});
+
+			return { booking, cancelledPaymentIntentId };
+		});
+
+		if (result.cancelledPaymentIntentId) {
+			try {
+				await this.stripe.cancelPaymentIntent(
+					result.cancelledPaymentIntentId,
+					`manual-override-${result.booking.id}`,
+				);
+			} catch (e) {
+				this.logger.warn(
+					`Failed to cancel orphaned payment intent ${result.cancelledPaymentIntentId} for booking ${result.booking.id}`,
+					e as Error,
+				);
+			}
+		}
+
+		return result.booking;
 	}
 
 	// async update(userId: string, bookingId: string, data: UpdateBookingData) {

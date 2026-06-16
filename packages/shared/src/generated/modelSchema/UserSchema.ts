@@ -13,6 +13,7 @@ export const UserSchema = z.object({
   passwordHash: z.string().nullable(),
   image: z.string().nullable(),
   emailVerified: z.boolean(),
+  isShadow: z.boolean(),
   googleId: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

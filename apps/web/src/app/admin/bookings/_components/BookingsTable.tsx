@@ -191,6 +191,15 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 						<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
 
+						<Button
+							type="button"
+							size="sm"
+							variant="primary"
+							onClick={() => openModal(ModalType.CreateManualBooking)}
+						>
+							Create manual booking
+						</Button>
+
 						{hasActiveFilters && (
 							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
 								<X className="h-4 w-4" />
@@ -265,7 +274,12 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</div>
 							</TableCell>
 							<TableCell>
-								<Button type="button" size="sm" variant="secondary" onClick={() => handleOpenBookingDetails(booking)}>
+								<Button
+									type="button"
+									size="sm"
+									variant="secondary"
+									onClick={() => handleOpenBookingDetails(booking)}
+								>
 									<Eye className="mr-2 h-4 w-4" />
 									Details
 								</Button>

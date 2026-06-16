@@ -11,8 +11,9 @@ export const BookingCountOrderByAggregateInputSchema: z.ZodType<Prisma.BookingCo
   quantity: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
-  expiresAt: z.lazy(() => SortOrderSchema).optional(),
   amount: z.lazy(() => SortOrderSchema).optional(),
+  paymentMethod: z.lazy(() => SortOrderSchema).optional(),
+  createdByAdminId: z.lazy(() => SortOrderSchema).optional(),
   paymentIntentId: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 

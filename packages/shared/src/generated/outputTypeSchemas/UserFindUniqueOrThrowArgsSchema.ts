@@ -17,6 +17,7 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   image: z.boolean().optional(),
   role: z.boolean().optional(),
   emailVerified: z.boolean().optional(),
+  isShadow: z.boolean().optional(),
   googleId: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),

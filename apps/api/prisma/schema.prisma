@@ -33,6 +33,11 @@ enum EventStatus {
   CANCELLED
 }
 
+enum PaymentMethod {
+  STRIPE
+  OFFLINE
+}
+
 model Event {
   id                  String          @id @default(uuid())
   title               String          @db.VarChar(100)
@@ -112,6 +117,10 @@ model Booking {
 
   amount Decimal @db.Decimal(10, 2)
 
+  paymentMethod    PaymentMethod @default(STRIPE) @map("payment_method")
+
+  createdByAdminId String?       @map("created_by_admin_id")
+
   paymentIntentId String? @unique @map("payment_intent_id")
 
   user        User                @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
@@ -169,6 +178,7 @@ model User {
   image         String?
   role          UserRole @default(USER)
   emailVerified Boolean  @default(false) @map("email_verified")
+  isShadow      Boolean  @default(false) @map("is_shadow")
 
   googleId  String?  @unique @map("google_id")
   createdAt DateTime @default(now()) @map("created_at")

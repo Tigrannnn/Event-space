@@ -1,20 +1,27 @@
 'use client';
 
-import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import type { SafeUserData } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
+import { Copy } from 'lucide-react';
+import { useToastStore, ToastType } from '@/stores/toastStore';
 
 export default function UserDetailsModal() {
 	const { closeModal } = useModalStore();
+	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.UserDetails);
 	const user = modalData?.user;
 
 	if (!user) {
 		return null;
 	}
+
+	const handleCopyId = () => {
+		navigator.clipboard.writeText(user.id);
+		addToast('User ID copied to clipboard', ToastType.SUCCESS);
+	};
 
 	return (
 		<Modal onClose={closeModal} size="lg" ariaLabel="User details">
@@ -30,6 +37,20 @@ export default function UserDetailsModal() {
 							<div>
 								<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
 								<p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+							</div>
+
+							<div className="flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
+								<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
+									{user.id}
+								</code>
+								<button
+									type="button"
+									onClick={handleCopyId}
+									className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+									title="Copy ID"
+								>
+									<Copy className="h-3 w-3" />
+								</button>
 							</div>
 
 							<div className="grid gap-3 sm:grid-cols-2">

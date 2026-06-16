@@ -8,6 +8,7 @@ import { EditProfileModal } from '@/features/profile';
 import { CreateBookingModal } from '@/features/bookings/components';
 import { UpdateEventModal, CreateEventModal } from '@/features/admin/events';
 import BookingDetailsModal from '@/app/admin/bookings/_components/BookingDetailsModal';
+import CreateManualBookingModal from '@/app/admin/bookings/_components/CreateManualBookingModal';
 import UserDetailsModal from '@/app/admin/users/_components/UserDetailsModal';
 import EventDetailsModal from '@/app/admin/events/_components/EventDetailsModal';
 
@@ -29,6 +30,9 @@ export default function ModalRoot() {
 					{activeModal === ModalType.Confirm && <ConfirmModal key="confirm" />}
 					{activeModal === ModalType.EditProfile && <EditProfileModal key="edit-profile" />}
 					{activeModal === ModalType.CreateBooking && <CreateBookingModal key="create-booking" />}
+					{activeModal === ModalType.CreateManualBooking && (
+						<CreateManualBookingModal key="create-manual-booking" />
+					)}
 					{activeModal === ModalType.BookingDetails && <BookingDetailsModal key="booking-details" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}

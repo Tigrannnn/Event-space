@@ -14,6 +14,7 @@ export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreat
   image: z.string().optional().nullable(),
   role: z.lazy(() => UserRoleSchema).optional(),
   emailVerified: z.boolean().optional(),
+  isShadow: z.boolean().optional(),
   googleId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

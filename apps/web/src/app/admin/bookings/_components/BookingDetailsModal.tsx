@@ -4,8 +4,9 @@ import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import type { BookingWithDetails, Event } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
+import { Copy } from 'lucide-react';
+import { useToastStore, ToastType } from '@/stores/toastStore';
 
 function formatCurrency(value: number | string) {
 	return new Intl.NumberFormat('en', {
@@ -18,9 +19,11 @@ function formatCurrency(value: number | string) {
 
 export default function BookingDetailsModal() {
 	const { closeModal } = useModalStore();
+	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.event;
+	
 
 	if (!booking || !event) {
 		return null;
@@ -29,6 +32,11 @@ export default function BookingDetailsModal() {
 	const adjustments = booking.adjustments ?? [];
 	const eventImages = event?.images ?? [];
 	const totalAmount = event ? Number(event.price) * booking.quantity : 0;
+
+	const handleCopyId = () => {
+		navigator.clipboard.writeText(booking.id);
+		addToast('Booking ID copied to clipboard', ToastType.SUCCESS);
+	};
 
 	return (
 		<Modal onClose={closeModal} size="xl" ariaLabel="Booking details">
@@ -58,7 +66,20 @@ export default function BookingDetailsModal() {
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 								Booking summary
 							</p>
-							<div className="mt-4 grid gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+							<div className="mt-4 flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
+								<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
+									{booking.id}
+								</code>
+								<button
+									type="button"
+									onClick={handleCopyId}
+									className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+									title="Copy ID"
+								>
+									<Copy className="h-4 w-4" />
+								</button>
+							</div>
+							<div className="mt-3 grid gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										Status

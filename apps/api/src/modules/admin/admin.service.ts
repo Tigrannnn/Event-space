@@ -18,6 +18,7 @@ const safeUserSelect = {
 	image: true,
 	role: true,
 	emailVerified: true,
+	isShadow: true,
 	createdAt: true,
 	updatedAt: true,
 };

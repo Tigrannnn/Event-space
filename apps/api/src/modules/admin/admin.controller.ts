@@ -9,11 +9,19 @@ import {
 	Param,
 	Body,
 	Delete,
+	Post,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import {
+	ApiTags,
+	ApiOperation,
+	ApiBearerAuth,
+	ApiQuery,
+	ApiResponse,
+	ApiBody,
+} from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { EventService } from '@modules/event/event.service';
-import { Roles, RolesGuard, GetCurrentUserId } from '@shared';
+import { Roles, RolesGuard, GetCurrentUserId, ZodValidationPipe } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
@@ -22,6 +30,7 @@ import {
 	EventDifficultyEnum,
 	UserRoleSchema,
 	TimeFilterSchema,
+	CreateManualBookingSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type {
@@ -30,7 +39,10 @@ import type {
 	EventStatus,
 	UserRoleType,
 	TimeFilterType,
+	CreateManualBookingData,
 } from '@event-space/shared';
+import { BookingService } from '@modules/booking/booking.service';
+import { getReference } from '@infra/swagger/swagger.utils';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -40,6 +52,7 @@ import type {
 export class AdminController {
 	constructor(
 		private readonly adminService: AdminService,
+		private readonly bookingService: BookingService,
 		private readonly rateLimiter: RateLimiterService,
 	) {}
 
@@ -206,5 +219,25 @@ export class AdminController {
 		);
 		await this.adminService.deleteUser(id);
 		return { message: 'User deleted successfully' };
+	}
+
+	@Post('bookings/manual')
+	@ApiOperation({ summary: 'Create a booking manually (offline payment, admin only)' })
+	@ApiResponse({ status: 201, description: 'Booking created successfully' })
+	@ApiResponse({ status: 404, description: 'Event not found' })
+	@ApiResponse({ status: 409, description: 'Already booked or no spots available' })
+	@ApiBody(getReference('CreateManualBookingSchema'))
+	async createManualBooking(
+		@GetCurrentUserId() adminId: string,
+		@Body(new ZodValidationPipe(CreateManualBookingSchema)) data: CreateManualBookingData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingService.createManualBooking(adminId, data);
 	}
 }
