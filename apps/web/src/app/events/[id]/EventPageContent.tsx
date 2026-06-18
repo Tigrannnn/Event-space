@@ -14,7 +14,6 @@ import { Event, getEventImageUrls } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
-import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -47,7 +46,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	};
 
 	return (
-		<div className="min-h-screen">
+		<div className="min-h-full">
 			{/* Hero Section */}
 			<section className="relative flex min-h-45 w-full items-center overflow-hidden sm:h-[40vh] lg:h-[50vh]">
 				{/* Image Gallery */}

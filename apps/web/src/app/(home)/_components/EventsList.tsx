@@ -2,13 +2,13 @@
 
 import { useCallback, useMemo, useEffect } from 'react';
 import { EventCard } from '@/features/events';
-import EventCardSkeleton from './EventCardSkeleton';
 import EventsGridSkeleton from './EventsGridSkeleton';
 import { useEvents } from '@/features/events';
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 import LoadMoreTrigger from './LoadMoreTrigger';
 import type { Event } from '@event-space/shared';
 import HomeError from '../error';
+import PageState from '@/components/ui/PageState';
 
 interface EventsListProps {
 	initialEvents: Event[];
@@ -45,8 +45,6 @@ export default function EventsList({
 		isFetchingNextPage,
 		isLoading,
 		isError,
-		error,
-		refetch,
 	} = useEvents({
 		limit: 8,
 		search: searchQuery,
@@ -86,15 +84,13 @@ export default function EventsList({
 
 	// Error state
 	if (isError) {
-		return (
-			<HomeError />
-		);
+		return <HomeError />;
 	}
 
 	// Empty state
 	if (!events?.length) {
 		return (
-			<div className="flex min-h-screen items-center justify-center">
+			<PageState>
 				<div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-gray-700 dark:bg-gray-800">
 					<p className="text-primary mb-2 text-lg font-black uppercase sm:text-xl">
 						{searchQuery ? 'No Events Found' : 'No Events Yet'}
@@ -105,7 +101,7 @@ export default function EventsList({
 							: 'Check back later for upcoming events.'}
 					</p>
 				</div>
-			</div>
+			</PageState>
 		);
 	}
 

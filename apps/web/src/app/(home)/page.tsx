@@ -18,7 +18,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 	});
 
 	return (
-		<div className="min-h-[85vh] px-4 sm:px-6 lg:px-8">
+		<div className="min-h-full px-4 sm:px-6 lg:px-8">
 			<EventsList
 				initialEvents={initialData.data}
 				initialNextCursor={initialData.nextCursor}

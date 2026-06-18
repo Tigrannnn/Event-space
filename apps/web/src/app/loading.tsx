@@ -1,9 +1,10 @@
 import LoadingSpinner from '@/components/ui/loaders/LoadingSpinner';
+import PageState from '@/components/ui/PageState';
 
 export default function Loading() {
 	return (
-		<div className="flex min-h-[60vh] items-center justify-center">
+		<PageState>
 			<LoadingSpinner />
-		</div>
+		</PageState>
 	);
 }

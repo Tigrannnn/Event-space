@@ -1,7 +1,8 @@
 import { EnvKey } from '@event-space/shared';
 import axios from 'axios';
 
-const BASE_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
+const SERVER_API_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
+const BASE_URL = typeof window === 'undefined' ? SERVER_API_URL : '/api';
 
 const clientApi = axios.create({
 	baseURL: BASE_URL,

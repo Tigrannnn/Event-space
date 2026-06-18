@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 
+const API_URL = process.env.API_URL || 'http://localhost:5000';
+
 const nextConfig: NextConfig = {
 	output: 'standalone',
 	transpilePackages: ['@event-space/shared'],
@@ -31,6 +33,14 @@ const nextConfig: NextConfig = {
 	},
 	turbopack: {
 		resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+	},
+	async rewrites() {
+		return [
+			{
+				source: '/api/:path*',
+				destination: `${API_URL}/:path*`,
+			},
+		];
 	},
 };
 

@@ -2,7 +2,7 @@ import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 
 export default function EventDetailSkeleton() {
 	return (
-		<main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+		<div className="min-h-full bg-gray-50 dark:bg-gray-900">
 			{/* Hero Skeleton */}
 			<section className="relative h-125 w-full">
 				<Skeleton className="h-full w-full" />
@@ -47,6 +47,6 @@ export default function EventDetailSkeleton() {
 					</div>
 				</div>
 			</div>
-		</main>
+		</div>
 	);
 }

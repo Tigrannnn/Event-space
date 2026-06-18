@@ -1,10 +1,11 @@
 import Button from '@/components/ui/Buttons';
 import { Home } from 'lucide-react';
 import Link from 'next/link';
+import PageState from '@/components/ui/PageState';
 
 export default function NotFound() {
 	return (
-		<main className="from-primary/10 to-accent/10 flex min-h-[85vh] items-center justify-center bg-linear-to-br px-4">
+		<PageState className="from-primary/10 to-accent/10 bg-linear-to-br">
 			<div className="max-w-md text-center">
 				<h1 className="text-primary text-[120px] leading-none font-black sm:text-[150px] md:text-[180px]">
 					404
@@ -22,6 +23,6 @@ export default function NotFound() {
 					</Button>
 				</Link>
 			</div>
-		</main>
+		</PageState>
 	);
 }

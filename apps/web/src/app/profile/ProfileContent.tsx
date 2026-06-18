@@ -18,15 +18,17 @@ import { SafeUserData } from '@event-space/shared';
 import { useCurrentUser, useDeleteCurrentUser } from '@/features/users';
 import { useLogout } from '@/features/auth';
 import ProfileSkeleton from './ProfileSkeleton';
+import PageState from '@/components/ui/PageState';
 
 interface ProfileContentProps {
 	initialUser: SafeUserData | null;
 }
 
 export default function ProfileContent({ initialUser }: ProfileContentProps) {
+	const hasInitialUser = initialUser !== null;
 	const { data: user, isLoading } = useCurrentUser({
-		initialData: initialUser || undefined,
-		enabled: !!initialUser,
+		initialData: initialUser ?? undefined,
+		enabled: hasInitialUser,
 	});
 	const { mutate: deleteAccount, isPending: isDeleting } = useDeleteCurrentUser();
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
@@ -34,30 +36,23 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const router = useRouter();
 	const confirm = useConfirm();
 
-	if (isLoading) {
+	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
 	}
 
 	// Show login prompt for unauthenticated users
 	if (!user) {
 		return (
-			<div className="flex min-h-full items-center justify-center px-4">
-				<div className="mx-auto max-w-md text-center">
-					{/* Icon */}
+			<PageState
+				icon={
 					<div className="bg-primary/10 shadow-primary/10 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full shadow-lg sm:mb-8 sm:h-36 sm:w-36">
 						<User className="text-primary h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
 					</div>
-
-					{/* Heading */}
-					<h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 sm:text-3xl">
-						Welcome Back!
-					</h2>
-					<p className="mt-3 text-base text-gray-500 dark:text-gray-400 sm:text-lg">
-						Sign in to access your profile, manage events, and more.
-					</p>
-
-					{/* CTA Buttons */}
-					<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+				}
+				title="Welcome Back!"
+				description="Sign in to access your profile, manage events, and more."
+				actions={
+					<>
 						<Button variant="primary" size="lg" onClick={() => openModal(ModalType.Register)}>
 							Create Account
 						</Button>
@@ -69,12 +64,11 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 						>
 							Log In
 						</Button>
-					</div>
-
-					{/* Decorative bottom accent */}
-					<div className="bg-primary/5 mx-auto mt-10 h-1 w-24 rounded-full sm:mt-12" />
-				</div>
-			</div>
+					</>
+				}
+			>
+				<div className="bg-primary/5 mx-auto mt-10 h-1 w-24 rounded-full sm:mt-12" />
+			</PageState>
 		);
 	}
 

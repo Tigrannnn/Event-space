@@ -30,14 +30,19 @@ async function bootstrap() {
 	app.useGlobalFilters(new ZodExceptionFilter());
 	app.getHttpAdapter().getInstance().set('trust proxy', true);
 
-	const origins = configService.get<string[]>(EnvKey.ALLOWED_ORIGINS);
+	const origins = configService
+		.get<string[]>(EnvKey.ALLOWED_ORIGINS)
+		?.concat(
+			configService.get<string>(EnvKey.FRONTEND_URL) ?? '',
+			configService.get<string>(EnvKey.API_URL) ?? '',
+		);
 
 	app.enableCors({
 		origin: origins,
 		credentials: true,
 	});
 
-	if(configService.get<string>(EnvKey.NODE_ENV) !== 'production') {
+	if (configService.get<string>(EnvKey.NODE_ENV) !== 'production') {
 		const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger');
 
 		const config = new DocumentBuilder()
@@ -57,7 +62,6 @@ async function bootstrap() {
 
 			console.log(`[Main] Injected ${Object.keys(zodSchemas).length} Zod schemas into Swagger`);
 		}
-		
 
 		SwaggerModule.setup('api', app, document);
 	}
