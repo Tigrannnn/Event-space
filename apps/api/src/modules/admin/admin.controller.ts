@@ -10,6 +10,7 @@ import {
 	Body,
 	Delete,
 	Post,
+	BadRequestException,
 } from '@nestjs/common';
 import {
 	ApiTags,
@@ -62,6 +63,16 @@ export class AdminController {
 		return this.adminService.getDashboardStats();
 	}
 
+	@Get('bookings/by-reference/:ref')
+	@ApiOperation({ summary: 'Find booking by reference number' })
+	async getBookingByReference(@Param('ref') ref: string) {
+		const referenceNumber = parseInt(ref, 10);
+		if (isNaN(referenceNumber)) {
+			throw new BadRequestException('Invalid reference number');
+		}
+		return this.adminService.findBookingByReference(referenceNumber);
+	}
+
 	@Get('bookings')
 	@ApiOperation({ summary: 'Get all bookings with pagination (admin only)' })
 	@ApiQuery({ name: 'skip', required: false, description: 'Items to skip', type: Number })
@@ -109,6 +120,22 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
 		return this.adminService.updateBookingStatus(id, status);
+	}
+
+	@Post('bookings/:id/checkin')
+	@ApiOperation({ summary: 'Check in a booking' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async checkInBooking(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.adminService.checkInBooking(id);
 	}
 
 	@Get('events')

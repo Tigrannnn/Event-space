@@ -12,6 +12,8 @@ import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EnumPaymentMethodFilterSchema } from './EnumPaymentMethodFilterSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { StringNullableFilterSchema } from './StringNullableFilterSchema';
+import { IntNullableFilterSchema } from './IntNullableFilterSchema';
+import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 
 export const BookingScalarWhereInputSchema: z.ZodType<Prisma.BookingScalarWhereInput> = z.object({
   AND: z.union([ z.lazy(() => BookingScalarWhereInputSchema), z.lazy(() => BookingScalarWhereInputSchema).array() ]).optional(),
@@ -28,6 +30,8 @@ export const BookingScalarWhereInputSchema: z.ZodType<Prisma.BookingScalarWhereI
   paymentMethod: z.union([ z.lazy(() => EnumPaymentMethodFilterSchema), z.lazy(() => PaymentMethodSchema) ]).optional(),
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   paymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  referenceNumber: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),
+  checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
 }).strict();
 
 export default BookingScalarWhereInputSchema;

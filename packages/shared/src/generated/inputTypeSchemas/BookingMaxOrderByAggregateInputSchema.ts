@@ -15,6 +15,8 @@ export const BookingMaxOrderByAggregateInputSchema: z.ZodType<Prisma.BookingMaxO
   paymentMethod: z.lazy(() => SortOrderSchema).optional(),
   createdByAdminId: z.lazy(() => SortOrderSchema).optional(),
   paymentIntentId: z.lazy(() => SortOrderSchema).optional(),
+  referenceNumber: z.lazy(() => SortOrderSchema).optional(),
+  checkedInAt: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export default BookingMaxOrderByAggregateInputSchema;

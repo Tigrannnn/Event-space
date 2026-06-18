@@ -12,6 +12,7 @@ import type {
 	UserFilters,
 	EventStatus,
 	DashboardStats,
+	BookingWithDetails,
 } from '@event-space/shared';
 
 export const adminApi = {
@@ -20,6 +21,10 @@ export const adminApi = {
 		clientApi.get<PaginatedResponse<Booking>>('/admin/bookings', { params }),
 	updateBookingStatus: (id: string, status: Booking['status']) =>
 		clientApi.patch<Booking>(`/admin/bookings/${id}/status`, { status }),
+	getBookingByReference: (ref: number) =>
+		clientApi.get<BookingWithDetails>(`/admin/bookings/by-reference/${ref}`),
+	checkInBooking: (id: string) =>
+		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`),
 	getEvents: (params?: EventFilters) =>
 		clientApi.get<PaginatedResponse<Event>>('/admin/events', { params }),
 	createEvent: (formData: FormData) =>

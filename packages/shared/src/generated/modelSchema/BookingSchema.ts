@@ -19,6 +19,8 @@ export const BookingSchema = z.object({
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}),
   createdByAdminId: z.string().nullable(),
   paymentIntentId: z.string().nullable(),
+  referenceNumber: z.number().int().nullable(),
+  checkedInAt: z.coerce.date().nullable(),
 })
 
 export type Booking = z.infer<typeof BookingSchema>

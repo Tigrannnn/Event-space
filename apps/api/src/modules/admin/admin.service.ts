@@ -316,6 +316,28 @@ export class AdminService {
 		};
 	}
 
+	async findBookingByReference(referenceNumber: number) {
+		const booking = await this.prisma.booking.findUnique({
+			where: { referenceNumber },
+			include: bookingInclude,
+		});
+		if (!booking) throw new NotFoundException('Booking not found');
+		return booking;
+	}
+
+	async checkInBooking(bookingId: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+		if (!booking) throw new NotFoundException('Booking not found');
+		if (booking.status !== 'CONFIRMED') throw new ConflictException('Booking is not confirmed');
+		if (booking.checkedInAt) throw new ConflictException('Already checked in');
+
+		return this.prisma.booking.update({
+			where: { id: bookingId },
+			data: { checkedInAt: new Date() },
+			include: bookingInclude,
+		});
+	}
+
 	async updateBookingStatus(id: string, status: BookingStatus) {
 		return this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({

@@ -5,6 +5,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { formatDateTime } from '@/utils/date';
+import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 
@@ -23,7 +24,6 @@ export default function BookingDetailsModal() {
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.event;
-	
 
 	if (!booking || !event) {
 		return null;
@@ -80,6 +80,22 @@ export default function BookingDetailsModal() {
 								</button>
 							</div>
 							<div className="mt-3 grid gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Reference
+									</p>
+									<p className="text-primary mt-1 font-medium">
+										{formatBookingReference(booking.referenceNumber)}
+									</p>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										Checkout reference
+									</p>
+									<p className="mt-1 font-medium">
+										{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
+									</p>
+								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										Status

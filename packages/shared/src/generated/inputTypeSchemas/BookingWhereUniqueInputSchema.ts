@@ -14,6 +14,7 @@ import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EnumPaymentMethodFilterSchema } from './EnumPaymentMethodFilterSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { StringNullableFilterSchema } from './StringNullableFilterSchema';
+import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
@@ -24,6 +25,17 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   z.object({
     id: z.uuid(),
     paymentIntentId: z.string(),
+    referenceNumber: z.number().int(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    id: z.uuid(),
+    paymentIntentId: z.string(),
+    referenceNumber: z.number().int(),
+  }),
+  z.object({
+    id: z.uuid(),
+    paymentIntentId: z.string(),
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
   }),
   z.object({
@@ -32,6 +44,15 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   }),
   z.object({
     id: z.uuid(),
+    referenceNumber: z.number().int(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    id: z.uuid(),
+    referenceNumber: z.number().int(),
+  }),
+  z.object({
+    id: z.uuid(),
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
   }),
   z.object({
@@ -39,10 +60,26 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   }),
   z.object({
     paymentIntentId: z.string(),
+    referenceNumber: z.number().int(),
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
   }),
   z.object({
     paymentIntentId: z.string(),
+    referenceNumber: z.number().int(),
+  }),
+  z.object({
+    paymentIntentId: z.string(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    paymentIntentId: z.string(),
+  }),
+  z.object({
+    referenceNumber: z.number().int(),
+    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+  }),
+  z.object({
+    referenceNumber: z.number().int(),
   }),
   z.object({
     userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
@@ -51,6 +88,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
 .and(z.object({
   id: z.uuid().optional(),
   paymentIntentId: z.string().optional(),
+  referenceNumber: z.number().int().optional(),
   userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => BookingWhereInputSchema), z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingWhereInputSchema).array().optional(),
@@ -64,6 +102,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   amount: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   paymentMethod: z.union([ z.lazy(() => EnumPaymentMethodFilterSchema), z.lazy(() => PaymentMethodSchema) ]).optional(),
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),

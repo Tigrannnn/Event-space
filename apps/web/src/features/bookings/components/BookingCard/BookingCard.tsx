@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
+import { formatBookingReference } from '@/utils/booking';
 import { Calendar, MapPin, Users } from 'lucide-react';
 import { getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
@@ -109,6 +110,15 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					{event.title}
 				</Link>
 
+				<div className="mb-3 flex items-center gap-2">
+					<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
+						Booking ref
+					</span>
+					<span className="text-primary font-mono text-lg font-bold">
+						{formatBookingReference(booking.referenceNumber)}
+					</span>
+				</div>
+
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
@@ -116,7 +126,18 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					</div>
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />
-						<span>{event.location}</span>
+						{event.locationUrl ? (
+							<a
+								href={event.locationUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-primary relative z-20 cursor-pointer text-left underline underline-offset-2 transition-colors"
+							>
+								{event.location}
+							</a>
+						) : (
+							<span>{event.location}</span>
+						)}
 					</div>
 				</div>
 

@@ -26,6 +26,7 @@ import { BookingStatusEnum, TimeFilterSchema } from '@event-space/shared';
 import { ModalType } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import { BOOKING_STATUS_LABELS, TIME_FILTER_LABELS } from '@/constants/mappers';
+import { formatBookingReference } from '@/utils/booking';
 
 const statusFilterOptions = [
 	{ value: '', label: 'All statuses' },
@@ -220,6 +221,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableHead>Status</TableHead>
 						<TableHead>Qty</TableHead>
 						<TableHead>Total</TableHead>
+						<TableHead>Reference</TableHead>
 						<TableHead>Booked</TableHead>
 						<TableHead>Actions</TableHead>
 					</TableRow>
@@ -268,6 +270,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 							<TableCell>{booking.quantity}</TableCell>
 							<TableCell>
 								{booking.event ? formatCurrency(booking.event.price, booking.quantity) : '—'}
+							</TableCell>
+							<TableCell>
+								<p>{formatBookingReference(booking.referenceNumber)}</p>
 							</TableCell>
 							<TableCell>
 								<div className="flex items-center gap-2 text-sm">

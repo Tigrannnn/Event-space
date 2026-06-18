@@ -122,6 +122,8 @@ model Booking {
   createdByAdminId String?       @map("created_by_admin_id")
 
   paymentIntentId String? @unique @map("payment_intent_id")
+  referenceNumber Int?    @unique @map("reference_number")
+  checkedInAt     DateTime? @map("checked_in_at")
 
   user        User                @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
   event       Event               @relation("event_bookings", fields: [eventId], references: [id], onDelete: Cascade)
@@ -131,6 +133,13 @@ model Booking {
   @@index([userId])
   @@index([eventId])
   @@map("bookings")
+}
+
+model BookingReference {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("booking_references")
 }
 
 

@@ -24,6 +24,7 @@ import {
 	StripePaymentIntent,
 } from '@infra/stripe/stripe.types';
 import { CreateManualBookingData } from '@event-space/shared';
+import { getNextBookingReference } from './booking-reference';
 
 @Injectable()
 export class BookingService {
@@ -182,24 +183,25 @@ export class BookingService {
 
 			const amount = Number(event.price) * quantity;
 
+			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
+
+			const bookingData = {
+				status: 'CONFIRMED' as const,
+				quantity,
+				amount,
+				paymentIntentId: null,
+				paymentMethod: 'OFFLINE' as const,
+				createdByAdminId: adminId,
+				referenceNumber,
+			};
+
 			const booking = await tx.booking.upsert({
 				where: { userId_eventId: { userId: targetUserId, eventId } },
-				update: {
-					status: 'CONFIRMED',
-					quantity,
-					amount,
-					paymentIntentId: null,
-					paymentMethod: 'OFFLINE',
-					createdByAdminId: adminId,
-				},
+				update: bookingData,
 				create: {
 					userId: targetUserId,
 					eventId,
-					status: 'CONFIRMED',
-					quantity,
-					amount,
-					paymentMethod: 'OFFLINE',
-					createdByAdminId: adminId,
+					...bookingData,
 				},
 			});
 

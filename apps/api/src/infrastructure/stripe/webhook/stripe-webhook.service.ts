@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '../stripe.service';
 import { Prisma } from '@prisma/client';
+import { getNextBookingReference } from '../../../modules/booking/booking-reference';
 
 type StripePaymentIntentPayload = {
 	id: string;
@@ -115,9 +116,11 @@ export class StripeWebhookService {
 				};
 			}
 
+			const referenceNumber = await getNextBookingReference(tx);
+
 			await tx.booking.update({
 				where: { id: bookingId },
-				data: { status: 'CONFIRMED', paymentIntentId },
+				data: { status: 'CONFIRMED', paymentIntentId, referenceNumber },
 			});
 
 			await tx.bookingAdjustment.create({

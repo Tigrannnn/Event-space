@@ -108,7 +108,7 @@ export default function EventCard({ event }: EventCardProps) {
 						<Button disabled variant="secondary" className="relative z-20 w-full">
 							Event Ended
 						</Button>
-					) : isUserLoading && isMyBookingsLoading ? (
+					) : isUserLoading || isMyBookingsLoading ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
