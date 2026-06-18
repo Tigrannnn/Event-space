@@ -4,7 +4,10 @@ import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSche
 import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
 import { TimeFilterSchema } from './common.schema';
 import { SafeUserSchema } from './user.schema';
-import { CancellationPolicyRuleInputSchema, CancellationPolicyRuleSchema } from './cancellation-policy-rule.schema';
+import {
+	CancellationPolicyRuleInputSchema,
+	CancellationPolicyRuleSchema,
+} from './cancellation-policy-rule.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -22,7 +25,7 @@ export const EventImageSchema = z.object({
 export type EventImage = z.infer<typeof EventImageSchema>;
 
 export const EventSchema = GeneratedEventSchema.extend({
-	price: z.number().openapi({ example: 5000 }),
+	price: z.number(),
 	images: z.array(EventImageSchema).optional(),
 	organizer: SafeUserSchema.optional(),
 	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
@@ -36,7 +39,7 @@ export const EventSchema = GeneratedEventSchema.extend({
 		location: 'Almaty, Kazakhstan',
 		date: new Date('2026-06-15T10:00:00Z'),
 		difficulty: 'MODERATE',
-		price: 5000,
+		price: 50,
 		maxParticipants: 100,
 		category: 'hiking',
 		whatsIncluded: ['Guide', 'Water', 'Snacks'],

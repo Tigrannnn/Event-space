@@ -8,7 +8,9 @@ import { BookingAdjustmentSchema } from './booking-adjustment.schema';
 export const BookingStatusEnum = BookingStatusSchema;
 export type BookingStatus = z.infer<typeof BookingStatusEnum>;
 
-export const BookingSchema = GeneratedBookingSchema.openapi({
+export const BookingSchema = GeneratedBookingSchema.extend({
+	amount: z.number(),
+}).openapi({
 	description: 'Booking information',
 	example: {
 		id: '550e8400-e29b-41d4-a716-446655440001',
@@ -16,6 +18,7 @@ export const BookingSchema = GeneratedBookingSchema.openapi({
 		eventId: '550e8400-e29b-41d4-a716-446655440002',
 		status: BookingStatusSchema.enum.CONFIRMED,
 		quantity: 2,
+		amount: 50,
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 	},

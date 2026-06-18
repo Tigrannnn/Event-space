@@ -179,6 +179,7 @@ export class AdminService {
 			},
 			recentBookings: recentBookings.map((b) => ({
 				...b,
+				amount: Number(b.amount),
 				event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
 			})),
 			recentUsers,
