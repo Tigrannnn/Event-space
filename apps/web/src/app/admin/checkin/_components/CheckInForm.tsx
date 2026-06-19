@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/features/admin/api/admin.api';
 import Button from '@/components/ui/Buttons/Button';
+import { useI18nStore } from '@/stores/i18n';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { Calendar, MapPin, Users, CheckCircle, XCircle } from 'lucide-react';
 
 export default function CheckInForm() {
+	const { translate } = useI18nStore();
 	const [input, setInput] = useState('');
 	const [ref, setRef] = useState<number | null>(null);
 	const { addToast } = useToastStore();
@@ -36,7 +38,7 @@ export default function CheckInForm() {
 	const handleSearch = () => {
 		const num = parseInt(input.replace('#', '').trim(), 10);
 		if (isNaN(num)) {
-			addToast('Invalid reference number', ToastType.ERROR);
+			addToast(translate('admin.invalidReference'), ToastType.ERROR);
 			return;
 		}
 		setRef(num);
@@ -63,7 +65,7 @@ export default function CheckInForm() {
 
 			{isError && (
 				<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
-					Booking not found
+				{translate('admin.bookingNotFound')}
 				</div>
 			)}
 
@@ -120,13 +122,13 @@ export default function CheckInForm() {
 
 					{isCancelled && (
 						<p className="text-sm font-medium text-red-600 dark:text-red-400">
-							Booking cancelled — entry not allowed
+								{translate('admin.bookingCancelled')}
 						</p>
 					)}
 
 					{isCheckedIn && (
 						<p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
-							Already checked in at {formatDateTime(booking.checkedInAt!)}
+								{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!)}
 						</p>
 					)}
 

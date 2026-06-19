@@ -181,6 +181,7 @@ export class AdminService {
 				...b,
 				amount: Number(b.amount),
 				event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
+				adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })),
 			})),
 			recentUsers,
 			recentEvents: recentEvents.map((e) => ({

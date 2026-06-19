@@ -7,14 +7,6 @@ import { LayoutDashboard, Calendar, Users, LogOut, Ticket, CheckCircle, X } from
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useI18nStore } from '@/stores/i18n';
 
-const navItems = [
-	{ href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-	{ href: '/admin/events', label: 'Events', icon: Calendar },
-	{ href: '/admin/bookings', label: 'Bookings', icon: Ticket },
-	{ href: '/admin/checkin', label: 'Check In', icon: CheckCircle },
-	{ href: '/admin/users', label: 'Users', icon: Users },
-];
-
 interface AdminSidebarProps {
 	mobileOpen?: boolean;
 	onNavigate?: () => void;
@@ -22,8 +14,16 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSidebarProps) {
 	const pathname = usePathname();
-	const { locale } = useI18nStore();
+	const { locale, translate } = useI18nStore();
 	const internalPathname = stripLocaleFromPathname(pathname);
+
+	const navItems = [
+		{ href: '/admin/dashboard', label: translate('admin.dashboard'), icon: LayoutDashboard },
+		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
+		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
+		{ href: '/admin/checkin', label: translate('admin.checkIn'), icon: CheckCircle },
+		{ href: '/admin/users', label: translate('admin.users'), icon: Users },
+	];
 
 	return (
 		<aside
@@ -34,7 +34,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 			)}
 		>
 			<div className="flex items-center justify-between border-b border-gray-300 p-4 lg:hidden dark:border-gray-700">
-				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Admin Panel</p>
+				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('admin.adminPanel')}</p>
 				<button
 					type="button"
 					onClick={onNavigate}
@@ -76,7 +76,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 					className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100"
 				>
 					<LogOut className="h-5 w-5 shrink-0" />
-					Exit to Site
+					{translate('admin.exitToSite')}
 				</Link>
 			</div>
 		</aside>

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
+import { useI18nStore } from '@/stores/i18n';
 import {
 	Table,
 	TableBody,
@@ -68,6 +69,7 @@ function formatCurrency(price: number | string, quantity: number) {
 }
 
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
+	const { translate } = useI18nStore();
 	const [skip, setSkip] = useState(initialBookings.skip);
 	const [limit, setLimit] = useState(initialBookings.take);
 	const searchParams = useSearchParams();
@@ -179,7 +181,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 							<input
 								value={searchInput}
 								onChange={(event) => setSearchInput(event.target.value)}
-								placeholder="Search user, email, event, location"
+								placeholder={translate('admin.searchPlaceholder')}
 								className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
 							/>
 						</div>
@@ -192,21 +194,35 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<Select
 							value={status ?? ''}
 							onValueChange={handleStatusFilterChange}
-							options={statusFilterOptions}
+							options={[
+								{ value: '', label: translate('admin.allStatuses') },
+								...BookingStatusEnum.options.map((s) => ({
+									value: s,
+									label: BOOKING_STATUS_LABELS[s],
+								})),
+							]}
 						/>
 
 						<Select
 							value={time ?? ''}
 							onValueChange={handleTimeFilterChange}
-							options={timeFilterOptions}
+							options={[
+								{ value: '', label: translate('admin.anyTime') },
+								...TimeFilterSchema.options.map((t) => ({
+									value: t,
+									label: TIME_FILTER_LABELS[t],
+								})),
+							]}
 						/>
 
-						<Select value={limit} onValueChange={handlePageSizeChange} options={pageSizeOptions} />
+						<Select value={limit} onValueChange={handlePageSizeChange} options={[
+							...pageSizeOptions.map(ps => ({...ps, label: `${ps.value} ${translate('admin.pageSize')}`}))
+						]} />
 
 						{hasActiveFilters && (
 							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
 								<X className="h-4 w-4" />
-								Reset
+								{translate('admin.reset')}
 							</Button>
 						)}
 					</div>
@@ -216,14 +232,14 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead className="px-3 sm:px-5">Customer</TableHead>
-						<TableHead>Event</TableHead>
-						<TableHead>Status</TableHead>
-						<TableHead>Qty</TableHead>
-						<TableHead>Total</TableHead>
-						<TableHead>Reference</TableHead>
-						<TableHead>Booked</TableHead>
-						<TableHead>Actions</TableHead>
+						<TableHead className="px-3 sm:px-5">{translate('admin.customer')}</TableHead>
+						<TableHead>{translate('admin.event')}</TableHead>
+						<TableHead>{translate('admin.status')}</TableHead>
+						<TableHead>{translate('admin.qty')}</TableHead>
+						<TableHead>{translate('admin.total')}</TableHead>
+						<TableHead>{translate('admin.reference')}</TableHead>
+						<TableHead>{translate('admin.booked')}</TableHead>
+						<TableHead>{translate('admin.actions')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>

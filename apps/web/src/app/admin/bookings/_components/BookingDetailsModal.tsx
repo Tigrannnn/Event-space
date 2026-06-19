@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
+import { useI18nStore } from '@/stores/i18n';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
@@ -19,6 +20,7 @@ function formatCurrency(value: number | string) {
 }
 
 export default function BookingDetailsModal() {
+	const { translate } = useI18nStore();
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.BookingDetails);
@@ -35,13 +37,13 @@ export default function BookingDetailsModal() {
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(booking.id);
-		addToast('Booking ID copied to clipboard', ToastType.SUCCESS);
+		addToast(translate('admin.copyId'), ToastType.SUCCESS);
 	};
 
 	return (
 		<Modal onClose={closeModal} size="xl" ariaLabel="Booking details">
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
-				<ModalHeader title="Booking details" onClose={closeModal} />
+				<ModalHeader title={translate('admin.bookingDetails')} onClose={closeModal} />
 
 				<div className="grid gap-6">
 					<div className="space-y-6">
@@ -64,7 +66,7 @@ export default function BookingDetailsModal() {
 
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-								Booking summary
+							{translate('admin.bookingSummary')}
 							</p>
 							<div className="mt-4 flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
 								<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
@@ -178,7 +180,7 @@ export default function BookingDetailsModal() {
 					<div className="space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-								Event details
+							{translate('admin.eventDetails')}
 							</p>
 							<div className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-200">
 								<div>
@@ -192,7 +194,7 @@ export default function BookingDetailsModal() {
 								<div className="grid gap-3 sm:grid-cols-2">
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Date
+												{translate('event.date')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
 											{event ? formatDateTime(event.date) : '—'}
@@ -200,7 +202,7 @@ export default function BookingDetailsModal() {
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Duration
+												{translate('event.duration')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
 											{event?.duration ? `${event.duration} min` : '—'}
@@ -208,7 +210,7 @@ export default function BookingDetailsModal() {
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Difficulty
+												{translate('event.difficulty')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
 											{event?.difficulty ?? '—'}
@@ -216,7 +218,7 @@ export default function BookingDetailsModal() {
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Status
+												{translate('admin.status')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">{event?.status ?? '—'}</p>
 									</div>
@@ -224,7 +226,7 @@ export default function BookingDetailsModal() {
 								{event?.whatsIncluded?.length ? (
 									<div>
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Included
+												{translate('admin.included')}
 										</p>
 										<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 											{event.whatsIncluded.map((item) => (
@@ -241,7 +243,7 @@ export default function BookingDetailsModal() {
 								{event?.description && (
 									<div>
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											Description
+												{translate('admin.description')}
 										</p>
 										<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
 											{event.description}

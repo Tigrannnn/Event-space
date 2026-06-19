@@ -6,12 +6,14 @@ import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input/Input';
 import { useModalStore } from '@/stores';
+import { useI18nStore } from '@/stores/i18n';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
 import type { CreateManualBookingData } from '@event-space/shared';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 
 export default function CreateManualBookingModal() {
+	const { translate } = useI18nStore();
 	const { closeModal } = useModalStore();
 	const { mutate: createManualBooking, isPending } = useCreateManualBooking();
 	const [formState, setFormState] = useState<CreateManualBookingData>({
@@ -38,7 +40,7 @@ export default function CreateManualBookingModal() {
 		};
 
 		if (!data.eventId) {
-			setError('Please select an event');
+			setError(translate('admin.invalidReference'));
 			return;
 		}
 
@@ -59,7 +61,7 @@ export default function CreateManualBookingModal() {
 	return (
 		<Modal onClose={closeModal} ariaLabel="Create manual booking" size="md">
 			<div className="p-5 sm:p-6">
-				<ModalHeader title="Create manual booking" onClose={closeModal} />
+				<ModalHeader title={translate('admin.createManualBooking')} onClose={closeModal} />
 
 				<div className="grid gap-4">
 					<EventSearchSelect
@@ -95,10 +97,10 @@ export default function CreateManualBookingModal() {
 
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row">
 					<Button onClick={closeModal} variant="secondary" size="md" disabled={isPending}>
-						Cancel
+						{translate('admin.reset')}
 					</Button>
 					<Button onClick={handleSubmit} variant="primary" size="md" isLoading={isPending}>
-						Create booking
+						{translate('admin.createManualBooking')}
 					</Button>
 				</div>
 			</div>

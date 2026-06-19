@@ -9,7 +9,7 @@ import {
 } from '@/lib/i18n/config';
 
 const BASE_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
-// Обновляем токен за 30 секунд до истечения, чтобы избежать expired-запросов
+
 const REFRESH_BEFORE_EXPIRY_SECONDS = 30;
 const LOCALE_COOKIE = 'event-space-locale';
 
