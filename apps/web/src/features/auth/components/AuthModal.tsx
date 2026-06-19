@@ -9,6 +9,7 @@ import { ModalType, useModalStore } from '@/stores';
 import VerifyEmailForm from './VerifyEmailForm';
 import { authModalConfig } from './authModalConfig';
 import ForgotPasswordForm from './ForgotPasswordForm';
+import { useI18nStore } from '@/stores/i18n';
 
 /**
  * AuthModal wraps LoginForm or RegisterForm with the universal Modal component.
@@ -16,13 +17,8 @@ import ForgotPasswordForm from './ForgotPasswordForm';
  */
 export default function AuthModal() {
 	const { activeModal, openModal, closeModal } = useModalStore();
+	const { translate } = useI18nStore();
 
-	const authTypes = [
-		ModalType.Login,
-		ModalType.Register,
-		ModalType.VerifyEmail,
-		ModalType.ForgotPassword,
-	];
 	const config = authModalConfig[activeModal as ModalType];
 
 	return (
@@ -32,12 +28,12 @@ export default function AuthModal() {
 			position="center"
 			disableEscapeClose={false}
 			disableBackdropClose={false}
-			ariaLabel={config?.ariaLabel || 'Auth modal'}
+			ariaLabel={config?.ariaLabel ? translate(config.ariaLabel) : translate('auth.authModal')}
 		>
 			{config && (
 				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50">
 					{/* Header */}
-					<ModalHeader title={config.title} subtitle={config?.subtitle} onClose={closeModal} />
+					<ModalHeader title={translate(config.title)} subtitle={translate(config.subtitle)} onClose={closeModal} />
 
 					{/* Form */}
 					{activeModal === ModalType.Login && <LoginForm />}
@@ -54,8 +50,8 @@ export default function AuthModal() {
 
 					{config.footerQuestion && (
 						<ModalFooter
-							question={config.footerQuestion}
-							actionLabel={config.footerAction}
+							question={translate(config.footerQuestion)}
+							actionLabel={config.footerAction ? translate(config.footerAction) : ''}
 							onActionClick={() => {
 								if (activeModal === ModalType.Login) openModal(ModalType.Register);
 								else if (activeModal === ModalType.Register) openModal(ModalType.Login);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
@@ -9,16 +9,21 @@ import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useHydrated } from '@/hooks/useHydrated';
 
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
+import { useI18nStore } from '@/stores/i18n';
+
 /**
  * Main header component.
  * - Desktop: Logo + Search + Auth buttons
  * - Mobile: Search (buttons hidden, shown in bottom nav)
  */
 export default function Header() {
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 	const searchParams = useSearchParams();
 	const urlSearchQuery = searchParams.get('search') || '';
 	const [inputValue, setInputValue] = useState(urlSearchQuery);
+	const { translate } = useI18nStore();
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings } = useGetMyBookings();
@@ -32,8 +37,9 @@ export default function Header() {
 		} else {
 			params.delete('search');
 		}
-		router.push(`/?${params.toString()}`, { scroll: false });
-	}, [inputValue, router, searchParams]);
+		const query = params.toString();
+		navigation.push(query ? `/?${query}` : '/', { scroll: false });
+	}, [inputValue, navigation, searchParams]);
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
@@ -50,7 +56,7 @@ export default function Header() {
 				<div className="flex items-center justify-between gap-4">
 					{/* Logo */}
 					<div
-						onClick={() => router.push('/')}
+						onClick={() => navigation.push('/')}
 						className="group hidden shrink-0 cursor-pointer rounded-xl bg-white/20 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl md:flex lg:px-4 lg:text-3xl"
 					>
 						<span className="text-primary group-hover:text-primary/80 transition-colors duration-300">
@@ -68,13 +74,14 @@ export default function Header() {
 								value={inputValue}
 								onChange={setInputValue}
 								onKeyDown={handleKeyDown}
-								placeholder="Search events..."
+								placeholder={translate('header.searchPlaceholder')}
 							/>
 						</div>
 						<button
 							onClick={handleSubmitSearch}
 							className="hidden cursor-pointer rounded-xl bg-white/20 p-2.5 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/30 sm:block sm:rounded-2xl sm:p-3"
 							type="button"
+							aria-label={translate('header.search')}
 						>
 							<svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
@@ -89,12 +96,13 @@ export default function Header() {
 
 					{/* Auth buttons */}
 					<nav className="hidden shrink-0 items-center gap-3 md:flex">
+						<LanguageSwitcher />
 						{!isHydrated || isUserLoading ? (
 							<></>
 						) : user ? (
 							<>
-								<Button variant="secondary" onClick={() => router.push('/bookings')} className="relative">
-									Bookings
+								<Button variant="secondary" onClick={() => navigation.push('/bookings')} className="relative">
+									{translate('header.bookings')}
 									{myBookingsCount > 0 && (
 										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
 											{myBookingsCount}
@@ -102,21 +110,22 @@ export default function Header() {
 									)}
 								</Button>
 
-								<Button variant="secondary" onClick={() => router.push('/profile')}>
-									{user.name.trim().length <= 10 ? user.name.split(' ')[0] : 'Profile'}
+								<Button variant="secondary" onClick={() => navigation.push('/profile')}>
+									{user.name.trim().length <= 10 ? user.name.split(' ')[0] : translate('header.profile')}
 								</Button>
 							</>
 						) : (
 							<>
 								<Button variant="secondary" onClick={() => openModal(ModalType.Register)}>
-									Sign Up
+									{translate('header.signUp')}
 								</Button>
 								<Button variant="secondary" onClick={() => openModal(ModalType.Login)}>
-									Log In
+									{translate('header.logIn')}
 								</Button>
 							</>
 						)}
 					</nav>
+					<LanguageSwitcher className="md:hidden" />
 				</div>
 			</div>
 		</header>

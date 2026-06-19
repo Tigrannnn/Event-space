@@ -7,8 +7,8 @@ import { formatDateTime } from '@/utils/date';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
-import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -22,7 +22,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
 
 	const { openModal } = useModalStore();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -46,7 +46,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const handleViewBooking = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		router.push('/bookings');
+		navigation.push('/bookings');
 	};
 
 	const eventIsAvailable = isEventAvailable(event);

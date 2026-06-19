@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import { Mail, Phone, Instagram } from 'lucide-react';
 import { COMPANY_CONFIG } from '@/config/сompany';
+import { useI18nStore } from '@/stores/i18n';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
+	const { translate } = useI18nStore();
+
 	return (
 		<div
 			className={`from-primary to-accent overflow-hidden bg-linear-to-br px-2 transition-[max-height,padding,opacity,border-width] duration-500 ease-in-out sm:px-2 ${
@@ -20,7 +23,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 					target="_blank"
 					rel="noopener noreferrer"
 					className="group flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
-					aria-label="Visit Instagram"
+					aria-label={translate('header.visitInstagram')}
 				>
 					<Instagram className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
 					<span className="hidden text-xs font-medium sm:inline">Instagram</span>

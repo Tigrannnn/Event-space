@@ -10,7 +10,7 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from '@/components/ui/command';
+} from '@/components/ui/primitives/command';
 import type { SafeUserData } from '@event-space/shared';
 
 type UserSelectMode = 'existing' | 'new';

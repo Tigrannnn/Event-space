@@ -4,10 +4,13 @@ import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Button from '../../Buttons/Button';
+import { useI18nStore } from '@/stores/i18n';
+
 
 export default function ConfirmModal() {
 	const { closeModal } = useModalStore();
 	const data = useModalData(ModalType.Confirm);
+	const { translate } = useI18nStore();
 
 	const handleConfirm = () => {
 		data?.onConfirm();
@@ -29,7 +32,7 @@ export default function ConfirmModal() {
 
 				<div className="flex gap-3">
 					<Button variant="secondary" onClick={handleCancel} className="flex-1">
-						{data.cancelText || 'Cancel'}
+						{data.cancelText || translate('profile.cancel')}
 					</Button>
 					<Button
 						variant={data.variant || 'primary'}
@@ -37,7 +40,7 @@ export default function ConfirmModal() {
 						onClick={handleConfirm}
 						className="flex-1"
 					>
-						{data.confirmText || 'Confirm'}
+						{data.confirmText || translate('auth.continue')}
 					</Button>
 				</div>
 			</div>

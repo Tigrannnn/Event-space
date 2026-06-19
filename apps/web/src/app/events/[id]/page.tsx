@@ -2,6 +2,9 @@ import { eventApi } from '@/features/events';
 import { getEventCoverImageUrl } from '@event-space/shared';
 import EventPageContent from './EventPageContent';
 import { notFound } from 'next/navigation';
+import { headers } from 'next/headers';
+import { defaultLocale, isLocale, localeOpenGraph, type Locale } from '@/lib/i18n/config';
+import { translate } from '@/lib/i18n/messages';
 
 interface EventPageProps {
 	params: Promise<{ id: string }>;
@@ -22,11 +25,13 @@ export default async function EventPage({ params }: EventPageProps) {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
+	const localeHeader = (await headers()).get('x-locale');
+	const locale: Locale = localeHeader && isLocale(localeHeader) ? localeHeader : defaultLocale;
 	const event = await eventApi.getEventById(id);
 
 	if (!event) {
 		return {
-			title: 'Event Not Found | Event Flow',
+			title: `${translate(locale, 'common.eventNotFound')} | Event Space`,
 		};
 	}
 
@@ -51,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 					}
 				: {}),
 			type: 'website',
-			locale: 'en_US',
+			locale: localeOpenGraph[locale],
 		},
 		twitter: {
 			card: 'summary_large_image',

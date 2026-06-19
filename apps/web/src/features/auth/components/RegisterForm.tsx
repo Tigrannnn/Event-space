@@ -5,12 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import PasswordInput from '@/components/ui/Inputs/PasswordInput';
 import Input from '@/components/ui/Inputs/Input';
 import Button from '@/components/ui/Buttons/Button';
-import { AuthAction, RegisterData, RegisterSchema } from '@event-space/shared';
+import { RegisterData, RegisterSchema } from '@event-space/shared';
 import { useRegister } from '../hooks/useAuth';
-import { useCooldown } from '../hooks/useCooldown';
+import { useI18nStore } from '@/stores/i18n';
 
 export default function RegisterForm() {
 	const { mutate: registerUser, isPending: isRegistering } = useRegister();
+	const { translate } = useI18nStore();
 
 	const {
 		register,
@@ -33,32 +34,32 @@ export default function RegisterForm() {
 		<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 sm:space-y-4">
 			<Input
 				id="name"
-				label="Name"
+				label={translate('auth.name')}
 				type="text"
 				error={errors.name?.message}
-				placeholder="Enter your name"
+				placeholder={translate('auth.enterName')}
 				{...register('name')}
 			/>
 
 			<Input
 				id="email"
-				label="Email"
+				label={translate('auth.email')}
 				type="email"
 				error={errors.email?.message}
-				placeholder="Enter your email"
+				placeholder={translate('auth.enterEmail')}
 				{...register('email')}
 			/>
 
 			<PasswordInput
 				id="password"
-				label="Password"
+				label={translate('auth.password')}
 				error={errors.password?.message}
-				placeholder="Create a password"
+				placeholder={translate('auth.createPassword')}
 				{...register('password')}
 			/>
 
 			<Button className="w-full" variant="primary" type="submit" isLoading={isRegistering}>
-				Continue
+				{translate('auth.continue')}
 			</Button>
 		</form>
 	);

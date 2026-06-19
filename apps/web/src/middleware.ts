@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EnvKey } from '@event-space/shared/enums';
+import {
+	getLocaleFromPathname,
+	getPreferredLocale,
+	locales,
+	stripLocaleFromPathname,
+	type Locale,
+} from '@/lib/i18n/config';
 
 const BASE_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
 // Обновляем токен за 30 секунд до истечения, чтобы избежать expired-запросов
 const REFRESH_BEFORE_EXPIRY_SECONDS = 30;
+const LOCALE_COOKIE = 'event-space-locale';
+
+const PUBLIC_FILE = /\.(.*)$/;
 
 function getCookieHeader(request: NextRequest): string {
 	return request.cookies
@@ -35,12 +45,34 @@ function isAccessTokenExpiringSoon(token?: string): boolean {
 	}
 }
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+function getRequestLocale(request: NextRequest): Locale {
+	const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+	if (cookieLocale && locales.includes(cookieLocale as Locale)) {
+		return cookieLocale as Locale;
+	}
+
+	return getPreferredLocale(request.headers.get('accept-language'));
+}
+
+function shouldSkipI18n(pathname: string): boolean {
+	return (
+		pathname.startsWith('/api') ||
+		pathname.startsWith('/_next') ||
+		pathname.startsWith('/favicon.ico') ||
+		pathname.startsWith('/logo.png') ||
+		PUBLIC_FILE.test(pathname)
+	);
+}
+
+async function refreshAccessTokenIfNeeded(
+	request: NextRequest,
+	responseFactory: (requestHeaders?: Headers) => NextResponse,
+): Promise<NextResponse> {
 	const accessToken = request.cookies.get('accessToken')?.value;
 	const refreshToken = request.cookies.get('refreshToken')?.value;
 
 	if (!refreshToken || !isAccessTokenExpiringSoon(accessToken)) {
-		return NextResponse.next();
+		return responseFactory();
 	}
 
 	try {
@@ -50,11 +82,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 			cache: 'no-store',
 		});
 
-		if (!refreshResponse.ok) return NextResponse.next();
+		if (!refreshResponse.ok) return responseFactory();
 
 		const setCookieHeaders = getSetCookieHeaders(refreshResponse.headers);
 
-		if (!setCookieHeaders.length) return NextResponse.next();
+		if (!setCookieHeaders.length) return responseFactory();
 
 		const cookieMap = new Map(request.cookies.getAll().map(({ name, value }) => [name, value]));
 
@@ -71,8 +103,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 			'Cookie',
 			Array.from(cookieMap, ([name, value]) => `${name}=${value}`).join('; '),
 		);
-
-		const response = NextResponse.next({ request: { headers: requestHeaders } });
+		const response = responseFactory(requestHeaders);
 
 		for (const header of setCookieHeaders) {
 			response.headers.append('Set-Cookie', header);
@@ -80,10 +111,58 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
 		return response;
 	} catch {
-		return NextResponse.next();
+		return responseFactory();
 	}
 }
 
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+	const { pathname, search } = request.nextUrl;
+
+	if (shouldSkipI18n(pathname)) {
+		return NextResponse.next();
+	}
+
+	const pathLocale = getLocaleFromPathname(pathname);
+
+	if (!pathLocale) {
+		const locale = getRequestLocale(request);
+		const redirectUrl = request.nextUrl.clone();
+		redirectUrl.pathname = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+		return NextResponse.redirect(redirectUrl);
+	}
+
+	const internalPathname = stripLocaleFromPathname(pathname);
+	const headers = new Headers(request.headers);
+	headers.set('x-locale', pathLocale);
+	headers.set('x-pathname', pathname);
+
+	const responseFactory = (requestHeaders?: Headers) => {
+		const rewriteUrl = request.nextUrl.clone();
+		rewriteUrl.pathname = internalPathname;
+		rewriteUrl.search = search;
+		requestHeaders?.set('x-locale', pathLocale);
+		requestHeaders?.set('x-pathname', pathname);
+
+		const response = NextResponse.rewrite(rewriteUrl, {
+			request: { headers: requestHeaders ?? headers },
+		});
+
+		response.cookies.set(LOCALE_COOKIE, pathLocale, {
+			path: '/',
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24 * 365,
+		});
+
+		return response;
+	};
+
+	if (internalPathname.startsWith('/admin') || internalPathname.startsWith('/profile')) {
+		return refreshAccessTokenIfNeeded(request, responseFactory);
+	}
+
+	return responseFactory();
+}
+
 export const config = {
-	matcher: ['/admin/:path*', '/profile/:path*'],
+	matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

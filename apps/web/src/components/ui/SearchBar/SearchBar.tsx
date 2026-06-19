@@ -3,7 +3,6 @@
 import React from 'react';
 import { SearchBarProps } from './types';
 import { XIcon } from 'lucide-react';
-import { useHydrated } from '@/hooks/useHydrated';
 
 /**
  * Search input component for filtering events
@@ -14,17 +13,14 @@ export const SearchBar = ({
 	onKeyDown,
 	placeholder = 'Search events...',
 }: SearchBarProps) => {
-	const isHydrated = useHydrated();
 	return (
 		<div className="relative w-full">
 			<input
 				type="text"
-				value={isHydrated ? value : undefined}
-				defaultValue={!isHydrated ? value : undefined}
+				value={value ?? ''}
 				onChange={(e) => onChange(e.target.value)}
 				onKeyDown={onKeyDown}
 				placeholder={placeholder}
-				suppressHydrationWarning
 				className="text-primary focus:ring-primary/20 focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-8 placeholder-gray-400 transition-all duration-200 focus:ring-2 focus:outline-none sm:rounded-2xl sm:px-5 sm:py-3.5 sm:pr-11 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
 			/>
 			{value && (

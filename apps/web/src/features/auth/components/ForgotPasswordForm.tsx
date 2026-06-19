@@ -19,12 +19,14 @@ import z from 'zod';
 import { useCooldown } from '../hooks/useCooldown';
 import { useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
+import { useI18nStore } from '@/stores/i18n';
 
 const ResetStepSchema = ResetPasswordSchema.omit({ email: true });
 type ResetStepData = z.infer<typeof ResetStepSchema>;
 
 export default function ForgotPasswordForm() {
 	const modalData = useModalData(ModalType.ForgotPassword);
+	const { translate } = useI18nStore();
 
 	const initialEmail = modalData?.email ?? '';
 	const [email, setEmail] = useState(initialEmail);
@@ -85,20 +87,20 @@ export default function ForgotPasswordForm() {
 					className="space-y-3 sm:space-y-4"
 				>
 					<p className="text-sm text-gray-500 dark:text-gray-400">
-						Enter your email and we&apos;ll send a 6-digit reset code.
+						{translate('auth.resetIntro')}
 					</p>
 
 					<Input
 						id="reset-email"
-						label="Email"
+						label={translate('auth.email')}
 						type="email"
 						error={forgotPasswordForm.formState.errors.email?.message}
-						placeholder="Enter your email"
+						placeholder={translate('auth.enterEmail')}
 						{...forgotPasswordForm.register('email')}
 					/>
 
 					<Button className="w-full" variant="primary" type="submit" isLoading={isSending}>
-						Send Code
+						{translate('auth.sendCode')}
 					</Button>
 				</form>
 			) : (
@@ -108,12 +110,12 @@ export default function ForgotPasswordForm() {
 						className="space-y-3 sm:space-y-4"
 					>
 						<p className="text-sm text-gray-500 dark:text-gray-400">
-							Code sent to <strong className="dark:text-gray-300">{email}</strong>
+							{translate('auth.codeSentTo')} <strong className="dark:text-gray-300">{email}</strong>
 						</p>
 
 						<Input
 							id="reset-code"
-							label="Reset Code"
+							label={translate('auth.resetCode')}
 							type="text"
 							maxLength={6}
 							error={resetPasswordForm.formState.errors.code?.message}
@@ -123,14 +125,14 @@ export default function ForgotPasswordForm() {
 
 						<PasswordInput
 							id="new-password"
-							label="New Password"
+							label={translate('auth.newPassword')}
 							error={resetPasswordForm.formState.errors.newPassword?.message}
-							placeholder="Enter new password"
+							placeholder={translate('auth.enterNewPassword')}
 							{...resetPasswordForm.register('newPassword')}
 						/>
 
 						<Button className="w-full" variant="primary" type="submit" isLoading={isResetting}>
-							Reset Password
+							{translate('auth.resetPassword')}
 						</Button>
 					</form>
 					<div className="text-center">
@@ -142,8 +144,8 @@ export default function ForgotPasswordForm() {
 						>
 							{isResending && <LoaderCircle className="h-4 w-4 animate-spin" />}
 							{isOnCooldown
-								? `Resend available in ${remainingSeconds} seconds`
-								: "Didn't receive the code? Resend"}
+								? `${translate('auth.resendAvailableIn')} ${remainingSeconds} ${translate('auth.seconds')}`
+								: translate('auth.resendCode')}
 						</button>
 					</div>
 				</>

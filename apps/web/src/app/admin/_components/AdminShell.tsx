@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import AdminSidebar from './AdminSidebar';
+import { stripLocaleFromPathname } from '@/lib/i18n/config';
 
 const PAGE_TITLES: Record<string, string> = {
 	'/admin/dashboard': 'Dashboard',
@@ -24,11 +25,7 @@ interface AdminShellProps {
 export default function AdminShell({ children }: AdminShellProps) {
 	const pathname = usePathname();
 	const [mobileOpen, setMobileOpen] = useState(false);
-	const pageTitle = getPageTitle(pathname);
-
-	useEffect(() => {
-		setMobileOpen(false);
-	}, [pathname]);
+	const pageTitle = getPageTitle(stripLocaleFromPathname(pathname));
 
 	useEffect(() => {
 		if (!mobileOpen) {

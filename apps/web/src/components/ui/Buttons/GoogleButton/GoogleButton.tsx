@@ -1,18 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGoogleLogin } from '@react-oauth/google';
 import { LoaderCircle } from 'lucide-react';
 import { authApi } from '@/features/auth';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useI18nStore } from '@/stores/i18n';
 
 export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
+	const { translate } = useI18nStore();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
@@ -23,7 +25,7 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 			try {
 				await authApi.googleLogin({ token: credentialResponse.code });
 				await queryClient.invalidateQueries({ queryKey: ['me'] });
-				router.push('/profile');
+				navigation.push('/profile');
 				closeModal();
 			} catch (error: unknown) {
 				const message =
@@ -67,7 +69,7 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 							d="M12.2421 4.79322c1.785 0 3.3863.6144 4.6454 1.824l3.4776-3.4776C18.2558 1.20214 15.5023 0 12.2421 0 7.9849 0 4.23054 2.69959 2.2329 5.89696l3.19764 3.1539c.9605-2.875 3.6441-5.0123 6.81156-5.0123z"
 						/>
 					</svg>
-					Continue with Google
+					{translate('auth.continueWithGoogle')}
 				</>
 			)}
 		</button>

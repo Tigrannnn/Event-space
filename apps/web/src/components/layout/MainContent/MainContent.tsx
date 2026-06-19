@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { cn } from '@/utils/cn';
+import { stripLocaleFromPathname } from '@/lib/i18n/config';
 
 interface MainContentProps {
 	children: React.ReactNode;
@@ -9,7 +10,7 @@ interface MainContentProps {
 
 export default function MainContent({ children }: MainContentProps) {
 	const pathname = usePathname();
-	const isAdminRoute = pathname.startsWith('/admin');
+	const isAdminRoute = stripLocaleFromPathname(pathname).startsWith('/admin');
 
 	return (
 		<main

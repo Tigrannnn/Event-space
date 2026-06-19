@@ -13,6 +13,8 @@ import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
+import { localizePath } from '@/lib/i18n/config';
+import { useI18nStore } from '@/stores/i18n';
 
 interface StripePaymentFormProps {
 	event: Event;
@@ -32,6 +34,7 @@ function StripePaymentFormContent({
 	const elements = useElements();
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
+	const { locale } = useI18nStore();
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
@@ -73,7 +76,7 @@ function StripePaymentFormContent({
 		const { error } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: `${window.location.origin}/bookings?payment=success`,
+				return_url: `${window.location.origin}${localizePath('/bookings', locale)}?payment=success`,
 			},
 			redirect: 'if_required',
 		});

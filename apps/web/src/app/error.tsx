@@ -2,9 +2,10 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCcw, Home } from 'lucide-react';
-import Link from 'next/link';
 import Button from '@/components/ui/Buttons';
 import PageState from '@/components/ui/PageState';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+
 
 export default function GlobalError({
 	error,
@@ -13,6 +14,8 @@ export default function GlobalError({
 	error: Error & { digest?: string };
 	reset: () => void;
 }) {
+	const navigation = useLocalizedNavigation();
+
 	useEffect(() => {
 		console.error('Global error:', error);
 	}, [error]);
@@ -33,12 +36,10 @@ export default function GlobalError({
 						Try Again
 					</Button>
 
-					<Link href="/">
-						<Button variant="secondary">
-							<Home className="h-4 w-4" />
-							Go Home
-						</Button>
-					</Link>
+					<Button variant="secondary" onClick={() => navigation.push('/')}>
+						<Home className="h-4 w-4" />
+						Go Home
+					</Button>
 				</>
 			}
 		>

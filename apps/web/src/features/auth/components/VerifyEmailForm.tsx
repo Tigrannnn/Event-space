@@ -11,9 +11,11 @@ import { ModalType } from '@/stores/modalStore/types';
 import { useResendCode, useVerifyEmail } from '../hooks/useAuth';
 import { useCooldown } from '../hooks/useCooldown';
 import { useModalData } from '@/stores/modalStore/modalStore';
+import { useI18nStore } from '@/stores/i18n';
 
 export default function VerifyEmailForm() {
 	const { openModal } = useModalStore();
+	const { translate } = useI18nStore();
 	const modalData = useModalData(ModalType.VerifyEmail);
 	const { mutate: verifyEmail, isPending: isVerifyingEmail } = useVerifyEmail();
 	const { mutate: resendCode, isPending: isResending } = useResendCode();
@@ -50,7 +52,7 @@ export default function VerifyEmailForm() {
 		<div className="space-y-6">
 			<div className="text-center">
 				<p className="text-sm text-gray-500 dark:text-gray-400">
-					We sent a verification code to <br />
+					{translate('auth.verificationSentTo')} <br />
 					<span className="font-semibold text-gray-900 dark:text-gray-200">{email}</span>{' '}
 					<span
 						onClick={() => {
@@ -58,7 +60,7 @@ export default function VerifyEmailForm() {
 						}}
 						className="text-primary cursor-pointer hover:underline"
 					>
-						Change
+						{translate('auth.change')}
 					</span>
 				</p>
 			</div>
@@ -66,14 +68,14 @@ export default function VerifyEmailForm() {
 			<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
 				<Input
 					id="code"
-					label="Verification Code"
-					placeholder="Enter 6-digit code"
+					label={translate('auth.verificationCode')}
+					placeholder={translate('auth.enterSixDigitCode')}
 					error={errors.code?.message}
 					{...register('code')}
 				/>
 
 				<Button className="w-full" variant="primary" type="submit" isLoading={isVerifyingEmail}>
-					Verify Account
+					{translate('auth.verifyAccount')}
 				</Button>
 			</form>
 
@@ -86,8 +88,8 @@ export default function VerifyEmailForm() {
 				>
 					{isResending && <LoaderCircle className="h-4 w-4 animate-spin" />}
 					{isOnCooldown
-						? `Resend available in ${remainingSeconds} seconds`
-						: "Didn't receive the code? Resend"}
+						? `${translate('auth.resendAvailableIn')} ${remainingSeconds} ${translate('auth.seconds')}`
+						: translate('auth.resendCode')}
 				</button>
 			</div>
 		</div>

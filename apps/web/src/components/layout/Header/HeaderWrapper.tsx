@@ -3,8 +3,14 @@
 import { Suspense, useEffect, useState } from 'react';
 import Header from './Header';
 import TopBar from '@/components/ui/TopBar';
+import { usePathname } from 'next/navigation';
 
 export default function HeaderWrapper() {
+	const pathname = usePathname();
+	if (pathname.startsWith('/admin')) {
+		return null;
+	}
+	
 	const [isTopBarVisible, setIsTopBarVisible] = useState(true);
 
 	useEffect(() => {

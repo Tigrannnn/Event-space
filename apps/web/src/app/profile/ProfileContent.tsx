@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
 import {
@@ -19,6 +18,8 @@ import { useCurrentUser, useDeleteCurrentUser } from '@/features/users';
 import { useLogout } from '@/features/auth';
 import ProfileSkeleton from './ProfileSkeleton';
 import PageState from '@/components/ui/PageState';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useI18nStore } from '@/stores/i18n';
 
 interface ProfileContentProps {
 	initialUser: SafeUserData | null;
@@ -33,7 +34,8 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const { mutate: deleteAccount, isPending: isDeleting } = useDeleteCurrentUser();
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
 	const { openModal } = useModalStore();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
+	const { translate } = useI18nStore();
 	const confirm = useConfirm();
 
 	if (hasInitialUser && isLoading) {
@@ -49,12 +51,12 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 						<User className="text-primary h-12 w-12 sm:h-16 sm:w-16" strokeWidth={1.5} />
 					</div>
 				}
-				title="Welcome Back!"
-				description="Sign in to access your profile, manage events, and more."
+				title={translate('profile.welcomeBack')}
+				description={translate('profile.signInDescription')}
 				actions={
 					<>
 						<Button variant="primary" size="lg" onClick={() => openModal(ModalType.Register)}>
-							Create Account
+							{translate('profile.createAccount')}
 						</Button>
 						<Button
 							variant="primary"
@@ -62,7 +64,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 							onClick={() => openModal(ModalType.Login)}
 							className="shadow-primary/20 shadow-lg"
 						>
-							Log In
+							{translate('auth.logIn')}
 						</Button>
 					</>
 				}
@@ -74,10 +76,10 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 
 	const handleLogout = async () => {
 		const isConfirmed = await confirm({
-			title: 'Log Out',
-			message: 'Are you sure you want to log out? You will need to sign in again.',
-			confirmText: 'Yes, Log Out',
-			cancelText: 'Cancel',
+			title: translate('profile.logOutTitle'),
+			message: translate('profile.logOutMessage'),
+			confirmText: translate('profile.yesLogOut'),
+			cancelText: translate('profile.cancel'),
 			variant: 'danger',
 		});
 
@@ -88,10 +90,10 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 
 	const handleDeleteAccount = async () => {
 		const isConfirmed = await confirm({
-			title: 'Delete Account',
-			message: 'Are you sure you want to delete your account? This action cannot be undone.',
-			confirmText: 'Yes, Delete',
-			cancelText: 'Cancel',
+			title: translate('profile.deleteTitle'),
+			message: translate('profile.deleteMessage'),
+			confirmText: translate('profile.yesDelete'),
+			cancelText: translate('profile.cancel'),
 			variant: 'danger',
 		});
 
@@ -143,7 +145,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					<div className="border-b border-gray-100 p-3 sm:p-4 dark:border-gray-700">
 						<h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
 							<CogIcon className="h-5 w-5" />
-							Settings
+							{translate('profile.settings')}
 						</h2>
 					</div>
 					<div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -156,15 +158,17 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 									<User className="h-4 w-4 text-blue-600 dark:text-blue-400 sm:h-5 sm:w-5" />
 								</div>
 								<div className="text-left">
-									<p className="font-medium text-gray-900 dark:text-white">Edit Profile</p>
-									<p className="text-sm text-gray-500 dark:text-gray-400">Update your name and password</p>
+									<p className="font-medium text-gray-900 dark:text-white">{translate('profile.editProfile')}</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">
+										{translate('profile.updateNamePassword')}
+									</p>
 								</div>
 							</div>
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
 						</button>
 
 						<button
-							onClick={() => router.push('/bookings')}
+							onClick={() => navigation.push('/bookings')}
 							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 						>
 							<div className="flex items-center gap-3">
@@ -172,8 +176,8 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 									<Ticket className="h-4 w-4 text-green-600 dark:text-green-400 sm:h-5 sm:w-5" />
 								</div>
 								<div className="text-left">
-									<p className="font-medium text-gray-900 dark:text-white">My Bookings</p>
-									<p className="text-sm text-gray-500 dark:text-gray-400">View your event bookings</p>
+									<p className="font-medium text-gray-900 dark:text-white">{translate('profile.myBookings')}</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">{translate('profile.viewBookings')}</p>
 								</div>
 							</div>
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
@@ -181,7 +185,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 
 						{user.role === 'ADMIN' && (
 							<button
-								onClick={() => router.push('/admin/dashboard')}
+								onClick={() => navigation.push('/admin/dashboard')}
 								className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 							>
 								<div className="flex items-center gap-3">
@@ -189,9 +193,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 										<ShieldCheck className="h-4 w-4 text-violet-600 dark:text-violet-300 sm:h-5 sm:w-5" />
 									</div>
 									<div className="text-left">
-										<p className="font-medium text-gray-900 dark:text-white">Admin Panel</p>
+										<p className="font-medium text-gray-900 dark:text-white">{translate('profile.adminPanel')}</p>
 										<p className="text-sm text-gray-500 dark:text-gray-400">
-											Manage events, bookings, and users
+											{translate('profile.managePlatform')}
 										</p>
 									</div>
 								</div>
@@ -204,7 +208,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 				{/* Account Actions */}
 				<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
 					<div className="border-b border-gray-100 p-3 sm:p-4 dark:border-gray-700">
-						<h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">Account</h2>
+						<h2 className="text-base font-semibold text-gray-900 dark:text-white sm:text-lg">
+							{translate('profile.account')}
+						</h2>
 					</div>
 					<div className="space-y-3 p-3 sm:p-4">
 						<Button
@@ -214,7 +220,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 							disabled={isLoggingOut}
 						>
 							<LogOut className="h-4 w-4" />
-							{isLoggingOut ? 'Logging out...' : 'Log Out'}
+							{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
 						</Button>
 
 						<Button
@@ -224,7 +230,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 							disabled={isDeleting}
 						>
 							<Trash2 className="h-4 w-4" />
-							{isDeleting ? 'Deleting...' : 'Delete Account'}
+							{isDeleting ? translate('profile.deleting') : translate('profile.deleteAccount')}
 						</Button>
 					</div>
 				</div>

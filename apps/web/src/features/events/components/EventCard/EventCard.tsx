@@ -18,13 +18,16 @@ export interface EventCardProps {
 
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
-import { useRouter } from 'next/navigation';
 import { BookOpen, MapPin, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { localizePath } from '@/lib/i18n/config';
+import { useI18nStore } from '@/stores/i18n';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
-	const router = useRouter();
+	const { locale } = useI18nStore();
+	const navigation = useLocalizedNavigation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
@@ -47,13 +50,13 @@ export default function EventCard({ event }: EventCardProps) {
 	const handleViewBooking = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		router.push('/bookings');
+		navigation.push('/bookings');
 	};
 
 	return (
 		<article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
 			<Link
-				href={`/events/${event.id}`}
+				href={localizePath(`/events/${event.id}`, locale)}
 				aria-label={`View details for ${event.title}`}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
 			/>

@@ -7,14 +7,17 @@ import { useGetMyBookings } from '../../features/bookings/hooks/useBookings';
 import BookingCard from '../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import Button from '@/components/ui/Buttons/Button';
-import Link from 'next/link';
 import { CalendarX } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useI18nStore } from '@/stores/i18n';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function BookingsPageContent() {
 	const searchParams = useSearchParams();
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
+	const { locale } = useI18nStore();
+	const navigation = useLocalizedNavigation();
 	const { data: bookings, isLoading } = useGetMyBookings();
 
 	useEffect(() => {
@@ -25,9 +28,9 @@ export default function BookingsPageContent() {
 			addToast('Payment successful! Your booking will be confirmed shortly.', ToastType.SUCCESS);
 			void queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 			void queryClient.invalidateQueries({ queryKey: ['events'] });
-			window.history.replaceState({}, '', '/bookings');
+			navigation.push('/bookings');
 		}
-	}, [searchParams, addToast, queryClient]);
+	}, [searchParams, addToast, queryClient, locale]);
 
 	if (isLoading) {
 		return <BookingsSkeleton />;
@@ -43,11 +46,9 @@ export default function BookingsPageContent() {
 				<p className="mt-2 text-gray-500 dark:text-gray-400">
 					Start exploring events and book your next tour!
 				</p>
-				<Link href="/">
-					<Button variant="primary" className="mt-6">
-						Browse Events
-					</Button>
-				</Link>
+				<Button variant="primary" className="mt-6" onClick={() => navigation.push('/')}>
+					Browse Events
+				</Button>
 			</div>
 		);
 	}

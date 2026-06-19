@@ -8,10 +8,12 @@ import Button from '@/components/ui/Buttons/Button';
 import { LoginData, LoginSchema } from '@event-space/shared';
 import { useLogin } from '../hooks/useAuth';
 import { ModalType, useModalStore } from '@/stores';
+import { useI18nStore } from '@/stores/i18n';
 
 export default function LoginForm() {
 	const { mutate: loginUser, isPending: isLoggingIn } = useLogin();
 	const { openModal } = useModalStore();
+	const { translate } = useI18nStore();
 
 	const {
 		register,
@@ -37,18 +39,18 @@ export default function LoginForm() {
 		<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-3 sm:space-y-4">
 			<Input
 				id="email"
-				label="Email"
+				label={translate('auth.email')}
 				type="email"
 				error={errors.email?.message}
-				placeholder="Enter your email"
+				placeholder={translate('auth.enterEmail')}
 				{...register('email')}
 			/>
 
 			<PasswordInput
 				id="password"
-				label="Password"
+				label={translate('auth.password')}
 				error={errors.password?.message}
-				placeholder="Enter your password"
+				placeholder={translate('auth.enterPassword')}
 				{...register('password')}
 			/>
 
@@ -58,12 +60,12 @@ export default function LoginForm() {
 					onClick={onForgotPassword}
 					className="text-primary cursor-pointer text-[15px] font-semibold transition-all hover:underline sm:text-sm"
 				>
-					Forgot password?
+					{translate('auth.forgotPassword')}
 				</button>
 			</div>
 
 			<Button className="w-full" variant="primary" type="submit" isLoading={isLoggingIn}>
-				Continue
+				{translate('auth.continue')}
 			</Button>
 		</form>
 	);

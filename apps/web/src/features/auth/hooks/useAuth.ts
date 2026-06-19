@@ -13,8 +13,8 @@ import {
 import { useToastStore } from '@/stores/toastStore';
 import { ToastType } from '@/stores/toastStore/types';
 import { ModalType, useModalStore } from '@/stores';
-import { useRouter } from 'next/navigation';
 import { useCooldown } from './useCooldown';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export const useRegister = () => {
 	const { openModal } = useModalStore();
@@ -59,12 +59,12 @@ export const useVerifyEmail = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 
 	return useMutation({
 		mutationFn: (data: VerifyEmailData) => authApi.verifyEmail(data),
 		onSuccess: ({ data }) => {
-			router.push('/profile');
+			navigation.push('/profile');
 			queryClient.setQueryData(['me'], data.user);
 			addToast(data.message, ToastType.SUCCESS);
 			closeModal();
@@ -80,13 +80,13 @@ export const useLogin = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 
 	return useMutation({
 		mutationFn: (data: LoginData) => authApi.login(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
-			router.push('/profile');
+			navigation.push('/profile');
 			addToast(data.message, ToastType.SUCCESS);
 			closeModal();
 		},
@@ -116,13 +116,13 @@ export const useResetPassword = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 
 	return useMutation({
 		mutationFn: (data: ResetPasswordData) => authApi.resetPassword(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
-			router.push('/profile');
+			navigation.push('/profile');
 			addToast('Password reset successfully.', ToastType.SUCCESS);
 			closeModal();
 		},
@@ -137,12 +137,12 @@ export const useLogout = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const router = useRouter();
+	const navigation = useLocalizedNavigation();
 
 	return useMutation({
 		mutationFn: () => authApi.logout(),
 		onSuccess: () => {
-			router.push('/');
+			navigation.push('/');
 			queryClient.setQueryData(['me'], null);
 			queryClient.invalidateQueries({ queryKey: ['bookings'] });
 			addToast('Logged out successfully.', ToastType.SUCCESS);

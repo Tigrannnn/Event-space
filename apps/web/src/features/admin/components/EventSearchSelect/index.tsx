@@ -10,7 +10,7 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from '@/components/ui/command';
+} from '@/components/ui/primitives/command';
 import { formatDateTime } from '@/utils/date';
 import type { Event } from '@event-space/shared';
 

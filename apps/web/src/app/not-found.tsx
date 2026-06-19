@@ -1,9 +1,15 @@
+'use client';
+
 import Button from '@/components/ui/Buttons';
 import { Home } from 'lucide-react';
-import Link from 'next/link';
 import PageState from '@/components/ui/PageState';
+import { useI18nStore } from '@/stores/i18n';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function NotFound() {
+	const { translate } = useI18nStore();
+	const navigation = useLocalizedNavigation();
+
 	return (
 		<PageState className="from-primary/10 to-accent/10 bg-linear-to-br">
 			<div className="max-w-md text-center">
@@ -11,17 +17,15 @@ export default function NotFound() {
 					404
 				</h1>
 				<h2 className="mb-4 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-200">
-					Page Not Found
+					{translate('common.notFoundTitle')}
 				</h2>
 				<p className="mb-8 text-base text-gray-600 sm:text-lg dark:text-gray-400">
-					Oops! The page you&apos;re looking for doesn&apos;t exist.
+					{translate('common.notFoundDescription')}
 				</p>
-				<Link href="/">
-					<Button className="w-full">
-						<Home className="h-5 w-5" />
-						Go Home
-					</Button>
-				</Link>
+				<Button className="w-full" onClick={() => navigation.push('/')}>
+					<Home className="h-5 w-5" />
+					{translate('common.goHome')}
+				</Button>
 			</div>
 		</PageState>
 	);
