@@ -45,7 +45,7 @@ model Event {
   location            String          @db.VarChar(200)
   locationUrl         String?         @map("location_url") @db.VarChar(1000)
   date                DateTime
-  difficulty          EventDifficulty
+  difficulty          EventDifficulty?
   price               Decimal         @db.Decimal(10, 2)
   maxParticipants     Int             @default(100) @map("max_participants")
   currentParticipants Int             @default(0) @map("current_participants")

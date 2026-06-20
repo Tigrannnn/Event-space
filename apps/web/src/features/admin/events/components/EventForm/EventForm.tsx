@@ -128,13 +128,13 @@ export default function EventForm({
 
 				<div className="grid grid-cols-2 gap-4">
 					<div className="space-y-1.5">
-						<span className="text-sm font-semibold">Difficulty</span>
-						<Controller
-							name="difficulty"
-							control={control}
-							render={({ field }) => (
-								<Select
-									value={field.value}
+					<span className="text-sm font-semibold">Difficulty <span className="text-gray-400">(optional)</span></span>
+					<Controller
+						name="difficulty"
+						control={control}
+						render={({ field }) => (
+							<Select
+								value={field.value || ''}
 									onValueChange={field.onChange}
 									options={difficultyOptions}
 									className="w-full"

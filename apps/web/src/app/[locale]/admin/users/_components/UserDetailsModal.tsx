@@ -7,8 +7,10 @@ import type { SafeUserData } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
+import { useTranslation } from '@/hooks/translation';
 
 export default function UserDetailsModal() {
+	const translate = useTranslation();
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.UserDetails);
@@ -20,18 +22,18 @@ export default function UserDetailsModal() {
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(user.id);
-		addToast('User ID copied to clipboard', ToastType.SUCCESS);
+		addToast(translate('admin.copyId'), ToastType.SUCCESS);
 	};
 
 	return (
-		<Modal onClose={closeModal} size="lg" ariaLabel="User details">
+		<Modal onClose={closeModal} size="lg" ariaLabel={translate('admin.userDetails')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
-				<ModalHeader title="User details" onClose={closeModal} />
+				<ModalHeader title={translate('admin.userDetails')} onClose={closeModal} />
 
 				<div className="grid gap-6">
 					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-							Account information
+							{translate('admin.accountInformation')}
 						</p>
 						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
@@ -56,16 +58,16 @@ export default function UserDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Role
+										{translate('admin.role')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{user.role}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Email status
+										{translate('admin.emailStatus')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{user.emailVerified ? 'Verified' : 'Pending'}
+										{user.emailVerified ? translate('admin.verified') : translate('admin.pending')}
 									</p>
 								</div>
 							</div>
@@ -73,7 +75,7 @@ export default function UserDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Created at
+										{translate('admin.createdAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(user.createdAt)}
@@ -81,7 +83,7 @@ export default function UserDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Updated at
+										{translate('admin.updatedAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(user.updatedAt)}

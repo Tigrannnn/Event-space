@@ -49,7 +49,6 @@ export default function CheckInForm() {
 
     return (
         <div className="mx-auto max-w-xl space-y-6">
-            {/* Склеенная поисковая группа (Input Group) */}
             <div className="group relative flex items-center rounded-xl border border-gray-300 bg-white shadow-sm transition-all focus-within:border-gray-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus-within:border-zinc-500">
                 <div className="pointer-events-none absolute left-4 text-gray-400 dark:text-zinc-500">
                     <Search className="h-4 w-4" />
@@ -59,16 +58,16 @@ export default function CheckInForm() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Enter booking reference (e.g., #100142)"
+                    placeholder={translate('admin.enterBookingRef')}
                     className="h-12 flex-1 bg-transparent pl-11 pr-4 text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-zinc-500"
                 />
                 <div className="pr-1.5">
                     <Button 
                         onClick={handleSearch} 
                         isLoading={isLoading}
-                        className="h-9 px-4 text-xs font-semibold tracking-wide"
+                        className="h-9 px-4 text-xs font-semibold rounded-none tracking-wide"
                     >
-                        Find
+                        {translate('header.search')}
                     </Button>
                 </div>
             </div>
@@ -90,34 +89,32 @@ export default function CheckInForm() {
                     }`}>
                         <div className="flex flex-col gap-0.5">
                             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
-                                Reference
+                                {translate('booking.bookingRef')}
                             </span>
                             <span className="font-mono text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                                 {formatBookingReference(booking.referenceNumber)}
                             </span>
                         </div>
 
-                        {/* Компактные и яркие статус-бейджи */}
                         {isCancelled ? (
                             <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                                <XCircle className="h-3.5 w-3.5" /> Cancelled
+                                <XCircle className="h-3.5 w-3.5" /> {translate('admin.cancelled')}
                             </span>
                         ) : isCheckedIn ? (
                             <span className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                <AlertCircle className="h-3.5 w-3.5" /> Checked In
+                                <AlertCircle className="h-3.5 w-3.5" /> {translate('admin.alreadyCheckedIn')}
                             </span>
                         ) : (
                             <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                <CheckCircle2 className="h-3.5 w-3.5" /> Active
+                                <CheckCircle2 className="h-3.5 w-3.5" /> {translate('admin.active')}
                             </span>
                         )}
                     </div>
 
                     <div className="p-5 space-y-6">
-                        {/* Иерархия клиента */}
                         <div className="space-y-1">
                             <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
-                                Customer
+                                {translate('admin.customer')}
                             </span>
                             <h3 className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
                                 {booking.user?.name ?? 'Unknown'}
@@ -127,7 +124,6 @@ export default function CheckInForm() {
                             </p>
                         </div>
 
-                        {/* Блок деталей ивента */}
                         <div className="rounded-xl bg-gray-50 p-4 dark:bg-zinc-800/50 space-y-3">
                             <p className="text-sm font-bold text-gray-900 dark:text-white">
                                 {booking.event?.title ?? '—'}
@@ -145,13 +141,12 @@ export default function CheckInForm() {
                                 <div className="flex items-center gap-2 sm:col-span-2 border-t pt-2 border-gray-200 dark:border-zinc-700">
                                     <Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
                                     <span className="font-bold text-gray-900 dark:text-white">
-                                        {booking.quantity} {booking.quantity === 1 ? 'spot' : 'spots'} booked
+                                        {booking.quantity} {translate('admin.numberOfSpots')}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Логи и системные уведомления внизу карточки */}
                         {isCancelled && (
                             <div className="rounded-lg bg-red-50 p-3 text-center text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400">
                                 {translate('admin.bookingCancelled')}
@@ -171,7 +166,7 @@ export default function CheckInForm() {
                                 onClick={() => checkIn(booking.id)}
                                 isLoading={isCheckingIn}
                             >
-                                Confirm Check In
+                                {translate('admin.confirmCheckIn')}
                             </Button>
                         )}
                     </div>

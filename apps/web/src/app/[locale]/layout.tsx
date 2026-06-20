@@ -8,8 +8,7 @@ import { siteConfig } from '../../../site.config';
 import GoogleProvider from '@/providers/GoogleProvider';
 import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
-import { headers } from 'next/headers';
-import { isLocale, Locale, localeOpenGraph } from '@/lib/i18n/config';
+import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
 
 const geistSans = Geist({
@@ -29,7 +28,7 @@ interface LocaleLayoutProps {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
-    const currentLocale = isLocale(locale) ? locale : 'en';
+    const currentLocale = isLocale(locale) ? locale : defaultLocale;
 
     const title = `${siteConfig.name} | ${translate(currentLocale, 'common.appTitle')}`;
     const description = translate(currentLocale, 'common.appDescription');

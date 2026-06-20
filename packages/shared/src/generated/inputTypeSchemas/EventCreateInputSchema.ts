@@ -18,7 +18,7 @@ export const EventCreateInputSchema: z.ZodType<Prisma.EventCreateInput> = z.obje
   location: z.string(),
   locationUrl: z.string().optional().nullable(),
   date: z.coerce.date(),
-  difficulty: z.lazy(() => EventDifficultySchema),
+  difficulty: z.lazy(() => EventDifficultySchema).optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   maxParticipants: z.number().int().optional(),
   currentParticipants: z.number().int().optional(),

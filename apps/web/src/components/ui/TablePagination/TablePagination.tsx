@@ -1,6 +1,7 @@
 'use client';
 
 import Button from '@/components/ui/Buttons/Button';
+import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/utils/cn';
 
 interface TablePaginationProps {
@@ -25,6 +26,7 @@ export default function TablePagination({
 	className,
 }: TablePaginationProps) {
 	const currentPage = Math.floor(skip / limit) + 1;
+	const translate = useTranslation();
 
 	return (
 		<div
@@ -35,7 +37,7 @@ export default function TablePagination({
 		>
 			<p className="text-sm text-gray-500">
 				Page {currentPage}
-				{isLoading ? ' · Updating...' : ''}
+				{isLoading ? ` · ${translate('common.updating')}` : ''}
 			</p>
 			<div className="flex gap-2 sm:justify-end">
 				<Button

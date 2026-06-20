@@ -49,17 +49,17 @@ export default function BookingDetailsModal() {
 					<div className="space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-								Customer
+								{translate('admin.customer')}
 							</p>
 							<div className="mt-4 space-y-1">
 								<p className="text-lg font-semibold text-gray-900 dark:text-white">
-									{booking.user?.name ?? 'Unknown customer'}
+									{booking.user?.name ?? translate('admin.unknownCustomer')}
 								</p>
 								<p className="text-sm text-gray-500 dark:text-gray-400">
-									{booking.user?.email ?? 'No email'}
+									{booking.user?.email ?? translate('admin.noEmail')}
 								</p>
 								<p className="text-sm text-gray-500 dark:text-gray-400">
-									Booked {formatDateTime(booking.createdAt)}
+									{translate('admin.booked')} {formatDateTime(booking.createdAt)}
 								</p>
 							</div>
 						</section>
@@ -84,7 +84,7 @@ export default function BookingDetailsModal() {
 							<div className="mt-3 grid gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Reference
+										{translate('admin.reference')}
 									</p>
 									<p className="text-primary mt-1 font-medium">
 										{formatBookingReference(booking.referenceNumber)}
@@ -92,7 +92,7 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Checkout reference
+										{translate('admin.checkoutReference')}
 									</p>
 									<p className="mt-1 font-medium">
 										{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
@@ -100,19 +100,19 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Status
+										{translate('admin.status')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{booking.status}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Quantity
+										{translate('admin.qty')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{booking.quantity}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Event price
+										{translate('admin.eventPrice')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{event ? formatCurrency(event.price) : '—'}
@@ -120,7 +120,7 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Booking amount
+										{translate('admin.bookingAmount')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatCurrency(Number(booking.amount))}
@@ -128,7 +128,7 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Created at
+										{translate('admin.createdAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(booking.createdAt)}
@@ -136,7 +136,7 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										Updated at
+										{translate('admin.updatedAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(booking.updatedAt)}
@@ -185,10 +185,10 @@ export default function BookingDetailsModal() {
 							<div className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-200">
 								<div>
 									<p className="font-semibold text-gray-900 dark:text-white">
-										{event?.title ?? 'Unknown event'}
+										{event?.title ?? translate('admin.unknownEvent')}
 									</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">
-										{event?.location ?? 'No location'}
+										{event?.location ?? translate('admin.noLocation')}
 									</p>
 								</div>
 								<div className="grid gap-3 sm:grid-cols-2">
@@ -257,7 +257,7 @@ export default function BookingDetailsModal() {
 										rel="noreferrer"
 										className="text-primary text-sm font-medium hover:underline"
 									>
-										Open meeting location
+										{translate('admin.openMeetingLocation')}
 									</a>
 								)}
 							</div>
@@ -266,7 +266,7 @@ export default function BookingDetailsModal() {
 						{eventImages.length > 0 && (
 							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-									Event images
+									{translate('admin.eventImages')}
 								</p>
 								<div className="mt-4 grid gap-3 sm:grid-cols-2">
 									{eventImages.map((image) => (

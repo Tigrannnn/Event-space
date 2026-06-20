@@ -1,5 +1,4 @@
 import {
-	EventDifficultyEnum,
 	EventStatusEnum,
 	type Event,
 	type EventImageItem,
@@ -15,7 +14,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 		location: '',
 		locationUrl: '',
 		date: '',
-		difficulty: EventDifficultyEnum.enum.EASY,
+		difficulty: undefined,
 		status: EventStatusEnum.enum.DRAFT,
 		price: '',
 		maxParticipants: '',
@@ -104,7 +103,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		location: event.location,
 		locationUrl: event.locationUrl ?? '',
 		date: dateStr,
-		difficulty: event.difficulty,
+		difficulty: event.difficulty ?? undefined,
 		price: String(event.price),
 		maxParticipants: String(event.maxParticipants),
 		category: event.category,

@@ -226,7 +226,8 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												? translate('admin.easy')
 												: d === 'HARD'
 													? translate('admin.hard')
-													: translate('admin.moderate'),
+													: d === 'MODERATE'
+														? translate('admin.moderate') : ''
 									})),
 								]}
 							/>

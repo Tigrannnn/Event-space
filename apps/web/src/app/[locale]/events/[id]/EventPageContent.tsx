@@ -142,7 +142,9 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								label={translate('event.duration')}
 								value={`${Math.floor(event.duration / 60)} ${translate('event.hours')}`}
 							/>
-							<InfoCard icon={Mountain} label={translate('event.difficulty')} value={event.difficulty} />
+							{event.difficulty && (
+								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={event.difficulty} />
+							)}
 							<InfoCard icon={Users} label={translate('event.maxPeople')} value={String(event.maxParticipants)} />
 						</div>
 

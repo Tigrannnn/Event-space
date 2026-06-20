@@ -16,7 +16,7 @@ export const EventOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOrder
   location: z.lazy(() => SortOrderSchema).optional(),
   locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
-  difficulty: z.lazy(() => SortOrderSchema).optional(),
+  difficulty: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   maxParticipants: z.lazy(() => SortOrderSchema).optional(),
   currentParticipants: z.lazy(() => SortOrderSchema).optional(),

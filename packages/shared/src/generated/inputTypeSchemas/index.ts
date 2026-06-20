@@ -97,7 +97,7 @@ export { RefreshTokenUncheckedUpdateManyInputSchema } from './RefreshTokenUnchec
 export { StringFilterSchema } from './StringFilterSchema';
 export { StringNullableFilterSchema } from './StringNullableFilterSchema';
 export { DateTimeFilterSchema } from './DateTimeFilterSchema';
-export { EnumEventDifficultyFilterSchema } from './EnumEventDifficultyFilterSchema';
+export { EnumEventDifficultyNullableFilterSchema } from './EnumEventDifficultyNullableFilterSchema';
 export { DecimalFilterSchema } from './DecimalFilterSchema';
 export { IntFilterSchema } from './IntFilterSchema';
 export { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
@@ -118,7 +118,7 @@ export { EventSumOrderByAggregateInputSchema } from './EventSumOrderByAggregateI
 export { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
 export { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAggregatesFilterSchema';
 export { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
-export { EnumEventDifficultyWithAggregatesFilterSchema } from './EnumEventDifficultyWithAggregatesFilterSchema';
+export { EnumEventDifficultyNullableWithAggregatesFilterSchema } from './EnumEventDifficultyNullableWithAggregatesFilterSchema';
 export { DecimalWithAggregatesFilterSchema } from './DecimalWithAggregatesFilterSchema';
 export { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 export { EnumEventStatusWithAggregatesFilterSchema } from './EnumEventStatusWithAggregatesFilterSchema';
@@ -190,7 +190,7 @@ export { CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema 
 export { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOperationsInputSchema';
 export { NullableStringFieldUpdateOperationsInputSchema } from './NullableStringFieldUpdateOperationsInputSchema';
 export { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
-export { EnumEventDifficultyFieldUpdateOperationsInputSchema } from './EnumEventDifficultyFieldUpdateOperationsInputSchema';
+export { NullableEnumEventDifficultyFieldUpdateOperationsInputSchema } from './NullableEnumEventDifficultyFieldUpdateOperationsInputSchema';
 export { DecimalFieldUpdateOperationsInputSchema } from './DecimalFieldUpdateOperationsInputSchema';
 export { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
 export { EventUpdatewhatsIncludedInputSchema } from './EventUpdatewhatsIncludedInputSchema';
@@ -241,7 +241,7 @@ export { UserUpdateOneRequiredWithoutRefreshTokensNestedInputSchema } from './Us
 export { NestedStringFilterSchema } from './NestedStringFilterSchema';
 export { NestedStringNullableFilterSchema } from './NestedStringNullableFilterSchema';
 export { NestedDateTimeFilterSchema } from './NestedDateTimeFilterSchema';
-export { NestedEnumEventDifficultyFilterSchema } from './NestedEnumEventDifficultyFilterSchema';
+export { NestedEnumEventDifficultyNullableFilterSchema } from './NestedEnumEventDifficultyNullableFilterSchema';
 export { NestedDecimalFilterSchema } from './NestedDecimalFilterSchema';
 export { NestedIntFilterSchema } from './NestedIntFilterSchema';
 export { NestedEnumEventStatusFilterSchema } from './NestedEnumEventStatusFilterSchema';
@@ -249,7 +249,7 @@ export { NestedStringWithAggregatesFilterSchema } from './NestedStringWithAggreg
 export { NestedStringNullableWithAggregatesFilterSchema } from './NestedStringNullableWithAggregatesFilterSchema';
 export { NestedIntNullableFilterSchema } from './NestedIntNullableFilterSchema';
 export { NestedDateTimeWithAggregatesFilterSchema } from './NestedDateTimeWithAggregatesFilterSchema';
-export { NestedEnumEventDifficultyWithAggregatesFilterSchema } from './NestedEnumEventDifficultyWithAggregatesFilterSchema';
+export { NestedEnumEventDifficultyNullableWithAggregatesFilterSchema } from './NestedEnumEventDifficultyNullableWithAggregatesFilterSchema';
 export { NestedDecimalWithAggregatesFilterSchema } from './NestedDecimalWithAggregatesFilterSchema';
 export { NestedIntWithAggregatesFilterSchema } from './NestedIntWithAggregatesFilterSchema';
 export { NestedFloatFilterSchema } from './NestedFloatFilterSchema';

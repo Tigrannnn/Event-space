@@ -57,7 +57,7 @@ export default function Header() {
 					{/* Logo */}
 					<div
 						onClick={() => navigation.push('/')}
-						className="group hidden shrink-0 cursor-pointer rounded-xl bg-white/20 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl md:flex lg:px-4 lg:text-3xl"
+						className="group hidden shrink-0 cursor-pointer rounded-xl bg-white/40 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl md:flex lg:px-4 lg:text-3xl"
 					>
 						<span className="text-primary group-hover:text-primary/80 transition-colors duration-300">
 							Event

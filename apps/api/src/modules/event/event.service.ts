@@ -102,7 +102,9 @@ export class EventService {
 
 		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
 		if (event.status !== 'PUBLISHED') throw new NotFoundException(`Event with ID ${id} not found`);
-		return event;
+		// Exclude difficulty from public response
+		const { difficulty, ...eventWithoutDifficulty } = event;
+		return eventWithoutDifficulty;
 	}
 
 	private async findOneAny(id: string) {
