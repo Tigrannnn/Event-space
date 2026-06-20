@@ -105,31 +105,6 @@ export class EventController {
 		return this.eventService.create(userId, parsed.eventData, parsed.imageItems, parsed.files);
 	}
 
-	@Patch(':id/status')
-	@ApiBearerAuth()
-	@Roles(UserRoleSchema.enum.ADMIN)
-	@UseGuards(AccessTokenGuard, RolesGuard)
-	@ApiOperation({ summary: 'Update event status only' })
-	@ApiParam({ name: 'id', description: 'Event ID' })
-	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	async updateStatus(
-		@Param('id') id: string,
-		@GetCurrentUserId() userId: string,
-		@GetCurrentUser('role') role: UserRoleType,
-		@Body('status') status: EventStatus,
-	) {
-		await this.rateLimiter.consumePerUser(
-			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
-			userId,
-			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
-			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
-		);
-		if (!EventStatusEnum.options.includes(status)) {
-			throw new BadRequestException('Invalid status');
-		}
-		return this.eventService.updateStatus(id, userId, role, status);
-	}
-
 	@Put(':id')
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ADMIN)

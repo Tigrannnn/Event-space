@@ -35,8 +35,6 @@ export const adminApi = {
 		clientApi.put<Event>(`/events/${id}`, formData, {
 			timeout: EVENT_UPLOAD_TIMEOUTS.CLIENT_MUTATION_MS,
 		}),
-	updateEventStatus: (id: string, status: EventStatus) =>
-		clientApi.patch<Event>(`/events/${id}/status`, { status }),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`),
 	getUsers: (params?: UserFilters) =>
 		clientApi.get<PaginatedResponse<SafeUserData>>('/admin/users', { params }),

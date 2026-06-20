@@ -231,17 +231,6 @@ export class EventService {
 		}
 	}
 
-	async updateStatus(id: string, userId: string, role: UserRoleType, status: EventStatus) {
-		const event = await this.findOneAny(id);
-		this.assertCanModify(event.userId, userId, role);
-
-		return this.prisma.event.update({
-			where: { id },
-			data: { status },
-			include: this.eventInclude,
-		});
-	}
-
 	async delete(id: string, userId: string, role: UserRoleType) {
 		const event = await this.findOneAny(id);
 		this.assertCanModify(event.userId, userId, role);

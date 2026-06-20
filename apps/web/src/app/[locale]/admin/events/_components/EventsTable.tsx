@@ -18,7 +18,6 @@ import { useConfirm } from '@/hooks/confirmModal';
 import {
 	useAdminEvents,
 	useDeleteEvent,
-	useUpdateEventStatus,
 } from '@/features/admin/hooks/useAdmin';
 import { useModalStore, ModalType } from '@/stores';
 import {
@@ -33,6 +32,7 @@ import {
 import type { TimeFilterType } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { useTranslation } from '@/hooks/translation';
+import Badge from '@/components/ui/Badge';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -70,8 +70,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		status,
 		difficulty,
 		time,
-	});
-	const updateEventStatus = useUpdateEventStatus();
+	})
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const router = useRouter();
@@ -130,10 +129,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		setDifficulty(undefined);
 		setTime(undefined);
 		resetPagination();
-	};
-
-	const handleEventStatusChange = (eventId: string, nextStatus: EventStatus) => {
-		updateEventStatus.mutate({ id: eventId, status: nextStatus });
 	};
 
 	const handlePreviousPage = () => {
@@ -268,7 +263,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						<TableRow>
 							<TableHead className="px-3 sm:px-5">{translate('admin.event')}</TableHead>
 							<TableHead>{translate('admin.status')}</TableHead>
-							<TableHead>{translate('admin.difficulty')}</TableHead>
 							<TableHead>{translate('admin.date')}</TableHead>
 							<TableHead>{translate('admin.capacity')}</TableHead>
 							<TableHead>{translate('admin.price')}</TableHead>
@@ -301,23 +295,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									</div>
 								</TableCell>
 								<TableCell>
-									<div className="flex items-center gap-2">
-										<Select
-											value={event.status}
-											onValueChange={(value) => handleEventStatusChange(event.id, value as EventStatus)}
-											disabled={updateEventStatus.isPending}
-											size="sm"
-											aria-label={`Update ${event.title} status`}
-											options={eventStatusOptions}
-										/>
-									</div>
-								</TableCell>
-								<TableCell>
-									{event.difficulty === 'EASY'
-										? translate('admin.easy')
-										: event.difficulty === 'HARD'
-											? translate('admin.hard')
-											: translate('admin.moderate')}
+									<Badge label={event.status} />
 								</TableCell>
 								<TableCell>
 									<div className="flex items-center gap-2 text-sm">

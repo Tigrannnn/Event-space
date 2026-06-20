@@ -89,7 +89,7 @@ export default function CreateManualBookingModal() {
 						value={formState.quantity}
 						onChange={(event) => handleChange('quantity', Number(event.target.value))}
 						placeholder="Number of spots"
-						className="h-10 w-full font-medium bg-transparent border border-gray-500 rounded-md px-3 text-sm focus:border-primary transition outline-none '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'"
+						className="focus:border-primary '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none' h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium transition outline-none [&::-webkit-outer-spin-button]:appearance-none"
 					/>
 
 					{error && <p className="text-sm text-red-500">{error}</p>}

@@ -217,6 +217,7 @@ export const messages = {
 			booked: 'Ամրագրված',
 			actions: 'Գործողություններ',
 			details: 'Մանրամասներ',
+			enterBookingRef: 'Մուտքագրեք ամրագրման կոդը (օր.՝ #012345)',
 			bookingSummary: 'Ամրագրման ամփոփում',
 			checkoutReference: 'Հաշվարկի ծանուցում',
 			eventPrice: 'Միջոցառման գինը',

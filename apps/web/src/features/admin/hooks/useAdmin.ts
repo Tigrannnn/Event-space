@@ -99,20 +99,6 @@ export const useUpdateEvent = () => {
 	});
 };
 
-export const useUpdateEventStatus = () => {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: ({ id, status }: { id: string; status: Event['status'] }) =>
-			adminApi.updateEventStatus(id, status),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
-		},
-	});
-};
-
 export const useDeleteEvent = () => {
 	const queryClient = useQueryClient();
 

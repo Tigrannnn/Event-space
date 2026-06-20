@@ -145,7 +145,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 			<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<p className="font-semibold text-gray-900 dark:text-gray-100">{translate('admin.allBookings')}</p>
+						<p className="font-semibold text-gray-900 dark:text-gray-100">
+							{translate('admin.allBookings')}
+						</p>
 						<p className="text-sm text-gray-500">
 							{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 							{bookingsResponse.total} {translate('admin.bookings')}
@@ -208,9 +210,16 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 							]}
 						/>
 
-						<Select value={limit} onValueChange={handlePageSizeChange} options={[
-							...pageSizeOptions.map(ps => ({...ps, label: `${ps.value} ${translate('admin.pageSize')}`}))
-						]} />
+						<Select
+							value={limit}
+							onValueChange={handlePageSizeChange}
+							options={[
+								...pageSizeOptions.map((ps) => ({
+									...ps,
+									label: `${ps.value} ${translate('admin.pageSize')}`,
+								})),
+							]}
+						/>
 
 						{hasActiveFilters && (
 							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>

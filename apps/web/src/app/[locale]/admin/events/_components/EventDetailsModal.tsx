@@ -63,7 +63,7 @@ export default function EventDetailsModal() {
 
 					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-								{translate('admin.eventInformation')}
+							{translate('admin.eventInformation')}
 						</p>
 						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
@@ -93,13 +93,11 @@ export default function EventDetailsModal() {
 								</button>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('admin.category')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.category}</p>
-								</div>
+							<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+									{translate('admin.category')}
+								</p>
+								<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.category}</p>
 							</div>
 
 							<div className="grid gap-3 sm:grid-cols-2">
@@ -113,7 +111,7 @@ export default function EventDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('event.location')}
+										{translate('event.location')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.location}</p>
 								</div>
@@ -130,7 +128,7 @@ export default function EventDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('event.duration')}
+										{translate('event.duration')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.duration} min</p>
 								</div>
@@ -139,7 +137,7 @@ export default function EventDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('event.difficulty')}
+										{translate('event.difficulty')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.difficulty}</p>
 								</div>
@@ -154,7 +152,7 @@ export default function EventDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('admin.capacity')}
+										{translate('admin.capacity')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{event.currentParticipants}/{event.maxParticipants}
@@ -162,7 +160,7 @@ export default function EventDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('admin.organizer')}
+										{translate('admin.organizer')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.organizer?.name}</p>
 								</div>
@@ -171,7 +169,7 @@ export default function EventDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('admin.createdAt')}
+										{translate('admin.createdAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(event.createdAt)}
@@ -179,7 +177,7 @@ export default function EventDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-												{translate('admin.updatedAt')}
+										{translate('admin.updatedAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{formatDateTime(event.updatedAt)}
@@ -190,7 +188,7 @@ export default function EventDetailsModal() {
 							{event.description && (
 								<div>
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.description')}
+										{translate('admin.description')}
 									</p>
 									<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
 										{event.description}
@@ -201,7 +199,7 @@ export default function EventDetailsModal() {
 							{event.whatsIncluded?.length ? (
 								<div>
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.whatIncluded')}
+										{translate('admin.whatIncluded')}
 									</p>
 									<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 										{event.whatsIncluded.map((item) => (
@@ -219,7 +217,7 @@ export default function EventDetailsModal() {
 							{event.cancellationRules?.length ? (
 								<div>
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.cancellationRules')}
+										{translate('admin.cancellationRules')}
 									</p>
 									<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-1 dark:text-gray-200">
 										{event.cancellationRules.map((rule) => (
@@ -228,10 +226,11 @@ export default function EventDetailsModal() {
 												className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
 											>
 												<p className="font-semibold text-gray-900 dark:text-white">
-															{translate('admin.expiresHoursBefore')} {rule.hoursBeforeEvent} {translate('cancellation.and')}
+													{translate('admin.expiresHoursBefore')} {rule.hoursBeforeEvent}{' '}
+													{translate('cancellation.and')}
 												</p>
 												<p className="mt-1 text-sm text-gray-700 dark:text-gray-200">
-															{translate('admin.refund')}: {rule.refundPercentage}%
+													{translate('admin.refund')}: {rule.refundPercentage}%
 												</p>
 											</li>
 										))}
