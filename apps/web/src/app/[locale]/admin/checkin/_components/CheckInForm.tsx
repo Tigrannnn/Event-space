@@ -1,0 +1,182 @@
+'use client';
+
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { adminApi } from '@/features/admin/api/admin.api';
+import Button from '@/components/ui/Buttons/Button';
+import { useTranslation } from '@/hooks/translation';
+import { formatDateTime } from '@/utils/date';
+import { formatBookingReference } from '@/utils/booking';
+import { ToastType, useToastStore } from '@/stores/toastStore';
+import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search } from 'lucide-react';
+
+export default function CheckInForm() {
+    const translate = useTranslation();
+    const [input, setInput] = useState('');
+    const [ref, setRef] = useState<number | null>(null);
+    const { addToast } = useToastStore();
+    const queryClient = useQueryClient();
+
+    const { data: booking, isLoading, isError } = useQuery({
+        queryKey: ['checkin-booking', ref],
+        queryFn: () => adminApi.getBookingByReference(ref!).then((r) => r.data),
+        enabled: ref !== null,
+        retry: false,
+    });
+
+    const { mutate: checkIn, isPending: isCheckingIn } = useMutation({
+        mutationFn: (id: string) => adminApi.checkInBooking(id),
+        onSuccess: () => {
+            addToast('Checked in successfully', ToastType.SUCCESS);
+            queryClient.invalidateQueries({ queryKey: ['checkin-booking', ref] });
+        },
+        onError: () => {
+            addToast('Failed to check in', ToastType.ERROR);
+        },
+    });
+
+    const handleSearch = () => {
+        const num = parseInt(input.replace('#', '').trim(), 10);
+        if (isNaN(num)) {
+            addToast(translate('admin.invalidReference'), ToastType.ERROR);
+            return;
+        }
+        setRef(num);
+    };
+
+    const isCheckedIn = !!booking?.checkedInAt;
+    const isCancelled = booking?.status === 'CANCELLED';
+
+    return (
+        <div className="mx-auto max-w-xl space-y-6">
+            {/* Склеенная поисковая группа (Input Group) */}
+            <div className="group relative flex items-center rounded-xl border border-gray-300 bg-white shadow-sm transition-all focus-within:border-gray-500 dark:border-zinc-700 dark:bg-zinc-900 dark:focus-within:border-zinc-500">
+                <div className="pointer-events-none absolute left-4 text-gray-400 dark:text-zinc-500">
+                    <Search className="h-4 w-4" />
+                </div>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Enter booking reference (e.g., #100142)"
+                    className="h-12 flex-1 bg-transparent pl-11 pr-4 text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-zinc-500"
+                />
+                <div className="pr-1.5">
+                    <Button 
+                        onClick={handleSearch} 
+                        isLoading={isLoading}
+                        className="h-9 px-4 text-xs font-semibold tracking-wide"
+                    >
+                        Find
+                    </Button>
+                </div>
+            </div>
+
+            {isError && (
+                <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/30 dark:bg-red-950/20 dark:text-red-400">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
+                    <span className="font-medium">{translate('admin.bookingNotFound')}</span>
+                </div>
+            )}
+
+            {booking && (
+                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+                    {/* Индикатор статуса сверху карточки */}
+                    <div className={`flex items-center justify-between border-b px-5 py-4 dark:border-zinc-800 ${
+                        isCancelled ? 'bg-red-50/50 dark:bg-red-950/10' : 
+                        isCheckedIn ? 'bg-amber-50/50 dark:bg-amber-950/10' : 
+                        'bg-emerald-50/50 dark:bg-emerald-950/10'
+                    }`}>
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                                Reference
+                            </span>
+                            <span className="font-mono text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                {formatBookingReference(booking.referenceNumber)}
+                            </span>
+                        </div>
+
+                        {/* Компактные и яркие статус-бейджи */}
+                        {isCancelled ? (
+                            <span className="flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                                <XCircle className="h-3.5 w-3.5" /> Cancelled
+                            </span>
+                        ) : isCheckedIn ? (
+                            <span className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                <AlertCircle className="h-3.5 w-3.5" /> Checked In
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                <CheckCircle2 className="h-3.5 w-3.5" /> Active
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="p-5 space-y-6">
+                        {/* Иерархия клиента */}
+                        <div className="space-y-1">
+                            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-zinc-500">
+                                Customer
+                            </span>
+                            <h3 className="text-lg font-bold leading-tight text-gray-900 dark:text-white">
+                                {booking.user?.name ?? 'Unknown'}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-zinc-400">
+                                {booking.user?.email}
+                            </p>
+                        </div>
+
+                        {/* Блок деталей ивента */}
+                        <div className="rounded-xl bg-gray-50 p-4 dark:bg-zinc-800/50 space-y-3">
+                            <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                {booking.event?.title ?? '—'}
+                            </p>
+                            
+                            <div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-gray-600 dark:text-zinc-400 sm:grid-cols-2">
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                                    <span>{booking.event ? formatDateTime(booking.event.date) : '—'}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                                    <span className="truncate">{booking.event?.location ?? '—'}</span>
+                                </div>
+                                <div className="flex items-center gap-2 sm:col-span-2 border-t pt-2 border-gray-200 dark:border-zinc-700">
+                                    <Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
+                                    <span className="font-bold text-gray-900 dark:text-white">
+                                        {booking.quantity} {booking.quantity === 1 ? 'spot' : 'spots'} booked
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Логи и системные уведомления внизу карточки */}
+                        {isCancelled && (
+                            <div className="rounded-lg bg-red-50 p-3 text-center text-xs font-semibold text-red-700 dark:bg-red-950/20 dark:text-red-400">
+                                {translate('admin.bookingCancelled')}
+                            </div>
+                        )}
+
+                        {isCheckedIn && (
+                            <div className="rounded-lg bg-amber-50 p-3 text-center text-xs font-semibold text-amber-700 dark:bg-amber-950/20 dark:text-amber-400">
+                                {translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!)}
+                            </div>
+                        )}
+
+                        {!isCancelled && !isCheckedIn && (
+                            <Button
+                                variant="primary"
+                                className="w-full h-11 text-sm font-bold"
+                                onClick={() => checkIn(booking.id)}
+                                isLoading={isCheckingIn}
+                            >
+                                Confirm Check In
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

@@ -5,6 +5,7 @@ import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
+import { useTranslation } from '@/hooks/translation';
 
 export default function BookingForm({
 	event,
@@ -17,6 +18,7 @@ export default function BookingForm({
 	onClose,
 	availableSpots,
 }: BookingFormProps) {
+	const translate = useTranslation();
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const totalPrice = event.price * quantity;
 
@@ -36,23 +38,23 @@ export default function BookingForm({
 				onIncrement={handleIncrement}
 				onDecrement={handleDecrement}
 				disabled={isLoading}
-				label="Select spots"
+				label={translate('booking.selectSpots')}
 			/>
 
 			<div className="mt-4 flex items-center justify-between">
-				<span className="text-gray-600 dark:text-gray-400">Total price</span>
+				<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
 				<span className="text-primary text-2xl font-bold">${totalPrice}</span>
 			</div>
 
 			{availableSpots !== undefined && (
 				<p className="mt-2 text-right text-sm text-gray-500 dark:text-gray-400">
-					{availableSpots} spots available
+					{availableSpots} {translate('booking.spotsAvailable')}
 				</p>
 			)}
 
 			<div className="mt-6 flex gap-3">
 				<Button variant="secondary" onClick={onClose} disabled={isLoading} className="flex-1">
-					Cancel
+					{translate('booking.cancel')}
 				</Button>
 				<Button
 					variant="primary"

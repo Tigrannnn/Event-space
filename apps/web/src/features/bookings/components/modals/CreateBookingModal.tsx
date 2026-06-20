@@ -8,11 +8,13 @@ import { useCreateBooking } from '@/features/bookings/hooks/useBookings';
 import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
 import { BookingWithEstimate } from '@event-space/shared';
+import { useTranslation } from '@/hooks/translation';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isLoading } = useCreateBooking();
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
+	const translate = useTranslation();
 	const modalData = useModalData(ModalType.CreateBooking);
 	const event = modalData?.event;
 
@@ -37,21 +39,21 @@ export default function CreateBookingModal() {
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {
-						addToast('Unable to start payment. Please try again.', ToastType.ERROR);
+						addToast(translate('booking.paymentStartFailed'), ToastType.ERROR);
 						return;
 					}
 					setBooking(data.booking as BookingWithEstimate);
 					setClientSecret(data.clientSecret);
 				},
 				onError: () => {
-					addToast('Failed to create booking. Please try again.', ToastType.ERROR);
+					addToast(translate('booking.createFailed'), ToastType.ERROR);
 				},
 			},
 		);
 	};
 
 	return (
-		<Modal onClose={handleClose} ariaLabel="Confirm booking">
+		<Modal onClose={handleClose} ariaLabel={translate('booking.confirmBooking')}>
 			{clientSecret && booking ? (
 				<StripePaymentForm
 					event={event}
@@ -66,8 +68,8 @@ export default function CreateBookingModal() {
 					maxQuantity={spotsLeft}
 					onSubmit={handleConfirm}
 					isLoading={isLoading}
-					submitLabel={isLoading ? 'Preparing payment...' : 'Continue to payment'}
-					title="Confirm Booking"
+					submitLabel={isLoading ? translate('booking.preparingPayment') : translate('booking.continueToPayment')}
+					title={translate('booking.confirmBooking')}
 					onClose={closeModal}
 					availableSpots={spotsLeft}
 				/>

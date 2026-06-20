@@ -13,8 +13,9 @@ import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
-import { localizePath } from '@/lib/i18n/config';
-import { useI18nStore } from '@/stores/i18n';
+import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
+import { useTranslation } from '@/hooks/translation';
+import { useParams } from 'next/navigation';
 
 interface StripePaymentFormProps {
 	event: Event;
@@ -34,7 +35,9 @@ function StripePaymentFormContent({
 	const elements = useElements();
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
-	const { locale } = useI18nStore();
+	const translate = useTranslation();
+	const params = useParams();
+	const locale = (params.locale as Locale) || defaultLocale;
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
@@ -83,26 +86,26 @@ function StripePaymentFormContent({
 
 		if (error) {
 			setIsProcessing(false);
-			addToast(getApiErrorMessage(error, 'Payment failed. Please try again.'), ToastType.ERROR);
+			addToast(getApiErrorMessage(error, translate('booking.paymentFailed')), ToastType.ERROR);
 			return;
 		}
 
 		setHasSubmittedPayment(true);
-		addToast('Payment submitted. Waiting for confirmation...', ToastType.INFO);
+		addToast(translate('booking.paymentSubmitted'), ToastType.INFO);
 
 		const result = await waitForConfirmation();
 		setIsProcessing(false);
 
 		switch (result) {
 			case 'confirmed':
-				addToast('Payment confirmed! Your booking is complete.', ToastType.SUCCESS);
+				addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 				await invalidateAfterResolution();
 				onClose();
 				break;
 
 			case 'cancelled':
 				addToast(
-					'Your booking could not be completed. If you were charged, you will be refunded automatically.',
+					translate('booking.paymentCancelled'),
 					ToastType.ERROR,
 				);
 				await invalidateAfterResolution();
@@ -110,7 +113,7 @@ function StripePaymentFormContent({
 				break;
 
 			case 'timeout':
-				addToast('Payment is taking longer than expected. Check your bookings later.', ToastType.INFO);
+				addToast(translate('booking.paymentTimeout'), ToastType.INFO);
 				break;
 		}
 	};
@@ -165,7 +168,7 @@ function StripePaymentFormContent({
 		const timer = setTimeout(
 			() => {
 				handleClose();
-				addToast('Booking expired due to inactivity. Please try again.', ToastType.ERROR);
+				addToast(translate('booking.bookingExpired'), ToastType.ERROR);
 			},
 			60 * 60 * 1000,
 		);
@@ -175,18 +178,18 @@ function StripePaymentFormContent({
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
-			<ModalHeader title="Complete payment" onClose={handleClose} />
+			<ModalHeader title={translate('booking.completePayment')} onClose={handleClose} />
 
 			<p className="text-sm text-gray-500 dark:text-gray-400">
-				Enter your card details to confirm the booking.
+				{translate('booking.cardDetails')}
 			</p>
 
 			<div className="bg-gray-100 p-4 dark:bg-gray-800">
 				<p>
-					Amount: <span className="font-medium">${Number(booking.amount).toFixed(2)}</span>
+					{translate('booking.amount')}: <span className="font-medium">${Number(booking.amount).toFixed(2)}</span>
 				</p>
 				<p>
-					Quantity: <span className="font-medium">{booking.quantity}</span>
+					{translate('booking.quantity')}: <span className="font-medium">{booking.quantity}</span>
 				</p>
 			</div>
 
@@ -210,7 +213,7 @@ function StripePaymentFormContent({
 					disabled={isProcessing || isCancelling}
 					className="flex-1"
 				>
-					Cancel
+					{translate('booking.cancel')}
 				</Button>
 				<Button
 					type="submit"
@@ -218,7 +221,7 @@ function StripePaymentFormContent({
 					disabled={!stripe || !elements || isProcessing || isCancelling}
 					className="flex-1"
 				>
-					{isProcessing ? 'Confirming...' : 'Pay now'}
+					{isProcessing ? translate('booking.confirming') : translate('booking.payNow')}
 				</Button>
 			</div>
 		</form>
@@ -233,6 +236,7 @@ export default function StripePaymentForm({
 }: StripePaymentFormProps) {
 	const theme = useSystemTheme();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
+	const translate = useTranslation();
 
 	const stripePromise = useMemo(() => {
 		if (!publishableKey) {
@@ -245,9 +249,9 @@ export default function StripePaymentForm({
 	if (!stripePromise) {
 		return (
 			<div className="space-y-5 p-5 sm:p-6">
-				<ModalHeader title="Complete payment" onClose={onClose} />
+				<ModalHeader title={translate('booking.completePayment')} onClose={onClose} />
 				<p className="text-sm text-red-500">
-					Stripe is not configured properly. Please contact support.
+					{translate('booking.stripeMissing')}
 				</p>
 			</div>
 		);

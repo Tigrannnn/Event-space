@@ -7,10 +7,10 @@ import { AnimatePresence } from 'framer-motion';
 import { EditProfileModal } from '@/features/profile';
 import { CreateBookingModal } from '@/features/bookings/components';
 import { UpdateEventModal, CreateEventModal } from '@/features/admin/events';
-import BookingDetailsModal from '@/app/admin/bookings/_components/BookingDetailsModal';
-import CreateManualBookingModal from '@/app/admin/bookings/_components/CreateManualBookingModal';
-import UserDetailsModal from '@/app/admin/users/_components/UserDetailsModal';
-import EventDetailsModal from '@/app/admin/events/_components/EventDetailsModal';
+import BookingDetailsModal from '@/app/[locale]/admin/bookings/_components/BookingDetailsModal';
+import CreateManualBookingModal from '@/app/[locale]/admin/bookings/_components/CreateManualBookingModal';
+import UserDetailsModal from '@/app/[locale]/admin/users/_components/UserDetailsModal';
+import EventDetailsModal from '@/app/[locale]/admin/events/_components/EventDetailsModal';
 
 /**
  * ModalRoot - renders the active modals.

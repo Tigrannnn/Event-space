@@ -1,5 +1,8 @@
+'use client';
+
 import { formatDateTime } from '@/utils/date';
 import { BookingWithEstimate, estimateStripeFeeInCents } from '@event-space/shared';
+import { useTranslation } from '@/hooks/translation';
 
 export interface CancellationPolicyInfoProps {
 	eventDate: Date | string;
@@ -14,6 +17,8 @@ export default function CancellationPolicyInfo({
 	cancellationRules,
 	booking,
 }: CancellationPolicyInfoProps) {
+	const translate = useTranslation();
+
 	if (!cancellationRules || cancellationRules.length === 0) {
 		return null;
 	}
@@ -40,7 +45,7 @@ export default function CancellationPolicyInfo({
 		const feeInDollars = (stripeFeeInCents / 100).toFixed(2);
 		
 		if (afterFee <= 0) {
-			return `$0 (${refundPercentage}% refund doesn't cover the ~$${feeInDollars} processing fee)`;
+			return `$0 (${refundPercentage}% ${translate('cancellation.doesntCoverFee')} ~$${feeInDollars})`;
 		}
 
 		const afterFeeInDollars = (afterFee / 100).toFixed(2);
@@ -56,34 +61,30 @@ export default function CancellationPolicyInfo({
 
 		if (index === 0) {
 			lines.push(
-				`Cancel before ${lowerBoundDeadline} to get ${refundDescriptionFor(rule.refundPercentage)} back`,
+				`${translate('cancellation.cancelBefore')} ${lowerBoundDeadline} ${translate('cancellation.toGet')} ${refundDescriptionFor(rule.refundPercentage)} ${translate('cancellation.back')}`,
 			);
 		} else {
 			const upperBoundDeadline = formatDateTime(deadlineFor(sortedRules[index - 1].hoursBeforeEvent));
 			lines.push(
-				`Cancel between ${upperBoundDeadline} and ${lowerBoundDeadline} to get ${refundDescriptionFor(rule.refundPercentage)} back`,
+				`${translate('cancellation.cancelBetween')} ${upperBoundDeadline} ${translate('cancellation.and')} ${lowerBoundDeadline} ${translate('cancellation.toGet')} ${refundDescriptionFor(rule.refundPercentage)} ${translate('cancellation.back')}`,
 			);
 		}
 	});
 
 	const lastRule = sortedRules[sortedRules.length - 1];
-	lines.push(`No refund after ${formatDateTime(deadlineFor(lastRule.hoursBeforeEvent))}`);
+	lines.push(`${translate('cancellation.noRefundAfter')} ${formatDateTime(deadlineFor(lastRule.hoursBeforeEvent))}`);
 
 	return (
 		<div className="rounded-md border border-gray-200 p-3 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-400">
-			<p className="mb-1 font-medium text-gray-800 dark:text-white">Cancellation policy</p>
-			<p className="mb-2 text-xs">
-				The closer to the event you cancel, the more was likely already spent preparing it — so the
-				refund percentage gets smaller. The processing fee in parentheses is also non-refundable and
-				subtracted from the total.
-			</p>
+			<p className="mb-1 font-medium text-gray-800 dark:text-white">{translate('cancellation.title')}</p>
+			<p className="mb-2 text-xs">{translate('cancellation.description')}</p>
 			<ul className="space-y-1">
 				{lines.map((line, i) => (
 					<li key={i}>{line}</li>
 				))}
 			</ul>
 			<p className="mt-2 text-xs italic">
-				Refund amounts are approximate and may vary slightly based on actual payment processing fees.
+				{translate('cancellation.feeNote')}
 			</p>
 		</div>
 	);

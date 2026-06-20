@@ -3,19 +3,21 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
-import { useHydrated } from '@/hooks/useHydrated';
+import { useHydrated } from '@/hooks/hydration/useHydrated';
 import { HomeIcon, UserIcon } from 'lucide-react';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
+import { isRouteActive } from '@/utils/route';
 
 export default function BottomNavbar() {
-	const { translate } = useI18nStore();
 	const pathname = usePathname();
+	const isAdminPage = isRouteActive(pathname, '/admin');
+	const translate = useTranslation();
 	const router = useRouter();
 	const { openModal } = useModalStore();
 	const { data: user } = useCurrentUser();
 	const isHydrated = useHydrated();
 
-	if (pathname.startsWith('/admin')) {
+	if (isAdminPage) {
 		return null;
 	}
 

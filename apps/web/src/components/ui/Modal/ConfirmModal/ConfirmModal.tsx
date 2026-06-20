@@ -4,13 +4,13 @@ import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Button from '../../Buttons/Button';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 
 export default function ConfirmModal() {
 	const { closeModal } = useModalStore();
 	const data = useModalData(ModalType.Confirm);
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	const handleConfirm = () => {
 		data?.onConfirm();

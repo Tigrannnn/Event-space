@@ -8,13 +8,13 @@ import { authApi } from '@/features/auth';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 

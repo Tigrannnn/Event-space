@@ -124,13 +124,10 @@ export class RateLimiterService {
 
 	/**
 	 * Fixed-window counter. Increments on each call; rejects when count exceeds max.
-	 * TTL is set on first increment so the window does not slide.
+	 * Uses atomic operation to ensure TTL is always set on first increment.
 	 */
 	async consumeFixedWindow(key: string, max: number, windowSec: number): Promise<void> {
-		const count = await this.redis.incr(key);
-		if (count === 1) {
-			await this.redis.expire(key, windowSec);
-		}
+		const count = await this.redis.incrWithTTL(key, windowSec);
 		if (count > max) {
 			throw new HttpException(
 				'Too many requests. Please try again later.',

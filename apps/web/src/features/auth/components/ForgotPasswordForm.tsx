@@ -19,14 +19,14 @@ import z from 'zod';
 import { useCooldown } from '../hooks/useCooldown';
 import { useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 const ResetStepSchema = ResetPasswordSchema.omit({ email: true });
 type ResetStepData = z.infer<typeof ResetStepSchema>;
 
 export default function ForgotPasswordForm() {
 	const modalData = useModalData(ModalType.ForgotPassword);
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	const initialEmail = modalData?.email ?? '';
 	const [email, setEmail] = useState(initialEmail);

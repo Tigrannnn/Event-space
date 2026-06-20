@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { Mail, Phone, Instagram } from 'lucide-react';
 import { COMPANY_CONFIG } from '@/config/сompany';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	return (
 		<div

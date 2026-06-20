@@ -44,6 +44,21 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 		return await this.client.expire(key, seconds);
 	}
 
+	/**
+	 * Atomically increment counter and set TTL on first increment (fixed-window rate limit).
+	 * Uses Lua script to ensure no race conditions.
+	 */
+	async incrWithTTL(key: string, ttl: number): Promise<number> {
+		const script = `
+			local current = redis.call('INCR', KEYS[1])
+			if current == 1 then
+				redis.call('EXPIRE', KEYS[1], ARGV[1])
+			end
+			return current
+		`;
+		return (await this.client.eval(script, 1, key, ttl)) as number;
+	}
+
 	async zadd(key: string, score: number, member: string): Promise<number> {
 		return await this.client.zadd(key, score, member);
 	}

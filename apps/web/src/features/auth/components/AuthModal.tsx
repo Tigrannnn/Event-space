@@ -9,7 +9,7 @@ import { ModalType, useModalStore } from '@/stores';
 import VerifyEmailForm from './VerifyEmailForm';
 import { authModalConfig } from './authModalConfig';
 import ForgotPasswordForm from './ForgotPasswordForm';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 /**
  * AuthModal wraps LoginForm or RegisterForm with the universal Modal component.
@@ -17,7 +17,7 @@ import { useI18nStore } from '@/stores/i18n';
  */
 export default function AuthModal() {
 	const { activeModal, openModal, closeModal } = useModalStore();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	const config = authModalConfig[activeModal as ModalType];
 

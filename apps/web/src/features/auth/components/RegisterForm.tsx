@@ -7,11 +7,11 @@ import Input from '@/components/ui/Inputs/Input';
 import Button from '@/components/ui/Buttons/Button';
 import { RegisterData, RegisterSchema } from '@event-space/shared';
 import { useRegister } from '../hooks/useAuth';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 export default function RegisterForm() {
 	const { mutate: registerUser, isPending: isRegistering } = useRegister();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	const {
 		register,

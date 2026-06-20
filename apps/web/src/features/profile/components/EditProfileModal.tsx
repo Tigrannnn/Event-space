@@ -10,7 +10,7 @@ import { z } from 'zod';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
 import { useForgotPassword } from '@/features/auth';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 const editProfileSchema = z.object({
 	name: z
@@ -23,7 +23,7 @@ type EditProfileForm = z.infer<typeof editProfileSchema>;
 
 export default function EditProfileModal() {
 	const { data: user } = useCurrentUser();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 	const { mutate: updateProfile, isPending: isUpdating } = useUpdateCurrentUser();
 	const { activeModal, closeModal, openModal } = useModalStore();
 	const isOpen = activeModal === ModalType.EditProfile;

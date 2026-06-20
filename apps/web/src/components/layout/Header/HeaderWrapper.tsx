@@ -4,12 +4,11 @@ import { Suspense, useEffect, useState } from 'react';
 import Header from './Header';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
+import { isRouteActive } from '@/utils/route';
 
 export default function HeaderWrapper() {
 	const pathname = usePathname();
-	if (pathname.startsWith('/admin')) {
-		return null;
-	}
+	const isAdminPage = isRouteActive(pathname, '/admin');
 	
 	const [isTopBarVisible, setIsTopBarVisible] = useState(true);
 
@@ -35,6 +34,10 @@ export default function HeaderWrapper() {
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
+
+	if (isAdminPage) {
+		return null;
+	}
 
 	return (
 		<Suspense fallback={<div className="h-20 animate-pulse bg-gray-100" />}>

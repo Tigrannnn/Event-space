@@ -9,10 +9,8 @@ import {
 } from '@/lib/i18n/config';
 
 const BASE_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
-
 const REFRESH_BEFORE_EXPIRY_SECONDS = 30;
 const LOCALE_COOKIE = 'event-space-locale';
-
 const PUBLIC_FILE = /\.(.*)$/;
 
 function getCookieHeader(request: NextRequest): string {
@@ -128,6 +126,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 		const locale = getRequestLocale(request);
 		const redirectUrl = request.nextUrl.clone();
 		redirectUrl.pathname = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
+        redirectUrl.search = search;
 		return NextResponse.redirect(redirectUrl);
 	}
 
@@ -137,14 +136,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 	headers.set('x-pathname', pathname);
 
 	const responseFactory = (requestHeaders?: Headers) => {
-		const rewriteUrl = request.nextUrl.clone();
-		rewriteUrl.pathname = internalPathname;
-		rewriteUrl.search = search;
-		requestHeaders?.set('x-locale', pathLocale);
-		requestHeaders?.set('x-pathname', pathname);
+		const activeHeaders = requestHeaders ?? headers;
+		activeHeaders.set('x-locale', pathLocale);
+        activeHeaders.set('x-pathname', pathname);
 
-		const response = NextResponse.rewrite(rewriteUrl, {
-			request: { headers: requestHeaders ?? headers },
+		const response = NextResponse.next({
+            request: { headers: activeHeaders },
 		});
 
 		response.cookies.set(LOCALE_COOKIE, pathLocale, {

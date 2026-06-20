@@ -20,13 +20,15 @@ import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { BookOpen, MapPin, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { localizePath } from '@/lib/i18n/config';
-import { useI18nStore } from '@/stores/i18n';
+import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
+import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useParams } from 'next/navigation';
 
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
-	const { locale } = useI18nStore();
+	const translate = useTranslation();
+	const locale = translate.locale
 	const navigation = useLocalizedNavigation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -109,19 +111,19 @@ export default function EventCard({ event }: EventCardProps) {
 
 					{!eventIsAvailable ? (
 						<Button disabled variant="secondary" className="relative z-20 w-full">
-							Event Ended
+							{translate('event.eventEndedButton')}
 						</Button>
 					) : isUserLoading || isMyBookingsLoading ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
 							<Ticket className="h-4 w-4" />
-							View My Booking
+							{translate('event.viewMyBooking')}
 						</Button>
 					) : (
 						<Button variant="primary" className="relative z-20 w-full" onClick={handleJoinClick}>
 							<BookOpen className="h-4 w-4" />
-							Book Tour
+							{translate('event.bookTour')}
 						</Button>
 					)}
 				</div>

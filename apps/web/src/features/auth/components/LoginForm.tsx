@@ -8,12 +8,12 @@ import Button from '@/components/ui/Buttons/Button';
 import { LoginData, LoginSchema } from '@event-space/shared';
 import { useLogin } from '../hooks/useAuth';
 import { ModalType, useModalStore } from '@/stores';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 export default function LoginForm() {
 	const { mutate: loginUser, isPending: isLoggingIn } = useLogin();
 	const { openModal } = useModalStore();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 
 	const {
 		register,

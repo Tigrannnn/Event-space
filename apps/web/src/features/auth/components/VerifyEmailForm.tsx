@@ -11,11 +11,11 @@ import { ModalType } from '@/stores/modalStore/types';
 import { useResendCode, useVerifyEmail } from '../hooks/useAuth';
 import { useCooldown } from '../hooks/useCooldown';
 import { useModalData } from '@/stores/modalStore/modalStore';
-import { useI18nStore } from '@/stores/i18n';
+import { useTranslation } from '@/hooks/translation';
 
 export default function VerifyEmailForm() {
 	const { openModal } = useModalStore();
-	const { translate } = useI18nStore();
+	const translate = useTranslation();
 	const modalData = useModalData(ModalType.VerifyEmail);
 	const { mutate: verifyEmail, isPending: isVerifyingEmail } = useVerifyEmail();
 	const { mutate: resendCode, isPending: isResending } = useResendCode();

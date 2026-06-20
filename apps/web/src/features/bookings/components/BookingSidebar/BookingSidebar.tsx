@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
@@ -9,6 +11,7 @@ import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useTranslation } from '@/hooks/translation';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -23,6 +26,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
+	const translate = useTranslation();
 
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -58,7 +62,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="mb-5 sm:mb-6">
 					<div className="flex items-baseline gap-2">
 						<span className="text-primary text-3xl font-black sm:text-4xl">${event.price}</span>
-						<span className="font-medium text-gray-500 dark:text-gray-400">/ person</span>
+						<span className="font-medium text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
 					</div>
 				</div>
 
@@ -66,9 +70,11 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="mb-5 sm:mb-6">
 					<div className="mb-2 flex justify-between text-[13px] sm:text-sm">
 						<span className="font-bold text-gray-700 dark:text-gray-300">
-							{event.currentParticipants} of {event.maxParticipants} participants
+							{event.currentParticipants} / {event.maxParticipants} {translate('event.participants')}
 						</span>
-						<span className="text-accent font-bold">{spotsLeft} spots left</span>
+						<span className="text-accent font-bold">
+							{spotsLeft} {translate('event.spotsLeft')}
+						</span>
 					</div>
 					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 sm:h-2.5 dark:bg-gray-700">
 						<div
@@ -77,7 +83,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						/>
 					</div>
 					{spotsLeft <= 5 && (
-						<p className="text-accent mt-2 animate-pulse text-xs font-bold">⚠️ Selling fast!</p>
+						<p className="text-accent mt-2 animate-pulse text-xs font-bold">
+							{translate('event.sellingFast')}
+						</p>
 					)}
 				</div>
 
@@ -87,7 +95,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						<Calendar className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
-								Date
+								{translate('event.date')}
 							</span>
 							<span className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
 								{formatDateTime(event.date)}
@@ -98,7 +106,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
-								Location
+								{translate('event.location')}
 							</span>
 							{event.locationUrl ? (
 								<a
@@ -119,9 +127,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				{/* Join Button */}
 				{!eventIsAvailable ? (
 					<div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-center text-sm font-semibold text-red-700 dark:border-red-700/40 dark:bg-red-900/20 dark:text-red-200">
-						This event has ended
+						{translate('event.eventEnded')}
 					</div>
-				) : user && isUserLoading && isMyBookingsLoading ? (
+				) : isUserLoading || isMyBookingsLoading ? (
 					<Skeleton className="h-12 w-full rounded-xl" />
 				) : hasBooking ? (
 					<Button
@@ -130,7 +138,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						onClick={handleViewBooking}
 					>
 						<Ticket className="h-4 w-4" />
-						View My Booking
+						{translate('event.viewMyBooking')}
 					</Button>
 				) : (
 					<Button
@@ -139,7 +147,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						onClick={handleJoinClick}
 					>
 						<BookOpen className="h-4 w-4" />
-						Book Tour
+						{translate('event.bookTour')}
 					</Button>
 				)}
 
@@ -147,7 +155,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="mt-4 flex items-center justify-center gap-3 text-[13px] text-gray-400 sm:mt-6 sm:gap-4 sm:text-xs dark:text-gray-500">
 					<div className="flex items-center gap-1">
 						<CheckIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-						<span>Secure booking</span>
+						<span>{translate('event.secureBooking')}</span>
 					</div>
 				</div>
 			</div>

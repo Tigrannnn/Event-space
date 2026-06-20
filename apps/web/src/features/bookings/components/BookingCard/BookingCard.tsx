@@ -10,8 +10,10 @@ import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
-import { useRouter } from 'next/navigation';
 import type { BookingWithEstimate } from '@event-space/shared';
+import { localizePath } from '@/lib/i18n/config';
+import { useTranslation } from '@/hooks/translation';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
@@ -37,7 +39,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// const { openModal } = useModalStore();
 
 	const confirm = useConfirm();
-	const router = useRouter();
+	const translate = useTranslation();
+	const locale = translate.locale
+	const navigation = useLocalizedNavigation();
 
 	// const handleUpdate = () => {
 	// 	openModal(ModalType.UpdateBooking, { booking });
@@ -46,18 +50,18 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const handleCancel = async () => {
 		if (!event) return;
 
-		let refundMessage = 'No refund available';
+		let refundMessage = translate('booking.noRefund');
 		if (refundPercentage > 0 && estimatedRefundInCents > 0) {
-			refundMessage = `You will receive: ~$${centsToDollars(estimatedRefundInCents)}`;
+			refundMessage = `${translate('booking.youWillReceive')}: ~$${centsToDollars(estimatedRefundInCents)}`;
 		} else if (refundPercentage > 0 && estimatedRefundInCents === 0) {
-			refundMessage = 'Fee will cover the entire amount — no refund';
+			refundMessage = translate('booking.feeCoversAmount');
 		}
 
 		const isConfirmed = await confirm({
-			title: 'Cancel Booking',
+			title: translate('booking.cancelBooking'),
 			message: (
 				<div className="space-y-3">
-					<p>{`Are you sure? ${refundMessage}`}</p>
+					<p>{`${translate('booking.areYouSure')} ${refundMessage}`}</p>
 					<CancellationPolicyInfo
 						eventDate={event.date}
 						price={event.price}
@@ -67,8 +71,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				</div>
 			),
 			size: 'md',
-			confirmText: 'Yes, Cancel',
-			cancelText: 'Close',
+			confirmText: translate('booking.yesCancel'),
+			cancelText: translate('booking.close'),
 			variant: 'danger',
 		});
 
@@ -104,7 +108,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			{/* Content */}
 			<div className="p-4 sm:p-6">
 				<Link
-					href={`/events/${event.id}`}
+					href={localizePath(`/events/${event.id}`, locale)}
 					className="hover:text-primary dark:hover:text-primary mb-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
 				>
 					{event.title}
@@ -112,7 +116,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				<div className="mb-3 flex items-center gap-2">
 					<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
-						Booking ref
+						{translate('booking.bookingRef')}
 					</span>
 					<span className="text-primary font-mono text-lg font-bold">
 						{formatBookingReference(booking.referenceNumber)}
@@ -146,32 +150,34 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					<div className="flex items-center gap-2">
 						<Users className="text-primary h-5 w-5" />
 						<span className="font-medium text-gray-700 dark:text-gray-300">
-							{quantity} {quantity === 1 ? 'spot' : 'spots'}
+							{quantity} {quantity === 1 ? translate('booking.spot') : translate('booking.spots')}
 						</span>
 					</div>
 					<div className="text-right">
 						<span className="text-primary text-xl font-bold">${event.price * quantity}</span>
-						<span className="text-sm text-gray-400 dark:text-gray-500"> total</span>
+						<span className="text-sm text-gray-400 dark:text-gray-500"> {translate('booking.total')}</span>
 
 						{/* Refund estimate & commission */}
 						{(() => {
 							if (refundPercentage === 0 || estimatedRefundInCents === 0) {
 								return (
-									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">No refund available</div>
+									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+										{translate('booking.noRefund')}
+									</div>
 								);
 							}
 
 							if (estimatedRefundInCents <= 0) {
 								return (
 									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-										Fee will cover the entire amount — no refund
+										{translate('booking.feeCoversAmount')}
 									</div>
 								);
 							}
 
 							return (
 								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-									Refund: ~${centsToDollars(estimatedRefundInCents)}
+									{translate('booking.refund')}: ~${centsToDollars(estimatedRefundInCents)}
 								</div>
 							);
 						})()}
@@ -187,9 +193,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						variant="primary"
 						size="sm"
 						className="flex-1"
-						onClick={() => router.push(`/events/${event.id}`)}
+						onClick={() => navigation.push(`/events/${event.id}`)}
 					>
-						View Event
+						{translate('booking.viewEvent')}
 					</Button>
 					{eventIsAvailable && (
 						<Button
@@ -199,7 +205,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							onClick={handleCancel}
 							isLoading={isCancelling}
 						>
-							Cancel
+							{translate('booking.cancel')}
 						</Button>
 					)}
 				</div>
