@@ -10,7 +10,6 @@ import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
 
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { useTranslation } from '@/hooks/translation';
 
 /**
@@ -96,7 +95,6 @@ export default function Header() {
 
 					{/* Auth buttons */}
 					<nav className="hidden shrink-0 items-center gap-3 md:flex">
-						<LanguageSwitcher />
 						{!isHydrated || isUserLoading ? (
 							<></>
 						) : user ? (
@@ -125,7 +123,6 @@ export default function Header() {
 							</>
 						)}
 					</nav>
-					<LanguageSwitcher className="md:hidden" />
 				</div>
 			</div>
 		</header>

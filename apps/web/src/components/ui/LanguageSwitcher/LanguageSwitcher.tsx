@@ -1,7 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation'; // 1. Импортируем useParams
-import { localeLabels, locales, type Locale, defaultLocale } from '@/lib/i18n/config'; // 2. Добавляем defaultLocale
+import { useParams } from 'next/navigation';
+import { localeLabels, locales, type Locale, defaultLocale } from '@/lib/i18n/config';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { cn } from '@/utils/cn';
 import { useTranslation } from '@/hooks/translation';
@@ -16,7 +16,7 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
     return (
         <div
             className={cn(
-                'flex items-center gap-1 rounded-xl bg-white/15 p-2 text-white backdrop-blur-md',
+                'flex items-center gap-0.5 rounded-lg bg-white/15 p-1 text-white backdrop-blur-md',
                 className,
             )}
             aria-label={translate('header.language')}
@@ -27,7 +27,7 @@ export default function LanguageSwitcher({ className }: { className?: string }) 
                     type="button"
                     onClick={() => switchLocale(item)}
                     className={cn(
-                        'h-8 min-w-9 cursor-pointer rounded-lg px-2 text-xs font-semibold transition-colors',
+                        'h-7 min-w-8 cursor-pointer rounded-md px-1.5 text-[10px] font-semibold transition-colors',
                         item === locale ? 'bg-white text-gray-900' : 'text-white hover:bg-white/15',
                     )}
                     aria-pressed={item === locale}
