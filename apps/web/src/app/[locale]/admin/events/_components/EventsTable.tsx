@@ -300,8 +300,14 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 										</div>
 									</TableCell>
 									<TableCell>
-										<Badge label={event.status} />
-									</TableCell>
+									<Badge label={
+										event.status === 'PUBLISHED'
+											? translate('admin.published')
+											: event.status === 'CANCELLED'
+												? translate('admin.cancelled')
+												: translate('admin.draft')
+									} />
+								</TableCell>
 									<TableCell>
 										<div className="flex items-center gap-2 text-sm">
 											<CalendarDays className="h-4 w-4 text-gray-400" />
