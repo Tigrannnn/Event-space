@@ -1,6 +1,7 @@
 export * from './EventSchema';
 export * from './EventImageSchema';
 export * from './CancellationPolicyRuleSchema';
+export * from './EventTranslationSchema';
 export * from './BookingSchema';
 export * from './BookingReferenceSchema';
 export * from './BookingAdjustmentSchema';

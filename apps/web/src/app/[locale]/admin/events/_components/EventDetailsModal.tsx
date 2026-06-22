@@ -9,6 +9,7 @@ import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
+import { getEventTranslation } from '@event-space/shared';
 
 function formatCurrency(value: number | string) {
 	return new Intl.NumberFormat('en', {
@@ -21,6 +22,7 @@ function formatCurrency(value: number | string) {
 
 export default function EventDetailsModal() {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const router = useRouter();
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
@@ -30,6 +32,8 @@ export default function EventDetailsModal() {
 	if (!event) {
 		return null;
 	}
+
+	const t = getEventTranslation(event, locale);
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(event.id);
@@ -51,7 +55,7 @@ export default function EventDetailsModal() {
 								>
 									<Image
 										src={image.url}
-										alt={event.title}
+										alt={t.title}
 										width={600}
 										height={400}
 										className="h-48 w-full object-cover"
@@ -75,7 +79,7 @@ export default function EventDetailsModal() {
 									}}
 									className="text-primary cursor-pointer text-left text-lg font-semibold transition hover:underline"
 								>
-									{event.title}
+									{t.title}
 								</button>
 							</div>
 
@@ -97,7 +101,7 @@ export default function EventDetailsModal() {
 								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 									{translate('admin.category')}
 								</p>
-								<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.category}</p>
+								<p className="mt-1 font-medium text-gray-900 dark:text-white">{t.category}</p>
 							</div>
 
 							<div className="grid gap-3 sm:grid-cols-2">
@@ -113,7 +117,7 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.location')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.location}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{t.location}</p>
 								</div>
 							</div>
 
@@ -185,24 +189,24 @@ export default function EventDetailsModal() {
 								</div>
 							</div>
 
-							{event.description && (
+							{t.description && (
 								<div>
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.description')}
 									</p>
 									<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
-										{event.description}
+										{t.description}
 									</p>
 								</div>
 							)}
 
-							{event.whatsIncluded?.length ? (
+							{t.whatsIncluded?.length ? (
 								<div>
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.whatIncluded')}
 									</p>
 									<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
-										{event.whatsIncluded.map((item) => (
+										{t.whatsIncluded.map((item) => (
 											<li
 												key={item}
 												className="rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900"

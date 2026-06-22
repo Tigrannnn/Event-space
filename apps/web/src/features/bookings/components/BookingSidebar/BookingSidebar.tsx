@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { CheckIcon } from '../../../../components/ui/Icons';
-import { Event, isEventAvailable } from '@event-space/shared';
+import { Event, isEventAvailable, getEventTranslation } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
@@ -27,6 +27,8 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
+	const locale = translate.locale;
+	const t = getEventTranslation(event, locale);
 
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -115,10 +117,10 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 									rel="noopener noreferrer"
 									className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
 								>
-									{event.location}
+									{t.location}
 								</a>
 							) : (
-								<span className="text-sm font-medium sm:text-base">{event.location}</span>
+								<span className="text-sm font-medium sm:text-base">{t.location}</span>
 							)}
 						</div>
 					</div>

@@ -28,6 +28,7 @@ import {
 	EventStatusEnum,
 	EventDifficultyEnum,
 	TimeFilterSchema,
+	getEventTranslation,
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
@@ -54,6 +55,7 @@ function formatCurrency(value: Event['price']) {
 
 export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const [skip, setSkip] = useState(initialEvents.skip);
 	const [limit, setLimit] = useState(initialEvents.take);
 	const [searchInput, setSearchInput] = useState('');
@@ -142,9 +144,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	};
 
 	const handleDelete = async (event: Event) => {
+		const t = getEventTranslation(event, locale);
 		const confirmed = await confirm({
 			title: translate('admin.deleteEvent'),
-			message: `${translate('admin.deleteEventMessage')} "${event.title}"`,
+			message: `${translate('admin.deleteEventMessage')} "${t.title}"`,
 			confirmText: translate('admin.delete'),
 			variant: 'danger',
 		});
@@ -278,78 +281,81 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							</TableRow>
 						)}
 
-						{eventsResponse.data.map((event) => (
-							<TableRow key={event.id}>
-								<TableCell className="px-3 sm:px-5">
-									<div className="max-w-md min-w-0">
-										<button
-											type="button"
-											onClick={() => router.push(`/events/${event.id}`)}
-											className="text-primary cursor-pointer truncate text-left font-medium transition hover:underline"
-										>
-											{event.title}
-										</button>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											{event.category} · {event.location}
-										</p>
-									</div>
-								</TableCell>
-								<TableCell>
-									<Badge label={event.status} />
-								</TableCell>
-								<TableCell>
-									<div className="flex items-center gap-2 text-sm">
-										<CalendarDays className="h-4 w-4 text-gray-400" />
-										{formatDateTime(event.date)}
-									</div>
-								</TableCell>
-								<TableCell>
-									{event.currentParticipants}/{event.maxParticipants}
-								</TableCell>
-								<TableCell>{formatCurrency(event.price)}</TableCell>
-								<TableCell>
-									<div className="flex gap-2">
-										<Button
-											type="button"
-											size="xs"
-											variant="secondary"
-											onClick={() => openModal(ModalType.EventDetails, { event })}
-											aria-label={`${translate('admin.viewDetails')}: ${event.title}`}
-										>
-											<Eye className="h-4 w-4" />
-										</Button>
-										<Button
-											type="button"
-											size="xs"
-											variant="secondary"
-											onClick={() => openModal(ModalType.UpdateEvent, { event })}
-											aria-label={`${translate('admin.edit')}: ${event.title}`}
-										>
-											<Pencil className="h-4 w-4" />
-										</Button>
-										<Button
-											type="button"
-											size="xs"
-											variant="secondary"
-											onClick={() => router.push(`/admin/bookings?eventId=${event.id}`)}
-											aria-label={`${translate('admin.viewBookings')}: ${event.title}`}
-										>
-											<Users className="h-4 w-4" />
-										</Button>
-										<Button
-											type="button"
-											size="xs"
-											variant="danger"
-											onClick={() => handleDelete(event)}
-											isLoading={deletingId === event.id && deleteEvent.isPending}
-											aria-label={`${translate('admin.delete')}: ${event.title}`}
-										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</div>
-								</TableCell>
-							</TableRow>
-						))}
+						{eventsResponse.data.map((event) => {
+							const t = getEventTranslation(event, locale);
+							return (
+								<TableRow key={event.id}>
+									<TableCell className="px-3 sm:px-5">
+										<div className="max-w-md min-w-0">
+											<button
+												type="button"
+												onClick={() => router.push(`/events/${event.id}`)}
+												className="text-primary cursor-pointer truncate text-left font-medium transition hover:underline"
+											>
+												{t.title}
+											</button>
+											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+												{t.category} · {t.location}
+											</p>
+										</div>
+									</TableCell>
+									<TableCell>
+										<Badge label={event.status} />
+									</TableCell>
+									<TableCell>
+										<div className="flex items-center gap-2 text-sm">
+											<CalendarDays className="h-4 w-4 text-gray-400" />
+											{formatDateTime(event.date)}
+										</div>
+									</TableCell>
+									<TableCell>
+										{event.currentParticipants}/{event.maxParticipants}
+									</TableCell>
+									<TableCell>{formatCurrency(event.price)}</TableCell>
+									<TableCell>
+										<div className="flex gap-2">
+											<Button
+												type="button"
+												size="xs"
+												variant="secondary"
+												onClick={() => openModal(ModalType.EventDetails, { event })}
+												aria-label={`${translate('admin.viewDetails')}: ${t.title}`}
+											>
+												<Eye className="h-4 w-4" />
+											</Button>
+											<Button
+												type="button"
+												size="xs"
+												variant="secondary"
+												onClick={() => openModal(ModalType.UpdateEvent, { event })}
+												aria-label={`${translate('admin.edit')}: ${t.title}`}
+											>
+												<Pencil className="h-4 w-4" />
+											</Button>
+											<Button
+												type="button"
+												size="xs"
+												variant="secondary"
+												onClick={() => router.push(`/admin/bookings?eventId=${event.id}`)}
+												aria-label={`${translate('admin.viewBookings')}: ${t.title}`}
+											>
+												<Users className="h-4 w-4" />
+											</Button>
+											<Button
+												type="button"
+												size="xs"
+												variant="danger"
+												onClick={() => handleDelete(event)}
+												isLoading={deletingId === event.id && deleteEvent.isPending}
+												aria-label={`${translate('admin.delete')}: ${t.title}`}
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
+									</TableCell>
+								</TableRow>
+							);
+						})}
 					</TableBody>
 				</Table>
 

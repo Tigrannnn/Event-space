@@ -41,6 +41,7 @@ export class EventService {
 		organizer: this.organizerInclude,
 		images: this.imagesInclude,
 		cancellationRules: true,
+		translations: true,
 	};
 
 	async findAll(cursor?: string, limit: number = 8, search?: string) {
@@ -48,12 +49,16 @@ export class EventService {
 
 		const searchFilter = search
 			? {
-					OR: [
-						{ title: { contains: search, mode: 'insensitive' as const } },
-						{ description: { contains: search, mode: 'insensitive' as const } },
-						{ category: { contains: search, mode: 'insensitive' as const } },
-						{ location: { contains: search, mode: 'insensitive' as const } },
-					],
+					translations: {
+						some: {
+							OR: [
+								{ title: { contains: search, mode: 'insensitive' as const } },
+								{ description: { contains: search, mode: 'insensitive' as const } },
+								{ category: { contains: search, mode: 'insensitive' as const } },
+								{ location: { contains: search, mode: 'insensitive' as const } },
+							],
+						},
+					},
 				}
 			: {};
 
@@ -124,7 +129,7 @@ export class EventService {
 	) {
 		const sortedItems = this.sortByOrder(imageItems);
 		const uploads = await this.uploadNewFiles(files);
-		const { cancellationRules, organizer, ...pureEventData } = eventData;
+		const { cancellationRules, organizer, translations, ...pureEventData } = eventData;
 
 		try {
 			return await this.prisma.$transaction(async (tx) => {
@@ -136,6 +141,7 @@ export class EventService {
 							cancellationRules && cancellationRules.length > 0
 								? { create: cancellationRules }
 								: undefined,
+						translations: translations && translations.length > 0 ? { create: translations } : undefined,
 					},
 				});
 
@@ -172,7 +178,7 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
-		const { cancellationRules, ...pureEventData } = eventData;
+		const { cancellationRules, translations, ...pureEventData } = eventData;
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
@@ -185,7 +191,14 @@ export class EventService {
 					};
 				}
 
-				if (Object.keys(pureEventData).length > 0 || cancellationRules !== undefined) {
+				if (translations !== undefined) {
+					updateData.translations = {
+						deleteMany: {},
+						create: translations,
+					};
+				}
+
+				if (Object.keys(pureEventData).length > 0 || cancellationRules !== undefined || translations !== undefined) {
 					await tx.event.update({ where: { id }, data: updateData });
 				}
 

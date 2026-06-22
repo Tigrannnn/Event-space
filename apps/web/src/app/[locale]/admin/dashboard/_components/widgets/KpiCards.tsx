@@ -21,7 +21,7 @@ export default function KpiCards({ stats }: KpiCardsProps) {
 		{
 			label: translate('admin.bookings'),
 			value: stats.totalBookings.toLocaleString(),
-			hint: `${stats.bookingConfirmationRate}% confirmation rate`,
+			hint: `${stats.bookingConfirmationRate}% ${translate('admin.confirmationRate')}`,
 			icon: Ticket,
 		},
 		{
@@ -33,7 +33,7 @@ export default function KpiCards({ stats }: KpiCardsProps) {
 		{
 			label: translate('admin.users'),
 			value: stats.totalUsers.toLocaleString(),
-			hint: `${stats.recentUsers.length} recent accounts visible`,
+			hint: `${stats.recentUsers.length} ${translate('admin.recentUsers')}`,
 			icon: Users,
 		},
 		{
@@ -45,7 +45,7 @@ export default function KpiCards({ stats }: KpiCardsProps) {
 		{
 			label: translate('admin.capacity'),
 			value: `${stats.capacityUsageRate}%`,
-			hint: `${stats.usedCapacity.toLocaleString()} / ${stats.totalCapacity.toLocaleString()} seats`,
+			hint: `${stats.usedCapacity.toLocaleString()} / ${stats.totalCapacity.toLocaleString()} ${translate('admin.seats')}`,
 			icon: TrendingUp,
 		},
 	];

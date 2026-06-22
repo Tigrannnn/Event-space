@@ -7,20 +7,16 @@ import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInp
 import { BookingOrderByRelationAggregateInputSchema } from './BookingOrderByRelationAggregateInputSchema';
 import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
+import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTranslationOrderByRelationAggregateInputSchema';
 
 export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
-  title: z.lazy(() => SortOrderSchema).optional(),
-  description: z.lazy(() => SortOrderSchema).optional(),
-  location: z.lazy(() => SortOrderSchema).optional(),
   locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
   difficulty: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   maxParticipants: z.lazy(() => SortOrderSchema).optional(),
   currentParticipants: z.lazy(() => SortOrderSchema).optional(),
-  category: z.lazy(() => SortOrderSchema).optional(),
-  whatsIncluded: z.lazy(() => SortOrderSchema).optional(),
   duration: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
@@ -30,6 +26,7 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   bookings: z.lazy(() => BookingOrderByRelationAggregateInputSchema).optional(),
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),
+  translations: z.lazy(() => EventTranslationOrderByRelationAggregateInputSchema).optional(),
 }).strict();
 
 export default EventOrderByWithRelationInputSchema;

@@ -1,6 +1,7 @@
 export { EventArgsSchema } from './EventArgsSchema';
 export { EventImageArgsSchema } from './EventImageArgsSchema';
 export { CancellationPolicyRuleArgsSchema } from './CancellationPolicyRuleArgsSchema';
+export { EventTranslationArgsSchema } from './EventTranslationArgsSchema';
 export { BookingArgsSchema } from './BookingArgsSchema';
 export { BookingAdjustmentArgsSchema } from './BookingAdjustmentArgsSchema';
 export { UserArgsSchema } from './UserArgsSchema';
@@ -26,6 +27,13 @@ export { CancellationPolicyRuleAggregateArgsSchema } from './CancellationPolicyR
 export { CancellationPolicyRuleGroupByArgsSchema } from './CancellationPolicyRuleGroupByArgsSchema';
 export { CancellationPolicyRuleFindUniqueArgsSchema } from './CancellationPolicyRuleFindUniqueArgsSchema';
 export { CancellationPolicyRuleFindUniqueOrThrowArgsSchema } from './CancellationPolicyRuleFindUniqueOrThrowArgsSchema';
+export { EventTranslationFindFirstArgsSchema } from './EventTranslationFindFirstArgsSchema';
+export { EventTranslationFindFirstOrThrowArgsSchema } from './EventTranslationFindFirstOrThrowArgsSchema';
+export { EventTranslationFindManyArgsSchema } from './EventTranslationFindManyArgsSchema';
+export { EventTranslationAggregateArgsSchema } from './EventTranslationAggregateArgsSchema';
+export { EventTranslationGroupByArgsSchema } from './EventTranslationGroupByArgsSchema';
+export { EventTranslationFindUniqueArgsSchema } from './EventTranslationFindUniqueArgsSchema';
+export { EventTranslationFindUniqueOrThrowArgsSchema } from './EventTranslationFindUniqueOrThrowArgsSchema';
 export { BookingFindFirstArgsSchema } from './BookingFindFirstArgsSchema';
 export { BookingFindFirstOrThrowArgsSchema } from './BookingFindFirstOrThrowArgsSchema';
 export { BookingFindManyArgsSchema } from './BookingFindManyArgsSchema';
@@ -88,6 +96,15 @@ export { CancellationPolicyRuleUpdateArgsSchema } from './CancellationPolicyRule
 export { CancellationPolicyRuleUpdateManyArgsSchema } from './CancellationPolicyRuleUpdateManyArgsSchema';
 export { CancellationPolicyRuleUpdateManyAndReturnArgsSchema } from './CancellationPolicyRuleUpdateManyAndReturnArgsSchema';
 export { CancellationPolicyRuleDeleteManyArgsSchema } from './CancellationPolicyRuleDeleteManyArgsSchema';
+export { EventTranslationCreateArgsSchema } from './EventTranslationCreateArgsSchema';
+export { EventTranslationUpsertArgsSchema } from './EventTranslationUpsertArgsSchema';
+export { EventTranslationCreateManyArgsSchema } from './EventTranslationCreateManyArgsSchema';
+export { EventTranslationCreateManyAndReturnArgsSchema } from './EventTranslationCreateManyAndReturnArgsSchema';
+export { EventTranslationDeleteArgsSchema } from './EventTranslationDeleteArgsSchema';
+export { EventTranslationUpdateArgsSchema } from './EventTranslationUpdateArgsSchema';
+export { EventTranslationUpdateManyArgsSchema } from './EventTranslationUpdateManyArgsSchema';
+export { EventTranslationUpdateManyAndReturnArgsSchema } from './EventTranslationUpdateManyAndReturnArgsSchema';
+export { EventTranslationDeleteManyArgsSchema } from './EventTranslationDeleteManyArgsSchema';
 export { BookingCreateArgsSchema } from './BookingCreateArgsSchema';
 export { BookingUpsertArgsSchema } from './BookingUpsertArgsSchema';
 export { BookingCreateManyArgsSchema } from './BookingCreateManyArgsSchema';

@@ -1,8 +1,10 @@
-export const locales = ['hy', 'ru', 'en'] as const;
+import { Locale } from "@event-space/shared";
 
-export type Locale = (typeof locales)[number];
+export const locales = ['hy', 'ru', 'en'] as const
 
 export const defaultLocale: Locale = 'en';
+
+export type { Locale } from "@event-space/shared";
 
 export const localeLabels: Record<Locale, string> = {
 	hy: 'Հայ',

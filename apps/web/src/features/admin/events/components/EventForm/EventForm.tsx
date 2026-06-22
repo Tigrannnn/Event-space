@@ -12,6 +12,7 @@ import { ModalHeader } from '@/components/ui/Modal';
 import { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } from '@/constants/mappers';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
+import { useState } from 'react';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -20,6 +21,12 @@ interface EventFormProps {
 	onCancel: () => void;
 	onSubmit: (values: EventFormValues) => void;
 }
+
+const AVAILABLE_LOCALES = [
+    { value: 'ru', label: '🇷🇺 Ru' },
+    { value: 'en', label: '🇬🇧 En' },
+    { value: 'hy', label: '🇦🇲 Hy' },
+] as const;
 
 const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
 	value: diff,
@@ -61,11 +68,26 @@ export default function EventForm({
 	const watchedDate = useWatch({ control, name: 'date' });
 	const watchedPrice = useWatch({ control, name: 'price' });
 	const watchedRules = useWatch({ control, name: 'cancellationRules' });
+	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 
-	const { fields, append, remove } = useFieldArray({
+	const { fields: translationFields, append: appendTranslation, remove: removeTranslation } = useFieldArray({
+		control,
+		name: 'translations',
+	});
+
+	const { fields: cancellationFields, append: appendCancellation, remove: removeCancellation } = useFieldArray({
 		control,
 		name: 'cancellationRules',
 	});
+
+	const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+	const addedLocales = watchedTranslations.map(t => t.locale);
+	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(locale => !addedLocales.includes(locale.value));
+
+	const hasTranslationErrors = (index: number) => {
+		return !!errors.translations?.[index];
+	};
 
 	const handleFormSubmit = (values: EventFormValues) => {
 		onSubmit(values);
@@ -76,25 +98,143 @@ export default function EventForm({
 			<ModalHeader title={event ? 'Update Event' : 'Create Event'} onClose={onCancel} />
 
 			<div className="space-y-4">
-				<div className="grid grid-cols-2 gap-4">
-					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Title</span>
-						<input {...register('title')} className={fieldClassName} disabled={isPending} />
-						{errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
-					</label>
-					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Category</span>
-						<input {...register('category')} className={fieldClassName} disabled={isPending} />
-						{errors.category && <p className="text-xs text-red-500">{errors.category.message}</p>}
-					</label>
+				<div className="space-y-3">
+					<div className="flex items-center justify-between">
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+							Translations
+						</h3>
+						<div className="flex items-center gap-2">
+							{availableLocalesToAdd.map((locale) => (
+								<Button
+									key={locale.value}
+									type="button"
+									variant="secondary"
+									className="h-8 text-xs"
+									disabled={isPending}
+									onClick={() => appendTranslation({
+										locale: locale.value,
+										title: '',
+										description: '',
+										category: '',
+										location: '',
+										whatsIncluded: '',
+									})}
+								>
+									+ {locale.label}
+								</Button>
+							))}
+						</div>
+					</div>
+
+					<div className="flex flex-wrap gap-2">
+						{translationFields.map((field, index) => {
+							const localeInfo = AVAILABLE_LOCALES.find(l => l.value === field.locale);
+							const hasError = hasTranslationErrors(index);
+							const isActive = activeTabIndex === index;
+
+							return (
+								<div
+									key={field.id}
+									className={`flex items-center gap-2 px-3 py-2 rounded-t-lg border-t border-x border-b-0 cursor-pointer transition-colors ${
+										isActive
+											? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+											: 'bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+									} ${hasError ? 'border-b-2 border-red-500' : ''}`}
+									onClick={() => setActiveTabIndex(index)}
+								>
+									<span className={`text-sm font-medium ${hasError ? 'text-red-500' : ''}`}>
+										{localeInfo?.label || field.locale}
+									</span>
+									{translationFields.length > 1 && (
+										<button
+											type="button"
+											className="ml-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded p-0.5"
+											disabled={isPending}
+											onClick={(e) => {
+												e.stopPropagation();
+												removeTranslation(index);
+												if (activeTabIndex >= translationFields.length - 1 && activeTabIndex > 0) {
+													setActiveTabIndex(activeTabIndex - 1);
+												}
+											}}
+										>
+											✕
+										</button>
+									)}
+								</div>
+							);
+						})}
+					</div>
+
+					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
+						<div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+							<div className="grid grid-cols-2 gap-4">
+								<label className="space-y-1.5">
+									<span className="text-sm font-semibold">Title</span>
+									<input
+										{...register(`translations.${activeTabIndex}.title`)}
+										className={fieldClassName}
+										disabled={isPending}
+									/>
+									{errors.translations?.[activeTabIndex]?.title && (
+										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.title?.message}</p>
+									)}
+								</label>
+								<label className="space-y-1.5">
+									<span className="text-sm font-semibold">Category</span>
+									<input
+										{...register(`translations.${activeTabIndex}.category`)}
+										className={fieldClassName}
+										disabled={isPending}
+									/>
+									{errors.translations?.[activeTabIndex]?.category && (
+										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.category?.message}</p>
+									)}
+								</label>
+							</div>
+
+							<div className="grid grid-cols-1 gap-4">
+								<label className="space-y-1.5">
+									<span className="text-sm font-semibold">Location</span>
+									<input
+										{...register(`translations.${activeTabIndex}.location`)}
+										className={fieldClassName}
+										disabled={isPending}
+									/>
+									{errors.translations?.[activeTabIndex]?.location && (
+										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.location?.message}</p>
+									)}
+								</label>
+							</div>
+
+							<label className="block space-y-1.5">
+								<span className="text-sm font-semibold">Description</span>
+								<textarea
+									{...register(`translations.${activeTabIndex}.description`)}
+									className={textareaClassName}
+									disabled={isPending}
+								/>
+								{errors.translations?.[activeTabIndex]?.description && (
+									<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.description?.message}</p>
+								)}
+							</label>
+
+							<label className="block space-y-1.5">
+								<span className="text-sm font-semibold">Included items (one per line)</span>
+								<textarea
+									{...register(`translations.${activeTabIndex}.whatsIncluded`)}
+									className={textareaClassName}
+									disabled={isPending}
+								/>
+								{errors.translations?.[activeTabIndex]?.whatsIncluded && (
+									<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.whatsIncluded?.message}</p>
+								)}
+							</label>
+						</div>
+					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-4">
-					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Location</span>
-						<input {...register('location')} className={fieldClassName} disabled={isPending} />
-						{errors.location && <p className="text-xs text-red-500">{errors.location.message}</p>}
-					</label>
+				<div className="grid grid-cols-1 gap-4">
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">Google Maps URL</span>
 						<input
@@ -216,15 +356,15 @@ export default function EventForm({
 							variant="secondary"
 							className="h-8 text-xs"
 							disabled={isPending}
-							onClick={() => append({ hoursBeforeEvent: 24, refundPercentage: 50 })}
+							onClick={() => appendCancellation({ hoursBeforeEvent: 24, refundPercentage: 50 })}
 						>
 							+ Add Rule
 						</Button>
 					</div>
 
-					{fields.length > 0 ? (
+					{cancellationFields.length > 0 ? (
 						<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-							{fields.map((field, index) => (
+							{cancellationFields.map((field, index) => (
 								<div key={field.id} className="flex items-end gap-4">
 									<label className="flex-1 space-y-1">
 										<span className="text-xs font-medium text-gray-500">Hours before event</span>
@@ -266,7 +406,7 @@ export default function EventForm({
 										variant="secondary"
 										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
 										disabled={isPending}
-										onClick={() => remove(index)}
+										onClick={() => removeCancellation(index)}
 									>
 										Delete
 									</Button>
@@ -291,20 +431,6 @@ export default function EventForm({
 				)}
 
 				<hr className="border-gray-200 dark:border-gray-700" />
-
-				<label className="block space-y-1.5">
-					<span className="text-sm font-semibold">Description</span>
-					<textarea {...register('description')} className={textareaClassName} disabled={isPending} />
-					{errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
-				</label>
-
-				<label className="block space-y-1.5">
-					<span className="text-sm font-semibold">Included items (one per line)</span>
-					<textarea {...register('whatsIncluded')} className={textareaClassName} disabled={isPending} />
-					{errors.whatsIncluded && (
-						<p className="text-xs text-red-500">{errors.whatsIncluded.message}</p>
-					)}
-				</label>
 
 				<div className="space-y-1.5">
 					<span className="text-sm font-semibold">Event images</span>

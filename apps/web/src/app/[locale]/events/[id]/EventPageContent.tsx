@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { Key, useState } from 'react';
 import Button from '@/components/ui/Buttons/Button';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
@@ -10,7 +10,7 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Event, getEventImageUrls } from '@event-space/shared';
+import { Event, getEventImageUrls, getEventTranslation } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -28,6 +28,9 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const [failedImages, setFailedImages] = useState<number>(0);
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
+	const locale = translate.locale;
+
+	const t = getEventTranslation(event, locale);
 
 	const handleImageError = () => {
 		setFailedImages((prev) => prev + 1);
@@ -53,7 +56,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 			<section className="relative flex min-h-45 w-full items-center overflow-hidden sm:h-[40vh] lg:h-[50vh]">
 				{/* Image Gallery */}
 				{allImagesFailed ? (
-					<EventImageFallback alt={event.title} />
+					<EventImageFallback alt={t.title} />
 				) : (
 					<div className="scrollbar-hide h-full w-full snap-x snap-mandatory overflow-x-auto">
 						<div className="flex h-full items-center">
@@ -70,7 +73,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								>
 									<EventImage
 										src={imgSrc}
-										alt={event.title}
+										alt={t.title}
 										onError={handleImageError}
 										className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 active:scale-98 sm:h-full sm:w-auto"
 									/>
@@ -111,7 +114,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 					<div className="space-y-6 sm:space-y-8 lg:col-span-2">
 						<div>
 							<h1 className="text-primary mb-3 text-3xl leading-tight font-black sm:mb-4 sm:text-4xl md:text-5xl">
-								{event.title}
+								{t.title}
 							</h1>
 
 							<div className="mb-4 flex items-center gap-2 text-gray-700 sm:mb-6 dark:text-gray-300">
@@ -123,15 +126,15 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 										rel="noopener noreferrer"
 										className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
 									>
-										{event.location}
+										{t.location}
 									</a>
 								) : (
-									<span className="text-sm font-medium sm:text-base">{event.location}</span>
+									<span className="text-sm font-medium sm:text-base">{t.location}</span>
 								)}
 							</div>
 
 							<span className="bg-primary/10 text-primary inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase sm:px-5 sm:py-2.5 sm:text-sm">
-								{event.category}
+								{t.category}
 							</span>
 						</div>
 
@@ -154,7 +157,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{translate('event.aboutTour')}
 							</h2>
 							<div className="prose prose-base sm:prose-lg max-w-none leading-relaxed text-gray-600">
-								<p>{event.description}</p>
+								<p>{t.description}</p>
 							</div>
 						</div>
 
@@ -164,7 +167,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{translate('event.whatsIncluded')}
 							</h2>
 							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-								{event.whatsIncluded.map((item, index) => (
+								{t.whatsIncluded.map((item: string, index: Key | null | undefined) => (
 									<IncludedItem key={index} text={item} />
 								))}
 							</div>

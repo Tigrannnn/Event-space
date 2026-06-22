@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/primitives/command';
 import { formatDateTime } from '@/utils/date';
 import type { Event } from '@event-space/shared';
+import { getEventTranslation } from '@event-space/shared';
+import { useTranslation } from '@/hooks/translation';
 
 interface EventSearchSelectProps {
 	value: string;
@@ -21,6 +23,8 @@ interface EventSearchSelectProps {
 }
 
 export default function EventSearchSelect({ value, onChange, label }: EventSearchSelectProps) {
+	const translate = useTranslation();
+	const locale = translate.locale;
 	const [search, setSearch] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -63,7 +67,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 				>
 					{selectedEvent ? (
 						<span className="text-gray-900 dark:text-gray-100">
-							{selectedEvent.title} — {formatDateTime(selectedEvent.date)}
+							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.date)}
 						</span>
 					) : (
 						<span className="text-gray-400">Select event...</span>
@@ -79,22 +83,25 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 								{!isLoading && events.length === 0 && <CommandEmpty>No events found</CommandEmpty>}
 								{!isLoading && events.length > 0 && (
 									<CommandGroup>
-										{events.map((event) => (
-											<CommandItem
-												key={event.id}
-												value={event.id}
-												onSelect={() => handleSelect(event)}
-												data-checked={value === event.id}
-												className="cursor-pointer duration-200 hover:bg-gray-100 hover:text-white dark:hover:bg-gray-900"
-											>
-												<div className="flex flex-col">
-													<span className="font-medium">{event.title}</span>
-													<span className="text-xs text-gray-400">
-														{formatDateTime(event.date)} · {event.location}
-													</span>
-												</div>
-											</CommandItem>
-										))}
+										{events.map((event) => {
+											const t = getEventTranslation(event, locale);
+											return (
+												<CommandItem
+													key={event.id}
+													value={event.id}
+													onSelect={() => handleSelect(event)}
+													data-checked={value === event.id}
+													className="cursor-pointer duration-200 hover:bg-gray-100 hover:text-white dark:hover:bg-gray-900"
+												>
+													<div className="flex flex-col">
+														<span className="font-medium">{t.title}</span>
+														<span className="text-xs text-gray-400">
+															{formatDateTime(event.date)} · {t.location}
+														</span>
+													</div>
+												</CommandItem>
+											);
+										})}
 									</CommandGroup>
 								)}
 							</CommandList>

@@ -5,7 +5,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
+import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
@@ -42,6 +42,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const translate = useTranslation();
 	const locale = translate.locale
 	const navigation = useLocalizedNavigation();
+
+	const t = event ? getEventTranslation(event, locale) : { title: '', location: '' };
 
 	// const handleUpdate = () => {
 	// 	openModal(ModalType.UpdateBooking, { booking });
@@ -89,7 +91,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
 				<EventImageWithFallback
 					src={getEventCoverImageUrl(event) ?? ''}
-					alt={event.title}
+					alt={t.title}
 					className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 				/>
 
@@ -111,7 +113,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					href={localizePath(`/events/${event.id}`, locale)}
 					className="hover:text-primary dark:hover:text-primary mb-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
 				>
-					{event.title}
+					{t.title}
 				</Link>
 
 				<div className="mb-3 flex items-center gap-2">
@@ -137,10 +139,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								rel="noopener noreferrer"
 								className="hover:text-primary relative z-20 cursor-pointer text-left underline underline-offset-2 transition-colors"
 							>
-								{event.location}
+								{t.location}
 							</a>
 						) : (
-							<span>{event.location}</span>
+							<span>{t.location}</span>
 						)}
 					</div>
 				</div>
@@ -177,7 +179,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 							return (
 								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-									{translate('booking.refund')}: ~${centsToDollars(estimatedRefundInCents)}
+									{translate('booking.refund')}: ~$${centsToDollars(estimatedRefundInCents)}
 								</div>
 							);
 						})()}

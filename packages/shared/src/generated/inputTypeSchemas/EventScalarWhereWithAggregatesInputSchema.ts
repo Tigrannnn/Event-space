@@ -10,7 +10,6 @@ import { DecimalWithAggregatesFilterSchema } from './DecimalWithAggregatesFilter
 import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
-import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 import { EnumEventStatusWithAggregatesFilterSchema } from './EnumEventStatusWithAggregatesFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 
@@ -19,17 +18,12 @@ export const EventScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.EventSc
   OR: z.lazy(() => EventScalarWhereWithAggregatesInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventScalarWhereWithAggregatesInputSchema), z.lazy(() => EventScalarWhereWithAggregatesInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  description: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  location: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   locationUrl: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   date: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   difficulty: z.union([ z.lazy(() => EnumEventDifficultyNullableWithAggregatesFilterSchema), z.lazy(() => EventDifficultySchema) ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalWithAggregatesFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   maxParticipants: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   currentParticipants: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
-  category: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
   duration: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   status: z.union([ z.lazy(() => EnumEventStatusWithAggregatesFilterSchema), z.lazy(() => EventStatusSchema) ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),

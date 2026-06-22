@@ -1,9 +1,9 @@
-import { eventApi } from '@/features/events';
-import { getEventCoverImageUrl } from '@event-space/shared';
+import { serverFetch } from '@/lib/server.api';
+import { getEventCoverImageUrl, getEventTranslation, Locale, Event } from '@event-space/shared';
 import EventPageContent from './EventPageContent';
 import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
-import { defaultLocale, isLocale, localeOpenGraph, type Locale } from '@/lib/i18n/config';
+import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
 
 interface EventPageProps {
@@ -13,7 +13,7 @@ interface EventPageProps {
 export default async function EventPage({ params }: EventPageProps) {
 	const { id } = await params;
 
-	const event = await eventApi.getEventById(id);
+	const event = await serverFetch<Event>(`/events/${id}`);
 
 	if (!event) {
 		notFound();
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 	const { id } = await params;
 	const localeHeader = (await headers()).get('x-locale');
 	const locale: Locale = localeHeader && isLocale(localeHeader) ? localeHeader : defaultLocale;
-	const event = await eventApi.getEventById(id);
+	const event = await serverFetch<Event>(`/events/${id}`);
 
 	if (!event) {
 		return {
@@ -35,14 +35,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 		};
 	}
 
+	const t = getEventTranslation(event, locale);
 	const coverImageUrl = getEventCoverImageUrl(event);
 
 	return {
-		title: `${event.title} | Event Flow`,
-		description: event.description,
+		title: `${t.title} | Event Flow`,
+		description: t.description,
 		openGraph: {
-			title: `${event.title} | Event Flow`,
-			description: event.description,
+			title: `${t.title} | Event Flow`,
+			description: t.description,
 			...(coverImageUrl
 				? {
 						images: [
@@ -50,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 								url: coverImageUrl,
 								width: 1200,
 								height: 630,
-								alt: event.title,
+								alt: t.title,
 							},
 						],
 					}
@@ -60,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 		},
 		twitter: {
 			card: 'summary_large_image',
-			title: `${event.title} | Event Flow`,
-			description: event.description,
+			title: `${t.title} | Event Flow`,
+			description: t.description,
 			...(coverImageUrl ? { images: [coverImageUrl] } : {}),
 		},
 	};

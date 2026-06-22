@@ -20,7 +20,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum EventDifficulty {
   EASY
   MODERATE
@@ -38,19 +37,20 @@ enum PaymentMethod {
   OFFLINE
 }
 
+enum Locale {
+  en
+  ru
+  hy
+}
+
 model Event {
-  id                  String          @id @default(uuid())
-  title               String          @db.VarChar(100)
-  description         String          @db.VarChar(1000)
-  location            String          @db.VarChar(200)
-  locationUrl         String?         @map("location_url") @db.VarChar(1000)
+  id                  String           @id @default(uuid())
+  locationUrl         String?          @map("location_url") @db.VarChar(1000)
   date                DateTime
   difficulty          EventDifficulty?
-  price               Decimal         @db.Decimal(10, 2)
-  maxParticipants     Int             @default(100) @map("max_participants")
-  currentParticipants Int             @default(0) @map("current_participants")
-  category            String          @db.VarChar(50)
-  whatsIncluded       String[]        @map("whats_included") @db.VarChar(1000)
+  price               Decimal          @db.Decimal(10, 2)
+  maxParticipants     Int              @default(100) @map("max_participants")
+  currentParticipants Int              @default(0) @map("current_participants")
   duration            Int // Minutes
 
   status EventStatus @default(DRAFT)
@@ -66,8 +66,9 @@ model Event {
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
 
+  translations EventTranslation[]
+
   @@index([date])
-  @@index([category])
   @@map("events")
 }
 
@@ -98,7 +99,24 @@ model CancellationPolicyRule {
   @@map("cancellation_policy_rules")
 }
 
+model EventTranslation {
+  id      String @id @default(uuid())
+  eventId String @map("event_id")
 
+  locale Locale
+
+  title         String   @db.VarChar(100)
+  description   String   @db.VarChar(1000)
+  location      String   @db.VarChar(200)
+  category      String   @db.VarChar(50)
+  whatsIncluded String[] @map("whats_included") @db.VarChar(1000)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, locale])
+  @@index([category])
+  @@map("event_translations")
+}
 
 enum BookingStatus {
   PENDING
@@ -117,12 +135,12 @@ model Booking {
 
   amount Decimal @db.Decimal(10, 2)
 
-  paymentMethod    PaymentMethod @default(STRIPE) @map("payment_method")
+  paymentMethod PaymentMethod @default(STRIPE) @map("payment_method")
 
-  createdByAdminId String?       @map("created_by_admin_id")
+  createdByAdminId String? @map("created_by_admin_id")
 
-  paymentIntentId String? @unique @map("payment_intent_id")
-  referenceNumber Int?    @unique @map("reference_number")
+  paymentIntentId String?   @unique @map("payment_intent_id")
+  referenceNumber Int?      @unique @map("reference_number")
   checkedInAt     DateTime? @map("checked_in_at")
 
   user        User                @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
@@ -141,7 +159,6 @@ model BookingReference {
 
   @@map("booking_references")
 }
-
 
 enum AdjustmentType {
   CHARGE
@@ -172,7 +189,6 @@ model BookingAdjustment {
   @@index([bookingId])
   @@map("booking_adjustments")
 }
-
 
 enum UserRole {
   USER

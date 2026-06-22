@@ -6,6 +6,7 @@ import Button from '@/components/ui/Buttons/Button';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
+import { getEventTranslation } from '@event-space/shared';
 
 export default function BookingForm({
 	event,
@@ -19,8 +20,10 @@ export default function BookingForm({
 	availableSpots,
 }: BookingFormProps) {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const totalPrice = event.price * quantity;
+	const t = getEventTranslation(event, locale);
 
 	const handleDecrement = () => setQuantity((q) => Math.max(1, q - 1));
 	const handleIncrement = () => setQuantity((q) => Math.min(maxQuantity, q + 1));
@@ -29,8 +32,8 @@ export default function BookingForm({
 		<div className="p-5 sm:p-6">
 			<ModalHeader title={title} onClose={onClose} />
 
-			<h3 className="font-bold text-gray-800 dark:text-white">{event.title}</h3>
-			<p className="text-sm text-gray-500 dark:text-gray-400">{event.location}</p>
+			<h3 className="font-bold text-gray-800 dark:text-white">{t.title}</h3>
+			<p className="text-sm text-gray-500 dark:text-gray-400">{t.location}</p>
 
 			<QuantitySelector
 				quantity={quantity}

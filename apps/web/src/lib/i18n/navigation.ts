@@ -1,7 +1,8 @@
 'use client';
 
+import { Locale } from '@event-space/shared';
 import { usePathname, useRouter, useParams } from 'next/navigation';
-import { localizePath, type Locale, defaultLocale } from './config';
+import { localizePath, defaultLocale } from './config';
 
 export function useLocalizedNavigation() {
     const router = useRouter();

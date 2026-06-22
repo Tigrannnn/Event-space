@@ -23,7 +23,7 @@ import type {
 	PaginatedResponse,
 	TimeFilterType,
 } from '@event-space/shared';
-import { BookingStatusEnum, TimeFilterSchema } from '@event-space/shared';
+import { BookingStatusEnum, TimeFilterSchema, getEventTranslation } from '@event-space/shared';
 import { ModalType } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
@@ -48,6 +48,7 @@ function formatCurrency(price: number | string, quantity: number) {
 
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const [skip, setSkip] = useState(initialBookings.skip);
 	const [limit, setLimit] = useState(initialBookings.take);
 	const searchParams = useSearchParams();
@@ -253,26 +254,28 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						</TableRow>
 					)}
 
-					{bookingsResponse.data.map((booking: BookingWithDetails) => (
-						<TableRow key={booking.id}>
-							<TableCell className="px-3 sm:px-5">
-								<div className="min-w-0">
-									<p className="font-medium text-gray-900 dark:text-gray-100">
-										{booking.user?.name || translate('booking.unknownCustomer')}
-									</p>
-									<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user?.email || '—'}</p>
-								</div>
-							</TableCell>
-							<TableCell>
-								<div className="max-w-md min-w-0">
-									<p className="truncate font-medium text-gray-900 dark:text-gray-100">
-										{booking.event?.title || translate('booking.unknownEvent')}
-									</p>
-									<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-										{booking.event?.location || '—'}
-									</p>
-								</div>
-							</TableCell>
+					{bookingsResponse.data.map((booking: BookingWithDetails) => {
+						const t = booking.event ? getEventTranslation(booking.event, locale) : null;
+						return (
+							<TableRow key={booking.id}>
+								<TableCell className="px-3 sm:px-5">
+									<div className="min-w-0">
+										<p className="font-medium text-gray-900 dark:text-gray-100">
+											{booking.user?.name || translate('booking.unknownCustomer')}
+										</p>
+										<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user?.email || '—'}</p>
+									</div>
+								</TableCell>
+								<TableCell>
+									<div className="max-w-md min-w-0">
+										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
+											{t?.title || translate('booking.unknownEvent')}
+										</p>
+										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+											{t?.location || '—'}
+										</p>
+									</div>
+								</TableCell>
 							<TableCell>
 								<div className="flex items-center gap-2">
 									<Select
@@ -310,7 +313,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</Button>
 							</TableCell>
 						</TableRow>
-					))}
+						);
+					})}
 				</TableBody>
 			</Table>
 

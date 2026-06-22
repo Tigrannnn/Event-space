@@ -1,5 +1,5 @@
 import { z } from 'zod';
 
-export const EventScalarFieldEnumSchema = z.enum(['id','title','description','location','locationUrl','date','difficulty','price','maxParticipants','currentParticipants','category','whatsIncluded','duration','status','createdAt','updatedAt','userId']);
+export const EventScalarFieldEnumSchema = z.enum(['id','locationUrl','date','difficulty','price','maxParticipants','currentParticipants','duration','status','createdAt','updatedAt','userId']);
 
 export default EventScalarFieldEnumSchema;

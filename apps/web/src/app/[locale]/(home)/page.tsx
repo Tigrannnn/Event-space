@@ -1,5 +1,6 @@
 import EventsList from './_components/EventsList';
-import { eventApi } from '@/features/events';
+import { serverFetch } from '@/lib/server.api';
+import { PaginatedEventsResponse } from '@/features/events/api/events.api';
 
 interface HomePageProps {
 	searchParams: Promise<{ search?: string }>;
@@ -10,9 +11,9 @@ export default async function Home({ searchParams }: HomePageProps) {
 	const searchQuery = params.search || '';
 
 	// SSR: Initial load with search and pagination
-	const initialData = await eventApi.getEvents({
-		search: searchQuery || undefined,
-	}).catch((error) => {
+	const initialData = await serverFetch<PaginatedEventsResponse>(
+		searchQuery ? `/events?search=${encodeURIComponent(searchQuery)}` : '/events'
+	).catch((error) => {
 		console.error('Error fetching events:', error);
 		return { data: [], nextCursor: null, hasMore: false };
 	});

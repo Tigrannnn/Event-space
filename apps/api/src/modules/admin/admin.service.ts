@@ -28,7 +28,7 @@ const bookingInclude = {
 		select: safeUserSelect,
 	},
 	event: {
-		include: { images: true, cancellationRules: true },
+		include: { images: true, cancellationRules: true, translations: true },
 	},
 	adjustments: true,
 } as const;
@@ -114,6 +114,7 @@ export class AdminService {
 				orderBy: { createdAt: 'desc' },
 				include: {
 					cancellationRules: true,
+					translations: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -125,6 +126,7 @@ export class AdminService {
 				orderBy: [{ date: 'asc' }, { id: 'asc' }],
 				include: {
 					cancellationRules: true,
+					translations: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -276,8 +278,18 @@ export class AdminService {
 						OR: [
 							{ user: { name: { contains: search, mode: 'insensitive' as const } } },
 							{ user: { email: { contains: search, mode: 'insensitive' as const } } },
-							{ event: { title: { contains: search, mode: 'insensitive' as const } } },
-							{ event: { location: { contains: search, mode: 'insensitive' as const } } },
+							{
+								event: {
+									translations: {
+										some: {
+											OR: [
+												{ title: { contains: search, mode: 'insensitive' as const } },
+												{ location: { contains: search, mode: 'insensitive' as const } },
+											],
+										},
+									},
+								},
+							},
 						],
 					}
 				: {}),
@@ -416,12 +428,16 @@ export class AdminService {
 		const where = {
 			...(search
 				? {
-						OR: [
-							{ title: { contains: search, mode: 'insensitive' as const } },
-							{ description: { contains: search, mode: 'insensitive' as const } },
-							{ category: { contains: search, mode: 'insensitive' as const } },
-							{ location: { contains: search, mode: 'insensitive' as const } },
-						],
+						translations: {
+							some: {
+								OR: [
+									{ title: { contains: search, mode: 'insensitive' as const } },
+									{ description: { contains: search, mode: 'insensitive' as const } },
+									{ category: { contains: search, mode: 'insensitive' as const } },
+									{ location: { contains: search, mode: 'insensitive' as const } },
+								],
+							},
+						},
 					}
 				: {}),
 			...(status ? { status } : {}),
@@ -438,6 +454,7 @@ export class AdminService {
 				orderBy: [{ date: 'asc' }, { id: 'asc' }],
 				include: {
 					cancellationRules: true,
+					translations: true,
 					organizer: {
 						select: {
 							id: true,

@@ -123,7 +123,7 @@ export class EventController {
 			properties: {
 				payload: {
 					type: 'string',
-					description: 'JSON: partial event fields + images[] ({ kind: "existing"|"file", order, id? })',
+					description: 'JSON: partial event fields + translations + images[] ({ kind: "existing"|"file", order, id? })',
 				},
 				files: {
 					type: 'array',

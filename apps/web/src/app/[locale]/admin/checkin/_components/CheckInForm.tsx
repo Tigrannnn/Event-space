@@ -9,9 +9,11 @@ import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search } from 'lucide-react';
+import { getEventTranslation } from '@event-space/shared';
 
 export default function CheckInForm() {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const [input, setInput] = useState('');
 	const [ref, setRef] = useState<number | null>(null);
 	const { addToast } = useToastStore();
@@ -132,7 +134,7 @@ export default function CheckInForm() {
 
 						<div className="space-y-3 rounded-xl bg-gray-50 p-4 dark:bg-zinc-800/50">
 							<p className="text-sm font-bold text-gray-900 dark:text-white">
-								{booking.event?.title ?? '—'}
+								{booking.event ? getEventTranslation(booking.event, locale).title : '—'}
 							</p>
 
 							<div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-gray-600 sm:grid-cols-2 dark:text-zinc-400">
@@ -142,7 +144,7 @@ export default function CheckInForm() {
 								</div>
 								<div className="flex items-center gap-2">
 									<MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
-									<span className="truncate">{booking.event?.location ?? '—'}</span>
+									<span className="truncate">{booking.event ? getEventTranslation(booking.event, locale).location : '—'}</span>
 								</div>
 								<div className="flex items-center gap-2 border-t border-gray-200 pt-2 sm:col-span-2 dark:border-zinc-700">
 									<Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />

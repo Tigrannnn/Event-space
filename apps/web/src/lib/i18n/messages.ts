@@ -1,4 +1,4 @@
-import type { Locale } from './config';
+import type { Locale } from '@event-space/shared';
 
 export const messages = {
 	hy: {
@@ -274,6 +274,9 @@ export const messages = {
 			loading: 'Բեռնվում է...',
 			noEventsFound: 'Միջոցառումներ չեն գտնվել',
 			noUsersFound: 'Օգտատերեր չեն գտնվել',
+			confirmationRate: 'Հաստատման տոկոս',
+			seats: 'տեղ',
+			recentUsers: 'Վերջին օգտատերերը',
 			showing: 'Ցույց է տրվում',
 			eventsCount: 'միջոցառում',
 			accountsCount: 'հաշիվ',
@@ -609,6 +612,9 @@ export const messages = {
 			updateEvent: 'Обновить событие',
 			createEventModal: 'Окно создания события',
 			updateEventModal: 'Окно обновления события',
+			confirmationRate: 'Процент подтверждения',
+			seats: 'мест',
+			recentUsers: 'Недавние пользователи',
 			creating: 'Создаем...',
 			saving: 'Сохраняем...',
 			saveChanges: 'Сохранить',
@@ -909,7 +915,7 @@ export const messages = {
 			booked: 'Booked',
 			actions: 'Actions',
 			details: 'Details',
-			enterBookingReference: 'Enter booking reference (e.g., #012345)',
+			enterBookingRef: 'Enter booking reference (e.g., #012345)',
 			bookingSummary: 'Booking summary',
 			checkoutReference: 'Checkout reference',
 			eventPrice: 'Event price',
@@ -948,6 +954,9 @@ export const messages = {
 			noLocation: 'No location',
 			whatIncluded: 'What\'s included',
 			cancellationRules: 'Cancellation rules',
+			confirmationRate: 'Confirmation rate',
+			seats: 'seats',
+			recentUsers: 'Recent users',
 			expiresHoursBefore: 'Expires ... hours before',
 			refund: 'Refund',
 			allUsers: 'All users',

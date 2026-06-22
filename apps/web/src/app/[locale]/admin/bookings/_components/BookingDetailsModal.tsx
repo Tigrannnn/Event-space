@@ -9,6 +9,7 @@ import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
+import { getEventTranslation } from '@event-space/shared';
 
 function formatCurrency(value: number | string) {
 	return new Intl.NumberFormat('en', {
@@ -21,6 +22,7 @@ function formatCurrency(value: number | string) {
 
 export default function BookingDetailsModal() {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.BookingDetails);
@@ -31,6 +33,7 @@ export default function BookingDetailsModal() {
 		return null;
 	}
 
+	const t = getEventTranslation(event, locale);
 	const adjustments = booking.adjustments ?? [];
 	const eventImages = event?.images ?? [];
 	const totalAmount = event ? Number(event.price) * booking.quantity : 0;
@@ -185,10 +188,10 @@ export default function BookingDetailsModal() {
 							<div className="mt-4 space-y-3 text-sm text-gray-700 dark:text-gray-200">
 								<div>
 									<p className="font-semibold text-gray-900 dark:text-white">
-										{event?.title ?? translate('admin.unknownEvent')}
+										{t.title || translate('admin.unknownEvent')}
 									</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">
-										{event?.location ?? translate('admin.noLocation')}
+										{t.location || translate('admin.noLocation')}
 									</p>
 								</div>
 								<div className="grid gap-3 sm:grid-cols-2">
@@ -223,13 +226,13 @@ export default function BookingDetailsModal() {
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">{event?.status ?? '—'}</p>
 									</div>
 								</div>
-								{event?.whatsIncluded?.length ? (
+								{t.whatsIncluded?.length ? (
 									<div>
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 											{translate('admin.included')}
 										</p>
 										<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
-											{event.whatsIncluded.map((item) => (
+											{t.whatsIncluded.map((item) => (
 												<li
 													key={item}
 													className="rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900"
@@ -240,13 +243,13 @@ export default function BookingDetailsModal() {
 										</ul>
 									</div>
 								) : null}
-								{event?.description && (
+								{t.description && (
 									<div>
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 											{translate('admin.description')}
 										</p>
 										<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
-											{event.description}
+											{t.description}
 										</p>
 									</div>
 								)}
@@ -277,7 +280,7 @@ export default function BookingDetailsModal() {
 											<Image
 												width={500}
 												height={320}
-												alt={event.title ?? 'Event image'}
+												alt={t.title || 'Event image'}
 												src={image.url}
 												className="h-44 w-full object-cover"
 											/>

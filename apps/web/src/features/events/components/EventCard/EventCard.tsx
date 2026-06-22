@@ -10,7 +10,7 @@ import { ModalType, useModalStore } from '@/stores';
 import { formatDateTime } from '@/utils/date';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
-import { Event, getEventCoverImageUrl, isEventAvailable } from '@event-space/shared';
+import { Event, getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
 
 export interface EventCardProps {
 	event: Event;
@@ -20,10 +20,9 @@ import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { BookOpen, MapPin, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
+import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { useParams } from 'next/navigation';
 
 export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
@@ -34,6 +33,7 @@ export default function EventCard({ event }: EventCardProps) {
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
 	const eventIsAvailable = isEventAvailable(event);
+	const t = getEventTranslation(event, locale);
 
 	const hasBooking = myBookings?.some(
 		(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
@@ -59,14 +59,14 @@ export default function EventCard({ event }: EventCardProps) {
 		<article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
-				aria-label={`View details for ${event.title}`}
+				aria-label={`View details for ${t.title}`}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
 			/>
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
-				<CategoryBadge>{event.category}</CategoryBadge>
+				<CategoryBadge>{t.category}</CategoryBadge>
 				<PriceBadge price={event.price} />
-				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={event.title} />
+				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={t.title} />
 			</div>
 
 			{/* Content Section */}
@@ -79,11 +79,11 @@ export default function EventCard({ event }: EventCardProps) {
 				</div>
 
 				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
-					{event.title}
+					{t.title}
 				</h3>
 
 				<p className="mb-4 line-clamp-2 min-h-10 text-base leading-relaxed font-medium text-gray-500 sm:mb-6 sm:min-h-11 sm:text-sm dark:text-gray-400">
-					{event.description}
+					{t.description}
 				</p>
 
 				<div className="mb-4 flex items-center gap-2 text-gray-600 sm:mb-6 dark:text-gray-400">
@@ -95,10 +95,10 @@ export default function EventCard({ event }: EventCardProps) {
 							rel="noopener noreferrer"
 							className="hover:text-primary relative z-20 cursor-pointer text-left text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
 						>
-							{event.location}
+							{t.location}
 						</a>
 					) : (
-						<span className="text-sm font-medium sm:text-base">{event.location}</span>
+						<span className="text-sm font-medium sm:text-base">{t.location}</span>
 					)}
 				</div>
 

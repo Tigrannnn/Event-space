@@ -1,8 +1,9 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { type Locale, defaultLocale } from '@/lib/i18n/config';
+import { defaultLocale } from '@/lib/i18n/config';
 import { translate, type MessageKey } from '@/lib/i18n/messages';
+import { Locale } from '@event-space/shared';
 
 export function useTranslation() {
     const params = useParams();

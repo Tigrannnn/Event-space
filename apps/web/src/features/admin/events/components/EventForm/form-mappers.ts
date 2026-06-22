@@ -1,25 +1,17 @@
-import {
-	EventStatusEnum,
-	type Event,
-	type EventImageItem,
-} from '@event-space/shared';
+import { EventStatusEnum, type Event, type EventImageItem } from '@event-space/shared';
 import type { EventFormValues } from './event-form.schema';
 import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
 export function getDefaultEventFormValues(): EventFormValues {
 	return {
-		title: '',
-		description: '',
+		translations: [],
 		images: [],
-		location: '',
 		locationUrl: '',
 		date: '',
 		difficulty: undefined,
 		status: EventStatusEnum.enum.DRAFT,
 		price: '',
 		maxParticipants: '',
-		category: '',
-		whatsIncluded: '',
 		duration: '',
 		cancellationRules: [
 			{
@@ -43,19 +35,22 @@ function parseList(val: string): string[] {
 
 function buildEventFields(values: EventFormValues) {
 	return {
-		title: values.title.trim(),
-		description: values.description.trim(),
-		location: values.location.trim(),
 		locationUrl: values.locationUrl?.trim() || null,
 		date: new Date(values.date).toISOString(),
 		difficulty: values.difficulty,
 		price: Number(values.price),
 		maxParticipants: Number(values.maxParticipants),
-		category: values.category.trim(),
-		whatsIncluded: parseList(values.whatsIncluded),
 		duration: Number(values.duration),
 		status: values.status,
 		cancellationRules: values.cancellationRules,
+		translations: values.translations.map((t) => ({
+			locale: t.locale,
+			title: t.title.trim(),
+			description: t.description.trim(),
+			category: t.category.trim(),
+			location: t.location.trim(),
+			whatsIncluded: parseList(t.whatsIncluded),
+		})),
 	};
 }
 
@@ -97,17 +92,12 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		}));
 
 	return {
-		title: event.title,
-		description: event.description,
 		images,
-		location: event.location,
 		locationUrl: event.locationUrl ?? '',
 		date: dateStr,
 		difficulty: event.difficulty ?? undefined,
 		price: String(event.price),
 		maxParticipants: String(event.maxParticipants),
-		category: event.category,
-		whatsIncluded: event.whatsIncluded.join('\n'),
 		duration: String(event.duration),
 		status: event.status,
 		cancellationRules: (event.cancellationRules ?? [])
@@ -117,6 +107,14 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 				hoursBeforeEvent: rule.hoursBeforeEvent,
 				refundPercentage: rule.refundPercentage,
 			})),
+		translations: (event.translations ?? []).map((t) => ({
+			locale: t.locale,
+			title: t.title,
+			description: t.description,
+			category: t.category,
+			location: t.location,
+			whatsIncluded: t.whatsIncluded.join('\n'),
+		})),
 	};
 }
 
