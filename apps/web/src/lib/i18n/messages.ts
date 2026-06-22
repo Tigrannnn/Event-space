@@ -191,6 +191,7 @@ export const messages = {
 		admin: {
 			adminPanel: 'Ադմին վահանակ',
 			exitToSite: 'Դուրս գալ վեբ-հարթակ',
+			cancel: 'Չեղարկել',
 			dashboard: 'Կառավարման վահանակ',
 			events: 'Միջոցառումներ',
 			bookings: 'Ամրագրումներ',
@@ -345,6 +346,9 @@ export const messages = {
 			closeNavigationMenu: 'Փակել նավիգացիան',
 			openNavigationMenu: 'Բացել նավիգացիան',
 			active: 'Ակտիվ',
+			existingUser: 'Գոյություն ունեցող օգտատեր',
+			newUser: 'Նոր օգտատեր',
+			addRule: 'Ավելացնել կանոն',
 		},
 		error: {
 			errorLoadingEvents: 'Միջոցառումներ բեռնելիս սխալ',
@@ -541,6 +545,7 @@ export const messages = {
 		admin: {
 			adminPanel: 'Админ-панель',
 			exitToSite: 'Выход на сайт',
+			cancel: 'Отмена',
 			dashboard: 'Панель управления',
 			events: 'События',
 			bookings: 'Брони',
@@ -694,6 +699,9 @@ export const messages = {
 			closeNavigationMenu: 'Закрыть меню навигации',
 			openNavigationMenu: 'Открыть меню навигации',
 			active: 'Активный',
+			existingUser: 'Существующий пользователь',
+			newUser: 'Новый пользователь',
+			addRule: 'Добавить правило',
 		},
 		error: {
 			errorLoadingEvents: 'Ошибка загрузки событий',
@@ -890,6 +898,7 @@ export const messages = {
 		admin: {
 			adminPanel: 'Admin Panel',
 			exitToSite: 'Exit to Site',
+			cancel: 'Cancel',
 			dashboard: 'Dashboard',
 			events: 'Events',
 			bookings: 'Bookings',
@@ -1043,6 +1052,9 @@ export const messages = {
 			closeNavigationMenu: 'Close navigation menu',
 			openNavigationMenu: 'Open navigation menu',
 			active: 'Active',
+			existingUser: 'Existing user',
+			newUser: 'New user',
+			addRule: 'Add Rule',
 		},
 		error: {
 			errorLoadingEvents: 'Error Loading Events',

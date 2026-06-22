@@ -6,23 +6,25 @@ import { buildCreateEventFormData } from '../EventForm/form-mappers';
 import type { EventFormValues } from '../EventForm/event-form.schema';
 import { useModalStore } from '@/stores';
 import { Modal } from '@/components/ui/Modal';
+import { useTranslation } from '@/hooks/translation';
 
 export default function CreateEventModal() {
 	const { closeModal } = useModalStore();
 	const { mutateAsync: createEvent, isPending } = useCreateEvent();
+	const translate = useTranslation();
 
 	return (
 		<Modal
 			onClose={closeModal}
 			size="full"
 			position="center"
-			ariaLabel="Create Event Modal"
+			ariaLabel={translate('admin.createEventModal')}
 			disableBackdropClose={isPending}
 			disableEscapeClose={isPending}
 		>
 			<EventForm
 				isPending={isPending}
-				submitLabel={isPending ? 'Creating...' : 'Create event'}
+				submitLabel={isPending ? translate('admin.creating') : translate('admin.createEvent')}
 				onCancel={closeModal}
 				event={undefined}
 				onSubmit={(values: EventFormValues) => createEvent(buildCreateEventFormData(values))}

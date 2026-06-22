@@ -43,8 +43,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const locale = translate.locale
 	const navigation = useLocalizedNavigation();
 
-	const t = event ? getEventTranslation(event, locale) : { title: '', location: '' };
-
 	// const handleUpdate = () => {
 	// 	openModal(ModalType.UpdateBooking, { booking });
 	// };
@@ -84,6 +82,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	};
 
 	if (!event) return null;
+
+	const t = getEventTranslation(event, locale);
 
 	return (
 		<div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
@@ -179,7 +179,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 							return (
 								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-									{translate('booking.refund')}: ~$${centsToDollars(estimatedRefundInCents)}
+									{translate('booking.refund')}: ~${centsToDollars(estimatedRefundInCents)}
 								</div>
 							);
 						})()}

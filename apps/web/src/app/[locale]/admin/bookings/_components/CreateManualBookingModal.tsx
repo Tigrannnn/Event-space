@@ -45,12 +45,12 @@ export default function CreateManualBookingModal() {
 		}
 
 		if (!data.userId && !data.shadowUserName) {
-			setError('Please select an existing user or enter a name for a new user');
+			setError(translate('admin.enterShadowUserName'));
 			return;
 		}
 
 		if (data.userId && data.shadowUserName) {
-			setError('Provide only one of user ID or shadow user name');
+			setError(translate('admin.enterShadowUserName'));
 			return;
 		}
 
@@ -59,7 +59,7 @@ export default function CreateManualBookingModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} ariaLabel="Create manual booking" size="md">
+		<Modal onClose={closeModal} ariaLabel={translate('admin.createManualBooking')} size="md">
 			<div className="p-5 sm:p-6">
 				<ModalHeader title={translate('admin.createManualBooking')} onClose={closeModal} />
 
@@ -67,11 +67,11 @@ export default function CreateManualBookingModal() {
 					<EventSearchSelect
 						value={formState.eventId}
 						onChange={(eventId) => handleChange('eventId', eventId)}
-						label="Event"
+						label={translate('admin.eventField')}
 					/>
 
 					<UserSearchSelect
-						label="User"
+						label={translate('admin.userField')}
 						existingUserId={formState.userId ?? ''}
 						newUserName={formState.shadowUserName ?? ''}
 						onExistingUserSelect={(userId) =>
@@ -83,12 +83,12 @@ export default function CreateManualBookingModal() {
 					/>
 
 					<Input
-						label="Quantity"
+						label={translate('admin.quantityField')}
 						type="number"
 						min={1}
 						value={formState.quantity}
 						onChange={(event) => handleChange('quantity', Number(event.target.value))}
-						placeholder="Number of spots"
+						placeholder={translate('admin.numberOfSpots')}
 						className="focus:border-primary '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none' h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium transition outline-none [&::-webkit-outer-spin-button]:appearance-none"
 					/>
 

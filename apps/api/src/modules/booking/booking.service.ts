@@ -41,7 +41,7 @@ export class BookingService {
 		const { booking, event } = await this.prisma.$transaction(async (tx) => {
 			const event = await tx.event.findUnique({
 				where: { id: eventId },
-				include: { cancellationRules: true },
+				include: { cancellationRules: true, translations: true },
 			});
 			if (!event) throw new NotFoundException('Event not found');
 			if (!isEventAvailable(event)) {
@@ -279,7 +279,7 @@ export class BookingService {
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
 			where: { userId, status: 'CONFIRMED' },
-			include: { event: { include: { images: true, cancellationRules: true } } },
+			include: { event: { include: { images: true, cancellationRules: true, translations: true } } },
 			orderBy: { createdAt: 'desc' },
 		});
 
@@ -352,7 +352,7 @@ export class BookingService {
 		const { booking, event } = await this.prisma.$transaction(async (tx) => {
 			const currentBooking = await tx.booking.findUnique({
 				where: { id: bookingId },
-				include: { event: { include: { cancellationRules: true } } },
+				include: { event: { include: { cancellationRules: true, translations: true } } },
 			});
 
 			if (!currentBooking) throw new NotFoundException('Booking not found');

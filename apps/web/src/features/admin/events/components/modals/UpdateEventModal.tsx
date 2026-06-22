@@ -8,18 +8,18 @@ import { useModalStore } from '@/stores';
 import { ModalType, useModalData } from '@/stores/modalStore';
 import { Modal } from '@/components/ui/Modal';
 import { useRef } from 'react';
+import { useTranslation } from '@/hooks/translation';
 
 export default function UpdateEventModal() {
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.UpdateEvent);
 	const eventToUpdate = modalData?.event;
 	const isClosingRef = useRef(false);
+	const translate = useTranslation();
 
 	if (!eventToUpdate) return null;
 
 	const { mutateAsync: updateEvent, isPending } = useUpdateEvent();
-
-
 
 	const handleSubmit = (values: EventFormValues) => {
 		if (isClosingRef.current) {
@@ -40,14 +40,14 @@ export default function UpdateEventModal() {
 			}}
 			size="full"
 			position="center"
-			ariaLabel="Update Event Modal"
+			ariaLabel={translate('admin.updateEventModal')}
 			disableBackdropClose={isPending}
 			disableEscapeClose={isPending}
 		>
 			<EventForm
 				event={eventToUpdate}
 				onCancel={handleCancel}
-				submitLabel={isPending ? 'Saving...' : 'Save changes'}
+				submitLabel={isPending ? translate('admin.saving') : translate('admin.saveChanges')}
 				isPending={isPending}
 				onSubmit={handleSubmit}
 			/>

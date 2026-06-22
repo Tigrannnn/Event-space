@@ -70,17 +70,17 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.date)}
 						</span>
 					) : (
-						<span className="text-gray-400">Select event...</span>
+						<span className="text-gray-400">{translate('admin.selectEvent')}</span>
 					)}
 				</button>
 
 				{isOpen && (
 					<div className="absolute top-full z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
 						<Command shouldFilter={false}>
-							<CommandInput placeholder="Search events..." value={search} onValueChange={setSearch} />
+							<CommandInput placeholder={translate('admin.searchEvents')} value={search} onValueChange={setSearch} />
 							<CommandList>
-								{isLoading && <div className="py-4 text-center text-sm text-gray-400">Loading...</div>}
-								{!isLoading && events.length === 0 && <CommandEmpty>No events found</CommandEmpty>}
+								{isLoading && <div className="py-4 text-center text-sm text-gray-400">{translate('admin.loading')}</div>}
+								{!isLoading && events.length === 0 && <CommandEmpty>{translate('admin.noEventsFound')}</CommandEmpty>}
 								{!isLoading && events.length > 0 && (
 									<CommandGroup>
 										{events.map((event) => {

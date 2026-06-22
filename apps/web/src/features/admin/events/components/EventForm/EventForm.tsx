@@ -13,6 +13,7 @@ import { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } from '@/constants/mapper
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/translation';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -55,6 +56,7 @@ export default function EventForm({
 	onCancel,
 	onSubmit,
 }: EventFormProps) {
+	const translate = useTranslation();
 	const {
 		register,
 		control,
@@ -95,7 +97,7 @@ export default function EventForm({
 
 	return (
 		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 p-5 sm:p-6">
-			<ModalHeader title={event ? 'Update Event' : 'Create Event'} onClose={onCancel} />
+			<ModalHeader title={event ? translate('admin.updateEvent') : translate('admin.createEvent')} onClose={onCancel} />
 
 			<div className="space-y-4">
 				<div className="space-y-3">
@@ -170,7 +172,7 @@ export default function EventForm({
 						<div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
 							<div className="grid grid-cols-2 gap-4">
 								<label className="space-y-1.5">
-									<span className="text-sm font-semibold">Title</span>
+									<span className="text-sm font-semibold">{translate('admin.title')}</span>
 									<input
 										{...register(`translations.${activeTabIndex}.title`)}
 										className={fieldClassName}
@@ -181,7 +183,7 @@ export default function EventForm({
 									)}
 								</label>
 								<label className="space-y-1.5">
-									<span className="text-sm font-semibold">Category</span>
+									<span className="text-sm font-semibold">{translate('admin.category')}</span>
 									<input
 										{...register(`translations.${activeTabIndex}.category`)}
 										className={fieldClassName}
@@ -195,7 +197,7 @@ export default function EventForm({
 
 							<div className="grid grid-cols-1 gap-4">
 								<label className="space-y-1.5">
-									<span className="text-sm font-semibold">Location</span>
+									<span className="text-sm font-semibold">{translate('admin.location')}</span>
 									<input
 										{...register(`translations.${activeTabIndex}.location`)}
 										className={fieldClassName}
@@ -208,7 +210,7 @@ export default function EventForm({
 							</div>
 
 							<label className="block space-y-1.5">
-								<span className="text-sm font-semibold">Description</span>
+								<span className="text-sm font-semibold">{translate('admin.description')}</span>
 								<textarea
 									{...register(`translations.${activeTabIndex}.description`)}
 									className={textareaClassName}
@@ -220,7 +222,7 @@ export default function EventForm({
 							</label>
 
 							<label className="block space-y-1.5">
-								<span className="text-sm font-semibold">Included items (one per line)</span>
+								<span className="text-sm font-semibold">{translate('admin.includedItems')}</span>
 								<textarea
 									{...register(`translations.${activeTabIndex}.whatsIncluded`)}
 									className={textareaClassName}
@@ -236,7 +238,7 @@ export default function EventForm({
 
 				<div className="grid grid-cols-1 gap-4">
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Google Maps URL</span>
+						<span className="text-sm font-semibold">{translate('admin.googleMapsUrl')}</span>
 						<input
 							{...register('locationUrl')}
 							className={fieldClassName}
@@ -248,7 +250,7 @@ export default function EventForm({
 				</div>
 
 				<div className="space-y-1.5">
-					<span className="text-sm font-semibold">Date & time</span>
+					<span className="text-sm font-semibold">{translate('admin.dateTime')}</span>
 					<Controller
 						name="date"
 						control={control}
@@ -268,7 +270,7 @@ export default function EventForm({
 
 				<div className="grid grid-cols-2 gap-4">
 					<div className="space-y-1.5">
-					<span className="text-sm font-semibold">Difficulty <span className="text-gray-400">(optional)</span></span>
+					<span className="text-sm font-semibold">{translate('admin.difficulty')} <span className="text-gray-400">(optional)</span></span>
 					<Controller
 						name="difficulty"
 						control={control}
@@ -285,7 +287,7 @@ export default function EventForm({
 						{errors.difficulty && <p className="text-xs text-red-500">{errors.difficulty.message}</p>}
 					</div>
 					<div className="space-y-1.5">
-						<span className="text-sm font-semibold">Status</span>
+						<span className="text-sm font-semibold">{translate('admin.status')}</span>
 						<Controller
 							name="status"
 							control={control}
@@ -305,7 +307,7 @@ export default function EventForm({
 
 				<div className="grid grid-cols-3 gap-4">
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Price</span>
+						<span className="text-sm font-semibold">{translate('admin.price')}</span>
 						<input
 							type="number"
 							step="0.01"
@@ -316,7 +318,7 @@ export default function EventForm({
 						{errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
 					</label>
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Duration (min)</span>
+						<span className="text-sm font-semibold">{translate('admin.durationMin')}</span>
 						<input
 							type="number"
 							{...register('duration')}
@@ -326,7 +328,7 @@ export default function EventForm({
 						{errors.duration && <p className="text-xs text-red-500">{errors.duration.message}</p>}
 					</label>
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">Max participants</span>
+						<span className="text-sm font-semibold">{translate('admin.maxParticipants')}</span>
 						<input
 							type="number"
 							{...register('maxParticipants')}
@@ -345,7 +347,7 @@ export default function EventForm({
 					<div className="flex items-center justify-between">
 						<div>
 							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-								Cancellation Rules
+								{translate('admin.cancellationRules')}
 							</h3>
 							<p className="text-xs text-gray-500">
 								Define refund percentages based on time thresholds before the event starts.
@@ -358,7 +360,7 @@ export default function EventForm({
 							disabled={isPending}
 							onClick={() => appendCancellation({ hoursBeforeEvent: 24, refundPercentage: 50 })}
 						>
-							+ Add Rule
+							{translate('admin.addRule')}
 						</Button>
 					</div>
 
@@ -367,7 +369,7 @@ export default function EventForm({
 							{cancellationFields.map((field, index) => (
 								<div key={field.id} className="flex items-end gap-4">
 									<label className="flex-1 space-y-1">
-										<span className="text-xs font-medium text-gray-500">Hours before event</span>
+										<span className="text-xs font-medium text-gray-500">{translate('admin.hoursBeforeEvent')}</span>
 										<input
 											type="number"
 											{...register(`cancellationRules.${index}.hoursBeforeEvent`, { valueAsNumber: true })}
@@ -384,7 +386,7 @@ export default function EventForm({
 									</label>
 
 									<label className="flex-1 space-y-1">
-										<span className="text-xs font-medium text-gray-500">Refund Percentage (%)</span>
+										<span className="text-xs font-medium text-gray-500">{translate('admin.refundPercentage')}</span>
 										<input
 											type="number"
 											{...register(`cancellationRules.${index}.refundPercentage`, { valueAsNumber: true })}
@@ -408,7 +410,7 @@ export default function EventForm({
 										disabled={isPending}
 										onClick={() => removeCancellation(index)}
 									>
-										Delete
+										{translate('admin.delete')}
 									</Button>
 								</div>
 							))}
@@ -433,7 +435,7 @@ export default function EventForm({
 				<hr className="border-gray-200 dark:border-gray-700" />
 
 				<div className="space-y-1.5">
-					<span className="text-sm font-semibold">Event images</span>
+					<span className="text-sm font-semibold">{translate('admin.eventImage')}</span>
 					<Controller
 						name="images"
 						control={control}
@@ -447,7 +449,7 @@ export default function EventForm({
 
 			<div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
 				<Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
-					Cancel
+					{translate('admin.cancel')}
 				</Button>
 				<Button type="submit" isLoading={isPending}>
 					{submitLabel}

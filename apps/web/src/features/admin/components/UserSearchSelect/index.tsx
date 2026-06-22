@@ -12,6 +12,7 @@ import {
 	CommandList,
 } from '@/components/ui/primitives/command';
 import type { SafeUserData } from '@event-space/shared';
+import { useTranslation } from '@/hooks/translation';
 
 type UserSelectMode = 'existing' | 'new';
 
@@ -30,6 +31,7 @@ export default function UserSearchSelect({
 	newUserName,
 	label,
 }: UserSearchSelectProps) {
+	const translate = useTranslation();
 	const [mode, setMode] = useState<UserSelectMode>('existing');
 	const [search, setSearch] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +87,7 @@ export default function UserSearchSelect({
 							: 'border border-gray-300 text-gray-600 hover:border-gray-400 dark:border-gray-600 dark:text-gray-400'
 					}`}
 				>
-					Existing user
+					{translate('admin.existingUser')}
 				</button>
 				<button
 					type="button"
@@ -96,7 +98,7 @@ export default function UserSearchSelect({
 							: 'border border-gray-300 text-gray-600 hover:border-gray-400 dark:border-gray-600 dark:text-gray-400'
 					}`}
 				>
-					New user
+					{translate('admin.newUser')}
 				</button>
 			</div>
 
@@ -112,7 +114,7 @@ export default function UserSearchSelect({
 								{selectedUser.name} — {selectedUser.email}
 							</span>
 						) : (
-							<span className="text-gray-400">Search user by name or email...</span>
+							<span className="text-gray-400">{translate('admin.searchUserByNameOrEmail')}</span>
 						)}
 					</button>
 
@@ -120,13 +122,13 @@ export default function UserSearchSelect({
 						<div className="absolute top-full z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
 							<Command shouldFilter={false}>
 								<CommandInput
-									placeholder="Search by name or email..."
+									placeholder={translate('admin.searchUsersPlaceholder')}
 									value={search}
 									onValueChange={setSearch}
 								/>
 								<CommandList>
-									{isLoading && <div className="py-4 text-center text-sm text-gray-400">Loading...</div>}
-									{!isLoading && users.length === 0 && <CommandEmpty>No users found</CommandEmpty>}
+									{isLoading && <div className="py-4 text-center text-sm text-gray-400">{translate('admin.loading')}</div>}
+									{!isLoading && users.length === 0 && <CommandEmpty>{translate('admin.noUsersFound')}</CommandEmpty>}
 									{!isLoading && users.length > 0 && (
 										<CommandGroup>
 											{users.map((user) => (
@@ -157,7 +159,7 @@ export default function UserSearchSelect({
 					type="text"
 					value={newUserName}
 					onChange={(e) => onNewUserName(e.target.value)}
-					placeholder="Enter name (e.g. Tigran from Instagram)"
+					placeholder={translate('admin.enterShadowUserName')}
 					className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm transition outline-none placeholder:text-gray-400 hover:border-gray-600 dark:text-gray-100"
 				/>
 			)}
