@@ -2,8 +2,8 @@
 
 import { Clock, DollarSign, Ticket, TrendingUp, Users, CalendarDays } from 'lucide-react';
 import type { DashboardStats } from '@event-space/shared';
-import { formatCurrency } from '../DashboardUtils';
 import { useTranslation } from '@/hooks/translation';
+import { useFormatCurrency } from '@/hooks/format';
 
 interface KpiCardsProps {
 	stats: DashboardStats;
@@ -11,6 +11,7 @@ interface KpiCardsProps {
 
 export default function KpiCards({ stats }: KpiCardsProps) {
 	const translate = useTranslation();
+	const formatCurrency = useFormatCurrency();
 	const kpis = [
 		{
 			label: translate('admin.bookingValue'),

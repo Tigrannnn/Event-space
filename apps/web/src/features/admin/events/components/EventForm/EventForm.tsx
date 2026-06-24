@@ -2,18 +2,18 @@
 
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type Event, EventStatusEnum, EventDifficultyEnum } from '@event-space/shared';
+import { type Event, EventStatusEnum, EventDifficultyEnum, DEFAULT_CURRENCY } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import { ModalHeader } from '@/components/ui/Modal';
-import { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } from '@/constants/mappers';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
+import { useLabels } from '@/hooks/labels/useLabels';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -28,16 +28,6 @@ const AVAILABLE_LOCALES = [
     { value: 'en', label: '🇬🇧 En' },
     { value: 'hy', label: '🇦🇲 Hy' },
 ] as const;
-
-const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
-	value: diff,
-	label: EVENT_DIFFICULTY_LABELS[diff],
-}));
-
-const statusOptions = EventStatusEnum.options.map((status) => ({
-	value: status,
-	label: EVENT_STATUS_LABELS[status],
-}));
 
 const fieldClassName =
 	'focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm outline-none text-gray-900 dark:text-gray-100 ' +
@@ -57,6 +47,18 @@ export default function EventForm({
 	onSubmit,
 }: EventFormProps) {
 	const translate = useTranslation();
+	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
+
+	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
+		value: diff,
+		label: EVENT_DIFFICULTY_LABELS[diff],
+	}));
+
+	const statusOptions = EventStatusEnum.options.map((status) => ({
+		value: status,
+		label: EVENT_STATUS_LABELS[status],
+	}));
+
 	const {
 		register,
 		control,
@@ -307,7 +309,7 @@ export default function EventForm({
 
 				<div className="grid grid-cols-3 gap-4">
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">{translate('admin.price')}</span>
+						<span className="text-sm font-semibold">{translate('admin.price')} ({DEFAULT_CURRENCY})</span>
 						<input
 							type="number"
 							step="0.01"

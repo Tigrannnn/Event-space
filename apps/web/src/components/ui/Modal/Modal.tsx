@@ -68,7 +68,7 @@ export default function Modal({
 				initial="hidden"
 				animate="visible"
 				exit="exit"
-				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 ${backdropClassName}`}
+				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden ${backdropClassName}`}
 				onClick={handleBackdropClick}
 				aria-hidden="true"
 			/>

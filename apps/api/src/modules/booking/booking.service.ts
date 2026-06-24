@@ -62,7 +62,7 @@ export class BookingService {
 				);
 			}
 
-			const amount = Number(event.price) * quantity;
+			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_eventId: { userId, eventId } },
@@ -181,7 +181,7 @@ export class BookingService {
 				);
 			}
 
-			const amount = Number(event.price) * quantity;
+			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
 
 			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
 

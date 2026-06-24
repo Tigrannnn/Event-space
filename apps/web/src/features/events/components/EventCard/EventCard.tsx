@@ -7,13 +7,19 @@ import { PriceBadge } from '../PriceBadge';
 import { CapacityBar } from '../CapacityBar';
 
 import { ModalType, useModalStore } from '@/stores';
-import { formatDateTime } from '@/utils/date';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
-import { Event, getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
+import {
+	Event,
+	getEventCoverImageUrl,
+	isEventAvailable,
+	getEventTranslation,
+	Locale,
+} from '@event-space/shared';
 
 export interface EventCardProps {
 	event: Event;
+	initialLocale: Locale;
 }
 
 import { useCurrentUser } from '@/features/users';
@@ -23,11 +29,12 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { formatDateTime } from '@/utils/date';
 
-export default function EventCard({ event }: EventCardProps) {
+export default function EventCard({ event, initialLocale }: EventCardProps) {
 	const { openModal } = useModalStore();
 	const translate = useTranslation();
-	const locale = translate.locale
+	const locale = translate.locale;
 	const navigation = useLocalizedNavigation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -65,7 +72,7 @@ export default function EventCard({ event }: EventCardProps) {
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{t.category}</CategoryBadge>
-				<PriceBadge price={event.price} />
+				<PriceBadge price={event.price} initialLocale={initialLocale} />
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={t.title} />
 			</div>
 
@@ -74,7 +81,7 @@ export default function EventCard({ event }: EventCardProps) {
 				<div className="mb-3 flex items-center gap-2">
 					<span className="bg-accent h-2 w-2 animate-pulse rounded-full" />
 					<span className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs">
-						{formatDateTime(event.date)}
+						{formatDateTime(event.date, initialLocale)}
 					</span>
 				</div>
 

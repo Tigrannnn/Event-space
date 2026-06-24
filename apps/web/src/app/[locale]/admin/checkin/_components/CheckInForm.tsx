@@ -10,6 +10,7 @@ import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search } from 'lucide-react';
 import { getEventTranslation } from '@event-space/shared';
+import { localeIntl } from '@/lib/i18n/config';
 
 export default function CheckInForm() {
 	const translate = useTranslation();
@@ -140,7 +141,7 @@ export default function CheckInForm() {
 							<div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-gray-600 sm:grid-cols-2 dark:text-zinc-400">
 								<div className="flex items-center gap-2">
 									<Calendar className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
-									<span>{booking.event ? formatDateTime(booking.event.date) : '—'}</span>
+									<span>{booking.event ? formatDateTime(booking.event.date, localeIntl[locale]) : '—'}</span>
 								</div>
 								<div className="flex items-center gap-2">
 									<MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
@@ -163,7 +164,7 @@ export default function CheckInForm() {
 
 						{isCheckedIn && (
 							<div className="rounded-lg bg-amber-50 p-3 text-center text-xs font-semibold text-amber-700 dark:bg-amber-950/20 dark:text-amber-400">
-								{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!)}
+								{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!, localeIntl[locale])}
 							</div>
 						)}
 

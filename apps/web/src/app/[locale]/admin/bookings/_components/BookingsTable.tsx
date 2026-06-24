@@ -25,8 +25,8 @@ import type {
 } from '@event-space/shared';
 import { BookingStatusEnum, TimeFilterSchema, getEventTranslation } from '@event-space/shared';
 import { ModalType } from '@/stores';
-import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
+import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -37,18 +37,11 @@ interface BookingsTableProps {
 	initialBookings: PaginatedResponse<BookingWithDetails>;
 }
 
-function formatCurrency(price: number | string, quantity: number) {
-	return new Intl.NumberFormat('en', {
-		style: 'currency',
-		currency: 'USD',
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(Number(price) * quantity);
-}
-
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 	const [skip, setSkip] = useState(initialBookings.skip);
 	const [limit, setLimit] = useState(initialBookings.take);
 	const searchParams = useSearchParams();
@@ -271,48 +264,44 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
 											{t?.title || translate('booking.unknownEvent')}
 										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-											{t?.location || '—'}
-										</p>
+										<p className="truncate text-sm text-gray-500 dark:text-gray-400">{t?.location || '—'}</p>
 									</div>
 								</TableCell>
-							<TableCell>
-								<div className="flex items-center gap-2">
-									<Select
-										value={booking.status}
-										onValueChange={(value) => handleBookingStatusChange(booking.id, value as BookingStatus)}
-										disabled={updateBookingStatus.isPending}
+								<TableCell>
+									<div className="flex items-center gap-2">
+										<Select
+											value={booking.status}
+											onValueChange={(value) => handleBookingStatusChange(booking.id, value as BookingStatus)}
+											disabled={updateBookingStatus.isPending}
+											size="sm"
+											aria-label={`${translate('admin.updateEvent')} ${booking.user?.name || translate('booking.unknownCustomer')}`}
+											options={bookingStatusOptions}
+										/>
+									</div>
+								</TableCell>
+								<TableCell>{booking.quantity}</TableCell>
+								<TableCell>{formatCurrency(booking.amount)}</TableCell>
+								<TableCell>
+									<p>{formatBookingReference(booking.referenceNumber)}</p>
+								</TableCell>
+								<TableCell>
+									<div className="flex items-center gap-2 text-sm">
+										<CalendarDays className="h-4 w-4 text-gray-400" />
+										{formatDateTime(booking.createdAt)}
+									</div>
+								</TableCell>
+								<TableCell>
+									<Button
+										type="button"
 										size="sm"
-										aria-label={`${translate('admin.updateEvent')} ${booking.user?.name || translate('booking.unknownCustomer')}`}
-										options={bookingStatusOptions}
-									/>
-								</div>
-							</TableCell>
-							<TableCell>{booking.quantity}</TableCell>
-							<TableCell>
-								{booking.event ? formatCurrency(booking.event.price, booking.quantity) : '—'}
-							</TableCell>
-							<TableCell>
-								<p>{formatBookingReference(booking.referenceNumber)}</p>
-							</TableCell>
-							<TableCell>
-								<div className="flex items-center gap-2 text-sm">
-									<CalendarDays className="h-4 w-4 text-gray-400" />
-									{formatDateTime(booking.createdAt)}
-								</div>
-							</TableCell>
-							<TableCell>
-								<Button
-									type="button"
-									size="sm"
-									variant="secondary"
-									onClick={() => handleOpenBookingDetails(booking)}
-								>
-									<Eye className="mr-2 h-4 w-4" />
-									{translate('admin.details')}
-								</Button>
-							</TableCell>
-						</TableRow>
+										variant="secondary"
+										onClick={() => handleOpenBookingDetails(booking)}
+									>
+										<Eye className="mr-2 h-4 w-4" />
+										{translate('admin.details')}
+									</Button>
+								</TableCell>
+							</TableRow>
 						);
 					})}
 				</TableBody>

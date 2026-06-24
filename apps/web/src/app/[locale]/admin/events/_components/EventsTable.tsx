@@ -15,10 +15,7 @@ import {
 	TableRow,
 } from '@/components/ui/Table';
 import { useConfirm } from '@/hooks/confirmModal';
-import {
-	useAdminEvents,
-	useDeleteEvent,
-} from '@/features/admin/hooks/useAdmin';
+import { useAdminEvents, useDeleteEvent } from '@/features/admin/hooks/useAdmin';
 import { useModalStore, ModalType } from '@/stores';
 import {
 	Event,
@@ -31,9 +28,10 @@ import {
 	getEventTranslation,
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
-import { formatDateTime } from '@/utils/date';
 import { useTranslation } from '@/hooks/translation';
 import Badge from '@/components/ui/Badge';
+import { useFormatDate, useFormatCurrency } from '@/hooks/format';
+import { useLabels } from '@/hooks/labels/useLabels';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -44,18 +42,11 @@ interface EventsTableProps {
 	initialEvents: PaginatedResponse<Event>;
 }
 
-function formatCurrency(value: Event['price']) {
-	return new Intl.NumberFormat('en', {
-		style: 'currency',
-		currency: 'USD',
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(Number(value));
-}
-
 export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 	const [skip, setSkip] = useState(initialEvents.skip);
 	const [limit, setLimit] = useState(initialEvents.take);
 	const [searchInput, setSearchInput] = useState('');
@@ -72,7 +63,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		status,
 		difficulty,
 		time,
-	})
+	});
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const router = useRouter();
@@ -84,14 +75,14 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const hasActiveFilters = Boolean(
 		search || status !== undefined || difficulty !== undefined || time !== undefined,
 	);
+	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
 		value: eventStatus,
-		label:
-			eventStatus === 'PUBLISHED'
-				? translate('admin.published')
-				: eventStatus === 'CANCELLED'
-					? translate('admin.cancelled')
-					: translate('admin.draft'),
+		label: EVENT_STATUS_LABELS[eventStatus],
+	}));
+	const eventDifficultyOptions = EventDifficultyEnum.options.map((diff) => ({
+		value: diff,
+		label: EVENT_DIFFICULTY_LABELS[diff],
 	}));
 
 	const resetPagination = () => {
@@ -166,7 +157,9 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 				<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<p className="font-semibold text-gray-900 dark:text-gray-100">{translate('admin.allEvents')}</p>
+							<p className="font-semibold text-gray-900 dark:text-gray-100">
+								{translate('admin.allEvents')}
+							</p>
 							<p className="text-sm text-gray-500">
 								{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 								{eventsResponse.total} {translate('admin.eventsCount')}
@@ -198,18 +191,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							<Select
 								value={status ?? ''}
 								onValueChange={handleStatusFilterChange}
-								options={[
-									{ value: '', label: translate('admin.allStatuses') },
-									...EventStatusEnum.options.map((s) => ({
-										value: s,
-										label:
-											s === 'PUBLISHED'
-												? translate('admin.published')
-												: s === 'CANCELLED'
-													? translate('admin.cancelled')
-													: translate('admin.draft'),
-									})),
-								]}
+								options={[{ value: '', label: translate('admin.allStatuses') }, ...eventStatusOptions]}
 							/>
 
 							<Select
@@ -217,16 +199,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								onValueChange={handleDifficultyFilterChange}
 								options={[
 									{ value: '', label: translate('admin.allDifficulty') },
-									...EventDifficultyEnum.options.map((d) => ({
-										value: d,
-										label:
-											d === 'EASY'
-												? translate('admin.easy')
-												: d === 'HARD'
-													? translate('admin.hard')
-													: d === 'MODERATE'
-														? translate('admin.moderate') : ''
-									})),
+									...eventDifficultyOptions,
 								]}
 							/>
 
@@ -300,14 +273,8 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 										</div>
 									</TableCell>
 									<TableCell>
-									<Badge label={
-										event.status === 'PUBLISHED'
-											? translate('admin.published')
-											: event.status === 'CANCELLED'
-												? translate('admin.cancelled')
-												: translate('admin.draft')
-									} />
-								</TableCell>
+										<Badge label={EVENT_STATUS_LABELS[event.status]} />
+									</TableCell>
 									<TableCell>
 										<div className="flex items-center gap-2 text-sm">
 											<CalendarDays className="h-4 w-4 text-gray-400" />

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/primitives/command';
 import { formatDateTime } from '@/utils/date';
 import type { Event } from '@event-space/shared';
+import { localeIntl } from '@/lib/i18n/config';
 import { getEventTranslation } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 
@@ -67,7 +68,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 				>
 					{selectedEvent ? (
 						<span className="text-gray-900 dark:text-gray-100">
-							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.date)}
+							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.date, localeIntl[locale])}
 						</span>
 					) : (
 						<span className="text-gray-400">{translate('admin.selectEvent')}</span>
@@ -96,7 +97,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 													<div className="flex flex-col">
 														<span className="font-medium">{t.title}</span>
 														<span className="text-xs text-gray-400">
-															{formatDateTime(event.date)} · {t.location}
+															{formatDateTime(event.date, localeIntl[locale])} · {t.location}
 														</span>
 													</div>
 												</CommandItem>

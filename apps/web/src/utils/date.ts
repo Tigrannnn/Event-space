@@ -29,6 +29,7 @@ export const formatDateTime = (date: string | Date, locale = 'en-US'): string =>
 		hour: '2-digit',
 		minute: '2-digit',
 		hour12: true,
+		hourCycle: 'h12',
 	}).format(d);
 
 	return `${datePart}, ${timePart}`;

@@ -11,7 +11,9 @@ import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
+import { formatCurrency } from '@/utils/currency';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -63,7 +65,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
 					<div className="flex items-baseline gap-2">
-						<span className="text-primary text-3xl font-black sm:text-4xl">${event.price}</span>
+						<span className="text-primary text-3xl font-black sm:text-4xl">{formatCurrency(event.price, { locale })}</span>
 						<span className="font-medium text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
 					</div>
 				</div>
@@ -100,7 +102,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 								{translate('event.date')}
 							</span>
 							<span className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
-								{formatDateTime(event.date)}
+								{formatDateTime(event.date, localeIntl[locale])}
 							</span>
 						</div>
 					</div>

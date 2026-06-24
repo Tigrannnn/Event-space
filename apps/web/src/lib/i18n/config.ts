@@ -24,6 +24,12 @@ export const localeOpenGraph: Record<Locale, string> = {
 	en: 'en_US',
 };
 
+export const localeIntl: Record<Locale, string> = {
+	hy: 'hy-AM',
+	ru: 'ru-RU',
+	en: 'en-US',
+};
+
 export function isLocale(value: string): value is Locale {
 	return locales.includes(value as Locale);
 }

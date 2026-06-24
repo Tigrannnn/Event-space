@@ -11,7 +11,7 @@ import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
 import type { BookingWithEstimate } from '@event-space/shared';
-import { localizePath } from '@/lib/i18n/config';
+import { localizePath, localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 // import { useModalStore } from '@/stores';
@@ -40,7 +40,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 	const confirm = useConfirm();
 	const translate = useTranslation();
-	const locale = translate.locale
+	const locale = translate.locale;
 	const navigation = useLocalizedNavigation();
 
 	// const handleUpdate = () => {
@@ -116,19 +116,24 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					{t.title}
 				</Link>
 
-				<div className="mb-3 flex items-center gap-2">
-					<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
-						{translate('booking.bookingRef')}
-					</span>
-					<span className="text-primary font-mono text-lg font-bold">
-						{formatBookingReference(booking.referenceNumber)}
-					</span>
+				<div className="mb-4">
+					<div className="flex items-center gap-2">
+						<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
+							{translate('booking.bookingRef')}
+						</span>
+						<span className="text-primary font-mono text-lg font-bold">
+							{formatBookingReference(booking.referenceNumber)}
+						</span>
+					</div>
+					<p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+						{translate('booking.bookingRefTip')}
+					</p>
 				</div>
 
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
-						<span>{formatDateTime(event.date)}</span>
+						<span>{formatDateTime(event.date, localeIntl[locale])}</span>
 					</div>
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />
@@ -157,7 +162,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					</div>
 					<div className="text-right">
 						<span className="text-primary text-xl font-bold">${event.price * quantity}</span>
-						<span className="text-sm text-gray-400 dark:text-gray-500"> {translate('booking.total')}</span>
+						<span className="text-sm text-gray-400 dark:text-gray-500">
+							{' '}
+							{translate('booking.total')}
+						</span>
 
 						{/* Refund estimate & commission */}
 						{(() => {

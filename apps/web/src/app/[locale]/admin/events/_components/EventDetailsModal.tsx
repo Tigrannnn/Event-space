@@ -5,20 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { getEventTranslation } from '@event-space/shared';
-
-function formatCurrency(value: number | string) {
-	return new Intl.NumberFormat('en', {
-		style: 'currency',
-		currency: 'USD',
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(Number(value));
-}
+import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 
 export default function EventDetailsModal() {
 	const translate = useTranslation();
@@ -28,6 +19,8 @@ export default function EventDetailsModal() {
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.EventDetails);
 	const event = modalData?.event;
+	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 
 	if (!event) {
 		return null;
@@ -194,9 +187,7 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.description')}
 									</p>
-									<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
-										{t.description}
-									</p>
+									<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">{t.description}</p>
 								</div>
 							)}
 

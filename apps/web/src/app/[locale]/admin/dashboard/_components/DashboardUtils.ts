@@ -1,11 +1,3 @@
-export function formatCurrency(value: number) {
-	return new Intl.NumberFormat('en', {
-		style: 'currency',
-		currency: 'USD',
-		maximumFractionDigits: 2,
-	}).format(value);
-}
-
 export function formatDate(value: Date | string) {
 	return new Intl.DateTimeFormat('en', {
 		month: 'short',

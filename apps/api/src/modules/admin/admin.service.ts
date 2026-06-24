@@ -145,7 +145,7 @@ export class AdminService {
 		});
 
 		const totalRevenue = confirmedBookingsData.reduce(
-			(sum, booking) => sum + Number(booking.event.price) * booking.quantity,
+			(sum, booking) => sum + Number(booking.amount),
 			0,
 		);
 		const totalCapacity = capacityTotals._sum.maxParticipants ?? 0;

@@ -8,9 +8,11 @@ import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
+import { localeIntl } from '@/lib/i18n/config';
 
 export default function UserDetailsModal() {
 	const translate = useTranslation();
+	const locale = translate.locale;
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.UserDetails);
@@ -78,7 +80,7 @@ export default function UserDetailsModal() {
 										{translate('admin.createdAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDateTime(user.createdAt)}
+										{formatDateTime(user.createdAt, localeIntl[locale])}
 									</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
@@ -86,7 +88,7 @@ export default function UserDetailsModal() {
 										{translate('admin.updatedAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDateTime(user.updatedAt)}
+										{formatDateTime(user.updatedAt, localeIntl[locale])}
 									</p>
 								</div>
 							</div>

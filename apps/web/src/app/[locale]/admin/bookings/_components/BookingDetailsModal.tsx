@@ -4,25 +4,18 @@ import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { useTranslation } from '@/hooks/translation';
-import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { getEventTranslation } from '@event-space/shared';
-
-function formatCurrency(value: number | string) {
-	return new Intl.NumberFormat('en', {
-		style: 'currency',
-		currency: 'USD',
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(Number(value));
-}
+import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { useTranslation } from '@/hooks/translation';
 
 export default function BookingDetailsModal() {
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.BookingDetails);
@@ -196,13 +189,13 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="grid gap-3 sm:grid-cols-2">
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('event.date')}
-										</p>
-										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{event ? formatDateTime(event.date) : '—'}
-										</p>
-									</div>
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('event.date')}
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{event ? formatDateTime(event.date) : '—'}
+									</p>
+								</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 											{translate('event.duration')}

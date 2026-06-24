@@ -38,7 +38,7 @@ function buildEventFields(values: EventFormValues) {
 		locationUrl: values.locationUrl?.trim() || null,
 		date: new Date(values.date).toISOString(),
 		difficulty: values.difficulty,
-		price: Number(values.price),
+		price: parseFloat(parseFloat(values.price).toFixed(2)),
 		maxParticipants: Number(values.maxParticipants),
 		duration: Number(values.duration),
 		status: values.status,
