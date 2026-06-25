@@ -127,6 +127,8 @@ export const CreateEventSchema = EventSchema.omit({
 export type CreateEventData = z.infer<typeof CreateEventSchema>;
 
 // === UPDATE EVENT ===
-export const UpdateEventSchema = CreateEventSchema.partial();
+export const UpdateEventSchema = CreateEventSchema.partial().extend({
+  cancellationReason: z.string().optional(),
+});
 
 export type UpdateEventData = z.infer<typeof UpdateEventSchema>;

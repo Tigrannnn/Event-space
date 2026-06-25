@@ -276,7 +276,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 										<Badge label={EVENT_STATUS_LABELS[event.status]} />
 									</TableCell>
 									<TableCell>
-										<div className="flex items-center gap-2 text-sm">
+										<div className="flex items-center gap-2 text-sm" suppressHydrationWarning>
 											<CalendarDays className="h-4 w-4 text-gray-400" />
 											{formatDateTime(event.date)}
 										</div>
@@ -284,7 +284,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									<TableCell>
 										{event.currentParticipants}/{event.maxParticipants}
 									</TableCell>
-									<TableCell>{formatCurrency(event.price)}</TableCell>
+									<TableCell suppressHydrationWarning>{formatCurrency(event.price)}</TableCell>
 									<TableCell>
 										<div className="flex gap-2">
 											<Button

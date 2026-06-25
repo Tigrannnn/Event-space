@@ -1,0 +1,85 @@
+<mj-wrapper padding="0px 20px 40px 20px">
+	<mj-section
+		background-color="#ffffff"
+		border-radius="40px"
+		padding="40px"
+		css-class="card-bg shadow-card"
+	>
+		<mj-column>
+			<mj-text
+				align="center"
+				font-size="22px"
+				font-weight="900"
+				color="#1b4c00"
+				padding="0px 0px 8px 0px"
+				css-class="text-main"
+			>
+				Event Cancelled
+			</mj-text>
+			<mj-divider
+				border-width="1px"
+				border-color="#e5e7eb"
+				padding="0px 0px 24px 0px"
+				css-class="divider-color"
+			/>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				Dear {{ USER_NAME }},
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				We regret to inform you that the event "{{ EVENT_TITLE }}" scheduled for {{ EVENT_DATE }} has
+				been cancelled.
+			</mj-text>
+			{{#if CANCELLATION_REASON}}
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				Reason for cancellation: {{ CANCELLATION_REASON }}
+			</mj-text>
+			{{/if}}
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				You will receive a full refund of {{ REFUND_AMOUNT }} to your original payment method
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				If you have any questions, please contact our support team.
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 0px 0px"
+				css-class="text-muted"
+			>
+				Best regards,<br />
+				The Event Space Team
+			</mj-text>
+		</mj-column>
+	</mj-section>
+</mj-wrapper>

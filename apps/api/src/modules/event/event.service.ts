@@ -16,12 +16,16 @@ import {
 import { UploadService } from '@infra/upload/upload.service';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { EventImage, Prisma } from '@prisma/client';
+import { BookingService } from '../booking/booking.service';
+import { MailService } from '@infra/mail/mail.service';
 
 @Injectable()
 export class EventService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly uploadService: UploadService,
+		private readonly bookingService: BookingService,
+		private readonly mailService: MailService,
 	) {}
 
 	private readonly organizerInclude = {
@@ -178,7 +182,7 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
-		const { cancellationRules, translations, ...pureEventData } = eventData;
+		const { cancellationRules, translations, cancellationReason, ...pureEventData } = eventData;
 
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
 
@@ -206,14 +210,6 @@ export class EventService {
 
 				// If we're cancelling the event, update all confirmed bookings to cancelled/refunded
 				if (isCancelling) {
-					await tx.booking.updateMany({
-						where: {
-							eventId: id,
-							status: { in: ['PENDING', 'CONFIRMED'] },
-						},
-						data: { status: 'CANCELLED' },
-					});
-
 					// Set current participants to 0
 					await tx.event.update({
 						where: { id },
@@ -250,11 +246,39 @@ export class EventService {
 
 				return tx.event.findUniqueOrThrow({
 					where: { id },
-					include: this.eventInclude,
+					include: { ...this.eventInclude, bookings: { include: { user: true } } },
 				});
 			});
 
 			await this.uploadService.deleteMultipleByPublicId(removedImages.map((img) => img.publicId));
+
+			if (isCancelling) {
+				// Cancel all bookings and process refunds
+				await this.bookingService.cancelEventBookings(id);
+
+				// Get event title from translations (fallback to first available)
+				let eventTitle = 'Event';
+				if (event.translations.length > 0) {
+					eventTitle = event.translations[0].title;
+				}
+
+				// Send emails to all affected users
+				if (updated.bookings) {
+					for (const booking of updated.bookings) {
+						if (booking.user && booking.user.email) {
+							const refundAmount = `$${Number(booking.amount).toFixed(2)}`;
+							await this.mailService.sendEventCancelledEmail(
+								booking.user.email,
+								booking.user.name || 'User',
+								eventTitle,
+								event.date,
+								refundAmount,
+								cancellationReason,
+							);
+						}
+					}
+				}
+			}
 
 			return updated;
 		} catch (error) {

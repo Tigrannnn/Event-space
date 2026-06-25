@@ -53,4 +53,52 @@ export class MailService {
 			throw new Error('Email service unavailable');
 		}
 	}
+
+	async sendEventCancelledEmail(
+		email: string,
+		userName: string,
+		eventTitle: string,
+		eventDate: Date,
+		refundAmount: string,
+		cancellationReason?: string,
+	): Promise<void> {
+		const formattedDate = eventDate.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+
+		const html = await this.templateService.render('event-cancelled', {
+			USER_NAME: userName,
+			EVENT_TITLE: eventTitle,
+			EVENT_DATE: formattedDate,
+			REFUND_AMOUNT: refundAmount,
+			CANCELLATION_REASON: cancellationReason || '',
+		});
+
+		try {
+			await this.transporter.sendMail({
+				from: `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`,
+				to: email,
+				subject: `Event Cancelled: ${eventTitle}`,
+				text: `Dear ${userName},\n\nWe regret to inform you that the event "${eventTitle}" scheduled for ${formattedDate} has been cancelled.\n${cancellationReason ? `Reason for cancellation: ${cancellationReason}\n` : ''}\nYou will receive a full refund of ${refundAmount} to your original payment method. The refund may take 5-10 business days to appear in your account.\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Event Space Team`,
+				html: html,
+			});
+		} catch (error) {
+			this.logger.error(`Failed to send event cancelled email to ${email}`);
+			const devOrTest =
+				this.config.get(EnvKey.MAIL_DEV_MODE) === 'true' ||
+				this.config.get(EnvKey.NODE_ENV) === 'development' ||
+				this.config.get(EnvKey.NODE_ENV) === 'test';
+
+			if (devOrTest) {
+				this.logger.warn(`[DEV] Event cancelled email for ${email}: event ${eventTitle}, refund ${refundAmount}`);
+				return;
+			}
+
+			// Don't throw, just log - we don't want email failures to block event cancellation
+		}
+	}
 }

@@ -472,6 +472,112 @@ export class BookingService {
 		return booking;
 	}
 
+	async cancelEventBookings(eventId: string): Promise<void> {
+		const { bookings, event } = await this.prisma.$transaction(async (tx) => {
+			// Get all confirmed and pending bookings for the event
+			const bookings = await tx.booking.findMany({
+				where: {
+					eventId,
+					status: { in: ['PENDING', 'CONFIRMED'] },
+				},
+				include: { user: true },
+			});
+
+			// Update all bookings to CANCELLED
+			await tx.booking.updateMany({
+				where: {
+					eventId,
+					status: { in: ['PENDING', 'CONFIRMED'] },
+				},
+				data: { status: 'CANCELLED' },
+			});
+
+			const event = await tx.event.update({
+				where: { id: eventId },
+				data: { currentParticipants: 0 },
+			});
+
+			return { bookings, event };
+		});
+
+		// Process refunds for each booking
+		for (const booking of bookings) {
+			if (!booking.paymentIntentId || Number(booking.amount) === 0) {
+				continue;
+			}
+
+			let refundResult: { amount: number; id: string } | null = null;
+
+			try {
+				const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+
+				if (paymentIntent.status === 'succeeded') {
+					// Full 100% refund, no fee deduction
+					const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+
+					if (baseAmountInCents > 0) {
+						const refund = await this.stripe.refund(
+							booking.paymentIntentId,
+							`event-cancel-${eventId}-${booking.id}`,
+							baseAmountInCents,
+						);
+						refundResult = { amount: refund.amount, id: refund.id };
+					}
+				} else if (
+					CANCELABLE_PAYMENT_INTENT_STATUSES.includes(
+						paymentIntent.status as CancelablePaymentIntentStatus,
+					)
+				) {
+					await this.stripe.cancelPaymentIntent(
+						booking.paymentIntentId,
+						`event-cancel-${eventId}-${booking.id}`,
+					);
+				}
+			} catch (stripeError) {
+				this.logger.error(
+					`Stripe refund failed for booking ${booking.id} (event cancellation):`,
+					stripeError,
+				);
+			}
+
+			if (refundResult) {
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: booking.paymentIntentId },
+					create: {
+						bookingId: booking.id,
+						type: 'REFUND',
+						amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
+						currency: 'usd',
+						stripePaymentIntentId: booking.paymentIntentId,
+						stripeRefundId: refundResult.id,
+						status: 'SUCCEEDED',
+						reason: 'Event cancelled. Full refund.',
+					},
+					update: {
+						stripeRefundId: refundResult.id,
+						status: 'SUCCEEDED',
+					},
+				});
+			} else if (booking.paymentIntentId) {
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: booking.paymentIntentId },
+					create: {
+						bookingId: booking.id,
+						type: 'REFUND',
+						amount: new Prisma.Decimal('0'),
+						currency: 'usd',
+						stripePaymentIntentId: booking.paymentIntentId,
+						stripeRefundId: null,
+						status: 'SUCCEEDED',
+					},
+					update: {
+						status: 'SUCCEEDED',
+					},
+				});
+			}
+		}
+	}
+
 	private calculateRefundPercentage(
 		now: Date,
 		eventDate: Date,

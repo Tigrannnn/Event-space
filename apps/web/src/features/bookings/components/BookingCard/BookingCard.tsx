@@ -14,6 +14,7 @@ import type { BookingWithEstimate } from '@event-space/shared';
 import { localizePath, localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useFormatCurrency } from '@/hooks/format';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
@@ -37,6 +38,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const eventIsAvailable = event ? isEventAvailable(event) : false;
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
+	const formatCurrency = useFormatCurrency();
 
 	const confirm = useConfirm();
 	const translate = useTranslation();
@@ -52,7 +54,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 		let refundMessage = translate('booking.noRefund');
 		if (refundPercentage > 0 && estimatedRefundInCents > 0) {
-			refundMessage = `${translate('booking.youWillReceive')}: ~$${centsToDollars(estimatedRefundInCents)}`;
+			refundMessage = `${translate('booking.youWillReceive')}: ~${formatCurrency(centsToDollars(estimatedRefundInCents))}`;
 		} else if (refundPercentage > 0 && estimatedRefundInCents === 0) {
 			refundMessage = translate('booking.feeCoversAmount');
 		}
@@ -161,7 +163,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						</span>
 					</div>
 					<div className="text-right">
-						<span className="text-primary text-xl font-bold">${event.price * quantity}</span>
+						<span className="text-primary text-xl font-bold" suppressHydrationWarning>
+							{formatCurrency(event.price, { quantity })}
+						</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500">
 							{' '}
 							{translate('booking.total')}
@@ -187,7 +191,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 							return (
 								<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-									{translate('booking.refund')}: ~${centsToDollars(estimatedRefundInCents)}
+									{translate('booking.refund')}: ~{formatCurrency(centsToDollars(estimatedRefundInCents))}
 								</div>
 							);
 						})()}

@@ -20,6 +20,7 @@ export const messages = {
 			cancel: 'Չեղարկել',
 			loading: 'Բեռնվում է...',
 			updating: 'Թարմացվում է...',
+			optional: 'պարտադիր չէ',
 		},
 		header: {
 			searchPlaceholder: 'Փնտրել միջոցառումներ...',
@@ -352,7 +353,12 @@ export const messages = {
 			newUser: 'Նոր օգտատեր',
 			addRule: 'Ավելացնել կանոն',
 			cancelEventTitle: 'Չեղարկել միջոցառումը',
-			cancelEventMessage: 'Վստա՞հ եք, որ ցանկանում եք չեղարկել այս միջոցառումը։ Բոլոր հաստատված ամրագրումները կչեղարկվեն, և մասնակիցներին կպահանջվի ծանուցել։',
+			cancelEventMessage: 'Վստա՞հ եք, որ ցանկանում եք չեղարկել այս միջոցառումը։',
+			cancelEventConsequence1: 'Բոլոր հաստատված ամրագրումները կչեղարկվեն',
+			cancelEventConsequence2: 'Բոլոր մասնակիցներին կստանան 100% վերադարձ',
+			cancelEventConsequence3: 'Այս գործողությունը հնարավոր չէ հետարկել',
+			cancellationReason: 'Չեղարկման պատճառ',
+			cancellationReasonPlaceholder: 'Մուտքագրեք պատճառը (պարտադիր չէ)',
 			confirmCancelEvent: 'Այո, չեղարկել միջոցառումը',
 		},
 		error: {
@@ -363,7 +369,7 @@ export const messages = {
 	ru: {
 		common: {
 			appTitle: 'Локальные события и приключения',
-			appDescription: 'Премиальная платформа для локальных событий и уникальных приключений',
+			appDescription: 'Премиум платформа для локальных событий и уникальных приключений',
 			eventNotFound: 'Событие не найдено',
 			notFoundTitle: 'Страница не найдена',
 			notFoundDescription: 'Страницы, которую вы ищете, не существует.',
@@ -379,6 +385,7 @@ export const messages = {
 			cancel: 'Отмена',
 			loading: 'Загружается...',
 			updating: 'Обновляется...',
+			optional: 'необязательно',
 		},
 		header: {
 			searchPlaceholder: 'Искать события...',
@@ -710,7 +717,12 @@ export const messages = {
 			newUser: 'Новый пользователь',
 			addRule: 'Добавить правило',
 			cancelEventTitle: 'Отменить событие',
-			cancelEventMessage: 'Вы уверены, что хотите отменить это событие? Все подтвержденные брони будут отменены, и участники будут уведомлены.',
+			cancelEventMessage: 'Вы уверены, что хотите отменить это событие?',
+			cancelEventConsequence1: 'Все подтвержденные брони будут отменены',
+			cancelEventConsequence2: 'Все участники получат 100% возврат',
+			cancelEventConsequence3: 'Эта операция не может быть отменена',
+			cancellationReason: 'Причина отмены',
+			cancellationReasonPlaceholder: 'Введите причину (необязательно)',
 			confirmCancelEvent: 'Да, отменить событие',
 		},
 		error: {
@@ -737,6 +749,7 @@ export const messages = {
 			cancel: 'Cancel',
 			loading: 'Loading...',
 			updating: 'Updating...',
+			optional: 'optional',
 		},
 		header: {
 			searchPlaceholder: 'Search events...',
@@ -1068,7 +1081,12 @@ export const messages = {
 			newUser: 'New user',
 			addRule: 'Add Rule',
 			cancelEventTitle: 'Cancel Event',
-			cancelEventMessage: 'Are you sure you want to cancel this event? All confirmed bookings will be cancelled, and participants will need to be notified.',
+			cancelEventMessage: 'Are you sure you want to cancel this event?',
+			cancelEventConsequence1: 'All confirmed bookings will be cancelled',
+			cancelEventConsequence2: 'All participants will receive a 100% refund',
+			cancelEventConsequence3: 'This action cannot be undone',
+			cancellationReason: 'Cancellation reason',
+			cancellationReasonPlaceholder: 'Enter a reason (optional)',
 			confirmCancelEvent: 'Yes, cancel event',
 		},
 		error: {

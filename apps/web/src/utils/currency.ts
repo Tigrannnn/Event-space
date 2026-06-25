@@ -14,7 +14,6 @@ export function formatCurrency(
 		minimumFractionDigits?: number;
 		maximumFractionDigits?: number;
 		quantity?: number;
-		currencyDisplay?: 'symbol' | 'narrowSymbol' | 'code' | 'name';
 	},
 ) {
 	const {
@@ -23,7 +22,6 @@ export function formatCurrency(
 		minimumFractionDigits = 0,
 		maximumFractionDigits = 2,
 		quantity,
-		currencyDisplay = 'code',
 	} = options || {};
 
 	const numericValue = Number(value);
@@ -34,6 +32,5 @@ export function formatCurrency(
 		currency,
 		minimumFractionDigits,
 		maximumFractionDigits,
-		currencyDisplay,
 	}).format(amount);
 }
