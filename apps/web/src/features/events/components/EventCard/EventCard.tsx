@@ -14,12 +14,10 @@ import {
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
-	Locale,
 } from '@event-space/shared';
 
 export interface EventCardProps {
 	event: Event;
-	initialLocale: Locale;
 }
 
 import { useCurrentUser } from '@/features/users';
@@ -29,12 +27,13 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { formatDateTime } from '@/utils/date';
+import { useFormatDate } from '@/hooks/format';
 
-export default function EventCard({ event, initialLocale }: EventCardProps) {
+export default function EventCard({ event }: EventCardProps) {
 	const { openModal } = useModalStore();
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const { formatDateTime } = useFormatDate();
 	const navigation = useLocalizedNavigation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -72,7 +71,7 @@ export default function EventCard({ event, initialLocale }: EventCardProps) {
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				<CategoryBadge>{t.category}</CategoryBadge>
-				<PriceBadge price={event.price} initialLocale={initialLocale} />
+				<PriceBadge price={event.price} />
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={t.title} />
 			</div>
 
@@ -80,18 +79,17 @@ export default function EventCard({ event, initialLocale }: EventCardProps) {
 			<div className="flex flex-1 flex-col p-4 sm:p-6 md:p-8">
 				<div className="mb-3 flex items-center gap-2">
 					<span className="bg-accent h-2 w-2 animate-pulse rounded-full" />
-					<span className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs">
-						{formatDateTime(event.date, initialLocale)}
+					<span
+						className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs"
+						suppressHydrationWarning
+					>
+						{formatDateTime(event.date)}
 					</span>
 				</div>
 
 				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
 					{t.title}
 				</h3>
-
-				<p className="mb-4 line-clamp-2 min-h-10 text-base leading-relaxed font-medium text-gray-500 sm:mb-6 sm:min-h-11 sm:text-sm dark:text-gray-400">
-					{t.description}
-				</p>
 
 				<div className="mb-4 flex items-center gap-2 text-gray-600 sm:mb-6 dark:text-gray-400">
 					<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
@@ -112,9 +110,6 @@ export default function EventCard({ event, initialLocale }: EventCardProps) {
 				{/* Footer Section: Metrics & Action - always at bottom */}
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
 					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
-					{/* <span className="text-primary text-lg font-bold whitespace-nowrap">
-						${Number(event.price)}
-					</span> */}
 
 					{!eventIsAvailable ? (
 						<Button disabled variant="secondary" className="relative z-20 w-full">

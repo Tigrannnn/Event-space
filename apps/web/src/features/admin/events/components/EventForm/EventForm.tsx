@@ -14,6 +14,7 @@ import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { useConfirm } from '@/hooks/confirmModal/useConfirmModal';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -47,6 +48,7 @@ export default function EventForm({
 	onSubmit,
 }: EventFormProps) {
 	const translate = useTranslation();
+	const confirm = useConfirm();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 
 	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
@@ -73,6 +75,7 @@ export default function EventForm({
 	const watchedPrice = useWatch({ control, name: 'price' });
 	const watchedRules = useWatch({ control, name: 'cancellationRules' });
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
+	const watchedStatus = useWatch({ control, name: 'status' });
 
 	const { fields: translationFields, append: appendTranslation, remove: removeTranslation } = useFieldArray({
 		control,
@@ -93,7 +96,17 @@ export default function EventForm({
 		return !!errors.translations?.[index];
 	};
 
-	const handleFormSubmit = (values: EventFormValues) => {
+	const handleFormSubmit = async (values: EventFormValues) => {
+		const isCancelling = values.status === 'CANCELLED' && event?.status !== 'CANCELLED';
+		if (isCancelling) {
+			const confirmed = await confirm({
+				title: translate('admin.cancelEventTitle'),
+				message: translate('admin.cancelEventMessage'),
+				confirmText: translate('admin.confirmCancelEvent'),
+				cancelText: translate('common.cancel'),
+			});
+			if (!confirmed) return;
+		}
 		onSubmit(values);
 	};
 

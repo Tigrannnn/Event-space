@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY, DEFAULT_LOCALE, Locale } from '@event-space/shared';
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE, Locale, LocaleIntlEnum } from '@event-space/shared';
 
 /**
  * Formats a numeric value as a currency string.
@@ -9,7 +9,7 @@ import { DEFAULT_CURRENCY, DEFAULT_LOCALE, Locale } from '@event-space/shared';
 export function formatCurrency(
 	value: number | string,
 	options?: {
-		locale?: Locale;
+		locale?: LocaleIntlEnum;
 		currency?: string;
 		minimumFractionDigits?: number;
 		maximumFractionDigits?: number;

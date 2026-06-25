@@ -16,6 +16,7 @@ import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useParams } from 'next/navigation';
+import { useFormatCurrency } from '@/hooks/format';
 
 interface StripePaymentFormProps {
 	event: Event;
@@ -42,6 +43,7 @@ function StripePaymentFormContent({
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
+	const formatCurrency = useFormatCurrency();
 
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
@@ -104,10 +106,7 @@ function StripePaymentFormContent({
 				break;
 
 			case 'cancelled':
-				addToast(
-					translate('booking.paymentCancelled'),
-					ToastType.ERROR,
-				);
+				addToast(translate('booking.paymentCancelled'), ToastType.ERROR);
 				await invalidateAfterResolution();
 				onClose();
 				break;
@@ -180,13 +179,12 @@ function StripePaymentFormContent({
 		<form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
 			<ModalHeader title={translate('booking.completePayment')} onClose={handleClose} />
 
-			<p className="text-sm text-gray-500 dark:text-gray-400">
-				{translate('booking.cardDetails')}
-			</p>
+			<p className="text-sm text-gray-500 dark:text-gray-400">{translate('booking.cardDetails')}</p>
 
 			<div className="bg-gray-100 p-4 dark:bg-gray-800">
 				<p>
-					{translate('booking.amount')}: <span className="font-medium">${Number(booking.amount).toFixed(2)}</span>
+					{translate('booking.amount')}:{' '}
+					<span className="font-medium">{formatCurrency(booking.amount)}</span>
 				</p>
 				<p>
 					{translate('booking.quantity')}: <span className="font-medium">{booking.quantity}</span>
@@ -250,9 +248,7 @@ export default function StripePaymentForm({
 		return (
 			<div className="space-y-5 p-5 sm:p-6">
 				<ModalHeader title={translate('booking.completePayment')} onClose={onClose} />
-				<p className="text-sm text-red-500">
-					{translate('booking.stripeMissing')}
-				</p>
+				<p className="text-sm text-red-500">{translate('booking.stripeMissing')}</p>
 			</div>
 		);
 	}

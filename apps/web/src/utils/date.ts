@@ -2,6 +2,8 @@
  * Date formatting utilities
  */
 
+import { LocaleIntlEnum } from "@event-space/shared";
+
 export const formatDateYear = (date: string | Date, locale = 'en-US'): string => {
 	const d = typeof date === 'string' ? new Date(date) : date;
 	return d.toLocaleDateString(locale, {
@@ -19,7 +21,7 @@ export const formatDateShort = (date: string | Date, locale = 'en-US'): string =
 	});
 };
 
-export const formatDateTime = (date: string | Date, locale = 'en-US'): string => {
+export const formatDateTime = (date: string | Date, locale: LocaleIntlEnum): string => {
 	const d = typeof date === 'string' ? new Date(date) : date;
 
 	// Build a deterministic string using separate formatters to avoid

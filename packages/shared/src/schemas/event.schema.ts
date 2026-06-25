@@ -21,6 +21,7 @@ export type EventDifficulty = z.infer<typeof EventDifficultyEnum>;
 
 export const LocaleEnum = LocaleSchema;
 export type Locale = z.infer<typeof LocaleEnum>;
+export type LocaleIntlEnum = 'hy-AM' | 'ru-RU' | 'en-US';
 
 export const EventTranslationSchema = GeneratedEventTranslationSchema.extend({});
 export type EventTranslation = z.infer<typeof EventTranslationSchema>;

@@ -5,15 +5,14 @@ import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { CheckIcon } from '../../../../components/ui/Icons';
 import { Event, isEventAvailable, getEventTranslation } from '@event-space/shared';
-import { formatDateTime } from '@/utils/date';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { formatCurrency } from '@/utils/currency';
+import { useFormatDate } from '@/hooks/format';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -31,6 +30,8 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const t = getEventTranslation(event, locale);
+
+	const { formatDateTime } = useFormatDate()
 
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
@@ -65,7 +66,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
 					<div className="flex items-baseline gap-2">
-						<span className="text-primary text-3xl font-black sm:text-4xl">{formatCurrency(event.price, { locale })}</span>
+						<span className="text-primary text-3xl font-black sm:text-4xl">{formatCurrency(event.price)}</span>
 						<span className="font-medium text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
 					</div>
 				</div>
@@ -102,7 +103,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 								{translate('event.date')}
 							</span>
 							<span className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
-								{formatDateTime(event.date, localeIntl[locale])}
+								{formatDateTime(event.date)}
 							</span>
 						</div>
 					</div>

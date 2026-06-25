@@ -1,4 +1,4 @@
-import { Locale } from "@event-space/shared";
+import { Locale, LocaleIntlEnum } from "@event-space/shared";
 
 export const locales = ['hy', 'ru', 'en'] as const
 
@@ -24,7 +24,7 @@ export const localeOpenGraph: Record<Locale, string> = {
 	en: 'en_US',
 };
 
-export const localeIntl: Record<Locale, string> = {
+export const localeIntl: Record<Locale, LocaleIntlEnum> = {
 	hy: 'hy-AM',
 	ru: 'ru-RU',
 	en: 'en-US',

@@ -180,6 +180,8 @@ export class EventService {
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
 		const { cancellationRules, translations, ...pureEventData } = eventData;
 
+		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
+
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
 				const updateData = { ...pureEventData } as Prisma.EventUpdateInput;
@@ -200,6 +202,23 @@ export class EventService {
 
 				if (Object.keys(pureEventData).length > 0 || cancellationRules !== undefined || translations !== undefined) {
 					await tx.event.update({ where: { id }, data: updateData });
+				}
+
+				// If we're cancelling the event, update all confirmed bookings to cancelled/refunded
+				if (isCancelling) {
+					await tx.booking.updateMany({
+						where: {
+							eventId: id,
+							status: { in: ['PENDING', 'CONFIRMED'] },
+						},
+						data: { status: 'CANCELLED' },
+					});
+
+					// Set current participants to 0
+					await tx.event.update({
+						where: { id },
+						data: { currentParticipants: 0 },
+					});
 				}
 
 				if (removedImages.length) {

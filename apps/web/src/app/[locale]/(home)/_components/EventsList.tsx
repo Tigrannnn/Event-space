@@ -16,7 +16,6 @@ interface EventsListProps {
 	initialNextCursor?: string | null;
 	initialHasMore?: boolean;
 	searchQuery?: string;
-	initialLocale: string;
 }
 
 export default function EventsList({
@@ -24,7 +23,6 @@ export default function EventsList({
 	initialNextCursor = null,
 	initialHasMore = false,
 	searchQuery = '',
-	initialLocale,
 }: EventsListProps) {
 	const translate = useTranslation();
 	// Build initialData for TanStack Query hydration from SSR
@@ -112,7 +110,7 @@ export default function EventsList({
 	return (
 		<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
 			{events.map((event) => (
-				<EventCard key={event.id} event={event} initialLocale={initialLocale} />
+				<EventCard key={event.id} event={event} />
 			))}
 
 			<LoadMoreTrigger
