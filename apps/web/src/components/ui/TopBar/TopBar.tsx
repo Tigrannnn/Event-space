@@ -38,7 +38,6 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 							aria-label={`Call ${COMPANY_CONFIG.phone}`}
 						>
 							<Phone className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
-							<span className="text-xs font-medium">{COMPANY_CONFIG.phone}</span>
 						</a>
 					)}
 
@@ -49,7 +48,6 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 							aria-label={`Email ${COMPANY_CONFIG.email}`}
 						>
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
-							<span className="text-xs font-medium">{COMPANY_CONFIG.email}</span>
 						</a>
 					)}
 				</div>

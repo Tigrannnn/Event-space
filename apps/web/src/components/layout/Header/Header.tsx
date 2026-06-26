@@ -11,6 +11,7 @@ import { useHydrated } from '@/hooks/hydration/useHydrated';
 
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
+import { SearchIcon } from 'lucide-react';
 
 /**
  * Main header component.
@@ -78,18 +79,11 @@ export default function Header() {
 						</div>
 						<button
 							onClick={handleSubmitSearch}
-							className="hidden cursor-pointer rounded-xl bg-white/20 p-2.5 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/30 sm:block sm:rounded-2xl sm:p-3"
+							className="hidden cursor-pointer rounded-xl bg-white/20 p-2.5 text-white backdrop-blur-md transition-all duration-200 hover:bg-white/30 sm:block sm:rounded-xl sm:p-3 lg:rounded-2xl"
 							type="button"
 							aria-label={translate('header.search')}
 						>
-							<svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-								/>
-							</svg>
+							<SearchIcon className="h-4 w-4 lg:h-6 lg:w-6" />
 						</button>
 					</div>
 
@@ -99,7 +93,11 @@ export default function Header() {
 							<></>
 						) : user ? (
 							<>
-								<Button variant="secondary" onClick={() => navigation.push('/bookings')} className="relative">
+								<Button
+									variant="secondary"
+									onClick={() => navigation.push('/bookings')}
+									className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+								>
 									{translate('header.bookings')}
 									{myBookingsCount > 0 && (
 										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
@@ -108,16 +106,28 @@ export default function Header() {
 									)}
 								</Button>
 
-								<Button variant="secondary" onClick={() => navigation.push('/profile')}>
+								<Button
+									variant="secondary"
+									onClick={() => navigation.push('/profile')}
+									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+								>
 									{user.name.trim().length <= 10 ? user.name.split(' ')[0] : translate('header.profile')}
 								</Button>
 							</>
 						) : (
 							<>
-								<Button variant="secondary" onClick={() => openModal(ModalType.Register)}>
+								<Button
+									variant="secondary"
+									onClick={() => openModal(ModalType.Register)}
+									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+								>
 									{translate('header.signUp')}
 								</Button>
-								<Button variant="secondary" onClick={() => openModal(ModalType.Login)}>
+								<Button
+									variant="secondary"
+									onClick={() => openModal(ModalType.Login)}
+									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+								>
 									{translate('header.logIn')}
 								</Button>
 							</>

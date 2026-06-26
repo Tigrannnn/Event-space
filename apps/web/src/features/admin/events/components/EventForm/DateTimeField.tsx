@@ -37,7 +37,7 @@ export default function DateTimeField({
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
 
 	return (
-		<div className="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
+		<div className="grid grid-cols-2 gap-2">
 			<input
 				ref={dateInputRef}
 				type="date"
