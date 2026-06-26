@@ -2,6 +2,7 @@
 export { default as Modal } from './Modal';
 export { default as ImagePreviewModal } from './ImagePreviewModal';
 export { default as ConfirmModal } from './ConfirmModal';
+export { ContactModal } from './ContactModal';
 export { default as ModalHeader } from './ModalHeader';
 export { default as ModalDivider } from './ModalDivider';
 export { default as ModalFooter } from './ModalFooter';

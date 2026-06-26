@@ -2,6 +2,12 @@ import { Event, Booking, BookingWithDetails, SafeUserData } from '@event-space/s
 import type { ReactNode } from 'react';
 import type { ModalSize } from '@/components/ui/Modal/Modal.types';
 
+export enum ContactType {
+	Instagram = 'instagram',
+	Phone = 'phone',
+	Email = 'email',
+}
+
 export enum ModalType {
 	Register = 'register',
 	Login = 'login',
@@ -18,6 +24,12 @@ export enum ModalType {
 	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
+	ContactInfo = 'contact-info',
+}
+
+export interface ContactInfoModalData {
+	type: ContactType;
+	value: string;
 }
 
 export interface ImagePreviewData {
@@ -84,6 +96,7 @@ export interface ModalDataMap {
 	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;
+	[ModalType.ContactInfo]: ContactInfoModalData;
 }
 
 export interface ModalState {

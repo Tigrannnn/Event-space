@@ -1,6 +1,6 @@
 'use client';
 
-import { ConfirmModal, ImagePreviewModal } from '@/components/ui/Modal';
+import { ConfirmModal, ImagePreviewModal, ContactModal } from '@/components/ui/Modal';
 import { AuthModal } from '@/features/auth';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { AnimatePresence } from 'framer-motion';
@@ -39,6 +39,7 @@ export default function ModalRoot() {
 					{/* {activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />} */}
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}
 					{activeModal === ModalType.UpdateEvent && <UpdateEventModal key="edit-event" />}
+					{activeModal === ModalType.ContactInfo && <ContactModal key="contact-info" />}
 				</>
 			)}
 		</AnimatePresence>

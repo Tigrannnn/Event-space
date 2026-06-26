@@ -1,13 +1,19 @@
 'use client';
 
-import Link from 'next/link';
 import { Mail, Phone, Instagram } from 'lucide-react';
 import { COMPANY_CONFIG } from '@/config/сompany';
 import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
+import { useModalStore } from '@/stores/modalStore/modalStore';
+import { ContactType, ModalType } from '@/stores/modalStore/types';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
 	const translate = useTranslation();
+	const { openModal } = useModalStore();
+
+	const handleOpenContact = (type: ContactType, value: string) => {
+		openModal(ModalType.ContactInfo, { type, value });
+	};
 
 	return (
 		<div
@@ -20,35 +26,36 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 			<div className="mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center gap-4 sm:gap-6">
 					{COMPANY_CONFIG.instagram && (
-						<Link
-							href={COMPANY_CONFIG.instagram}
-							target="_blank"
-							rel="noopener noreferrer"
+						<button
+							onClick={() => handleOpenContact(ContactType.Instagram, COMPANY_CONFIG.instagram)}
 							className="group flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={translate('header.visitInstagram')}
+							type="button"
 						>
 							<Instagram className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
-						</Link>
+						</button>
 					)}
 
 					{COMPANY_CONFIG.phone && (
-						<a
-							href={`tel:${COMPANY_CONFIG.phone.replace(/\s/g, '')}`}
+						<button
+							onClick={() => handleOpenContact(ContactType.Phone, COMPANY_CONFIG.phone)}
 							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={`Call ${COMPANY_CONFIG.phone}`}
+							type="button"
 						>
 							<Phone className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
-						</a>
+						</button>
 					)}
 
 					{COMPANY_CONFIG.email && (
-						<a
-							href={`mailto:${COMPANY_CONFIG.email}`}
+						<button
+							onClick={() => handleOpenContact(ContactType.Email, COMPANY_CONFIG.email)}
 							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={`Email ${COMPANY_CONFIG.email}`}
+							type="button"
 						>
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
-						</a>
+						</button>
 					)}
 				</div>
 				<LanguageSwitcher />
