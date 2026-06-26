@@ -3,6 +3,7 @@
 import { formatDateTime } from '@/utils/date';
 import { BookingWithEstimate, estimateStripeFeeInCents } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 
 export interface CancellationPolicyInfoProps {
 	eventDate: Date | string;
@@ -18,6 +19,9 @@ export default function CancellationPolicyInfo({
 	booking,
 }: CancellationPolicyInfoProps) {
 	const translate = useTranslation();
+
+	const { formatDateTime } = useFormatDate()
+	const formatCurrency = useFormatCurrency()
 
 	if (!cancellationRules || cancellationRules.length === 0) {
 		return null;
@@ -45,11 +49,11 @@ export default function CancellationPolicyInfo({
 		const feeInDollars = (stripeFeeInCents / 100).toFixed(2);
 		
 		if (afterFee <= 0) {
-			return `$0 (${refundPercentage}% ${translate('cancellation.doesntCoverFee')} ~$${feeInDollars})`;
+			return `${formatCurrency(0)} (${refundPercentage}% ${translate('cancellation.doesntCoverFee')}`;
 		}
 
 		const afterFeeInDollars = (afterFee / 100).toFixed(2);
-		return `~$${afterFeeInDollars} (${refundPercentage}% - ~$${feeInDollars})`;
+		return `~${formatCurrency(afterFeeInDollars)} (${refundPercentage}% - ~${formatCurrency(feeInDollars)})}`;
 	};
 
 	const lines: string[] = [];

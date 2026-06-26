@@ -266,7 +266,8 @@ export class EventService {
 				if (updated.bookings) {
 					for (const booking of updated.bookings) {
 						if (booking.user && booking.user.email) {
-							const refundAmount = `$${Number(booking.amount).toFixed(2)}`;
+							// TODO: remove AMD hardcoding
+							const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
 							await this.mailService.sendEventCancelledEmail(
 								booking.user.email,
 								booking.user.name || 'User',

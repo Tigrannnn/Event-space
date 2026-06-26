@@ -7,6 +7,7 @@ import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
 import { getEventTranslation } from '@event-space/shared';
+import { useFormatCurrency } from '@/hooks/format';
 
 export default function BookingForm({
 	event,
@@ -28,6 +29,8 @@ export default function BookingForm({
 	const handleDecrement = () => setQuantity((q) => Math.max(1, q - 1));
 	const handleIncrement = () => setQuantity((q) => Math.min(maxQuantity, q + 1));
 
+	const formatCurrency = useFormatCurrency()
+
 	return (
 		<div className="p-5 sm:p-6">
 			<ModalHeader title={title} onClose={onClose} />
@@ -46,7 +49,7 @@ export default function BookingForm({
 
 			<div className="mt-4 flex items-center justify-between">
 				<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
-				<span className="text-primary text-2xl font-bold">${totalPrice}</span>
+				<span className="text-primary text-2xl font-bold">{formatCurrency(totalPrice)}</span>
 			</div>
 
 			{availableSpots !== undefined && (

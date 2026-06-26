@@ -28,7 +28,7 @@ export class StripeService {
 
 	async createPaymentIntent(
 		amount: number,
-		currency: string = 'amd',
+		currency: string = 'AMD',
 		metadata?: Record<string, string>,
 	): Promise<StripePaymentIntent> {
 		// Ensure amount in cents is an integer to avoid floating point issues
