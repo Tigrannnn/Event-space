@@ -5,6 +5,7 @@ import { GripVertical, Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { MAX_EVENT_IMAGES } from '@event-space/shared';
 import type { ImageUploaderItem } from './types';
+import { useTranslation } from '@/hooks/translation';
 
 const ACCEPTED_IMAGE_TYPES = {
 	'image/png': ['.png'],
@@ -49,6 +50,7 @@ export default function ImageUploader({
 	maxImages = MAX_EVENT_IMAGES,
 	disabled = false,
 }: ImageUploaderProps) {
+	const translate = useTranslation();
 	const inputId = useId();
 	const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 	const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
@@ -154,8 +156,8 @@ export default function ImageUploader({
 		<div className="space-y-2">
 			<p className="text-xs text-gray-500 dark:text-gray-400">
 				{canReorder
-					? 'Drop images from your computer, or click + to browse. Drag thumbnails to reorder — first is the cover.'
-					: 'Drop images from your computer here, or click + to browse.'}
+					? translate('admin.dropImagesHintReorder')
+					: translate('admin.dropImagesHint')}
 			</p>
 
 			<div
@@ -201,7 +203,7 @@ export default function ImageUploader({
 							)}
 							{index === 0 && (
 								<span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-									Cover
+									{translate('admin.cover')}
 								</span>
 							)}
 							<button
@@ -227,7 +229,7 @@ export default function ImageUploader({
 					>
 						<Plus className="text-primary mb-1 h-8 w-8" />
 						<span className="px-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
-							{isDragActive ? 'Drop here' : 'Add or drop'}
+							{isDragActive ? translate('admin.dropHere') : translate('admin.addOrDrop')}
 						</span>
 					</button>
 				)}

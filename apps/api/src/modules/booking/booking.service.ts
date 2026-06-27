@@ -83,7 +83,8 @@ export class BookingService {
 
 		let paymentIntent: StripePaymentIntent | null = null;
 		try {
-			paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'usd', {
+			// TODO: remove AMD hardcoding
+			paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'AMD', {
 				userId,
 				eventId,
 				bookingId: booking.id,
@@ -287,7 +288,7 @@ export class BookingService {
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
 			where: { userId, status: 'CONFIRMED' },
-			include: { 
+			include: {
 				event: { include: { images: true, cancellationRules: true, translations: true } },
 				user: {
 					select: {
@@ -301,8 +302,8 @@ export class BookingService {
 						isShadow: true,
 						createdAt: true,
 						updatedAt: true,
-					}
-				}
+					},
+				},
 			},
 			orderBy: { createdAt: 'desc' },
 		});
@@ -464,7 +465,7 @@ export class BookingService {
 					bookingId: booking.id,
 					type: 'REFUND',
 					amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
-					currency: 'usd',
+					currency: 'AMD',
 					stripePaymentIntentId: booking.paymentIntentId,
 					stripeRefundId: refundResult.id,
 					status: 'SUCCEEDED',
@@ -482,7 +483,7 @@ export class BookingService {
 					bookingId: booking.id,
 					type: 'REFUND',
 					amount: new Prisma.Decimal('0'),
-					currency: 'usd',
+					currency: 'AMD',
 					stripePaymentIntentId: booking.paymentIntentId,
 					stripeRefundId: null,
 					status: 'SUCCEEDED',
@@ -571,7 +572,7 @@ export class BookingService {
 						bookingId: booking.id,
 						type: 'REFUND',
 						amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
-						currency: 'usd',
+						currency: 'AMD',
 						stripePaymentIntentId: booking.paymentIntentId,
 						stripeRefundId: refundResult.id,
 						status: 'SUCCEEDED',
@@ -589,7 +590,7 @@ export class BookingService {
 						bookingId: booking.id,
 						type: 'REFUND',
 						amount: new Prisma.Decimal('0'),
-						currency: 'usd',
+						currency: 'AMD',
 						stripePaymentIntentId: booking.paymentIntentId,
 						stripeRefundId: null,
 						status: 'SUCCEEDED',

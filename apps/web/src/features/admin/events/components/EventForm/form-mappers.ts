@@ -23,6 +23,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 				refundPercentage: 50,
 			},
 		],
+		cancellationReason: undefined,
 	};
 }
 
@@ -43,6 +44,7 @@ function buildEventFields(values: EventFormValues) {
 		duration: Number(values.duration),
 		status: values.status,
 		cancellationRules: values.cancellationRules,
+		cancellationReason: values.cancellationReason?.trim() || undefined,
 		translations: values.translations.map((t) => ({
 			locale: t.locale,
 			title: t.title.trim(),
@@ -115,6 +117,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			location: t.location,
 			whatsIncluded: t.whatsIncluded.join('\n'),
 		})),
+		cancellationReason: undefined, // We don't store this in the event, so it's undefined by default
 	};
 }
 

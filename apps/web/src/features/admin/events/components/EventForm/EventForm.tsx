@@ -56,10 +56,25 @@ export default function EventForm({
 		label: EVENT_DIFFICULTY_LABELS[diff],
 	}));
 
-	const statusOptions = EventStatusEnum.options.map((status) => ({
-		value: status,
-		label: EVENT_STATUS_LABELS[status],
-	}));
+	const getValidStatusOptions = () => {
+		const allowedTransitions: Record<string, string[]> = {
+			'': EventStatusEnum.options,
+			DRAFT: ['DRAFT', 'PUBLISHED', 'CANCELLED'],
+			PUBLISHED: ['PUBLISHED', 'CANCELLED'],
+			CANCELLED: ['CANCELLED'],
+		};
+
+		const currentStatus = event?.status || '';
+		const allowed = allowedTransitions[currentStatus as keyof typeof allowedTransitions] || EventStatusEnum.options;
+
+		return EventStatusEnum.options.map((status) => ({
+			value: status,
+			label: EVENT_STATUS_LABELS[status],
+			disabled: !allowed.includes(status),
+		}));
+	};
+
+	const statusOptions = getValidStatusOptions();
 
 	const {
 		register,
@@ -98,6 +113,8 @@ export default function EventForm({
 
 	const handleFormSubmit = async (values: EventFormValues) => {
 		const isCancelling = values.status === 'CANCELLED' && event?.status !== 'CANCELLED';
+		const isDateChanging = event && values.date && new Date(values.date).getTime() !== new Date(event.date).getTime();
+
 		if (isCancelling) {
 			const confirmed = await confirm({
 				title: translate('admin.cancelEventTitle'),
@@ -107,6 +124,7 @@ export default function EventForm({
 			});
 			if (!confirmed) return;
 		}
+
 		onSubmit(values);
 	};
 
@@ -118,7 +136,7 @@ export default function EventForm({
 				<div className="space-y-3">
 					<div className="flex items-center justify-between">
 						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-							Translations
+							{translate('admin.translations')}
 						</h3>
 						<div className="flex items-center gap-2">
 							{availableLocalesToAdd.map((locale) => (
@@ -320,6 +338,27 @@ export default function EventForm({
 					</div>
 				</div>
 
+				{watchedStatus === 'CANCELLED' && (
+					<div className="space-y-1.5">
+						<span className="text-sm font-semibold">{translate('admin.cancellationReason')}</span>
+						<textarea
+							{...register('cancellationReason')}
+							className={textareaClassName}
+							disabled={isPending}
+							placeholder={translate('admin.cancellationReasonPlaceholder')}
+						/>
+						{errors.cancellationReason && <p className="text-xs text-red-500">{errors.cancellationReason.message}</p>}
+					</div>
+				)}
+
+				{event?.currentParticipants && event?.currentParticipants > 0 && watchedDate && new Date(watchedDate).getTime() !== event.date.getTime() && (
+					<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/30">
+						<p className="text-sm text-amber-800 dark:text-amber-200">
+							{translate('admin.dateChangeWarning')}
+						</p>
+					</div>
+				)}
+
 				<div className="grid grid-cols-3 gap-4">
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.price')} ({DEFAULT_CURRENCY})</span>
@@ -365,7 +404,7 @@ export default function EventForm({
 								{translate('admin.cancellationRules')}
 							</h3>
 							<p className="text-xs text-gray-500">
-								Define refund percentages based on time thresholds before the event starts.
+								{translate('admin.cancellationRulesDescription')}
 							</p>
 						</div>
 						<Button
@@ -433,7 +472,7 @@ export default function EventForm({
 					) : (
 						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
 							<p className="text-xs text-gray-500">
-								No custom rules set. By default, users get a 100% refund up until the event starts.
+								{translate('admin.noCancellationRules')}
 							</p>
 						</div>
 					)}

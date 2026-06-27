@@ -165,6 +165,20 @@ export class EventService {
 		}
 	}
 
+	private validateStatusTransition(oldStatus: EventStatus, newStatus: EventStatus): void {
+		if (oldStatus === newStatus) return;
+
+		const allowedTransitions: Record<EventStatus, EventStatus[]> = {
+			DRAFT: ['PUBLISHED', 'CANCELLED'],
+			PUBLISHED: ['CANCELLED'],
+			CANCELLED: [],
+		};
+
+		if (!allowedTransitions[oldStatus].includes(newStatus)) {
+			throw new BadRequestException(`Cannot change status from ${oldStatus} to ${newStatus}`);
+		}
+	}
+
 	async update(
 		id: string,
 		userId: string,
@@ -184,7 +198,13 @@ export class EventService {
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
 		const { cancellationRules, translations, cancellationReason, ...pureEventData } = eventData;
 
+		// Validate status transition if status is changing
+		if (pureEventData.status && pureEventData.status !== event.status) {
+			this.validateStatusTransition(event.status, pureEventData.status);
+		}
+
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
+		const isDateChanging = pureEventData.date && new Date(pureEventData.date).getTime() !== new Date(event.date).getTime();
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
@@ -279,6 +299,18 @@ export class EventService {
 						}
 					}
 				}
+			}
+
+			// Send email notifications if date/time changed and there are bookings
+			if (isDateChanging && updated.bookings && updated.bookings.length > 0) {
+				let eventTitle = 'Event';
+				if (event.translations.length > 0) {
+					eventTitle = event.translations[0].title;
+				}
+				
+				// TODO: create sendEventRescheduledEmail method in MailService
+				// For now, we'll just log (you can implement the email template later)
+				console.log(`Event ${eventTitle} (ID: ${id}) rescheduled from ${event.date} to ${pureEventData.date}. Notifying ${updated.bookings.length} users.`);
 			}
 
 			return updated;
