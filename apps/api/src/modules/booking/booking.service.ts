@@ -36,7 +36,7 @@ export class BookingService {
 	) {}
 
 	async create(userId: string, data: CreateBookingData) {
-		const { eventId, quantity = 1 } = data;
+		const { eventId, quantity = 1, phone } = data;
 
 		const { booking, event } = await this.prisma.$transaction(async (tx) => {
 			const event = await tx.event.findUnique({
@@ -60,6 +60,14 @@ export class BookingService {
 				throw new ConflictException(
 					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
 				);
+			}
+
+			// Update user with phone if provided and user doesn't have it yet
+			if (phone) {
+				await tx.user.update({
+					where: { id: userId },
+					data: { phone: { set: phone } },
+				});
 			}
 
 			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
@@ -279,7 +287,23 @@ export class BookingService {
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
 			where: { userId, status: 'CONFIRMED' },
-			include: { event: { include: { images: true, cancellationRules: true, translations: true } } },
+			include: { 
+				event: { include: { images: true, cancellationRules: true, translations: true } },
+				user: {
+					select: {
+						id: true,
+						email: true,
+						name: true,
+						phone: true,
+						image: true,
+						role: true,
+						emailVerified: true,
+						isShadow: true,
+						createdAt: true,
+						updatedAt: true,
+					}
+				}
+			},
 			orderBy: { createdAt: 'desc' },
 		});
 

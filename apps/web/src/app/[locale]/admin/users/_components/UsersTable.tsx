@@ -203,6 +203,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 				<TableHeader>
 					<TableRow>
 						<TableHead className="px-3 sm:px-5">{translate('admin.user')}</TableHead>
+						<TableHead>{translate('admin.phone')}</TableHead>
 						<TableHead>{translate('admin.role')}</TableHead>
 						<TableHead>{translate('admin.status')}</TableHead>
 						<TableHead>{translate('admin.created')}</TableHead>
@@ -212,7 +213,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 				<TableBody>
 					{usersResponse.data.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={5} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+							<TableCell colSpan={6} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noUsersFound')}
 							</TableCell>
 						</TableRow>
@@ -225,6 +226,11 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 									<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
 									<p className="truncate text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
 								</div>
+							</TableCell>
+							<TableCell>
+								<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+									{user.phone || '-'}
+								</p>
 							</TableCell>
 							<TableCell>
 								<Select

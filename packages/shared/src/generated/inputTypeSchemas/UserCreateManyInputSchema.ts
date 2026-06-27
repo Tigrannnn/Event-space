@@ -12,6 +12,7 @@ export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = 
   role: z.lazy(() => UserRoleSchema).optional(),
   emailVerified: z.boolean().optional(),
   isShadow: z.boolean().optional(),
+  phone: z.string().optional().nullable(),
   googleId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

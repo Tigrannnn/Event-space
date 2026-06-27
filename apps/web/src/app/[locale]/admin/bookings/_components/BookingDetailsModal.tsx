@@ -54,6 +54,11 @@ export default function BookingDetailsModal() {
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{booking.user?.email ?? translate('admin.noEmail')}
 								</p>
+								{booking.user?.phone && (
+									<p className="text-sm text-gray-500 dark:text-gray-400">
+										{booking.user.phone}
+									</p>
+								)}
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{translate('admin.booked')} {formatDateTime(booking.createdAt)}
 								</p>

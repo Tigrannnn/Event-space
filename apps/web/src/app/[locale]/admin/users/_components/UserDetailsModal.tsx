@@ -60,6 +60,14 @@ export default function UserDetailsModal() {
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.phone')}
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{user.phone || '-'}
+									</p>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.role')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{user.role}</p>

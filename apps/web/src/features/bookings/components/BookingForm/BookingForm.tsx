@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
+import Input from '@/components/ui/Inputs/Input';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
@@ -19,10 +20,12 @@ export default function BookingForm({
 	title,
 	onClose,
 	availableSpots,
+	userPhone,
 }: BookingFormProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
+	const [phone, setPhone] = useState(userPhone || '');
 	const totalPrice = event.price * quantity;
 	const t = getEventTranslation(event, locale);
 
@@ -47,6 +50,15 @@ export default function BookingForm({
 				label={translate('booking.selectSpots')}
 			/>
 
+			<div className="mt-4">
+				<Input
+					label={translate('booking.phone')}
+					value={phone}
+					onChange={(e) => setPhone(e.target.value)}
+					required
+				/>
+			</div>
+
 			<div className="mt-4 flex items-center justify-between">
 				<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
 				<span className="text-primary text-2xl font-bold">{formatCurrency(totalPrice)}</span>
@@ -64,8 +76,9 @@ export default function BookingForm({
 				</Button>
 				<Button
 					variant="primary"
-					onClick={() => onSubmit(quantity)}
+					onClick={() => onSubmit(quantity, phone)}
 					isLoading={isLoading}
+					disabled={!phone.trim() || isLoading}
 					className="flex-1"
 				>
 					{submitLabel}

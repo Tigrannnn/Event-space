@@ -4,6 +4,7 @@ import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatus
 import { EventSchema } from './event.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
+import { PhoneSchema } from './atoms';
 
 export const BookingStatusEnum = BookingStatusSchema;
 export type BookingStatus = z.infer<typeof BookingStatusEnum>;
@@ -56,6 +57,10 @@ export const CreateBookingSchema = z.object({
 		description: 'Number of spots to book',
 		example: 2,
 	}),
+	phone: PhoneSchema.openapi({
+		description: 'Phone number of the user (will be saved to profile)',
+		example: '+374 99 123 456',
+	}),
 });
 
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;
@@ -87,6 +92,7 @@ export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
 
 export const BookingWithEstimateSchema = BookingSchema.extend({
 	event: EventSchema.optional(),
+	user: SafeUserSchema.optional(),
 	adjustments: z.array(BookingAdjustmentSchema).optional(),
 	refundPercentage: z.number(),
 	estimatedStripeFeeInCents: z.number(),

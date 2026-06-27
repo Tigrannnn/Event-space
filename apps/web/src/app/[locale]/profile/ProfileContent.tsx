@@ -129,6 +129,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 						<div className="w-full text-center sm:flex-1 sm:text-left">
 							<h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">{user.name}</h1>
 							<p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">{user.email}</p>
+							{user.phone && (
+								<p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">{user.phone}</p>
+							)}
 							<span className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 capitalize dark:bg-blue-900 dark:text-blue-200">
 								<UserCog className="mr-1 h-3 w-3" />
 								{user.role.toLowerCase()}

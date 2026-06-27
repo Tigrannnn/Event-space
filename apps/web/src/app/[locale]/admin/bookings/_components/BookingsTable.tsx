@@ -257,6 +257,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											{booking.user?.name || translate('booking.unknownCustomer')}
 										</p>
 										<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user?.email || '—'}</p>
+										{booking.user?.phone && (
+											<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user.phone}</p>
+										)}
 									</div>
 								</TableCell>
 								<TableCell>

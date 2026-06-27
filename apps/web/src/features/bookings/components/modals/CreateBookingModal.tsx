@@ -9,6 +9,7 @@ import BookingForm from '@/features/bookings/components/BookingForm/BookingForm'
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
 import { BookingWithEstimate } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useCurrentUser } from '@/features/users';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isLoading } = useCreateBooking();
@@ -16,6 +17,7 @@ export default function CreateBookingModal() {
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
 	const modalData = useModalData(ModalType.CreateBooking);
+	const { data: user } = useCurrentUser();
 	const event = modalData?.event;
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -33,9 +35,9 @@ export default function CreateBookingModal() {
 
 	const spotsLeft = event.maxParticipants - event.currentParticipants;
 
-	const handleConfirm = (quantity: number) => {
+	const handleConfirm = (quantity: number, phone: string) => {
 		createBooking(
-			{ eventId: event.id, quantity },
+			{ eventId: event.id, quantity, phone },
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {
@@ -72,6 +74,7 @@ export default function CreateBookingModal() {
 					title={translate('booking.confirmBooking')}
 					onClose={closeModal}
 					availableSpots={spotsLeft}
+					userPhone={user?.phone ?? undefined}
 				/>
 			)}
 		</Modal>

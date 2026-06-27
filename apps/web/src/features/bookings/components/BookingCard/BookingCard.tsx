@@ -33,7 +33,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		status,
 		refundPercentage,
 		estimatedRefundInCents,
-		estimatedStripeFeeInCents,
 	} = booking;
 	const eventIsAvailable = event ? isEventAvailable(event) : false;
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();

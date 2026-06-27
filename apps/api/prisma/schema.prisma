@@ -204,6 +204,7 @@ model User {
   role          UserRole @default(USER)
   emailVerified Boolean  @default(false) @map("email_verified")
   isShadow      Boolean  @default(false) @map("is_shadow")
+  phone         String?  @map("phone")
 
   googleId  String?  @unique @map("google_id")
   createdAt DateTime @default(now()) @map("created_at")

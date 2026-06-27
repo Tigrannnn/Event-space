@@ -20,3 +20,11 @@ export const PasswordSchema = z
 	.openapi({ example: 'StrongPass1' });
 
 export type Password = z.infer<typeof PasswordSchema>;
+
+export const PhoneSchema = z
+	.string()
+	.min(5, 'Phone number is too short')
+	.max(20, 'Phone number is too long')
+	.openapi({ example: '+374 99 123 456' });
+
+export type Phone = z.infer<typeof PhoneSchema>;

@@ -14,6 +14,7 @@ export const UserSchema = z.object({
   image: z.string().nullable(),
   emailVerified: z.boolean(),
   isShadow: z.boolean(),
+  phone: z.string().nullable(),
   googleId: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

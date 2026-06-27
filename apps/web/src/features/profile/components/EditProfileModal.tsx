@@ -17,6 +17,7 @@ const editProfileSchema = z.object({
 		.string()
 		.min(2, 'Name must be at least 2 characters')
 		.max(50, 'Name cannot exceed 50 characters'),
+	phone: z.string().optional().nullable(),
 });
 
 type EditProfileForm = z.infer<typeof editProfileSchema>;
@@ -38,11 +39,16 @@ export default function EditProfileModal() {
 		resolver: zodResolver(editProfileSchema),
 		defaultValues: {
 			name: user?.name || '',
+			phone: user?.phone || '',
 		},
 	});
 
 	const onSubmit = async (data: EditProfileForm) => {
-		updateProfile(data, { onSuccess: () => closeModal() });
+		const updateData = {
+			...data,
+			phone: data.phone === '' ? null : data.phone,
+		};
+		updateProfile(updateData, { onSuccess: () => closeModal() });
 	};
 
 	const handleChangePassword = () => {
@@ -57,6 +63,7 @@ export default function EditProfileModal() {
 
 				<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
 					<Input label={translate('profile.fullName')} {...register('name')} error={errors.name?.message} />
+					<Input label={translate('profile.phone')} {...register('phone')} />
 
 					<Button type="button" onClick={handleChangePassword}>
 						{translate('profile.changePassword')}
