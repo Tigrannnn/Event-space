@@ -48,7 +48,7 @@ export class EventService {
 		translations: true,
 	};
 
-	async findAll(cursor?: string, limit: number = 8, search?: string) {
+	async findAll(cursor?: string, limit: number = 8, search?: string, startDate?: string, endDate?: string) {
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
 		const searchFilter = search
@@ -66,6 +66,14 @@ export class EventService {
 				}
 			: {};
 
+		const dateFilter: any = { gt: new Date() };
+		if (startDate) {
+			dateFilter.gte = new Date(startDate);
+		}
+		if (endDate) {
+			dateFilter.lte = new Date(endDate);
+		}
+
 		const cursorFilter =
 			cursorDate && cursorId
 				? {
@@ -79,7 +87,7 @@ export class EventService {
 					}
 				: {};
 
-		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: { gt: new Date() } };
+		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: dateFilter };
 
 		const filters = [statusFilter, searchFilter, cursorFilter].filter(
 			(f) => Object.keys(f).length > 0,

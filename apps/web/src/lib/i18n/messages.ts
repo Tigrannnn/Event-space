@@ -387,6 +387,10 @@ export const messages = {
 			addOrDrop: 'Ավելացրեք կամ թողեք',
 			dropImagesHintReorder: 'Թողեք պատկերներ ձեր համակարգչից, կամ սեղմեք +՝ թռչարկելու համար։ Քաշեք մանրապատկերները՝ վերադասավորելու համար — առաջինը կազմակերպությունն է։',
 			dropImagesHint: 'Թողեք պատկերներ ձեր համակարգչից այստեղ, կամ սեղմեք +՝ թռչարկելու համար։',
+			startDate: 'Սկիզբի ամսաթիվ',
+			endDate: 'Վերջի ամսաթիվ',
+			dateFilter: 'Ամսաթվի ընտրություն',
+			clearFilters: 'Մաքրել ֆիլտրերը',
 		},
 		error: {
 			errorLoadingEvents: 'Միջոցառումներ բեռնելիս սխալ',
@@ -774,6 +778,10 @@ export const messages = {
 			addOrDrop: 'Добавьте или бросьте',
 			dropImagesHintReorder: 'Бросьте изображения с вашего компьютера или нажмите + для выбора. Перетащите миниатюры для изменения порядка — первое изображение является обложкой.',
 			dropImagesHint: 'Бросьте изображения с вашего компьютера сюда или нажмите + для выбора.',
+			startDate: 'Дата начала',
+			endDate: 'Дата окончания',
+			dateFilter: 'Фильтр по дате',
+			clearFilters: 'Сбросить фильтры',
 		},
 		error: {
 			errorLoadingEvents: 'Ошибка загрузки событий',
@@ -1161,6 +1169,10 @@ export const messages = {
 			addOrDrop: 'Add or drop',
 			dropImagesHintReorder: 'Drop images from your computer, or click + to browse. Drag thumbnails to reorder — first is the cover.',
 			dropImagesHint: 'Drop images from your computer here, or click + to browse.',
+			startDate: 'Start date',
+			endDate: 'End date',
+			dateFilter: 'Date filter',
+			clearFilters: 'Clear filters',
 		},
 		error: {
 			errorLoadingEvents: 'Error Loading Events',

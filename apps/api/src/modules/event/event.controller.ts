@@ -49,15 +49,17 @@ export class EventController {
 	) {}
 
 	@Get()
-	@ApiOperation({ summary: 'Get events with cursor pagination and search' })
+	@ApiOperation({ summary: 'Get events with cursor pagination, search, and date filter' })
 	@ApiResponse({ status: 200, description: 'Returns paginated events' })
 	findAll(
 		@Query('cursor') cursor?: string,
 		@Query('limit', new DefaultValuePipe(8), ParseIntPipe) limit: number = 8,
 		@Query('search') search?: string,
+		@Query('startDate') startDate?: string,
+		@Query('endDate') endDate?: string,
 	) {
 		const safeLimit = Math.min(limit, 20);
-		return this.eventService.findAll(cursor, safeLimit, search);
+		return this.eventService.findAll(cursor, safeLimit, search, startDate, endDate);
 	}
 
 	@Get(':id')

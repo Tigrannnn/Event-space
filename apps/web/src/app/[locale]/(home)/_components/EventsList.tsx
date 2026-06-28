@@ -10,12 +10,16 @@ import type { Event } from '@event-space/shared';
 import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
+import DateFilter from './DateFilter';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface EventsListProps {
 	initialEvents: Event[];
 	initialNextCursor?: string | null;
 	initialHasMore?: boolean;
 	searchQuery?: string;
+	startDate?: string;
+	endDate?: string;
 }
 
 export default function EventsList({
@@ -23,8 +27,14 @@ export default function EventsList({
 	initialNextCursor = null,
 	initialHasMore = false,
 	searchQuery = '',
+	startDate,
+	endDate,
 }: EventsListProps) {
 	const translate = useTranslation();
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+
 	// Build initialData for TanStack Query hydration from SSR
 	const initialData = useMemo(() => {
 		if (!initialEvents.length) return undefined;
@@ -50,6 +60,8 @@ export default function EventsList({
 	} = useEvents({
 		limit: 8,
 		search: searchQuery,
+		startDate,
+		endDate,
 		initialData,
 	});
 
@@ -108,10 +120,13 @@ export default function EventsList({
 	}
 
 	return (
-		<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
-			{events.map((event) => (
-				<EventCard key={event.id} event={event} />
-			))}
+		<div>
+			<DateFilter />
+			<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
+				{events.map((event) => (
+					<EventCard key={event.id} event={event} />
+				))}
+			</div>
 
 			<LoadMoreTrigger
 				isLoading={isFetchingNextPage}

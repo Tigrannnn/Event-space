@@ -8,20 +8,24 @@ import { eventApi, PaginatedEventsResponse } from '../api/events.api';
 interface UseEventsOptions {
 	limit?: number;
 	search?: string;
+	startDate?: string;
+	endDate?: string;
 	initialData?: InfiniteData<PaginatedEventsResponse>;
 }
 
 export const useEvents = (options: UseEventsOptions = {}) => {
-	const { limit = 8, search = '', initialData } = options;
+	const { limit = 8, search = '', startDate, endDate, initialData } = options;
 
 	return useInfiniteQuery({
-		queryKey: ['events', 'infinite', search, limit],
+		queryKey: ['events', 'infinite', search, limit, startDate, endDate],
 		queryFn: async ({ pageParam, signal }): Promise<PaginatedEventsResponse> => {
 			return eventApi.getEvents(
 				{
 					cursor: pageParam as string | undefined,
 					limit,
 					search: search || undefined,
+					startDate,
+					endDate,
 				},
 				signal,
 			);
