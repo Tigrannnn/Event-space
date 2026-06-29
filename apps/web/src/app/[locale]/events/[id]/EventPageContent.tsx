@@ -10,7 +10,7 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Event, getEventImageUrls, getEventTranslation } from '@event-space/shared';
+import { Event, getEventImageUrls, getEventTranslation, getCategoryTranslation } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -31,6 +31,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const locale = translate.locale;
 
 	const t = getEventTranslation(event, locale);
+	const categoryTranslation = getCategoryTranslation(event.category, locale);
 
 	const handleImageError = () => {
 		setFailedImages((prev) => prev + 1);
@@ -134,7 +135,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 							</div>
 
 							<span className="bg-primary/10 text-primary inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase sm:px-5 sm:py-2.5 sm:text-sm">
-								{t.category}
+								{categoryTranslation?.name || ''}
 							</span>
 						</div>
 

@@ -10,14 +10,15 @@ interface UseEventsOptions {
 	search?: string;
 	startDate?: string;
 	endDate?: string;
+	category?: string;
 	initialData?: InfiniteData<PaginatedEventsResponse>;
 }
 
 export const useEvents = (options: UseEventsOptions = {}) => {
-	const { limit = 8, search = '', startDate, endDate, initialData } = options;
+	const { limit = 8, search = '', startDate, endDate, category, initialData } = options;
 
 	return useInfiniteQuery({
-		queryKey: ['events', 'infinite', search, limit, startDate, endDate],
+		queryKey: ['events', 'infinite', search, limit, startDate, endDate, category],
 		queryFn: async ({ pageParam, signal }): Promise<PaginatedEventsResponse> => {
 			return eventApi.getEvents(
 				{
@@ -26,6 +27,7 @@ export const useEvents = (options: UseEventsOptions = {}) => {
 					search: search || undefined,
 					startDate,
 					endDate,
+					category,
 				},
 				signal,
 			);

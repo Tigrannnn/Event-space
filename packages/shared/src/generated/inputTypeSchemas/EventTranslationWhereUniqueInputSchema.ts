@@ -33,7 +33,6 @@ export const EventTranslationWhereUniqueInputSchema: z.ZodType<Prisma.EventTrans
   title: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   location: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  category: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
 }).strict());

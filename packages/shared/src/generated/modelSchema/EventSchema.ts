@@ -20,6 +20,7 @@ export const EventSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   userId: z.string(),
+  categoryId: z.string(),
 })
 
 export type Event = z.infer<typeof EventSchema>

@@ -19,6 +19,7 @@ export const EventCreateManyInputSchema: z.ZodType<Prisma.EventCreateManyInput> 
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   userId: z.string(),
+  categoryId: z.string(),
 }).strict();
 
 export default EventCreateManyInputSchema;

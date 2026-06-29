@@ -1,3 +1,5 @@
+export * from './CategorySchema';
+export * from './CategoryTranslationSchema';
 export * from './EventSchema';
 export * from './EventImageSchema';
 export * from './CancellationPolicyRuleSchema';

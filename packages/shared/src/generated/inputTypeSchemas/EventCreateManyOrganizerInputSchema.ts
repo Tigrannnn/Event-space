@@ -18,6 +18,7 @@ export const EventCreateManyOrganizerInputSchema: z.ZodType<Prisma.EventCreateMa
   status: z.lazy(() => EventStatusSchema).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  categoryId: z.string(),
 }).strict();
 
 export default EventCreateManyOrganizerInputSchema;

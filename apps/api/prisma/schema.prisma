@@ -43,6 +43,30 @@ enum Locale {
   hy
 }
 
+model Category {
+  id           String              @id @default(uuid())
+  slug         String              @unique
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  translations CategoryTranslation[]
+  events       Event[]
+
+  @@map("categories")
+}
+
+model CategoryTranslation {
+  id         String   @id @default(uuid())
+  categoryId String   @map("category_id")
+  locale     Locale
+  name       String   @db.VarChar(100)
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@map("category_translations")
+}
+
 model Event {
   id                  String           @id @default(uuid())
   locationUrl         String?          @map("location_url") @db.VarChar(1000)
@@ -61,6 +85,9 @@ model Event {
   userId    String @map("user_id")
   organizer User   @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
 
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   bookings Booking[]    @relation("event_bookings")
   images   EventImage[] @relation("event_images")
 
@@ -69,6 +96,7 @@ model Event {
   translations EventTranslation[]
 
   @@index([date])
+  @@index([categoryId])
   @@map("events")
 }
 
@@ -108,13 +136,11 @@ model EventTranslation {
   title         String   @db.VarChar(100)
   description   String   @db.VarChar(1000)
   location      String   @db.VarChar(200)
-  category      String   @db.VarChar(50)
   whatsIncluded String[] @map("whats_included") @db.VarChar(1000)
 
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, locale])
-  @@index([category])
   @@map("event_translations")
 }
 

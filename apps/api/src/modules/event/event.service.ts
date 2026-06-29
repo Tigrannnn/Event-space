@@ -46,22 +46,54 @@ export class EventService {
 		images: this.imagesInclude,
 		cancellationRules: true,
 		translations: true,
+		category: {
+			include: {
+				translations: true,
+			},
+		},
 	};
 
-	async findAll(cursor?: string, limit: number = 8, search?: string, startDate?: string, endDate?: string) {
+	async findAll(
+		cursor?: string,
+		limit: number = 8,
+		search?: string,
+		startDate?: string,
+		endDate?: string,
+		categorySlug?: string,
+	) {
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
 		const searchFilter = search
 			? {
-					translations: {
-						some: {
-							OR: [
-								{ title: { contains: search, mode: 'insensitive' as const } },
-								{ description: { contains: search, mode: 'insensitive' as const } },
-								{ category: { contains: search, mode: 'insensitive' as const } },
-								{ location: { contains: search, mode: 'insensitive' as const } },
-							],
+					OR: [
+						{
+							translations: {
+								some: {
+									OR: [
+										{ title: { contains: search, mode: 'insensitive' as const } },
+										{ description: { contains: search, mode: 'insensitive' as const } },
+										{ location: { contains: search, mode: 'insensitive' as const } },
+									],
+								},
+							},
 						},
+						{
+							category: {
+								translations: {
+									some: {
+										name: { contains: search, mode: 'insensitive' as const },
+									},
+								},
+							},
+						},
+					],
+				}
+			: {};
+
+		const categoryFilter = categorySlug
+			? {
+					category: {
+						slug: categorySlug,
 					},
 				}
 			: {};
@@ -89,7 +121,7 @@ export class EventService {
 
 		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: dateFilter };
 
-		const filters = [statusFilter, searchFilter, cursorFilter].filter(
+		const filters = [statusFilter, searchFilter, categoryFilter, cursorFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
 		const where = filters.length > 0 ? { AND: filters } : {};
@@ -212,7 +244,8 @@ export class EventService {
 		}
 
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
-		const isDateChanging = pureEventData.date && new Date(pureEventData.date).getTime() !== new Date(event.date).getTime();
+		const isDateChanging =
+			pureEventData.date && new Date(pureEventData.date).getTime() !== new Date(event.date).getTime();
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
@@ -232,7 +265,11 @@ export class EventService {
 					};
 				}
 
-				if (Object.keys(pureEventData).length > 0 || cancellationRules !== undefined || translations !== undefined) {
+				if (
+					Object.keys(pureEventData).length > 0 ||
+					cancellationRules !== undefined ||
+					translations !== undefined
+				) {
 					await tx.event.update({ where: { id }, data: updateData });
 				}
 
@@ -315,10 +352,12 @@ export class EventService {
 				if (event.translations.length > 0) {
 					eventTitle = event.translations[0].title;
 				}
-				
+
 				// TODO: create sendEventRescheduledEmail method in MailService
 				// For now, we'll just log (you can implement the email template later)
-				console.log(`Event ${eventTitle} (ID: ${id}) rescheduled from ${event.date} to ${pureEventData.date}. Notifying ${updated.bookings.length} users.`);
+				console.log(
+					`Event ${eventTitle} (ID: ${id}) rescheduled from ${event.date} to ${pureEventData.date}. Notifying ${updated.bookings.length} users.`,
+				);
 			}
 
 			return updated;

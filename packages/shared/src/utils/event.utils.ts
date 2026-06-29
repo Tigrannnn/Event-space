@@ -20,7 +20,6 @@ export function getEventTranslation(event: Partial<Event>, locale: Locale = 'en'
 			locale: locale,
 			title: '',
 			description: '',
-			category: '',
 			location: '',
 			whatsIncluded: [],
 		};

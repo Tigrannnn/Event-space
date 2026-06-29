@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { CheckCircle, Ticket, Users } from 'lucide-react';
 import type { DashboardStats } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-import { getEventTranslation } from '@event-space/shared';
+import { getEventTranslation, getCategoryTranslation } from '@event-space/shared';
 
 interface RecentActivityFeedProps {
 	stats: DashboardStats;
@@ -40,12 +40,13 @@ export default function RecentActivityFeed({ stats }: RecentActivityFeedProps) {
 				))}
 				{stats.recentEvents.slice(0, 2).map((event) => {
 					const t = getEventTranslation(event, locale);
+					const categoryTranslation = getCategoryTranslation(event.category, locale);
 					return (
 						<ActivityRow
 							key={event.id}
 							icon={<CheckCircle className="h-4 w-4" />}
 							title={t.title}
-							meta={`${event.status} · ${t.category}`}
+							meta={`${event.status}${categoryTranslation ? ` · ${categoryTranslation.name}` : ''}`}
 						/>
 					);
 				})}

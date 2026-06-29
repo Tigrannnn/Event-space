@@ -49,7 +49,7 @@ export class EventController {
 	) {}
 
 	@Get()
-	@ApiOperation({ summary: 'Get events with cursor pagination, search, and date filter' })
+	@ApiOperation({ summary: 'Get events with cursor pagination, search, date filter, and category filter' })
 	@ApiResponse({ status: 200, description: 'Returns paginated events' })
 	findAll(
 		@Query('cursor') cursor?: string,
@@ -57,9 +57,10 @@ export class EventController {
 		@Query('search') search?: string,
 		@Query('startDate') startDate?: string,
 		@Query('endDate') endDate?: string,
+		@Query('category') categorySlug?: string,
 	) {
 		const safeLimit = Math.min(limit, 20);
-		return this.eventService.findAll(cursor, safeLimit, search, startDate, endDate);
+		return this.eventService.findAll(cursor, safeLimit, search, startDate, endDate, categorySlug);
 	}
 
 	@Get(':id')

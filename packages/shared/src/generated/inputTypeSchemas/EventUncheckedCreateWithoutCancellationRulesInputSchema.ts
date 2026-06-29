@@ -22,6 +22,7 @@ export const EventUncheckedCreateWithoutCancellationRulesInputSchema: z.ZodType<
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   userId: z.string(),
+  categoryId: z.string(),
   bookings: z.lazy(() => BookingUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   images: z.lazy(() => EventImageUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema).optional(),

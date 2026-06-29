@@ -15,6 +15,7 @@ import { BookingModule } from '@modules/booking/booking.module';
 import { UploadModule } from '@infra/upload/upload.module';
 import { AdminModule } from '@modules/admin/admin.module';
 import { StripeModule } from './infrastructure/stripe/stripe.module';
+import { CategoryModule } from '@modules/category/category.module';
 
 @Module({
 	imports: [
@@ -28,6 +29,7 @@ import { StripeModule } from './infrastructure/stripe/stripe.module';
 		PrismaModule,
 		UserModule,
 		EventModule,
+		CategoryModule,
 		RedisModule,
 		AuthModule,
 		RateLimiterModule,

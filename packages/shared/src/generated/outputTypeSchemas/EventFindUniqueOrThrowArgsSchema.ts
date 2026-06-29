@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { EventIncludeSchema } from '../inputTypeSchemas/EventIncludeSchema'
 import { EventWhereUniqueInputSchema } from '../inputTypeSchemas/EventWhereUniqueInputSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
+import { CategoryArgsSchema } from "../outputTypeSchemas/CategoryArgsSchema"
 import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
 import { EventImageFindManyArgsSchema } from "../outputTypeSchemas/EventImageFindManyArgsSchema"
 import { CancellationPolicyRuleFindManyArgsSchema } from "../outputTypeSchemas/CancellationPolicyRuleFindManyArgsSchema"
@@ -24,7 +25,9 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   userId: z.boolean().optional(),
+  categoryId: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
+  category: z.union([z.boolean(),z.lazy(() => CategoryArgsSchema)]).optional(),
   bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
   images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
   cancellationRules: z.union([z.boolean(),z.lazy(() => CancellationPolicyRuleFindManyArgsSchema)]).optional(),

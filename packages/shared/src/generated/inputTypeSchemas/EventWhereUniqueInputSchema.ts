@@ -15,6 +15,8 @@ import { EventStatusSchema } from './EventStatusSchema';
 import { StringFilterSchema } from './StringFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
+import { CategoryScalarRelationFilterSchema } from './CategoryScalarRelationFilterSchema';
+import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 import { EventImageListRelationFilterSchema } from './EventImageListRelationFilterSchema';
 import { CancellationPolicyRuleListRelationFilterSchema } from './CancellationPolicyRuleListRelationFilterSchema';
@@ -39,7 +41,9 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  categoryId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   organizer: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
+  category: z.union([ z.lazy(() => CategoryScalarRelationFilterSchema), z.lazy(() => CategoryWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),

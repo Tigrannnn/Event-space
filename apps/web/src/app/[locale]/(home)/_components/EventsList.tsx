@@ -11,6 +11,7 @@ import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
 import DateFilter from './DateFilter';
+import CategoryFilter from './CategoryFilter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface EventsListProps {
@@ -20,6 +21,7 @@ interface EventsListProps {
 	searchQuery?: string;
 	startDate?: string;
 	endDate?: string;
+	category?: string;
 }
 
 export default function EventsList({
@@ -29,6 +31,7 @@ export default function EventsList({
 	searchQuery = '',
 	startDate,
 	endDate,
+	category,
 }: EventsListProps) {
 	const translate = useTranslation();
 	const router = useRouter();
@@ -62,6 +65,7 @@ export default function EventsList({
 		search: searchQuery,
 		startDate,
 		endDate,
+		category,
 		initialData,
 	});
 
@@ -121,6 +125,7 @@ export default function EventsList({
 
 	return (
 		<div>
+			<CategoryFilter />
 			<DateFilter />
 			<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
 				{events.map((event) => (

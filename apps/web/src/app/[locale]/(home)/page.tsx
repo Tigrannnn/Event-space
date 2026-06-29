@@ -3,7 +3,7 @@ import { serverFetch } from '@/lib/server.api';
 import { PaginatedEventsResponse } from '@/features/events/api/events.api';
 
 interface HomePageProps {
-	searchParams: Promise<{ search?: string; startDate?: string; endDate?: string }>;
+	searchParams: Promise<{ search?: string; startDate?: string; endDate?: string; category?: string }>;
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
@@ -11,12 +11,14 @@ export default async function Home({ searchParams }: HomePageProps) {
 	const searchQuery = params.search || '';
 	const startDate = params.startDate;
 	const endDate = params.endDate;
+	const category = params.category;
 
 	// Build URL with all filters
 	const urlParams = new URLSearchParams();
 	if (searchQuery) urlParams.set('search', searchQuery);
 	if (startDate) urlParams.set('startDate', startDate);
 	if (endDate) urlParams.set('endDate', endDate);
+	if (category) urlParams.set('category', category);
 	const url = `/events${urlParams.toString() ? `?${urlParams.toString()}` : ''}`;
 
 	// SSR: Initial load with search, date filters and pagination
@@ -34,6 +36,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 				searchQuery={searchQuery}
 				startDate={startDate}
 				endDate={endDate}
+				category={category}
 			/>
 		</div>
 	);

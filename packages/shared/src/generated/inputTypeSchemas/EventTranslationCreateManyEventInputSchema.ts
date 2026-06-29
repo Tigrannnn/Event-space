@@ -10,7 +10,6 @@ export const EventTranslationCreateManyEventInputSchema: z.ZodType<Prisma.EventT
   title: z.string(),
   description: z.string(),
   location: z.string(),
-  category: z.string(),
   whatsIncluded: z.union([ z.lazy(() => EventTranslationCreatewhatsIncludedInputSchema), z.string().array() ]).optional(),
 }).strict();
 

@@ -29,7 +29,7 @@ const bookingInclude = {
 		select: safeUserSelect,
 	},
 	event: {
-		include: { images: true, cancellationRules: true, translations: true },
+		include: { images: true, cancellationRules: true, translations: true, category: { include: { translations: true } } },
 	},
 	adjustments: true,
 } as const;
@@ -116,6 +116,11 @@ export class AdminService {
 				include: {
 					cancellationRules: true,
 					translations: true,
+					category: {
+						include: {
+							translations: true,
+						},
+					},
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -128,6 +133,11 @@ export class AdminService {
 				include: {
 					cancellationRules: true,
 					translations: true,
+					category: {
+						include: {
+							translations: true,
+						},
+					},
 					organizer: {
 						select: safeUserSelect,
 					},

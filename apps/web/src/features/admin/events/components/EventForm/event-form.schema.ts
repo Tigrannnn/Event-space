@@ -33,12 +33,12 @@ export const EventTranslationFormSchema = z.object({
     locale: LocaleEnum,
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(1, 'Description is required'),
-    category: z.string().min(1, 'Category is required'),
     location: z.string().min(1, 'Location is required'),
     whatsIncluded: z.string().min(1, 'Included items are required'),
 });
 
 export const EventFormSchema = z.object({
+	categoryId: z.string().uuid('Category is required'),
 	translations: z.array(EventTranslationFormSchema).min(1, 'At least one translation is required'),
 	images: z
 		.array(ImageUploaderItemSchema)

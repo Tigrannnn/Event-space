@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
 import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInputSchema';
+import { CategoryOrderByWithRelationInputSchema } from './CategoryOrderByWithRelationInputSchema';
 import { BookingOrderByRelationAggregateInputSchema } from './BookingOrderByRelationAggregateInputSchema';
 import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
@@ -22,7 +23,9 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
+  categoryId: z.lazy(() => SortOrderSchema).optional(),
   organizer: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
+  category: z.lazy(() => CategoryOrderByWithRelationInputSchema).optional(),
   bookings: z.lazy(() => BookingOrderByRelationAggregateInputSchema).optional(),
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),

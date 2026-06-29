@@ -22,6 +22,7 @@ export const EventUncheckedCreateWithoutImagesInputSchema: z.ZodType<Prisma.Even
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   userId: z.string(),
+  categoryId: z.string(),
   bookings: z.lazy(() => BookingUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema).optional(),

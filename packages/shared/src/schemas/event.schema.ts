@@ -12,6 +12,7 @@ import {
 	EventTranslationSchema as GeneratedEventTranslationSchema,
 	LocaleSchema,
 } from '../generated';
+import { CategorySchema } from './category.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -47,6 +48,7 @@ export const EventSchema = GeneratedEventSchema.extend({
 	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
 	locationUrl: z.string().url().nullable().optional(),
 	translations: z.array(EventTranslationSchema).default([]),
+	category: CategorySchema.optional(),
 }).openapi({
 	description: 'Event information',
 	example: {
@@ -69,7 +71,6 @@ export const EventSchema = GeneratedEventSchema.extend({
                 title: 'Mountain Hike',
                 description: 'A scenic mountain trail hike with beautiful views',
                 location: 'Almaty, Kazakhstan',
-                category: 'Hiking',
                 whatsIncluded: ['Guide', 'Water', 'Snacks'],
             },
             {
@@ -79,7 +80,6 @@ export const EventSchema = GeneratedEventSchema.extend({
                 title: 'Горный поход',
                 description: 'Живописный поход по горным тропам',
                 location: 'Алматы, Казахстан',
-                category: 'Поход',
                 whatsIncluded: ['Гид', 'Вода', 'Закуски'],
             },
 			{
@@ -89,7 +89,6 @@ export const EventSchema = GeneratedEventSchema.extend({
                 title: 'Գորշ անցում',
                 description: 'Ոսկրագունդ գորշ անցում գորշ ճակատագրերով',
                 location: 'Ալմատի, Ղազախստան',
-                category: 'Անցում',
                 whatsIncluded: ['Գիդ', 'Ջուր', 'Թեթև ուտեստներ'],
             }
         ]
@@ -106,6 +105,7 @@ export const EventFiltersSchema = z.object({
 	status: EventStatusEnum.optional(),
 	difficulty: EventDifficultyEnum.optional(),
 	time: TimeFilterSchema.optional(),
+	category: z.string().optional(),
 });
 
 export type EventFilters = z.infer<typeof EventFiltersSchema>;
@@ -119,6 +119,7 @@ export const CreateEventSchema = EventSchema.omit({
 	updatedAt: true,
 	images: true,
 	translations: true,
+	category: true,
 }).extend({
 	cancellationRules: z.array(CancellationPolicyRuleInputSchema).default([]),
 	translations: z.array(CreateEventTranslationSchema).min(1, 'At least one translation is required'),

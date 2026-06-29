@@ -26,6 +26,7 @@ import {
 	EventDifficultyEnum,
 	TimeFilterSchema,
 	getEventTranslation,
+	getCategoryTranslation,
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
@@ -256,6 +257,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 
 						{eventsResponse.data.map((event) => {
 							const t = getEventTranslation(event, locale);
+							const categoryTranslation = getCategoryTranslation(event.category, locale);
 							return (
 								<TableRow key={event.id}>
 									<TableCell className="px-3 sm:px-5">
@@ -268,7 +270,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												{t.title}
 											</button>
 											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-												{t.category} · {t.location}
+												{categoryTranslation?.name || '-'} · {t.location}
 											</p>
 										</div>
 									</TableCell>

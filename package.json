@@ -12,7 +12,7 @@
 		"shared:dev": "npm --workspace packages/shared run dev",
 		"web:dev": "npm --workspace apps/web run dev",
 		"web:build": "npm run shared:build && npm --workspace apps/web run build",
-		"api:dev": "npm run shared:build && npm --workspace apps/api run start:dev",
+		"api:dev": "npm run shared:build && NODE_OPTIONS=--max-old-space-size=4096 npm --workspace apps/api run start:dev",
 		"api:build": "npm run shared:build && npm --workspace apps/api run build",
 		"build:all": "npm run shared:build && npm run web:build && npm run api:build",
 		"clean": "rm -rf packages/shared/dist apps/web/.next apps/api/dist",

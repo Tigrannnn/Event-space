@@ -16,6 +16,7 @@ export const EventCountOrderByAggregateInputSchema: z.ZodType<Prisma.EventCountO
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
+  categoryId: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export default EventCountOrderByAggregateInputSchema;

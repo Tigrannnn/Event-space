@@ -29,6 +29,7 @@ export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  categoryId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
 }).strict();
 
 export default EventScalarWhereInputSchema;

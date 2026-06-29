@@ -10,7 +10,6 @@ export const EventTranslationMinOrderByAggregateInputSchema: z.ZodType<Prisma.Ev
   title: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
   location: z.lazy(() => SortOrderSchema).optional(),
-  category: z.lazy(() => SortOrderSchema).optional(),
 }).strict();
 
 export default EventTranslationMinOrderByAggregateInputSchema;

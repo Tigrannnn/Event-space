@@ -16,7 +16,6 @@ export const EventTranslationScalarWhereWithAggregatesInputSchema: z.ZodType<Pri
   title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   location: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  category: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
 }).strict();
 

@@ -4,6 +4,7 @@ import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
 export function getDefaultEventFormValues(): EventFormValues {
 	return {
+		categoryId: '',
 		translations: [],
 		images: [],
 		locationUrl: '',
@@ -36,6 +37,7 @@ function parseList(val: string): string[] {
 
 function buildEventFields(values: EventFormValues) {
 	return {
+		categoryId: values.categoryId,
 		locationUrl: values.locationUrl?.trim() || null,
 		date: new Date(values.date).toISOString(),
 		difficulty: values.difficulty,
@@ -49,7 +51,6 @@ function buildEventFields(values: EventFormValues) {
 			locale: t.locale,
 			title: t.title.trim(),
 			description: t.description.trim(),
-			category: t.category.trim(),
 			location: t.location.trim(),
 			whatsIncluded: parseList(t.whatsIncluded),
 		})),
@@ -94,6 +95,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		}));
 
 	return {
+		categoryId: event.categoryId,
 		images,
 		locationUrl: event.locationUrl ?? '',
 		date: dateStr,
@@ -113,7 +115,6 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			locale: t.locale,
 			title: t.title,
 			description: t.description,
-			category: t.category,
 			location: t.location,
 			whatsIncluded: t.whatsIncluded.join('\n'),
 		})),

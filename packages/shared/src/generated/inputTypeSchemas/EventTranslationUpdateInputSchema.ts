@@ -13,7 +13,6 @@ export const EventTranslationUpdateInputSchema: z.ZodType<Prisma.EventTranslatio
   title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   description: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   location: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-  category: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   whatsIncluded: z.union([ z.lazy(() => EventTranslationUpdatewhatsIncludedInputSchema), z.string().array() ]).optional(),
   event: z.lazy(() => EventUpdateOneRequiredWithoutTranslationsNestedInputSchema).optional(),
 }).strict();

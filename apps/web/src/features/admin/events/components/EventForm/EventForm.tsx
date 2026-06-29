@@ -2,6 +2,7 @@
 
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { type Event, EventStatusEnum, EventDifficultyEnum, DEFAULT_CURRENCY } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
@@ -15,6 +16,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useConfirm } from '@/hooks/confirmModal/useConfirmModal';
+import { categoryApi } from '@/features/categories/api/categories.api';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -50,6 +52,16 @@ export default function EventForm({
 	const translate = useTranslation();
 	const confirm = useConfirm();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
+
+	const { data: categories } = useQuery({
+		queryKey: ['categories', translate.locale],
+		queryFn: ({ signal }) => categoryApi.getCategories({ lang: translate.locale }, signal),
+	});
+
+	const categoryOptions = categories?.map(cat => ({
+		value: cat.id,
+		label: cat.name,
+	})) ?? [];
 
 	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
 		value: diff,
@@ -150,7 +162,6 @@ export default function EventForm({
 										locale: locale.value,
 										title: '',
 										description: '',
-										category: '',
 										location: '',
 										whatsIncluded: '',
 									})}
