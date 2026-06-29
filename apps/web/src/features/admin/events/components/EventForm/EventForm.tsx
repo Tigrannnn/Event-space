@@ -3,7 +3,7 @@
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { type Event, EventStatusEnum, EventDifficultyEnum, DEFAULT_CURRENCY } from '@event-space/shared';
+import { type Event, EventStatusEnum, EventDifficultyEnum, DEFAULT_CURRENCY, getCategoryTranslation, type Category } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useConfirm } from '@/hooks/confirmModal/useConfirmModal';
-import { categoryApi } from '@/features/categories/api/categories.api';
+import { adminApi } from '@/features/admin/api/admin.api';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -53,15 +53,16 @@ export default function EventForm({
 	const confirm = useConfirm();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 
-	const { data: categories } = useQuery({
-		queryKey: ['categories', translate.locale],
-		queryFn: ({ signal }) => categoryApi.getCategories({ lang: translate.locale }, signal),
+	const { data: categoriesResponse } = useQuery({
+		queryKey: ['admin', 'categories', { limit: 100 }],
+		queryFn: () => adminApi.getCategories({ limit: 100 }),
 	});
 
-	const categoryOptions = categories?.map(cat => ({
-		value: cat.id,
-		label: cat.name,
-	})) ?? [];
+	const categories = categoriesResponse?.data?.data ?? [];
+	const categoryOptions = categories.map(category => ({
+		value: category.id,
+		label: getCategoryTranslation(category, translate.locale).name,
+	}));
 
 	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
 		value: diff,
@@ -214,7 +215,7 @@ export default function EventForm({
 
 					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
 						<div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 gap-4">
 								<label className="space-y-1.5">
 									<span className="text-sm font-semibold">{translate('admin.title')}</span>
 									<input
@@ -224,17 +225,6 @@ export default function EventForm({
 									/>
 									{errors.translations?.[activeTabIndex]?.title && (
 										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.title?.message}</p>
-									)}
-								</label>
-								<label className="space-y-1.5">
-									<span className="text-sm font-semibold">{translate('admin.category')}</span>
-									<input
-										{...register(`translations.${activeTabIndex}.category`)}
-										className={fieldClassName}
-										disabled={isPending}
-									/>
-									{errors.translations?.[activeTabIndex]?.category && (
-										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.category?.message}</p>
 									)}
 								</label>
 							</div>
@@ -280,17 +270,36 @@ export default function EventForm({
 					)}
 				</div>
 
-				<div className="grid grid-cols-1 gap-4">
-					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">{translate('admin.googleMapsUrl')}</span>
-						<input
-							{...register('locationUrl')}
-							className={fieldClassName}
-							disabled={isPending}
-							placeholder="https://maps.app.goo.gl/..."
+				<div className="grid grid-cols-2 gap-4">
+					<div className="space-y-1.5">
+						<span className="text-sm font-semibold">{translate('admin.category')}</span>
+						<Controller
+							name="categoryId"
+							control={control}
+							render={({ field }) => (
+								<Select
+									value={field.value || ''}
+									onValueChange={field.onChange}
+									options={categoryOptions}
+									className="w-full"
+									disabled={isPending}
+								/>
+							)}
 						/>
-						{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
-					</label>
+						{errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
+					</div>
+					<div className="grid grid-cols-1 gap-4">
+						<label className="space-y-1.5">
+							<span className="text-sm font-semibold">{translate('admin.googleMapsUrl')}</span>
+							<input
+								{...register('locationUrl')}
+								className={fieldClassName}
+								disabled={isPending}
+								placeholder="https://maps.app.goo.gl/..."
+							/>
+							{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
+						</label>
+					</div>
 				</div>
 
 				<div className="space-y-1.5">

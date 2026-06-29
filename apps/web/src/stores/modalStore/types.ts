@@ -1,4 +1,4 @@
-import { Event, Booking, BookingWithDetails, SafeUserData } from '@event-space/shared';
+import { Event, Booking, BookingWithDetails, SafeUserData, Category } from '@event-space/shared';
 import type { ReactNode } from 'react';
 import type { ModalSize } from '@/components/ui/Modal/Modal.types';
 
@@ -25,6 +25,9 @@ export enum ModalType {
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
 	ContactInfo = 'contact-info',
+	CreateCategory = 'create-category',
+	UpdateCategory = 'update-category',
+	CategoryDetails = 'category-details',
 }
 
 export interface ContactInfoModalData {
@@ -80,6 +83,18 @@ export interface UpdateEventModalData {
 	event: Event;
 }
 
+export interface CreateCategoryModalData {
+	// Can be empty
+}
+
+export interface UpdateCategoryModalData {
+	category: Category;
+}
+
+export interface CategoryDetailsModalData {
+	category: Category;
+}
+
 export interface ModalDataMap {
 	[ModalType.Register]: null;
 	[ModalType.Login]: null;
@@ -97,6 +112,9 @@ export interface ModalDataMap {
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;
 	[ModalType.ContactInfo]: ContactInfoModalData;
+	[ModalType.CreateCategory]: null;
+	[ModalType.UpdateCategory]: UpdateCategoryModalData;
+	[ModalType.CategoryDetails]: CategoryDetailsModalData;
 }
 
 export interface ModalState {

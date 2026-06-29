@@ -9,6 +9,8 @@ import type {
 	BookingStatus,
 	DashboardStats,
 	PaginatedParams,
+	CreateCategoryData,
+	UpdateCategoryData,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -475,6 +477,9 @@ export class AdminService {
 						},
 					},
 					images: { orderBy: { order: 'asc' } },
+					category: { 
+						include: { translations: true }
+					 }
 				},
 			}),
 			this.prisma.event.count({ where }),
@@ -491,5 +496,91 @@ export class AdminService {
 			hasMore,
 			nextSkip: hasMore ? skip + limit : null,
 		};
+	}
+
+	async findAllCategories({
+		skip = 0,
+		limit = 20,
+		search,
+	}: PaginatedParams & { search?: string } = {}) {
+		const where = {
+			...(search
+				? {
+						translations: {
+							some: {
+								name: { contains: search, mode: 'insensitive' as const },
+							},
+						},
+					}
+				: {}),
+		};
+
+		const [categories, total] = await Promise.all([
+			this.prisma.category.findMany({
+				where,
+				skip,
+				take: limit + 1,
+				orderBy: { createdAt: 'desc' },
+				include: {
+					translations: true,
+				},
+			}),
+			this.prisma.category.count({ where }),
+		]);
+
+		const hasMore = categories.length > limit;
+		const data = hasMore ? categories.slice(0, limit) : categories;
+
+		return {
+			data,
+			total,
+			skip,
+			take: limit,
+			hasMore,
+			nextSkip: hasMore ? skip + limit : null,
+		};
+	}
+
+	async createCategory(data: CreateCategoryData) {
+		const { translations, ...pureData } = data;
+		return this.prisma.category.create({
+			data: {
+				...pureData,
+				translations: {
+					create: translations,
+				},
+			},
+			include: {
+				translations: true,
+			},
+		});
+	}
+
+	async updateCategory(id: string, data: UpdateCategoryData) {
+		const { translations, ...pureData } = data;
+		return this.prisma.category.update({
+			where: { id },
+			data: {
+				...pureData,
+				...(translations !== undefined && {
+					translations: {
+						deleteMany: {},
+						create: translations,
+					},
+				}),
+			},
+			include: {
+				translations: true,
+			},
+		});
+	}
+
+	async deleteCategory(id: string) {
+		return this.prisma.category.delete({
+			where: { id },
+			include: {
+				translations: true,
+			},
+		});
 	}
 }

@@ -13,6 +13,9 @@ import type {
 	EventStatus,
 	DashboardStats,
 	BookingWithDetails,
+	Category,
+	CreateCategoryData,
+	UpdateCategoryData,
 } from '@event-space/shared';
 
 export const adminApi = {
@@ -43,4 +46,12 @@ export const adminApi = {
 	deleteUser: (id: string) => clientApi.delete<{ message: string }>(`/admin/users/${id}`),
 	createManualBooking: (data: CreateManualBookingData) =>
 		clientApi.post<Booking>('/admin/bookings/manual', data),
+	getCategories: (params?: { skip?: number; limit?: number; search?: string }) =>
+		clientApi.get<PaginatedResponse<Category>>('/admin/categories', { params }),
+	createCategory: (data: CreateCategoryData) =>
+		clientApi.post<Category>('/admin/categories', data),
+	updateCategory: (id: string, data: UpdateCategoryData) =>
+		clientApi.patch<Category>(`/admin/categories/${id}`, data),
+	deleteCategory: (id: string) =>
+		clientApi.delete<{ message: string }>(`/admin/categories/${id}`),
 };

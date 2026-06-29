@@ -256,8 +256,9 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						)}
 
 						{eventsResponse.data.map((event) => {
-							const t = getEventTranslation(event, locale);
+							const eventTranslation = getEventTranslation(event, locale);
 							const categoryTranslation = getCategoryTranslation(event.category, locale);
+							console.log(categoryTranslation);
 							return (
 								<TableRow key={event.id}>
 									<TableCell className="px-3 sm:px-5">
@@ -267,10 +268,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												onClick={() => router.push(`/events/${event.id}`)}
 												className="text-primary cursor-pointer truncate text-left font-medium transition hover:underline"
 											>
-												{t.title}
+												{eventTranslation.title}
 											</button>
 											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-												{categoryTranslation?.name || '-'} · {t.location}
+												{categoryTranslation.name || '-'} · {eventTranslation.location}
 											</p>
 										</div>
 									</TableCell>
@@ -294,7 +295,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												size="xs"
 												variant="secondary"
 												onClick={() => openModal(ModalType.EventDetails, { event })}
-												aria-label={`${translate('admin.viewDetails')}: ${t.title}`}
+												aria-label={`${translate('admin.viewDetails')}: ${eventTranslation.title}`}
 											>
 												<Eye className="h-4 w-4" />
 											</Button>
@@ -303,7 +304,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												size="xs"
 												variant="secondary"
 												onClick={() => openModal(ModalType.UpdateEvent, { event })}
-												aria-label={`${translate('admin.edit')}: ${t.title}`}
+												aria-label={`${translate('admin.edit')}: ${eventTranslation.title}`}
 											>
 												<Pencil className="h-4 w-4" />
 											</Button>
@@ -312,7 +313,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												size="xs"
 												variant="secondary"
 												onClick={() => router.push(`/admin/bookings?eventId=${event.id}`)}
-												aria-label={`${translate('admin.viewBookings')}: ${t.title}`}
+												aria-label={`${translate('admin.viewBookings')}: ${eventTranslation.title}`}
 											>
 												<Users className="h-4 w-4" />
 											</Button>
@@ -322,7 +323,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="danger"
 												onClick={() => handleDelete(event)}
 												isLoading={deletingId === event.id && deleteEvent.isPending}
-												aria-label={`${translate('admin.delete')}: ${t.title}`}
+												aria-label={`${translate('admin.delete')}: ${eventTranslation.title}`}
 											>
 												<Trash2 className="h-4 w-4" />
 											</Button>

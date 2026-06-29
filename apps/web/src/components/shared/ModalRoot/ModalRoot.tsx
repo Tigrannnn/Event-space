@@ -6,7 +6,15 @@ import { ModalType, useModalStore } from '@/stores/modalStore';
 import { AnimatePresence } from 'framer-motion';
 import { EditProfileModal } from '@/features/profile';
 import { CreateBookingModal } from '@/features/bookings/components';
-import { UpdateEventModal, CreateEventModal } from '@/features/admin/events';
+import {
+	UpdateEventModal,
+	CreateEventModal,
+} from '@/features/admin/events';
+import {
+	CreateCategoryModal,
+	UpdateCategoryModal,
+	CategoryDetailsModal,
+} from '@/features/admin/categories';
 import BookingDetailsModal from '@/app/[locale]/admin/bookings/_components/BookingDetailsModal';
 import CreateManualBookingModal from '@/app/[locale]/admin/bookings/_components/CreateManualBookingModal';
 import UserDetailsModal from '@/app/[locale]/admin/users/_components/UserDetailsModal';
@@ -40,6 +48,9 @@ export default function ModalRoot() {
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}
 					{activeModal === ModalType.UpdateEvent && <UpdateEventModal key="edit-event" />}
 					{activeModal === ModalType.ContactInfo && <ContactModal key="contact-info" />}
+					{activeModal === ModalType.CreateCategory && <CreateCategoryModal key="create-category" />}
+					{activeModal === ModalType.UpdateCategory && <UpdateCategoryModal key="update-category" />}
+					{activeModal === ModalType.CategoryDetails && <CategoryDetailsModal key="category-details" />}
 				</>
 			)}
 		</AnimatePresence>

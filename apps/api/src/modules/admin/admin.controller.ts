@@ -32,6 +32,8 @@ import {
 	UserRoleSchema,
 	TimeFilterSchema,
 	CreateManualBookingSchema,
+	CreateCategorySchema,
+	UpdateCategorySchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type {
@@ -41,6 +43,8 @@ import type {
 	UserRoleType,
 	TimeFilterType,
 	CreateManualBookingData,
+	CreateCategoryData,
+	UpdateCategoryData,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
@@ -266,5 +270,67 @@ export class AdminController {
 		);
 
 		return this.bookingService.createManualBooking(adminId, data);
+	}
+
+	@Get('categories')
+	@ApiOperation({ summary: 'Get all categories (admin)' })
+	@ApiQuery({ name: 'skip', required: false, type: Number })
+	@ApiQuery({ name: 'limit', required: false, type: Number })
+	@ApiQuery({ name: 'search', required: false })
+	async getAllCategories(
+		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
+		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
+		@Query('search') search?: string,
+	) {
+		const safeLimit = Math.min(limit, 100);
+		return this.adminService.findAllCategories({ skip, limit: safeLimit, search });
+	}
+
+	@Post('categories')
+	@ApiOperation({ summary: 'Create category (admin only)' })
+	@ApiResponse({ status: 201, description: 'Category created' })
+	@ApiBody(getReference('CreateCategorySchema'))
+	async createCategory(
+		@GetCurrentUserId() adminId: string,
+		@Body(new ZodValidationPipe(CreateCategorySchema)) data: CreateCategoryData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.adminService.createCategory(data);
+	}
+
+	@Patch('categories/:id')
+	@ApiOperation({ summary: 'Update category (admin only)' })
+	@ApiBody(getReference('UpdateCategorySchema'))
+	async updateCategory(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdateCategorySchema)) data: UpdateCategoryData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.adminService.updateCategory(id, data);
+	}
+
+	@Delete('categories/:id')
+	@ApiOperation({ summary: 'Delete category (admin only)' })
+	@ApiResponse({ status: 200, description: 'Category deleted' })
+	async deleteCategory(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:delete`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
+		);
+		await this.adminService.deleteCategory(id);
+		return { message: 'Category deleted successfully' };
 	}
 }

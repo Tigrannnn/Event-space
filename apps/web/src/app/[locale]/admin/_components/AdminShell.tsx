@@ -12,6 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
 	'/admin/events': 'Events',
 	'/admin/bookings': 'Bookings',
 	'/admin/users': 'Users',
+	'/admin/categories': 'Categories',
 };
 
 function getPageTitle(pathname: string) {

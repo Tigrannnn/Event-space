@@ -8,6 +8,9 @@ import {
 	type EventFilters,
 	type UserRoleType,
 	type UserFilters,
+	type Category,
+	type CreateCategoryData,
+	type UpdateCategoryData,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -154,6 +157,60 @@ export const useCreateManualBooking = () => {
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to create manual booking'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useAdminCategories = (params?: { skip?: number; limit?: number; search?: string }) => {
+	return useQuery({
+		queryKey: ['admin', 'categories', params],
+		queryFn: () => adminApi.getCategories(params),
+	});
+};
+
+export const useCreateCategory = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	return useMutation({
+		mutationFn: (data: CreateCategoryData) => adminApi.createCategory(data),
+		onSuccess: () => {
+			addToast('Category created successfully', ToastType.SUCCESS);
+			closeModal();
+			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to create category'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateCategory = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) => adminApi.updateCategory(id, data),
+		onSuccess: () => {
+			addToast('Category updated successfully', ToastType.SUCCESS);
+			closeModal();
+			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to update category'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useDeleteCategory = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.deleteCategory(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
 		},
 	});
 };

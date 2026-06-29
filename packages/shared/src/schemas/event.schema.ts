@@ -28,8 +28,8 @@ export const EventTranslationSchema = GeneratedEventTranslationSchema.extend({})
 export type EventTranslation = z.infer<typeof EventTranslationSchema>;
 
 export const CreateEventTranslationSchema = EventTranslationSchema.omit({
-    id: true,
-    eventId: true,
+	id: true,
+	eventId: true,
 });
 
 export const EventImageSchema = z.object({
@@ -48,7 +48,7 @@ export const EventSchema = GeneratedEventSchema.extend({
 	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
 	locationUrl: z.string().url().nullable().optional(),
 	translations: z.array(EventTranslationSchema).default([]),
-	category: CategorySchema.optional(),
+	category: CategorySchema,
 }).openapi({
 	description: 'Event information',
 	example: {
@@ -64,34 +64,34 @@ export const EventSchema = GeneratedEventSchema.extend({
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 		translations: [
-            {
-                id: '110e8400-e29b-41d4-a716-446655440001',
-                eventId: '550e8400-e29b-41d4-a716-446655440000',
-                locale: 'en',
-                title: 'Mountain Hike',
-                description: 'A scenic mountain trail hike with beautiful views',
-                location: 'Almaty, Kazakhstan',
-                whatsIncluded: ['Guide', 'Water', 'Snacks'],
-            },
-            {
-                id: '220e8400-e29b-41d4-a716-446655440002',
-                eventId: '550e8400-e29b-41d4-a716-446655440000',
-                locale: 'ru',
-                title: 'Горный поход',
-                description: 'Живописный поход по горным тропам',
-                location: 'Алматы, Казахстан',
-                whatsIncluded: ['Гид', 'Вода', 'Закуски'],
-            },
 			{
-                id: '220e8400-e29b-41d4-a716-446655440003',
-                eventId: '550e8400-e29b-41d4-a716-446655440000',
-                locale: 'hy',
-                title: 'Գորշ անցում',
-                description: 'Ոսկրագունդ գորշ անցում գորշ ճակատագրերով',
-                location: 'Ալմատի, Ղազախստան',
-                whatsIncluded: ['Գիդ', 'Ջուր', 'Թեթև ուտեստներ'],
-            }
-        ]
+				id: '110e8400-e29b-41d4-a716-446655440001',
+				eventId: '550e8400-e29b-41d4-a716-446655440000',
+				locale: 'en',
+				title: 'Mountain Hike',
+				description: 'A scenic mountain trail hike with beautiful views',
+				location: 'Almaty, Kazakhstan',
+				whatsIncluded: ['Guide', 'Water', 'Snacks'],
+			},
+			{
+				id: '220e8400-e29b-41d4-a716-446655440002',
+				eventId: '550e8400-e29b-41d4-a716-446655440000',
+				locale: 'ru',
+				title: 'Горный поход',
+				description: 'Живописный поход по горным тропам',
+				location: 'Алматы, Казахстан',
+				whatsIncluded: ['Гид', 'Вода', 'Закуски'],
+			},
+			{
+				id: '220e8400-e29b-41d4-a716-446655440003',
+				eventId: '550e8400-e29b-41d4-a716-446655440000',
+				locale: 'hy',
+				title: 'Գորշ անցում',
+				description: 'Ոսկրագունդ գորշ անցում գորշ ճակատագրերով',
+				location: 'Ալմատի, Ղազախստան',
+				whatsIncluded: ['Գիդ', 'Ջուր', 'Թեթև ուտեստներ'],
+			},
+		],
 	},
 });
 
@@ -123,13 +123,14 @@ export const CreateEventSchema = EventSchema.omit({
 }).extend({
 	cancellationRules: z.array(CancellationPolicyRuleInputSchema).default([]),
 	translations: z.array(CreateEventTranslationSchema).min(1, 'At least one translation is required'),
+	categoryId: z.string().uuid(),
 });
 
 export type CreateEventData = z.infer<typeof CreateEventSchema>;
 
 // === UPDATE EVENT ===
 export const UpdateEventSchema = CreateEventSchema.partial().extend({
-  cancellationReason: z.string().optional(),
+	cancellationReason: z.string().optional(),
 });
 
 export type UpdateEventData = z.infer<typeof UpdateEventSchema>;
