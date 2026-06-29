@@ -277,7 +277,7 @@ export const messages = {
 			eventInformation: 'Միջոցառման տեղեկատվություն',
 			category: 'Կատեգորիա',
 			price: 'Գինը',
-			capacity: 'Հզորություն',
+			capacity: 'Հասանելիություն',
 			organizer: 'Կազմակերպիչ',
 			userDetails: 'Օգտատերի մանրամասներ',
 			accountInformation: 'Հաշվի տեղեկատվություն',
