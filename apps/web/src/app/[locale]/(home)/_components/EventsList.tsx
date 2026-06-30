@@ -12,6 +12,7 @@ import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
 import DateFilter from './DateFilter';
 import CategoryFilter from './CategoryFilter';
+import PriceFilter from './PriceFilter';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface EventsListProps {
@@ -22,6 +23,8 @@ interface EventsListProps {
 	startDate?: string;
 	endDate?: string;
 	category?: string;
+	minPrice?: number;
+	maxPrice?: number;
 }
 
 export default function EventsList({
@@ -32,11 +35,10 @@ export default function EventsList({
 	startDate,
 	endDate,
 	category,
+	minPrice,
+	maxPrice,
 }: EventsListProps) {
 	const translate = useTranslation();
-	const router = useRouter();
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
 
 	// Build initialData for TanStack Query hydration from SSR
 	const initialData = useMemo(() => {
@@ -66,6 +68,8 @@ export default function EventsList({
 		startDate,
 		endDate,
 		category,
+		minPrice,
+		maxPrice,
 		initialData,
 	});
 
@@ -127,6 +131,7 @@ export default function EventsList({
 		<div>
 			<CategoryFilter />
 			<DateFilter />
+			<PriceFilter />
 			<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
 				{events.map((event) => (
 					<EventCard key={event.id} event={event} />

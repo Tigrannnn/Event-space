@@ -55,6 +55,11 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const [status, setStatus] = useState<EventStatus | undefined>();
 	const [difficulty, setDifficulty] = useState<EventDifficulty | undefined>();
 	const [time, setTime] = useState<TimeFilterType | undefined>();
+	const [minPriceInput, setMinPriceInput] = useState('');
+	const [minPrice, setMinPrice] = useState<number | undefined>();
+	const [maxPriceInput, setMaxPriceInput] = useState('');
+	const [maxPrice, setMaxPrice] = useState<number | undefined>();
+	const [availability, setAvailability] = useState<'available' | 'sold_out' | undefined>();
 	const { openModal } = useModalStore();
 	const confirm = useConfirm();
 	const { data, isFetching } = useAdminEvents({
@@ -64,6 +69,9 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		status,
 		difficulty,
 		time,
+		minPrice,
+		maxPrice,
+		availability,
 	});
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -74,7 +82,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
 	const hasActiveFilters = Boolean(
-		search || status !== undefined || difficulty !== undefined || time !== undefined,
+		search || status !== undefined || difficulty !== undefined || time !== undefined || minPrice !== undefined || maxPrice !== undefined || availability !== undefined,
 	);
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -111,6 +119,23 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		resetPagination();
 	};
 
+	const handleMinPriceChange = (value: string) => {
+		setMinPriceInput(value);
+		setMinPrice(value ? Number(value) : undefined);
+		resetPagination();
+	};
+
+	const handleMaxPriceChange = (value: string) => {
+		setMaxPriceInput(value);
+		setMaxPrice(value ? Number(value) : undefined);
+		resetPagination();
+	};
+
+	const handleAvailabilityChange = (value: string) => {
+		setAvailability(value ? (value as 'available' | 'sold_out') : undefined);
+		resetPagination();
+	};
+
 	const handlePageSizeChange = (value: string) => {
 		setLimit(Number(value));
 		resetPagination();
@@ -122,6 +147,11 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		setStatus(undefined);
 		setDifficulty(undefined);
 		setTime(undefined);
+		setMinPriceInput('');
+		setMinPrice(undefined);
+		setMaxPriceInput('');
+		setMaxPrice(undefined);
+		setAvailability(undefined);
 		resetPagination();
 	};
 
@@ -174,7 +204,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 
 					<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
 						<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
-							<div className="relative min-w-0 flex-1">
+							<div className="relative min-w-[75%] flex-1">
 								<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
 								<input
 									value={searchInput}
@@ -213,6 +243,34 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 										value: t,
 										label: t === 'upcoming' ? translate('admin.upcoming') : translate('admin.completed'),
 									})),
+								]}
+							/>
+
+							<div className="flex items-center gap-2">
+								<input
+									type="number"
+									value={minPriceInput}
+									onChange={(e) => handleMinPriceChange(e.target.value)}
+									placeholder={translate('admin.minPrice')}
+									className="h-10 w-32 rounded-md border border-gray-500 bg-transparent px-3 text-sm text-gray-900 dark:text-gray-100"
+								/>
+								<span className="text-sm text-gray-500">-</span>
+								<input
+									type="number"
+									value={maxPriceInput}
+									onChange={(e) => handleMaxPriceChange(e.target.value)}
+									placeholder={translate('admin.maxPrice')}
+									className="h-10 w-32 rounded-md border border-gray-500 bg-transparent px-3 text-sm text-gray-900 dark:text-gray-100"
+								/>
+							</div>
+
+							<Select
+								value={availability ?? ''}
+								onValueChange={handleAvailabilityChange}
+								options={[
+									{ value: '', label: translate('admin.availability') },
+									{ value: 'available', label: translate('admin.available') },
+									{ value: 'sold_out', label: translate('admin.soldOut') },
 								]}
 							/>
 

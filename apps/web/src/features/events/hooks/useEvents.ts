@@ -11,14 +11,16 @@ interface UseEventsOptions {
 	startDate?: string;
 	endDate?: string;
 	category?: string;
+	minPrice?: number;
+	maxPrice?: number;
 	initialData?: InfiniteData<PaginatedEventsResponse>;
 }
 
 export const useEvents = (options: UseEventsOptions = {}) => {
-	const { limit = 8, search = '', startDate, endDate, category, initialData } = options;
+	const { limit = 8, search = '', startDate, endDate, category, minPrice, maxPrice, initialData } = options;
 
 	return useInfiniteQuery({
-		queryKey: ['events', 'infinite', search, limit, startDate, endDate, category],
+		queryKey: ['events', 'infinite', search, limit, startDate, endDate, category, minPrice, maxPrice],
 		queryFn: async ({ pageParam, signal }): Promise<PaginatedEventsResponse> => {
 			return eventApi.getEvents(
 				{
@@ -28,6 +30,8 @@ export const useEvents = (options: UseEventsOptions = {}) => {
 					startDate,
 					endDate,
 					category,
+					minPrice,
+					maxPrice,
 				},
 				signal,
 			);

@@ -54,6 +54,8 @@ interface FindAllEventsParams extends PaginatedParams {
 	status?: EventStatus;
 	difficulty?: EventDifficulty;
 	time?: TimeFilterType;
+	minPrice?: number;
+	maxPrice?: number;
 }
 
 @Injectable()
@@ -436,6 +438,8 @@ export class AdminService {
 		status,
 		difficulty,
 		time,
+		minPrice,
+		maxPrice,
 	}: FindAllEventsParams = {}) {
 		const now = new Date();
 		const where = {
@@ -446,7 +450,6 @@ export class AdminService {
 								OR: [
 									{ title: { contains: search, mode: 'insensitive' as const } },
 									{ description: { contains: search, mode: 'insensitive' as const } },
-									{ category: { contains: search, mode: 'insensitive' as const } },
 									{ location: { contains: search, mode: 'insensitive' as const } },
 								],
 							},
@@ -457,6 +460,8 @@ export class AdminService {
 			...(difficulty ? { difficulty } : {}),
 			...(time === 'upcoming' ? { date: { gte: now } } : {}),
 			...(time === 'completed' ? { date: { lt: now } } : {}),
+			...(minPrice !== undefined ? { price: { gte: minPrice } } : {}),
+			...(maxPrice !== undefined ? { price: { lte: maxPrice } } : {}),
 		};
 
 		const [events, total] = await Promise.all([

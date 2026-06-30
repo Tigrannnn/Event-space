@@ -30,7 +30,7 @@ import { EventStatusEnum, MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type { EventStatus, UserRoleType } from '@event-space/shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard } from '@shared';
+import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard, parseOptionalQueryInt } from '@shared';
 import {
 	parseCreateEventMultipart,
 	parseUpdateEventMultipart,
@@ -49,7 +49,7 @@ export class EventController {
 	) {}
 
 	@Get()
-	@ApiOperation({ summary: 'Get events with cursor pagination, search, date filter, and category filter' })
+	@ApiOperation({ summary: 'Get events with cursor pagination, search, date filter, category filter, and price filter' })
 	@ApiResponse({ status: 200, description: 'Returns paginated events' })
 	findAll(
 		@Query('cursor') cursor?: string,
@@ -58,9 +58,22 @@ export class EventController {
 		@Query('startDate') startDate?: string,
 		@Query('endDate') endDate?: string,
 		@Query('category') categorySlug?: string,
+		@Query('minPrice') minPriceRaw?: string,
+		@Query('maxPrice') maxPriceRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 20);
-		return this.eventService.findAll(cursor, safeLimit, search, startDate, endDate, categorySlug);
+		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
+		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
+		return this.eventService.findAll(
+			cursor,
+			safeLimit,
+			search,
+			startDate,
+			endDate,
+			categorySlug,
+			minPrice,
+			maxPrice,
+		);
 	}
 
 	@Get(':id')

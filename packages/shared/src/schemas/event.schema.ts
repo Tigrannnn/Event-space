@@ -106,6 +106,8 @@ export const EventFiltersSchema = z.object({
 	difficulty: EventDifficultyEnum.optional(),
 	time: TimeFilterSchema.optional(),
 	category: z.string().optional(),
+	minPrice: z.coerce.number().optional(),
+	maxPrice: z.coerce.number().optional(),
 });
 
 export type EventFilters = z.infer<typeof EventFiltersSchema>;

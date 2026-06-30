@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { EventService } from '@modules/event/event.service';
-import { Roles, RolesGuard, GetCurrentUserId, ZodValidationPipe } from '@shared';
+import { Roles, RolesGuard, GetCurrentUserId, ZodValidationPipe, parseOptionalQueryInt } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
@@ -159,6 +159,8 @@ export class AdminController {
 	@ApiQuery({ name: 'status', required: false, enum: EventStatusEnum.options })
 	@ApiQuery({ name: 'difficulty', required: false, enum: EventDifficultyEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
+	@ApiQuery({ name: 'minPrice', required: false, type: Number })
+	@ApiQuery({ name: 'maxPrice', required: false, type: Number })
 	async getAllEvents(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -166,8 +168,12 @@ export class AdminController {
 		@Query('status') status?: EventStatus,
 		@Query('difficulty') difficulty?: EventDifficulty,
 		@Query('time') time?: TimeFilterType,
+		@Query('minPrice') minPriceRaw?: string,
+		@Query('maxPrice') maxPriceRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
+		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
+		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
 		return this.adminService.findAllEvents({
 			skip,
 			limit: safeLimit,
@@ -175,6 +181,8 @@ export class AdminController {
 			status,
 			difficulty,
 			time,
+			minPrice,
+			maxPrice,
 		});
 	}
 

@@ -60,6 +60,8 @@ export class EventService {
 		startDate?: string,
 		endDate?: string,
 		categorySlug?: string,
+		minPrice?: number,
+		maxPrice?: number,
 	) {
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
@@ -98,6 +100,16 @@ export class EventService {
 				}
 			: {};
 
+		const priceFilter =
+			minPrice !== undefined || maxPrice !== undefined
+				? {
+						price: {
+							...(minPrice !== undefined ? { gte: minPrice } : {}),
+							...(maxPrice !== undefined ? { lte: maxPrice } : {}),
+						},
+					}
+				: {};
+
 		const dateFilter: any = { gt: new Date() };
 		if (startDate) {
 			dateFilter.gte = new Date(startDate);
@@ -121,7 +133,7 @@ export class EventService {
 
 		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: dateFilter };
 
-		const filters = [statusFilter, searchFilter, categoryFilter, cursorFilter].filter(
+		const filters = [statusFilter, searchFilter, categoryFilter, priceFilter, cursorFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
 		const where = filters.length > 0 ? { AND: filters } : {};
