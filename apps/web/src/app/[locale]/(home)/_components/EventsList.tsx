@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
 import { useEvents } from '@/features/events';
@@ -10,21 +12,22 @@ import type { Event } from '@event-space/shared';
 import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
-import DateFilter from './DateFilter';
-import CategoryFilter from './CategoryFilter';
-import PriceFilter from './PriceFilter';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { categoryApi } from '@/features/categories/api/categories.api';
+import {
+	EventsFiltersBar,
+	computePriceBounds,
+	filterEventsByCategories,
+	filtersToSearchParams,
+	formatDateParam,
+	getApiCategoryFilter,
+	parseFiltersFromSearchParams,
+} from './filters';
 
 interface EventsListProps {
 	initialEvents: Event[];
 	initialNextCursor?: string | null;
 	initialHasMore?: boolean;
 	searchQuery?: string;
-	startDate?: string;
-	endDate?: string;
-	category?: string;
-	minPrice?: number;
-	maxPrice?: number;
 }
 
 export default function EventsList({
@@ -32,15 +35,33 @@ export default function EventsList({
 	initialNextCursor = null,
 	initialHasMore = false,
 	searchQuery = '',
-	startDate,
-	endDate,
-	category,
-	minPrice,
-	maxPrice,
 }: EventsListProps) {
 	const translate = useTranslation();
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const locale = translate.locale;
 
-	// Build initialData for TanStack Query hydration from SSR
+	const filters = useMemo(
+		() => parseFiltersFromSearchParams(searchParams),
+		[searchParams],
+	);
+
+	const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
+		queryKey: ['categories', locale],
+		queryFn: () => categoryApi.getCategories(),
+	});
+
+	const handleFiltersChange = useCallback(
+		(nextFilters: typeof filters) => {
+			const params = filtersToSearchParams(searchParams, nextFilters);
+			router.replace(`${pathname}${params.toString() ? `?${params.toString()}` : ''}`, {
+				scroll: false,
+			});
+		},
+		[pathname, router, searchParams],
+	);
+
 	const initialData = useMemo(() => {
 		if (!initialEvents.length) return undefined;
 		return {
@@ -65,23 +86,29 @@ export default function EventsList({
 	} = useEvents({
 		limit: 8,
 		search: searchQuery,
-		startDate,
-		endDate,
-		category,
-		minPrice,
-		maxPrice,
+		startDate: filters.dateRange ? formatDateParam(filters.dateRange.from) : undefined,
+		endDate: filters.dateRange ? formatDateParam(filters.dateRange.to) : undefined,
+		category: getApiCategoryFilter(filters.categories),
+		minPrice: filters.priceRange?.min,
+		maxPrice: filters.priceRange?.max,
 		initialData,
 	});
 
-	// Flatten pages from infinite query
 	const events = useMemo(() => {
-		if (data?.pages) {
-			return data.pages.flatMap((page) => page.data);
-		}
-		return [];
+		if (!data?.pages) return [];
+		return data.pages.flatMap((page) => page.data);
 	}, [data]);
 
-	// Intersection observer for infinite scroll
+	const filteredEvents = useMemo(
+		() => filterEventsByCategories(events, filters.categories),
+		[events, filters.categories],
+	);
+
+	const priceBounds = useMemo(() => {
+		const sourceEvents = events.length > 0 ? events : initialEvents;
+		return computePriceBounds(sourceEvents.map((event) => Number(event.price)));
+	}, [events, initialEvents]);
+
 	const loadMoreRef = useIntersectionObserver(
 		useCallback(() => {
 			if (hasNextPage && !isFetchingNextPage) {
@@ -94,46 +121,64 @@ export default function EventsList({
 		},
 	);
 
-	// Reset query when search changes
 	useEffect(() => {
 		// TanStack Query автоматически перезапросит при изменении queryKey
-	}, [searchQuery]);
+	}, [searchQuery, filters]);
 
-	// Loading state (initial)
+	const filtersBar = (
+		<EventsFiltersBar
+			categories={categories}
+			priceBounds={priceBounds}
+			eventsCount={filteredEvents.length}
+			filters={filters}
+			onFiltersChange={handleFiltersChange}
+			isLoadingCategories={isLoadingCategories}
+		/>
+	);
+
 	if (isLoading && !data) {
-		return <EventsGridSkeleton count={8} />;
-	}
-
-	// Error state
-	if (isError) {
-		return <HomeError />;
-	}
-
-	// Empty state
-	if (!events?.length) {
 		return (
-			<PageState>
-				<div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-gray-700 dark:bg-gray-800">
-					<p className="text-primary mb-2 text-lg font-black uppercase sm:text-xl">
-						{searchQuery ? translate('common.noEventsFound') : translate('common.noEventsYet')}
-					</p>
-					<p className="text-[15px] text-gray-500 sm:text-sm dark:text-gray-400">
-						{searchQuery
-							? `${translate('common.noEventsFound')}: "${searchQuery}". ${translate('common.noEventsSearchDescription')}`
-							: translate('common.noEventsDescription')}
-					</p>
-				</div>
-			</PageState>
+			<div>
+				{filtersBar}
+				<EventsGridSkeleton count={8} />
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div>
+				{filtersBar}
+				<HomeError />
+			</div>
+		);
+	}
+
+	if (!filteredEvents.length) {
+		return (
+			<div>
+				{filtersBar}
+				<PageState>
+					<div className="rounded-2xl border border-gray-100 bg-white p-6 text-center sm:rounded-[2.5rem] sm:p-10 dark:border-gray-700 dark:bg-gray-800">
+						<p className="text-primary mb-2 text-lg font-black uppercase sm:text-xl">
+							{searchQuery ? translate('common.noEventsFound') : translate('common.noEventsYet')}
+						</p>
+						<p className="text-[15px] text-gray-500 sm:text-sm dark:text-gray-400">
+							{searchQuery
+								? `${translate('common.noEventsFound')}: "${searchQuery}". ${translate('common.noEventsSearchDescription')}`
+								: translate('common.noEventsDescription')}
+						</p>
+					</div>
+				</PageState>
+			</div>
 		);
 	}
 
 	return (
 		<div>
-			<CategoryFilter />
-			<DateFilter />
-			<PriceFilter />
+			{filtersBar}
 			<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
-				{events.map((event) => (
+				{filteredEvents.map((event) => (
 					<EventCard key={event.id} event={event} />
 				))}
 			</div>
@@ -144,8 +189,7 @@ export default function EventsList({
 				loadMoreRef={loadMoreRef}
 			/>
 
-			{/* End of list indicator */}
-			{!hasNextPage && events.length > 0 && (
+			{!hasNextPage && filteredEvents.length > 0 && (
 				<div className="col-span-full py-8 text-center text-sm text-gray-400 dark:text-gray-500">
 					{translate('common.noEventsDescription')}
 				</div>
