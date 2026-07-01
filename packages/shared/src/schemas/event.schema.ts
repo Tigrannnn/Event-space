@@ -8,29 +8,15 @@ import {
 	CancellationPolicyRuleInputSchema,
 	CancellationPolicyRuleSchema,
 } from './cancellation-policy-rule.schema';
-import {
-	EventTranslationSchema as GeneratedEventTranslationSchema,
-	LocaleSchema,
-} from '../generated';
 import { CategorySchema } from './category.schema';
+import { CreateEventTranslationSchema, EventTranslationSchema } from './event-translation.schema';
+import { CreateEventOccurrenceSchema, EventOccurrenceSchema } from './event-occurrence.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
 
 export const EventDifficultyEnum = EventDifficultySchema;
 export type EventDifficulty = z.infer<typeof EventDifficultyEnum>;
-
-export const LocaleEnum = LocaleSchema;
-export type Locale = z.infer<typeof LocaleEnum>;
-export type LocaleIntlEnum = 'hy-AM' | 'ru-RU' | 'en-US';
-
-export const EventTranslationSchema = GeneratedEventTranslationSchema.extend({});
-export type EventTranslation = z.infer<typeof EventTranslationSchema>;
-
-export const CreateEventTranslationSchema = EventTranslationSchema.omit({
-	id: true,
-	eventId: true,
-});
 
 export const EventImageSchema = z.object({
 	id: z.string().uuid(),
@@ -49,18 +35,16 @@ export const EventSchema = GeneratedEventSchema.extend({
 	locationUrl: z.string().url().nullable().optional(),
 	translations: z.array(EventTranslationSchema).default([]),
 	category: CategorySchema,
+	occurrences: z.array(EventOccurrenceSchema),
 }).openapi({
 	description: 'Event information',
 	example: {
 		id: '550e8400-e29b-41d4-a716-446655440000',
-		date: new Date('2026-06-15T10:00:00Z'),
 		difficulty: 'MODERATE',
 		price: 50,
-		maxParticipants: 100,
 		duration: 180,
 		status: EventStatusSchema.enum.DRAFT,
 		userId: '550e8400-e29b-41d4-a716-446655440000',
-		currentParticipants: 0,
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 		translations: [
@@ -92,6 +76,17 @@ export const EventSchema = GeneratedEventSchema.extend({
 				whatsIncluded: ['Գիդ', 'Ջուր', 'Թեթև ուտեստներ'],
 			},
 		],
+		occurrences: [
+			{
+				id: '330e8400-e29b-41d4-a716-446655440004',
+				eventId: '550e8400-e29b-41d4-a716-446655440000',
+				date: new Date('2026-06-15T10:00:00Z'),
+				maxParticipants: 100,
+				currentParticipants: 0,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			},
+		],
 	},
 });
 
@@ -116,16 +111,17 @@ export type EventFilters = z.infer<typeof EventFiltersSchema>;
 export const CreateEventSchema = EventSchema.omit({
 	id: true,
 	userId: true,
-	currentParticipants: true,
 	createdAt: true,
 	updatedAt: true,
 	images: true,
 	translations: true,
 	category: true,
+	occurrences: true,
 }).extend({
 	cancellationRules: z.array(CancellationPolicyRuleInputSchema).default([]),
 	translations: z.array(CreateEventTranslationSchema).min(1, 'At least one translation is required'),
 	categoryId: z.string().uuid(),
+	occurrences: z.array(CreateEventOccurrenceSchema).min(1, 'At least one occurrence is required'),
 });
 
 export type CreateEventData = z.infer<typeof CreateEventSchema>;

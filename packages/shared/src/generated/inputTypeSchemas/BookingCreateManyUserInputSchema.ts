@@ -8,7 +8,7 @@ import { PaymentMethodSchema } from './PaymentMethodSchema';
 
 export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateManyUserInput> = z.object({
   id: z.uuid().optional(),
-  eventId: z.string(),
+  occurrenceId: z.string(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),

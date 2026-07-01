@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Prisma } from '@prisma/client';
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
 import { CategoryArgsSchema } from "../outputTypeSchemas/CategoryArgsSchema"
-import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { EventOccurrenceFindManyArgsSchema } from "../outputTypeSchemas/EventOccurrenceFindManyArgsSchema"
 import { EventImageFindManyArgsSchema } from "../outputTypeSchemas/EventImageFindManyArgsSchema"
 import { CancellationPolicyRuleFindManyArgsSchema } from "../outputTypeSchemas/CancellationPolicyRuleFindManyArgsSchema"
 import { EventTranslationFindManyArgsSchema } from "../outputTypeSchemas/EventTranslationFindManyArgsSchema"
@@ -11,7 +11,7 @@ import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountO
 export const EventIncludeSchema: z.ZodType<Prisma.EventInclude> = z.object({
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   category: z.union([z.boolean(),z.lazy(() => CategoryArgsSchema)]).optional(),
-  bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  occurrences: z.union([z.boolean(),z.lazy(() => EventOccurrenceFindManyArgsSchema)]).optional(),
   images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
   cancellationRules: z.union([z.boolean(),z.lazy(() => CancellationPolicyRuleFindManyArgsSchema)]).optional(),
   translations: z.union([z.boolean(),z.lazy(() => EventTranslationFindManyArgsSchema)]).optional(),

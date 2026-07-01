@@ -10,7 +10,7 @@ import { BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema } f
 export const BookingUncheckedCreateInputSchema: z.ZodType<Prisma.BookingUncheckedCreateInput> = z.object({
   id: z.uuid().optional(),
   userId: z.string(),
-  eventId: z.string(),
+  occurrenceId: z.string(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),

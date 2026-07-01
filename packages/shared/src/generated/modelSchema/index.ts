@@ -1,6 +1,7 @@
 export * from './CategorySchema';
 export * from './CategoryTranslationSchema';
 export * from './EventSchema';
+export * from './EventOccurrenceSchema';
 export * from './EventImageSchema';
 export * from './CancellationPolicyRuleSchema';
 export * from './EventTranslationSchema';

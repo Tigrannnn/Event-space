@@ -51,6 +51,7 @@ export class EventService {
 				translations: true,
 			},
 		},
+		occurrences: { orderBy: { date: 'asc' as const } },
 	};
 
 	async findAll(
@@ -110,38 +111,49 @@ export class EventService {
 					}
 				: {};
 
-		const dateFilter: any = { gt: new Date() };
-		if (startDate) {
-			dateFilter.gte = new Date(startDate);
-		}
-		if (endDate) {
-			dateFilter.lte = new Date(endDate);
-		}
+		const occurrenceDateFilter: Prisma.DateTimeFilter = startDate || endDate
+			? {
+				...(startDate && { gte: new Date(startDate) }),
+				...(endDate && { lte: new Date(endDate) }),
+			  }
+			: { gt: new Date() };
 
-		const cursorFilter =
-			cursorDate && cursorId
-				? {
-						OR: [
-							{ date: { gt: new Date(cursorDate) } },
-							{
-								date: { equals: new Date(cursorDate) },
-								id: { gt: cursorId },
-							},
-						],
-					}
-				: {};
+		const statusFilter = {
+			status: EventStatusEnum.enum.PUBLISHED,
+			occurrences: { some: { date: occurrenceDateFilter } },
+		};
 
-		const statusFilter = { status: EventStatusEnum.enum.PUBLISHED, date: dateFilter };
-
-		const filters = [statusFilter, searchFilter, categoryFilter, priceFilter, cursorFilter].filter(
+		const filters = [statusFilter, searchFilter, categoryFilter, priceFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
-		const where = filters.length > 0 ? { AND: filters } : {};
+
+		const where: Prisma.EventWhereInput = {
+			AND: filters.length > 0 ? filters : undefined,
+		};
+
+		// Safely inject cursor pagination directly into AND condition only when both cursor values exist
+		if (cursorDate && cursorId) {
+			if (!where.AND) {
+				where.AND = [];
+			} else if (!Array.isArray(where.AND)) {
+				where.AND = [where.AND];
+			}
+			(where.AND as Prisma.EventWhereInput[]).push({
+				occurrences: {
+					some: {
+						OR: [
+							{ date: { gt: new Date(cursorDate) } },
+							{ date: { equals: new Date(cursorDate) }, eventId: { gt: cursorId } },
+						],
+					},
+				},
+			});
+		}
 
 		const events = await this.prisma.event.findMany({
 			where,
 			take: limit + 1,
-			orderBy: [{ date: 'asc' }, { id: 'asc' }],
+			orderBy: [{ id: 'asc' }],
 			include: this.eventInclude,
 		});
 
@@ -149,8 +161,11 @@ export class EventService {
 		const data = hasMore ? events.slice(0, limit) : events;
 
 		const lastEvent = data[data.length - 1];
-		const nextCursor =
-			hasMore && lastEvent ? `${lastEvent.date.toISOString()}_${lastEvent.id}` : null;
+		// Cursor is based on the earliest future occurrence date for the last event
+		const earliestOccurrence = (lastEvent as any)?.occurrences?.find((o: any) => new Date(o.date) > new Date());
+		const nextCursor = hasMore && lastEvent
+			? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}`
+			: null;
 
 		return { data, nextCursor, hasMore };
 	}
@@ -185,7 +200,14 @@ export class EventService {
 	) {
 		const sortedItems = this.sortByOrder(imageItems);
 		const uploads = await this.uploadNewFiles(files);
-		const { cancellationRules, organizer, translations, ...pureEventData } = eventData;
+		const { cancellationRules, organizer, translations, occurrences, ...pureEventData } = eventData;
+
+		// Validate that no occurrence is in the past
+		for (const occurrence of occurrences ?? []) {
+			if (new Date(occurrence.date) < new Date()) {
+				throw new BadRequestException('Cannot create an occurrence in the past');
+			}
+		}
 
 		try {
 			return await this.prisma.$transaction(async (tx) => {
@@ -204,6 +226,17 @@ export class EventService {
 				const rows = this.buildNewImageRows(created.id, sortedItems, uploads);
 				if (rows.length) {
 					await tx.eventImage.createMany({ data: rows });
+				}
+
+				// Create occurrences for the event
+				if (occurrences && occurrences.length > 0) {
+					await tx.eventOccurrence.createMany({
+						data: occurrences.map((o) => ({
+							eventId: created.id,
+							date: o.date,
+							maxParticipants: o.maxParticipants ?? 100,
+						})),
+					});
 				}
 
 				return tx.event.findUniqueOrThrow({
@@ -248,7 +281,7 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
-		const { cancellationRules, translations, cancellationReason, ...pureEventData } = eventData;
+		const { cancellationRules, translations, cancellationReason, occurrences, ...pureEventData } = eventData;
 
 		// Validate status transition if status is changing
 		if (pureEventData.status && pureEventData.status !== event.status) {
@@ -256,8 +289,13 @@ export class EventService {
 		}
 
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
-		const isDateChanging =
-			pureEventData.date && new Date(pureEventData.date).getTime() !== new Date(event.date).getTime();
+
+		// Validate occurrence dates if provided
+		for (const occurrence of occurrences ?? []) {
+			if (new Date(occurrence.date) < new Date()) {
+				throw new BadRequestException('Cannot create an occurrence in the past');
+			}
+		}
 
 		try {
 			const updated = await this.prisma.$transaction(async (tx) => {
@@ -286,13 +324,7 @@ export class EventService {
 				}
 
 				// If we're cancelling the event, update all confirmed bookings to cancelled/refunded
-				if (isCancelling) {
-					// Set current participants to 0
-					await tx.event.update({
-						where: { id },
-						data: { currentParticipants: 0 },
-					});
-				}
+				// If we're cancelling the event, any booking/count adjustments are handled by booking service
 
 				if (removedImages.length) {
 					await tx.eventImage.deleteMany({
@@ -321,9 +353,26 @@ export class EventService {
 					});
 				}
 
+				// If occurrences were provided, replace them (delete all + recreate)
+				if (occurrences !== undefined) {
+					await tx.eventOccurrence.deleteMany({ where: { eventId: id } });
+					if (occurrences.length > 0) {
+						await tx.eventOccurrence.createMany({
+							data: occurrences.map((o) => ({
+								eventId: id,
+								date: o.date,
+								maxParticipants: o.maxParticipants ?? 100,
+							})),
+						});
+					}
+				}
+
 				return tx.event.findUniqueOrThrow({
 					where: { id },
-					include: { ...this.eventInclude, bookings: { include: { user: true } } },
+					include: {
+						...this.eventInclude,
+						occurrences: { include: { bookings: { include: { user: true } } }, orderBy: { date: 'asc' as const } },
+					},
 				});
 			});
 
@@ -339,38 +388,29 @@ export class EventService {
 					eventTitle = event.translations[0].title;
 				}
 
-				// Send emails to all affected users
-				if (updated.bookings) {
-					for (const booking of updated.bookings) {
-						if (booking.user && booking.user.email) {
-							// TODO: remove AMD hardcoding
-							const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
-							await this.mailService.sendEventCancelledEmail(
-								booking.user.email,
-								booking.user.name || 'User',
-								eventTitle,
-								event.date,
-								refundAmount,
-								cancellationReason,
-							);
-						}
+				// Gather all bookings from occurrences included in updated
+				const occurrencesWithBookings = updated.occurrences ?? [];
+				const allBookings = occurrencesWithBookings.flatMap((o) =>
+					(o.bookings ?? []).map((b) => ({ booking: b, occurrenceDate: o.date })),
+				);
+
+				for (const { booking, occurrenceDate } of allBookings) {
+					if (booking.user && booking.user.email) {
+						// TODO: remove AMD hardcoding
+						const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
+						await this.mailService.sendEventCancelledEmail(
+							booking.user.email,
+							booking.user.name || 'User',
+							eventTitle,
+							occurrenceDate,
+							refundAmount,
+							cancellationReason,
+						);
 					}
 				}
 			}
 
-			// Send email notifications if date/time changed and there are bookings
-			if (isDateChanging && updated.bookings && updated.bookings.length > 0) {
-				let eventTitle = 'Event';
-				if (event.translations.length > 0) {
-					eventTitle = event.translations[0].title;
-				}
-
-				// TODO: create sendEventRescheduledEmail method in MailService
-				// For now, we'll just log (you can implement the email template later)
-				console.log(
-					`Event ${eventTitle} (ID: ${id}) rescheduled from ${event.date} to ${pureEventData.date}. Notifying ${updated.bookings.length} users.`,
-				);
-			}
+			// Note: reschedule notifications are not implemented here — occurrences contain dates now
 
 			return updated;
 		} catch (error) {

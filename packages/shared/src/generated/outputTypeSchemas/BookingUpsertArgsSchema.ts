@@ -7,7 +7,7 @@ import { BookingUncheckedCreateInputSchema } from '../inputTypeSchemas/BookingUn
 import { BookingUpdateInputSchema } from '../inputTypeSchemas/BookingUpdateInputSchema'
 import { BookingUncheckedUpdateInputSchema } from '../inputTypeSchemas/BookingUncheckedUpdateInputSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
-import { EventArgsSchema } from "../outputTypeSchemas/EventArgsSchema"
+import { EventOccurrenceArgsSchema } from "../outputTypeSchemas/EventOccurrenceArgsSchema"
 import { BookingAdjustmentFindManyArgsSchema } from "../outputTypeSchemas/BookingAdjustmentFindManyArgsSchema"
 import { BookingCountOutputTypeArgsSchema } from "../outputTypeSchemas/BookingCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
@@ -16,7 +16,7 @@ import { BookingCountOutputTypeArgsSchema } from "../outputTypeSchemas/BookingCo
 export const BookingSelectSchema: z.ZodType<Prisma.BookingSelect> = z.object({
   id: z.boolean().optional(),
   userId: z.boolean().optional(),
-  eventId: z.boolean().optional(),
+  occurrenceId: z.boolean().optional(),
   status: z.boolean().optional(),
   quantity: z.boolean().optional(),
   createdAt: z.boolean().optional(),
@@ -28,7 +28,7 @@ export const BookingSelectSchema: z.ZodType<Prisma.BookingSelect> = z.object({
   referenceNumber: z.boolean().optional(),
   checkedInAt: z.boolean().optional(),
   user: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
-  event: z.union([z.boolean(),z.lazy(() => EventArgsSchema)]).optional(),
+  occurrence: z.union([z.boolean(),z.lazy(() => EventOccurrenceArgsSchema)]).optional(),
   adjustments: z.union([z.boolean(),z.lazy(() => BookingAdjustmentFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => BookingCountOutputTypeArgsSchema)]).optional(),
 }).strict()

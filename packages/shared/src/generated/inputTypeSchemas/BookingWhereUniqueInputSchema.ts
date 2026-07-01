@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
-import { BookingUserIdEventIdCompoundUniqueInputSchema } from './BookingUserIdEventIdCompoundUniqueInputSchema';
+import { BookingUserIdOccurrenceIdCompoundUniqueInputSchema } from './BookingUserIdOccurrenceIdCompoundUniqueInputSchema';
 import { BookingWhereInputSchema } from './BookingWhereInputSchema';
 import { StringFilterSchema } from './StringFilterSchema';
 import { EnumBookingStatusFilterSchema } from './EnumBookingStatusFilterSchema';
@@ -17,8 +17,8 @@ import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
-import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
-import { EventWhereInputSchema } from './EventWhereInputSchema';
+import { EventOccurrenceScalarRelationFilterSchema } from './EventOccurrenceScalarRelationFilterSchema';
+import { EventOccurrenceWhereInputSchema } from './EventOccurrenceWhereInputSchema';
 import { BookingAdjustmentListRelationFilterSchema } from './BookingAdjustmentListRelationFilterSchema';
 
 export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueInput> = z.union([
@@ -26,7 +26,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
     id: z.uuid(),
     paymentIntentId: z.string(),
     referenceNumber: z.number().int(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
@@ -36,7 +36,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   z.object({
     id: z.uuid(),
     paymentIntentId: z.string(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
@@ -45,7 +45,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   z.object({
     id: z.uuid(),
     referenceNumber: z.number().int(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
@@ -53,7 +53,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   }),
   z.object({
     id: z.uuid(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
@@ -61,7 +61,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   z.object({
     paymentIntentId: z.string(),
     referenceNumber: z.number().int(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     paymentIntentId: z.string(),
@@ -69,32 +69,32 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   }),
   z.object({
     paymentIntentId: z.string(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     paymentIntentId: z.string(),
   }),
   z.object({
     referenceNumber: z.number().int(),
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
   z.object({
     referenceNumber: z.number().int(),
   }),
   z.object({
-    userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema),
+    userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
 ])
 .and(z.object({
   id: z.uuid().optional(),
   paymentIntentId: z.string().optional(),
   referenceNumber: z.number().int().optional(),
-  userId_eventId: z.lazy(() => BookingUserIdEventIdCompoundUniqueInputSchema).optional(),
+  userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => BookingWhereInputSchema), z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingWhereInputSchema), z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  eventId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  occurrenceId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   status: z.union([ z.lazy(() => EnumBookingStatusFilterSchema), z.lazy(() => BookingStatusSchema) ]).optional(),
   quantity: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
@@ -104,7 +104,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
-  event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
+  occurrence: z.union([ z.lazy(() => EventOccurrenceScalarRelationFilterSchema), z.lazy(() => EventOccurrenceWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),
 }).strict());
 

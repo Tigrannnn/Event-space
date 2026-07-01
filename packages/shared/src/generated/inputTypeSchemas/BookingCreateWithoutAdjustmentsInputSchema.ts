@@ -6,7 +6,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { UserCreateNestedOneWithoutBookingsInputSchema } from './UserCreateNestedOneWithoutBookingsInputSchema';
-import { EventCreateNestedOneWithoutBookingsInputSchema } from './EventCreateNestedOneWithoutBookingsInputSchema';
+import { EventOccurrenceCreateNestedOneWithoutBookingsInputSchema } from './EventOccurrenceCreateNestedOneWithoutBookingsInputSchema';
 
 export const BookingCreateWithoutAdjustmentsInputSchema: z.ZodType<Prisma.BookingCreateWithoutAdjustmentsInput> = z.object({
   id: z.uuid().optional(),
@@ -21,7 +21,7 @@ export const BookingCreateWithoutAdjustmentsInputSchema: z.ZodType<Prisma.Bookin
   referenceNumber: z.number().int().optional().nullable(),
   checkedInAt: z.coerce.date().optional().nullable(),
   user: z.lazy(() => UserCreateNestedOneWithoutBookingsInputSchema),
-  event: z.lazy(() => EventCreateNestedOneWithoutBookingsInputSchema),
+  occurrence: z.lazy(() => EventOccurrenceCreateNestedOneWithoutBookingsInputSchema),
 }).strict();
 
 export default BookingCreateWithoutAdjustmentsInputSchema;

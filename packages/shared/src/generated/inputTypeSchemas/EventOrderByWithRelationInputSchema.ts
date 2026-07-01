@@ -5,7 +5,7 @@ import { SortOrderSchema } from './SortOrderSchema';
 import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInputSchema';
 import { CategoryOrderByWithRelationInputSchema } from './CategoryOrderByWithRelationInputSchema';
-import { BookingOrderByRelationAggregateInputSchema } from './BookingOrderByRelationAggregateInputSchema';
+import { EventOccurrenceOrderByRelationAggregateInputSchema } from './EventOccurrenceOrderByRelationAggregateInputSchema';
 import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
 import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTranslationOrderByRelationAggregateInputSchema';
@@ -13,11 +13,8 @@ import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTran
 export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByWithRelationInput> = z.object({
   id: z.lazy(() => SortOrderSchema).optional(),
   locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
-  date: z.lazy(() => SortOrderSchema).optional(),
   difficulty: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
-  maxParticipants: z.lazy(() => SortOrderSchema).optional(),
-  currentParticipants: z.lazy(() => SortOrderSchema).optional(),
   duration: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
@@ -26,7 +23,7 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   categoryId: z.lazy(() => SortOrderSchema).optional(),
   organizer: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   category: z.lazy(() => CategoryOrderByWithRelationInputSchema).optional(),
-  bookings: z.lazy(() => BookingOrderByRelationAggregateInputSchema).optional(),
+  occurrences: z.lazy(() => EventOccurrenceOrderByRelationAggregateInputSchema).optional(),
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),
   translations: z.lazy(() => EventTranslationOrderByRelationAggregateInputSchema).optional(),

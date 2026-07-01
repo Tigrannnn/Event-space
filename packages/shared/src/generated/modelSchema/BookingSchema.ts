@@ -12,7 +12,7 @@ export const BookingSchema = z.object({
   paymentMethod: PaymentMethodSchema,
   id: z.uuid(),
   userId: z.string(),
-  eventId: z.string(),
+  occurrenceId: z.string(),
   quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

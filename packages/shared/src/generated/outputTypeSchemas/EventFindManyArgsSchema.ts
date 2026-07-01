@@ -7,7 +7,7 @@ import { EventWhereUniqueInputSchema } from '../inputTypeSchemas/EventWhereUniqu
 import { EventScalarFieldEnumSchema } from '../inputTypeSchemas/EventScalarFieldEnumSchema'
 import { UserArgsSchema } from "../outputTypeSchemas/UserArgsSchema"
 import { CategoryArgsSchema } from "../outputTypeSchemas/CategoryArgsSchema"
-import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { EventOccurrenceFindManyArgsSchema } from "../outputTypeSchemas/EventOccurrenceFindManyArgsSchema"
 import { EventImageFindManyArgsSchema } from "../outputTypeSchemas/EventImageFindManyArgsSchema"
 import { CancellationPolicyRuleFindManyArgsSchema } from "../outputTypeSchemas/CancellationPolicyRuleFindManyArgsSchema"
 import { EventTranslationFindManyArgsSchema } from "../outputTypeSchemas/EventTranslationFindManyArgsSchema"
@@ -18,11 +18,8 @@ import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountO
 export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   id: z.boolean().optional(),
   locationUrl: z.boolean().optional(),
-  date: z.boolean().optional(),
   difficulty: z.boolean().optional(),
   price: z.boolean().optional(),
-  maxParticipants: z.boolean().optional(),
-  currentParticipants: z.boolean().optional(),
   duration: z.boolean().optional(),
   status: z.boolean().optional(),
   createdAt: z.boolean().optional(),
@@ -31,7 +28,7 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   categoryId: z.boolean().optional(),
   organizer: z.union([z.boolean(),z.lazy(() => UserArgsSchema)]).optional(),
   category: z.union([z.boolean(),z.lazy(() => CategoryArgsSchema)]).optional(),
-  bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  occurrences: z.union([z.boolean(),z.lazy(() => EventOccurrenceFindManyArgsSchema)]).optional(),
   images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
   cancellationRules: z.union([z.boolean(),z.lazy(() => CancellationPolicyRuleFindManyArgsSchema)]).optional(),
   translations: z.union([z.boolean(),z.lazy(() => EventTranslationFindManyArgsSchema)]).optional(),
