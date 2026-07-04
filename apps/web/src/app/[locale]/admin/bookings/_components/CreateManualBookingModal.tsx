@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
@@ -8,7 +8,7 @@ import Input from '@/components/ui/Inputs/Input/Input';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
-import type { CreateManualBookingData } from '@event-space/shared';
+import type { CreateManualBookingData, Event, EventOccurrence } from '@event-space/shared';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 
@@ -16,9 +16,11 @@ export default function CreateManualBookingModal() {
 	const translate = useTranslation();
 	const { closeModal } = useModalStore();
 	const { mutate: createManualBooking, isPending } = useCreateManualBooking();
+	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(null);
 	const [formState, setFormState] = useState<CreateManualBookingData>({
 		quantity: 1,
-		eventId: '',
+		occurrenceId: '',
 		userId: undefined,
 		shadowUserName: undefined,
 	});
@@ -31,15 +33,41 @@ export default function CreateManualBookingModal() {
 		}));
 	};
 
+	const futureOccurrences = useMemo(
+		() =>
+			(selectedEvent?.occurrences ?? []).filter(
+				(occurrence) => new Date(occurrence.date) > new Date(),
+			),
+		[selectedEvent],
+	);
+
+	const handleEventSelect = (_eventId: string, event: Event) => {
+		setSelectedEvent(event);
+		setSelectedOccurrence(null);
+		setFormState((current) => ({
+			...current,
+			occurrenceId: '',
+		}));
+	};
+
+	const handleOccurrenceSelect = (occurrenceId: string) => {
+		const occurrence = futureOccurrences.find((occ) => occ.id === occurrenceId) ?? null;
+		setSelectedOccurrence(occurrence);
+		setFormState((current) => ({
+			...current,
+			occurrenceId,
+		}));
+	};
+
 	const handleSubmit = () => {
 		const data: CreateManualBookingData = {
-			eventId: String(formState.eventId),
+			occurrenceId: String(formState.occurrenceId),
 			quantity: Number(formState.quantity),
 			userId: formState.userId?.trim() || undefined,
 			shadowUserName: formState.shadowUserName?.trim() || undefined,
 		};
 
-		if (!data.eventId) {
+		if (!data.occurrenceId) {
 			setError(translate('admin.invalidReference'));
 			return;
 		}
@@ -65,10 +93,26 @@ export default function CreateManualBookingModal() {
 
 				<div className="grid gap-4">
 					<EventSearchSelect
-						value={formState.eventId}
-						onChange={(eventId) => handleChange('eventId', eventId)}
+						value={selectedEvent?.id ?? ''}
+						onChange={handleEventSelect}
 						label={translate('admin.eventField')}
 					/>
+
+					<select
+						value={formState.occurrenceId}
+						onChange={(event) => handleOccurrenceSelect(event.target.value)}
+						className="h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium outline-none"
+						disabled={!selectedEvent}
+					>
+						<option value="">{translate('admin.selectEvent')}</option>
+						{futureOccurrences.map((occurrence) => (
+							<option key={occurrence.id} value={occurrence.id}>
+								{new Date(occurrence.date).toLocaleString(translate.locale)} —{' '}
+								{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
+								{translate('booking.spotsLeft')}
+							</option>
+						))}
+					</select>
 
 					<UserSearchSelect
 						label={translate('admin.userField')}

@@ -13,15 +13,20 @@ interface UpcomingEventsListProps {
 
 export default function UpcomingEventsList({ stats }: UpcomingEventsListProps) {
 	const translate = useTranslation();
-	const locale = translate.locale
+	const locale = translate.locale;
 	return (
 		<section className="rounded-lg border border-gray-500 p-5 shadow-sm">
 			<div className="mb-4 flex items-center justify-between">
 				<div>
-					<h2 className="font-semibold text-gray-900 dark:text-gray-100">{translate('admin.upcomingEvents')}</h2>
+					<h2 className="font-semibold text-gray-900 dark:text-gray-100">
+						{translate('admin.upcomingEvents')}
+					</h2>
 					<p className="text-sm text-gray-500">{translate('admin.nextEventsCalendar')}</p>
 				</div>
-				<Link href={localizePath('/admin/events', locale)} className="text-primary text-sm font-semibold">
+				<Link
+					href={localizePath('/admin/events', locale)}
+					className="text-primary text-sm font-semibold"
+				>
 					{translate('admin.viewAll')}
 				</Link>
 			</div>
@@ -40,18 +45,18 @@ export default function UpcomingEventsList({ stats }: UpcomingEventsListProps) {
 								<div className="min-w-0">
 									<p className="truncate font-medium text-gray-900 dark:text-gray-100">{t.title}</p>
 									<p className="mt-1 text-sm text-gray-500">
-										{formatDate(event.date)} · {t.location}
+										{formatDate(event.occurrences[0].date)} · {t.location}
 									</p>
 								</div>
 								<p className="text-sm font-semibold">
-									{event.currentParticipants}/{event.maxParticipants}
+									{event.occurrences[0].currentParticipants}/{event.occurrences[0].maxParticipants}
 								</p>
 							</div>
 							<div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
 								<div
 									className="bg-primary h-full rounded-full"
 									style={{
-										width: `${getPercent(event.currentParticipants, event.maxParticipants)}%`,
+										width: `${getPercent(event.occurrences[0].currentParticipants, event.occurrences[0].maxParticipants)}%`,
 									}}
 								/>
 							</div>

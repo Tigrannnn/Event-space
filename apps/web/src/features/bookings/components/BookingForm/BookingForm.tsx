@@ -7,32 +7,52 @@ import Input from '@/components/ui/Inputs/Input';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
-import { getEventTranslation } from '@event-space/shared';
+import { getEventTranslation, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
+import { useFormatDate } from '@/hooks/format/useFormatDate';
 
 export default function BookingForm({
 	event,
 	initialQuantity,
 	maxQuantity,
 	onSubmit,
+	onOccurrenceSelect,
+	selectedOccurrence,
 	isLoading,
 	submitLabel,
 	title,
 	onClose,
-	availableSpots,
 	userPhone,
 }: BookingFormProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const [phone, setPhone] = useState(userPhone || '');
-	const totalPrice = event.price * quantity;
-	const t = getEventTranslation(event, locale);
+	const formatCurrency = useFormatCurrency();
+	const { formatDateTime } = useFormatDate();
+
+	// Filter and sort future occurrences
+	const now = new Date();
+	const futureOccurrences = (event.occurrences ?? [])
+		.filter((o) => new Date(o.date) > now)
+		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
 	const handleDecrement = () => setQuantity((q) => Math.max(1, q - 1));
 	const handleIncrement = () => setQuantity((q) => Math.min(maxQuantity, q + 1));
 
-	const formatCurrency = useFormatCurrency()
+	const handleOccurrenceSelect = (occurrence: EventOccurrence) => {
+		const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;
+		if (spotsLeft > 0) {
+			onOccurrenceSelect(occurrence);
+			// Reset quantity if it exceeds new maxQuantity
+			if (quantity > spotsLeft) {
+				setQuantity(1);
+			}
+		}
+	};
+
+	const totalPrice = selectedOccurrence ? event.price * quantity : 0;
+	const t = getEventTranslation(event, locale);
 
 	return (
 		<div className="p-5 sm:p-6">
@@ -41,33 +61,80 @@ export default function BookingForm({
 			<h3 className="font-bold text-gray-800 dark:text-white">{t.title}</h3>
 			<p className="text-sm text-gray-500 dark:text-gray-400">{t.location}</p>
 
-			<QuantitySelector
-				quantity={quantity}
-				maxQuantity={maxQuantity}
-				onIncrement={handleIncrement}
-				onDecrement={handleDecrement}
-				disabled={isLoading}
-				label={translate('booking.selectSpots')}
-			/>
+			{/* Occurrence Selector */}
+			<div className="mt-6 space-y-2">
+				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('booking.selectDate')}</p>
+				{futureOccurrences.length > 0 ? (
+					<div className="space-y-2">
+						{futureOccurrences.map((occurrence) => {
+							const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;
+							const isSoldOut = spotsLeft <= 0;
+							const isSelected = selectedOccurrence?.id === occurrence.id;
 
-			<div className="mt-4">
-				<Input
-					label={translate('booking.phone')}
-					value={phone}
-					onChange={(e) => setPhone(e.target.value)}
-					required
-				/>
+							return (
+								<button
+									key={occurrence.id}
+									onClick={() => handleOccurrenceSelect(occurrence)}
+									disabled={isSoldOut || isLoading}
+									className={`w-full rounded-xl border p-3 text-left transition-all ${
+										isSelected
+											? 'border-primary bg-primary/10 dark:bg-primary/20'
+											: isSoldOut
+												? 'border-gray-200 opacity-50 cursor-not-allowed dark:border-gray-700'
+												: 'border-gray-200 hover:border-primary cursor-pointer dark:border-gray-700 dark:hover:border-primary'
+									}`}
+								>
+									<div className="flex items-center justify-between">
+										<span className="text-sm font-medium text-gray-900 dark:text-white">
+											{formatDateTime(occurrence.date)}
+										</span>
+										<span
+											className={`text-xs ${
+												isSoldOut
+													? 'text-red-500'
+													: 'text-gray-500 dark:text-gray-400'
+											}`}
+										>
+											{isSoldOut
+												? translate('booking.soldOut')
+												: `${spotsLeft} ${translate('booking.spotsLeft')}`}
+										</span>
+									</div>
+								</button>
+							);
+						})}
+					</div>
+				) : (
+					<p className="text-sm text-gray-500 dark:text-gray-400">{translate('event.noUpcomingEvents')}</p>
+				)}
 			</div>
 
-			<div className="mt-4 flex items-center justify-between">
-				<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
-				<span className="text-primary text-2xl font-bold">{formatCurrency(totalPrice)}</span>
-			</div>
+			{/* Quantity and Phone - shown only when occurrence is selected */}
+			{selectedOccurrence && (
+				<>
+					<QuantitySelector
+						quantity={quantity}
+						maxQuantity={maxQuantity}
+						onIncrement={handleIncrement}
+						onDecrement={handleDecrement}
+						disabled={isLoading}
+						label={translate('booking.selectSpots')}
+					/>
 
-			{availableSpots !== undefined && (
-				<p className="mt-2 text-right text-sm text-gray-500 dark:text-gray-400">
-					{availableSpots} {translate('booking.spotsAvailable')}
-				</p>
+					<div className="mt-4">
+						<Input
+							label={translate('booking.phone')}
+							value={phone}
+							onChange={(e) => setPhone(e.target.value)}
+							required
+						/>
+					</div>
+
+					<div className="mt-4 flex items-center justify-between">
+						<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
+						<span className="text-primary text-2xl font-bold">{formatCurrency(totalPrice)}</span>
+					</div>
+				</>
 			)}
 
 			<div className="mt-6 flex gap-3">
@@ -76,9 +143,9 @@ export default function BookingForm({
 				</Button>
 				<Button
 					variant="primary"
-					onClick={() => onSubmit(quantity, phone)}
+					onClick={() => selectedOccurrence && onSubmit(quantity, phone)}
 					isLoading={isLoading}
-					disabled={!phone.trim() || isLoading}
+					disabled={!selectedOccurrence || !phone.trim() || isLoading}
 					className="flex-1"
 				>
 					{submitLabel}

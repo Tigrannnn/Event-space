@@ -4,14 +4,14 @@ import type {
 	CreateBookingData,
 	CreateBookingResponse,
 	UpdateBookingData,
-	BookingWithEstimate
+	BookingWithOccurrence
 } from '@event-space/shared';
 
 export const bookingApi = {
 	createBooking: (data: CreateBookingData) =>
 		clientApi.post<CreateBookingResponse>('/bookings', data).then((res) => res.data),
 
-	getMyBookings: () => clientApi.get<BookingWithEstimate[]>('/bookings/my').then((res) => res.data),
+	getMyBookings: () => clientApi.get<BookingWithOccurrence[]>('/bookings/my').then((res) => res.data),
 
 	getBooking: (id: string) => clientApi.get<Booking>(`/bookings/${id}`).then((res) => res.data),
 

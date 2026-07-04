@@ -44,7 +44,8 @@ export const useUpdateBooking = () => {
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
-				queryClient.invalidateQueries({ queryKey: ['event', result.eventId] }),
+				// event id may not be present on response; invalidate event queries broadly
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 			]);
 		},
@@ -65,7 +66,8 @@ export const useCancelBooking = () => {
 			addToast('Booking cancelled successfully', ToastType.SUCCESS);
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
-				queryClient.invalidateQueries({ queryKey: ['event', result.eventId] }),
+				// event id may not be present on response; invalidate event queries broadly
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 			]);
 		},

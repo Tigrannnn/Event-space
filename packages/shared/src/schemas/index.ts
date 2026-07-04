@@ -4,6 +4,7 @@ export * from './common.schema';
 export * from './booking.schema';
 export * from './event.schema';
 export * from './event-image.schema';
+export * from './event-occurrence.schema';
 export * from './user.schema';
 export * from './auth.schema';
 export * from './env.schema';

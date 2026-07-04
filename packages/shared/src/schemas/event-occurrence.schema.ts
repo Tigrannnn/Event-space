@@ -10,3 +10,5 @@ export const EventOccurrenceSchema = GeneratedEventOccurrenceSchema.extend({
     maxParticipants: z.number().int(),
     currentParticipants: z.number().int(),
 });
+
+export type EventOccurrence = z.infer<typeof EventOccurrenceSchema>;

@@ -7,7 +7,7 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useCreateBooking } from '@/features/bookings/hooks/useBookings';
 import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
-import { BookingWithEstimate, getEventCapacity } from '@event-space/shared';
+import { BookingWithEstimate, type EventOccurrence } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useCurrentUser } from '@/features/users';
 
@@ -22,10 +22,12 @@ export default function CreateBookingModal() {
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
 	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);
+	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(null);
 
 	const handleClose = () => {
 		setClientSecret(null);
 		setBooking(null);
+		setSelectedOccurrence(null);
 		closeModal();
 	};
 
@@ -33,12 +35,18 @@ export default function CreateBookingModal() {
 		return null;
 	}
 
-	const { currentParticipants, maxParticipants } = getEventCapacity(event);
-	const spotsLeft = Math.max(0, maxParticipants - currentParticipants);
+	const spotsLeft = selectedOccurrence
+		? Math.max(0, selectedOccurrence.maxParticipants - selectedOccurrence.currentParticipants)
+		: 0;
 
 	const handleConfirm = (quantity: number, phone: string) => {
+		if (!selectedOccurrence) {
+			addToast(translate('booking.selectDate'), ToastType.ERROR);
+			return;
+		}
+
 		createBooking(
-			{ eventId: event.id, quantity, phone },
+			{ occurrenceId: selectedOccurrence.id, quantity, phone },
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {
@@ -63,6 +71,7 @@ export default function CreateBookingModal() {
 					booking={booking}
 					onClose={handleClose}
 					clientSecret={clientSecret}
+					selectedOccurrence={selectedOccurrence}
 				/>
 			) : (
 				<BookingForm
@@ -70,11 +79,12 @@ export default function CreateBookingModal() {
 					initialQuantity={1}
 					maxQuantity={spotsLeft}
 					onSubmit={handleConfirm}
+					onOccurrenceSelect={setSelectedOccurrence}
+					selectedOccurrence={selectedOccurrence}
 					isLoading={isLoading}
 					submitLabel={isLoading ? translate('booking.preparingPayment') : translate('booking.continueToPayment')}
 					title={translate('booking.confirmBooking')}
 					onClose={closeModal}
-					availableSpots={spotsLeft}
 					userPhone={user?.phone ?? undefined}
 				/>
 			)}

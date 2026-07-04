@@ -2,6 +2,7 @@ import { z } from './openapi';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 import { EventSchema } from './event.schema';
+import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
 import { PhoneSchema } from './atoms';
@@ -49,9 +50,9 @@ export type BookingFilters = z.infer<typeof BookingFiltersSchema>;
 
 // === CREATE BOOKING ===
 export const CreateBookingSchema = z.object({
-	eventId: z.string().uuid().openapi({
-		description: 'Event ID to book',
-		example: '550e8400-e29b-41d4-a716-446655440002',
+	occurrenceId: z.string().uuid().openapi({
+		description: 'Event occurrence ID to book',
+		example: '550e8400-e29b-41d4-a716-446655440003',
 	}),
 	quantity: z.number().int().min(1).default(1).openapi({
 		description: 'Number of spots to book',
@@ -66,7 +67,7 @@ export const CreateBookingSchema = z.object({
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;
 
 export type CreateBookingResponse = {
-	booking: BookingWithEstimate;
+	booking: BookingWithOccurrence;
 	clientSecret: string | null;
 };
 
@@ -101,10 +102,17 @@ export const BookingWithEstimateSchema = BookingSchema.extend({
 
 export type BookingWithEstimate = z.infer<typeof BookingWithEstimateSchema>;
 
+// Detailed booking DTO that includes the occurrence (with nested event)
+export const BookingWithOccurrenceSchema = BookingWithEstimateSchema.extend({
+	occurrence: EventOccurrenceSchema.extend({ event: EventSchema }).optional(),
+});
+
+export type BookingWithOccurrence = z.infer<typeof BookingWithOccurrenceSchema>;
+
 // === CREATE MANUAL BOOKING ===
 export const CreateManualBookingSchema = z
 	.object({
-		eventId: z.string().uuid().openapi({ description: 'Event ID to book' }),
+		occurrenceId: z.string().uuid().openapi({ description: 'Event occurrence ID to book' }),
 		quantity: z.number().int().min(1).default(1).openapi({ description: 'Number of spots to book' }),
 		userId: z.string().uuid().optional().openapi({ description: 'Existing user id (optional)' }),
 		shadowUserName: z

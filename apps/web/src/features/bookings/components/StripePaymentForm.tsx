@@ -13,6 +13,7 @@ import {
 	Event,
 	getApiErrorMessage,
 	getEventOccurrenceDate,
+	type EventOccurrence,
 } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
@@ -23,12 +24,15 @@ import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useParams } from 'next/navigation';
 import { useFormatCurrency } from '@/hooks/format';
+import { useFormatDate } from '@/hooks/format/useFormatDate';
+import { getEventTranslation } from '@event-space/shared';
 
 interface StripePaymentFormProps {
 	event: Event;
 	booking: BookingWithEstimate;
 	onClose: () => void;
 	clientSecret: string;
+	selectedOccurrence: EventOccurrence | null;
 }
 
 type ConfirmationResult = 'confirmed' | 'cancelled' | 'timeout';
@@ -37,21 +41,26 @@ function StripePaymentFormContent({
 	event,
 	booking,
 	onClose,
+	selectedOccurrence,
 }: Omit<StripePaymentFormProps, 'clientSecret'>) {
 	const stripe = useStripe();
 	const elements = useElements();
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
+	const locale = translate.locale;
+	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 	const params = useParams();
-	const locale = (params.locale as Locale) || defaultLocale;
+	const localeParam = (params.locale as Locale) || defaultLocale;
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
-	const formatCurrency = useFormatCurrency();
+	const eventTitle = getEventTranslation(event, locale).title;
 
-	const occurrenceDate = getEventOccurrenceDate(event);
+
+	const occurrenceDate = selectedOccurrence?.date ?? getEventOccurrenceDate(event);
 
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
@@ -189,6 +198,19 @@ function StripePaymentFormContent({
 
 			<p className="text-sm text-gray-500 dark:text-gray-400">{translate('booking.cardDetails')}</p>
 
+			{selectedOccurrence && (
+				<div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800 space-y-1">
+					<p className="font-semibold text-sm text-gray-900 dark:text-white">{eventTitle}</p>
+					<p className="text-sm text-gray-500 dark:text-gray-400">{formatDateTime(selectedOccurrence.date)}</p>
+					<p className="text-sm text-gray-600 dark:text-gray-300">
+						{translate('booking.spots')}: <span className="font-medium">{booking.quantity}</span>
+					</p>
+					<p className="text-sm text-gray-600 dark:text-gray-300">
+						{translate('booking.total')}: <span className="font-medium">{formatCurrency(booking.amount)}</span>
+					</p>
+				</div>
+			)}
+
 			<div className="bg-gray-100 p-4 dark:bg-gray-800">
 				<p>
 					{translate('booking.amount')}:{' '}
@@ -239,6 +261,7 @@ export default function StripePaymentForm({
 	booking,
 	onClose,
 	clientSecret,
+	selectedOccurrence,
 }: StripePaymentFormProps) {
 	const theme = useSystemTheme();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
@@ -266,7 +289,7 @@ export default function StripePaymentForm({
 			stripe={stripePromise}
 			options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}
 		>
-			<StripePaymentFormContent event={event} booking={booking} onClose={onClose} />
+			<StripePaymentFormContent event={event} booking={booking} onClose={onClose} selectedOccurrence={selectedOccurrence} />
 		</Elements>
 	);
 }

@@ -16,6 +16,7 @@ import type {
 	Category,
 	CreateCategoryData,
 	UpdateCategoryData,
+	BookingWithOccurrence,
 } from '@event-space/shared';
 
 export const adminApi = {
@@ -45,7 +46,7 @@ export const adminApi = {
 		clientApi.patch<SafeUserData>(`/admin/users/${id}/role`, { role }),
 	deleteUser: (id: string) => clientApi.delete<{ message: string }>(`/admin/users/${id}`),
 	createManualBooking: (data: CreateManualBookingData) =>
-		clientApi.post<Booking>('/admin/bookings/manual', data),
+		clientApi.post<BookingWithOccurrence>('/admin/bookings/manual', data),
 	getCategories: (params?: { skip?: number; limit?: number; search?: string }) =>
 		clientApi.get<PaginatedResponse<Category>>('/admin/categories', { params }),
 	createCategory: (data: CreateCategoryData) =>

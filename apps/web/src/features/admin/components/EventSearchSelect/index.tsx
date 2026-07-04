@@ -68,7 +68,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 				>
 					{selectedEvent ? (
 						<span className="text-gray-900 dark:text-gray-100">
-							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.date, localeIntl[locale])}
+							{getEventTranslation(selectedEvent, locale).title} — {formatDateTime(selectedEvent.occurrences[0].date, localeIntl[locale])}
 						</span>
 					) : (
 						<span className="text-gray-400">{translate('admin.selectEvent')}</span>
@@ -97,7 +97,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 													<div className="flex flex-col">
 														<span className="font-medium">{t.title}</span>
 														<span className="text-xs text-gray-400">
-															{formatDateTime(event.date, localeIntl[locale])} · {t.location}
+															{formatDateTime(event.occurrences[0].date, localeIntl[locale])} · {t.location}
 														</span>
 													</div>
 												</CommandItem>

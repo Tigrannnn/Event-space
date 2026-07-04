@@ -12,10 +12,12 @@ import { Prisma } from '@prisma/client';
 import {
 	CancellationPolicyRule,
 	BookingWithEstimate,
+	BookingWithOccurrence,
 	estimateStripeFeeInCents,
 	isEventAvailable,
+	CreateBookingData,
+	CreateManualBookingData,
 } from '@event-space/shared';
-import { CreateBookingData } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
@@ -23,7 +25,6 @@ import {
 	StripeBalanceTransaction,
 	StripePaymentIntent,
 } from '@infra/stripe/stripe.types';
-import { CreateManualBookingData } from '@event-space/shared';
 import { getNextBookingReference } from './booking-reference';
 
 @Injectable()
@@ -36,27 +37,27 @@ export class BookingService {
 	) {}
 
 	async create(userId: string, data: CreateBookingData) {
-		const { eventId, quantity = 1, phone } = data;
+		const { occurrenceId, quantity = 1, phone } = data;
 
 		const { booking, event, occurrence } = await this.prisma.$transaction(async (tx) => {
-			const event = await tx.event.findUnique({
-				where: { id: eventId },
+			// Load the specific occurrence by id and include its event
+			const occurrence = await tx.eventOccurrence.findUnique({
+				where: { id: occurrenceId },
 				include: {
-					cancellationRules: true,
-					translations: true,
-					occurrences: {
-						where: { date: { gt: new Date() } },
-						orderBy: { date: 'asc' as const },
-						take: 1,
+					event: {
+						include: { cancellationRules: true, translations: true },
 					},
 				},
 			});
+
+			if (!occurrence) throw new NotFoundException('Occurrence not found');
+
+			const event = occurrence.event;
 			if (!event) throw new NotFoundException('Event not found');
-			if (event.status !== 'PUBLISHED' || !event.occurrences || event.occurrences.length === 0) {
+			// Ensure the event and occurrence are bookable (published and in the future)
+			if (event.status !== 'PUBLISHED' || new Date(occurrence.date) <= new Date()) {
 				throw new ForbiddenException('Event is not available for booking');
 			}
-
-			const occurrence = event.occurrences[0];
 
 			const existing = await tx.booking.findUnique({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
@@ -96,7 +97,7 @@ export class BookingService {
 			// TODO: remove AMD hardcoding
 			paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'AMD', {
 				userId,
-				eventId,
+				occurrenceId,
 				bookingId: booking.id,
 			});
 
@@ -121,6 +122,7 @@ export class BookingService {
 				...updatedBooking,
 				amount: Number(updatedBooking.amount),
 				event: { ...event, price: Number(event.price) },
+				occurrence: { ...occurrence },
 				refundPercentage,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
@@ -145,25 +147,24 @@ export class BookingService {
 	}
 
 	async createManualBooking(adminId: string, data: CreateManualBookingData) {
-		const { eventId, quantity = 1, userId, shadowUserName } = data;
+		const { occurrenceId, quantity = 1, userId, shadowUserName } = data;
 
 		const result = await this.prisma.$transaction(async (tx) => {
-			const event = await tx.event.findUnique({
-				where: { id: eventId },
+			const occurrence = await tx.eventOccurrence.findUnique({
+				where: { id: occurrenceId },
 				include: {
-					occurrences: {
-						where: { date: { gt: new Date() } },
-						orderBy: { date: 'asc' as const },
-						take: 1,
+					event: {
+						include: { cancellationRules: true, translations: true },
 					},
 				},
 			});
+			if (!occurrence) throw new NotFoundException('Occurrence not found');
+
+			const event = occurrence.event;
 			if (!event) throw new NotFoundException('Event not found');
-			if (event.status !== 'PUBLISHED' || !event.occurrences || event.occurrences.length === 0) {
+			if (event.status !== 'PUBLISHED' || new Date(occurrence.date) <= new Date()) {
 				throw new ForbiddenException('Event is not available for booking');
 			}
-
-			const occurrence = event.occurrences[0];
 
 			let targetUserId = userId;
 			let cancelledPaymentIntentId: string | null = null;
@@ -235,7 +236,7 @@ export class BookingService {
 				},
 			});
 
-			return { booking, cancelledPaymentIntentId };
+			return { booking, cancelledPaymentIntentId, event, occurrence };
 		});
 
 		if (result.cancelledPaymentIntentId) {
@@ -252,17 +253,16 @@ export class BookingService {
 			}
 		}
 
-		return result.booking;
+		return {
+			...result.booking,
+			amount: Number(result.booking.amount),
+			event: { ...result.event, price: Number(result.event.price) },
+			occurrence: { ...result.occurrence, event: { ...result.event, price: Number(result.event.price) } },
+			refundPercentage: 0,
+			estimatedStripeFeeInCents: 0,
+			estimatedRefundInCents: 0,
+		};
 	}
-
-	// async update(userId: string, bookingId: string, data: UpdateBookingData) {
-	// 	const { quantity } = data;
-
-	// 	return this.prisma.$transaction(async (tx) => {
-	// 		const booking = await tx.booking.findUnique({ where: { id: bookingId } });
-	// 		if (!booking) throw new NotFoundException('Booking not found');
-	// 		if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
-	// 		if (booking.status === 'CANCELLED') {
 	// 			throw new ConflictException('Cannot update cancelled booking');
 	// 		}
 
