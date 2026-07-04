@@ -2,6 +2,12 @@ import { EventStatusEnum, type Event, type EventImageItem } from '@event-space/s
 import type { EventFormValues } from './event-form.schema';
 import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
+function toDateTimeLocalInput(value: string | Date): string {
+	const date = new Date(value);
+	const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+	return local.toISOString().slice(0, 16);
+}
+
 export function getDefaultEventFormValues(): EventFormValues {
 	return {
 		categoryId: '',
@@ -9,11 +15,12 @@ export function getDefaultEventFormValues(): EventFormValues {
 		images: [],
 		locationUrl: '',
 		date: '',
-		difficulty: undefined,
+		difficulty: '',
 		status: EventStatusEnum.enum.DRAFT,
 		price: '',
 		maxParticipants: '',
 		duration: '',
+		occurrences: [{ date: '', maxParticipants: '' }],
 		cancellationRules: [
 			{
 				hoursBeforeEvent: 72,
@@ -36,15 +43,25 @@ function parseList(val: string): string[] {
 }
 
 function buildEventFields(values: EventFormValues) {
+	const occurrences = values.occurrences
+		.filter((occurrence) => occurrence.date)
+		.map((occurrence) => ({
+			date: new Date(occurrence.date).toISOString(),
+			maxParticipants: occurrence.maxParticipants ? Number(occurrence.maxParticipants) : undefined,
+		}));
+
+	const primaryOccurrence = occurrences[0];
+
 	return {
 		categoryId: values.categoryId,
 		locationUrl: values.locationUrl?.trim() || null,
-		date: new Date(values.date).toISOString(),
-		difficulty: values.difficulty,
+		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
+		difficulty: values.difficulty || undefined,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
-		maxParticipants: Number(values.maxParticipants),
+		maxParticipants: primaryOccurrence?.maxParticipants ?? (Number(values.maxParticipants || 0) || undefined),
 		duration: Number(values.duration),
 		status: values.status,
+		occurrences,
 		cancellationRules: values.cancellationRules,
 		cancellationReason: values.cancellationReason?.trim() || undefined,
 		translations: values.translations.map((t) => ({
@@ -80,9 +97,6 @@ function buildPayloadImages(items: ImageUploaderItem[]): {
 export function mapEventToFormValues(event?: Event): EventFormValues {
 	if (!event) return getDefaultEventFormValues();
 
-	const d = new Date(event.date);
-	const dateStr = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-
 	const images: ImageUploaderItem[] = (event.images ?? [])
 		.slice()
 		.sort((a, b) => a.order - b.order)
@@ -94,16 +108,21 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			order: img.order,
 		}));
 
+	const occurrences = (event.occurrences ?? []).map((occurrence) => ({
+		date: toDateTimeLocalInput(occurrence.date),
+		maxParticipants: String(occurrence.maxParticipants ?? ''),
+	}));
+
 	return {
 		categoryId: event.categoryId,
 		images,
 		locationUrl: event.locationUrl ?? '',
-		date: dateStr,
-		difficulty: event.difficulty ?? undefined,
+		date: occurrences[0] ? toDateTimeLocalInput(event.occurrences?.[0]?.date ?? '') : '',
+		difficulty: event.difficulty ?? '',
 		price: String(event.price),
-		maxParticipants: String(event.maxParticipants),
 		duration: String(event.duration),
 		status: event.status,
+		occurrences: occurrences.length > 0 ? occurrences : [{ date: '', maxParticipants: '' }],
 		cancellationRules: (event.cancellationRules ?? [])
 			.slice()
 			.sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent)
@@ -118,7 +137,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			location: t.location,
 			whatsIncluded: t.whatsIncluded.join('\n'),
 		})),
-		cancellationReason: undefined, // We don't store this in the event, so it's undefined by default
+		cancellationReason: undefined,
 	};
 }
 

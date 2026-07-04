@@ -7,7 +7,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { BookingWithEstimate, EnvKey, Event, getApiErrorMessage } from '@event-space/shared';
+import {
+	BookingWithEstimate,
+	EnvKey,
+	Event,
+	getApiErrorMessage,
+	getEventOccurrenceDate,
+} from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
@@ -44,6 +50,8 @@ function StripePaymentFormContent({
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 	const formatCurrency = useFormatCurrency();
+
+	const occurrenceDate = getEventOccurrenceDate(event);
 
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
@@ -192,7 +200,7 @@ function StripePaymentFormContent({
 			</div>
 
 			<CancellationPolicyInfo
-				eventDate={event.date}
+				eventDate={occurrenceDate ?? ''}
 				price={event.price}
 				cancellationRules={event.cancellationRules ?? []}
 				booking={booking}

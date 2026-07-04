@@ -64,7 +64,7 @@ export class StripeWebhookService {
 		const result = await this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({
 				where: { id: bookingId },
-				include: { event: { select: { maxParticipants: true } } },
+				include: { occurrence: { select: { maxParticipants: true, currentParticipants: true } } },
 			});
 
 			if (!booking) {
@@ -91,10 +91,10 @@ export class StripeWebhookService {
 				return { action: 'skipped' as const };
 			}
 
-			const reserved = await tx.event.updateMany({
+			const reserved = await tx.eventOccurrence.updateMany({
 				where: {
-					id: booking.eventId,
-					currentParticipants: { lte: booking.event.maxParticipants - booking.quantity },
+					id: booking.occurrenceId,
+					currentParticipants: { lte: booking.occurrence.maxParticipants - booking.quantity },
 				},
 				data: { currentParticipants: { increment: booking.quantity } },
 			});

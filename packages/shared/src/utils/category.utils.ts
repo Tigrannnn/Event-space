@@ -1,5 +1,5 @@
 import { Category, CategoryTranslation } from '../schemas/category.schema';
-import { Locale } from '../schemas/event.schema';
+import { Locale } from '../schemas/locale.schema';
 
 export function getCategoryTranslation(
 	category: Partial<Category> | undefined,

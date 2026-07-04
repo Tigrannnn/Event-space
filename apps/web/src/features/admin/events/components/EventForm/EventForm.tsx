@@ -59,15 +59,21 @@ export default function EventForm({
 	});
 
 	const categories = categoriesResponse?.data?.data ?? [];
-	const categoryOptions = categories.map(category => ({
-		value: category.id,
-		label: getCategoryTranslation(category, translate.locale).name,
-	}));
+	const categoryOptions = [
+		{ value: '', label: translate('admin.selectCategory') },
+		...categories.map((category) => ({
+			value: category.id,
+			label: getCategoryTranslation(category, translate.locale).name,
+		})),
+	];
 
-	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
-		value: diff,
-		label: EVENT_DIFFICULTY_LABELS[diff],
-	}));
+	const difficultyOptions = [
+		{ value: '', label: translate('admin.noSelection') },
+		...EventDifficultyEnum.options.map((diff) => ({
+			value: diff,
+			label: EVENT_DIFFICULTY_LABELS[diff],
+		})),
+	];
 
 	const getValidStatusOptions = () => {
 		const allowedTransitions: Record<string, string[]> = {
@@ -99,8 +105,11 @@ export default function EventForm({
 		defaultValues: mapEventToFormValues(event),
 	});
 
-	const watchedDate = useWatch({ control, name: 'date' });
+	const watchedOccurrences = useWatch({ control, name: 'occurrences' }) ?? [];
+	const watchedDate = watchedOccurrences[0]?.date ?? '';
 	const watchedPrice = useWatch({ control, name: 'price' });
+	const originalOccurrenceDate = event?.occurrences?.[0]?.date;
+	const hasBookedOccurrences = Boolean(event?.occurrences?.some((occurrence) => occurrence.currentParticipants > 0));
 	const watchedRules = useWatch({ control, name: 'cancellationRules' });
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 	const watchedStatus = useWatch({ control, name: 'status' });
@@ -115,6 +124,11 @@ export default function EventForm({
 		name: 'cancellationRules',
 	});
 
+	const { fields: occurrenceFields, append: appendOccurrence, remove: removeOccurrence } = useFieldArray({
+		control,
+		name: 'occurrences',
+	});
+
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 
 	const addedLocales = watchedTranslations.map(t => t.locale);
@@ -126,7 +140,6 @@ export default function EventForm({
 
 	const handleFormSubmit = async (values: EventFormValues) => {
 		const isCancelling = values.status === 'CANCELLED' && event?.status !== 'CANCELLED';
-		const isDateChanging = event && values.date && new Date(values.date).getTime() !== new Date(event.date).getTime();
 
 		if (isCancelling) {
 			const confirmed = await confirm({
@@ -278,7 +291,7 @@ export default function EventForm({
 							control={control}
 							render={({ field }) => (
 								<Select
-									value={field.value || ''}
+									value={field.value ?? ''}
 									onValueChange={field.onChange}
 									options={categoryOptions}
 									className="w-full"
@@ -295,46 +308,102 @@ export default function EventForm({
 								{...register('locationUrl')}
 								className={fieldClassName}
 								disabled={isPending}
-								placeholder="https://maps.app.goo.gl/..."
+								placeholder={translate('admin.googleMapsUrlPlaceholder')}
 							/>
 							{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
 						</label>
 					</div>
 				</div>
 
-				<div className="space-y-1.5">
-					<span className="text-sm font-semibold">{translate('admin.dateTime')}</span>
-					<Controller
-						name="date"
-						control={control}
-						render={({ field }) => (
-							<DateTimeField
-								value={field.value}
-								onChange={field.onChange}
-								disabled={isPending}
-								inputClassName={dateTimeInputClassName}
-							/>
-						)}
-					/>
-					{errors.date && <p className="text-xs text-red-500">{errors.date.message}</p>}
+				<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+					<div className="flex items-center justify-between">
+						<div>
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('admin.occurrences')}</h3>
+							<p className="text-xs text-gray-500">{translate('admin.occurrencesDescription')}</p>
+						</div>
+						<Button
+							type="button"
+							variant="secondary"
+							className="h-8 text-xs"
+							disabled={isPending}
+							onClick={() => appendOccurrence({ date: '', maxParticipants: '' })}
+						>
+							+ {translate('admin.addOccurrence')}
+						</Button>
+					</div>
+
+					{occurrenceFields.length > 0 ? (
+						<div className="space-y-3">
+							{occurrenceFields.map((field, index) => (
+								<div key={field.id} className="flex flex-col gap-3 rounded-md border border-gray-200 p-3 dark:border-gray-700 md:flex-row md:items-end">
+									<div className="flex-1 space-y-1.5">
+										<span className="text-xs font-medium text-gray-500">{translate('admin.dateAndTime')}</span>
+										<Controller
+											name={`occurrences.${index}.date`}
+											control={control}
+											render={({ field }) => (
+												<DateTimeField
+													value={field.value ?? ''}
+													onChange={field.onChange}
+													disabled={isPending}
+													inputClassName={dateTimeInputClassName}
+												/>
+											)}
+										/>
+										{errors.occurrences?.[index]?.date && (
+											<p className="text-xs text-red-500">{errors.occurrences[index]?.date?.message}</p>
+										)}
+									</div>
+
+									<label className="w-full space-y-1.5 md:max-w-40">
+										<span className="text-xs font-medium text-gray-500">{translate('admin.maxParticipants')}</span>
+										<input
+											type="number"
+											min="1"
+											{...register(`occurrences.${index}.maxParticipants`)}
+											className={fieldClassName}
+											disabled={isPending}
+										/>
+										{errors.occurrences?.[index]?.maxParticipants && (
+											<p className="text-xs text-red-500">{errors.occurrences[index]?.maxParticipants?.message}</p>
+										)}
+									</label>
+
+									<Button
+										type="button"
+										variant="secondary"
+										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+										disabled={isPending}
+										onClick={() => removeOccurrence(index)}
+									>
+										{translate('admin.delete')}
+									</Button>
+								</div>
+							))}
+						</div>
+					) : (
+						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
+							<p className="text-xs text-gray-500">{translate('admin.noOccurrences')}</p>
+						</div>
+					)}
 				</div>
 
 				<hr className="border-gray-200 dark:border-gray-700" />
 
 				<div className="grid grid-cols-2 gap-4">
 					<div className="space-y-1.5">
-					<span className="text-sm font-semibold">{translate('admin.difficulty')} <span className="text-gray-400">(optional)</span></span>
+					<span className="text-sm font-semibold">{translate('admin.difficulty')} <span className="text-gray-400">({translate('common.optional')})</span></span>
 					<Controller
 						name="difficulty"
 						control={control}
 						render={({ field }) => (
 							<Select
-								value={field.value || ''}
-									onValueChange={field.onChange}
-									options={difficultyOptions}
-									className="w-full"
-									disabled={isPending}
-								/>
+								value={field.value ?? ''}
+								onValueChange={field.onChange}
+								options={difficultyOptions}
+								className="w-full"
+								disabled={isPending}
+							/>
 							)}
 						/>
 						{errors.difficulty && <p className="text-xs text-red-500">{errors.difficulty.message}</p>}
@@ -371,7 +440,7 @@ export default function EventForm({
 					</div>
 				)}
 
-				{event?.currentParticipants && event?.currentParticipants > 0 && watchedDate && new Date(watchedDate).getTime() !== event.date.getTime() && (
+				{hasBookedOccurrences && watchedDate && originalOccurrenceDate && new Date(watchedDate).getTime() !== new Date(originalOccurrenceDate).getTime() && (
 					<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/30">
 						<p className="text-sm text-amber-800 dark:text-amber-200">
 							{translate('admin.dateChangeWarning')}
@@ -379,7 +448,7 @@ export default function EventForm({
 					</div>
 				)}
 
-				<div className="grid grid-cols-3 gap-4">
+				<div className="grid grid-cols-2 gap-4">
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.price')} ({DEFAULT_CURRENCY})</span>
 						<input
@@ -400,18 +469,6 @@ export default function EventForm({
 							disabled={isPending}
 						/>
 						{errors.duration && <p className="text-xs text-red-500">{errors.duration.message}</p>}
-					</label>
-					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">{translate('admin.maxParticipants')}</span>
-						<input
-							type="number"
-							{...register('maxParticipants')}
-							className={fieldClassName}
-							disabled={isPending}
-						/>
-						{errors.maxParticipants && (
-							<p className="text-xs text-red-500">{errors.maxParticipants.message}</p>
-						)}
 					</label>
 				</div>
 

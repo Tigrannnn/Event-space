@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useMemo, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
@@ -12,7 +11,7 @@ import type { Event } from '@event-space/shared';
 import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
-import { categoryApi } from '@/features/categories/api/categories.api';
+import { useCategories } from '@/features/categories/hooks/useCategories';
 import {
 	EventsFiltersBar,
 	computePriceBounds,
@@ -47,10 +46,7 @@ export default function EventsList({
 		[searchParams],
 	);
 
-	const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
-		queryKey: ['categories', locale],
-		queryFn: () => categoryApi.getCategories(),
-	});
+	const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
 
 	const handleFiltersChange = useCallback(
 		(nextFilters: typeof filters) => {

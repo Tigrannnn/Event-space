@@ -15,6 +15,8 @@ import {
 	isEventAvailable,
 	getEventTranslation,
 	getCategoryTranslation,
+	getEventOccurrenceDate,
+	getEventCapacity,
 } from '@event-space/shared';
 
 export interface EventCardProps {
@@ -42,9 +44,11 @@ export default function EventCard({ event }: EventCardProps) {
 	const eventIsAvailable = isEventAvailable(event);
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
+	const occurrenceDate = getEventOccurrenceDate(event);
+	const { currentParticipants, maxParticipants } = getEventCapacity(event);
 
 	const hasBooking = myBookings?.some(
-		(booking) => booking.eventId === event.id && booking.status !== 'CANCELLED',
+		(booking) => booking.event?.id === event.id && booking.status !== 'CANCELLED',
 	);
 
 	const handleJoinClick = (e: React.MouseEvent) => {
@@ -85,7 +89,7 @@ export default function EventCard({ event }: EventCardProps) {
 						className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs"
 						suppressHydrationWarning
 					>
-						{formatDateTime(event.date)}
+						{formatDateTime(occurrenceDate ?? '')}
 					</span>
 				</div>
 
@@ -111,7 +115,7 @@ export default function EventCard({ event }: EventCardProps) {
 
 				{/* Footer Section: Metrics & Action - always at bottom */}
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
-					<CapacityBar current={event.currentParticipants} max={event.maxParticipants} />
+					<CapacityBar current={currentParticipants} max={maxParticipants} />
 
 					{!eventIsAvailable ? (
 						<Button disabled variant="secondary" className="relative z-20 w-full">

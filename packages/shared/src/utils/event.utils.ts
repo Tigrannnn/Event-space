@@ -1,12 +1,46 @@
-import { Event, EventTranslation, Locale } from '../schemas/event.schema';
+import { Event } from '../schemas/event.schema';
+import { Locale } from '../schemas/locale.schema';
+import { EventTranslation } from '../generated/modelSchema/EventTranslationSchema';
+import type { EventOccurrence } from '../generated/modelSchema/EventOccurrenceSchema';
 
-export function isEventAvailable(event: {
-	status: string;
-	date: Date | string;
-	duration: number;
-}): boolean {
+type EventWithOccurrenceFallback = Partial<Event> & {
+	date?: Date | string | null;
+	maxParticipants?: number | null;
+	currentParticipants?: number | null;
+	occurrences?: Array<Partial<EventOccurrence>> | null;
+};
+
+export function getPrimaryEventOccurrence(event: EventWithOccurrenceFallback): EventOccurrence | undefined {
+	const occurrences = Array.isArray(event.occurrences) ? event.occurrences : [];
+	if (!occurrences.length) return undefined;
+
+	return [...occurrences].sort((left, right) => {
+		const leftTime = new Date(left.date ?? 0).getTime();
+		const rightTime = new Date(right.date ?? 0).getTime();
+		return leftTime - rightTime;
+	})[0] as EventOccurrence;
+}
+
+export function getEventOccurrenceDate(event: EventWithOccurrenceFallback): Date | string | undefined {
+	const occurrence = getPrimaryEventOccurrence(event);
+	return occurrence?.date ?? event.date ?? undefined;
+}
+
+export function getEventCapacity(event: EventWithOccurrenceFallback) {
+	const occurrence = getPrimaryEventOccurrence(event);
+	return {
+		maxParticipants: Number(occurrence?.maxParticipants ?? event.maxParticipants ?? 0),
+		currentParticipants: Number(occurrence?.currentParticipants ?? event.currentParticipants ?? 0),
+	};
+}
+
+export function isEventAvailable(event: EventWithOccurrenceFallback): boolean {
 	if (event.status !== 'PUBLISHED') return false;
-	const endTime = new Date(event.date).getTime() + event.duration * 60 * 1000;
+
+	const occurrenceDate = getEventOccurrenceDate(event);
+	if (!occurrenceDate) return false;
+
+	const endTime = new Date(occurrenceDate).getTime() + Number(event.duration ?? 0) * 60 * 1000;
 	if (endTime < Date.now()) return false;
 	return true;
 }

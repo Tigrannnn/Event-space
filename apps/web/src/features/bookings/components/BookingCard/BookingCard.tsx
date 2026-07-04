@@ -5,7 +5,12 @@ import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
+import {
+	getEventCoverImageUrl,
+	isEventAvailable,
+	getEventTranslation,
+	getEventOccurrenceDate,
+} from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
@@ -34,11 +39,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		refundPercentage,
 		estimatedRefundInCents,
 	} = booking;
-	const eventIsAvailable = event ? isEventAvailable(event) : false;
+	
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
-
 	const confirm = useConfirm();
 	const translate = useTranslation();
 	const locale = translate.locale;
@@ -47,6 +51,11 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// const handleUpdate = () => {
 	// 	openModal(ModalType.UpdateBooking, { booking });
 	// };
+
+	if (!event) return null;
+
+	const eventIsAvailable = isEventAvailable(event);
+	const occurrenceDate = getEventOccurrenceDate(event);
 
 	const handleCancel = async () => {
 		if (!event) return;
@@ -64,7 +73,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				<div className="space-y-3">
 					<p>{`${translate('booking.areYouSure')} ${refundMessage}`}</p>
 					<CancellationPolicyInfo
-						eventDate={event.date}
+						eventDate={occurrenceDate ?? ''}
 						price={event.price}
 						cancellationRules={event.cancellationRules ?? []}
 						booking={booking}
@@ -81,8 +90,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			cancelBooking(booking.id);
 		}
 	};
-
-	if (!event) return null;
 
 	const t = getEventTranslation(event, locale);
 
@@ -134,7 +141,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
-						<span>{formatDateTime(event.date, localeIntl[locale])}</span>
+						<span>{formatDateTime(occurrenceDate ?? new Date(), localeIntl[locale])}</span>
 					</div>
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />

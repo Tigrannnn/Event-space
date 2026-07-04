@@ -111,7 +111,7 @@ export default function Header() {
 									onClick={() => navigation.push('/profile')}
 									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 								>
-									{user.name.trim().length <= 10 ? user.name.split(' ')[0] : translate('header.profile')}
+									{user.name.split(' ')[0].trim().length <= 10 ? user.name.split(' ')[0] : translate('header.profile')}
 								</Button>
 							</>
 						) : (

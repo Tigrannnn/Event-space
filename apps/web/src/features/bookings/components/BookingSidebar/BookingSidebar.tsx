@@ -4,7 +4,13 @@ import { useMemo } from 'react';
 import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { CheckIcon } from '../../../../components/ui/Icons';
-import { Event, isEventAvailable, getEventTranslation } from '@event-space/shared';
+import {
+	Event,
+	isEventAvailable,
+	getEventTranslation,
+	getEventOccurrenceDate,
+	getEventCapacity,
+} from '@event-space/shared';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
@@ -19,11 +25,10 @@ export interface BookingSidebarProps {
 }
 
 export default function BookingSidebar({ event }: BookingSidebarProps) {
-	const progressPercentage = Math.min(
-		100,
-		(event.currentParticipants / event.maxParticipants) * 100,
-	);
-	const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
+	const { currentParticipants, maxParticipants } = getEventCapacity(event);
+	const occurrenceDate = getEventOccurrenceDate(event);
+	const progressPercentage = Math.min(100, (currentParticipants / maxParticipants) * 100);
+	const spotsLeft = Math.max(0, maxParticipants - currentParticipants);
 
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
@@ -38,7 +43,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	const hasBooking = useMemo(
 		() =>
-			myBookings?.some((booking) => booking.eventId === event.id && booking.status !== 'CANCELLED'),
+			myBookings?.some((booking) => booking.event?.id === event.id && booking.status !== 'CANCELLED'),
 		[myBookings, event.id],
 	);
 
@@ -75,7 +80,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="mb-5 sm:mb-6">
 					<div className="mb-2 flex justify-between text-[13px] sm:text-sm">
 						<span className="font-bold text-gray-700 dark:text-gray-300">
-							{event.currentParticipants} / {event.maxParticipants} {translate('event.participants')}
+							{currentParticipants} / {maxParticipants} {translate('event.participants')}
 						</span>
 						<span className="text-accent font-bold">
 							{spotsLeft} {translate('event.spotsLeft')}
@@ -103,7 +108,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 								{translate('event.date')}
 							</span>
 							<span className="text-sm font-bold text-gray-800 sm:text-base dark:text-gray-200">
-								{formatDateTime(event.date)}
+								{formatDateTime(occurrenceDate ?? new Date())}
 							</span>
 						</div>
 					</div>

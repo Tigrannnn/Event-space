@@ -141,10 +141,17 @@ export const useLogout = () => {
 
 	return useMutation({
 		mutationFn: () => authApi.logout(),
-		onSuccess: () => {
+		onSuccess: async () => {
 			navigation.push('/');
 			queryClient.setQueryData(['me'], null);
-			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			await Promise.all([
+				queryClient.removeQueries({ queryKey: ['my-bookings'] }),
+				queryClient.removeQueries({ queryKey: ['bookings'] }),
+				queryClient.removeQueries({ queryKey: ['events'] }),
+				queryClient.removeQueries({ queryKey: ['event'] }),
+				queryClient.removeQueries({ queryKey: ['admin'] }),
+				queryClient.removeQueries({ queryKey: ['categories'] }),
+			]);
 			addToast('Logged out successfully.', ToastType.SUCCESS);
 			closeModal();
 		},

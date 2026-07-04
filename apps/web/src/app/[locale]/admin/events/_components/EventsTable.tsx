@@ -59,7 +59,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const [minPrice, setMinPrice] = useState<number | undefined>();
 	const [maxPriceInput, setMaxPriceInput] = useState('');
 	const [maxPrice, setMaxPrice] = useState<number | undefined>();
-	const [availability, setAvailability] = useState<'available' | 'sold_out' | undefined>();
 	const { openModal } = useModalStore();
 	const confirm = useConfirm();
 	const { data, isFetching } = useAdminEvents({
@@ -71,7 +70,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		time,
 		minPrice,
 		maxPrice,
-		availability,
 	});
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -82,7 +80,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
 	const hasActiveFilters = Boolean(
-		search || status !== undefined || difficulty !== undefined || time !== undefined || minPrice !== undefined || maxPrice !== undefined || availability !== undefined,
+		search || status !== undefined || difficulty !== undefined || time !== undefined || minPrice !== undefined || maxPrice !== undefined,
 	);
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -131,11 +129,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		resetPagination();
 	};
 
-	const handleAvailabilityChange = (value: string) => {
-		setAvailability(value ? (value as 'available' | 'sold_out') : undefined);
-		resetPagination();
-	};
-
 	const handlePageSizeChange = (value: string) => {
 		setLimit(Number(value));
 		resetPagination();
@@ -151,7 +144,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		setMinPrice(undefined);
 		setMaxPriceInput('');
 		setMaxPrice(undefined);
-		setAvailability(undefined);
 		resetPagination();
 	};
 
@@ -264,15 +256,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								/>
 							</div>
 
-							<Select
-								value={availability ?? ''}
-								onValueChange={handleAvailabilityChange}
-								options={[
-									{ value: '', label: translate('admin.availability') },
-									{ value: 'available', label: translate('admin.available') },
-									{ value: 'sold_out', label: translate('admin.soldOut') },
-								]}
-							/>
+
 
 							<Select
 								value={limit}

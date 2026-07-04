@@ -4,11 +4,9 @@ import {
 	type Booking,
 	type BookingFilters,
 	type CreateManualBookingData,
-	type Event,
 	type EventFilters,
 	type UserRoleType,
 	type UserFilters,
-	type Category,
 	type CreateCategoryData,
 	type UpdateCategoryData,
 } from '@event-space/shared';
@@ -50,12 +48,16 @@ export const useUpdateBookingStatus = () => {
 	return useMutation({
 		mutationFn: ({ id, status }: { id: string; status: Booking['status'] }) =>
 			adminApi.updateBookingStatus(id, status),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 	});
 };
@@ -67,12 +69,17 @@ export const useCreateEvent = () => {
 
 	return useMutation({
 		mutationFn: (formData: FormData) => adminApi.createEvent(formData),
-		onSuccess: () => {
+		onSuccess: async () => {
 			addToast('Event created successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to create event'), ToastType.ERROR);
@@ -88,13 +95,18 @@ export const useUpdateEvent = () => {
 	return useMutation({
 		mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
 			adminApi.updateEvent(id, formData),
-		onSuccess: () => {
+		onSuccess: async () => {
 			addToast('Event updated successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to update event'), ToastType.ERROR);
@@ -107,10 +119,15 @@ export const useDeleteEvent = () => {
 
 	return useMutation({
 		mutationFn: (id: string) => adminApi.deleteEvent(id),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 	});
 };
@@ -146,14 +163,18 @@ export const useCreateManualBooking = () => {
 
 	return useMutation({
 		mutationFn: (data: CreateManualBookingData) => adminApi.createManualBooking(data),
-		onSuccess: () => {
+		onSuccess: async () => {
 			addToast('Manual booking created successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-			queryClient.invalidateQueries({ queryKey: ['bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to create manual booking'), ToastType.ERROR);
@@ -175,10 +196,13 @@ export const useCreateCategory = () => {
 
 	return useMutation({
 		mutationFn: (data: CreateCategoryData) => adminApi.createCategory(data),
-		onSuccess: () => {
+		onSuccess: async () => {
 			addToast('Category created successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
+				queryClient.invalidateQueries({ queryKey: ['categories'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to create category'), ToastType.ERROR);
@@ -193,10 +217,13 @@ export const useUpdateCategory = () => {
 
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) => adminApi.updateCategory(id, data),
-		onSuccess: () => {
+		onSuccess: async () => {
 			addToast('Category updated successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
+				queryClient.invalidateQueries({ queryKey: ['categories'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to update category'), ToastType.ERROR);
@@ -209,8 +236,11 @@ export const useDeleteCategory = () => {
 
 	return useMutation({
 		mutationFn: (id: string) => adminApi.deleteCategory(id),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] });
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
+				queryClient.invalidateQueries({ queryKey: ['categories'] }),
+			]);
 		},
 	});
 };

@@ -10,7 +10,14 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Event, getEventImageUrls, getEventTranslation, getCategoryTranslation } from '@event-space/shared';
+import {
+	Event,
+	getEventImageUrls,
+	getEventTranslation,
+	getCategoryTranslation,
+	getEventOccurrenceDate,
+	getEventCapacity,
+} from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -32,6 +39,8 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 
 	const t = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
+	const occurrenceDate = getEventOccurrenceDate(event);
+	const { currentParticipants, maxParticipants } = getEventCapacity(event);
 
 	const handleImageError = () => {
 		setFailedImages((prev) => prev + 1);
@@ -149,7 +158,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 							{event.difficulty && (
 								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={event.difficulty} />
 							)}
-							<InfoCard icon={Users} label={translate('event.maxPeople')} value={String(event.maxParticipants)} />
+							<InfoCard icon={Users} label={translate('event.maxPeople')} value={String(maxParticipants)} />
 						</div>
 
 						{/* Description */}

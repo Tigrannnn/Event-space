@@ -2,12 +2,16 @@ import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
 import { UserRoleType } from '@event-space/shared';
+import { PrismaService } from '@infra/prisma/prisma.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-	constructor(private reflector: Reflector) {}
+	constructor(
+		private readonly reflector: Reflector,
+		private readonly prisma: PrismaService,
+	) {}
 
-	canActivate(context: ExecutionContext): boolean {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const requiredRoles = this.reflector.getAllAndOverride<UserRoleType[]>(ROLES_KEY, [
 			context.getHandler(),
 			context.getClass(),
@@ -18,8 +22,18 @@ export class RolesGuard implements CanActivate {
 		}
 
 		const { user } = context.switchToHttp().getRequest();
+		const userId = user?.sub;
 
-		const hasRole = requiredRoles.some((role) => user.role === role);
+		if (!userId) {
+			throw new ForbiddenException('You do not have permission to access this resource');
+		}
+
+		const dbUser = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { role: true },
+		});
+
+		const hasRole = requiredRoles.some((role) => dbUser?.role === role);
 
 		if (!hasRole) {
 			throw new ForbiddenException('You do not have permission to access this resource');

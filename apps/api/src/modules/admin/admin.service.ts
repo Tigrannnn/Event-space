@@ -30,8 +30,18 @@ const bookingInclude = {
 	user: {
 		select: safeUserSelect,
 	},
-	event: {
-		include: { images: true, cancellationRules: true, translations: true, category: { include: { translations: true } } },
+	occurrence: {
+		include: {
+			event: {
+				include: {
+					images: true,
+					cancellationRules: true,
+					translations: true,
+					category: { include: { translations: true } },
+					occurrences: true,
+				},
+			},
+		},
 	},
 	adjustments: true,
 } as const;
@@ -95,10 +105,10 @@ export class AdminService {
 			this.prisma.event.count({ where: { status: 'PUBLISHED' } }),
 			this.prisma.event.count({ where: { status: 'DRAFT' } }),
 			this.prisma.event.count({ where: { status: 'CANCELLED' } }),
-			this.prisma.event.count({ where: { date: { gte: now } } }),
-			this.prisma.event.count({ where: { date: { gte: now, lte: weekFromNow } } }),
-			this.prisma.event.count({ where: { bookings: { none: {} } } }),
-			this.prisma.event.aggregate({
+			this.prisma.event.count({ where: { occurrences: { some: { date: { gte: now } } } } }),
+			this.prisma.event.count({ where: { occurrences: { some: { date: { gte: now, lte: weekFromNow } } } } }),
+			this.prisma.event.count({ where: { occurrences: { none: { bookings: { some: {} } } } } }),
+			this.prisma.eventOccurrence.aggregate({
 				_sum: {
 					currentParticipants: true,
 					maxParticipants: true,
@@ -125,6 +135,7 @@ export class AdminService {
 							translations: true,
 						},
 					},
+					occurrences: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -132,8 +143,8 @@ export class AdminService {
 			}),
 			this.prisma.event.findMany({
 				take: 5,
-				where: { date: { gte: now } },
-				orderBy: [{ date: 'asc' }, { id: 'asc' }],
+				where: { occurrences: { some: { date: { gte: now } } } },
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
 				include: {
 					cancellationRules: true,
 					translations: true,
@@ -142,6 +153,7 @@ export class AdminService {
 							translations: true,
 						},
 					},
+					occurrences: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -153,8 +165,8 @@ export class AdminService {
 		const confirmedBookingsData = await this.prisma.booking.findMany({
 			where: { status: 'CONFIRMED' },
 			include: {
-				event: {
-					select: { price: true },
+				occurrence: {
+					select: { event: { select: { price: true } } },
 				},
 			},
 		});
@@ -197,7 +209,7 @@ export class AdminService {
 			recentBookings: recentBookings.map((b) => ({
 				...b,
 				amount: Number(b.amount),
-				event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
+				event: b.occurrence?.event ? { ...b.occurrence.event, price: Number(b.occurrence.event.price) } : undefined,
 				adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })),
 			})),
 			recentUsers,
@@ -205,11 +217,13 @@ export class AdminService {
 				...e,
 				price: Number(e.price),
 				cancellationRules: e.cancellationRules ?? [],
+				occurrences: e.occurrences ?? [],
 			})),
 			upcomingEvents: upcomingEvents.map((e) => ({
 				...e,
 				price: Number(e.price),
 				cancellationRules: e.cancellationRules ?? [],
+				occurrences: e.occurrences ?? [],
 			})),
 		};
 	}
@@ -309,9 +323,9 @@ export class AdminService {
 					}
 				: {}),
 			...(status ? { status } : {}),
-			...(time === 'upcoming' ? { event: { date: { gte: now } } } : {}),
-			...(time === 'completed' ? { event: { date: { lt: now } } } : {}),
-			...(eventId ? { eventId } : {}),
+			...(time === 'upcoming' ? { occurrence: { date: { gte: now } } } : {}),
+			...(time === 'completed' ? { occurrence: { date: { lt: now } } } : {}),
+			...(eventId ? { occurrence: { eventId } } : {}),
 		};
 
 		const [bookings, total] = await Promise.all([
@@ -331,7 +345,7 @@ export class AdminService {
 		// Normalize decimals to plain numbers for JSON/clients
 		const normalized = data.map((b) => ({
 			...b,
-			event: b.event ? { ...b.event, price: Number(b.event.price) } : undefined,
+			event: b.occurrence?.event ? { ...b.occurrence.event, price: Number(b.occurrence.event.price) } : undefined,
 			adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [],
 		}));
 
@@ -371,7 +385,7 @@ export class AdminService {
 		return this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({
 				where: { id },
-				include: { event: true },
+				include: { occurrence: true },
 			});
 
 			if (!booking) {
@@ -391,10 +405,10 @@ export class AdminService {
 				Number(willBeConfirmed) * booking.quantity - Number(wasConfirmed) * booking.quantity;
 
 			if (participantDelta > 0) {
-				const reserved = await tx.event.updateMany({
+				const reserved = await tx.eventOccurrence.updateMany({
 					where: {
-						id: booking.eventId,
-						currentParticipants: { lte: booking.event.maxParticipants - participantDelta },
+						id: booking.occurrenceId,
+						currentParticipants: { lte: booking.occurrence.maxParticipants - participantDelta },
 					},
 					data: { currentParticipants: { increment: participantDelta } },
 				});
@@ -402,7 +416,7 @@ export class AdminService {
 				if (reserved.count === 0) {
 					const spotsLeft = Math.max(
 						0,
-						booking.event.maxParticipants - booking.event.currentParticipants,
+						booking.occurrence.maxParticipants - booking.occurrence.currentParticipants,
 					);
 					throw new ConflictException(
 						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
@@ -410,9 +424,9 @@ export class AdminService {
 				}
 			} else if (participantDelta < 0) {
 				const releaseQty = -participantDelta;
-				const released = await tx.event.updateMany({
+				const released = await tx.eventOccurrence.updateMany({
 					where: {
-						id: booking.eventId,
+						id: booking.occurrenceId,
 						currentParticipants: { gte: releaseQty },
 					},
 					data: { currentParticipants: { decrement: releaseQty } },
@@ -458,8 +472,8 @@ export class AdminService {
 				: {}),
 			...(status ? { status } : {}),
 			...(difficulty ? { difficulty } : {}),
-			...(time === 'upcoming' ? { date: { gte: now } } : {}),
-			...(time === 'completed' ? { date: { lt: now } } : {}),
+			...(time === 'upcoming' ? { occurrences: { some: { date: { gte: now } } } } : {}),
+			...(time === 'completed' ? { occurrences: { some: { date: { lt: now } } } } : {}),
 			...(minPrice !== undefined ? { price: { gte: minPrice } } : {}),
 			...(maxPrice !== undefined ? { price: { lte: maxPrice } } : {}),
 		};
@@ -469,7 +483,7 @@ export class AdminService {
 				where,
 				skip,
 				take: limit + 1,
-				orderBy: [{ date: 'asc' }, { id: 'asc' }],
+				orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
 				include: {
 					cancellationRules: true,
 					translations: true,
@@ -482,6 +496,7 @@ export class AdminService {
 						},
 					},
 					images: { orderBy: { order: 'asc' } },
+					occurrences: true,
 					category: { 
 						include: { translations: true }
 					 }

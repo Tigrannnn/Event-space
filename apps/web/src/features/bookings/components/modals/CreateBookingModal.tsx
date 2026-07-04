@@ -7,7 +7,7 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useCreateBooking } from '@/features/bookings/hooks/useBookings';
 import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
-import { BookingWithEstimate } from '@event-space/shared';
+import { BookingWithEstimate, getEventCapacity } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useCurrentUser } from '@/features/users';
 
@@ -33,7 +33,8 @@ export default function CreateBookingModal() {
 		return null;
 	}
 
-	const spotsLeft = event.maxParticipants - event.currentParticipants;
+	const { currentParticipants, maxParticipants } = getEventCapacity(event);
+	const spotsLeft = Math.max(0, maxParticipants - currentParticipants);
 
 	const handleConfirm = (quantity: number, phone: string) => {
 		createBooking(

@@ -21,8 +21,12 @@ export const useCreateBooking = () => {
 			const message = getApiErrorMessage(error, 'Failed to create booking');
 			addToast(message, ToastType.ERROR);
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
 		},
 	});
 };
@@ -35,12 +39,14 @@ export const useUpdateBooking = () => {
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
 			bookingApi.updateBooking(id, data),
-		onSuccess: (result) => {
+		onSuccess: async (result) => {
 			addToast('Booking updated successfully', ToastType.SUCCESS);
 			closeModal();
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['event', result.eventId] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['event', result.eventId] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+			]);
 		},
 		onError: (error) => {
 			const message = getApiErrorMessage(error, 'Failed to update booking');
@@ -55,11 +61,13 @@ export const useCancelBooking = () => {
 
 	return useMutation({
 		mutationFn: (id: string) => bookingApi.cancelBooking(id),
-		onSuccess: (result) => {
+		onSuccess: async (result) => {
 			addToast('Booking cancelled successfully', ToastType.SUCCESS);
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['event', result.eventId] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['event', result.eventId] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+			]);
 		},
 		onError: (error) => {
 			const message = getApiErrorMessage(error, 'Failed to cancel booking');
