@@ -58,11 +58,9 @@ export default function ForgotPasswordForm() {
 				setStep('code');
 				startCooldown(data.email);
 			},
-			onError: (error) => {
-				const message = getApiErrorMessage(error, 'Failed to send reset code');
-				if (message.includes('wait before')) {
-					setStep('code');
-				}
+			onError: () => {
+				setEmail(data.email);
+				setStep('code');
 			},
 		});
 	};

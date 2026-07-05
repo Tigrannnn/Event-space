@@ -32,9 +32,7 @@ export const useRegister = () => {
 		},
 		onError: (error: unknown, variables: RegisterData) => {
 			const message = getApiErrorMessage(error, 'Registration failed');
-			if (message.includes('wait before')) {
-				openModal(ModalType.VerifyEmail, { email: variables.email });
-			}
+			openModal(ModalType.VerifyEmail, { email: variables.email });
 			addToast(message, ToastType.ERROR);
 		},
 	});

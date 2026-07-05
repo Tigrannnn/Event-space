@@ -12,7 +12,6 @@ import {
 	EnvKey,
 	Event,
 	getApiErrorMessage,
-	getEventOccurrenceDate,
 	type EventOccurrence,
 } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
@@ -52,15 +51,13 @@ function StripePaymentFormContent({
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const params = useParams();
-	const localeParam = (params.locale as Locale) || defaultLocale;
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 	const eventTitle = getEventTranslation(event, locale).title;
 
-
-	const occurrenceDate = selectedOccurrence?.date ?? getEventOccurrenceDate(event);
+	const occurrenceDate = selectedOccurrence?.date;
 
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
@@ -199,14 +196,17 @@ function StripePaymentFormContent({
 			<p className="text-sm text-gray-500 dark:text-gray-400">{translate('booking.cardDetails')}</p>
 
 			{selectedOccurrence && (
-				<div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-800 space-y-1">
-					<p className="font-semibold text-sm text-gray-900 dark:text-white">{eventTitle}</p>
-					<p className="text-sm text-gray-500 dark:text-gray-400">{formatDateTime(selectedOccurrence.date)}</p>
+				<div className="space-y-1 rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
+					<p className="text-sm font-semibold text-gray-900 dark:text-white">{eventTitle}</p>
+					<p className="text-sm text-gray-500 dark:text-gray-400">
+						{formatDateTime(selectedOccurrence.date)}
+					</p>
 					<p className="text-sm text-gray-600 dark:text-gray-300">
 						{translate('booking.spots')}: <span className="font-medium">{booking.quantity}</span>
 					</p>
 					<p className="text-sm text-gray-600 dark:text-gray-300">
-						{translate('booking.total')}: <span className="font-medium">{formatCurrency(booking.amount)}</span>
+						{translate('booking.total')}:{' '}
+						<span className="font-medium">{formatCurrency(booking.amount)}</span>
 					</p>
 				</div>
 			)}
@@ -289,7 +289,12 @@ export default function StripePaymentForm({
 			stripe={stripePromise}
 			options={{ clientSecret, appearance: { theme: theme === 'dark' ? 'night' : 'stripe' } }}
 		>
-			<StripePaymentFormContent event={event} booking={booking} onClose={onClose} selectedOccurrence={selectedOccurrence} />
+			<StripePaymentFormContent
+				event={event}
+				booking={booking}
+				onClose={onClose}
+				selectedOccurrence={selectedOccurrence}
+			/>
 		</Elements>
 	);
 }

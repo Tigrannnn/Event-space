@@ -160,6 +160,9 @@ export const messages = {
 			availability: 'Հասանելիություն',
 			noUpcomingEvents: 'Առաջիկա միջոցառումներ չկան։',
 			eventEndedButton: 'Միջոցառումն ավարտվել է',
+			moreDates: '+ {count} ավելին',
+			noUpcomingOccurrences: 'Կներեք, բոլոր էքսկուրսիաները ավարտվել են',
+			noSpotsLeft: 'Մասնատեղեր չկան',
 		},
 		booking: {
 			myBookings: 'Իմ ամրագրումները',
@@ -606,6 +609,9 @@ export const messages = {
 			availability: 'Доступность',
 			noUpcomingEvents: 'Предстоящих событий нет.',
 			eventEndedButton: 'Событие завершено',
+			moreDates: '+ {count} ещё',
+			noUpcomingOccurrences: 'К сожалению, все выезды завершены',
+			noSpotsLeft: 'Мест нет',
 		},
 		booking: {
 			myBookings: 'Мои бронирования',
@@ -1048,6 +1054,9 @@ export const messages = {
 			availability: 'Availability',
 			noUpcomingEvents: 'No upcoming events.',
 			eventEndedButton: 'Event Ended',
+			moreDates: '+ {count} more',
+			noUpcomingOccurrences: 'Sorry, all departures have already ended',
+			noSpotsLeft: 'No spots left',
 		},
 		booking: {
 			myBookings: 'My Bookings',

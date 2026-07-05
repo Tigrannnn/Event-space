@@ -11,6 +11,7 @@ import type {
 	PaginatedParams,
 	CreateCategoryData,
 	UpdateCategoryData,
+	BookingWithDetails,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -67,6 +68,33 @@ interface FindAllEventsParams extends PaginatedParams {
 	minPrice?: number;
 	maxPrice?: number;
 }
+
+const normalizeBookingResponse = (booking: any): BookingWithDetails => {
+	const normalizedOccurrence = booking.occurrence
+		? {
+				...booking.occurrence,
+				event: booking.occurrence.event
+					? {
+						...booking.occurrence.event,
+						price: Number(booking.occurrence.event.price),
+					}
+					: undefined,
+			}
+		: undefined;
+
+	return {
+		...booking,
+		amount: Number(booking.amount),
+		event: booking.occurrence?.event
+			? {
+					...booking.occurrence.event,
+					price: Number(booking.occurrence.event.price),
+				}
+			: undefined,
+		occurrence: normalizedOccurrence,
+		adjustments: booking.adjustments?.map((a: any) => ({ ...a, amount: Number(a.amount) })) ?? [],
+	} as BookingWithDetails;
+};
 
 @Injectable()
 export class AdminService {
@@ -206,12 +234,7 @@ export class AdminService {
 				eventsThisWeek,
 				eventsWithNoBookings,
 			},
-			recentBookings: recentBookings.map((b) => ({
-				...b,
-				amount: Number(b.amount),
-				event: b.occurrence?.event ? { ...b.occurrence.event, price: Number(b.occurrence.event.price) } : undefined,
-				adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })),
-			})),
+			recentBookings: recentBookings.map((b) => normalizeBookingResponse(b)),
 			recentUsers,
 			recentEvents: recentEvents.map((e) => ({
 				...e,
@@ -343,11 +366,7 @@ export class AdminService {
 		const data = hasMore ? bookings.slice(0, limit) : bookings;
 
 		// Normalize decimals to plain numbers for JSON/clients
-		const normalized = data.map((b) => ({
-			...b,
-			event: b.occurrence?.event ? { ...b.occurrence.event, price: Number(b.occurrence.event.price) } : undefined,
-			adjustments: b.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [],
-		}));
+		const normalized = data.map((b) => normalizeBookingResponse(b));
 
 		return {
 			data: normalized,

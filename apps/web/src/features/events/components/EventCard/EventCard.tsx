@@ -15,8 +15,8 @@ import {
 	isEventAvailable,
 	getEventTranslation,
 	getCategoryTranslation,
-	getEventOccurrenceDate,
-	getEventCapacity,
+	getUpcomingEventOccurrences,
+	getPrimaryEventOccurrence,
 } from '@event-space/shared';
 
 export interface EventCardProps {
@@ -44,14 +44,29 @@ export default function EventCard({ event }: EventCardProps) {
 	const eventIsAvailable = isEventAvailable(event);
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
-	const occurrenceDate = getEventOccurrenceDate(event);
-	const { currentParticipants, maxParticipants } = getEventCapacity(event);
+	const occurrenceDate = getPrimaryEventOccurrence(event);
+	const upcomingOccurrences = getUpcomingEventOccurrences(event);
+	const firstOccurrenceDate = upcomingOccurrences[0]?.date ?? occurrenceDate;
+	const additionalOccurrencesCount = Math.max(upcomingOccurrences.length - 1, 0);
+	const occurrenceLabel = firstOccurrenceDate
+		? `${formatDateTime(firstOccurrenceDate ?? '')}${additionalOccurrencesCount > 0 ? ` ${translate('event.moreDates').replace('{count}', String(additionalOccurrencesCount))}` : ''}`
+		: '';
 
-	const hasBooking = myBookings?.some(
-		(booking) => booking.event?.id === event.id && booking.status !== 'CANCELLED',
-	);
+	const hasBooking = React.useMemo(() => {
+		if (!myBookings?.length) return false;
 
-	const handleJoinClick = (e: React.MouseEvent) => {
+		const occurrenceIds = new Set((event.occurrences ?? []).map((occurrence) => occurrence.id));
+
+		return myBookings.some((booking) => {
+			const status = booking.status?.toUpperCase();
+			if (status === 'CANCELLED') return false;
+
+			const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
+			return Boolean(bookingOccurrenceId && occurrenceIds.has(bookingOccurrenceId));
+		});
+	}, [event.occurrences, myBookings]);
+
+	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
 		if (user) {
@@ -89,7 +104,7 @@ export default function EventCard({ event }: EventCardProps) {
 						className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs"
 						suppressHydrationWarning
 					>
-						{formatDateTime(occurrenceDate ?? '')}
+						{occurrenceLabel}
 					</span>
 				</div>
 
@@ -115,8 +130,6 @@ export default function EventCard({ event }: EventCardProps) {
 
 				{/* Footer Section: Metrics & Action - always at bottom */}
 				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
-					<CapacityBar current={currentParticipants} max={maxParticipants} />
-
 					{!eventIsAvailable ? (
 						<Button disabled variant="secondary" className="relative z-20 w-full">
 							{translate('event.eventEndedButton')}
@@ -129,7 +142,7 @@ export default function EventCard({ event }: EventCardProps) {
 							{translate('event.viewMyBooking')}
 						</Button>
 					) : (
-						<Button variant="primary" className="relative z-20 w-full" onClick={handleJoinClick}>
+						<Button variant="primary" className="relative z-20 w-full" onClick={handleBookClick}>
 							<BookOpen className="h-4 w-4" />
 							{translate('event.bookTour')}
 						</Button>

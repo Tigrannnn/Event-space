@@ -19,8 +19,8 @@ export default function CreateEventModal() {
 			size="full"
 			position="center"
 			ariaLabel={translate('admin.createEventModal')}
-			disableBackdropClose={isPending}
-			disableEscapeClose={isPending}
+			disableBackdropClose={true}
+			disableEscapeClose={true}
 		>
 			<EventForm
 				isPending={isPending}

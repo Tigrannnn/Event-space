@@ -283,7 +283,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							<TableHead className="px-3 sm:px-5">{translate('admin.event')}</TableHead>
 							<TableHead>{translate('admin.status')}</TableHead>
 							<TableHead>{translate('admin.date')}</TableHead>
-							<TableHead>{translate('admin.capacity')}</TableHead>
 							<TableHead>{translate('admin.price')}</TableHead>
 							<TableHead className="w-32">{translate('admin.actions')}</TableHead>
 						</TableRow>
@@ -322,12 +321,8 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									</TableCell>
 									<TableCell>
 										<div className="flex items-center gap-2 text-sm" suppressHydrationWarning>
-											<CalendarDays className="h-4 w-4 text-gray-400" />
-											{formatDateTime(event.date)}
+											{/* {formatDateTime(event.date)} */}
 										</div>
-									</TableCell>
-									<TableCell>
-										{event.currentParticipants}/{event.maxParticipants}
 									</TableCell>
 									<TableCell suppressHydrationWarning>{formatCurrency(event.price)}</TableCell>
 									<TableCell>

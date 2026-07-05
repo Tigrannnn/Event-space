@@ -5,12 +5,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import {
-	getEventCoverImageUrl,
-	isEventAvailable,
-	getEventTranslation,
-	getEventOccurrenceDate,
-} from '@event-space/shared';
+import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking } from '../../hooks/useBookings';
@@ -32,14 +27,8 @@ function centsToDollars(cents: number) {
 }
 
 export default function BookingCard({ booking }: BookingCardProps) {
-	const {
-		event,
-		quantity,
-		status,
-		refundPercentage,
-		estimatedRefundInCents,
-	} = booking;
-	
+	const { occurrence, quantity, status, refundPercentage, estimatedRefundInCents } = booking;
+
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
@@ -52,10 +41,13 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// 	openModal(ModalType.UpdateBooking, { booking });
 	// };
 
+	if (!occurrence) return null;
+	const { event } = occurrence;
+
 	if (!event) return null;
 
-	const eventIsAvailable = isEventAvailable(event);
-	const occurrenceDate = getEventOccurrenceDate(event);
+	const occurrenceIsAvailable = new Date(occurrence.date) > new Date();
+	const occurrenceDate = occurrence.date;
 
 	const handleCancel = async () => {
 		if (!event) return;
@@ -217,7 +209,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						{translate('booking.viewEvent')}
 					</Button>
-					{eventIsAvailable && (
+					{occurrenceIsAvailable && (
 						<Button
 							variant="danger"
 							size="sm"

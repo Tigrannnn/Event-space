@@ -46,7 +46,7 @@ export default function CreateBookingModal() {
 		}
 
 		createBooking(
-			{ occurrenceId: selectedOccurrence.id, quantity, phone },
+			{ occurrenceId: selectedOccurrence.id, quantity, phone, paymentMethod: 'STRIPE' },
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {
@@ -64,7 +64,12 @@ export default function CreateBookingModal() {
 	};
 
 	return (
-		<Modal onClose={handleClose} ariaLabel={translate('booking.confirmBooking')}>
+		<Modal
+			onClose={handleClose}
+			ariaLabel={translate('booking.confirmBooking')}
+			disableBackdropClose={true}
+			disableEscapeClose={true}
+		>
 			{clientSecret && booking ? (
 				<StripePaymentForm
 					event={event}
@@ -82,7 +87,9 @@ export default function CreateBookingModal() {
 					onOccurrenceSelect={setSelectedOccurrence}
 					selectedOccurrence={selectedOccurrence}
 					isLoading={isLoading}
-					submitLabel={isLoading ? translate('booking.preparingPayment') : translate('booking.continueToPayment')}
+					submitLabel={
+						isLoading ? translate('booking.preparingPayment') : translate('booking.continueToPayment')
+					}
 					title={translate('booking.confirmBooking')}
 					onClose={closeModal}
 					userPhone={user?.phone ?? undefined}
