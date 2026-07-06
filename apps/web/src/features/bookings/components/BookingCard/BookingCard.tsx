@@ -209,7 +209,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						{translate('booking.viewEvent')}
 					</Button>
-					{occurrenceIsAvailable && (
+					{occurrenceIsAvailable || booking.status === 'CONFIRMED' && (
 						<Button
 							variant="danger"
 							size="sm"

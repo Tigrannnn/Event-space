@@ -308,7 +308,7 @@ export class BookingService {
 
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
-			where: { userId, status: 'CONFIRMED' },
+			where: { userId },
 			include: {
 				occurrence: {
 					include: {

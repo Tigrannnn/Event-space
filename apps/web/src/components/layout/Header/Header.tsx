@@ -27,7 +27,7 @@ export default function Header() {
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings } = useGetMyBookings();
-	const myBookingsCount = myBookings?.length ?? 0;
+	const myBookingsCount = myBookings ? myBookings.filter((b) => b.status === 'CONFIRMED').length : 0;
 	const isHydrated = useHydrated();
 
 	const handleSubmitSearch = useCallback(() => {
@@ -111,7 +111,9 @@ export default function Header() {
 									onClick={() => navigation.push('/profile')}
 									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 								>
-									{user.name.split(' ')[0].trim().length <= 10 ? user.name.split(' ')[0] : translate('header.profile')}
+									{user.name.split(' ')[0].trim().length <= 10
+										? user.name.split(' ')[0]
+										: translate('header.profile')}
 								</Button>
 							</>
 						) : (
