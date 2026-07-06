@@ -11,20 +11,29 @@ import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
 import { useForgotPassword } from '@/features/auth';
 import { useTranslation } from '@/hooks/translation';
-
-const editProfileSchema = z.object({
-	name: z
-		.string()
-		.min(2, 'Name must be at least 2 characters')
-		.max(50, 'Name cannot exceed 50 characters'),
-	phone: z.string().optional().nullable(),
-});
-
-type EditProfileForm = z.infer<typeof editProfileSchema>;
+import { PhoneSchema } from '@event-space/shared';
 
 export default function EditProfileModal() {
 	const { data: user } = useCurrentUser();
 	const translate = useTranslation();
+	const editProfileSchema = z.object({
+		name: z
+			.string()
+			.min(2, 'Name must be at least 2 characters')
+			.max(50, 'Name cannot exceed 50 characters'),
+		phone: z
+			.string()
+			.trim()
+			.optional()
+			.nullable()
+			.refine(
+				(value) =>
+					value === undefined || value === null || value === '' || PhoneSchema.safeParse(value).success,
+				{ message: translate('profile.invalidPhone') },
+			),
+	});
+
+	type EditProfileForm = z.infer<typeof editProfileSchema>;
 	const { mutate: updateProfile, isPending: isUpdating } = useUpdateCurrentUser();
 	const { activeModal, closeModal, openModal } = useModalStore();
 	const isOpen = activeModal === ModalType.EditProfile;
@@ -46,7 +55,7 @@ export default function EditProfileModal() {
 	const onSubmit = async (data: EditProfileForm) => {
 		const updateData = {
 			...data,
-			phone: data.phone === '' ? null : data.phone,
+			phone: data.phone?.trim() ? data.phone.trim() : null,
 		};
 		updateProfile(updateData, { onSuccess: () => closeModal() });
 	};
@@ -57,13 +66,27 @@ export default function EditProfileModal() {
 	};
 
 	return (
-	<Modal onClose={closeModal} size="md" position="center" ariaLabel={translate('profile.editProfile')}>
+		<Modal
+			onClose={closeModal}
+			size="md"
+			position="center"
+			ariaLabel={translate('profile.editProfile')}
+		>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('profile.editProfile')} onClose={closeModal} />
 
 				<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
-					<Input label={translate('profile.fullName')} {...register('name')} error={errors.name?.message} />
-					<Input label={translate('profile.phone')} {...register('phone')} />
+					<Input
+						label={translate('profile.fullName')}
+						{...register('name')}
+						error={errors.name?.message}
+					/>
+					<Input
+						label={translate('profile.phone')}
+						type="tel"
+						{...register('phone')}
+						error={errors.phone?.message}
+					/>
 
 					<Button type="button" onClick={handleChangePassword}>
 						{translate('profile.changePassword')}

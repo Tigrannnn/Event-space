@@ -7,7 +7,7 @@ import Input from '@/components/ui/Inputs/Input';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
-import { getEventTranslation, type EventOccurrence } from '@event-space/shared';
+import { getEventTranslation, PhoneSchema, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 
@@ -28,6 +28,7 @@ export default function BookingForm({
 	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const [phone, setPhone] = useState(userPhone || '');
+	const [phoneError, setPhoneError] = useState('');
 	const formatCurrency = useFormatCurrency();
 	const { formatDateTime } = useFormatDate();
 
@@ -53,6 +54,30 @@ export default function BookingForm({
 
 	const totalPrice = selectedOccurrence ? event.price * quantity : 0;
 	const t = getEventTranslation(event, locale);
+	const isPhoneValid = phone.trim() ? PhoneSchema.safeParse(phone.trim()).success : false;
+
+	const handlePhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const nextPhone = event.target.value;
+		setPhone(nextPhone);
+
+		if (!nextPhone.trim()) {
+			setPhoneError('');
+			return;
+		}
+
+		setPhoneError(PhoneSchema.safeParse(nextPhone.trim()).success ? '' : translate('booking.invalidPhone'));
+	};
+
+	const handleSubmitClick = () => {
+		const trimmedPhone = phone.trim();
+		if (!selectedOccurrence || !trimmedPhone || !PhoneSchema.safeParse(trimmedPhone).success) {
+			setPhoneError(translate('booking.invalidPhone'));
+			return;
+		}
+
+		setPhoneError('');
+		onSubmit(quantity, trimmedPhone);
+	};
 
 	return (
 		<div className="p-5 sm:p-6">
@@ -124,8 +149,10 @@ export default function BookingForm({
 					<div className="mt-4">
 						<Input
 							label={translate('booking.phone')}
+							type="tel"
 							value={phone}
-							onChange={(e) => setPhone(e.target.value)}
+							onChange={handlePhoneChange}
+							error={phoneError}
 							required
 						/>
 					</div>
@@ -143,9 +170,9 @@ export default function BookingForm({
 				</Button>
 				<Button
 					variant="primary"
-					onClick={() => selectedOccurrence && onSubmit(quantity, phone)}
+					onClick={handleSubmitClick}
 					isLoading={isLoading}
-					disabled={!selectedOccurrence || !phone.trim() || isLoading}
+					disabled={!selectedOccurrence || !isPhoneValid || isLoading}
 					className="flex-1"
 				>
 					{submitLabel}

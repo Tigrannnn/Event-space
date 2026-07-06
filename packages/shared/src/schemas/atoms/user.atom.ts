@@ -23,8 +23,13 @@ export type Password = z.infer<typeof PasswordSchema>;
 
 export const PhoneSchema = z
 	.string()
+	.trim()
 	.min(5, 'Phone number is too short')
 	.max(20, 'Phone number is too long')
+	.regex(/^\+?[0-9\s().-]{5,20}$/, 'Phone number format is invalid')
+	.refine((value) => (value.replace(/\D/g, '').length >= 7 && value.replace(/\D/g, '').length <= 15), {
+		message: 'Phone number must contain 7-15 digits',
+	})
 	.openapi({ example: '+374 99 123 456' });
 
 export type Phone = z.infer<typeof PhoneSchema>;
