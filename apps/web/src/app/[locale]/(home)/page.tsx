@@ -40,6 +40,9 @@ export default async function Home({ searchParams }: HomePageProps) {
 		urlParams.set('minPrice', String(filters.priceRange.min));
 		urlParams.set('maxPrice', String(filters.priceRange.max));
 	}
+	if (filters.guests !== null && filters.guests > 0) {
+		urlParams.set('guests', String(filters.guests));
+	}
 
 	const apiCategory = getApiCategoryFilter(filters.categories);
 	if (apiCategory) urlParams.set('category', apiCategory);

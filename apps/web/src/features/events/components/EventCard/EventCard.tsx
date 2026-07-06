@@ -59,7 +59,7 @@ export default function EventCard({ event }: EventCardProps) {
 
 		return myBookings.some((booking) => {
 			const status = booking.status?.toUpperCase();
-			if (status === 'CANCELLED') return false;
+			if (status !== 'CONFIRMED') return false;
 
 			const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
 			return Boolean(bookingOccurrenceId && occurrenceIds.has(bookingOccurrenceId));

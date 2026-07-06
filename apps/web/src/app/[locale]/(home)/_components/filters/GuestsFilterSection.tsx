@@ -33,7 +33,6 @@ export function GuestsFilterSection({
 	const updateGuests = (nextCount: number) => {
 		const clamped = Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, nextCount));
 		onFiltersChange({ ...filters, guests: clamped });
-		// TODO: подключить к API когда появится поле доступных мест — фильтровать туры, где available_slots >= filters.guests
 	};
 
 	const handleDecrement = () => {

@@ -45,7 +45,13 @@ export class BookingService {
 				where: { id: occurrenceId },
 				include: {
 					event: {
-						include: { cancellationRules: true, translations: true },
+						include: {
+							cancellationRules: true,
+							translations: true,
+							category: { include: { translations: true } },
+							occurrences: true,
+							images: true,
+						},
 					},
 				},
 			});
@@ -121,15 +127,14 @@ export class BookingService {
 			const bookingWithEstimate = {
 				...updatedBooking,
 				amount: Number(updatedBooking.amount),
-				event: { ...event, price: Number(event.price) },
-				occurrence: { ...occurrence },
+				occurrence: this.mapOccurrenceForBookingResponse(occurrence),
 				refundPercentage,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
-			};
+			} satisfies BookingWithEstimate;
 
 			return {
-				booking: bookingWithEstimate as unknown as BookingWithEstimate,
+				booking: bookingWithEstimate,
 				clientSecret: paymentIntent.client_secret,
 			};
 		} catch (error) {
@@ -154,7 +159,13 @@ export class BookingService {
 				where: { id: occurrenceId },
 				include: {
 					event: {
-						include: { cancellationRules: true, translations: true },
+						include: {
+							cancellationRules: true,
+							translations: true,
+							category: { include: { translations: true } },
+							occurrences: true,
+							images: true,
+						},
 					},
 				},
 			});
@@ -256,12 +267,11 @@ export class BookingService {
 		return {
 			...result.booking,
 			amount: Number(result.booking.amount),
-			event: { ...result.event, price: Number(result.event.price) },
-			occurrence: { ...result.occurrence, event: { ...result.event, price: Number(result.event.price) } },
+			occurrence: this.mapOccurrenceForBookingResponse(result.occurrence),
 			refundPercentage: 0,
 			estimatedStripeFeeInCents: 0,
 			estimatedRefundInCents: 0,
-		};
+		} satisfies BookingWithEstimate;
 	}
 	// 			throw new ConflictException('Cannot update cancelled booking');
 	// 		}
@@ -312,7 +322,15 @@ export class BookingService {
 			include: {
 				occurrence: {
 					include: {
-						event: { include: { images: true, cancellationRules: true, translations: true } },
+						event: {
+							include: {
+								images: true,
+								cancellationRules: true,
+								translations: true,
+								category: { include: { translations: true } },
+								occurrences: true,
+							},
+						},
 					},
 				},
 				user: {
@@ -342,11 +360,11 @@ export class BookingService {
 					return {
 						...booking,
 						amount: Number(booking.amount),
-						event: event ? { ...event, price: Number(event.price) } : undefined,
+						occurrence: undefined,
 						refundPercentage: 0,
 						estimatedStripeFeeInCents: 0,
 						estimatedRefundInCents: 0,
-					} as unknown as BookingWithEstimate;
+					} satisfies BookingWithEstimate;
 				}
 
 				let stripeFeeInCents = 0;
@@ -379,11 +397,11 @@ export class BookingService {
 				return {
 					...booking,
 					amount: Number(booking.amount),
-					event: { ...event, price: Number(event.price) },
+					occurrence: this.mapOccurrenceForBookingResponse(occurrence),
 					refundPercentage,
 					estimatedStripeFeeInCents,
 					estimatedRefundInCents,
-				} as unknown as BookingWithEstimate;
+				} satisfies BookingWithEstimate;
 			}),
 		);
 
@@ -403,13 +421,30 @@ export class BookingService {
 		const { booking, occurrence, event } = await this.prisma.$transaction(async (tx) => {
 			const currentBooking = await tx.booking.findUnique({
 				where: { id: bookingId },
-				include: { occurrence: { include: { event: { include: { cancellationRules: true, translations: true } } } } },
+				include: {
+					occurrence: {
+						include: {
+							event: {
+								include: {
+									cancellationRules: true,
+									translations: true,
+									category: { include: { translations: true } },
+									occurrences: true,
+								},
+							},
+						},
+					},
+				},
 			});
 
 			if (!currentBooking) throw new NotFoundException('Booking not found');
 			if (currentBooking.userId !== userId) throw new ForbiddenException('Not your booking');
 			if (currentBooking.status === 'CANCELLED') {
-				return { booking: currentBooking, occurrence: currentBooking.occurrence, event: currentBooking.occurrence?.event };
+				return {
+					booking: currentBooking,
+					occurrence: currentBooking.occurrence,
+					event: currentBooking.occurrence?.event,
+				};
 			}
 
 			if (currentBooking.status === 'CONFIRMED') {
@@ -427,7 +462,11 @@ export class BookingService {
 				data: { status: 'CANCELLED' },
 			});
 
-			return { booking: updatedBooking, occurrence: currentBooking.occurrence, event: currentBooking.occurrence?.event };
+			return {
+				booking: updatedBooking,
+				occurrence: currentBooking.occurrence,
+				event: currentBooking.occurrence?.event,
+			};
 		});
 
 		if (!booking.paymentIntentId || Number(booking.amount) === 0) {
@@ -628,6 +667,50 @@ export class BookingService {
 				});
 			}
 		}
+	}
+
+	private mapOccurrenceForBookingResponse(
+		occurrence: Prisma.EventOccurrenceGetPayload<{
+			include: {
+				event: {
+					include: {
+						images: true;
+						cancellationRules: true;
+						translations: true;
+						category: { include: { translations: true } };
+						occurrences: true;
+					};
+				};
+			};
+		}>,
+	) {
+		return {
+			...occurrence,
+			event: this.mapEventForBookingResponse(occurrence.event),
+		};
+	}
+
+	private mapEventForBookingResponse(
+		event: Prisma.EventGetPayload<{
+			include: {
+				images: true;
+				cancellationRules: true;
+				translations: true;
+				category: { include: { translations: true } };
+				occurrences: true;
+			};
+		}>,
+	) {
+		return {
+			...event,
+			price: Number(event.price),
+			images: event.images ?? [],
+			cancellationRules: event.cancellationRules ?? [],
+			translations: event.translations ?? [],
+			category: event.category,
+			occurrences: event.occurrences ?? [],
+			locationUrl: event.locationUrl ?? null,
+		};
 	}
 
 	private calculateRefundPercentage(

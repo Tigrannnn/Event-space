@@ -60,10 +60,12 @@ export class EventController {
 		@Query('category') categorySlug?: string,
 		@Query('minPrice') minPriceRaw?: string,
 		@Query('maxPrice') maxPriceRaw?: string,
+		@Query('guests') guestsRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 20);
 		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
 		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
+		const guests = parseOptionalQueryInt(guestsRaw, 'guests');
 		return this.eventService.findAll(
 			cursor,
 			safeLimit,
@@ -73,6 +75,7 @@ export class EventController {
 			categorySlug,
 			minPrice,
 			maxPrice,
+			guests,
 		);
 	}
 

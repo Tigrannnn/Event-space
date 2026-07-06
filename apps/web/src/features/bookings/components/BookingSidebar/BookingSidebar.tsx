@@ -60,7 +60,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 		return myBookings.some((booking) => {
 			const status = booking.status?.toUpperCase();
-			if (status === 'CANCELLED') return false;
+			if (status !== 'CONFIRMED') return false;
 
 			const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
 			return bookingOccurrenceId === selectedOccurrence.id;

@@ -8,18 +8,19 @@ export interface GetEventsParams extends PaginatedCursorParams {
 	category?: string;
 	minPrice?: number;
 	maxPrice?: number;
+	guests?: number;
 }
 
 export type PaginatedEventsResponse = PaginatedCursorResponse<Event>;
 
 export const eventApi = {
 	getEvents: (
-		{ cursor, limit = 8, search, startDate, endDate, category, minPrice, maxPrice }: GetEventsParams = {},
+		{ cursor, limit = 8, search, startDate, endDate, category, minPrice, maxPrice, guests }: GetEventsParams = {},
 		signal?: AbortSignal,
 	) =>
 		clientApi
 			.get<PaginatedEventsResponse>('/events', {
-				params: { cursor, limit, search, startDate, endDate, category, minPrice, maxPrice },
+				params: { cursor, limit, search, startDate, endDate, category, minPrice, maxPrice, guests },
 				signal,
 			})
 			.then((res) => res.data),

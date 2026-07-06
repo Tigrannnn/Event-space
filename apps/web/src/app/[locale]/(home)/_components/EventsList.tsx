@@ -87,6 +87,7 @@ export default function EventsList({
 		category: getApiCategoryFilter(filters.categories),
 		minPrice: filters.priceRange?.min,
 		maxPrice: filters.priceRange?.max,
+		guests: filters.guests ?? undefined,
 		initialData,
 	});
 

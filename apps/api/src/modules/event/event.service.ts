@@ -18,6 +18,8 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { EventImage, Prisma } from '@prisma/client';
 import { BookingService } from '../booking/booking.service';
 import { MailService } from '@infra/mail/mail.service';
+import { eventMatchesGuestCapacity } from '@src/shared/utils/guest-capacity.util';
+
 
 @Injectable()
 export class EventService {
@@ -63,6 +65,7 @@ export class EventService {
 		categorySlug?: string,
 		minPrice?: number,
 		maxPrice?: number,
+		guests?: number,
 	) {
 		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
 
@@ -111,12 +114,13 @@ export class EventService {
 					}
 				: {};
 
-		const occurrenceDateFilter: Prisma.DateTimeFilter = startDate || endDate
-			? {
-				...(startDate && { gte: new Date(startDate) }),
-				...(endDate && { lte: new Date(endDate) }),
-			  }
-			: { gt: new Date() };
+		const occurrenceDateFilter: Prisma.DateTimeFilter =
+			startDate || endDate
+				? {
+						...(startDate && { gte: new Date(startDate) }),
+						...(endDate && { lte: new Date(endDate) }),
+					}
+				: { gt: new Date() };
 
 		const statusFilter = {
 			status: EventStatusEnum.enum.PUBLISHED,
@@ -157,15 +161,21 @@ export class EventService {
 			include: this.eventInclude,
 		});
 
-		const hasMore = events.length > limit;
-		const data = hasMore ? events.slice(0, limit) : events;
+		const filteredByGuestCapacity =
+			guests && guests > 0
+				? events.filter((event) => eventMatchesGuestCapacity(event, guests))
+				: events;
+
+		const hasMore = filteredByGuestCapacity.length > limit;
+		const data = hasMore ? filteredByGuestCapacity.slice(0, limit) : filteredByGuestCapacity;
 
 		const lastEvent = data[data.length - 1];
 		// Cursor is based on the earliest future occurrence date for the last event
-		const earliestOccurrence = (lastEvent as any)?.occurrences?.find((o: any) => new Date(o.date) > new Date());
-		const nextCursor = hasMore && lastEvent
-			? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}`
-			: null;
+		const earliestOccurrence = (lastEvent as any)?.occurrences?.find(
+			(o: any) => new Date(o.date) > new Date(),
+		);
+		const nextCursor =
+			hasMore && lastEvent ? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}` : null;
 
 		return { data, nextCursor, hasMore };
 	}
@@ -281,7 +291,8 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = this.findRemovedImages(existingImages, sortedItems);
-		const { cancellationRules, translations, cancellationReason, occurrences, ...pureEventData } = eventData;
+		const { cancellationRules, translations, cancellationReason, occurrences, ...pureEventData } =
+			eventData;
 
 		// Validate status transition if status is changing
 		if (pureEventData.status && pureEventData.status !== event.status) {
@@ -371,7 +382,10 @@ export class EventService {
 					where: { id },
 					include: {
 						...this.eventInclude,
-						occurrences: { include: { bookings: { include: { user: true } } }, orderBy: { date: 'asc' as const } },
+						occurrences: {
+							include: { bookings: { include: { user: true } } },
+							orderBy: { date: 'asc' as const },
+						},
 					},
 				});
 			});
