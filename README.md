@@ -1,99 +1,89 @@
 # Event Space
 
-> **Tour & experience booking platform (MVP)**
+> Tour and experience booking platform with a public catalog, Stripe-based payments, and an admin console for operators.
 
-Monorepo for a B2B-oriented event booking product: public catalog, user bookings with capacity control, and an admin panel for tour operators. Built with Next.js, NestJS, Prisma, and shared Zod contracts.
-
-**Current scope:** single-tenant deployment (one brand per instance). Multi-tenant white-label, payments, and booking emails are planned — not shipped yet.
+Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma, PostgreSQL, Redis, and a shared package for schemas and types. The current version covers the full operator workflow: publishing events, managing bookings, handling payments, and supporting guest-capacity aware listings.
 
 ---
 
-## Stack
+## What is implemented now
+
+### Public experience
+- Event catalog with search and pagination
+- Event detail pages with media, pricing, duration, and location details
+- Occurrence-based scheduling and capacity-aware availability
+- Guest-count filtering so public listings only show events that can fit the requested group size
+- Booking flow with quantity selection, capacity locking, and conflict handling for sold-out slots
+- Stripe checkout and payment confirmation flow, including webhook fallback reconciliation
+- User dashboard with bookings and basic booking history
+
+### Authentication and security
+- Email/password registration with OTP verification
+- Login, password reset, and Google OAuth
+- JWT access tokens with refresh-token rotation and httpOnly cookies
+- Redis-backed rate limiting for authentication and sensitive endpoints
+- Zod-based validation and shared contracts between API and web
+
+### Admin panel
+- Dashboard with KPIs, occupancy insights, and recent activity
+- Event CRUD with image upload support and status management
+- Booking management with search, filtering, and status visibility
+- Admin-side booking cancellation with refund strategy options: full, rules-based, or manual
+- Check-in flow and occurrence-based event details
+
+### Platform infrastructure
+- Swagger/OpenAPI docs at the API endpoint
+- Prisma migrations and generated shared schema artifacts
+- Docker-based local development and production deployment support
+- E2E tests covering auth and booking behavior
+
+---
+
+## Tech stack
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4 |
-| **Backend** | NestJS 11, Passport JWT, cookie-based sessions |
-| **Database** | PostgreSQL 15, Prisma 6 |
-| **Cache / rate limits** | Redis 7 |
-| **Validation** | Zod (`@event-space/shared`) |
-| **State (web)** | TanStack Query, Zustand |
-| **Media** | Cloudinary |
-| **Infra** | Docker Compose (dev DB + prod full stack) |
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS 4 |
+| Backend | NestJS 11, Passport, JWT, cookie-based sessions |
+| Database | PostgreSQL 15, Prisma 6 |
+| Cache / limits | Redis 7 |
+| Validation | Zod via the shared package |
+| State | TanStack Query, Zustand |
+| Media | Cloudinary |
+| Payments | Stripe |
+| Infra | Docker Compose, Nginx |
 
 ---
 
-## Monorepo structure
+## Repository structure
 
-```
+```text
 event-space/
 ├── apps/
-│   ├── api/              # NestJS REST API (port 5000)
-│   └── web/              # Next.js frontend (port 3000)
+│   ├── api/           # NestJS API and Prisma schema
+│   └── web/           # Next.js app router frontend
 ├── packages/
-│   └── shared/           # Zod schemas, types, constants (+ Prisma-generated Zod)
-├── docker-compose.yml    # Dev: Postgres + Redis
+│   └── shared/        # Shared schemas, enums, types, utilities
+├── infra/
+│   └── nginx/         # Reverse proxy config for production
+├── docker-compose.yml
 ├── docker-compose.prod.yml
-└── package.json          # npm workspaces root
+└── package.json       # Root workspaces and shared scripts
 ```
-
----
-
-## Features (implemented)
-
-### Public
-
-- Event catalog with cursor pagination and text search (title, description, category, location)
-- Event detail pages with images (Cloudinary), capacity, pricing display
-- Booking flow: quantity 1–4, optimistic capacity locking, conflict handling when sold out
-- User profile and booking list
-
-### Authentication
-
-- Email/password registration with OTP verification
-- Login, forgot password / reset via OTP
-- Google OAuth (authorization code flow, server-side token exchange)
-- JWT access (15 min) + opaque refresh tokens (httpOnly cookies, rotation on refresh)
-- Redis-backed rate limiting on auth endpoints
-
-### Admin (`ADMIN` role)
-
-- Dashboard: KPIs, capacity usage, recent activity, “needs attention” queues
-- Events CRUD (multipart + images), statuses: `DRAFT` / `PUBLISHED` / `CANCELLED`
-- Users and bookings management (search, pagination, role/status updates)
-
-### API
-
-- OpenAPI / Swagger UI at `/api`
-- E2E tests for auth and booking concurrency (`apps/api/test/`)
-
----
-
-## Data model (simplified)
-
-```
-User ──< Event (organizer)
-User ──< Booking >── Event
-Event ──< EventImage
-User ──< RefreshToken
-```
-
-- **Booking** statuses: `PENDING` | `CONFIRMED` | `CANCELLED` (user flow creates `CONFIRMED` immediately)
-- **Capacity:** denormalized `Event.currentParticipants` updated in transactions with conditional `updateMany`
 
 ---
 
 ## Prerequisites
 
 - Node.js 20+
-- Docker & Docker Compose
-- npm (workspaces)
+- Docker Desktop or Docker Engine with Compose
+- npm
 
 ---
 
 ## Quick start
 
-### 1. Clone and install
+### 1. Install dependencies
 
 ```bash
 git clone https://github.com/Tigrannnn/Event-space.git
@@ -101,28 +91,32 @@ cd event-space
 npm install
 ```
 
-### 2. Environment
+### 2. Configure environment variables
+
+Create a root `.env` file and fill in the required values.
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` at the **repository root** (both `api` and `web` load it via `dotenv-cli`).
+Key variables:
 
 | Variable | Required | Notes |
-|----------|----------|--------|
-| `DATABASE_URL` | Yes | Postgres connection string |
-| `REDIS_URL` | Yes | e.g. `redis://localhost:6379` (add if missing — API needs it for OTP and rate limits) |
-| `JWT_ACCESS_SECRET` | Yes | Use a long random string in production |
-| `ALLOWED_ORIGINS` | Yes | Comma-separated; include `http://localhost:3000` for dev |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | For OAuth | From Google Cloud Console |
-| `SMTP_*` / `MAIL_DEV_MODE` | For email | Set `MAIL_DEV_MODE=true` to log OTP codes to the API console |
-| `CLOUDINARY_*` | For uploads | Event images in admin |
-| `API_URL` | Yes | `http://localhost:5000` (used by Next.js server/middleware) |
-| `FRONTEND_URL` | Yes | `http://localhost:3000` |
-| `NEXT_PUBLIC_APP_URL` | Recommended | `http://localhost:3000` (Open Graph / metadata in `layout.tsx`) |
+|----------|----------|-------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `REDIS_URL` | Yes | Example: `redis://localhost:6379` |
+| `JWT_ACCESS_SECRET` | Yes | Strong random secret for JWT signing |
+| `ALLOWED_ORIGINS` | Yes | Comma-separated list, including `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | For OAuth | Google Cloud Console credentials |
+| `SMTP_*` / `MAIL_DEV_MODE` | For email | Set `MAIL_DEV_MODE=true` to log OTPs in the API console |
+| `CLOUDINARY_*` | For uploads | Used by admin event image uploads |
+| `STRIPE_SECRET_KEY` | For checkout | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | For webhooks | Stripe webhook signing secret |
+| `API_URL` | Yes | Usually `http://localhost:5000` |
+| `FRONTEND_URL` | Yes | Usually `http://localhost:3000` |
+| `NEXT_PUBLIC_APP_URL` | Recommended | Public frontend base URL |
 
-For E2E tests, copy `.env.test.example` to `.env.test`.
+For end-to-end tests, create a `.env.test` file as well.
 
 ### 3. Start infrastructure
 
@@ -130,60 +124,60 @@ For E2E tests, copy `.env.test.example` to `.env.test`.
 docker compose up -d
 ```
 
-Starts PostgreSQL and Redis.
+This starts PostgreSQL and Redis.
 
-### 4. Database migrations
+### 4. Run Prisma migrations
 
 ```bash
 npm run prisma:generate
 npm run prisma:migrate
 ```
 
-### 5. Run development servers
+### 5. Start the apps
 
-In two terminals (shared package is built automatically for `api:dev`):
+In two terminals:
 
 ```bash
 npm run api:dev
 npm run web:dev
 ```
 
-Or build everything:
+Or build everything at once:
 
 ```bash
 npm run build:all
 ```
 
-### 6. URLs
+### 6. Local URLs
 
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | API | http://localhost:5000 |
-| Swagger (dev only) | http://localhost:5000/api |
+| Swagger / OpenAPI | http://localhost:5000/api |
 | Health | http://localhost:5000/health |
 | Prisma Studio | `npm run prisma:studio` |
 
 ---
 
-## NPM scripts (root)
+## Useful scripts
 
 ```bash
-npm run shared:build    # Build @event-space/shared
-npm run api:dev         # NestJS watch mode
-npm run web:dev         # Next.js (Turbopack)
-npm run build:all       # shared + web + api
-npm run clean           # Remove dist / .next artifacts
+npm run shared:build      # Build shared package
+npm run api:dev           # Start NestJS in watch mode
+npm run web:dev           # Start Next.js in dev mode
+npm run build:all         # Build shared, web, and api
+npm run clean             # Remove build artifacts
 
 npm run prisma:generate
 npm run prisma:migrate
 npm run prisma:studio
 
-npm run test:e2e:prepare   # Migrate test DB (.env.test)
-npm run test:e2e           # Auth + booking E2E (apps/api)
+npm run test:e2e:prepare
+npm run test:e2e
 ```
 
-Workspace shortcuts:
+Workspace shortcuts are also available:
 
 ```bash
 npm --workspace apps/web run dev
@@ -192,51 +186,42 @@ npm --workspace apps/api run start:dev
 
 ---
 
-## Production (Docker)
+## Production deployment
 
-Full stack (API behind nginx body-size limit, web, Postgres, Redis):
+Run the full stack with Docker Compose:
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Public API traffic goes through `nginx-api` on `${API_PORT:-5000}` with `client_max_body_size 26m` (see `MAX_EVENT_MULTIPART_BODY_NGINX` in `@event-space/shared`). The Nest API container is internal-only on the Docker network; set `API_URL` in `.env` to the host URL clients use (e.g. `http://localhost:5000`).
+The production setup includes the web app, API, PostgreSQL, Redis, and Nginx. The API is kept internal to the Docker network, while the public URL should be exposed through the environment variables.
 
-Ensure production `.env` has strong secrets, `NODE_ENV=production`, and real SMTP/Cloudinary credentials.
+Make sure production secrets are strong, `NODE_ENV=production` is set, and SMTP, Cloudinary, and Stripe credentials are configured correctly.
 
 ---
 
-## Security overview
+## Security notes
 
-- Passwords: **bcrypt** (12 rounds)
-- Sessions: **httpOnly** cookies (`accessToken`, `refreshToken`), `SameSite=strict`, `secure` in production
-- Refresh tokens: opaque `id.validator`; only bcrypt hash stored in DB; rotation on refresh
-- API authorization: `AccessTokenGuard` + `RolesGuard` (`USER` / `ADMIN`)
-- Admin UI: server-side role check in `apps/web/src/app/admin/layout.tsx`; API enforces `ADMIN` on `/admin/*`
-- Input validation: Zod pipes on auth, bookings, and user profile; extend to all admin mutations before production
-- CORS: explicit `ALLOWED_ORIGINS` with credentials
-
-Do not commit `.env`. Rotate `JWT_ACCESS_SECRET` and database credentials for any public deployment.
+- Passwords are hashed with bcrypt
+- Sessions use httpOnly cookies with refresh-token rotation
+- API authorization is enforced with role-based guards for user and admin access
+- CORS is explicitly configured via `ALLOWED_ORIGINS`
+- Do not commit `.env` files to source control
 
 ---
 
 ## Testing
 
 ```bash
-# Requires Docker (Postgres + Redis) and .env.test
 cp .env.test.example .env.test
 npm run test:e2e:prepare
 npm run test:e2e
 ```
 
-Covers registration/OTP/login, refresh rotation, rate limits, and concurrent booking for the last available spot.
+The current test suite covers auth and booking flows, including concurrent booking scenarios.
 
 ---
 
 ## License
 
 ISC
-
----
-
-*Built for tour operators who need a modern booking surface — with a clear path toward payments and multi-tenant B2B.*

@@ -1,13 +1,17 @@
 'use client';
 
+import { useState, type FormEvent } from 'react';
 import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
+import Button from '@/components/ui/Buttons/Button/Button';
+import Select from '@/components/ui/Select/Select';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
-import { getEventTranslation } from '@event-space/shared';
+import { useCancelBookingByAdmin } from '@/features/admin/hooks/useAdmin';
+import { getEventTranslation, type AdminCancelBookingData } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useTranslation } from '@/hooks/translation';
 
@@ -21,6 +25,9 @@ export default function BookingDetailsModal() {
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.event;
+	const cancelBooking = useCancelBookingByAdmin();
+	const [refundType, setRefundType] = useState<AdminCancelBookingData['refundType']>('RULES');
+	const [reason, setReason] = useState('');
 
 	if (!booking || !event) {
 		return null;
@@ -35,6 +42,25 @@ export default function BookingDetailsModal() {
 		navigator.clipboard.writeText(booking.id);
 		addToast(translate('admin.copyId'), ToastType.SUCCESS);
 	};
+
+	const handleCancelBooking = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (!booking) return;
+
+		cancelBooking.mutate({
+			id: booking.id,
+			data: {
+				refundType,
+				reason: reason.trim() || undefined,
+			},
+		});
+	};
+
+	const refundOptions = [
+		{ value: 'FULL', label: translate('admin.refundStrategyFull') },
+		{ value: 'RULES', label: translate('admin.refundStrategyRules') },
+		{ value: 'MANUAL', label: translate('admin.refundStrategyManual') },
+	] as const;
 
 	return (
 		<Modal onClose={closeModal} size="xl" ariaLabel="Booking details">
@@ -146,6 +172,45 @@ export default function BookingDetailsModal() {
 							</div>
 						</section>
 
+						{booking.status !== 'CANCELLED' && (
+							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
+								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+									{translate('admin.cancelBooking')}
+								</p>
+								<form onSubmit={handleCancelBooking} className="mt-4 space-y-4">
+									<div className="grid gap-4 md:grid-cols-2">
+										<div className="space-y-2">
+											<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+												{translate('admin.refundStrategy')}
+											</label>
+											<Select
+												value={refundType}
+												onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
+												options={refundOptions.map((option) => ({ value: option.value, label: option.label }))}
+											/>
+										</div>
+										<div className="space-y-2">
+											<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+												{translate('admin.reason')}
+											</label>
+											<textarea
+												value={reason}
+												onChange={(event) => setReason(event.target.value)}
+												rows={4}
+												placeholder={translate('admin.reasonPlaceholder')}
+												className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+											/>
+										</div>
+									</div>
+									<div className="flex justify-end">
+										<Button type="submit" variant="danger" size="sm" isLoading={cancelBooking.isPending}>
+											{translate('admin.cancelBooking')}
+										</Button>
+									</div>
+								</form>
+							</section>
+						)}
+
 						{adjustments.length > 0 && (
 							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -198,7 +263,7 @@ export default function BookingDetailsModal() {
 										{translate('event.date')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{event ? formatDateTime(event.date) : '—'}
+										{booking.occurrence?.date ? formatDateTime(booking.occurrence.date) : '—'}
 									</p>
 								</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

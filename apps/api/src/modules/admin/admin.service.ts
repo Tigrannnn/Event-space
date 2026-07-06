@@ -1,5 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { StripeService } from '@infra/stripe/stripe.service';
+import {
+	CANCELABLE_PAYMENT_INTENT_STATUSES,
+	CancelablePaymentIntentStatus,
+} from '@infra/stripe/stripe.types';
 import type {
 	SafeUserData,
 	UserRoleType,
@@ -12,6 +18,7 @@ import type {
 	CreateCategoryData,
 	UpdateCategoryData,
 	BookingWithDetails,
+	AdminCancelBookingData,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -98,7 +105,12 @@ const normalizeBookingResponse = (booking: any): BookingWithDetails => {
 
 @Injectable()
 export class AdminService {
-	constructor(private readonly prisma: PrismaService) {}
+	private readonly logger = new Logger(AdminService.name);
+
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly stripe: StripeService,
+	) {}
 
 	async getDashboardStats(): Promise<DashboardStats> {
 		const now = new Date();
@@ -315,6 +327,205 @@ export class AdminService {
 		return user;
 	}
 
+	async adminCancelBooking(adminId: string, bookingId: string, data: AdminCancelBookingData) {
+		const { refundType = 'RULES', reason } = data;
+
+		const { booking, occurrence, event } = await this.prisma.$transaction(async (tx) => {
+			const currentBooking = await tx.booking.findUnique({
+				where: { id: bookingId },
+				include: {
+					occurrence: {
+						include: { event: { include: { cancellationRules: true, translations: true } } },
+					},
+				},
+			});
+
+			if (!currentBooking) throw new NotFoundException('Booking not found');
+
+			if (currentBooking.status === 'CANCELLED') {
+				return {
+					booking: currentBooking,
+					occurrence: currentBooking.occurrence,
+					event: currentBooking.occurrence?.event,
+				};
+			}
+
+			if (currentBooking.status === 'CONFIRMED') {
+				await tx.eventOccurrence.updateMany({
+					where: {
+						id: currentBooking.occurrenceId,
+						currentParticipants: { gte: currentBooking.quantity },
+					},
+					data: { currentParticipants: { decrement: currentBooking.quantity } },
+				});
+			}
+
+			const updatedBooking = await tx.booking.update({
+				where: { id: bookingId },
+				data: { status: 'CANCELLED' },
+			});
+
+			return {
+				booking: updatedBooking,
+				occurrence: currentBooking.occurrence,
+				event: currentBooking.occurrence?.event,
+			};
+		});
+
+		if (!booking.paymentIntentId || Number(booking.amount) === 0) {
+			return {
+				booking: {
+					...booking,
+					amount: Number(booking.amount),
+					status: 'CANCELLED',
+				},
+				refundType,
+				reason: reason ?? null,
+				processed: false,
+				message: 'Booking cancelled without payment refund processing.',
+			};
+		}
+
+		if (refundType === 'MANUAL') {
+			await this.prisma.bookingAdjustment.upsert({
+				where: { stripePaymentIntentId: booking.paymentIntentId },
+				create: {
+					bookingId: booking.id,
+					type: 'REFUND',
+					amount: new Prisma.Decimal('0'),
+					currency: 'AMD',
+					stripePaymentIntentId: booking.paymentIntentId,
+					stripeRefundId: null,
+					status: 'PENDING',
+					reason: `Manual refund requested by admin ${adminId}${reason ? `: ${reason}` : ''}`,
+				},
+				update: {
+					status: 'PENDING',
+					reason: `Manual refund requested by admin ${adminId}${reason ? `: ${reason}` : ''}`,
+				},
+			});
+
+			return {
+				booking: {
+					...booking,
+					amount: Number(booking.amount),
+					status: 'CANCELLED',
+				},
+				refundType,
+				reason: reason ?? null,
+				processed: false,
+				message: 'Booking cancelled. Refund will be handled manually.',
+			};
+		}
+
+		if (!event) {
+			this.logger.warn(`Event not found for booking ${bookingId} during admin cancel — skipping refund`);
+			return {
+				booking: {
+					...booking,
+					amount: Number(booking.amount),
+					status: 'CANCELLED',
+				},
+				refundType,
+				reason: reason ?? null,
+				processed: false,
+				message: 'Booking cancelled without refund because event data is missing.',
+			};
+		}
+
+		let refundResult: { amount: number; id: string } | null = null;
+		let refundStatus: 'SUCCEEDED' | 'FAILED' = 'SUCCEEDED';
+
+		try {
+			const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+
+			if (paymentIntent.status === 'succeeded') {
+				const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+				const refundPercentage = this.calculateRefundPercentage(
+					new Date(),
+					new Date(occurrence?.date ?? new Date()),
+					event.cancellationRules,
+				);
+				const refundAmountInCents =
+					refundType === 'FULL'
+						? baseAmountInCents
+						: Math.round((baseAmountInCents * refundPercentage) / 100);
+
+				if (refundAmountInCents > 0) {
+					const refund = await this.stripe.refund(
+						booking.paymentIntentId,
+						`admin-refund-${booking.paymentIntentId}-${refundAmountInCents}`,
+						refundType === 'FULL' ? baseAmountInCents : refundAmountInCents,
+					);
+					refundResult = { amount: refund.amount, id: refund.id };
+				}
+			} else if (
+				CANCELABLE_PAYMENT_INTENT_STATUSES.includes(paymentIntent.status as CancelablePaymentIntentStatus)
+			) {
+				await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `admin-cancel-${booking.paymentIntentId}`);
+			}
+		} catch (stripeError) {
+			refundStatus = 'FAILED';
+			this.logger.error(`Admin refund failed for booking ${bookingId}:`, stripeError);
+		}
+
+		if (refundResult) {
+			await this.prisma.bookingAdjustment.upsert({
+				where: { stripePaymentIntentId: booking.paymentIntentId },
+				create: {
+					bookingId: booking.id,
+					type: 'REFUND',
+					amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
+					currency: 'AMD',
+					stripePaymentIntentId: booking.paymentIntentId,
+					stripeRefundId: refundResult.id,
+					status: 'SUCCEEDED',
+					reason: `Admin cancellation${reason ? `: ${reason}` : ''}`,
+				},
+				update: {
+					stripeRefundId: refundResult.id,
+					status: 'SUCCEEDED',
+					reason: `Admin cancellation${reason ? `: ${reason}` : ''}`,
+				},
+			});
+		} else if (booking.paymentIntentId) {
+			await this.prisma.bookingAdjustment.upsert({
+				where: { stripePaymentIntentId: booking.paymentIntentId },
+				create: {
+					bookingId: booking.id,
+					type: 'REFUND',
+					amount: new Prisma.Decimal('0'),
+					currency: 'AMD',
+					stripePaymentIntentId: booking.paymentIntentId,
+					stripeRefundId: null,
+					status: refundStatus,
+					reason: `Admin cancellation${reason ? `: ${reason}` : ''}`,
+				},
+				update: {
+					status: refundStatus,
+					reason: `Admin cancellation${reason ? `: ${reason}` : ''}`,
+				},
+			});
+		}
+
+		return {
+			booking: {
+				...booking,
+				amount: Number(booking.amount),
+				status: 'CANCELLED',
+			},
+			refundType,
+			reason: reason ?? null,
+			processed: refundResult !== null || refundStatus === 'FAILED' ? true : false,
+			message:
+				refundType === 'FULL'
+					? 'Booking cancelled and refund processed.'
+					: refundType === 'RULES'
+						? 'Booking cancelled and refund processed according to cancellation rules.'
+						: 'Booking cancelled. Refund will be handled manually.',
+		};
+	}
+
 	async findAllBookings({
 		skip = 0,
 		limit = 20,
@@ -462,6 +673,27 @@ export class AdminService {
 				include: bookingInclude,
 			});
 		});
+	}
+
+	private calculateRefundPercentage(
+		now: Date,
+		eventDate: Date,
+		rules: Array<{ hoursBeforeEvent: number; refundPercentage: number }>,
+	): number {
+		const msLeft = eventDate.getTime() - now.getTime();
+		const hoursLeft = msLeft / (1000 * 60 * 60);
+
+		if (hoursLeft <= 0) return 0;
+
+		const sortedRules = [...rules].sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent);
+
+		for (const rule of sortedRules) {
+			if (hoursLeft >= rule.hoursBeforeEvent) {
+				return rule.refundPercentage;
+			}
+		}
+
+		return rules.length > 0 ? 0 : 100;
 	}
 
 	async findAllEvents({

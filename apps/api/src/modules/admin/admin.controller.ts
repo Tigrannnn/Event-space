@@ -34,6 +34,7 @@ import {
 	CreateManualBookingSchema,
 	CreateCategorySchema,
 	UpdateCategorySchema,
+	AdminCancelBookingSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type {
@@ -45,6 +46,7 @@ import type {
 	CreateManualBookingData,
 	CreateCategoryData,
 	UpdateCategoryData,
+	AdminCancelBookingData,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
@@ -258,6 +260,25 @@ export class AdminController {
 		);
 		await this.adminService.deleteUser(id);
 		return { message: 'User deleted successfully' };
+	}
+
+	@Post('bookings/:id/cancel')
+	@ApiOperation({ summary: 'Cancel a booking from admin panel with refund strategy' })
+	@ApiResponse({ status: 200, description: 'Booking cancelled successfully' })
+	@ApiBody(getReference('AdminCancelBookingSchema'))
+	async cancelBookingByAdmin(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(AdminCancelBookingSchema)) data: AdminCancelBookingData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.adminService.adminCancelBooking(adminId, id, data);
 	}
 
 	@Post('bookings/manual')

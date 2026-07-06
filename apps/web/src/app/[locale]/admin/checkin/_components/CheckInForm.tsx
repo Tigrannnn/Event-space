@@ -141,7 +141,7 @@ export default function CheckInForm() {
 							<div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-gray-600 sm:grid-cols-2 dark:text-zinc-400">
 								<div className="flex items-center gap-2">
 									<Calendar className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
-									<span>{booking.event ? formatDateTime(booking.event.date, localeIntl[locale]) : '—'}</span>
+									<span>{booking.occurrence?.date ? formatDateTime(booking.occurrence.date, localeIntl[locale]) : '—'}</span>
 								</div>
 								<div className="flex items-center gap-2">
 									<MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />

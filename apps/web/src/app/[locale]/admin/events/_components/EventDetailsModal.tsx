@@ -28,6 +28,8 @@ export default function EventDetailsModal() {
 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
+	const primaryOccurrence = event.occurrences?.[0];
+	const occurrences = event.occurrences ?? [];
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(event.id);
@@ -105,9 +107,22 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.date')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDateTime(event.date)}
-									</p>
+									<div className="mt-2 space-y-2">
+										{occurrences.length > 0 ? (
+											occurrences.map((occurrence) => (
+												<div key={occurrence.id} className="rounded-xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
+													<p className="text-sm font-medium text-gray-900 dark:text-white">
+														{formatDateTime(occurrence.date)}
+													</p>
+													<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+														{occurrence.currentParticipants}/{occurrence.maxParticipants} {translate('admin.seats')}
+													</p>
+												</div>
+											))
+										) : (
+											<p className="text-sm text-gray-500 dark:text-gray-400">—</p>
+										)}
+									</div>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -155,7 +170,7 @@ export default function EventDetailsModal() {
 										{translate('admin.capacity')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{event.currentParticipants}/{event.maxParticipants}
+										{primaryOccurrence ? `${primaryOccurrence.currentParticipants}/${primaryOccurrence.maxParticipants}` : '—'}
 									</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

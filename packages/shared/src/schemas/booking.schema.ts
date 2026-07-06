@@ -39,6 +39,7 @@ export const BookingWithOccurrenceSchema = BookingSchema.extend({
 export type BookingWithOccurrence = z.infer<typeof BookingWithOccurrenceSchema>;
 
 export const BookingWithDetailsSchema = BookingWithOccurrenceSchema.extend({
+	event: EventSchema.optional(),
 	user: SafeUserSchema.optional(),
 	adjustments: z.array(BookingAdjustmentSchema).optional(),
 });
@@ -95,6 +96,19 @@ export const CreateManualBookingSchema = z
 	});
 
 export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;
+
+export const AdminCancelBookingSchema = z.object({
+	refundType: z.enum(['FULL', 'RULES', 'MANUAL']).default('RULES').openapi({
+		description: 'Refund strategy for admin cancellation',
+		example: 'RULES',
+	}),
+	reason: z.string().optional().openapi({
+		description: 'Optional admin note for the cancellation',
+		example: 'Customer requested cancellation',
+	}),
+});
+
+export type AdminCancelBookingData = z.infer<typeof AdminCancelBookingSchema>;
 
 export const BookingFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),

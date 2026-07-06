@@ -416,7 +416,7 @@ export class BookingService {
 
 		return booking;
 	}
-
+	
 	async cancel(userId: string, bookingId: string) {
 		const { booking, occurrence, event } = await this.prisma.$transaction(async (tx) => {
 			const currentBooking = await tx.booking.findUnique({

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	getApiErrorMessage,
+	type AdminCancelBookingData,
 	type Booking,
 	type BookingFilters,
 	type CreateManualBookingData,
@@ -58,6 +59,32 @@ export const useUpdateBookingStatus = () => {
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 			]);
+		},
+	});
+};
+
+export const useCancelBookingByAdmin = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: AdminCancelBookingData }) =>
+			adminApi.cancelBookingByAdmin(id, data),
+		onSuccess: async () => {
+			addToast('Booking cancelled successfully', ToastType.SUCCESS);
+			closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to cancel booking'), ToastType.ERROR);
 		},
 	});
 };
