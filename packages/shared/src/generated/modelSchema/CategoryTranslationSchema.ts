@@ -7,7 +7,7 @@ import { LocaleSchema } from '../inputTypeSchemas/LocaleSchema'
 
 export const CategoryTranslationSchema = z.object({
   locale: LocaleSchema,
-  id: z.uuid(),
+  id: z.string().uuid(),
   categoryId: z.string(),
   name: z.string(),
 })

@@ -53,6 +53,7 @@ export default function CheckInForm() {
 
 	const isCheckedIn = !!booking?.checkedInAt;
 	const isCancelled = booking?.status === 'CANCELLED';
+	const eventTranslation = booking?.occurrence?.event ? getEventTranslation(booking.occurrence.event, locale) : null;
 
 	return (
 		<div className="mx-auto max-w-xl space-y-6">
@@ -88,7 +89,6 @@ export default function CheckInForm() {
 
 			{booking && (
 				<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-900">
-					{/* Индикатор статуса сверху карточки */}
 					<div
 						className={`flex items-center justify-between border-b px-5 py-4 dark:border-zinc-800 ${
 							isCancelled
@@ -128,14 +128,16 @@ export default function CheckInForm() {
 								{translate('admin.customer')}
 							</span>
 							<h3 className="text-lg leading-tight font-bold text-gray-900 dark:text-white">
-								{booking.user?.name ?? 'Unknown'}
+								{booking.user?.name || translate('booking.unknownCustomer')}
 							</h3>
-							<p className="text-sm text-gray-500 dark:text-zinc-400">{booking.user?.email}</p>
+							<p className="text-sm text-gray-500 dark:text-zinc-400">
+								{booking.user?.email || translate('booking.unknownCustomer')}
+							</p>
 						</div>
 
 						<div className="space-y-3 rounded-xl bg-gray-50 p-4 dark:bg-zinc-800/50">
 							<p className="text-sm font-bold text-gray-900 dark:text-white">
-								{booking.event ? getEventTranslation(booking.event, locale).title : '—'}
+								{eventTranslation?.title || translate('booking.unknownEvent')}
 							</p>
 
 							<div className="grid grid-cols-1 gap-2.5 text-xs font-medium text-gray-600 sm:grid-cols-2 dark:text-zinc-400">
@@ -145,7 +147,7 @@ export default function CheckInForm() {
 								</div>
 								<div className="flex items-center gap-2">
 									<MapPin className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
-									<span className="truncate">{booking.event ? getEventTranslation(booking.event, locale).location : '—'}</span>
+									<span className="truncate">{eventTranslation?.location || translate('admin.noLocation')}</span>
 								</div>
 								<div className="flex items-center gap-2 border-t border-gray-200 pt-2 sm:col-span-2 dark:border-zinc-700">
 									<Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />

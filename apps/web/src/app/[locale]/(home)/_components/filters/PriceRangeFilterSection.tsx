@@ -118,7 +118,7 @@ export function PriceRangeFilterSection({
 					{label}
 				</FilterTriggerButton>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-80 rounded-3xl p-4 shadow-lg">
+			<PopoverContent align="start" className="w-80 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
 				{sliderContent}
 			</PopoverContent>
 		</Popover>

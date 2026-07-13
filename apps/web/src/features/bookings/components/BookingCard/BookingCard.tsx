@@ -83,7 +83,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		}
 	};
 
-	const t = getEventTranslation(event, locale);
+	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
 		<div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
@@ -91,7 +91,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
 				<EventImageWithFallback
 					src={getEventCoverImageUrl(event) ?? ''}
-					alt={t.title}
+					alt={eventTranslation.title}
 					className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 				/>
 
@@ -113,7 +113,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					href={localizePath(`/events/${event.id}`, locale)}
 					className="hover:text-primary dark:hover:text-primary mb-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
 				>
-					{t.title}
+					{eventTranslation.title}
 				</Link>
 
 				<div className="mb-4">
@@ -144,10 +144,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								rel="noopener noreferrer"
 								className="hover:text-primary relative z-20 cursor-pointer text-left underline underline-offset-2 transition-colors"
 							>
-								{t.location}
+								{eventTranslation.location}
 							</a>
 						) : (
-							<span>{t.location}</span>
+							<span>{eventTranslation.location}</span>
 						)}
 					</div>
 				</div>
@@ -209,7 +209,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						{translate('booking.viewEvent')}
 					</Button>
-					{occurrenceIsAvailable || booking.status === 'CONFIRMED' && (
+					{occurrenceIsAvailable && booking.status === 'CONFIRMED' && (
 						<Button
 							variant="danger"
 							size="sm"

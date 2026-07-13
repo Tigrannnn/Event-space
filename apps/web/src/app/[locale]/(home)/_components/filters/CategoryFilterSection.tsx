@@ -89,11 +89,11 @@ export function CategoryFilterSection({
 								: translate('filters.more')}
 						</FilterTriggerButton>
 					</PopoverTrigger>
-					<PopoverContent align="start" className="w-72 rounded-3xl p-0 shadow-lg">
-						<Command>
-							<CommandInput placeholder={translate('filters.searchCategories')} />
+					<PopoverContent align="start" className="w-72 rounded-3xl p-0 text-foreground shadow-lg dark:text-white">
+						<Command className="text-foreground dark:text-white">
+							<CommandInput placeholder={translate('filters.searchCategories')} className="text-foreground dark:text-white" />
 							<CommandList>
-								<CommandEmpty>{translate('filters.noCategoriesFound')}</CommandEmpty>
+								<CommandEmpty className="text-foreground dark:text-white">{translate('filters.noCategoriesFound')}</CommandEmpty>
 								{remainingCategories.map((category) => {
 									const categoryTranslation = getCategoryTranslation(category, locale);
 									const isChecked = filters.categories.includes(category.slug);

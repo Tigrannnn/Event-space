@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Search, X, Eye } from 'lucide-react';
+import { CalendarDays, Search, X, Eye, CheckCheck, Ban } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -120,8 +120,16 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		updateBookingStatus.mutate({ id: bookingId, status: nextStatus });
 	};
 
+	const handleConfirmBooking = (bookingId: string) => {
+		updateBookingStatus.mutate({ id: bookingId, status: 'CONFIRMED' });
+	};
+
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
 		openModal(ModalType.BookingDetails, { booking });
+	};
+
+	const handleOpenBookingAction = (booking: BookingWithDetails) => {
+		openModal(ModalType.BookingAction, { booking });
 	};
 
 	const handlePreviousPage = () => {
@@ -294,15 +302,26 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									</div>
 								</TableCell>
 								<TableCell>
-									<Button
-										type="button"
-										size="sm"
-										variant="secondary"
-										onClick={() => handleOpenBookingDetails(booking)}
-									>
-										<Eye className="mr-2 h-4 w-4" />
-										{translate('admin.details')}
-									</Button>
+									<div className="flex flex-wrap gap-2">
+										<Button
+											type="button"
+											size="sm"
+											variant="secondary"
+											onClick={() => handleOpenBookingDetails(booking)}
+										>
+											<Eye className="h-4 w-4" />
+										</Button>
+
+										<Button
+											type="button"
+											size="sm"
+											variant="danger"
+											onClick={() => handleOpenBookingAction(booking)}
+											disabled={updateBookingStatus.isPending || booking.status === 'CANCELLED'}
+										>
+											<Ban className="h-4 w-4" />
+										</Button>
+									</div>
 								</TableCell>
 							</TableRow>
 						);

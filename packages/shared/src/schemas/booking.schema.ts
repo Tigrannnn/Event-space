@@ -39,7 +39,9 @@ export const BookingWithOccurrenceSchema = BookingSchema.extend({
 export type BookingWithOccurrence = z.infer<typeof BookingWithOccurrenceSchema>;
 
 export const BookingWithDetailsSchema = BookingWithOccurrenceSchema.extend({
-	event: EventSchema.optional(),
+	occurrence: EventOccurrenceSchema.extend({
+		event: EventSchema,
+	}).optional(),
 	user: SafeUserSchema.optional(),
 	adjustments: z.array(BookingAdjustmentSchema).optional(),
 });

@@ -16,6 +16,7 @@ import {
 	CategoryDetailsModal,
 } from '@/features/admin/categories';
 import BookingDetailsModal from '@/app/[locale]/admin/bookings/_components/BookingDetailsModal';
+import BookingActionModal from '@/app/[locale]/admin/bookings/_components/BookingActionModal';
 import CreateManualBookingModal from '@/app/[locale]/admin/bookings/_components/CreateManualBookingModal';
 import UserDetailsModal from '@/app/[locale]/admin/users/_components/UserDetailsModal';
 import EventDetailsModal from '@/app/[locale]/admin/events/_components/EventDetailsModal';
@@ -42,6 +43,7 @@ export default function ModalRoot() {
 						<CreateManualBookingModal key="create-manual-booking" />
 					)}
 					{activeModal === ModalType.BookingDetails && <BookingDetailsModal key="booking-details" />}
+					{activeModal === ModalType.BookingAction && <BookingActionModal key="booking-action" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}
 					{/* {activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />} */}

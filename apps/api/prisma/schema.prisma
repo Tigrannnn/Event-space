@@ -162,6 +162,7 @@ enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+  EXPIRED
 }
 
 model Booking {
@@ -171,6 +172,7 @@ model Booking {
   occurrenceId String @map("occurrence_id")
 
   status    BookingStatus @default(PENDING)
+  expired   Boolean       @default(false)
   quantity  Int           @default(1)
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")

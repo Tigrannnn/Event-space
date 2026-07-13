@@ -10,7 +10,7 @@ import { AdjustmentStatusSchema } from '../inputTypeSchemas/AdjustmentStatusSche
 export const BookingAdjustmentSchema = z.object({
   type: AdjustmentTypeSchema,
   status: AdjustmentStatusSchema,
-  id: z.uuid(),
+  id: z.string().uuid(),
   bookingId: z.string(),
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'BookingAdjustment']"}),
   currency: z.string(),

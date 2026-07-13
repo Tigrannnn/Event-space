@@ -6,6 +6,7 @@ import { BookingWhereInputSchema } from './BookingWhereInputSchema';
 import { StringFilterSchema } from './StringFilterSchema';
 import { EnumBookingStatusFilterSchema } from './EnumBookingStatusFilterSchema';
 import { BookingStatusSchema } from './BookingStatusSchema';
+import { BoolFilterSchema } from './BoolFilterSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { DecimalFilterSchema } from './DecimalFilterSchema';
@@ -96,6 +97,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   occurrenceId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   status: z.union([ z.lazy(() => EnumBookingStatusFilterSchema), z.lazy(() => BookingStatusSchema) ]).optional(),
+  expired: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
   quantity: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),

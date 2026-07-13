@@ -143,7 +143,7 @@ export function DateRangeFilterSection({
 					{label}
 				</FilterTriggerButton>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-auto rounded-3xl p-3 shadow-lg">
+			<PopoverContent align="start" className="w-auto rounded-3xl p-3 text-foreground shadow-lg dark:text-white">
 				{calendarContent}
 			</PopoverContent>
 		</Popover>

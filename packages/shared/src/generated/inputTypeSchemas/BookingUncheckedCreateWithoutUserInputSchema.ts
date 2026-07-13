@@ -11,6 +11,7 @@ export const BookingUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.Book
   id: z.uuid().optional(),
   occurrenceId: z.string(),
   status: z.lazy(() => BookingStatusSchema).optional(),
+  expired: z.boolean().optional(),
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

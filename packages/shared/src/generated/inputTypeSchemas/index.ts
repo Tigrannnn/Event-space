@@ -210,6 +210,7 @@ export { EventTranslationCountOrderByAggregateInputSchema } from './EventTransla
 export { EventTranslationMaxOrderByAggregateInputSchema } from './EventTranslationMaxOrderByAggregateInputSchema';
 export { EventTranslationMinOrderByAggregateInputSchema } from './EventTranslationMinOrderByAggregateInputSchema';
 export { EnumBookingStatusFilterSchema } from './EnumBookingStatusFilterSchema';
+export { BoolFilterSchema } from './BoolFilterSchema';
 export { EnumPaymentMethodFilterSchema } from './EnumPaymentMethodFilterSchema';
 export { IntNullableFilterSchema } from './IntNullableFilterSchema';
 export { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
@@ -223,6 +224,7 @@ export { BookingMaxOrderByAggregateInputSchema } from './BookingMaxOrderByAggreg
 export { BookingMinOrderByAggregateInputSchema } from './BookingMinOrderByAggregateInputSchema';
 export { BookingSumOrderByAggregateInputSchema } from './BookingSumOrderByAggregateInputSchema';
 export { EnumBookingStatusWithAggregatesFilterSchema } from './EnumBookingStatusWithAggregatesFilterSchema';
+export { BoolWithAggregatesFilterSchema } from './BoolWithAggregatesFilterSchema';
 export { EnumPaymentMethodWithAggregatesFilterSchema } from './EnumPaymentMethodWithAggregatesFilterSchema';
 export { IntNullableWithAggregatesFilterSchema } from './IntNullableWithAggregatesFilterSchema';
 export { DateTimeNullableWithAggregatesFilterSchema } from './DateTimeNullableWithAggregatesFilterSchema';
@@ -242,14 +244,12 @@ export { BookingAdjustmentSumOrderByAggregateInputSchema } from './BookingAdjust
 export { EnumAdjustmentTypeWithAggregatesFilterSchema } from './EnumAdjustmentTypeWithAggregatesFilterSchema';
 export { EnumAdjustmentStatusWithAggregatesFilterSchema } from './EnumAdjustmentStatusWithAggregatesFilterSchema';
 export { EnumUserRoleFilterSchema } from './EnumUserRoleFilterSchema';
-export { BoolFilterSchema } from './BoolFilterSchema';
 export { RefreshTokenListRelationFilterSchema } from './RefreshTokenListRelationFilterSchema';
 export { RefreshTokenOrderByRelationAggregateInputSchema } from './RefreshTokenOrderByRelationAggregateInputSchema';
 export { UserCountOrderByAggregateInputSchema } from './UserCountOrderByAggregateInputSchema';
 export { UserMaxOrderByAggregateInputSchema } from './UserMaxOrderByAggregateInputSchema';
 export { UserMinOrderByAggregateInputSchema } from './UserMinOrderByAggregateInputSchema';
 export { EnumUserRoleWithAggregatesFilterSchema } from './EnumUserRoleWithAggregatesFilterSchema';
-export { BoolWithAggregatesFilterSchema } from './BoolWithAggregatesFilterSchema';
 export { RefreshTokenCountOrderByAggregateInputSchema } from './RefreshTokenCountOrderByAggregateInputSchema';
 export { RefreshTokenMaxOrderByAggregateInputSchema } from './RefreshTokenMaxOrderByAggregateInputSchema';
 export { RefreshTokenMinOrderByAggregateInputSchema } from './RefreshTokenMinOrderByAggregateInputSchema';
@@ -310,6 +310,7 @@ export { EventOccurrenceCreateNestedOneWithoutBookingsInputSchema } from './Even
 export { BookingAdjustmentCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentCreateNestedManyWithoutBookingInputSchema';
 export { BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema';
 export { EnumBookingStatusFieldUpdateOperationsInputSchema } from './EnumBookingStatusFieldUpdateOperationsInputSchema';
+export { BoolFieldUpdateOperationsInputSchema } from './BoolFieldUpdateOperationsInputSchema';
 export { EnumPaymentMethodFieldUpdateOperationsInputSchema } from './EnumPaymentMethodFieldUpdateOperationsInputSchema';
 export { NullableIntFieldUpdateOperationsInputSchema } from './NullableIntFieldUpdateOperationsInputSchema';
 export { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
@@ -328,7 +329,6 @@ export { EventUncheckedCreateNestedManyWithoutOrganizerInputSchema } from './Eve
 export { RefreshTokenUncheckedCreateNestedManyWithoutUserInputSchema } from './RefreshTokenUncheckedCreateNestedManyWithoutUserInputSchema';
 export { BookingUncheckedCreateNestedManyWithoutUserInputSchema } from './BookingUncheckedCreateNestedManyWithoutUserInputSchema';
 export { EnumUserRoleFieldUpdateOperationsInputSchema } from './EnumUserRoleFieldUpdateOperationsInputSchema';
-export { BoolFieldUpdateOperationsInputSchema } from './BoolFieldUpdateOperationsInputSchema';
 export { EventUpdateManyWithoutOrganizerNestedInputSchema } from './EventUpdateManyWithoutOrganizerNestedInputSchema';
 export { RefreshTokenUpdateManyWithoutUserNestedInputSchema } from './RefreshTokenUpdateManyWithoutUserNestedInputSchema';
 export { BookingUpdateManyWithoutUserNestedInputSchema } from './BookingUpdateManyWithoutUserNestedInputSchema';
@@ -356,9 +356,11 @@ export { NestedIntWithAggregatesFilterSchema } from './NestedIntWithAggregatesFi
 export { NestedFloatFilterSchema } from './NestedFloatFilterSchema';
 export { NestedEnumEventStatusWithAggregatesFilterSchema } from './NestedEnumEventStatusWithAggregatesFilterSchema';
 export { NestedEnumBookingStatusFilterSchema } from './NestedEnumBookingStatusFilterSchema';
+export { NestedBoolFilterSchema } from './NestedBoolFilterSchema';
 export { NestedEnumPaymentMethodFilterSchema } from './NestedEnumPaymentMethodFilterSchema';
 export { NestedDateTimeNullableFilterSchema } from './NestedDateTimeNullableFilterSchema';
 export { NestedEnumBookingStatusWithAggregatesFilterSchema } from './NestedEnumBookingStatusWithAggregatesFilterSchema';
+export { NestedBoolWithAggregatesFilterSchema } from './NestedBoolWithAggregatesFilterSchema';
 export { NestedEnumPaymentMethodWithAggregatesFilterSchema } from './NestedEnumPaymentMethodWithAggregatesFilterSchema';
 export { NestedIntNullableWithAggregatesFilterSchema } from './NestedIntNullableWithAggregatesFilterSchema';
 export { NestedFloatNullableFilterSchema } from './NestedFloatNullableFilterSchema';
@@ -368,9 +370,7 @@ export { NestedEnumAdjustmentStatusFilterSchema } from './NestedEnumAdjustmentSt
 export { NestedEnumAdjustmentTypeWithAggregatesFilterSchema } from './NestedEnumAdjustmentTypeWithAggregatesFilterSchema';
 export { NestedEnumAdjustmentStatusWithAggregatesFilterSchema } from './NestedEnumAdjustmentStatusWithAggregatesFilterSchema';
 export { NestedEnumUserRoleFilterSchema } from './NestedEnumUserRoleFilterSchema';
-export { NestedBoolFilterSchema } from './NestedBoolFilterSchema';
 export { NestedEnumUserRoleWithAggregatesFilterSchema } from './NestedEnumUserRoleWithAggregatesFilterSchema';
-export { NestedBoolWithAggregatesFilterSchema } from './NestedBoolWithAggregatesFilterSchema';
 export { CategoryTranslationCreateWithoutCategoryInputSchema } from './CategoryTranslationCreateWithoutCategoryInputSchema';
 export { CategoryTranslationUncheckedCreateWithoutCategoryInputSchema } from './CategoryTranslationUncheckedCreateWithoutCategoryInputSchema';
 export { CategoryTranslationCreateOrConnectWithoutCategoryInputSchema } from './CategoryTranslationCreateOrConnectWithoutCategoryInputSchema';

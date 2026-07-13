@@ -5,7 +5,7 @@ import { z } from 'zod';
 /////////////////////////////////////////
 
 export const RefreshTokenSchema = z.object({
-  id: z.uuid(),
+  id: z.string().uuid(),
   hashedToken: z.string(),
   userId: z.string(),
   expiresAt: z.coerce.date(),

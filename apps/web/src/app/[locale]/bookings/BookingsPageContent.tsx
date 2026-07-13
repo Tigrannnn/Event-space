@@ -22,6 +22,12 @@ export default function BookingsPageContent() {
 	const { data: bookings, isLoading } = useGetMyBookings();
 	const [statusFilter, setStatusFilter] = useState<'ALL' | 'CONFIRMED' | 'CANCELLED'>('CONFIRMED');
 
+	const filteredBookings = useMemo(() => {
+		if (!bookings?.length) return [];
+		if (statusFilter === 'ALL') return bookings;
+		return bookings.filter((booking) => booking.status === statusFilter);
+	}, [bookings, statusFilter]);
+
 	useEffect(() => {
 		const paymentStatus = searchParams.get('payment');
 		const redirectStatus = searchParams.get('redirect_status');
@@ -37,12 +43,6 @@ export default function BookingsPageContent() {
 	if (isLoading) {
 		return <BookingsSkeleton />;
 	}
-
-	const filteredBookings = useMemo(() => {
-		if (!bookings?.length) return [];
-		if (statusFilter === 'ALL') return bookings;
-		return bookings.filter((booking) => booking.status === statusFilter);
-	}, [bookings, statusFilter]);
 
 	if (!bookings || bookings.length === 0) {
 		return (

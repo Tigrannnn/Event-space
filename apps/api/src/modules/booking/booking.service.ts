@@ -91,8 +91,8 @@ export class BookingService {
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
-				update: { status: 'PENDING', quantity, paymentIntentId: null, amount },
-				create: { userId, occurrenceId: occurrence.id, status: 'PENDING', quantity, amount },
+				update: { status: 'PENDING', expired: false, quantity, paymentIntentId: null, amount },
+				create: { userId, occurrenceId: occurrence.id, status: 'PENDING', expired: false, quantity, amount },
 			});
 
 			return { booking: upserted, event, occurrence };

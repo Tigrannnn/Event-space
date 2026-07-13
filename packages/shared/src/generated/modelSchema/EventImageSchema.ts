@@ -5,7 +5,7 @@ import { z } from 'zod';
 /////////////////////////////////////////
 
 export const EventImageSchema = z.object({
-  id: z.uuid(),
+  id: z.string().uuid(),
   eventId: z.string(),
   url: z.string(),
   publicId: z.string(),

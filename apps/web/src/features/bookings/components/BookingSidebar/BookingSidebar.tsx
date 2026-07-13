@@ -166,7 +166,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							>
 								{upcomingOccurrences.map((occurrence) => (
 									<option key={occurrence.id} value={occurrence.id}>
-										{format(new Date(occurrence.date ?? new Date()), 'd MMM., HH:mm', { locale: ru })}
+										{format(new Date(occurrence.date ?? new Date()), 'd MMM., HH:mm')}
 									</option>
 								))}
 							</Select>

@@ -20,6 +20,7 @@ export enum ModalType {
 	UpdateBooking = 'update-booking',
 	CreateManualBooking = 'create-manual-booking',
 	BookingDetails = 'booking-details',
+	BookingAction = 'booking-action',
 	UserDetails = 'user-details',
 	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
@@ -107,6 +108,7 @@ export interface ModalDataMap {
 	[ModalType.UpdateBooking]: UpdateBookingModalData;
 	[ModalType.CreateManualBooking]: null;
 	[ModalType.BookingDetails]: BookingDetailsModalData;
+	[ModalType.BookingAction]: BookingDetailsModalData;
 	[ModalType.UserDetails]: UserDetailsModalData;
 	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;

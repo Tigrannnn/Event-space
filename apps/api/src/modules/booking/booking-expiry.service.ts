@@ -16,7 +16,7 @@ export class BookingExpiryService {
 	async handleExpiry() {
 		const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
 		const expired = await this.prisma.booking.findMany({
-			where: { status: 'PENDING', createdAt: { lt: cutoff } },
+			where: { status: 'PENDING', expired: false, createdAt: { lt: cutoff } },
 			take: 50,
 		});
 
@@ -45,14 +45,14 @@ export class BookingExpiryService {
 					// Re-fetch inside transaction to get row-level lock
 					const booking = await tx.booking.findUnique({ where: { id: b.id } });
 
-					if (!booking || booking.status !== 'PENDING') {
-						// Already cancelled by user or another cron run — skip
+					if (!booking || booking.status !== 'PENDING' || booking.expired) {
+						// Already cancelled/expired by user or another cron run — skip
 						return null;
 					}
 
 					await tx.booking.update({
 						where: { id: booking.id },
-						data: { status: 'CANCELLED', paymentIntentId: null },
+						data: { status: 'EXPIRED', expired: true, paymentIntentId: null },
 					});
 
 					return booking.paymentIntentId;

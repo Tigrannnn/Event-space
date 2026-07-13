@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { MinusIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -22,7 +23,8 @@ export function GuestsFilterSection({
 	variant = 'popover',
 }: GuestsFilterSectionProps) {
 	const translate = useTranslation();
-	const guestCount = filters.guests ?? MIN_GUESTS;
+	const [draftGuests, setDraftGuests] = useState<number>(filters.guests ?? MIN_GUESTS);
+	const [isOpen, setIsOpen] = useState(false);
 	const isApplied = filters.guests !== null && filters.guests > 0;
 
 	const label =
@@ -30,21 +32,22 @@ export function GuestsFilterSection({
 			? translate('filters.guestsCount').replace('{count}', String(filters.guests))
 			: translate('filters.guests');
 
-	const updateGuests = (nextCount: number) => {
+	const updateDraftGuests = (nextCount: number) => {
 		const clamped = Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, nextCount));
-		onFiltersChange({ ...filters, guests: clamped });
+		setDraftGuests(clamped);
 	};
 
 	const handleDecrement = () => {
-		if (filters.guests === null) {
-			onFiltersChange({ ...filters, guests: MIN_GUESTS });
-			return;
-		}
-		updateGuests(guestCount - 1);
+		updateDraftGuests(draftGuests - 1);
 	};
 
 	const handleIncrement = () => {
-		updateGuests((filters.guests ?? MIN_GUESTS) + 1);
+		updateDraftGuests(draftGuests + 1);
+	};
+
+	const handleApply = () => {
+		onFiltersChange({ ...filters, guests: draftGuests });
+		setIsOpen(false);
 	};
 
 	const stepperContent = (
@@ -61,21 +64,28 @@ export function GuestsFilterSection({
 					variant="outline"
 					size="icon-sm"
 					onClick={handleDecrement}
-					disabled={filters.guests !== null && guestCount <= MIN_GUESTS}
+					disabled={draftGuests <= MIN_GUESTS}
 				>
 					<MinusIcon className="size-4" />
 				</Button>
-				<span className="min-w-8 text-center text-base font-semibold">{guestCount}</span>
+				<span className="min-w-8 text-center text-base font-semibold text-foreground dark:text-white">{draftGuests}</span>
 				<Button
 					type="button"
 					variant="outline"
 					size="icon-sm"
 					onClick={handleIncrement}
-					disabled={guestCount >= MAX_GUESTS}
+					disabled={draftGuests >= MAX_GUESTS}
 				>
 					<PlusIcon className="size-4" />
 				</Button>
 			</div>
+			<Button
+				type="button"
+				onClick={handleApply}
+				className="mt-4 w-full"
+			>
+				{translate('admin.applyFilter') || 'Применить'}
+			</Button>
 		</>
 	);
 
@@ -88,14 +98,14 @@ export function GuestsFilterSection({
 	}
 
 	return (
-		<Popover>
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
 			<PopoverTrigger asChild>
 				<FilterTriggerButton isActive={isApplied}>
 					<UsersIcon className="size-4 text-primary/80" />
 					{label}
 				</FilterTriggerButton>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-72 rounded-3xl p-4 shadow-lg">
+			<PopoverContent align="start" className="w-72 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
 				{stepperContent}
 			</PopoverContent>
 		</Popover>

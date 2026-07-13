@@ -1,4 +1,4 @@
-import { EnvKey } from '@event-space/shared';
+import { EnvKey, getApiErrorMessage } from '@event-space/shared';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -47,10 +47,10 @@ export class MailService {
 
 			if (devOrTest) {
 				this.logger.warn(`[DEV] Verification code for ${email}: ${code}`);
-				return;
 			}
 
-			throw new Error('Email service unavailable');
+			const errorMessage = getApiErrorMessage(error, 'Failed to send email');
+			throw new Error(errorMessage);
 		}
 	}
 
