@@ -11,8 +11,10 @@ import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
 import type { CreateManualBookingData, Event, EventOccurrence } from '@event-space/shared';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
+import { useFormatDate } from '@/hooks/format/useFormatDate';
 
 export default function CreateManualBookingModal() {
+	const { formatDateTime } = useFormatDate()
 	const translate = useTranslation();
 	const { closeModal } = useModalStore();
 	const { mutate: createManualBooking, isPending } = useCreateManualBooking();
@@ -107,7 +109,7 @@ export default function CreateManualBookingModal() {
 						<option value="">{translate('admin.selectEvent')}</option>
 						{futureOccurrences.map((occurrence) => (
 							<option key={occurrence.id} value={occurrence.id}>
-								{new Date(occurrence.date).toLocaleString(translate.locale)} —{' '}
+								{formatDateTime(occurrence.date)} —{' '}
 								{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
 								{translate('booking.spotsLeft')}
 							</option>

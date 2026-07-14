@@ -41,8 +41,8 @@ export default function UpdateEventModal() {
 			size="full"
 			position="center"
 			ariaLabel={translate('admin.updateEventModal')}
-			disableBackdropClose={isPending}
-			disableEscapeClose={isPending}
+			disableBackdropClose={true}
+			disableEscapeClose={true}
 		>
 			<EventForm
 				event={eventToUpdate}

@@ -19,10 +19,13 @@ export default function CreateBookingModal() {
 	const modalData = useModalData(ModalType.CreateBooking);
 	const { data: user } = useCurrentUser();
 	const event = modalData?.event;
+	const defaultOccurrence = modalData?.selectedOccurrence || null;
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
 	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);
-	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(null);
+	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(
+		defaultOccurrence,
+	);
 
 	const handleClose = () => {
 		setClientSecret(null);

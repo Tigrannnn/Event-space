@@ -22,17 +22,19 @@ import { useTranslation } from '@/hooks/translation';
 import { formatCurrency } from '@/utils/currency';
 import { ModalType, useModalStore } from '@/stores';
 import React from 'react';
+import { formatDateTime } from '@/utils/date';
+import { useFormatDate } from '@/hooks/format';
 
 export interface BookingSidebarProps {
 	event: Event;
 }
 
 export default function BookingSidebar({ event }: BookingSidebarProps) {
-	const router = useRouter();
+	const { formatDateTime } = useFormatDate();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const t = getEventTranslation(event, locale);
+	const eventTranslation = getEventTranslation(event, locale);
 	const [selectedOccId, setSelectedOccId] = useState<string | undefined>(undefined);
 
 	const upcomingOccurrences = useMemo(() => getUpcomingEventOccurrences(event), [event]);
@@ -85,7 +87,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 		e.stopPropagation();
 		e.preventDefault();
 		if (user) {
-			openModal(ModalType.CreateBooking, { event });
+			openModal(ModalType.CreateBooking, { event, selectedOccurrence });
 		} else {
 			openModal(ModalType.Register);
 		}
@@ -166,7 +168,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							>
 								{upcomingOccurrences.map((occurrence) => (
 									<option key={occurrence.id} value={occurrence.id}>
-										{format(new Date(occurrence.date ?? new Date()), 'd MMM., HH:mm')}
+										{formatDateTime(occurrence.date)} - {' '}
+										{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
+										{translate('booking.spotsLeft')}
 									</option>
 								))}
 							</Select>
@@ -185,10 +189,10 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 									rel="noopener noreferrer"
 									className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
 								>
-									{t.location}
+									{eventTranslation.location}
 								</a>
 							) : (
-								<span className="text-sm font-medium sm:text-base">{t.location}</span>
+								<span className="text-sm font-medium sm:text-base">{eventTranslation.location}</span>
 							)}
 						</div>
 					</div>

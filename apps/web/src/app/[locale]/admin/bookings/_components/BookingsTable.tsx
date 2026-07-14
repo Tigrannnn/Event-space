@@ -256,7 +256,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 					)}
 
 					{bookingsResponse.data.map((booking: BookingWithDetails) => {
-						const t = booking.event ? getEventTranslation(booking.event, locale) : null;
+						const eventTranslation = booking.occurrence?.event ? getEventTranslation(booking.occurrence?.event, locale) : null;
 						return (
 							<TableRow key={booking.id}>
 								<TableCell className="px-3 sm:px-5">
@@ -273,9 +273,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								<TableCell>
 									<div className="max-w-md min-w-0">
 										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
-											{t?.title || translate('booking.unknownEvent')}
+											{eventTranslation?.title || translate('booking.unknownEvent')}
 										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">{t?.location || '—'}</p>
+										<p className="truncate text-sm text-gray-500 dark:text-gray-400">{eventTranslation?.location || '—'}</p>
 									</div>
 								</TableCell>
 								<TableCell>

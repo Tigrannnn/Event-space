@@ -1,4 +1,4 @@
-import { Event, Booking, BookingWithDetails, SafeUserData, Category } from '@event-space/shared';
+import { Event, Booking, BookingWithDetails, SafeUserData, Category, EventOccurrence } from '@event-space/shared';
 import type { ReactNode } from 'react';
 import type { ModalSize } from '@/components/ui/Modal/Modal.types';
 
@@ -62,6 +62,7 @@ export interface ConfirmModalData {
 
 export interface CreateBookingModalData {
 	event: Event;
+	selectedOccurrence?: EventOccurrence;
 }
 
 export interface UpdateBookingModalData {

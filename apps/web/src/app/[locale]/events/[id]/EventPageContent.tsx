@@ -35,7 +35,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const translate = useTranslation();
 	const locale = translate.locale;
 
-	const t = getEventTranslation(event, locale);
+	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 
 	const handleImageError = () => {
@@ -62,7 +62,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 			<section className="relative flex min-h-45 w-full items-center overflow-hidden sm:h-[40vh] lg:h-[50vh]">
 				{/* Image Gallery */}
 				{allImagesFailed ? (
-					<EventImageFallback alt={t.title} />
+					<EventImageFallback alt={eventTranslation.title} />
 				) : (
 					<div className="scrollbar-hide h-full w-full snap-x snap-mandatory overflow-x-auto">
 						<div className="flex h-full items-center">
@@ -79,7 +79,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								>
 									<EventImage
 										src={imgSrc}
-										alt={t.title}
+										alt={eventTranslation.title}
 										onError={handleImageError}
 										className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 active:scale-98 sm:h-full sm:w-auto"
 									/>
@@ -120,7 +120,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 					<div className="space-y-6 sm:space-y-8 lg:col-span-2">
 						<div>
 							<h1 className="text-primary mb-3 text-3xl leading-tight font-black sm:mb-4 sm:text-4xl md:text-5xl">
-								{t.title}
+								{eventTranslation.title}
 							</h1>
 
 							<div className="mb-4 flex items-center gap-2 text-gray-700 sm:mb-6 dark:text-gray-300">
@@ -132,10 +132,10 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 										rel="noopener noreferrer"
 										className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
 									>
-										{t.location}
+										{eventTranslation.location}
 									</a>
 								) : (
-									<span className="text-sm font-medium sm:text-base">{t.location}</span>
+									<span className="text-sm font-medium sm:text-base">{eventTranslation.location}</span>
 								)}
 							</div>
 
@@ -162,7 +162,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{translate('event.aboutTour')}
 							</h2>
 							<div className="prose prose-base sm:prose-lg max-w-none leading-relaxed text-gray-600">
-								<p>{t.description}</p>
+								<p>{eventTranslation.description}</p>
 							</div>
 						</div>
 
@@ -172,7 +172,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								{translate('event.whatsIncluded')}
 							</h2>
 							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-								{t.whatsIncluded.map((item: string, index: Key | null | undefined) => (
+								{eventTranslation.whatsIncluded.map((item: string, index: Key | null | undefined) => (
 									<IncludedItem key={index} text={item} />
 								))}
 							</div>
