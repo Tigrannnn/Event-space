@@ -11,7 +11,7 @@ import { CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema } fr
 import { CancellationPolicyRuleUpdateManyWithWhereWithoutEventInputSchema } from './CancellationPolicyRuleUpdateManyWithWhereWithoutEventInputSchema';
 import { CancellationPolicyRuleScalarWhereInputSchema } from './CancellationPolicyRuleScalarWhereInputSchema';
 
-export const CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInput> = z.object({
+export const CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => CancellationPolicyRuleCreateWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleCreateWithoutEventInputSchema).array(), z.lazy(() => CancellationPolicyRuleUncheckedCreateWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => CancellationPolicyRuleCreateOrConnectWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => CancellationPolicyRuleUpsertWithWhereUniqueWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUpsertWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSch
   update: z.union([ z.lazy(() => CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => CancellationPolicyRuleUpdateManyWithWhereWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUpdateManyWithWhereWithoutEventInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema), z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema;

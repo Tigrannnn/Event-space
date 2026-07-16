@@ -5,9 +5,9 @@ import { EventImageScalarWhereInputSchema } from './EventImageScalarWhereInputSc
 import { EventImageUpdateManyMutationInputSchema } from './EventImageUpdateManyMutationInputSchema';
 import { EventImageUncheckedUpdateManyWithoutEventInputSchema } from './EventImageUncheckedUpdateManyWithoutEventInputSchema';
 
-export const EventImageUpdateManyWithWhereWithoutEventInputSchema: z.ZodType<Prisma.EventImageUpdateManyWithWhereWithoutEventInput> = z.object({
+export const EventImageUpdateManyWithWhereWithoutEventInputSchema: z.ZodType<Prisma.EventImageUpdateManyWithWhereWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventImageScalarWhereInputSchema),
   data: z.union([ z.lazy(() => EventImageUpdateManyMutationInputSchema), z.lazy(() => EventImageUncheckedUpdateManyWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventImageUpdateManyWithWhereWithoutEventInputSchema;

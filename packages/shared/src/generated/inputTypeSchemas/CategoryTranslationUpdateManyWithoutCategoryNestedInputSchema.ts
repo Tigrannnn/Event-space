@@ -11,7 +11,7 @@ import { CategoryTranslationUpdateWithWhereUniqueWithoutCategoryInputSchema } fr
 import { CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema } from './CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema';
 import { CategoryTranslationScalarWhereInputSchema } from './CategoryTranslationScalarWhereInputSchema';
 
-export const CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema: z.ZodType<Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput> = z.object({
+export const CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema: z.ZodType<Prisma.CategoryTranslationUpdateManyWithoutCategoryNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => CategoryTranslationCreateWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationCreateWithoutCategoryInputSchema).array(), z.lazy(() => CategoryTranslationUncheckedCreateWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationUncheckedCreateWithoutCategoryInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => CategoryTranslationCreateOrConnectWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationCreateOrConnectWithoutCategoryInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => CategoryTranslationUpsertWithWhereUniqueWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationUpsertWithWhereUniqueWithoutCategoryInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema: z.Zo
   update: z.union([ z.lazy(() => CategoryTranslationUpdateWithWhereUniqueWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationUpdateWithWhereUniqueWithoutCategoryInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema), z.lazy(() => CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => CategoryTranslationScalarWhereInputSchema), z.lazy(() => CategoryTranslationScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema;

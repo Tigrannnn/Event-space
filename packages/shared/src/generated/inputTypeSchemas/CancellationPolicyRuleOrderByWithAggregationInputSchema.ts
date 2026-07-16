@@ -8,7 +8,7 @@ import { CancellationPolicyRuleMaxOrderByAggregateInputSchema } from './Cancella
 import { CancellationPolicyRuleMinOrderByAggregateInputSchema } from './CancellationPolicyRuleMinOrderByAggregateInputSchema';
 import { CancellationPolicyRuleSumOrderByAggregateInputSchema } from './CancellationPolicyRuleSumOrderByAggregateInputSchema';
 
-export const CancellationPolicyRuleOrderByWithAggregationInputSchema: z.ZodType<Prisma.CancellationPolicyRuleOrderByWithAggregationInput> = z.object({
+export const CancellationPolicyRuleOrderByWithAggregationInputSchema: z.ZodType<Prisma.CancellationPolicyRuleOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   hoursBeforeEvent: z.lazy(() => SortOrderSchema).optional(),
@@ -18,6 +18,6 @@ export const CancellationPolicyRuleOrderByWithAggregationInputSchema: z.ZodType<
   _max: z.lazy(() => CancellationPolicyRuleMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => CancellationPolicyRuleMinOrderByAggregateInputSchema).optional(),
   _sum: z.lazy(() => CancellationPolicyRuleSumOrderByAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleOrderByWithAggregationInputSchema;

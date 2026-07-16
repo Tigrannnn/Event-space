@@ -10,7 +10,7 @@ import { PaymentMethodSchema } from '../inputTypeSchemas/PaymentMethodSchema'
 export const BookingSchema = z.object({
   status: BookingStatusSchema,
   paymentMethod: PaymentMethodSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   userId: z.string(),
   occurrenceId: z.string(),
   expired: z.boolean(),

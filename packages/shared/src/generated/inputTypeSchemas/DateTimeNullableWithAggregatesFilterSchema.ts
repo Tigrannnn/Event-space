@@ -5,7 +5,7 @@ import { NestedDateTimeNullableWithAggregatesFilterSchema } from './NestedDateTi
 import { NestedIntNullableFilterSchema } from './NestedIntNullableFilterSchema';
 import { NestedDateTimeNullableFilterSchema } from './NestedDateTimeNullableFilterSchema';
 
-export const DateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeNullableWithAggregatesFilter> = z.object({
+export const DateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeNullableWithAggregatesFilter> = z.strictObject({
   equals: z.coerce.date().optional().nullable(),
   in: z.coerce.date().array().optional().nullable(),
   notIn: z.coerce.date().array().optional().nullable(),
@@ -17,6 +17,6 @@ export const DateTimeNullableWithAggregatesFilterSchema: z.ZodType<Prisma.DateTi
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedDateTimeNullableFilterSchema).optional(),
   _max: z.lazy(() => NestedDateTimeNullableFilterSchema).optional(),
-}).strict();
+});
 
 export default DateTimeNullableWithAggregatesFilterSchema;

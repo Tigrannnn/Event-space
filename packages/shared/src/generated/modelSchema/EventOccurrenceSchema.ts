@@ -5,7 +5,7 @@ import { z } from 'zod';
 /////////////////////////////////////////
 
 export const EventOccurrenceSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   eventId: z.string(),
   date: z.coerce.date(),
   maxParticipants: z.number().int(),

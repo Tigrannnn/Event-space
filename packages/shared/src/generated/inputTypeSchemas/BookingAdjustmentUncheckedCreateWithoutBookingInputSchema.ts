@@ -6,7 +6,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { AdjustmentStatusSchema } from './AdjustmentStatusSchema';
 
-export const BookingAdjustmentUncheckedCreateWithoutBookingInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedCreateWithoutBookingInput> = z.object({
+export const BookingAdjustmentUncheckedCreateWithoutBookingInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedCreateWithoutBookingInput> = z.strictObject({
   id: z.uuid().optional(),
   type: z.lazy(() => AdjustmentTypeSchema),
   amount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
@@ -17,6 +17,6 @@ export const BookingAdjustmentUncheckedCreateWithoutBookingInputSchema: z.ZodTyp
   reason: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-}).strict();
+});
 
 export default BookingAdjustmentUncheckedCreateWithoutBookingInputSchema;

@@ -6,10 +6,10 @@ import { EventUncheckedCreateWithoutImagesInputSchema } from './EventUncheckedCr
 import { EventCreateOrConnectWithoutImagesInputSchema } from './EventCreateOrConnectWithoutImagesInputSchema';
 import { EventWhereUniqueInputSchema } from './EventWhereUniqueInputSchema';
 
-export const EventCreateNestedOneWithoutImagesInputSchema: z.ZodType<Prisma.EventCreateNestedOneWithoutImagesInput> = z.object({
+export const EventCreateNestedOneWithoutImagesInputSchema: z.ZodType<Prisma.EventCreateNestedOneWithoutImagesInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutImagesInputSchema), z.lazy(() => EventUncheckedCreateWithoutImagesInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => EventCreateOrConnectWithoutImagesInputSchema).optional(),
   connect: z.lazy(() => EventWhereUniqueInputSchema).optional(),
-}).strict();
+});
 
 export default EventCreateNestedOneWithoutImagesInputSchema;

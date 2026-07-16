@@ -10,12 +10,12 @@ import { UserUpdateToOneWithWhereWithoutBookingsInputSchema } from './UserUpdate
 import { UserUpdateWithoutBookingsInputSchema } from './UserUpdateWithoutBookingsInputSchema';
 import { UserUncheckedUpdateWithoutBookingsInputSchema } from './UserUncheckedUpdateWithoutBookingsInputSchema';
 
-export const UserUpdateOneRequiredWithoutBookingsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput> = z.object({
+export const UserUpdateOneRequiredWithoutBookingsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutBookingsInputSchema), z.lazy(() => UserUncheckedCreateWithoutBookingsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutBookingsInputSchema).optional(),
   upsert: z.lazy(() => UserUpsertWithoutBookingsInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutBookingsInputSchema), z.lazy(() => UserUpdateWithoutBookingsInputSchema), z.lazy(() => UserUncheckedUpdateWithoutBookingsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default UserUpdateOneRequiredWithoutBookingsNestedInputSchema;

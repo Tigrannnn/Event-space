@@ -7,10 +7,10 @@ import { CategoryCreateWithoutEventsInputSchema } from './CategoryCreateWithoutE
 import { CategoryUncheckedCreateWithoutEventsInputSchema } from './CategoryUncheckedCreateWithoutEventsInputSchema';
 import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 
-export const CategoryUpsertWithoutEventsInputSchema: z.ZodType<Prisma.CategoryUpsertWithoutEventsInput> = z.object({
+export const CategoryUpsertWithoutEventsInputSchema: z.ZodType<Prisma.CategoryUpsertWithoutEventsInput> = z.strictObject({
   update: z.union([ z.lazy(() => CategoryUpdateWithoutEventsInputSchema), z.lazy(() => CategoryUncheckedUpdateWithoutEventsInputSchema) ]),
   create: z.union([ z.lazy(() => CategoryCreateWithoutEventsInputSchema), z.lazy(() => CategoryUncheckedCreateWithoutEventsInputSchema) ]),
   where: z.lazy(() => CategoryWhereInputSchema).optional(),
-}).strict();
+});
 
 export default CategoryUpsertWithoutEventsInputSchema;

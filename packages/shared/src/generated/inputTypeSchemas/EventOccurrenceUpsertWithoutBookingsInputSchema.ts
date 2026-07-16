@@ -7,10 +7,10 @@ import { EventOccurrenceCreateWithoutBookingsInputSchema } from './EventOccurren
 import { EventOccurrenceUncheckedCreateWithoutBookingsInputSchema } from './EventOccurrenceUncheckedCreateWithoutBookingsInputSchema';
 import { EventOccurrenceWhereInputSchema } from './EventOccurrenceWhereInputSchema';
 
-export const EventOccurrenceUpsertWithoutBookingsInputSchema: z.ZodType<Prisma.EventOccurrenceUpsertWithoutBookingsInput> = z.object({
+export const EventOccurrenceUpsertWithoutBookingsInputSchema: z.ZodType<Prisma.EventOccurrenceUpsertWithoutBookingsInput> = z.strictObject({
   update: z.union([ z.lazy(() => EventOccurrenceUpdateWithoutBookingsInputSchema), z.lazy(() => EventOccurrenceUncheckedUpdateWithoutBookingsInputSchema) ]),
   create: z.union([ z.lazy(() => EventOccurrenceCreateWithoutBookingsInputSchema), z.lazy(() => EventOccurrenceUncheckedCreateWithoutBookingsInputSchema) ]),
   where: z.lazy(() => EventOccurrenceWhereInputSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceUpsertWithoutBookingsInputSchema;

@@ -5,7 +5,7 @@ import { LocaleSchema } from './LocaleSchema';
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumLocaleFilterSchema } from './NestedEnumLocaleFilterSchema';
 
-export const NestedEnumLocaleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumLocaleWithAggregatesFilter> = z.object({
+export const NestedEnumLocaleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumLocaleWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => LocaleSchema).optional(),
   in: z.lazy(() => LocaleSchema).array().optional(),
   notIn: z.lazy(() => LocaleSchema).array().optional(),
@@ -13,6 +13,6 @@ export const NestedEnumLocaleWithAggregatesFilterSchema: z.ZodType<Prisma.Nested
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumLocaleFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumLocaleFilterSchema).optional(),
-}).strict();
+});
 
 export default NestedEnumLocaleWithAggregatesFilterSchema;

@@ -11,7 +11,7 @@ import { EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema } from './E
 import { EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema } from './EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema';
 import { EventOccurrenceScalarWhereInputSchema } from './EventOccurrenceScalarWhereInputSchema';
 
-export const EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventOccurrenceUncheckedUpdateManyWithoutEventNestedInput> = z.object({
+export const EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventOccurrenceUncheckedUpdateManyWithoutEventNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema).array(), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => EventOccurrenceUpsertWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpsertWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema: z.
   update: z.union([ z.lazy(() => EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => EventOccurrenceScalarWhereInputSchema), z.lazy(() => EventOccurrenceScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema;

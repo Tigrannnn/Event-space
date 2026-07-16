@@ -5,9 +5,9 @@ import { CategoryTranslationScalarWhereInputSchema } from './CategoryTranslation
 import { CategoryTranslationUpdateManyMutationInputSchema } from './CategoryTranslationUpdateManyMutationInputSchema';
 import { CategoryTranslationUncheckedUpdateManyWithoutCategoryInputSchema } from './CategoryTranslationUncheckedUpdateManyWithoutCategoryInputSchema';
 
-export const CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema: z.ZodType<Prisma.CategoryTranslationUpdateManyWithWhereWithoutCategoryInput> = z.object({
+export const CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema: z.ZodType<Prisma.CategoryTranslationUpdateManyWithWhereWithoutCategoryInput> = z.strictObject({
   where: z.lazy(() => CategoryTranslationScalarWhereInputSchema),
   data: z.union([ z.lazy(() => CategoryTranslationUpdateManyMutationInputSchema), z.lazy(() => CategoryTranslationUncheckedUpdateManyWithoutCategoryInputSchema) ]),
-}).strict();
+});
 
 export default CategoryTranslationUpdateManyWithWhereWithoutCategoryInputSchema;

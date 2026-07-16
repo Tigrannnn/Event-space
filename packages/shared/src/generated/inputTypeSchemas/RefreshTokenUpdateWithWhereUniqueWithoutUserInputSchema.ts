@@ -5,9 +5,9 @@ import { RefreshTokenWhereUniqueInputSchema } from './RefreshTokenWhereUniqueInp
 import { RefreshTokenUpdateWithoutUserInputSchema } from './RefreshTokenUpdateWithoutUserInputSchema';
 import { RefreshTokenUncheckedUpdateWithoutUserInputSchema } from './RefreshTokenUncheckedUpdateWithoutUserInputSchema';
 
-export const RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.RefreshTokenUpdateWithWhereUniqueWithoutUserInput> = z.object({
+export const RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema: z.ZodType<Prisma.RefreshTokenUpdateWithWhereUniqueWithoutUserInput> = z.strictObject({
   where: z.lazy(() => RefreshTokenWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => RefreshTokenUpdateWithoutUserInputSchema), z.lazy(() => RefreshTokenUncheckedUpdateWithoutUserInputSchema) ]),
-}).strict();
+});
 
 export default RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema;

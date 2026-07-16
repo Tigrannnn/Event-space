@@ -16,7 +16,7 @@ import { EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema } from 
 import { EventImageUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventImageUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema';
 
-export const EventUncheckedUpdateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.EventUncheckedUpdateWithoutCancellationRulesInput> = z.object({
+export const EventUncheckedUpdateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.EventUncheckedUpdateWithoutCancellationRulesInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   locationUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   difficulty: z.union([ z.lazy(() => EventDifficultySchema), z.lazy(() => NullableEnumEventDifficultyFieldUpdateOperationsInputSchema) ]).optional().nullable(),
@@ -30,6 +30,6 @@ export const EventUncheckedUpdateWithoutCancellationRulesInputSchema: z.ZodType<
   occurrences: z.lazy(() => EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   images: z.lazy(() => EventImageUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
-}).strict();
+});
 
 export default EventUncheckedUpdateWithoutCancellationRulesInputSchema;

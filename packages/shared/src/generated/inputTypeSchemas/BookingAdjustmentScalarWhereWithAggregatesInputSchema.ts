@@ -12,7 +12,7 @@ import { EnumAdjustmentStatusWithAggregatesFilterSchema } from './EnumAdjustment
 import { AdjustmentStatusSchema } from './AdjustmentStatusSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
 
-export const BookingAdjustmentScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BookingAdjustmentScalarWhereWithAggregatesInput> = z.object({
+export const BookingAdjustmentScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.BookingAdjustmentScalarWhereWithAggregatesInput> = z.strictObject({
   AND: z.union([ z.lazy(() => BookingAdjustmentScalarWhereWithAggregatesInputSchema), z.lazy(() => BookingAdjustmentScalarWhereWithAggregatesInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingAdjustmentScalarWhereWithAggregatesInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingAdjustmentScalarWhereWithAggregatesInputSchema), z.lazy(() => BookingAdjustmentScalarWhereWithAggregatesInputSchema).array() ]).optional(),
@@ -27,6 +27,6 @@ export const BookingAdjustmentScalarWhereWithAggregatesInputSchema: z.ZodType<Pr
   reason: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentScalarWhereWithAggregatesInputSchema;

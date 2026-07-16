@@ -7,11 +7,11 @@ import { CancellationPolicyRuleCreateOrConnectWithoutEventInputSchema } from './
 import { CancellationPolicyRuleCreateManyEventInputEnvelopeSchema } from './CancellationPolicyRuleCreateManyEventInputEnvelopeSchema';
 import { CancellationPolicyRuleWhereUniqueInputSchema } from './CancellationPolicyRuleWhereUniqueInputSchema';
 
-export const CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInput> = z.object({
+export const CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInput> = z.strictObject({
   create: z.union([ z.lazy(() => CancellationPolicyRuleCreateWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleCreateWithoutEventInputSchema).array(), z.lazy(() => CancellationPolicyRuleUncheckedCreateWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => CancellationPolicyRuleCreateOrConnectWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   createMany: z.lazy(() => CancellationPolicyRuleCreateManyEventInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => CancellationPolicyRuleWhereUniqueInputSchema), z.lazy(() => CancellationPolicyRuleWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema;

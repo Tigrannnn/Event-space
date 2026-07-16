@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { QueryModeSchema } from './QueryModeSchema';
 import { NestedStringFilterSchema } from './NestedStringFilterSchema';
 
-export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
+export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.strictObject({
   equals: z.string().optional(),
   in: z.string().array().optional(),
   notIn: z.string().array().optional(),
@@ -17,6 +17,6 @@ export const StringFilterSchema: z.ZodType<Prisma.StringFilter> = z.object({
   endsWith: z.string().optional(),
   mode: z.lazy(() => QueryModeSchema).optional(),
   not: z.union([ z.string(),z.lazy(() => NestedStringFilterSchema) ]).optional(),
-}).strict();
+});
 
 export default StringFilterSchema;

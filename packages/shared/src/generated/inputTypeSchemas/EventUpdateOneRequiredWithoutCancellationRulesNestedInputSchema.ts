@@ -10,12 +10,12 @@ import { EventUpdateToOneWithWhereWithoutCancellationRulesInputSchema } from './
 import { EventUpdateWithoutCancellationRulesInputSchema } from './EventUpdateWithoutCancellationRulesInputSchema';
 import { EventUncheckedUpdateWithoutCancellationRulesInputSchema } from './EventUncheckedUpdateWithoutCancellationRulesInputSchema';
 
-export const EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema: z.ZodType<Prisma.EventUpdateOneRequiredWithoutCancellationRulesNestedInput> = z.object({
+export const EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema: z.ZodType<Prisma.EventUpdateOneRequiredWithoutCancellationRulesNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutCancellationRulesInputSchema), z.lazy(() => EventUncheckedCreateWithoutCancellationRulesInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => EventCreateOrConnectWithoutCancellationRulesInputSchema).optional(),
   upsert: z.lazy(() => EventUpsertWithoutCancellationRulesInputSchema).optional(),
   connect: z.lazy(() => EventWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => EventUpdateToOneWithWhereWithoutCancellationRulesInputSchema), z.lazy(() => EventUpdateWithoutCancellationRulesInputSchema), z.lazy(() => EventUncheckedUpdateWithoutCancellationRulesInputSchema) ]).optional(),
-}).strict();
+});
 
 export default EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema;

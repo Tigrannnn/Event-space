@@ -19,7 +19,7 @@ import { UserUpdateOneRequiredWithoutBookingsNestedInputSchema } from './UserUpd
 import { EventOccurrenceUpdateOneRequiredWithoutBookingsNestedInputSchema } from './EventOccurrenceUpdateOneRequiredWithoutBookingsNestedInputSchema';
 import { BookingAdjustmentUpdateManyWithoutBookingNestedInputSchema } from './BookingAdjustmentUpdateManyWithoutBookingNestedInputSchema';
 
-export const BookingUpdateInputSchema: z.ZodType<Prisma.BookingUpdateInput> = z.object({
+export const BookingUpdateInputSchema: z.ZodType<Prisma.BookingUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => BookingStatusSchema), z.lazy(() => EnumBookingStatusFieldUpdateOperationsInputSchema) ]).optional(),
   expired: z.union([ z.boolean(),z.lazy(() => BoolFieldUpdateOperationsInputSchema) ]).optional(),
@@ -35,6 +35,6 @@ export const BookingUpdateInputSchema: z.ZodType<Prisma.BookingUpdateInput> = z.
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   occurrence: z.lazy(() => EventOccurrenceUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   adjustments: z.lazy(() => BookingAdjustmentUpdateManyWithoutBookingNestedInputSchema).optional(),
-}).strict();
+});
 
 export default BookingUpdateInputSchema;

@@ -3,7 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { EventCreateNestedOneWithoutImagesInputSchema } from './EventCreateNestedOneWithoutImagesInputSchema';
 
-export const EventImageCreateInputSchema: z.ZodType<Prisma.EventImageCreateInput> = z.object({
+export const EventImageCreateInputSchema: z.ZodType<Prisma.EventImageCreateInput> = z.strictObject({
   id: z.uuid().optional(),
   url: z.string(),
   publicId: z.string(),
@@ -11,6 +11,6 @@ export const EventImageCreateInputSchema: z.ZodType<Prisma.EventImageCreateInput
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   event: z.lazy(() => EventCreateNestedOneWithoutImagesInputSchema),
-}).strict();
+});
 
 export default EventImageCreateInputSchema;

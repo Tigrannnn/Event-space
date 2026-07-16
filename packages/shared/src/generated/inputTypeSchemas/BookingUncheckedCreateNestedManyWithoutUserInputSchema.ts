@@ -7,11 +7,11 @@ import { BookingCreateOrConnectWithoutUserInputSchema } from './BookingCreateOrC
 import { BookingCreateManyUserInputEnvelopeSchema } from './BookingCreateManyUserInputEnvelopeSchema';
 import { BookingWhereUniqueInputSchema } from './BookingWhereUniqueInputSchema';
 
-export const BookingUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedCreateNestedManyWithoutUserInput> = z.object({
+export const BookingUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedCreateNestedManyWithoutUserInput> = z.strictObject({
   create: z.union([ z.lazy(() => BookingCreateWithoutUserInputSchema), z.lazy(() => BookingCreateWithoutUserInputSchema).array(), z.lazy(() => BookingUncheckedCreateWithoutUserInputSchema), z.lazy(() => BookingUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BookingCreateOrConnectWithoutUserInputSchema), z.lazy(() => BookingCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
   createMany: z.lazy(() => BookingCreateManyUserInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => BookingWhereUniqueInputSchema), z.lazy(() => BookingWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default BookingUncheckedCreateNestedManyWithoutUserInputSchema;

@@ -5,7 +5,7 @@ import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSc
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 
-export const EventOccurrenceScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereWithAggregatesInput> = z.object({
+export const EventOccurrenceScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereWithAggregatesInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventOccurrenceScalarWhereWithAggregatesInputSchema), z.lazy(() => EventOccurrenceScalarWhereWithAggregatesInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventOccurrenceScalarWhereWithAggregatesInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventOccurrenceScalarWhereWithAggregatesInputSchema), z.lazy(() => EventOccurrenceScalarWhereWithAggregatesInputSchema).array() ]).optional(),
@@ -16,6 +16,6 @@ export const EventOccurrenceScalarWhereWithAggregatesInputSchema: z.ZodType<Pris
   currentParticipants: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
-}).strict();
+});
 
 export default EventOccurrenceScalarWhereWithAggregatesInputSchema;

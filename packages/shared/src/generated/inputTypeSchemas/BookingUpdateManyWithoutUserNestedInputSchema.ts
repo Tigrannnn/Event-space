@@ -11,7 +11,7 @@ import { BookingUpdateWithWhereUniqueWithoutUserInputSchema } from './BookingUpd
 import { BookingUpdateManyWithWhereWithoutUserInputSchema } from './BookingUpdateManyWithWhereWithoutUserInputSchema';
 import { BookingScalarWhereInputSchema } from './BookingScalarWhereInputSchema';
 
-export const BookingUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.BookingUpdateManyWithoutUserNestedInput> = z.object({
+export const BookingUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.BookingUpdateManyWithoutUserNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => BookingCreateWithoutUserInputSchema), z.lazy(() => BookingCreateWithoutUserInputSchema).array(), z.lazy(() => BookingUncheckedCreateWithoutUserInputSchema), z.lazy(() => BookingUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BookingCreateOrConnectWithoutUserInputSchema), z.lazy(() => BookingCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => BookingUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => BookingUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const BookingUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.Boo
   update: z.union([ z.lazy(() => BookingUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => BookingUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => BookingUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => BookingUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => BookingScalarWhereInputSchema), z.lazy(() => BookingScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default BookingUpdateManyWithoutUserNestedInputSchema;

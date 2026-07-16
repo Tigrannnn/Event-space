@@ -6,7 +6,7 @@ import { NestedEnumAdjustmentStatusWithAggregatesFilterSchema } from './NestedEn
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumAdjustmentStatusFilterSchema } from './NestedEnumAdjustmentStatusFilterSchema';
 
-export const EnumAdjustmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumAdjustmentStatusWithAggregatesFilter> = z.object({
+export const EnumAdjustmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumAdjustmentStatusWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => AdjustmentStatusSchema).optional(),
   in: z.lazy(() => AdjustmentStatusSchema).array().optional(),
   notIn: z.lazy(() => AdjustmentStatusSchema).array().optional(),
@@ -14,6 +14,6 @@ export const EnumAdjustmentStatusWithAggregatesFilterSchema: z.ZodType<Prisma.En
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumAdjustmentStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumAdjustmentStatusFilterSchema).optional(),
-}).strict();
+});
 
 export default EnumAdjustmentStatusWithAggregatesFilterSchema;

@@ -6,7 +6,7 @@ import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsI
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { EventUpdateOneRequiredWithoutImagesNestedInputSchema } from './EventUpdateOneRequiredWithoutImagesNestedInputSchema';
 
-export const EventImageUpdateInputSchema: z.ZodType<Prisma.EventImageUpdateInput> = z.object({
+export const EventImageUpdateInputSchema: z.ZodType<Prisma.EventImageUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   url: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   publicId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -14,6 +14,6 @@ export const EventImageUpdateInputSchema: z.ZodType<Prisma.EventImageUpdateInput
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   event: z.lazy(() => EventUpdateOneRequiredWithoutImagesNestedInputSchema).optional(),
-}).strict();
+});
 
 export default EventImageUpdateInputSchema;

@@ -6,7 +6,7 @@ import { NestedEnumEventStatusWithAggregatesFilterSchema } from './NestedEnumEve
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumEventStatusFilterSchema } from './NestedEnumEventStatusFilterSchema';
 
-export const EnumEventStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumEventStatusWithAggregatesFilter> = z.object({
+export const EnumEventStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumEventStatusWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => EventStatusSchema).optional(),
   in: z.lazy(() => EventStatusSchema).array().optional(),
   notIn: z.lazy(() => EventStatusSchema).array().optional(),
@@ -14,6 +14,6 @@ export const EnumEventStatusWithAggregatesFilterSchema: z.ZodType<Prisma.EnumEve
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumEventStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumEventStatusFilterSchema).optional(),
-}).strict();
+});
 
 export default EnumEventStatusWithAggregatesFilterSchema;

@@ -8,7 +8,7 @@ import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSche
 import { EventWhereInputSchema } from './EventWhereInputSchema';
 import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 
-export const EventOccurrenceWhereInputSchema: z.ZodType<Prisma.EventOccurrenceWhereInput> = z.object({
+export const EventOccurrenceWhereInputSchema: z.ZodType<Prisma.EventOccurrenceWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventOccurrenceWhereInputSchema), z.lazy(() => EventOccurrenceWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventOccurrenceWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventOccurrenceWhereInputSchema), z.lazy(() => EventOccurrenceWhereInputSchema).array() ]).optional(),
@@ -21,6 +21,6 @@ export const EventOccurrenceWhereInputSchema: z.ZodType<Prisma.EventOccurrenceWh
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceWhereInputSchema;

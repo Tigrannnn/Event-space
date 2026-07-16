@@ -6,7 +6,7 @@ import { RefreshTokenCountOrderByAggregateInputSchema } from './RefreshTokenCoun
 import { RefreshTokenMaxOrderByAggregateInputSchema } from './RefreshTokenMaxOrderByAggregateInputSchema';
 import { RefreshTokenMinOrderByAggregateInputSchema } from './RefreshTokenMinOrderByAggregateInputSchema';
 
-export const RefreshTokenOrderByWithAggregationInputSchema: z.ZodType<Prisma.RefreshTokenOrderByWithAggregationInput> = z.object({
+export const RefreshTokenOrderByWithAggregationInputSchema: z.ZodType<Prisma.RefreshTokenOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   hashedToken: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
@@ -16,6 +16,6 @@ export const RefreshTokenOrderByWithAggregationInputSchema: z.ZodType<Prisma.Ref
   _count: z.lazy(() => RefreshTokenCountOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => RefreshTokenMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => RefreshTokenMinOrderByAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default RefreshTokenOrderByWithAggregationInputSchema;

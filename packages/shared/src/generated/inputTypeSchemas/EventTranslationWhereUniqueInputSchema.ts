@@ -22,7 +22,7 @@ export const EventTranslationWhereUniqueInputSchema: z.ZodType<Prisma.EventTrans
     eventId_locale: z.lazy(() => EventTranslationEventIdLocaleCompoundUniqueInputSchema),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   eventId_locale: z.lazy(() => EventTranslationEventIdLocaleCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => EventTranslationWhereInputSchema), z.lazy(() => EventTranslationWhereInputSchema).array() ]).optional(),
@@ -35,6 +35,6 @@ export const EventTranslationWhereUniqueInputSchema: z.ZodType<Prisma.EventTrans
   location: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict());
+}));
 
 export default EventTranslationWhereUniqueInputSchema;

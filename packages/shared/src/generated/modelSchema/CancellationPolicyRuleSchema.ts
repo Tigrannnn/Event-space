@@ -5,7 +5,7 @@ import { z } from 'zod';
 /////////////////////////////////////////
 
 export const CancellationPolicyRuleSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   eventId: z.string(),
   hoursBeforeEvent: z.number().int(),
   refundPercentage: z.number().int(),

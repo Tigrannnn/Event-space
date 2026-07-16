@@ -5,11 +5,11 @@ import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOpera
 import { LocaleSchema } from './LocaleSchema';
 import { EnumLocaleFieldUpdateOperationsInputSchema } from './EnumLocaleFieldUpdateOperationsInputSchema';
 
-export const CategoryTranslationUncheckedUpdateInputSchema: z.ZodType<Prisma.CategoryTranslationUncheckedUpdateInput> = z.object({
+export const CategoryTranslationUncheckedUpdateInputSchema: z.ZodType<Prisma.CategoryTranslationUncheckedUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   categoryId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   locale: z.union([ z.lazy(() => LocaleSchema), z.lazy(() => EnumLocaleFieldUpdateOperationsInputSchema) ]).optional(),
   name: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default CategoryTranslationUncheckedUpdateInputSchema;

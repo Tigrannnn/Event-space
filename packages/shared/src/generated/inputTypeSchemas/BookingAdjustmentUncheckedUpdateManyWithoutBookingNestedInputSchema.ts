@@ -11,7 +11,7 @@ import { BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema } from 
 import { BookingAdjustmentUpdateManyWithWhereWithoutBookingInputSchema } from './BookingAdjustmentUpdateManyWithWhereWithoutBookingInputSchema';
 import { BookingAdjustmentScalarWhereInputSchema } from './BookingAdjustmentScalarWhereInputSchema';
 
-export const BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInput> = z.object({
+export const BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => BookingAdjustmentCreateWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentCreateWithoutBookingInputSchema).array(), z.lazy(() => BookingAdjustmentUncheckedCreateWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentUncheckedCreateWithoutBookingInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BookingAdjustmentCreateOrConnectWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentCreateOrConnectWithoutBookingInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => BookingAdjustmentUpsertWithWhereUniqueWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentUpsertWithWhereUniqueWithoutBookingInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema
   update: z.union([ z.lazy(() => BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => BookingAdjustmentUpdateManyWithWhereWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentUpdateManyWithWhereWithoutBookingInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => BookingAdjustmentScalarWhereInputSchema), z.lazy(() => BookingAdjustmentScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema;

@@ -5,7 +5,7 @@ import { LocaleSchema } from './LocaleSchema';
 import { EventTranslationCreatewhatsIncludedInputSchema } from './EventTranslationCreatewhatsIncludedInputSchema';
 import { EventCreateNestedOneWithoutTranslationsInputSchema } from './EventCreateNestedOneWithoutTranslationsInputSchema';
 
-export const EventTranslationCreateInputSchema: z.ZodType<Prisma.EventTranslationCreateInput> = z.object({
+export const EventTranslationCreateInputSchema: z.ZodType<Prisma.EventTranslationCreateInput> = z.strictObject({
   id: z.uuid().optional(),
   locale: z.lazy(() => LocaleSchema),
   title: z.string(),
@@ -13,6 +13,6 @@ export const EventTranslationCreateInputSchema: z.ZodType<Prisma.EventTranslatio
   location: z.string(),
   whatsIncluded: z.union([ z.lazy(() => EventTranslationCreatewhatsIncludedInputSchema), z.string().array() ]).optional(),
   event: z.lazy(() => EventCreateNestedOneWithoutTranslationsInputSchema),
-}).strict();
+});
 
 export default EventTranslationCreateInputSchema;

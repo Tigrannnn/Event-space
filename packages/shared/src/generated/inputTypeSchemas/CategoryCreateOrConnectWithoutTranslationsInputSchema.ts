@@ -5,9 +5,9 @@ import { CategoryWhereUniqueInputSchema } from './CategoryWhereUniqueInputSchema
 import { CategoryCreateWithoutTranslationsInputSchema } from './CategoryCreateWithoutTranslationsInputSchema';
 import { CategoryUncheckedCreateWithoutTranslationsInputSchema } from './CategoryUncheckedCreateWithoutTranslationsInputSchema';
 
-export const CategoryCreateOrConnectWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryCreateOrConnectWithoutTranslationsInput> = z.object({
+export const CategoryCreateOrConnectWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryCreateOrConnectWithoutTranslationsInput> = z.strictObject({
   where: z.lazy(() => CategoryWhereUniqueInputSchema),
   create: z.union([ z.lazy(() => CategoryCreateWithoutTranslationsInputSchema), z.lazy(() => CategoryUncheckedCreateWithoutTranslationsInputSchema) ]),
-}).strict();
+});
 
 export default CategoryCreateOrConnectWithoutTranslationsInputSchema;

@@ -10,12 +10,12 @@ import { UserUpdateToOneWithWhereWithoutEventsInputSchema } from './UserUpdateTo
 import { UserUpdateWithoutEventsInputSchema } from './UserUpdateWithoutEventsInputSchema';
 import { UserUncheckedUpdateWithoutEventsInputSchema } from './UserUncheckedUpdateWithoutEventsInputSchema';
 
-export const UserUpdateOneRequiredWithoutEventsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutEventsNestedInput> = z.object({
+export const UserUpdateOneRequiredWithoutEventsNestedInputSchema: z.ZodType<Prisma.UserUpdateOneRequiredWithoutEventsNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutEventsInputSchema), z.lazy(() => UserUncheckedCreateWithoutEventsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutEventsInputSchema).optional(),
   upsert: z.lazy(() => UserUpsertWithoutEventsInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => UserUpdateToOneWithWhereWithoutEventsInputSchema), z.lazy(() => UserUpdateWithoutEventsInputSchema), z.lazy(() => UserUncheckedUpdateWithoutEventsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default UserUpdateOneRequiredWithoutEventsNestedInputSchema;

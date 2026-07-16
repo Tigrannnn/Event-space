@@ -18,7 +18,7 @@ import { EventImageUpdateManyWithoutEventNestedInputSchema } from './EventImageU
 import { CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUpdateManyWithoutEventNestedInputSchema';
 
-export const EventUpdateWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUpdateWithoutOrganizerInput> = z.object({
+export const EventUpdateWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUpdateWithoutOrganizerInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   locationUrl: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   difficulty: z.union([ z.lazy(() => EventDifficultySchema), z.lazy(() => NullableEnumEventDifficultyFieldUpdateOperationsInputSchema) ]).optional().nullable(),
@@ -32,6 +32,6 @@ export const EventUpdateWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUpdat
   images: z.lazy(() => EventImageUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUpdateManyWithoutEventNestedInputSchema).optional(),
-}).strict();
+});
 
 export default EventUpdateWithoutOrganizerInputSchema;

@@ -7,7 +7,7 @@ import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInp
 import { EventOccurrenceOrderByWithRelationInputSchema } from './EventOccurrenceOrderByWithRelationInputSchema';
 import { BookingAdjustmentOrderByRelationAggregateInputSchema } from './BookingAdjustmentOrderByRelationAggregateInputSchema';
 
-export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrderByWithRelationInput> = z.object({
+export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrderByWithRelationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
   occurrenceId: z.lazy(() => SortOrderSchema).optional(),
@@ -25,6 +25,6 @@ export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrde
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   occurrence: z.lazy(() => EventOccurrenceOrderByWithRelationInputSchema).optional(),
   adjustments: z.lazy(() => BookingAdjustmentOrderByRelationAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default BookingOrderByWithRelationInputSchema;

@@ -5,7 +5,7 @@ import { NestedDateTimeWithAggregatesFilterSchema } from './NestedDateTimeWithAg
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedDateTimeFilterSchema } from './NestedDateTimeFilterSchema';
 
-export const DateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeWithAggregatesFilter> = z.object({
+export const DateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeWithAggregatesFilter> = z.strictObject({
   equals: z.coerce.date().optional(),
   in: z.coerce.date().array().optional(),
   notIn: z.coerce.date().array().optional(),
@@ -17,6 +17,6 @@ export const DateTimeWithAggregatesFilterSchema: z.ZodType<Prisma.DateTimeWithAg
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedDateTimeFilterSchema).optional(),
   _max: z.lazy(() => NestedDateTimeFilterSchema).optional(),
-}).strict();
+});
 
 export default DateTimeWithAggregatesFilterSchema;

@@ -2,7 +2,7 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 
-export const EventOccurrenceCreateManyInputSchema: z.ZodType<Prisma.EventOccurrenceCreateManyInput> = z.object({
+export const EventOccurrenceCreateManyInputSchema: z.ZodType<Prisma.EventOccurrenceCreateManyInput> = z.strictObject({
   id: z.uuid().optional(),
   eventId: z.string(),
   date: z.coerce.date(),
@@ -10,6 +10,6 @@ export const EventOccurrenceCreateManyInputSchema: z.ZodType<Prisma.EventOccurre
   currentParticipants: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-}).strict();
+});
 
 export default EventOccurrenceCreateManyInputSchema;

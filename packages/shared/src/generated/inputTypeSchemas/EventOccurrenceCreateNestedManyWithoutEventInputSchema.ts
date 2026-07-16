@@ -7,11 +7,11 @@ import { EventOccurrenceCreateOrConnectWithoutEventInputSchema } from './EventOc
 import { EventOccurrenceCreateManyEventInputEnvelopeSchema } from './EventOccurrenceCreateManyEventInputEnvelopeSchema';
 import { EventOccurrenceWhereUniqueInputSchema } from './EventOccurrenceWhereUniqueInputSchema';
 
-export const EventOccurrenceCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceCreateNestedManyWithoutEventInput> = z.object({
+export const EventOccurrenceCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceCreateNestedManyWithoutEventInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema).array(), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   createMany: z.lazy(() => EventOccurrenceCreateManyEventInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => EventOccurrenceWhereUniqueInputSchema), z.lazy(() => EventOccurrenceWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventOccurrenceCreateNestedManyWithoutEventInputSchema;

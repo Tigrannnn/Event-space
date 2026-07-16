@@ -6,7 +6,7 @@ import { IntFilterSchema } from './IntFilterSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
 
-export const CancellationPolicyRuleWhereInputSchema: z.ZodType<Prisma.CancellationPolicyRuleWhereInput> = z.object({
+export const CancellationPolicyRuleWhereInputSchema: z.ZodType<Prisma.CancellationPolicyRuleWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => CancellationPolicyRuleWhereInputSchema), z.lazy(() => CancellationPolicyRuleWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => CancellationPolicyRuleWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => CancellationPolicyRuleWhereInputSchema), z.lazy(() => CancellationPolicyRuleWhereInputSchema).array() ]).optional(),
@@ -15,6 +15,6 @@ export const CancellationPolicyRuleWhereInputSchema: z.ZodType<Prisma.Cancellati
   hoursBeforeEvent: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   refundPercentage: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleWhereInputSchema;

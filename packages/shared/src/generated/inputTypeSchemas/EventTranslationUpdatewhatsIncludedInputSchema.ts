@@ -2,9 +2,9 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 
-export const EventTranslationUpdatewhatsIncludedInputSchema: z.ZodType<Prisma.EventTranslationUpdatewhatsIncludedInput> = z.object({
+export const EventTranslationUpdatewhatsIncludedInputSchema: z.ZodType<Prisma.EventTranslationUpdatewhatsIncludedInput> = z.strictObject({
   set: z.string().array().optional(),
   push: z.union([ z.string(),z.string().array() ]).optional(),
-}).strict();
+});
 
 export default EventTranslationUpdatewhatsIncludedInputSchema;

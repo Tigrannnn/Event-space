@@ -6,10 +6,10 @@ import { CategoryUncheckedCreateWithoutEventsInputSchema } from './CategoryUnche
 import { CategoryCreateOrConnectWithoutEventsInputSchema } from './CategoryCreateOrConnectWithoutEventsInputSchema';
 import { CategoryWhereUniqueInputSchema } from './CategoryWhereUniqueInputSchema';
 
-export const CategoryCreateNestedOneWithoutEventsInputSchema: z.ZodType<Prisma.CategoryCreateNestedOneWithoutEventsInput> = z.object({
+export const CategoryCreateNestedOneWithoutEventsInputSchema: z.ZodType<Prisma.CategoryCreateNestedOneWithoutEventsInput> = z.strictObject({
   create: z.union([ z.lazy(() => CategoryCreateWithoutEventsInputSchema), z.lazy(() => CategoryUncheckedCreateWithoutEventsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => CategoryCreateOrConnectWithoutEventsInputSchema).optional(),
   connect: z.lazy(() => CategoryWhereUniqueInputSchema).optional(),
-}).strict();
+});
 
 export default CategoryCreateNestedOneWithoutEventsInputSchema;

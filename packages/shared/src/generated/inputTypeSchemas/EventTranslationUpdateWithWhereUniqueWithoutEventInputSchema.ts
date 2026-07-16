@@ -5,9 +5,9 @@ import { EventTranslationWhereUniqueInputSchema } from './EventTranslationWhereU
 import { EventTranslationUpdateWithoutEventInputSchema } from './EventTranslationUpdateWithoutEventInputSchema';
 import { EventTranslationUncheckedUpdateWithoutEventInputSchema } from './EventTranslationUncheckedUpdateWithoutEventInputSchema';
 
-export const EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpdateWithWhereUniqueWithoutEventInput> = z.object({
+export const EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpdateWithWhereUniqueWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventTranslationWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => EventTranslationUpdateWithoutEventInputSchema), z.lazy(() => EventTranslationUncheckedUpdateWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema;

@@ -5,11 +5,11 @@ import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOpera
 import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
 import { EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema } from './EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema';
 
-export const CancellationPolicyRuleUpdateInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUpdateInput> = z.object({
+export const CancellationPolicyRuleUpdateInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   hoursBeforeEvent: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   refundPercentage: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   event: z.lazy(() => EventUpdateOneRequiredWithoutCancellationRulesNestedInputSchema).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleUpdateInputSchema;

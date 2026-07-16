@@ -5,9 +5,9 @@ import { UserWhereUniqueInputSchema } from './UserWhereUniqueInputSchema';
 import { UserCreateWithoutRefreshTokensInputSchema } from './UserCreateWithoutRefreshTokensInputSchema';
 import { UserUncheckedCreateWithoutRefreshTokensInputSchema } from './UserUncheckedCreateWithoutRefreshTokensInputSchema';
 
-export const UserCreateOrConnectWithoutRefreshTokensInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutRefreshTokensInput> = z.object({
+export const UserCreateOrConnectWithoutRefreshTokensInputSchema: z.ZodType<Prisma.UserCreateOrConnectWithoutRefreshTokensInput> = z.strictObject({
   where: z.lazy(() => UserWhereUniqueInputSchema),
   create: z.union([ z.lazy(() => UserCreateWithoutRefreshTokensInputSchema), z.lazy(() => UserUncheckedCreateWithoutRefreshTokensInputSchema) ]),
-}).strict();
+});
 
 export default UserCreateOrConnectWithoutRefreshTokensInputSchema;

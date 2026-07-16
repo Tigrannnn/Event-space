@@ -6,7 +6,7 @@ import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { CategoryTranslationListRelationFilterSchema } from './CategoryTranslationListRelationFilterSchema';
 import { EventListRelationFilterSchema } from './EventListRelationFilterSchema';
 
-export const CategoryWhereInputSchema: z.ZodType<Prisma.CategoryWhereInput> = z.object({
+export const CategoryWhereInputSchema: z.ZodType<Prisma.CategoryWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => CategoryWhereInputSchema), z.lazy(() => CategoryWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => CategoryWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => CategoryWhereInputSchema), z.lazy(() => CategoryWhereInputSchema).array() ]).optional(),
@@ -16,6 +16,6 @@ export const CategoryWhereInputSchema: z.ZodType<Prisma.CategoryWhereInput> = z.
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   translations: z.lazy(() => CategoryTranslationListRelationFilterSchema).optional(),
   events: z.lazy(() => EventListRelationFilterSchema).optional(),
-}).strict();
+});
 
 export default CategoryWhereInputSchema;

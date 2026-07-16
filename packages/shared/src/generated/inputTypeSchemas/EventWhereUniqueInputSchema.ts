@@ -25,7 +25,7 @@ import { EventTranslationListRelationFilterSchema } from './EventTranslationList
 export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput> = z.object({
   id: z.uuid(),
 })
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   AND: z.union([ z.lazy(() => EventWhereInputSchema), z.lazy(() => EventWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventWhereInputSchema).array().optional(),
@@ -45,6 +45,6 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),
   translations: z.lazy(() => EventTranslationListRelationFilterSchema).optional(),
-}).strict());
+}));
 
 export default EventWhereUniqueInputSchema;

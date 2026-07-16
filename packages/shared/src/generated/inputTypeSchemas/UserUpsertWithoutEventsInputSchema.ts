@@ -7,10 +7,10 @@ import { UserCreateWithoutEventsInputSchema } from './UserCreateWithoutEventsInp
 import { UserUncheckedCreateWithoutEventsInputSchema } from './UserUncheckedCreateWithoutEventsInputSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 
-export const UserUpsertWithoutEventsInputSchema: z.ZodType<Prisma.UserUpsertWithoutEventsInput> = z.object({
+export const UserUpsertWithoutEventsInputSchema: z.ZodType<Prisma.UserUpsertWithoutEventsInput> = z.strictObject({
   update: z.union([ z.lazy(() => UserUpdateWithoutEventsInputSchema), z.lazy(() => UserUncheckedUpdateWithoutEventsInputSchema) ]),
   create: z.union([ z.lazy(() => UserCreateWithoutEventsInputSchema), z.lazy(() => UserUncheckedCreateWithoutEventsInputSchema) ]),
   where: z.lazy(() => UserWhereInputSchema).optional(),
-}).strict();
+});
 
 export default UserUpsertWithoutEventsInputSchema;

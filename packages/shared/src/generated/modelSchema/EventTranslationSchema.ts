@@ -7,7 +7,7 @@ import { LocaleSchema } from '../inputTypeSchemas/LocaleSchema'
 
 export const EventTranslationSchema = z.object({
   locale: LocaleSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   eventId: z.string(),
   title: z.string(),
   description: z.string(),

@@ -11,7 +11,7 @@ import { BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema } from './Book
 import { BookingUpdateManyWithWhereWithoutOccurrenceInputSchema } from './BookingUpdateManyWithWhereWithoutOccurrenceInputSchema';
 import { BookingScalarWhereInputSchema } from './BookingScalarWhereInputSchema';
 
-export const BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateManyWithoutOccurrenceNestedInput> = z.object({
+export const BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateManyWithoutOccurrenceNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => BookingCreateWithoutOccurrenceInputSchema), z.lazy(() => BookingCreateWithoutOccurrenceInputSchema).array(), z.lazy(() => BookingUncheckedCreateWithoutOccurrenceInputSchema), z.lazy(() => BookingUncheckedCreateWithoutOccurrenceInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => BookingCreateOrConnectWithoutOccurrenceInputSchema), z.lazy(() => BookingCreateOrConnectWithoutOccurrenceInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => BookingUpsertWithWhereUniqueWithoutOccurrenceInputSchema), z.lazy(() => BookingUpsertWithWhereUniqueWithoutOccurrenceInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema: z.Zod
   update: z.union([ z.lazy(() => BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema), z.lazy(() => BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => BookingUpdateManyWithWhereWithoutOccurrenceInputSchema), z.lazy(() => BookingUpdateManyWithWhereWithoutOccurrenceInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => BookingScalarWhereInputSchema), z.lazy(() => BookingScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema;

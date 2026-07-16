@@ -3,7 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { UserRoleSchema } from './UserRoleSchema';
 
-export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.object({
+export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.strictObject({
   id: z.uuid().optional(),
   email: z.string(),
   name: z.string(),
@@ -16,6 +16,6 @@ export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = 
   googleId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-}).strict();
+});
 
 export default UserCreateManyInputSchema;

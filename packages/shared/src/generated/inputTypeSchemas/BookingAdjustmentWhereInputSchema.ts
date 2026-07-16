@@ -14,7 +14,7 @@ import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { BookingScalarRelationFilterSchema } from './BookingScalarRelationFilterSchema';
 import { BookingWhereInputSchema } from './BookingWhereInputSchema';
 
-export const BookingAdjustmentWhereInputSchema: z.ZodType<Prisma.BookingAdjustmentWhereInput> = z.object({
+export const BookingAdjustmentWhereInputSchema: z.ZodType<Prisma.BookingAdjustmentWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => BookingAdjustmentWhereInputSchema), z.lazy(() => BookingAdjustmentWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingAdjustmentWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingAdjustmentWhereInputSchema), z.lazy(() => BookingAdjustmentWhereInputSchema).array() ]).optional(),
@@ -30,6 +30,6 @@ export const BookingAdjustmentWhereInputSchema: z.ZodType<Prisma.BookingAdjustme
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   booking: z.union([ z.lazy(() => BookingScalarRelationFilterSchema), z.lazy(() => BookingWhereInputSchema) ]).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentWhereInputSchema;

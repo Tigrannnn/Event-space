@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { EventCreateNestedOneWithoutOccurrencesInputSchema } from './EventCreateNestedOneWithoutOccurrencesInputSchema';
 import { BookingCreateNestedManyWithoutOccurrenceInputSchema } from './BookingCreateNestedManyWithoutOccurrenceInputSchema';
 
-export const EventOccurrenceCreateInputSchema: z.ZodType<Prisma.EventOccurrenceCreateInput> = z.object({
+export const EventOccurrenceCreateInputSchema: z.ZodType<Prisma.EventOccurrenceCreateInput> = z.strictObject({
   id: z.uuid().optional(),
   date: z.coerce.date(),
   maxParticipants: z.number().int().optional(),
@@ -13,6 +13,6 @@ export const EventOccurrenceCreateInputSchema: z.ZodType<Prisma.EventOccurrenceC
   updatedAt: z.coerce.date().optional(),
   event: z.lazy(() => EventCreateNestedOneWithoutOccurrencesInputSchema),
   bookings: z.lazy(() => BookingCreateNestedManyWithoutOccurrenceInputSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceCreateInputSchema;

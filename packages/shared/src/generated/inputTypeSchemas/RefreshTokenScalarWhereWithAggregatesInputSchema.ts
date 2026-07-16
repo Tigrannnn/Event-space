@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
 
-export const RefreshTokenScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.RefreshTokenScalarWhereWithAggregatesInput> = z.object({
+export const RefreshTokenScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.RefreshTokenScalarWhereWithAggregatesInput> = z.strictObject({
   AND: z.union([ z.lazy(() => RefreshTokenScalarWhereWithAggregatesInputSchema), z.lazy(() => RefreshTokenScalarWhereWithAggregatesInputSchema).array() ]).optional(),
   OR: z.lazy(() => RefreshTokenScalarWhereWithAggregatesInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => RefreshTokenScalarWhereWithAggregatesInputSchema), z.lazy(() => RefreshTokenScalarWhereWithAggregatesInputSchema).array() ]).optional(),
@@ -14,6 +14,6 @@ export const RefreshTokenScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.
   expiresAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
-}).strict();
+});
 
 export default RefreshTokenScalarWhereWithAggregatesInputSchema;

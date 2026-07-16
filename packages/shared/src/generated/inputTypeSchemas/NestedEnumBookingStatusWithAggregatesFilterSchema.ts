@@ -5,7 +5,7 @@ import { BookingStatusSchema } from './BookingStatusSchema';
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumBookingStatusFilterSchema } from './NestedEnumBookingStatusFilterSchema';
 
-export const NestedEnumBookingStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumBookingStatusWithAggregatesFilter> = z.object({
+export const NestedEnumBookingStatusWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumBookingStatusWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => BookingStatusSchema).optional(),
   in: z.lazy(() => BookingStatusSchema).array().optional(),
   notIn: z.lazy(() => BookingStatusSchema).array().optional(),
@@ -13,6 +13,6 @@ export const NestedEnumBookingStatusWithAggregatesFilterSchema: z.ZodType<Prisma
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumBookingStatusFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumBookingStatusFilterSchema).optional(),
-}).strict();
+});
 
 export default NestedEnumBookingStatusWithAggregatesFilterSchema;

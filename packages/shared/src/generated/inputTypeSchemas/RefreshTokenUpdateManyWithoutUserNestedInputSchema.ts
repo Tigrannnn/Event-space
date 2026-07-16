@@ -11,7 +11,7 @@ import { RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema } from './Refre
 import { RefreshTokenUpdateManyWithWhereWithoutUserInputSchema } from './RefreshTokenUpdateManyWithWhereWithoutUserInputSchema';
 import { RefreshTokenScalarWhereInputSchema } from './RefreshTokenScalarWhereInputSchema';
 
-export const RefreshTokenUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.RefreshTokenUpdateManyWithoutUserNestedInput> = z.object({
+export const RefreshTokenUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prisma.RefreshTokenUpdateManyWithoutUserNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => RefreshTokenCreateWithoutUserInputSchema), z.lazy(() => RefreshTokenCreateWithoutUserInputSchema).array(), z.lazy(() => RefreshTokenUncheckedCreateWithoutUserInputSchema), z.lazy(() => RefreshTokenUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => RefreshTokenCreateOrConnectWithoutUserInputSchema), z.lazy(() => RefreshTokenCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => RefreshTokenUpsertWithWhereUniqueWithoutUserInputSchema), z.lazy(() => RefreshTokenUpsertWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const RefreshTokenUpdateManyWithoutUserNestedInputSchema: z.ZodType<Prism
   update: z.union([ z.lazy(() => RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema), z.lazy(() => RefreshTokenUpdateWithWhereUniqueWithoutUserInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => RefreshTokenUpdateManyWithWhereWithoutUserInputSchema), z.lazy(() => RefreshTokenUpdateManyWithWhereWithoutUserInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => RefreshTokenScalarWhereInputSchema), z.lazy(() => RefreshTokenScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default RefreshTokenUpdateManyWithoutUserNestedInputSchema;

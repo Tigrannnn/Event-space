@@ -86,7 +86,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
     userId_occurrenceId: z.lazy(() => BookingUserIdOccurrenceIdCompoundUniqueInputSchema),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   paymentIntentId: z.string().optional(),
   referenceNumber: z.number().int().optional(),
@@ -108,6 +108,6 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   occurrence: z.union([ z.lazy(() => EventOccurrenceScalarRelationFilterSchema), z.lazy(() => EventOccurrenceWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),
-}).strict());
+}));
 
 export default BookingWhereUniqueInputSchema;

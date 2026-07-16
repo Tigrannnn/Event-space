@@ -43,7 +43,7 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
     stripeRefundId: z.string(),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   stripePaymentIntentId: z.string().optional(),
   stripeRefundId: z.string().optional(),
@@ -59,6 +59,6 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   booking: z.union([ z.lazy(() => BookingScalarRelationFilterSchema), z.lazy(() => BookingWhereInputSchema) ]).optional(),
-}).strict());
+}));
 
 export default BookingAdjustmentWhereUniqueInputSchema;

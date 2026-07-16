@@ -18,7 +18,7 @@ export const CategoryWhereUniqueInputSchema: z.ZodType<Prisma.CategoryWhereUniqu
     slug: z.string(),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   slug: z.string().optional(),
   AND: z.union([ z.lazy(() => CategoryWhereInputSchema), z.lazy(() => CategoryWhereInputSchema).array() ]).optional(),
@@ -28,6 +28,6 @@ export const CategoryWhereUniqueInputSchema: z.ZodType<Prisma.CategoryWhereUniqu
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   translations: z.lazy(() => CategoryTranslationListRelationFilterSchema).optional(),
   events: z.lazy(() => EventListRelationFilterSchema).optional(),
-}).strict());
+}));
 
 export default CategoryWhereUniqueInputSchema;

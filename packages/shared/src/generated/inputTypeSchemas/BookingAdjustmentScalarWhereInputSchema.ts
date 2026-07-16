@@ -12,7 +12,7 @@ import { EnumAdjustmentStatusFilterSchema } from './EnumAdjustmentStatusFilterSc
 import { AdjustmentStatusSchema } from './AdjustmentStatusSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 
-export const BookingAdjustmentScalarWhereInputSchema: z.ZodType<Prisma.BookingAdjustmentScalarWhereInput> = z.object({
+export const BookingAdjustmentScalarWhereInputSchema: z.ZodType<Prisma.BookingAdjustmentScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => BookingAdjustmentScalarWhereInputSchema), z.lazy(() => BookingAdjustmentScalarWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingAdjustmentScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingAdjustmentScalarWhereInputSchema), z.lazy(() => BookingAdjustmentScalarWhereInputSchema).array() ]).optional(),
@@ -27,6 +27,6 @@ export const BookingAdjustmentScalarWhereInputSchema: z.ZodType<Prisma.BookingAd
   reason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentScalarWhereInputSchema;

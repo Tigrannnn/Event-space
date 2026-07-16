@@ -6,7 +6,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 
-export const BookingCreateManyInputSchema: z.ZodType<Prisma.BookingCreateManyInput> = z.object({
+export const BookingCreateManyInputSchema: z.ZodType<Prisma.BookingCreateManyInput> = z.strictObject({
   id: z.uuid().optional(),
   userId: z.string(),
   occurrenceId: z.string(),
@@ -21,6 +21,6 @@ export const BookingCreateManyInputSchema: z.ZodType<Prisma.BookingCreateManyInp
   paymentIntentId: z.string().optional().nullable(),
   referenceNumber: z.number().int().optional().nullable(),
   checkedInAt: z.coerce.date().optional().nullable(),
-}).strict();
+});
 
 export default BookingCreateManyInputSchema;

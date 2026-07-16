@@ -6,7 +6,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 
-export const EventCreateManyCategoryInputSchema: z.ZodType<Prisma.EventCreateManyCategoryInput> = z.object({
+export const EventCreateManyCategoryInputSchema: z.ZodType<Prisma.EventCreateManyCategoryInput> = z.strictObject({
   id: z.uuid().optional(),
   locationUrl: z.string().optional().nullable(),
   difficulty: z.lazy(() => EventDifficultySchema).optional().nullable(),
@@ -16,6 +16,6 @@ export const EventCreateManyCategoryInputSchema: z.ZodType<Prisma.EventCreateMan
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   userId: z.string(),
-}).strict();
+});
 
 export default EventCreateManyCategoryInputSchema;

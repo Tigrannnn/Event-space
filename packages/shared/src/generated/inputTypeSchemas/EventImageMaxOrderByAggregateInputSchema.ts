@@ -3,7 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
 
-export const EventImageMaxOrderByAggregateInputSchema: z.ZodType<Prisma.EventImageMaxOrderByAggregateInput> = z.object({
+export const EventImageMaxOrderByAggregateInputSchema: z.ZodType<Prisma.EventImageMaxOrderByAggregateInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   url: z.lazy(() => SortOrderSchema).optional(),
@@ -11,6 +11,6 @@ export const EventImageMaxOrderByAggregateInputSchema: z.ZodType<Prisma.EventIma
   order: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
-}).strict();
+});
 
 export default EventImageMaxOrderByAggregateInputSchema;

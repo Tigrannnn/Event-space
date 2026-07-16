@@ -9,21 +9,26 @@ import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCancelBookingByAdmin, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
-import { type AdminCancelBookingData } from '@event-space/shared';
+import { getEventTranslation, type AdminCancelBookingData } from '@event-space/shared';
 
 export default function BookingActionModal() {
 	const translate = useTranslation();
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.BookingAction);
 	const booking = modalData?.booking;
+	const occurrence = booking?.occurrence;
+	const event = occurrence?.event;
+
 	const cancelBooking = useCancelBookingByAdmin();
 	const updateBookingStatus = useUpdateBookingStatus();
 	const [refundType, setRefundType] = useState<AdminCancelBookingData['refundType']>('RULES');
 	const [reason, setReason] = useState('');
 
-	if (!booking) {
+	if (!booking || !occurrence || !event) {
 		return null;
 	}
+
+	const eventTranslate = getEventTranslation(event, translate.locale);
 
 	const isPending = booking.status === 'PENDING';
 	const refundOptions = [
@@ -52,7 +57,7 @@ export default function BookingActionModal() {
 		<Modal onClose={closeModal} size="md" ariaLabel={isPending ? 'Confirm booking' : 'Cancel booking'}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader
-					title={isPending ? translate('admin.confirmBooking') : translate('admin.cancelBooking')}
+					title={isPending ? translate('booking.confirmBooking') : translate('admin.cancelBooking')}
 					onClose={closeModal}
 				/>
 
@@ -62,14 +67,14 @@ export default function BookingActionModal() {
 							{booking.user?.name || translate('booking.unknownCustomer')}
 						</p>
 						<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-							{booking.event ? booking.event.title || translate('booking.unknownEvent') : translate('booking.unknownEvent')}
+							{eventTranslate.title || translate('booking.unknownEvent')}
 						</p>
 					</div>
 
 					{isPending ? (
 						<div className="space-y-4">
 							<p className="text-sm text-gray-600 dark:text-gray-300">
-								{translate('admin.confirmBooking')} {translate('admin.thisBooking')}?
+								{translate('booking.confirmBooking')}?
 							</p>
 							<div className="flex justify-end gap-2">
 								<Button

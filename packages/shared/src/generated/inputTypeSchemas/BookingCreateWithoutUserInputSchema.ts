@@ -8,7 +8,7 @@ import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { EventOccurrenceCreateNestedOneWithoutBookingsInputSchema } from './EventOccurrenceCreateNestedOneWithoutBookingsInputSchema';
 import { BookingAdjustmentCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentCreateNestedManyWithoutBookingInputSchema';
 
-export const BookingCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingCreateWithoutUserInput> = z.object({
+export const BookingCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingCreateWithoutUserInput> = z.strictObject({
   id: z.uuid().optional(),
   status: z.lazy(() => BookingStatusSchema).optional(),
   expired: z.boolean().optional(),
@@ -23,6 +23,6 @@ export const BookingCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingCreate
   checkedInAt: z.coerce.date().optional().nullable(),
   occurrence: z.lazy(() => EventOccurrenceCreateNestedOneWithoutBookingsInputSchema),
   adjustments: z.lazy(() => BookingAdjustmentCreateNestedManyWithoutBookingInputSchema).optional(),
-}).strict();
+});
 
 export default BookingCreateWithoutUserInputSchema;

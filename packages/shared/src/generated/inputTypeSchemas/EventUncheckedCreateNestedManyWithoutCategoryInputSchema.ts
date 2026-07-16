@@ -7,11 +7,11 @@ import { EventCreateOrConnectWithoutCategoryInputSchema } from './EventCreateOrC
 import { EventCreateManyCategoryInputEnvelopeSchema } from './EventCreateManyCategoryInputEnvelopeSchema';
 import { EventWhereUniqueInputSchema } from './EventWhereUniqueInputSchema';
 
-export const EventUncheckedCreateNestedManyWithoutCategoryInputSchema: z.ZodType<Prisma.EventUncheckedCreateNestedManyWithoutCategoryInput> = z.object({
+export const EventUncheckedCreateNestedManyWithoutCategoryInputSchema: z.ZodType<Prisma.EventUncheckedCreateNestedManyWithoutCategoryInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutCategoryInputSchema), z.lazy(() => EventCreateWithoutCategoryInputSchema).array(), z.lazy(() => EventUncheckedCreateWithoutCategoryInputSchema), z.lazy(() => EventUncheckedCreateWithoutCategoryInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventCreateOrConnectWithoutCategoryInputSchema), z.lazy(() => EventCreateOrConnectWithoutCategoryInputSchema).array() ]).optional(),
   createMany: z.lazy(() => EventCreateManyCategoryInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => EventWhereUniqueInputSchema), z.lazy(() => EventWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventUncheckedCreateNestedManyWithoutCategoryInputSchema;

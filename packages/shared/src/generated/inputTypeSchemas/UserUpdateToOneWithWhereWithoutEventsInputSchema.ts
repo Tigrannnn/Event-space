@@ -5,9 +5,9 @@ import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { UserUpdateWithoutEventsInputSchema } from './UserUpdateWithoutEventsInputSchema';
 import { UserUncheckedUpdateWithoutEventsInputSchema } from './UserUncheckedUpdateWithoutEventsInputSchema';
 
-export const UserUpdateToOneWithWhereWithoutEventsInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutEventsInput> = z.object({
+export const UserUpdateToOneWithWhereWithoutEventsInputSchema: z.ZodType<Prisma.UserUpdateToOneWithWhereWithoutEventsInput> = z.strictObject({
   where: z.lazy(() => UserWhereInputSchema).optional(),
   data: z.union([ z.lazy(() => UserUpdateWithoutEventsInputSchema), z.lazy(() => UserUncheckedUpdateWithoutEventsInputSchema) ]),
-}).strict();
+});
 
 export default UserUpdateToOneWithWhereWithoutEventsInputSchema;

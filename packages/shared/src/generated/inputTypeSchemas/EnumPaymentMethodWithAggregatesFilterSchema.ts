@@ -6,7 +6,7 @@ import { NestedEnumPaymentMethodWithAggregatesFilterSchema } from './NestedEnumP
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumPaymentMethodFilterSchema } from './NestedEnumPaymentMethodFilterSchema';
 
-export const EnumPaymentMethodWithAggregatesFilterSchema: z.ZodType<Prisma.EnumPaymentMethodWithAggregatesFilter> = z.object({
+export const EnumPaymentMethodWithAggregatesFilterSchema: z.ZodType<Prisma.EnumPaymentMethodWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => PaymentMethodSchema).optional(),
   in: z.lazy(() => PaymentMethodSchema).array().optional(),
   notIn: z.lazy(() => PaymentMethodSchema).array().optional(),
@@ -14,6 +14,6 @@ export const EnumPaymentMethodWithAggregatesFilterSchema: z.ZodType<Prisma.EnumP
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumPaymentMethodFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumPaymentMethodFilterSchema).optional(),
-}).strict();
+});
 
 export default EnumPaymentMethodWithAggregatesFilterSchema;

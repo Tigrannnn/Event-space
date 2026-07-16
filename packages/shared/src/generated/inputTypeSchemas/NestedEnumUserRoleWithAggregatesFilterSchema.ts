@@ -5,7 +5,7 @@ import { UserRoleSchema } from './UserRoleSchema';
 import { NestedIntFilterSchema } from './NestedIntFilterSchema';
 import { NestedEnumUserRoleFilterSchema } from './NestedEnumUserRoleFilterSchema';
 
-export const NestedEnumUserRoleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumUserRoleWithAggregatesFilter> = z.object({
+export const NestedEnumUserRoleWithAggregatesFilterSchema: z.ZodType<Prisma.NestedEnumUserRoleWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => UserRoleSchema).optional(),
   in: z.lazy(() => UserRoleSchema).array().optional(),
   notIn: z.lazy(() => UserRoleSchema).array().optional(),
@@ -13,6 +13,6 @@ export const NestedEnumUserRoleWithAggregatesFilterSchema: z.ZodType<Prisma.Nest
   _count: z.lazy(() => NestedIntFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumUserRoleFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumUserRoleFilterSchema).optional(),
-}).strict();
+});
 
 export default NestedEnumUserRoleWithAggregatesFilterSchema;

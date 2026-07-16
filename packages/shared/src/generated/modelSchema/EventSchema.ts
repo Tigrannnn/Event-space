@@ -10,7 +10,7 @@ import { EventStatusSchema } from '../inputTypeSchemas/EventStatusSchema'
 export const EventSchema = z.object({
   difficulty: EventDifficultySchema.nullable(),
   status: EventStatusSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   locationUrl: z.string().nullable(),
   price: z.instanceof(Prisma.Decimal, { message: "Field 'price' must be a Decimal. Location: ['Models', 'Event']"}),
   duration: z.number().int(),

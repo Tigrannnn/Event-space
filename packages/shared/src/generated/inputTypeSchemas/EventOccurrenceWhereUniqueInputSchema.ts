@@ -12,7 +12,7 @@ import { BookingListRelationFilterSchema } from './BookingListRelationFilterSche
 export const EventOccurrenceWhereUniqueInputSchema: z.ZodType<Prisma.EventOccurrenceWhereUniqueInput> = z.object({
   id: z.uuid(),
 })
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   AND: z.union([ z.lazy(() => EventOccurrenceWhereInputSchema), z.lazy(() => EventOccurrenceWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventOccurrenceWhereInputSchema).array().optional(),
@@ -25,6 +25,6 @@ export const EventOccurrenceWhereUniqueInputSchema: z.ZodType<Prisma.EventOccurr
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
-}).strict());
+}));
 
 export default EventOccurrenceWhereUniqueInputSchema;

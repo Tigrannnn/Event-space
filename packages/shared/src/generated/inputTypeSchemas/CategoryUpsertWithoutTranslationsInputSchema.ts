@@ -7,10 +7,10 @@ import { CategoryCreateWithoutTranslationsInputSchema } from './CategoryCreateWi
 import { CategoryUncheckedCreateWithoutTranslationsInputSchema } from './CategoryUncheckedCreateWithoutTranslationsInputSchema';
 import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 
-export const CategoryUpsertWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryUpsertWithoutTranslationsInput> = z.object({
+export const CategoryUpsertWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryUpsertWithoutTranslationsInput> = z.strictObject({
   update: z.union([ z.lazy(() => CategoryUpdateWithoutTranslationsInputSchema), z.lazy(() => CategoryUncheckedUpdateWithoutTranslationsInputSchema) ]),
   create: z.union([ z.lazy(() => CategoryCreateWithoutTranslationsInputSchema), z.lazy(() => CategoryUncheckedCreateWithoutTranslationsInputSchema) ]),
   where: z.lazy(() => CategoryWhereInputSchema).optional(),
-}).strict();
+});
 
 export default CategoryUpsertWithoutTranslationsInputSchema;

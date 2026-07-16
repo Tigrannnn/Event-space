@@ -11,7 +11,7 @@ import { EventUpdateWithWhereUniqueWithoutOrganizerInputSchema } from './EventUp
 import { EventUpdateManyWithWhereWithoutOrganizerInputSchema } from './EventUpdateManyWithWhereWithoutOrganizerInputSchema';
 import { EventScalarWhereInputSchema } from './EventScalarWhereInputSchema';
 
-export const EventUncheckedUpdateManyWithoutOrganizerNestedInputSchema: z.ZodType<Prisma.EventUncheckedUpdateManyWithoutOrganizerNestedInput> = z.object({
+export const EventUncheckedUpdateManyWithoutOrganizerNestedInputSchema: z.ZodType<Prisma.EventUncheckedUpdateManyWithoutOrganizerNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutOrganizerInputSchema), z.lazy(() => EventCreateWithoutOrganizerInputSchema).array(), z.lazy(() => EventUncheckedCreateWithoutOrganizerInputSchema), z.lazy(() => EventUncheckedCreateWithoutOrganizerInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventCreateOrConnectWithoutOrganizerInputSchema), z.lazy(() => EventCreateOrConnectWithoutOrganizerInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => EventUpsertWithWhereUniqueWithoutOrganizerInputSchema), z.lazy(() => EventUpsertWithWhereUniqueWithoutOrganizerInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const EventUncheckedUpdateManyWithoutOrganizerNestedInputSchema: z.ZodTyp
   update: z.union([ z.lazy(() => EventUpdateWithWhereUniqueWithoutOrganizerInputSchema), z.lazy(() => EventUpdateWithWhereUniqueWithoutOrganizerInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => EventUpdateManyWithWhereWithoutOrganizerInputSchema), z.lazy(() => EventUpdateManyWithWhereWithoutOrganizerInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => EventScalarWhereInputSchema), z.lazy(() => EventScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventUncheckedUpdateManyWithoutOrganizerNestedInputSchema;

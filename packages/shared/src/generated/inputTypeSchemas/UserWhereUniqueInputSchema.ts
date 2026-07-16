@@ -40,7 +40,7 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
     googleId: z.string(),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   email: z.string().optional(),
   googleId: z.string().optional(),
@@ -59,6 +59,6 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   events: z.lazy(() => EventListRelationFilterSchema).optional(),
   refreshTokens: z.lazy(() => RefreshTokenListRelationFilterSchema).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
-}).strict());
+}));
 
 export default UserWhereUniqueInputSchema;

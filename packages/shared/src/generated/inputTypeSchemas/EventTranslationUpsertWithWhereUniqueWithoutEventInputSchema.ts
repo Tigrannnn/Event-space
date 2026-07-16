@@ -7,10 +7,10 @@ import { EventTranslationUncheckedUpdateWithoutEventInputSchema } from './EventT
 import { EventTranslationCreateWithoutEventInputSchema } from './EventTranslationCreateWithoutEventInputSchema';
 import { EventTranslationUncheckedCreateWithoutEventInputSchema } from './EventTranslationUncheckedCreateWithoutEventInputSchema';
 
-export const EventTranslationUpsertWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpsertWithWhereUniqueWithoutEventInput> = z.object({
+export const EventTranslationUpsertWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpsertWithWhereUniqueWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventTranslationWhereUniqueInputSchema),
   update: z.union([ z.lazy(() => EventTranslationUpdateWithoutEventInputSchema), z.lazy(() => EventTranslationUncheckedUpdateWithoutEventInputSchema) ]),
   create: z.union([ z.lazy(() => EventTranslationCreateWithoutEventInputSchema), z.lazy(() => EventTranslationUncheckedCreateWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventTranslationUpsertWithWhereUniqueWithoutEventInputSchema;

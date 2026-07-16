@@ -10,12 +10,12 @@ import { EventUpdateToOneWithWhereWithoutImagesInputSchema } from './EventUpdate
 import { EventUpdateWithoutImagesInputSchema } from './EventUpdateWithoutImagesInputSchema';
 import { EventUncheckedUpdateWithoutImagesInputSchema } from './EventUncheckedUpdateWithoutImagesInputSchema';
 
-export const EventUpdateOneRequiredWithoutImagesNestedInputSchema: z.ZodType<Prisma.EventUpdateOneRequiredWithoutImagesNestedInput> = z.object({
+export const EventUpdateOneRequiredWithoutImagesNestedInputSchema: z.ZodType<Prisma.EventUpdateOneRequiredWithoutImagesNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutImagesInputSchema), z.lazy(() => EventUncheckedCreateWithoutImagesInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => EventCreateOrConnectWithoutImagesInputSchema).optional(),
   upsert: z.lazy(() => EventUpsertWithoutImagesInputSchema).optional(),
   connect: z.lazy(() => EventWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => EventUpdateToOneWithWhereWithoutImagesInputSchema), z.lazy(() => EventUpdateWithoutImagesInputSchema), z.lazy(() => EventUncheckedUpdateWithoutImagesInputSchema) ]).optional(),
-}).strict();
+});
 
 export default EventUpdateOneRequiredWithoutImagesNestedInputSchema;

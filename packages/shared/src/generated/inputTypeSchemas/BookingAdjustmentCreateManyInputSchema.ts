@@ -6,7 +6,7 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { AdjustmentStatusSchema } from './AdjustmentStatusSchema';
 
-export const BookingAdjustmentCreateManyInputSchema: z.ZodType<Prisma.BookingAdjustmentCreateManyInput> = z.object({
+export const BookingAdjustmentCreateManyInputSchema: z.ZodType<Prisma.BookingAdjustmentCreateManyInput> = z.strictObject({
   id: z.uuid().optional(),
   bookingId: z.string(),
   type: z.lazy(() => AdjustmentTypeSchema),
@@ -18,6 +18,6 @@ export const BookingAdjustmentCreateManyInputSchema: z.ZodType<Prisma.BookingAdj
   reason: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-}).strict();
+});
 
 export default BookingAdjustmentCreateManyInputSchema;

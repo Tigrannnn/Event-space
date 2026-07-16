@@ -11,7 +11,7 @@ import { EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema } from './E
 import { EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema } from './EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema';
 import { EventOccurrenceScalarWhereInputSchema } from './EventOccurrenceScalarWhereInputSchema';
 
-export const EventOccurrenceUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateManyWithoutEventNestedInput> = z.object({
+export const EventOccurrenceUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateManyWithoutEventNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateWithoutEventInputSchema).array(), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema), z.lazy(() => EventOccurrenceUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema), z.lazy(() => EventOccurrenceCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => EventOccurrenceUpsertWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpsertWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const EventOccurrenceUpdateManyWithoutEventNestedInputSchema: z.ZodType<P
   update: z.union([ z.lazy(() => EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema), z.lazy(() => EventOccurrenceUpdateManyWithWhereWithoutEventInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => EventOccurrenceScalarWhereInputSchema), z.lazy(() => EventOccurrenceScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventOccurrenceUpdateManyWithoutEventNestedInputSchema;

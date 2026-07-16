@@ -20,7 +20,7 @@ export const CancellationPolicyRuleWhereUniqueInputSchema: z.ZodType<Prisma.Canc
     eventId_hoursBeforeEvent: z.lazy(() => CancellationPolicyRuleEventIdHoursBeforeEventCompoundUniqueInputSchema),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   eventId_hoursBeforeEvent: z.lazy(() => CancellationPolicyRuleEventIdHoursBeforeEventCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => CancellationPolicyRuleWhereInputSchema), z.lazy(() => CancellationPolicyRuleWhereInputSchema).array() ]).optional(),
@@ -30,6 +30,6 @@ export const CancellationPolicyRuleWhereUniqueInputSchema: z.ZodType<Prisma.Canc
   hoursBeforeEvent: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   refundPercentage: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict());
+}));
 
 export default CancellationPolicyRuleWhereUniqueInputSchema;

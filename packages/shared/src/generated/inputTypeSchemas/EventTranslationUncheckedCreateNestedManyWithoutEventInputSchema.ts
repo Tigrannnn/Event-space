@@ -7,11 +7,11 @@ import { EventTranslationCreateOrConnectWithoutEventInputSchema } from './EventT
 import { EventTranslationCreateManyEventInputEnvelopeSchema } from './EventTranslationCreateManyEventInputEnvelopeSchema';
 import { EventTranslationWhereUniqueInputSchema } from './EventTranslationWhereUniqueInputSchema';
 
-export const EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUncheckedCreateNestedManyWithoutEventInput> = z.object({
+export const EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUncheckedCreateNestedManyWithoutEventInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventTranslationCreateWithoutEventInputSchema), z.lazy(() => EventTranslationCreateWithoutEventInputSchema).array(), z.lazy(() => EventTranslationUncheckedCreateWithoutEventInputSchema), z.lazy(() => EventTranslationUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventTranslationCreateOrConnectWithoutEventInputSchema), z.lazy(() => EventTranslationCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   createMany: z.lazy(() => EventTranslationCreateManyEventInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => EventTranslationWhereUniqueInputSchema), z.lazy(() => EventTranslationWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema;

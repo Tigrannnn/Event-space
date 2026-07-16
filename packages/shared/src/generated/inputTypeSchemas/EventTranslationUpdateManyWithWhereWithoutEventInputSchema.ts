@@ -5,9 +5,9 @@ import { EventTranslationScalarWhereInputSchema } from './EventTranslationScalar
 import { EventTranslationUpdateManyMutationInputSchema } from './EventTranslationUpdateManyMutationInputSchema';
 import { EventTranslationUncheckedUpdateManyWithoutEventInputSchema } from './EventTranslationUncheckedUpdateManyWithoutEventInputSchema';
 
-export const EventTranslationUpdateManyWithWhereWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpdateManyWithWhereWithoutEventInput> = z.object({
+export const EventTranslationUpdateManyWithWhereWithoutEventInputSchema: z.ZodType<Prisma.EventTranslationUpdateManyWithWhereWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventTranslationScalarWhereInputSchema),
   data: z.union([ z.lazy(() => EventTranslationUpdateManyMutationInputSchema), z.lazy(() => EventTranslationUncheckedUpdateManyWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventTranslationUpdateManyWithWhereWithoutEventInputSchema;

@@ -21,7 +21,7 @@ import { EventImageListRelationFilterSchema } from './EventImageListRelationFilt
 import { CancellationPolicyRuleListRelationFilterSchema } from './CancellationPolicyRuleListRelationFilterSchema';
 import { EventTranslationListRelationFilterSchema } from './EventTranslationListRelationFilterSchema';
 
-export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.object({
+export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventWhereInputSchema), z.lazy(() => EventWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventWhereInputSchema), z.lazy(() => EventWhereInputSchema).array() ]).optional(),
@@ -41,6 +41,6 @@ export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.object
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),
   translations: z.lazy(() => EventTranslationListRelationFilterSchema).optional(),
-}).strict();
+});
 
 export default EventWhereInputSchema;

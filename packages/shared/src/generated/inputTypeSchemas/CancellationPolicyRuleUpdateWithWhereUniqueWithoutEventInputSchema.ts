@@ -5,9 +5,9 @@ import { CancellationPolicyRuleWhereUniqueInputSchema } from './CancellationPoli
 import { CancellationPolicyRuleUpdateWithoutEventInputSchema } from './CancellationPolicyRuleUpdateWithoutEventInputSchema';
 import { CancellationPolicyRuleUncheckedUpdateWithoutEventInputSchema } from './CancellationPolicyRuleUncheckedUpdateWithoutEventInputSchema';
 
-export const CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInput> = z.object({
+export const CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInput> = z.strictObject({
   where: z.lazy(() => CancellationPolicyRuleWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => CancellationPolicyRuleUpdateWithoutEventInputSchema), z.lazy(() => CancellationPolicyRuleUncheckedUpdateWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default CancellationPolicyRuleUpdateWithWhereUniqueWithoutEventInputSchema;

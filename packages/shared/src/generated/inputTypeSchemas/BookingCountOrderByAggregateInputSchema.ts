@@ -3,7 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
 
-export const BookingCountOrderByAggregateInputSchema: z.ZodType<Prisma.BookingCountOrderByAggregateInput> = z.object({
+export const BookingCountOrderByAggregateInputSchema: z.ZodType<Prisma.BookingCountOrderByAggregateInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
   occurrenceId: z.lazy(() => SortOrderSchema).optional(),
@@ -18,6 +18,6 @@ export const BookingCountOrderByAggregateInputSchema: z.ZodType<Prisma.BookingCo
   paymentIntentId: z.lazy(() => SortOrderSchema).optional(),
   referenceNumber: z.lazy(() => SortOrderSchema).optional(),
   checkedInAt: z.lazy(() => SortOrderSchema).optional(),
-}).strict();
+});
 
 export default BookingCountOrderByAggregateInputSchema;

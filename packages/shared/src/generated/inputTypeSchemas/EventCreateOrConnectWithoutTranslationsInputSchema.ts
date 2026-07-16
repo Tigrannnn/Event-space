@@ -5,9 +5,9 @@ import { EventWhereUniqueInputSchema } from './EventWhereUniqueInputSchema';
 import { EventCreateWithoutTranslationsInputSchema } from './EventCreateWithoutTranslationsInputSchema';
 import { EventUncheckedCreateWithoutTranslationsInputSchema } from './EventUncheckedCreateWithoutTranslationsInputSchema';
 
-export const EventCreateOrConnectWithoutTranslationsInputSchema: z.ZodType<Prisma.EventCreateOrConnectWithoutTranslationsInput> = z.object({
+export const EventCreateOrConnectWithoutTranslationsInputSchema: z.ZodType<Prisma.EventCreateOrConnectWithoutTranslationsInput> = z.strictObject({
   where: z.lazy(() => EventWhereUniqueInputSchema),
   create: z.union([ z.lazy(() => EventCreateWithoutTranslationsInputSchema), z.lazy(() => EventUncheckedCreateWithoutTranslationsInputSchema) ]),
-}).strict();
+});
 
 export default EventCreateOrConnectWithoutTranslationsInputSchema;

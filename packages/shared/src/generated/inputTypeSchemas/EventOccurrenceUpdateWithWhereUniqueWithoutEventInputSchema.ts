@@ -5,9 +5,9 @@ import { EventOccurrenceWhereUniqueInputSchema } from './EventOccurrenceWhereUni
 import { EventOccurrenceUpdateWithoutEventInputSchema } from './EventOccurrenceUpdateWithoutEventInputSchema';
 import { EventOccurrenceUncheckedUpdateWithoutEventInputSchema } from './EventOccurrenceUncheckedUpdateWithoutEventInputSchema';
 
-export const EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateWithWhereUniqueWithoutEventInput> = z.object({
+export const EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateWithWhereUniqueWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventOccurrenceWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => EventOccurrenceUpdateWithoutEventInputSchema), z.lazy(() => EventOccurrenceUncheckedUpdateWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventOccurrenceUpdateWithWhereUniqueWithoutEventInputSchema;

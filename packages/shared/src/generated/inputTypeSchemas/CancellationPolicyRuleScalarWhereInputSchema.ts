@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { StringFilterSchema } from './StringFilterSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 
-export const CancellationPolicyRuleScalarWhereInputSchema: z.ZodType<Prisma.CancellationPolicyRuleScalarWhereInput> = z.object({
+export const CancellationPolicyRuleScalarWhereInputSchema: z.ZodType<Prisma.CancellationPolicyRuleScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema), z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema), z.lazy(() => CancellationPolicyRuleScalarWhereInputSchema).array() ]).optional(),
@@ -12,6 +12,6 @@ export const CancellationPolicyRuleScalarWhereInputSchema: z.ZodType<Prisma.Canc
   eventId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   hoursBeforeEvent: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   refundPercentage: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleScalarWhereInputSchema;

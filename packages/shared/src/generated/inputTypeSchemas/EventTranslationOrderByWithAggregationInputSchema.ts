@@ -6,7 +6,7 @@ import { EventTranslationCountOrderByAggregateInputSchema } from './EventTransla
 import { EventTranslationMaxOrderByAggregateInputSchema } from './EventTranslationMaxOrderByAggregateInputSchema';
 import { EventTranslationMinOrderByAggregateInputSchema } from './EventTranslationMinOrderByAggregateInputSchema';
 
-export const EventTranslationOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventTranslationOrderByWithAggregationInput> = z.object({
+export const EventTranslationOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventTranslationOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   locale: z.lazy(() => SortOrderSchema).optional(),
@@ -17,6 +17,6 @@ export const EventTranslationOrderByWithAggregationInputSchema: z.ZodType<Prisma
   _count: z.lazy(() => EventTranslationCountOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => EventTranslationMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => EventTranslationMinOrderByAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default EventTranslationOrderByWithAggregationInputSchema;

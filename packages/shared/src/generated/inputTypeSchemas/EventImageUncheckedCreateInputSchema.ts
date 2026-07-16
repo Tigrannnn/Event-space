@@ -2,7 +2,7 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 
-export const EventImageUncheckedCreateInputSchema: z.ZodType<Prisma.EventImageUncheckedCreateInput> = z.object({
+export const EventImageUncheckedCreateInputSchema: z.ZodType<Prisma.EventImageUncheckedCreateInput> = z.strictObject({
   id: z.uuid().optional(),
   eventId: z.string(),
   url: z.string(),
@@ -10,6 +10,6 @@ export const EventImageUncheckedCreateInputSchema: z.ZodType<Prisma.EventImageUn
   order: z.number().int(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-}).strict();
+});
 
 export default EventImageUncheckedCreateInputSchema;

@@ -10,12 +10,12 @@ import { CategoryUpdateToOneWithWhereWithoutEventsInputSchema } from './Category
 import { CategoryUpdateWithoutEventsInputSchema } from './CategoryUpdateWithoutEventsInputSchema';
 import { CategoryUncheckedUpdateWithoutEventsInputSchema } from './CategoryUncheckedUpdateWithoutEventsInputSchema';
 
-export const CategoryUpdateOneRequiredWithoutEventsNestedInputSchema: z.ZodType<Prisma.CategoryUpdateOneRequiredWithoutEventsNestedInput> = z.object({
+export const CategoryUpdateOneRequiredWithoutEventsNestedInputSchema: z.ZodType<Prisma.CategoryUpdateOneRequiredWithoutEventsNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => CategoryCreateWithoutEventsInputSchema), z.lazy(() => CategoryUncheckedCreateWithoutEventsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => CategoryCreateOrConnectWithoutEventsInputSchema).optional(),
   upsert: z.lazy(() => CategoryUpsertWithoutEventsInputSchema).optional(),
   connect: z.lazy(() => CategoryWhereUniqueInputSchema).optional(),
   update: z.union([ z.lazy(() => CategoryUpdateToOneWithWhereWithoutEventsInputSchema), z.lazy(() => CategoryUpdateWithoutEventsInputSchema), z.lazy(() => CategoryUncheckedUpdateWithoutEventsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default CategoryUpdateOneRequiredWithoutEventsNestedInputSchema;

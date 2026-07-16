@@ -21,7 +21,7 @@ export const CategoryTranslationWhereUniqueInputSchema: z.ZodType<Prisma.Categor
     categoryId_locale: z.lazy(() => CategoryTranslationCategoryIdLocaleCompoundUniqueInputSchema),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   categoryId_locale: z.lazy(() => CategoryTranslationCategoryIdLocaleCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => CategoryTranslationWhereInputSchema), z.lazy(() => CategoryTranslationWhereInputSchema).array() ]).optional(),
@@ -31,6 +31,6 @@ export const CategoryTranslationWhereUniqueInputSchema: z.ZodType<Prisma.Categor
   locale: z.union([ z.lazy(() => EnumLocaleFilterSchema), z.lazy(() => LocaleSchema) ]).optional(),
   name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   category: z.union([ z.lazy(() => CategoryScalarRelationFilterSchema), z.lazy(() => CategoryWhereInputSchema) ]).optional(),
-}).strict());
+}));
 
 export default CategoryTranslationWhereUniqueInputSchema;

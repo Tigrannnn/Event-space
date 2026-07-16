@@ -20,7 +20,7 @@ export const EventImageWhereUniqueInputSchema: z.ZodType<Prisma.EventImageWhereU
     publicId: z.string(),
   }),
 ])
-.and(z.object({
+.and(z.strictObject({
   id: z.uuid().optional(),
   publicId: z.string().optional(),
   AND: z.union([ z.lazy(() => EventImageWhereInputSchema), z.lazy(() => EventImageWhereInputSchema).array() ]).optional(),
@@ -32,6 +32,6 @@ export const EventImageWhereUniqueInputSchema: z.ZodType<Prisma.EventImageWhereU
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict());
+}));
 
 export default EventImageWhereUniqueInputSchema;

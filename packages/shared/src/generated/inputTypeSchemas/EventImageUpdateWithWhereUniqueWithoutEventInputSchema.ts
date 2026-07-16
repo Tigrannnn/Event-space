@@ -5,9 +5,9 @@ import { EventImageWhereUniqueInputSchema } from './EventImageWhereUniqueInputSc
 import { EventImageUpdateWithoutEventInputSchema } from './EventImageUpdateWithoutEventInputSchema';
 import { EventImageUncheckedUpdateWithoutEventInputSchema } from './EventImageUncheckedUpdateWithoutEventInputSchema';
 
-export const EventImageUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventImageUpdateWithWhereUniqueWithoutEventInput> = z.object({
+export const EventImageUpdateWithWhereUniqueWithoutEventInputSchema: z.ZodType<Prisma.EventImageUpdateWithWhereUniqueWithoutEventInput> = z.strictObject({
   where: z.lazy(() => EventImageWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => EventImageUpdateWithoutEventInputSchema), z.lazy(() => EventImageUncheckedUpdateWithoutEventInputSchema) ]),
-}).strict();
+});
 
 export default EventImageUpdateWithWhereUniqueWithoutEventInputSchema;

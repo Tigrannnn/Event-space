@@ -7,10 +7,10 @@ import { EventUncheckedUpdateWithoutOrganizerInputSchema } from './EventUnchecke
 import { EventCreateWithoutOrganizerInputSchema } from './EventCreateWithoutOrganizerInputSchema';
 import { EventUncheckedCreateWithoutOrganizerInputSchema } from './EventUncheckedCreateWithoutOrganizerInputSchema';
 
-export const EventUpsertWithWhereUniqueWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUpsertWithWhereUniqueWithoutOrganizerInput> = z.object({
+export const EventUpsertWithWhereUniqueWithoutOrganizerInputSchema: z.ZodType<Prisma.EventUpsertWithWhereUniqueWithoutOrganizerInput> = z.strictObject({
   where: z.lazy(() => EventWhereUniqueInputSchema),
   update: z.union([ z.lazy(() => EventUpdateWithoutOrganizerInputSchema), z.lazy(() => EventUncheckedUpdateWithoutOrganizerInputSchema) ]),
   create: z.union([ z.lazy(() => EventCreateWithoutOrganizerInputSchema), z.lazy(() => EventUncheckedCreateWithoutOrganizerInputSchema) ]),
-}).strict();
+});
 
 export default EventUpsertWithWhereUniqueWithoutOrganizerInputSchema;

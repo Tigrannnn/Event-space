@@ -10,7 +10,7 @@ import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrder
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
 import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTranslationOrderByRelationAggregateInputSchema';
 
-export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByWithRelationInput> = z.object({
+export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByWithRelationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   difficulty: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
@@ -27,6 +27,6 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),
   translations: z.lazy(() => EventTranslationOrderByRelationAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default EventOrderByWithRelationInputSchema;

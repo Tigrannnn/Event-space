@@ -13,7 +13,7 @@ import { EnumAdjustmentStatusFieldUpdateOperationsInputSchema } from './EnumAdju
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { BookingUpdateOneRequiredWithoutAdjustmentsNestedInputSchema } from './BookingUpdateOneRequiredWithoutAdjustmentsNestedInputSchema';
 
-export const BookingAdjustmentUpdateInputSchema: z.ZodType<Prisma.BookingAdjustmentUpdateInput> = z.object({
+export const BookingAdjustmentUpdateInputSchema: z.ZodType<Prisma.BookingAdjustmentUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   type: z.union([ z.lazy(() => AdjustmentTypeSchema), z.lazy(() => EnumAdjustmentTypeFieldUpdateOperationsInputSchema) ]).optional(),
   amount: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
@@ -25,6 +25,6 @@ export const BookingAdjustmentUpdateInputSchema: z.ZodType<Prisma.BookingAdjustm
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   booking: z.lazy(() => BookingUpdateOneRequiredWithoutAdjustmentsNestedInputSchema).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentUpdateInputSchema;

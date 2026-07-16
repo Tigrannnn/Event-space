@@ -6,7 +6,7 @@ import { EnumLocaleFilterSchema } from './EnumLocaleFilterSchema';
 import { LocaleSchema } from './LocaleSchema';
 import { StringNullableListFilterSchema } from './StringNullableListFilterSchema';
 
-export const EventTranslationScalarWhereInputSchema: z.ZodType<Prisma.EventTranslationScalarWhereInput> = z.object({
+export const EventTranslationScalarWhereInputSchema: z.ZodType<Prisma.EventTranslationScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventTranslationScalarWhereInputSchema), z.lazy(() => EventTranslationScalarWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventTranslationScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventTranslationScalarWhereInputSchema), z.lazy(() => EventTranslationScalarWhereInputSchema).array() ]).optional(),
@@ -17,6 +17,6 @@ export const EventTranslationScalarWhereInputSchema: z.ZodType<Prisma.EventTrans
   description: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   location: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
-}).strict();
+});
 
 export default EventTranslationScalarWhereInputSchema;

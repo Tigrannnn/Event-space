@@ -11,7 +11,7 @@ import { EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema } from './
 import { EventTranslationUpdateManyWithWhereWithoutEventInputSchema } from './EventTranslationUpdateManyWithWhereWithoutEventInputSchema';
 import { EventTranslationScalarWhereInputSchema } from './EventTranslationScalarWhereInputSchema';
 
-export const EventTranslationUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventTranslationUpdateManyWithoutEventNestedInput> = z.object({
+export const EventTranslationUpdateManyWithoutEventNestedInputSchema: z.ZodType<Prisma.EventTranslationUpdateManyWithoutEventNestedInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventTranslationCreateWithoutEventInputSchema), z.lazy(() => EventTranslationCreateWithoutEventInputSchema).array(), z.lazy(() => EventTranslationUncheckedCreateWithoutEventInputSchema), z.lazy(() => EventTranslationUncheckedCreateWithoutEventInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => EventTranslationCreateOrConnectWithoutEventInputSchema), z.lazy(() => EventTranslationCreateOrConnectWithoutEventInputSchema).array() ]).optional(),
   upsert: z.union([ z.lazy(() => EventTranslationUpsertWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventTranslationUpsertWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
@@ -23,6 +23,6 @@ export const EventTranslationUpdateManyWithoutEventNestedInputSchema: z.ZodType<
   update: z.union([ z.lazy(() => EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema), z.lazy(() => EventTranslationUpdateWithWhereUniqueWithoutEventInputSchema).array() ]).optional(),
   updateMany: z.union([ z.lazy(() => EventTranslationUpdateManyWithWhereWithoutEventInputSchema), z.lazy(() => EventTranslationUpdateManyWithWhereWithoutEventInputSchema).array() ]).optional(),
   deleteMany: z.union([ z.lazy(() => EventTranslationScalarWhereInputSchema), z.lazy(() => EventTranslationScalarWhereInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default EventTranslationUpdateManyWithoutEventNestedInputSchema;

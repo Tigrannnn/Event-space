@@ -5,9 +5,9 @@ import { BookingAdjustmentWhereUniqueInputSchema } from './BookingAdjustmentWher
 import { BookingAdjustmentUpdateWithoutBookingInputSchema } from './BookingAdjustmentUpdateWithoutBookingInputSchema';
 import { BookingAdjustmentUncheckedUpdateWithoutBookingInputSchema } from './BookingAdjustmentUncheckedUpdateWithoutBookingInputSchema';
 
-export const BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema: z.ZodType<Prisma.BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInput> = z.object({
+export const BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema: z.ZodType<Prisma.BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInput> = z.strictObject({
   where: z.lazy(() => BookingAdjustmentWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => BookingAdjustmentUpdateWithoutBookingInputSchema), z.lazy(() => BookingAdjustmentUncheckedUpdateWithoutBookingInputSchema) ]),
-}).strict();
+});
 
 export default BookingAdjustmentUpdateWithWhereUniqueWithoutBookingInputSchema;

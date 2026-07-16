@@ -5,12 +5,12 @@ import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOpera
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { EventUpdateManyWithoutCategoryNestedInputSchema } from './EventUpdateManyWithoutCategoryNestedInputSchema';
 
-export const CategoryUpdateWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryUpdateWithoutTranslationsInput> = z.object({
+export const CategoryUpdateWithoutTranslationsInputSchema: z.ZodType<Prisma.CategoryUpdateWithoutTranslationsInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   slug: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   events: z.lazy(() => EventUpdateManyWithoutCategoryNestedInputSchema).optional(),
-}).strict();
+});
 
 export default CategoryUpdateWithoutTranslationsInputSchema;

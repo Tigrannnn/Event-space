@@ -11,7 +11,7 @@ import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageC
 import { CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationCreateNestedManyWithoutEventInputSchema } from './EventTranslationCreateNestedManyWithoutEventInputSchema';
 
-export const EventCreateWithoutCategoryInputSchema: z.ZodType<Prisma.EventCreateWithoutCategoryInput> = z.object({
+export const EventCreateWithoutCategoryInputSchema: z.ZodType<Prisma.EventCreateWithoutCategoryInput> = z.strictObject({
   id: z.uuid().optional(),
   locationUrl: z.string().optional().nullable(),
   difficulty: z.lazy(() => EventDifficultySchema).optional().nullable(),
@@ -25,6 +25,6 @@ export const EventCreateWithoutCategoryInputSchema: z.ZodType<Prisma.EventCreate
   images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationCreateNestedManyWithoutEventInputSchema).optional(),
-}).strict();
+});
 
 export default EventCreateWithoutCategoryInputSchema;

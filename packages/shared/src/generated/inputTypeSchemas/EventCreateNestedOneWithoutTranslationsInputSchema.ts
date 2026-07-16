@@ -6,10 +6,10 @@ import { EventUncheckedCreateWithoutTranslationsInputSchema } from './EventUnche
 import { EventCreateOrConnectWithoutTranslationsInputSchema } from './EventCreateOrConnectWithoutTranslationsInputSchema';
 import { EventWhereUniqueInputSchema } from './EventWhereUniqueInputSchema';
 
-export const EventCreateNestedOneWithoutTranslationsInputSchema: z.ZodType<Prisma.EventCreateNestedOneWithoutTranslationsInput> = z.object({
+export const EventCreateNestedOneWithoutTranslationsInputSchema: z.ZodType<Prisma.EventCreateNestedOneWithoutTranslationsInput> = z.strictObject({
   create: z.union([ z.lazy(() => EventCreateWithoutTranslationsInputSchema), z.lazy(() => EventUncheckedCreateWithoutTranslationsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => EventCreateOrConnectWithoutTranslationsInputSchema).optional(),
   connect: z.lazy(() => EventWhereUniqueInputSchema).optional(),
-}).strict();
+});
 
 export default EventCreateNestedOneWithoutTranslationsInputSchema;

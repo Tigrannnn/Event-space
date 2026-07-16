@@ -7,11 +7,11 @@ import { RefreshTokenCreateOrConnectWithoutUserInputSchema } from './RefreshToke
 import { RefreshTokenCreateManyUserInputEnvelopeSchema } from './RefreshTokenCreateManyUserInputEnvelopeSchema';
 import { RefreshTokenWhereUniqueInputSchema } from './RefreshTokenWhereUniqueInputSchema';
 
-export const RefreshTokenUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput> = z.object({
+export const RefreshTokenUncheckedCreateNestedManyWithoutUserInputSchema: z.ZodType<Prisma.RefreshTokenUncheckedCreateNestedManyWithoutUserInput> = z.strictObject({
   create: z.union([ z.lazy(() => RefreshTokenCreateWithoutUserInputSchema), z.lazy(() => RefreshTokenCreateWithoutUserInputSchema).array(), z.lazy(() => RefreshTokenUncheckedCreateWithoutUserInputSchema), z.lazy(() => RefreshTokenUncheckedCreateWithoutUserInputSchema).array() ]).optional(),
   connectOrCreate: z.union([ z.lazy(() => RefreshTokenCreateOrConnectWithoutUserInputSchema), z.lazy(() => RefreshTokenCreateOrConnectWithoutUserInputSchema).array() ]).optional(),
   createMany: z.lazy(() => RefreshTokenCreateManyUserInputEnvelopeSchema).optional(),
   connect: z.union([ z.lazy(() => RefreshTokenWhereUniqueInputSchema), z.lazy(() => RefreshTokenWhereUniqueInputSchema).array() ]).optional(),
-}).strict();
+});
 
 export default RefreshTokenUncheckedCreateNestedManyWithoutUserInputSchema;

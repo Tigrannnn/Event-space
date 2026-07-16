@@ -7,7 +7,7 @@ import { EnumLocaleFieldUpdateOperationsInputSchema } from './EnumLocaleFieldUpd
 import { EventTranslationUpdatewhatsIncludedInputSchema } from './EventTranslationUpdatewhatsIncludedInputSchema';
 import { EventUpdateOneRequiredWithoutTranslationsNestedInputSchema } from './EventUpdateOneRequiredWithoutTranslationsNestedInputSchema';
 
-export const EventTranslationUpdateInputSchema: z.ZodType<Prisma.EventTranslationUpdateInput> = z.object({
+export const EventTranslationUpdateInputSchema: z.ZodType<Prisma.EventTranslationUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   locale: z.union([ z.lazy(() => LocaleSchema), z.lazy(() => EnumLocaleFieldUpdateOperationsInputSchema) ]).optional(),
   title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -15,6 +15,6 @@ export const EventTranslationUpdateInputSchema: z.ZodType<Prisma.EventTranslatio
   location: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   whatsIncluded: z.union([ z.lazy(() => EventTranslationUpdatewhatsIncludedInputSchema), z.string().array() ]).optional(),
   event: z.lazy(() => EventUpdateOneRequiredWithoutTranslationsNestedInputSchema).optional(),
-}).strict();
+});
 
 export default EventTranslationUpdateInputSchema;

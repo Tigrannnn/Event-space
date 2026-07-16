@@ -12,7 +12,7 @@ import { AdjustmentStatusSchema } from './AdjustmentStatusSchema';
 import { EnumAdjustmentStatusFieldUpdateOperationsInputSchema } from './EnumAdjustmentStatusFieldUpdateOperationsInputSchema';
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 
-export const BookingAdjustmentUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedUpdateManyInput> = z.object({
+export const BookingAdjustmentUncheckedUpdateManyInputSchema: z.ZodType<Prisma.BookingAdjustmentUncheckedUpdateManyInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   bookingId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   type: z.union([ z.lazy(() => AdjustmentTypeSchema), z.lazy(() => EnumAdjustmentTypeFieldUpdateOperationsInputSchema) ]).optional(),
@@ -24,6 +24,6 @@ export const BookingAdjustmentUncheckedUpdateManyInputSchema: z.ZodType<Prisma.B
   reason: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentUncheckedUpdateManyInputSchema;

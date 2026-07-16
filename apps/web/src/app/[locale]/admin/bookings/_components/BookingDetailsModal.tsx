@@ -23,7 +23,7 @@ export default function BookingDetailsModal() {
 	const { addToast } = useToastStore();
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
-	const event = booking?.event;
+	const event = booking?.occurrence?.event;
 	const [refundType, setRefundType] = useState<'FULL' | 'RULES' | 'MANUAL'>('RULES');
 	const [reason, setReason] = useState('');
 

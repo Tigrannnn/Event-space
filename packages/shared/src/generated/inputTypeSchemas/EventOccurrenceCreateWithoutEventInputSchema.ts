@@ -3,7 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { BookingCreateNestedManyWithoutOccurrenceInputSchema } from './BookingCreateNestedManyWithoutOccurrenceInputSchema';
 
-export const EventOccurrenceCreateWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceCreateWithoutEventInput> = z.object({
+export const EventOccurrenceCreateWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceCreateWithoutEventInput> = z.strictObject({
   id: z.uuid().optional(),
   date: z.coerce.date(),
   maxParticipants: z.number().int().optional(),
@@ -11,6 +11,6 @@ export const EventOccurrenceCreateWithoutEventInputSchema: z.ZodType<Prisma.Even
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   bookings: z.lazy(() => BookingCreateNestedManyWithoutOccurrenceInputSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceCreateWithoutEventInputSchema;

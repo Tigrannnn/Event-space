@@ -9,7 +9,7 @@ import { BookingAdjustmentMaxOrderByAggregateInputSchema } from './BookingAdjust
 import { BookingAdjustmentMinOrderByAggregateInputSchema } from './BookingAdjustmentMinOrderByAggregateInputSchema';
 import { BookingAdjustmentSumOrderByAggregateInputSchema } from './BookingAdjustmentSumOrderByAggregateInputSchema';
 
-export const BookingAdjustmentOrderByWithAggregationInputSchema: z.ZodType<Prisma.BookingAdjustmentOrderByWithAggregationInput> = z.object({
+export const BookingAdjustmentOrderByWithAggregationInputSchema: z.ZodType<Prisma.BookingAdjustmentOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   bookingId: z.lazy(() => SortOrderSchema).optional(),
   type: z.lazy(() => SortOrderSchema).optional(),
@@ -26,6 +26,6 @@ export const BookingAdjustmentOrderByWithAggregationInputSchema: z.ZodType<Prism
   _max: z.lazy(() => BookingAdjustmentMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => BookingAdjustmentMinOrderByAggregateInputSchema).optional(),
   _sum: z.lazy(() => BookingAdjustmentSumOrderByAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default BookingAdjustmentOrderByWithAggregationInputSchema;

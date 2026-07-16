@@ -7,7 +7,7 @@ import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
 
-export const EventImageWhereInputSchema: z.ZodType<Prisma.EventImageWhereInput> = z.object({
+export const EventImageWhereInputSchema: z.ZodType<Prisma.EventImageWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventImageWhereInputSchema), z.lazy(() => EventImageWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventImageWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventImageWhereInputSchema), z.lazy(() => EventImageWhereInputSchema).array() ]).optional(),
@@ -19,6 +19,6 @@ export const EventImageWhereInputSchema: z.ZodType<Prisma.EventImageWhereInput> 
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict();
+});
 
 export default EventImageWhereInputSchema;

@@ -8,7 +8,7 @@ import { StringNullableListFilterSchema } from './StringNullableListFilterSchema
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
 
-export const EventTranslationWhereInputSchema: z.ZodType<Prisma.EventTranslationWhereInput> = z.object({
+export const EventTranslationWhereInputSchema: z.ZodType<Prisma.EventTranslationWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventTranslationWhereInputSchema), z.lazy(() => EventTranslationWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventTranslationWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventTranslationWhereInputSchema), z.lazy(() => EventTranslationWhereInputSchema).array() ]).optional(),
@@ -20,6 +20,6 @@ export const EventTranslationWhereInputSchema: z.ZodType<Prisma.EventTranslation
   location: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
-}).strict();
+});
 
 export default EventTranslationWhereInputSchema;

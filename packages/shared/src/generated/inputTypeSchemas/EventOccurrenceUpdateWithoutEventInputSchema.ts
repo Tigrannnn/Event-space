@@ -6,7 +6,7 @@ import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateO
 import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
 import { BookingUpdateManyWithoutOccurrenceNestedInputSchema } from './BookingUpdateManyWithoutOccurrenceNestedInputSchema';
 
-export const EventOccurrenceUpdateWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateWithoutEventInput> = z.object({
+export const EventOccurrenceUpdateWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceUpdateWithoutEventInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   date: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   maxParticipants: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
@@ -14,6 +14,6 @@ export const EventOccurrenceUpdateWithoutEventInputSchema: z.ZodType<Prisma.Even
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingUpdateManyWithoutOccurrenceNestedInputSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceUpdateWithoutEventInputSchema;

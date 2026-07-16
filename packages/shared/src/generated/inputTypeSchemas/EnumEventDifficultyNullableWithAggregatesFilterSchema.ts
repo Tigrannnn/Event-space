@@ -6,7 +6,7 @@ import { NestedEnumEventDifficultyNullableWithAggregatesFilterSchema } from './N
 import { NestedIntNullableFilterSchema } from './NestedIntNullableFilterSchema';
 import { NestedEnumEventDifficultyNullableFilterSchema } from './NestedEnumEventDifficultyNullableFilterSchema';
 
-export const EnumEventDifficultyNullableWithAggregatesFilterSchema: z.ZodType<Prisma.EnumEventDifficultyNullableWithAggregatesFilter> = z.object({
+export const EnumEventDifficultyNullableWithAggregatesFilterSchema: z.ZodType<Prisma.EnumEventDifficultyNullableWithAggregatesFilter> = z.strictObject({
   equals: z.lazy(() => EventDifficultySchema).optional().nullable(),
   in: z.lazy(() => EventDifficultySchema).array().optional().nullable(),
   notIn: z.lazy(() => EventDifficultySchema).array().optional().nullable(),
@@ -14,6 +14,6 @@ export const EnumEventDifficultyNullableWithAggregatesFilterSchema: z.ZodType<Pr
   _count: z.lazy(() => NestedIntNullableFilterSchema).optional(),
   _min: z.lazy(() => NestedEnumEventDifficultyNullableFilterSchema).optional(),
   _max: z.lazy(() => NestedEnumEventDifficultyNullableFilterSchema).optional(),
-}).strict();
+});
 
 export default EnumEventDifficultyNullableWithAggregatesFilterSchema;

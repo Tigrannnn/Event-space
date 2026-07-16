@@ -5,7 +5,7 @@ import { StringFilterSchema } from './StringFilterSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 
-export const EventOccurrenceScalarWhereInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereInput> = z.object({
+export const EventOccurrenceScalarWhereInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventOccurrenceScalarWhereInputSchema), z.lazy(() => EventOccurrenceScalarWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventOccurrenceScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventOccurrenceScalarWhereInputSchema), z.lazy(() => EventOccurrenceScalarWhereInputSchema).array() ]).optional(),
@@ -16,6 +16,6 @@ export const EventOccurrenceScalarWhereInputSchema: z.ZodType<Prisma.EventOccurr
   currentParticipants: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
-}).strict();
+});
 
 export default EventOccurrenceScalarWhereInputSchema;

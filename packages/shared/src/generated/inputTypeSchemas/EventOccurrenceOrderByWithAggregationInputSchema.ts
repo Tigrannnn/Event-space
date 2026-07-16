@@ -8,7 +8,7 @@ import { EventOccurrenceMaxOrderByAggregateInputSchema } from './EventOccurrence
 import { EventOccurrenceMinOrderByAggregateInputSchema } from './EventOccurrenceMinOrderByAggregateInputSchema';
 import { EventOccurrenceSumOrderByAggregateInputSchema } from './EventOccurrenceSumOrderByAggregateInputSchema';
 
-export const EventOccurrenceOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOccurrenceOrderByWithAggregationInput> = z.object({
+export const EventOccurrenceOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOccurrenceOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
@@ -21,6 +21,6 @@ export const EventOccurrenceOrderByWithAggregationInputSchema: z.ZodType<Prisma.
   _max: z.lazy(() => EventOccurrenceMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => EventOccurrenceMinOrderByAggregateInputSchema).optional(),
   _sum: z.lazy(() => EventOccurrenceSumOrderByAggregateInputSchema).optional(),
-}).strict();
+});
 
 export default EventOccurrenceOrderByWithAggregationInputSchema;

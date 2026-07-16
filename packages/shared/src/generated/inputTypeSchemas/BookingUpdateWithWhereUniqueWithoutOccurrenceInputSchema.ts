@@ -5,9 +5,9 @@ import { BookingWhereUniqueInputSchema } from './BookingWhereUniqueInputSchema';
 import { BookingUpdateWithoutOccurrenceInputSchema } from './BookingUpdateWithoutOccurrenceInputSchema';
 import { BookingUncheckedUpdateWithoutOccurrenceInputSchema } from './BookingUncheckedUpdateWithoutOccurrenceInputSchema';
 
-export const BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema: z.ZodType<Prisma.BookingUpdateWithWhereUniqueWithoutOccurrenceInput> = z.object({
+export const BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema: z.ZodType<Prisma.BookingUpdateWithWhereUniqueWithoutOccurrenceInput> = z.strictObject({
   where: z.lazy(() => BookingWhereUniqueInputSchema),
   data: z.union([ z.lazy(() => BookingUpdateWithoutOccurrenceInputSchema), z.lazy(() => BookingUncheckedUpdateWithoutOccurrenceInputSchema) ]),
-}).strict();
+});
 
 export default BookingUpdateWithWhereUniqueWithoutOccurrenceInputSchema;

@@ -13,7 +13,7 @@ import { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 
-export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput> = z.object({
+export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventScalarWhereInputSchema), z.lazy(() => EventScalarWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventScalarWhereInputSchema), z.lazy(() => EventScalarWhereInputSchema).array() ]).optional(),
@@ -27,6 +27,6 @@ export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   categoryId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-}).strict();
+});
 
 export default EventScalarWhereInputSchema;

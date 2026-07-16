@@ -6,10 +6,10 @@ import { UserUncheckedCreateWithoutEventsInputSchema } from './UserUncheckedCrea
 import { UserCreateOrConnectWithoutEventsInputSchema } from './UserCreateOrConnectWithoutEventsInputSchema';
 import { UserWhereUniqueInputSchema } from './UserWhereUniqueInputSchema';
 
-export const UserCreateNestedOneWithoutEventsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutEventsInput> = z.object({
+export const UserCreateNestedOneWithoutEventsInputSchema: z.ZodType<Prisma.UserCreateNestedOneWithoutEventsInput> = z.strictObject({
   create: z.union([ z.lazy(() => UserCreateWithoutEventsInputSchema), z.lazy(() => UserUncheckedCreateWithoutEventsInputSchema) ]).optional(),
   connectOrCreate: z.lazy(() => UserCreateOrConnectWithoutEventsInputSchema).optional(),
   connect: z.lazy(() => UserWhereUniqueInputSchema).optional(),
-}).strict();
+});
 
 export default UserCreateNestedOneWithoutEventsInputSchema;

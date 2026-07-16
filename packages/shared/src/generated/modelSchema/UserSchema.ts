@@ -7,7 +7,7 @@ import { UserRoleSchema } from '../inputTypeSchemas/UserRoleSchema'
 
 export const UserSchema = z.object({
   role: UserRoleSchema,
-  id: z.string().uuid(),
+  id: z.uuid(),
   email: z.string(),
   name: z.string(),
   passwordHash: z.string().nullable(),

@@ -4,10 +4,10 @@ import { z } from 'zod';
 import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOperationsInputSchema';
 import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
 
-export const CancellationPolicyRuleUncheckedUpdateManyWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedUpdateManyWithoutEventInput> = z.object({
+export const CancellationPolicyRuleUncheckedUpdateManyWithoutEventInputSchema: z.ZodType<Prisma.CancellationPolicyRuleUncheckedUpdateManyWithoutEventInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   hoursBeforeEvent: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   refundPercentage: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
-}).strict();
+});
 
 export default CancellationPolicyRuleUncheckedUpdateManyWithoutEventInputSchema;
