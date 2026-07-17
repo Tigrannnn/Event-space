@@ -3,7 +3,14 @@
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { type Event, EventStatusEnum, EventDifficultyEnum, DEFAULT_CURRENCY, getCategoryTranslation, type Category } from '@event-space/shared';
+import {
+	type Event,
+	EventStatusEnum,
+	EventDifficultyEnum,
+	DEFAULT_CURRENCY,
+	getCategoryTranslation,
+	type Category,
+} from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
@@ -27,9 +34,9 @@ interface EventFormProps {
 }
 
 const AVAILABLE_LOCALES = [
-    { value: 'ru', label: '🇷🇺 Ru' },
-    { value: 'en', label: '🇬🇧 En' },
-    { value: 'hy', label: '🇦🇲 Hy' },
+	{ value: 'ru', label: '🇷🇺 Ru' },
+	{ value: 'en', label: '🇬🇧 En' },
+	{ value: 'hy', label: '🇦🇲 Hy' },
 ] as const;
 
 const fieldClassName =
@@ -84,7 +91,8 @@ export default function EventForm({
 		};
 
 		const currentStatus = event?.status || '';
-		const allowed = allowedTransitions[currentStatus as keyof typeof allowedTransitions] || EventStatusEnum.options;
+		const allowed =
+			allowedTransitions[currentStatus as keyof typeof allowedTransitions] || EventStatusEnum.options;
 
 		return EventStatusEnum.options.map((status) => ({
 			value: status,
@@ -109,30 +117,46 @@ export default function EventForm({
 	const watchedDate = watchedOccurrences[0]?.date ?? '';
 	const watchedPrice = useWatch({ control, name: 'price' });
 	const originalOccurrenceDate = event?.occurrences?.[0]?.date;
-	const hasBookedOccurrences = Boolean(event?.occurrences?.some((occurrence) => occurrence.currentParticipants > 0));
+	const hasBookedOccurrences = Boolean(
+		event?.occurrences?.some((occurrence) => occurrence.currentParticipants > 0),
+	);
 	const watchedRules = useWatch({ control, name: 'cancellationRules' });
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 	const watchedStatus = useWatch({ control, name: 'status' });
 
-	const { fields: translationFields, append: appendTranslation, remove: removeTranslation } = useFieldArray({
+	const {
+		fields: translationFields,
+		append: appendTranslation,
+		remove: removeTranslation,
+	} = useFieldArray({
 		control,
 		name: 'translations',
 	});
 
-	const { fields: cancellationFields, append: appendCancellation, remove: removeCancellation } = useFieldArray({
+	const {
+		fields: cancellationFields,
+		append: appendCancellation,
+		remove: removeCancellation,
+	} = useFieldArray({
 		control,
 		name: 'cancellationRules',
 	});
 
-	const { fields: occurrenceFields, append: appendOccurrence, remove: removeOccurrence } = useFieldArray({
+	const {
+		fields: occurrenceFields,
+		append: appendOccurrence,
+		remove: removeOccurrence,
+	} = useFieldArray({
 		control,
 		name: 'occurrences',
 	});
 
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-	const addedLocales = watchedTranslations.map(t => t.locale);
-	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(locale => !addedLocales.includes(locale.value));
+	const addedLocales = watchedTranslations.map((t) => t.locale);
+	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(
+		(locale) => !addedLocales.includes(locale.value),
+	);
 
 	const hasTranslationErrors = (index: number) => {
 		return !!errors.translations?.[index];
@@ -156,7 +180,10 @@ export default function EventForm({
 
 	return (
 		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 p-5 sm:p-6">
-			<ModalHeader title={event ? translate('admin.updateEvent') : translate('admin.createEvent')} onClose={onCancel} />
+			<ModalHeader
+				title={event ? translate('admin.updateEvent') : translate('admin.createEvent')}
+				onClose={onCancel}
+			/>
 
 			<div className="space-y-4">
 				<div className="space-y-3">
@@ -172,13 +199,15 @@ export default function EventForm({
 									variant="secondary"
 									className="h-8 text-xs"
 									disabled={isPending}
-									onClick={() => appendTranslation({
-										locale: locale.value,
-										title: '',
-										description: '',
-										location: '',
-										whatsIncluded: '',
-									})}
+									onClick={() =>
+										appendTranslation({
+											locale: locale.value,
+											title: '',
+											description: '',
+											location: '',
+											whatsIncluded: '',
+										})
+									}
 								>
 									+ {locale.label}
 								</Button>
@@ -188,17 +217,17 @@ export default function EventForm({
 
 					<div className="flex flex-wrap gap-2">
 						{translationFields.map((field, index) => {
-							const localeInfo = AVAILABLE_LOCALES.find(l => l.value === field.locale);
+							const localeInfo = AVAILABLE_LOCALES.find((l) => l.value === field.locale);
 							const hasError = hasTranslationErrors(index);
 							const isActive = activeTabIndex === index;
 
 							return (
 								<div
 									key={field.id}
-									className={`flex items-center gap-2 px-3 py-2 rounded-t-lg border-t border-x border-b-0 cursor-pointer transition-colors ${
+									className={`flex cursor-pointer items-center gap-2 rounded-t-lg border-x border-t border-b-0 px-3 py-2 transition-colors ${
 										isActive
-											? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-											: 'bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+											? 'border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800'
+											: 'border-gray-200 bg-transparent hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50'
 									} ${hasError ? 'border-b-2 border-red-500' : ''}`}
 									onClick={() => setActiveTabIndex(index)}
 								>
@@ -208,7 +237,7 @@ export default function EventForm({
 									{translationFields.length > 1 && (
 										<button
 											type="button"
-											className="ml-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded p-0.5"
+											className="ml-1 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
 											disabled={isPending}
 											onClick={(e) => {
 												e.stopPropagation();
@@ -227,7 +256,10 @@ export default function EventForm({
 					</div>
 
 					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
-						<div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+						<div
+							key={translationFields[activeTabIndex].id}
+							className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+						>
 							<div className="grid grid-cols-1 gap-4">
 								<label className="space-y-1.5">
 									<span className="text-sm font-semibold">{translate('admin.title')}</span>
@@ -237,7 +269,9 @@ export default function EventForm({
 										disabled={isPending}
 									/>
 									{errors.translations?.[activeTabIndex]?.title && (
-										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.title?.message}</p>
+										<p className="text-xs text-red-500">
+											{errors.translations[activeTabIndex]?.title?.message}
+										</p>
 									)}
 								</label>
 							</div>
@@ -251,7 +285,9 @@ export default function EventForm({
 										disabled={isPending}
 									/>
 									{errors.translations?.[activeTabIndex]?.location && (
-										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.location?.message}</p>
+										<p className="text-xs text-red-500">
+											{errors.translations[activeTabIndex]?.location?.message}
+										</p>
 									)}
 								</label>
 							</div>
@@ -264,7 +300,9 @@ export default function EventForm({
 									disabled={isPending}
 								/>
 								{errors.translations?.[activeTabIndex]?.description && (
-									<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.description?.message}</p>
+									<p className="text-xs text-red-500">
+										{errors.translations[activeTabIndex]?.description?.message}
+									</p>
 								)}
 							</label>
 
@@ -276,7 +314,9 @@ export default function EventForm({
 									disabled={isPending}
 								/>
 								{errors.translations?.[activeTabIndex]?.whatsIncluded && (
-									<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.whatsIncluded?.message}</p>
+									<p className="text-xs text-red-500">
+										{errors.translations[activeTabIndex]?.whatsIncluded?.message}
+									</p>
 								)}
 							</label>
 						</div>
@@ -318,7 +358,9 @@ export default function EventForm({
 				<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
 					<div className="flex items-center justify-between">
 						<div>
-							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('admin.occurrences')}</h3>
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+								{translate('admin.occurrences')}
+							</h3>
 							<p className="text-xs text-gray-500">{translate('admin.occurrencesDescription')}</p>
 						</div>
 						<Button
@@ -335,9 +377,14 @@ export default function EventForm({
 					{occurrenceFields.length > 0 ? (
 						<div className="space-y-3">
 							{occurrenceFields.map((field, index) => (
-								<div key={field.id} className="flex flex-col gap-3 rounded-md border border-gray-200 p-3 dark:border-gray-700 md:flex-row md:items-end">
+								<div
+									key={field.id}
+									className="flex flex-col gap-3 rounded-md border border-gray-200 p-3 md:flex-row md:items-end dark:border-gray-700"
+								>
 									<div className="flex-1 space-y-1.5">
-										<span className="text-xs font-medium text-gray-500">{translate('admin.dateAndTime')}</span>
+										<span className="text-xs font-medium text-gray-500">
+											{translate('admin.dateAndTime')}
+										</span>
 										<Controller
 											name={`occurrences.${index}.date`}
 											control={control}
@@ -356,7 +403,9 @@ export default function EventForm({
 									</div>
 
 									<label className="w-full space-y-1.5 md:max-w-40">
-										<span className="text-xs font-medium text-gray-500">{translate('admin.maxParticipants')}</span>
+										<span className="text-xs font-medium text-gray-500">
+											{translate('admin.maxParticipants')}
+										</span>
 										<input
 											type="number"
 											min="1"
@@ -365,7 +414,9 @@ export default function EventForm({
 											disabled={isPending}
 										/>
 										{errors.occurrences?.[index]?.maxParticipants && (
-											<p className="text-xs text-red-500">{errors.occurrences[index]?.maxParticipants?.message}</p>
+											<p className="text-xs text-red-500">
+												{errors.occurrences[index]?.maxParticipants?.message}
+											</p>
 										)}
 									</label>
 
@@ -392,18 +443,21 @@ export default function EventForm({
 
 				<div className="grid grid-cols-2 gap-4">
 					<div className="space-y-1.5">
-					<span className="text-sm font-semibold">{translate('admin.difficulty')} <span className="text-gray-400">({translate('common.optional')})</span></span>
-					<Controller
-						name="difficulty"
-						control={control}
-						render={({ field }) => (
-							<Select
-								value={field.value ?? ''}
-								onValueChange={field.onChange}
-								options={difficultyOptions}
-								className="w-full"
-								disabled={isPending}
-							/>
+						<span className="text-sm font-semibold">
+							{translate('admin.difficulty')}{' '}
+							<span className="text-gray-400">({translate('common.optional')})</span>
+						</span>
+						<Controller
+							name="difficulty"
+							control={control}
+							render={({ field }) => (
+								<Select
+									value={field.value ?? ''}
+									onValueChange={field.onChange}
+									options={difficultyOptions}
+									className="w-full"
+									disabled={isPending}
+								/>
 							)}
 						/>
 						{errors.difficulty && <p className="text-xs text-red-500">{errors.difficulty.message}</p>}
@@ -436,21 +490,28 @@ export default function EventForm({
 							disabled={isPending}
 							placeholder={translate('admin.cancellationReasonPlaceholder')}
 						/>
-						{errors.cancellationReason && <p className="text-xs text-red-500">{errors.cancellationReason.message}</p>}
+						{errors.cancellationReason && (
+							<p className="text-xs text-red-500">{errors.cancellationReason.message}</p>
+						)}
 					</div>
 				)}
 
-				{hasBookedOccurrences && watchedDate && originalOccurrenceDate && new Date(watchedDate).getTime() !== new Date(originalOccurrenceDate).getTime() && (
-					<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/30">
-						<p className="text-sm text-amber-800 dark:text-amber-200">
-							{translate('admin.dateChangeWarning')}
-						</p>
-					</div>
-				)}
+				{hasBookedOccurrences &&
+					watchedDate &&
+					originalOccurrenceDate &&
+					new Date(watchedDate).getTime() !== new Date(originalOccurrenceDate).getTime() && (
+						<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/30">
+							<p className="text-sm text-amber-800 dark:text-amber-200">
+								{translate('admin.dateChangeWarning')}
+							</p>
+						</div>
+					)}
 
 				<div className="grid grid-cols-2 gap-4">
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">{translate('admin.price')} ({DEFAULT_CURRENCY})</span>
+						<span className="text-sm font-semibold">
+							{translate('admin.price')} ({DEFAULT_CURRENCY})
+						</span>
 						<input
 							type="number"
 							step="0.01"
@@ -480,9 +541,7 @@ export default function EventForm({
 							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 								{translate('admin.cancellationRules')}
 							</h3>
-							<p className="text-xs text-gray-500">
-								{translate('admin.cancellationRulesDescription')}
-							</p>
+							<p className="text-xs text-gray-500">{translate('admin.cancellationRulesDescription')}</p>
 						</div>
 						<Button
 							type="button"
@@ -500,7 +559,9 @@ export default function EventForm({
 							{cancellationFields.map((field, index) => (
 								<div key={field.id} className="flex items-end gap-4">
 									<label className="flex-1 space-y-1">
-										<span className="text-xs font-medium text-gray-500">{translate('admin.hoursBeforeEvent')}</span>
+										<span className="text-xs font-medium text-gray-500">
+											{translate('admin.hoursBeforeEvent')}
+										</span>
 										<input
 											type="number"
 											{...register(`cancellationRules.${index}.hoursBeforeEvent`, { valueAsNumber: true })}
@@ -517,7 +578,9 @@ export default function EventForm({
 									</label>
 
 									<label className="flex-1 space-y-1">
-										<span className="text-xs font-medium text-gray-500">{translate('admin.refundPercentage')}</span>
+										<span className="text-xs font-medium text-gray-500">
+											{translate('admin.refundPercentage')}
+										</span>
 										<input
 											type="number"
 											{...register(`cancellationRules.${index}.refundPercentage`, { valueAsNumber: true })}
@@ -548,9 +611,7 @@ export default function EventForm({
 						</div>
 					) : (
 						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
-							<p className="text-xs text-gray-500">
-								{translate('admin.noCancellationRules')}
-							</p>
+							<p className="text-xs text-gray-500">{translate('admin.noCancellationRules')}</p>
 						</div>
 					)}
 				</div>

@@ -12,9 +12,9 @@ export class BookingExpiryService {
 		private readonly stripe: StripeService,
 	) {}
 
-	@Cron(CronExpression.EVERY_MINUTE)
+	@Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
 	async handleExpiry() {
-		const cutoff = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago
+		const cutoff = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago
 		const expired = await this.prisma.booking.findMany({
 			where: { status: 'PENDING', expired: false, createdAt: { lt: cutoff } },
 			take: 50,

@@ -126,7 +126,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 									value={searchInput}
 									onChange={(event) => setSearchInput(event.target.value)}
 									placeholder={translate('admin.searchCategoriesPlaceholder')}
-									className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
+									className="focus:border-primary h-10 w-full rounded-md border bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
 								/>
 							</div>
 							<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>

@@ -91,7 +91,7 @@ export default function EventCard({ event }: EventCardProps) {
 			/>
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
-				{categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>}
+				{/* {categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>} */}
 				<PriceBadge price={event.price} />
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={eventTranslation.title} />
 			</div>
@@ -107,6 +107,8 @@ export default function EventCard({ event }: EventCardProps) {
 						{occurrenceLabel}
 					</span>
 				</div>
+
+				
 
 				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
 					{eventTranslation.title}

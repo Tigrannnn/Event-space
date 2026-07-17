@@ -15,11 +15,11 @@ import {
 	UpdateCategoryModal,
 	CategoryDetailsModal,
 } from '@/features/admin/categories';
-import BookingDetailsModal from '@/app/[locale]/admin/bookings/_components/BookingDetailsModal';
-import BookingActionModal from '@/app/[locale]/admin/bookings/_components/BookingActionModal';
-import CreateManualBookingModal from '@/app/[locale]/admin/bookings/_components/CreateManualBookingModal';
-import UserDetailsModal from '@/app/[locale]/admin/users/_components/UserDetailsModal';
-import EventDetailsModal from '@/app/[locale]/admin/events/_components/EventDetailsModal';
+import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
+import EventDetailsModal from '@/features/admin/events/components/modals/EventDetailsModal';
+import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
+import CreateManualBookingModal from '@/features/admin/bookings/components/CreateManualBookingModal';
+import BookingCancelModal from '@/features/admin/bookings/components/BookingCancelModal';
 
 /**
  * ModalRoot - renders the active modals.
@@ -43,7 +43,7 @@ export default function ModalRoot() {
 						<CreateManualBookingModal key="create-manual-booking" />
 					)}
 					{activeModal === ModalType.BookingDetails && <BookingDetailsModal key="booking-details" />}
-					{activeModal === ModalType.BookingAction && <BookingActionModal key="booking-action" />}
+					{activeModal === ModalType.BookingCancel && <BookingCancelModal key="booking-cancel" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}
 					{/* {activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />} */}

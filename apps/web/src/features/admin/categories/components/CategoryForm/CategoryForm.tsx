@@ -19,9 +19,9 @@ interface CategoryFormProps {
 }
 
 const AVAILABLE_LOCALES = [
-    { value: 'ru', label: '🇷🇺 Ru' },
-    { value: 'en', label: '🇬🇧 En' },
-    { value: 'hy', label: '🇦🇲 Hy' },
+	{ value: 'ru', label: '🇷🇺 Ru' },
+	{ value: 'en', label: '🇬🇧 En' },
+	{ value: 'hy', label: '🇦🇲 Hy' },
 ] as const;
 
 const fieldClassName =
@@ -49,15 +49,21 @@ export default function CategoryForm({
 
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 
-	const { fields: translationFields, append: appendTranslation, remove: removeTranslation } = useFieldArray({
+	const {
+		fields: translationFields,
+		append: appendTranslation,
+		remove: removeTranslation,
+	} = useFieldArray({
 		control,
 		name: 'translations',
 	});
 
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-	const addedLocales = watchedTranslations.map(t => t.locale);
-	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(locale => !addedLocales.includes(locale.value));
+	const addedLocales = watchedTranslations.map((t) => t.locale);
+	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(
+		(locale) => !addedLocales.includes(locale.value),
+	);
 
 	const hasTranslationErrors = (index: number) => {
 		return !!errors.translations?.[index];
@@ -65,7 +71,10 @@ export default function CategoryForm({
 
 	return (
 		<form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5 sm:p-6">
-			<ModalHeader title={category ? translate('admin.updateCategory') : translate('admin.createCategory')} onClose={onCancel} />
+			<ModalHeader
+				title={category ? translate('admin.updateCategory') : translate('admin.createCategory')}
+				onClose={onCancel}
+			/>
 
 			<div className="space-y-4">
 				<div className="space-y-3">
@@ -81,10 +90,12 @@ export default function CategoryForm({
 									variant="secondary"
 									className="h-8 text-xs"
 									disabled={isPending}
-									onClick={() => appendTranslation({
-										locale: locale.value,
-										name: '',
-									})}
+									onClick={() =>
+										appendTranslation({
+											locale: locale.value,
+											name: '',
+										})
+									}
 								>
 									+ {locale.label}
 								</Button>
@@ -94,17 +105,17 @@ export default function CategoryForm({
 
 					<div className="flex flex-wrap gap-2">
 						{translationFields.map((field, index) => {
-							const localeInfo = AVAILABLE_LOCALES.find(l => l.value === field.locale);
+							const localeInfo = AVAILABLE_LOCALES.find((l) => l.value === field.locale);
 							const hasError = hasTranslationErrors(index);
 							const isActive = activeTabIndex === index;
 
 							return (
 								<div
 									key={field.id}
-									className={`flex items-center gap-2 px-3 py-2 rounded-t-lg border-t border-x border-b-0 cursor-pointer transition-colors ${
+									className={`flex cursor-pointer items-center gap-2 rounded-t-lg border-x border-t border-b-0 px-3 py-2 transition-colors ${
 										isActive
-											? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-											: 'bg-transparent border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+											? 'border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800'
+											: 'border-gray-200 bg-transparent hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50'
 									} ${hasError ? 'border-b-2 border-red-500' : ''}`}
 									onClick={() => setActiveTabIndex(index)}
 								>
@@ -114,7 +125,7 @@ export default function CategoryForm({
 									{translationFields.length > 1 && (
 										<button
 											type="button"
-											className="ml-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded p-0.5"
+											className="ml-1 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
 											disabled={isPending}
 											onClick={(e) => {
 												e.stopPropagation();
@@ -133,7 +144,10 @@ export default function CategoryForm({
 					</div>
 
 					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
-						<div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-4">
+						<div
+							key={translationFields[activeTabIndex].id}
+							className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+						>
 							<div className="grid grid-cols-1 gap-4">
 								<label className="space-y-1.5">
 									<span className="text-sm font-semibold">{translate('admin.title')}</span>
@@ -143,7 +157,9 @@ export default function CategoryForm({
 										disabled={isPending}
 									/>
 									{errors.translations?.[activeTabIndex]?.name && (
-										<p className="text-xs text-red-500">{errors.translations[activeTabIndex]?.name?.message}</p>
+										<p className="text-xs text-red-500">
+											{errors.translations[activeTabIndex]?.name?.message}
+										</p>
 									)}
 								</label>
 							</div>

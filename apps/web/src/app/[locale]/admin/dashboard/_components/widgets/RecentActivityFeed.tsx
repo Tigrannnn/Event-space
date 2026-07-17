@@ -20,12 +20,12 @@ export default function RecentActivityFeed({ stats }: RecentActivityFeedProps) {
 
 			<div className="space-y-3">
 				{stats.recentBookings.slice(0, 3).map((booking) => {
-					const t = booking.event ? getEventTranslation(booking.event, locale) : null;
+					const eventTranslation = booking.occurrence?.event ? getEventTranslation(booking.occurrence?.event, locale) : null;
 					return (
 						<ActivityRow
 							key={booking.id}
 							icon={<Ticket className="h-4 w-4" />}
-							title={`${booking.user?.name || translate('booking.unknownUser')} ${translate('admin.bookedActivity')} ${t?.title || translate('booking.unknownEvent')}`}
+							title={`${booking.user?.name || translate('booking.unknownUser')} ${translate('admin.bookedActivity')} ${eventTranslation?.title || translate('booking.unknownEvent')}`}
 							meta={`${booking.quantity} ${booking.quantity === 1 ? translate('booking.spot') : translate('booking.spots')} · ${booking.status}`}
 						/>
 					);

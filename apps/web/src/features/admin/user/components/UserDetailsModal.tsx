@@ -3,7 +3,6 @@
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import type { SafeUserData } from '@event-space/shared';
 import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';

@@ -27,6 +27,7 @@ import { BookingStatusEnum, TimeFilterSchema, getEventTranslation } from '@event
 import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
+import Badge from '@/components/ui/Badge';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -116,20 +117,12 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		resetPagination();
 	};
 
-	const handleBookingStatusChange = (bookingId: string, nextStatus: BookingStatus) => {
-		updateBookingStatus.mutate({ id: bookingId, status: nextStatus });
-	};
-
-	const handleConfirmBooking = (bookingId: string) => {
-		updateBookingStatus.mutate({ id: bookingId, status: 'CONFIRMED' });
-	};
-
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
 		openModal(ModalType.BookingDetails, { booking });
 	};
 
 	const handleOpenBookingAction = (booking: BookingWithDetails) => {
-		openModal(ModalType.BookingAction, { booking });
+		openModal(ModalType.BookingCancel, { booking });
 	};
 
 	const handlePreviousPage = () => {
@@ -174,7 +167,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								value={searchInput}
 								onChange={(event) => setSearchInput(event.target.value)}
 								placeholder={translate('admin.searchPlaceholder')}
-								className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
+								className="focus:border-primary h-10 w-full rounded-md border bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
 							/>
 						</div>
 						<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
@@ -279,16 +272,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									</div>
 								</TableCell>
 								<TableCell>
-									<div className="flex items-center gap-2">
-										<Select
-											value={booking.status}
-											onValueChange={(value) => handleBookingStatusChange(booking.id, value as BookingStatus)}
-											disabled={updateBookingStatus.isPending}
-											size="sm"
-											aria-label={`${translate('admin.updateEvent')} ${booking.user?.name || translate('booking.unknownCustomer')}`}
-											options={bookingStatusOptions}
-										/>
-									</div>
+									<Badge label={booking.status} variant={booking.status === 'CONFIRMED' ? 'success' : booking.status === 'CANCELLED' ? 'danger' : 'warning'} />
 								</TableCell>
 								<TableCell>{booking.quantity}</TableCell>
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
@@ -317,7 +301,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											size="sm"
 											variant="danger"
 											onClick={() => handleOpenBookingAction(booking)}
-											disabled={updateBookingStatus.isPending || booking.status === 'CANCELLED'}
+											disabled={booking.status === 'CANCELLED'}
 										>
 											<Ban className="h-4 w-4" />
 										</Button>
