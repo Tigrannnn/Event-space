@@ -267,21 +267,6 @@ export class AdminController {
 		return this.adminService.updateUserRole(id, role);
 	}
 
-	@Delete('users/:id')
-	@ApiOperation({ summary: 'Delete user (admin only)' })
-	@ApiResponse({ status: 429, description: 'Too many deletion attempts' })
-	async deleteUser(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
-		// Stricter rate limit for deletions
-		await this.rateLimiter.consumePerUser(
-			`${ADMIN_CONFIG.KEY_PREFIX}:delete`,
-			adminId,
-			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
-			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
-		);
-		await this.adminService.deleteUser(id);
-		return { message: 'User deleted successfully' };
-	}
-
 	@Post('bookings/:id/cancel')
 	@ApiOperation({ summary: 'Cancel a booking from admin panel with refund strategy' })
 	@ApiResponse({ status: 200, description: 'Booking cancelled successfully' })

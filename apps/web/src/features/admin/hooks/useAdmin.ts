@@ -198,18 +198,6 @@ export const useUpdateUserRole = () => {
 	});
 };
 
-export const useDeleteUser = () => {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: (id: string) => adminApi.deleteUser(id),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
-			queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
-		},
-	});
-};
-
 export const useCreateManualBooking = () => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();

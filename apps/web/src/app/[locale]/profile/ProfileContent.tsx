@@ -2,19 +2,10 @@
 
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
-import {
-	ArrowRight,
-	CogIcon,
-	LogOut,
-	ShieldCheck,
-	Ticket,
-	Trash2,
-	User,
-	UserCog,
-} from 'lucide-react';
+import { ArrowRight, CogIcon, LogOut, ShieldCheck, Ticket, User, UserCog } from 'lucide-react';
 import { useConfirm } from '@/hooks/confirmModal';
 import { SafeUserData } from '@event-space/shared';
-import { useCurrentUser, useDeleteCurrentUser } from '@/features/users';
+import { useCurrentUser } from '@/features/users';
 import { useLogout } from '@/features/auth';
 import ProfileSkeleton from './ProfileSkeleton';
 import PageState from '@/components/ui/PageState';
@@ -31,7 +22,6 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 		initialData: initialUser ?? undefined,
 		enabled: hasInitialUser,
 	});
-	const { mutate: deleteAccount, isPending: isDeleting } = useDeleteCurrentUser();
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
@@ -88,20 +78,6 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 		}
 	};
 
-	const handleDeleteAccount = async () => {
-		const isConfirmed = await confirm({
-			title: translate('profile.deleteTitle'),
-			message: translate('profile.deleteMessage'),
-			confirmText: translate('profile.yesDelete'),
-			cancelText: translate('profile.cancel'),
-			variant: 'danger',
-		});
-
-		if (isConfirmed) {
-			deleteAccount();
-		}
-	};
-
 	const handleOpenEditProfile = () => {
 		openModal(ModalType.EditProfile);
 	};
@@ -119,7 +95,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 										.map((n) => n[0])
 										.join('')
 										.toUpperCase()
-								: user.email[0].toUpperCase();
+								: user.email?.[0].toUpperCase();
 							return (
 								<div className="bg-primary flex h-24 w-24 items-center justify-center rounded-full text-3xl font-black text-white shadow-lg ring-4 ring-white">
 									{initials}
@@ -224,16 +200,6 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 						>
 							<LogOut className="h-4 w-4" />
 							{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
-						</Button>
-
-						<Button
-							variant="secondary"
-							className="w-full justify-start gap-2 border-red-800 hover:bg-red-900 dark:border-red-800 dark:hover:bg-red-900"
-							onClick={handleDeleteAccount}
-							disabled={isDeleting}
-						>
-							<Trash2 className="h-4 w-4" />
-							{isDeleting ? translate('profile.deleting') : translate('profile.deleteAccount')}
 						</Button>
 					</div>
 				</div>

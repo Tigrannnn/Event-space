@@ -493,7 +493,7 @@ export class EventService {
 	}
 
 	private assertCanModify(ownerId: string, userId: string, role: UserRoleType) {
-		if (ownerId !== userId && role !== 'ADMIN') {
+		if (role !== 'ADMIN') {
 			throw new ForbiddenException('You do not have permission to modify this event');
 		}
 	}

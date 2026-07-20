@@ -113,7 +113,7 @@ model EventOccurrence {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  event    Event     @relation("event_occurrences", fields: [eventId], references: [id], onDelete: Cascade)
+  event    Event     @relation("event_occurrences", fields: [eventId], references: [id])
   bookings Booking[] @relation("occurrence_bookings")
 
   @@index([date])
@@ -194,7 +194,7 @@ model Booking {
   referenceNumber Int?      @unique @map("reference_number")
   checkedInAt     DateTime? @map("checked_in_at")
 
-  user User @relation("user_bookings", fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("user_bookings", fields: [userId], references: [id])
 
   occurrence  EventOccurrence     @relation("occurrence_bookings", fields: [occurrenceId], references: [id], onDelete: Cascade)
   adjustments BookingAdjustment[] @relation("booking_adjustments")

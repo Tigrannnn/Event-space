@@ -28,11 +28,4 @@ export class UserService {
 
 		return safeUser;
 	}
-
-	async deleteMe(userId: string): Promise<void> {
-		await this.prisma.$transaction([
-			this.prisma.refreshToken.deleteMany({ where: { userId } }),
-			this.prisma.user.delete({ where: { id: userId } }),
-		]);
-	}
 }

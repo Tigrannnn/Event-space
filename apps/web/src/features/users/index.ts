@@ -2,8 +2,4 @@
 export { usersApi } from './api/users.api';
 
 // Hooks
-export {
-	useCurrentUser,
-	useUpdateCurrentUser,
-	useDeleteCurrentUser,
-} from './hooks/useUsers';
+export { useCurrentUser, useUpdateCurrentUser } from './hooks/useUsers';

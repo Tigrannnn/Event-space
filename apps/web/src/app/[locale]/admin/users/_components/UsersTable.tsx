@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Search, Trash2, X, Eye } from 'lucide-react';
+import { Search, X, Eye } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Badge from '@/components/ui/Badge';
 import Select from '@/components/ui/Select';
@@ -14,8 +14,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import { useConfirm } from '@/hooks/confirmModal';
-import { useAdminUsers, useDeleteUser, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
+import { useAdminUsers, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
 import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
@@ -45,7 +44,6 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const [search, setSearch] = useState('');
 	const [role, setRole] = useState<UserRoleType | undefined>();
 	const [emailVerified, setEmailVerified] = useState<boolean | undefined>();
-	const confirm = useConfirm();
 	const { data, isFetching } = useAdminUsers({
 		skip,
 		limit,
@@ -55,7 +53,6 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	});
 	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
-	const deleteUser = useDeleteUser();
 	const usersResponse = data ?? initialUsers;
 	const pageStart = usersResponse.total === 0 ? 0 : usersResponse.skip + 1;
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
@@ -111,19 +108,6 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const handleNextPage = () => {
 		if (usersResponse.nextSkip !== null) {
 			setSkip(usersResponse.nextSkip);
-		}
-	};
-
-	const handleDelete = async (user: SafeUserData) => {
-		const confirmed = await confirm({
-			title: translate('admin.deleteUser'),
-			message: `${translate('admin.deleteUserMessage')} ${user.name}`,
-			confirmText: translate('admin.delete'),
-			variant: 'danger',
-		});
-
-		if (confirmed) {
-			deleteUser.mutate(user.id);
 		}
 	};
 
@@ -260,16 +244,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 									>
 										<Eye className="h-4 w-4" />
 									</Button>
-									<Button
-										type="button"
-										size="xs"
-										variant="danger"
-										onClick={() => handleDelete(user)}
-										isLoading={deleteUser.isPending}
-										aria-label={`${translate('admin.delete')}: ${user.name}`}
-									>
-										<Trash2 className="h-4 w-4" />
-									</Button>
+
 								</div>
 							</TableCell>
 						</TableRow>

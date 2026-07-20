@@ -312,13 +312,6 @@ export class AdminService {
 		return this.prisma.user.findUnique({ where: { id }, select: safeUserSelect });
 	}
 
-	async deleteUser(id: string): Promise<void> {
-		await this.prisma.$transaction([
-			this.prisma.refreshToken.deleteMany({ where: { userId: id } }),
-			this.prisma.user.delete({ where: { id } }),
-		]);
-	}
-
 	async updateUserRole(id: string, role: UserRoleType): Promise<SafeUserData> {
 		const user = await this.prisma.user.update({
 			where: { id },

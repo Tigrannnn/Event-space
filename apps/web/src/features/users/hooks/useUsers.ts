@@ -36,21 +36,3 @@ export function useUpdateCurrentUser() {
 		},
 	});
 }
-
-export function useDeleteCurrentUser() {
-	const queryClient = useQueryClient();
-	const { addToast } = useToastStore();
-
-	return useMutation({
-		mutationFn: () => usersApi.deleteMe(),
-		onSuccess: () => {
-			queryClient.setQueryData(['me'], null);
-			queryClient.clear();
-			addToast('Account deleted successfully', ToastType.SUCCESS);
-		},
-		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Failed to delete account');
-			addToast(message, ToastType.ERROR);
-		},
-	});
-}
