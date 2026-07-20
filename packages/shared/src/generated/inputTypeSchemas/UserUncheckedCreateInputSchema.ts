@@ -8,7 +8,7 @@ import { BookingUncheckedCreateNestedManyWithoutUserInputSchema } from './Bookin
 
 export const UserUncheckedCreateInputSchema: z.ZodType<Prisma.UserUncheckedCreateInput> = z.strictObject({
   id: z.uuid().optional(),
-  email: z.string(),
+  email: z.string().optional().nullable(),
   name: z.string(),
   passwordHash: z.string().optional().nullable(),
   image: z.string().optional().nullable(),

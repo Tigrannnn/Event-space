@@ -1,12 +1,14 @@
 import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
+import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { BookingUncheckedCreateNestedManyWithoutOccurrenceInputSchema } from './BookingUncheckedCreateNestedManyWithoutOccurrenceInputSchema';
 
 export const EventOccurrenceUncheckedCreateInputSchema: z.ZodType<Prisma.EventOccurrenceUncheckedCreateInput> = z.strictObject({
   id: z.uuid().optional(),
   eventId: z.string(),
   date: z.coerce.date(),
+  status: z.lazy(() => EventOccurrenceStatusSchema).optional(),
   maxParticipants: z.number().int().optional(),
   currentParticipants: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),

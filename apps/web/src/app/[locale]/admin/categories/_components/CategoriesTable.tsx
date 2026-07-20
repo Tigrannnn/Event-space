@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Pencil, Plus, Search, Trash2, Eye } from 'lucide-react';
+import { Pencil, Plus, Search, Trash2, Eye, X } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import TablePagination from '@/components/ui/TablePagination';
 import {
@@ -43,9 +43,12 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 	});
 	const deleteCategory = useDeleteCategory();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
-	const categoriesResponse = data?.data ?? initialCategories;
+	const categoriesResponse = data ?? initialCategories;
 	const pageStart = categoriesResponse.total === 0 ? 0 : categoriesResponse.skip + 1;
-	const pageEnd = Math.min(categoriesResponse.skip + categoriesResponse.data.length, categoriesResponse.total);
+	const pageEnd = Math.min(
+		categoriesResponse.skip + categoriesResponse.data.length,
+		categoriesResponse.total,
+	);
 	const canGoPrevious = categoriesResponse.skip > 0;
 	const canGoNext = categoriesResponse.hasMore && categoriesResponse.nextSkip !== null;
 	const hasActiveFilters = Boolean(search);
@@ -135,9 +138,12 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 						</form>
 
 						<div className="flex flex-wrap items-center gap-2">
-							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
-								{translate('admin.reset')}
-							</Button>
+							{hasActiveFilters && (
+								<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
+									<X className="h-4 w-4" />
+									{translate('admin.reset')}
+								</Button>
+							)}
 						</div>
 					</div>
 				</div>
@@ -174,9 +180,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 											</button>
 										</div>
 									</TableCell>
-									<TableCell>
-										{category.slug}
-									</TableCell>
+									<TableCell>{category.slug}</TableCell>
 									<TableCell>
 										<div className="flex gap-2">
 											<Button

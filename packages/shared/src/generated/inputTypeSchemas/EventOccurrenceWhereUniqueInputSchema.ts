@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { EventOccurrenceWhereInputSchema } from './EventOccurrenceWhereInputSchema';
 import { StringFilterSchema } from './StringFilterSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
+import { EnumEventOccurrenceStatusFilterSchema } from './EnumEventOccurrenceStatusFilterSchema';
+import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
@@ -19,6 +21,7 @@ export const EventOccurrenceWhereUniqueInputSchema: z.ZodType<Prisma.EventOccurr
   NOT: z.union([ z.lazy(() => EventOccurrenceWhereInputSchema), z.lazy(() => EventOccurrenceWhereInputSchema).array() ]).optional(),
   eventId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   date: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  status: z.union([ z.lazy(() => EnumEventOccurrenceStatusFilterSchema), z.lazy(() => EventOccurrenceStatusSchema) ]).optional(),
   maxParticipants: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   currentParticipants: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),

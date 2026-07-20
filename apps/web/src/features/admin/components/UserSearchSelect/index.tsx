@@ -13,11 +13,12 @@ import {
 } from '@/components/ui/primitives/command';
 import type { SafeUserData } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useAdminUsers } from '../../hooks/useAdmin';
 
 type UserSelectMode = 'existing' | 'new';
 
 interface UserSearchSelectProps {
-	onExistingUserSelect: (userId: string, user: SafeUserData) => void;
+	onExistingUserSelect: (user: SafeUserData | null) => void;
 	onNewUserName: (name: string) => void;
 	existingUserId: string;
 	newUserName: string;
@@ -38,17 +39,15 @@ export default function UserSearchSelect({
 	const [selectedUser, setSelectedUser] = useState<SafeUserData | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const { data, isLoading } = useQuery({
-		queryKey: ['admin-users-search', search],
-		queryFn: () => adminApi.getUsers({ search, limit: 20 }).then((res) => res.data),
-		enabled: isOpen && mode === 'existing',
+	const { data: usersResponse, isLoading } = useAdminUsers({
+		search,
+		limit: 10,
 	});
-
-	const users = data?.data ?? [];
+	const users = usersResponse?.data ?? [];
 
 	const handleSelect = (user: SafeUserData) => {
 		setSelectedUser(user);
-		onExistingUserSelect(user.id, user);
+		onExistingUserSelect(user);
 		setIsOpen(false);
 		setSearch('');
 	};
@@ -58,7 +57,7 @@ export default function UserSearchSelect({
 		setIsOpen(false);
 		setSearch('');
 		setSelectedUser(null);
-		onExistingUserSelect('', null as unknown as SafeUserData);
+		onExistingUserSelect(null);
 		onNewUserName('');
 	};
 
@@ -141,7 +140,7 @@ export default function UserSearchSelect({
 												>
 													<div className="flex flex-col">
 														<span className="font-medium">{user.name}</span>
-														<span className="text-xs text-gray-400">{user.email}</span>
+														<span className="text-xs text-gray-400">{user.email} ({translate('common.optional')})</span>
 													</div>
 												</CommandItem>
 											))}

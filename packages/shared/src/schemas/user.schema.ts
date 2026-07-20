@@ -9,9 +9,9 @@ import { UserRoleSchema } from '../generated/inputTypeSchemas/UserRoleSchema';
  * and Swagger examples.
  */
 export const UserSchema = GeneratedUser.extend({
-	email: EmailSchema,
-	name: NameSchema,
-	phone: PhoneSchema.optional().nullable(),
+    email: EmailSchema.optional().nullable(),
+    name: NameSchema,
+    phone: PhoneSchema.optional().nullable(),
 }).openapi({
 	description: 'Full user information',
 	example: {

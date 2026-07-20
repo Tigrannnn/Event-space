@@ -92,7 +92,14 @@ export class BookingService {
 			const upserted = await tx.booking.upsert({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
 				update: { status: 'PENDING', expired: false, quantity, paymentIntentId: null, amount },
-				create: { userId, occurrenceId: occurrence.id, status: 'PENDING', expired: false, quantity, amount },
+				create: {
+					userId,
+					occurrenceId: occurrence.id,
+					status: 'PENDING',
+					expired: false,
+					quantity,
+					amount,
+				},
 			});
 
 			return { booking: upserted, event, occurrence };
@@ -152,7 +159,7 @@ export class BookingService {
 	}
 
 	async createManualBooking(adminId: string, data: CreateManualBookingData) {
-		const { occurrenceId, quantity = 1, userId, shadowUserName } = data;
+		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email } = data;
 
 		const result = await this.prisma.$transaction(async (tx) => {
 			const occurrence = await tx.eventOccurrence.findUnique({
@@ -180,11 +187,11 @@ export class BookingService {
 			let targetUserId = userId;
 			let cancelledPaymentIntentId: string | null = null;
 
-			if (shadowUserName) {
+			if (name) {
 				const shadowUser = await tx.user.create({
 					data: {
-						email: `shadow-${randomUUID()}@internal.local`,
-						name: shadowUserName,
+						email,
+						name,
 						isShadow: true,
 						emailVerified: false,
 					},
@@ -193,7 +200,7 @@ export class BookingService {
 			}
 
 			if (!targetUserId) {
-				throw new ConflictException('userId or shadowUserName is required');
+				throw new ConflictException('userId or name is required');
 			}
 
 			const existing = await tx.booking.findUnique({
@@ -232,7 +239,7 @@ export class BookingService {
 				quantity,
 				amount,
 				paymentIntentId: null,
-				paymentMethod: 'OFFLINE' as const,
+				paymentMethod,
 				createdByAdminId: adminId,
 				referenceNumber,
 			};
@@ -318,7 +325,7 @@ export class BookingService {
 
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
-			where: { userId },
+			where: { userId, status: { not: { in: ['EXPIRED', 'PENDING'] } } },
 			include: {
 				occurrence: {
 					include: {
@@ -364,7 +371,7 @@ export class BookingService {
 						refundPercentage: 0,
 						estimatedStripeFeeInCents: 0,
 						estimatedRefundInCents: 0,
-					} satisfies BookingWithEstimate;
+					} as BookingWithEstimate;
 				}
 
 				let stripeFeeInCents = 0;
@@ -401,7 +408,7 @@ export class BookingService {
 					refundPercentage,
 					estimatedStripeFeeInCents,
 					estimatedRefundInCents,
-				} satisfies BookingWithEstimate;
+				} as BookingWithEstimate;
 			}),
 		);
 
@@ -416,7 +423,7 @@ export class BookingService {
 
 		return booking;
 	}
-	
+
 	async cancel(userId: string, bookingId: string) {
 		const { booking, occurrence, event } = await this.prisma.$transaction(async (tx) => {
 			const currentBooking = await tx.booking.findUnique({

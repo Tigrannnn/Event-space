@@ -56,7 +56,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
 	const deleteUser = useDeleteUser();
-	const usersResponse = data?.data ?? initialUsers;
+	const usersResponse = data ?? initialUsers;
 	const pageStart = usersResponse.total === 0 ? 0 : usersResponse.skip + 1;
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
 	const canGoPrevious = usersResponse.skip > 0;

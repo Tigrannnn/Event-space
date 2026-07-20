@@ -35,6 +35,7 @@ import {
 	CreateCategorySchema,
 	UpdateCategorySchema,
 	AdminCancelBookingSchema,
+	UpdateBookingSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import type {
@@ -47,6 +48,7 @@ import type {
 	CreateCategoryData,
 	UpdateCategoryData,
 	AdminCancelBookingData,
+	UpdateBookingData,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
@@ -126,6 +128,24 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
 		return this.adminService.updateBookingStatus(id, status);
+	}
+
+	@Patch('bookings/:id')
+	@ApiOperation({ summary: 'Update booking quantity (admin only)' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	@ApiBody(getReference('UpdateBookingSchema'))
+	async updateBookingQuantity(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdateBookingSchema)) data: UpdateBookingData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.adminService.updateBookingQuantity(id, data);
 	}
 
 	@Post('bookings/:id/checkin')

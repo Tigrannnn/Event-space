@@ -9,6 +9,7 @@ export const EventOccurrenceOrderByWithRelationInputSchema: z.ZodType<Prisma.Eve
   id: z.lazy(() => SortOrderSchema).optional(),
   eventId: z.lazy(() => SortOrderSchema).optional(),
   date: z.lazy(() => SortOrderSchema).optional(),
+  status: z.lazy(() => SortOrderSchema).optional(),
   maxParticipants: z.lazy(() => SortOrderSchema).optional(),
   currentParticipants: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),

@@ -74,7 +74,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const router = useRouter();
-	const eventsResponse = data?.data ?? initialEvents;
+	const eventsResponse = data ?? initialEvents;
 	const pageStart = eventsResponse.total === 0 ? 0 : eventsResponse.skip + 1;
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
 	const canGoPrevious = eventsResponse.skip > 0;

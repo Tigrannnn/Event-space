@@ -59,7 +59,7 @@ export class AuthService {
 		return `${AUTH_CONFIG.KEY_PREFIX}:${AuthKeyType.OTP}:${action}:${email}`;
 	}
 
-	private async getTokens(userId: string, email: Email, role: string) {
+	private async getTokens(userId: string, email: Email | null, role: string) {
 		const payload: JwtPayload = { sub: userId, email, role };
 
 		const accessToken = await this.jwt.signAsync(payload, {
@@ -76,7 +76,7 @@ export class AuthService {
 
 	private async generateAndSaveTokens(
 		userId: string,
-		email: Email,
+		email: Email | null,
 		role: UserRoleType,
 		db: Prisma.TransactionClient | PrismaService = this.prisma,
 	): Promise<TokenServiceResponse> {

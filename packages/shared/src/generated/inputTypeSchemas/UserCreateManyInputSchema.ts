@@ -5,7 +5,7 @@ import { UserRoleSchema } from './UserRoleSchema';
 
 export const UserCreateManyInputSchema: z.ZodType<Prisma.UserCreateManyInput> = z.strictObject({
   id: z.uuid().optional(),
-  email: z.string(),
+  email: z.string().optional().nullable(),
   name: z.string(),
   passwordHash: z.string().optional().nullable(),
   image: z.string().optional().nullable(),

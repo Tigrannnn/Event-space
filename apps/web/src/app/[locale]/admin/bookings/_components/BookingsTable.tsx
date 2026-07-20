@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { CalendarDays, Search, X, Eye, CheckCheck, Ban } from 'lucide-react';
+import { CalendarDays, Search, X, Eye, Ban, Plus, Pencil } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -59,8 +59,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		time,
 		eventId,
 	});
-	const updateBookingStatus = useUpdateBookingStatus();
-	const bookingsResponse = data?.data ?? initialBookings;
+	const bookingsResponse = data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
 	const pageEnd = Math.min(
 		bookingsResponse.skip + bookingsResponse.data.length,
@@ -155,6 +154,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						variant="primary"
 						onClick={() => openModal(ModalType.CreateManualBooking)}
 					>
+						<Plus className="h-4 w-4" />
 						{translate('admin.createManualBooking')}
 					</Button>
 				</div>
@@ -235,21 +235,23 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableHead>{translate('admin.qty')}</TableHead>
 						<TableHead>{translate('admin.total')}</TableHead>
 						<TableHead>{translate('admin.reference')}</TableHead>
-						<TableHead>{translate('admin.booked')}</TableHead>
+						<TableHead>{translate('admin.checkedAt')}</TableHead>
 						<TableHead>{translate('admin.actions')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{bookingsResponse.data.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={7} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+							<TableCell colSpan={8} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noBookingsFound')}
 							</TableCell>
 						</TableRow>
 					)}
 
 					{bookingsResponse.data.map((booking: BookingWithDetails) => {
-						const eventTranslation = booking.occurrence?.event ? getEventTranslation(booking.occurrence?.event, locale) : null;
+						const eventTranslation = booking.occurrence?.event
+							? getEventTranslation(booking.occurrence?.event, locale)
+							: null;
 						return (
 							<TableRow key={booking.id}>
 								<TableCell className="px-3 sm:px-5">
@@ -268,11 +270,22 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
 											{eventTranslation?.title || translate('booking.unknownEvent')}
 										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">{eventTranslation?.location || '—'}</p>
+										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+											{eventTranslation?.location || '—'}
+										</p>
 									</div>
 								</TableCell>
 								<TableCell>
-									<Badge label={booking.status} variant={booking.status === 'CONFIRMED' ? 'success' : booking.status === 'CANCELLED' ? 'danger' : 'warning'} />
+									<Badge
+										label={booking.status}
+										variant={
+											booking.status === 'CONFIRMED'
+												? 'success'
+												: booking.status === 'CANCELLED'
+													? 'danger'
+													: 'warning'
+										}
+									/>
 								</TableCell>
 								<TableCell>{booking.quantity}</TableCell>
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
@@ -280,10 +293,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
 								</TableCell>
 								<TableCell>
-									<div className="flex items-center gap-2 text-sm">
-										<CalendarDays className="h-4 w-4 text-gray-400" />
-										{formatDateTime(booking.createdAt)}
-									</div>
+									{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
 								</TableCell>
 								<TableCell>
 									<div className="flex flex-wrap gap-2">
@@ -294,6 +304,16 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											onClick={() => handleOpenBookingDetails(booking)}
 										>
 											<Eye className="h-4 w-4" />
+										</Button>
+
+										<Button
+											type="button"
+											size="sm"
+											variant="secondary"
+											onClick={() => openModal(ModalType.UpdateBooking, { booking })}
+											disabled={booking.status === 'CANCELLED'}
+										>
+											<Pencil className="h-4 w-4" />
 										</Button>
 
 										<Button

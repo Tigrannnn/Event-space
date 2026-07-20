@@ -12,6 +12,7 @@ export const EventOccurrenceSelectSchema: z.ZodType<Prisma.EventOccurrenceSelect
   id: z.boolean().optional(),
   eventId: z.boolean().optional(),
   date: z.boolean().optional(),
+  status: z.boolean().optional(),
   maxParticipants: z.boolean().optional(),
   currentParticipants: z.boolean().optional(),
   createdAt: z.boolean().optional(),

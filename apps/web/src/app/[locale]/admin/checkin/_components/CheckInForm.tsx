@@ -26,7 +26,7 @@ export default function CheckInForm() {
 		isError,
 	} = useQuery({
 		queryKey: ['checkin-booking', ref],
-		queryFn: () => adminApi.getBookingByReference(ref!).then((r) => r.data),
+		queryFn: () => adminApi.getBookingByReference(ref!),
 		enabled: ref !== null,
 		retry: false,
 	});

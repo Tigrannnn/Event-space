@@ -16,7 +16,7 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.strictOb
   OR: z.lazy(() => UserWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => UserWhereInputSchema), z.lazy(() => UserWhereInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  email: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  email: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   passwordHash: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   image: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),

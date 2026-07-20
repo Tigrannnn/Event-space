@@ -10,6 +10,7 @@ import {
 	type UserFilters,
 	type CreateCategoryData,
 	type UpdateCategoryData,
+	type UpdateBookingData,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -85,6 +86,32 @@ export const useCancelBookingByAdmin = () => {
 		},
 		onError: (error) => {
 			addToast(getApiErrorMessage(error, 'Failed to cancel booking'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateBookingQuantity = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
+			adminApi.updateBookingQuantity(id, data),
+		onSuccess: async () => {
+			addToast('Booking updated successfully', ToastType.SUCCESS);
+			closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(getApiErrorMessage(error, 'Failed to update booking'), ToastType.ERROR);
 		},
 	});
 };

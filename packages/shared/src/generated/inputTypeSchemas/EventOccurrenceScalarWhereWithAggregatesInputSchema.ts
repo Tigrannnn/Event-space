@@ -3,6 +3,8 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
+import { EnumEventOccurrenceStatusWithAggregatesFilterSchema } from './EnumEventOccurrenceStatusWithAggregatesFilterSchema';
+import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 
 export const EventOccurrenceScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereWithAggregatesInput> = z.strictObject({
@@ -12,6 +14,7 @@ export const EventOccurrenceScalarWhereWithAggregatesInputSchema: z.ZodType<Pris
   id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   eventId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   date: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
+  status: z.union([ z.lazy(() => EnumEventOccurrenceStatusWithAggregatesFilterSchema), z.lazy(() => EventOccurrenceStatusSchema) ]).optional(),
   maxParticipants: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   currentParticipants: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),

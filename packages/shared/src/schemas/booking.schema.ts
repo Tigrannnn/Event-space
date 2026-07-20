@@ -5,7 +5,7 @@ import { EventSchema } from './event.schema';
 import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
-import { PhoneSchema } from './atoms';
+import { PhoneSchema, EmailSchema } from './atoms';
 import { TimeFilterSchema } from './common.schema';
 
 export const BookingStatusEnum = BookingStatusSchema;
@@ -91,11 +91,21 @@ export const CreateManualBookingSchema = z
 		occurrenceId: z.string().uuid().openapi({ description: 'Event occurrence ID to book' }),
 		quantity: z.number().int().min(1).default(1).openapi({ description: 'Number of spots to book' }),
 		userId: z.string().uuid().optional().openapi({ description: 'Existing user ID' }),
-		shadowUserName: z.string().min(1).optional().openapi({ description: 'Name for shadow user' }),
+		name: z.string().min(1).optional().openapi({ description: 'Name for user' }),
+		phone: PhoneSchema.optional().openapi({ description: 'Phone number for the user (optional for existing user)' }),
+		email: EmailSchema.optional().openapi({ description: 'Email for the user (optional)' }),
+		paymentMethod: z
+			.enum(['OFFLINE_PAID', 'PAY_ON_ARRIVAL'])
+			.default('OFFLINE_PAID')
+			.openapi({ description: 'Payment channel for the booking (admin selection excludes site payments)' }),
 	})
-	.refine((data) => !!data.userId !== !!data.shadowUserName, {
-		message: 'Provide either userId or shadowUserName, not both',
-	});
+	.refine((data) => !!data.userId !== !!data.name, {
+		message: 'Provide either userId or name, not both',
+	})
+	.refine((data) => {
+		if (data.name) return !!data.phone;
+		return true;
+	}, { message: 'Phone is required when creating a shadow user' });
 
 export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;
 

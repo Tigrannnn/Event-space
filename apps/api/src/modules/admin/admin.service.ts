@@ -19,6 +19,7 @@ import type {
 	UpdateCategoryData,
 	BookingWithDetails,
 	AdminCancelBookingData,
+	UpdateBookingData,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -325,6 +326,79 @@ export class AdminService {
 			select: safeUserSelect,
 		});
 		return user;
+	}
+
+	async updateBookingQuantity(id: string, data: UpdateBookingData): Promise<BookingWithDetails> {
+		const booking = await this.prisma.booking.findUnique({
+			where: { id },
+			include: bookingInclude,
+		});
+
+		if (!booking) {
+			throw new NotFoundException('Booking not found');
+		}
+
+		if (booking.status === 'CANCELLED') {
+			throw new ConflictException('Cannot update cancelled booking');
+		}
+
+		const currentQuantity = booking.quantity;
+		const nextQuantity = data.quantity;
+		const diff = nextQuantity - currentQuantity;
+
+		if (diff === 0) {
+			return normalizeBookingResponse(booking);
+		}
+
+		if (!booking.occurrence) {
+			throw new NotFoundException('Occurrence not found');
+		}
+
+		const event = booking.occurrence.event;
+		if (!event) {
+			throw new NotFoundException('Event not found');
+		}
+
+		const updatedBooking = await this.prisma.$transaction(async (tx) => {
+			if (diff > 0) {
+				const reserved = await tx.eventOccurrence.updateMany({
+					where: {
+						id: booking.occurrenceId,
+						currentParticipants: { lte: booking.occurrence.maxParticipants - diff },
+					},
+					data: { currentParticipants: { increment: diff } },
+				});
+
+				if (reserved.count === 0) {
+					const spotsLeft = Math.max(0, booking.occurrence.maxParticipants - booking.occurrence.currentParticipants);
+					throw new ConflictException(
+						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
+					);
+				}
+			} else {
+				const released = await tx.eventOccurrence.updateMany({
+					where: {
+						id: booking.occurrenceId,
+						currentParticipants: { gte: -diff },
+					},
+					data: { currentParticipants: { decrement: -diff } },
+				});
+
+				if (released.count === 0) {
+					throw new ConflictException('Unable to release spots');
+				}
+			}
+
+			const amount = parseFloat((Number(event.price) * nextQuantity).toFixed(2));
+
+			return tx.booking.update({
+				where: { id },
+				data: { quantity: nextQuantity, amount },
+				include: bookingInclude,
+			});
+		});
+
+		return normalizeBookingResponse(updatedBooking);
 	}
 
 	async adminCancelBooking(adminId: string, bookingId: string, data: AdminCancelBookingData) {

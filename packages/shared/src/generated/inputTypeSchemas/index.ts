@@ -185,6 +185,7 @@ export { EnumEventDifficultyNullableWithAggregatesFilterSchema } from './EnumEve
 export { DecimalWithAggregatesFilterSchema } from './DecimalWithAggregatesFilterSchema';
 export { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 export { EnumEventStatusWithAggregatesFilterSchema } from './EnumEventStatusWithAggregatesFilterSchema';
+export { EnumEventOccurrenceStatusFilterSchema } from './EnumEventOccurrenceStatusFilterSchema';
 export { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 export { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 export { BookingOrderByRelationAggregateInputSchema } from './BookingOrderByRelationAggregateInputSchema';
@@ -193,6 +194,7 @@ export { EventOccurrenceAvgOrderByAggregateInputSchema } from './EventOccurrence
 export { EventOccurrenceMaxOrderByAggregateInputSchema } from './EventOccurrenceMaxOrderByAggregateInputSchema';
 export { EventOccurrenceMinOrderByAggregateInputSchema } from './EventOccurrenceMinOrderByAggregateInputSchema';
 export { EventOccurrenceSumOrderByAggregateInputSchema } from './EventOccurrenceSumOrderByAggregateInputSchema';
+export { EnumEventOccurrenceStatusWithAggregatesFilterSchema } from './EnumEventOccurrenceStatusWithAggregatesFilterSchema';
 export { EventImageCountOrderByAggregateInputSchema } from './EventImageCountOrderByAggregateInputSchema';
 export { EventImageAvgOrderByAggregateInputSchema } from './EventImageAvgOrderByAggregateInputSchema';
 export { EventImageMaxOrderByAggregateInputSchema } from './EventImageMaxOrderByAggregateInputSchema';
@@ -294,6 +296,7 @@ export { EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema } from
 export { EventCreateNestedOneWithoutOccurrencesInputSchema } from './EventCreateNestedOneWithoutOccurrencesInputSchema';
 export { BookingCreateNestedManyWithoutOccurrenceInputSchema } from './BookingCreateNestedManyWithoutOccurrenceInputSchema';
 export { BookingUncheckedCreateNestedManyWithoutOccurrenceInputSchema } from './BookingUncheckedCreateNestedManyWithoutOccurrenceInputSchema';
+export { EnumEventOccurrenceStatusFieldUpdateOperationsInputSchema } from './EnumEventOccurrenceStatusFieldUpdateOperationsInputSchema';
 export { EventUpdateOneRequiredWithoutOccurrencesNestedInputSchema } from './EventUpdateOneRequiredWithoutOccurrencesNestedInputSchema';
 export { BookingUpdateManyWithoutOccurrenceNestedInputSchema } from './BookingUpdateManyWithoutOccurrenceNestedInputSchema';
 export { BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema } from './BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema';
@@ -355,6 +358,8 @@ export { NestedDecimalWithAggregatesFilterSchema } from './NestedDecimalWithAggr
 export { NestedIntWithAggregatesFilterSchema } from './NestedIntWithAggregatesFilterSchema';
 export { NestedFloatFilterSchema } from './NestedFloatFilterSchema';
 export { NestedEnumEventStatusWithAggregatesFilterSchema } from './NestedEnumEventStatusWithAggregatesFilterSchema';
+export { NestedEnumEventOccurrenceStatusFilterSchema } from './NestedEnumEventOccurrenceStatusFilterSchema';
+export { NestedEnumEventOccurrenceStatusWithAggregatesFilterSchema } from './NestedEnumEventOccurrenceStatusWithAggregatesFilterSchema';
 export { NestedEnumBookingStatusFilterSchema } from './NestedEnumBookingStatusFilterSchema';
 export { NestedBoolFilterSchema } from './NestedBoolFilterSchema';
 export { NestedEnumPaymentMethodFilterSchema } from './NestedEnumPaymentMethodFilterSchema';
@@ -598,6 +603,7 @@ export { EventDifficultySchema } from './EventDifficultySchema';
 export { EventStatusSchema } from './EventStatusSchema';
 export { PaymentMethodSchema } from './PaymentMethodSchema';
 export { LocaleSchema } from './LocaleSchema';
+export { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 export { BookingStatusSchema } from './BookingStatusSchema';
 export { AdjustmentTypeSchema } from './AdjustmentTypeSchema';
 export { AdjustmentStatusSchema } from './AdjustmentStatusSchema';

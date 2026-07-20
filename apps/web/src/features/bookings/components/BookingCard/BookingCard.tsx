@@ -15,6 +15,7 @@ import { localizePath, localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useFormatCurrency } from '@/hooks/format';
+import Badge from '@/components/ui/Badge';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
@@ -28,6 +29,7 @@ function centsToDollars(cents: number) {
 
 export default function BookingCard({ booking }: BookingCardProps) {
 	const { occurrence, quantity, status, refundPercentage, estimatedRefundInCents } = booking;
+	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
 	// const { openModal } = useModalStore();
@@ -41,17 +43,12 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// 	openModal(ModalType.UpdateBooking, { booking });
 	// };
 
-	if (!occurrence) return null;
-	const { event } = occurrence;
-
-	if (!event) return null;
+	if (!occurrence || !event) return null;
 
 	const occurrenceIsAvailable = new Date(occurrence.date) > new Date();
 	const occurrenceDate = occurrence.date;
 
 	const handleCancel = async () => {
-		if (!event) return;
-
 		let refundMessage = translate('booking.noRefund');
 		if (refundPercentage > 0 && estimatedRefundInCents > 0) {
 			refundMessage = `${translate('booking.youWillReceive')}: ~${formatCurrency(centsToDollars(estimatedRefundInCents))}`;
@@ -96,7 +93,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				/>
 
 				{/* Status Badge */}
-				<span
+				{/* <span
 					className={`absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-bold uppercase ${
 						status === 'CONFIRMED'
 							? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
@@ -104,14 +101,20 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					}`}
 				>
 					{status}
-				</span>
+				</span> */}
+
+				<Badge
+					label={status}
+					variant={status === 'CONFIRMED' ? 'success' : status === 'CANCELLED' ? 'danger' : 'warning'}
+					className="absolute top-3 right-3 text-xs font-bold uppercase"
+				></Badge>
 			</div>
 
 			{/* Content */}
 			<div className="p-4 sm:p-6">
 				<Link
 					href={localizePath(`/events/${event.id}`, locale)}
-					className="hover:text-primary dark:hover:text-primary mb-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
+					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
 				>
 					{eventTranslation.title}
 				</Link>

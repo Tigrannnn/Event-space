@@ -248,6 +248,10 @@ export const messages = {
 			users: 'Օգտատերեր',
 			categories: 'Կատեգորիաներ',
 			allCategories: 'Բոլոր կատեգորիաները',
+			updateBooking: 'Թարմացնել ամրագրումը',
+			currentQuantity: 'Ընթացիկ քանակը',
+			selectQuantity: 'Ընտրել քանակը',
+			availableSpots: '{count} ազատ տեղ',
 			createCategory: 'Ստեղծել կատեգորիա',
 			updateCategory: 'Թարմացնել կատեգորիան',
 			createCategoryModal: 'Կատեգորիայի ստեղծման պատուհան',
@@ -258,7 +262,8 @@ export const messages = {
 			noCategoriesFound: 'Կատեգորիաներ չեն գտնվել',
 			categoryIdCopied: 'Կատեգորիայի ID-ն պատճենվեց',
 			slug: 'Slug',
-			slugDescription: 'Slug-ը URL-ում օգտագործվում է։ Այն պետք է լինի անգլերեն, փոքրատառերով և բացառապես տառեր, թվեր և գծանիշներով։',
+			slugDescription:
+				'Slug-ը URL-ում օգտագործվում է։ Այն պետք է լինի անգլերեն, փոքրատառերով և բացառապես տառեր, թվեր և գծանիշներով։',
 			minPrice: 'Մինիմալ գին',
 			maxPrice: 'Առավելագույն գին',
 			availability: 'Մատչելիություն',
@@ -282,6 +287,7 @@ export const messages = {
 			qty: 'Քանակ',
 			total: 'Ընդամենը',
 			reference: 'Ծանուցում',
+			checkedAt: 'Մուտքի ժամը',
 			booked: 'Ամրագրված',
 			actions: 'Գործողություններ',
 			details: 'Մանրամասներ',
@@ -395,8 +401,17 @@ export const messages = {
 			includedItems: 'Ներառված կետեր (մեկը մեկ տողում)',
 			eventImage: 'Միջոցառման նկար',
 			enterShadowUserName: 'Մուտքագրեք անունը (օր.՝ Տիգրան Instagram-ից)',
+			enterPhoneForShadowUser: ' shadow օգտատերին ստեղծելիս հեռախոս մեկնելը պարտադիր է',
 			eventField: 'Միջոցառում',
 			userField: 'Օգտատեր',
+			phoneField: 'Հեռախոսահամար',
+			phonePlaceholder: '+374 99 123 456',
+			emailField: 'Էլ. փոստ',
+			emailPlaceholder: 'user@example.com',
+			payment: {
+				offline: 'Անլար (վճարվել)',
+				onArrival: 'Վճարել տեղում',
+			},
 			quantityField: 'Քանակ',
 			numberOfSpots: 'Տեղերի քանակ',
 			needsAttention: 'Ուշադրություն է պետք',
@@ -437,12 +452,15 @@ export const messages = {
 			cancelEventConsequence2: 'Բոլոր մասնակիցներին կստանան 100% վերադարձ',
 			cancelEventConsequence3: 'Այս գործողությունը հնարավոր չէ հետարկել',
 			translations: 'Թարգումաններ',
-			cancellationRulesDescription: 'Սահմանեք վերադարձի տոկոսներ՝ հիմնված ժամանակային սահմանների վրա միջոցառման սկիզբից առաջ։',
-			noCancellationRules: 'Հատուկ կանոններ չեն տվյալ։ Լռությամբ օգտատերերը ստանում են 100% վերադարձ մինչև միջոցառման սկիզբը։',
+			cancellationRulesDescription:
+				'Սահմանեք վերադարձի տոկոսներ՝ հիմնված ժամանակային սահմանների վրա միջոցառման սկիզբից առաջ։',
+			noCancellationRules:
+				'Հատուկ կանոններ չեն տվյալ։ Լռությամբ օգտատերերը ստանում են 100% վերադարձ մինչև միջոցառման սկիզբը։',
 			cover: 'Կազմակերպություն',
 			dropHere: 'Թողեք այստեղ',
 			addOrDrop: 'Ավելացրեք կամ թողեք',
-			dropImagesHintReorder: 'Թողեք պատկերներ ձեր համակարգչից, կամ սեղմեք +՝ թռչարկելու համար։ Քաշեք մանրապատկերները՝ վերադասավորելու համար — առաջինը կազմակերպությունն է։',
+			dropImagesHintReorder:
+				'Թողեք պատկերներ ձեր համակարգչից, կամ սեղմեք +՝ թռչարկելու համար։ Քաշեք մանրապատկերները՝ վերադասավորելու համար — առաջինը կազմակերպությունն է։',
 			dropImagesHint: 'Թողեք պատկերներ ձեր համակարգչից այստեղ, կամ սեղմեք +՝ թռչարկելու համար։',
 			startDate: 'Սկիզբի ամսաթիվ',
 			endDate: 'Վերջի ամսաթիվ',
@@ -702,6 +720,10 @@ export const messages = {
 			users: 'Пользователи',
 			categories: 'Категории',
 			allCategories: 'Все категории',
+			updateBooking: 'Обновить бронь',
+			currentQuantity: 'Текущее количество',
+			selectQuantity: 'Выберите количество',
+			availableSpots: 'Доступно {count} мест',
 			createCategory: 'Создать категорию',
 			updateCategory: 'Обновить категорию',
 			createCategoryModal: 'Окно создания категории',
@@ -712,7 +734,8 @@ export const messages = {
 			noCategoriesFound: 'Категории не найдены',
 			categoryIdCopied: 'ID категории скопирован',
 			slug: 'Slug',
-			slugDescription: 'Slug используется в URL. Он должен быть на английском языке, в нижнем регистре и содержать только буквы, цифры и дефисы.',
+			slugDescription:
+				'Slug используется в URL. Он должен быть на английском языке, в нижнем регистре и содержать только буквы, цифры и дефисы.',
 			minPrice: 'Минимальная цена',
 			maxPrice: 'Максимальная цена',
 			availability: 'Доступность',
@@ -742,6 +765,7 @@ export const messages = {
 			qty: 'Кол-во',
 			total: 'Итого',
 			reference: 'Код',
+			checkedAt: 'Время регистрации',
 			booked: 'Забронировано',
 			actions: 'Действия',
 			details: 'Подробнее',
@@ -855,8 +879,17 @@ export const messages = {
 			includedItems: 'Что включено (по одному пункту в строке)',
 			eventImage: 'Фото события',
 			enterShadowUserName: 'Введите имя (например, Тигран из Instagram)',
+			enterPhoneForShadowUser: 'При создании теневого пользователя телефон обязателен',
 			eventField: 'Событие',
 			userField: 'Пользователь',
+			phoneField: 'Номер телефона',
+			phonePlaceholder: '+7 900 000 00 00',
+			emailField: 'Email',
+			emailPlaceholder: 'user@example.com',
+			payment: {
+				offline: 'Офлайн (оплата)',
+				onArrival: 'Оплатить при приезде',
+			},
 			quantityField: 'Количество',
 			numberOfSpots: 'Количество мест',
 			needsAttention: 'Требует внимания',
@@ -894,12 +927,15 @@ export const messages = {
 			cancellationReasonPlaceholder: 'Введите причину (необязательно)',
 			confirmCancelEvent: 'Да, отменить событие',
 			translations: 'Переводы',
-			cancellationRulesDescription: 'Определите проценты возврата на основе временных порогов до начала события.',
-			noCancellationRules: 'Правила не заданы. По умолчанию пользователи получают 100% возврат до начала события.',
+			cancellationRulesDescription:
+				'Определите проценты возврата на основе временных порогов до начала события.',
+			noCancellationRules:
+				'Правила не заданы. По умолчанию пользователи получают 100% возврат до начала события.',
 			cover: 'Обложка',
 			dropHere: 'Бросьте сюда',
 			addOrDrop: 'Добавьте или бросьте',
-			dropImagesHintReorder: 'Бросьте изображения с вашего компьютера или нажмите + для выбора. Перетащите миниатюры для изменения порядка — первое изображение является обложкой.',
+			dropImagesHintReorder:
+				'Бросьте изображения с вашего компьютера или нажмите + для выбора. Перетащите миниатюры для изменения порядка — первое изображение является обложкой.',
 			dropImagesHint: 'Бросьте изображения с вашего компьютера сюда или нажмите + для выбора.',
 			startDate: 'Дата начала',
 			endDate: 'Дата окончания',
@@ -1157,6 +1193,9 @@ export const messages = {
 			events: 'Events',
 			bookings: 'Bookings',
 			checkIn: 'Check In',
+			selectQuantity: 'Select quantity',
+			availableSpots: '{count} spots available',
+			updateBooking: 'Update booking',
 			users: 'Users',
 			categories: 'Categories',
 			allCategories: 'All categories',
@@ -1170,7 +1209,8 @@ export const messages = {
 			noCategoriesFound: 'No categories found',
 			categoryIdCopied: 'Category ID copied to clipboard',
 			slug: 'Slug',
-			slugDescription: 'Slug is used in URLs. It should be in English, lowercase, and only contain letters, numbers, and hyphens.',
+			slugDescription:
+				'Slug is used in URLs. It should be in English, lowercase, and only contain letters, numbers, and hyphens.',
 			minPrice: 'Minimum price',
 			maxPrice: 'Maximum price',
 			deleteCategory: 'Delete category',
@@ -1199,6 +1239,7 @@ export const messages = {
 			qty: 'Qty',
 			total: 'Total',
 			reference: 'Reference',
+			checkedAt: 'Checked at',
 			booked: 'Booked',
 			actions: 'Actions',
 			details: 'Details',
@@ -1312,8 +1353,17 @@ export const messages = {
 			includedItems: 'Included items (one per line)',
 			eventImage: 'Event images',
 			enterShadowUserName: 'Enter name (e.g. Tigran from Instagram)',
+			enterPhoneForShadowUser: 'Phone is required when creating a shadow user',
 			eventField: 'Event',
 			userField: 'User',
+			phoneField: 'Phone',
+			phonePlaceholder: '+374 99 123 456',
+			emailField: 'Email',
+			emailPlaceholder: 'user@example.com',
+			payment: {
+				offline: 'Offline (paid)',
+				onArrival: 'Pay on arrival',
+			},
 			quantityField: 'Quantity',
 			numberOfSpots: 'Number of spots',
 			needsAttention: 'Needs attention',
@@ -1351,12 +1401,15 @@ export const messages = {
 			cancellationReasonPlaceholder: 'Enter a reason (optional)',
 			confirmCancelEvent: 'Yes, cancel event',
 			translations: 'Translations',
-			cancellationRulesDescription: 'Define refund percentages based on time thresholds before the event starts.',
-			noCancellationRules: 'No custom rules set. By default, users get a 100% refund up until the event starts.',
+			cancellationRulesDescription:
+				'Define refund percentages based on time thresholds before the event starts.',
+			noCancellationRules:
+				'No custom rules set. By default, users get a 100% refund up until the event starts.',
 			cover: 'Cover',
 			dropHere: 'Drop here',
 			addOrDrop: 'Add or drop',
-			dropImagesHintReorder: 'Drop images from your computer, or click + to browse. Drag thumbnails to reorder — first is the cover.',
+			dropImagesHintReorder:
+				'Drop images from your computer, or click + to browse. Drag thumbnails to reorder — first is the cover.',
 			dropImagesHint: 'Drop images from your computer here, or click + to browse.',
 			startDate: 'Start date',
 			endDate: 'End date',
@@ -1375,14 +1428,14 @@ export const messages = {
 type Messages = (typeof messages)[Locale];
 
 /**
- * Recursively generates all valid message keys as dot-notation paths
- * Example: "common.appTitle" | "header.search" | etc.
+ * Generate dot-notation keys for nested messages of arbitrary depth.
+ * Examples: "common.appTitle", "admin.payment.offline", etc.
  */
-type DotNotation<T, Prefix extends string = ''> = {
-	[K in keyof T]: T[K] extends Record<string, unknown>
-		? `${Prefix}${string & K}.${string & keyof T[K]}`
-		: never;
-}[keyof T];
+type DotNotation<T> = T extends object
+	? {
+			[K in keyof T & string]: T[K] extends object ? `${K}` | `${K}.${DotNotation<T[K]>}` : `${K}`;
+		}[keyof T & string]
+	: '';
 
 export type MessageKey = DotNotation<Messages>;
 
@@ -1391,7 +1444,16 @@ export function getMessages(locale: Locale): Messages {
 }
 
 export function translate(locale: Locale, key: MessageKey): string {
-	const [namespace, messageKey] = key.split('.') as [keyof Messages & string, string];
-	const namespaceMessages = messages[locale][namespace] as Record<string, string> | undefined;
-	return namespaceMessages?.[messageKey] ?? key;
+	const parts = (key as string).split('.');
+	let node: any = messages[locale] as any;
+
+	for (const part of parts) {
+		if (node && typeof node === 'object' && part in node) {
+			node = node[part];
+		} else {
+			return key as string;
+		}
+	}
+
+	return typeof node === 'string' ? node : (key as string);
 }

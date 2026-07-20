@@ -16,6 +16,7 @@ import { UploadModule } from '@infra/upload/upload.module';
 import { AdminModule } from '@modules/admin/admin.module';
 import { StripeModule } from './infrastructure/stripe/stripe.module';
 import { CategoryModule } from '@modules/category/category.module';
+import { OccurrenceModule } from './modules/occurrence/occurrence.module';
 
 @Module({
 	imports: [
@@ -38,6 +39,7 @@ import { CategoryModule } from '@modules/category/category.module';
 		BookingModule,
 		AdminModule,
 		StripeModule,
+		OccurrenceModule,
 	],
 	controllers: [AppController],
 })
