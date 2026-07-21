@@ -1,6 +1,6 @@
 import {
 	BadRequestException,
-	ForbiddenException,
+	ConflictException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
@@ -18,8 +18,17 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { EventImage, Prisma } from '@prisma/client';
 import { BookingService } from '../booking/booking.service';
 import { MailService } from '@infra/mail/mail.service';
-import { eventMatchesGuestCapacity } from '@src/shared/utils/guest-capacity.util';
-
+import {
+	assertCanModify,
+	buildNewImageRows,
+	eventMatchesGuestCapacity,
+	findRemovedImages,
+	sortByOrder,
+	validateExistingImageRefs,
+	validateStatusTransition,
+} from './event.utils';
+import { OccurrenceService } from '@modules/occurrence/occurrence.service';
+import { EventOccurrenceStatusEnum } from '@event-space/shared';
 
 @Injectable()
 export class EventService {
@@ -28,6 +37,7 @@ export class EventService {
 		private readonly uploadService: UploadService,
 		private readonly bookingService: BookingService,
 		private readonly mailService: MailService,
+		private readonly occurrenceService: OccurrenceService,
 	) {}
 
 	private readonly organizerInclude = {
@@ -124,7 +134,9 @@ export class EventService {
 
 		const statusFilter = {
 			status: EventStatusEnum.enum.PUBLISHED,
-			occurrences: { some: { date: occurrenceDateFilter } },
+			occurrences: {
+				some: { date: occurrenceDateFilter, status: EventOccurrenceStatusEnum.enum.ACTIVE },
+			},
 		};
 
 		const filters = [statusFilter, searchFilter, categoryFilter, priceFilter].filter(
@@ -185,15 +197,15 @@ export class EventService {
 			where: { id },
 			include: this.eventInclude,
 		});
-
 		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
 		if (event.status !== 'PUBLISHED') throw new NotFoundException(`Event with ID ${id} not found`);
-		// Exclude difficulty from public response
-		const { difficulty, ...eventWithoutDifficulty } = event;
-		return eventWithoutDifficulty;
+		return {
+			...event,
+			occurrences: event.occurrences.filter((o) => o.status === 'ACTIVE'),
+		};
 	}
 
-	private async findOneAny(id: string) {
+	async findOneAny(id: string) {
 		const event = await this.prisma.event.findUnique({
 			where: { id },
 			include: this.eventInclude,
@@ -208,7 +220,7 @@ export class EventService {
 		imageItems: EventImageFileItem[] = [],
 		files: Express.Multer.File[] = [],
 	) {
-		const sortedItems = this.sortByOrder(imageItems);
+		const sortedItems = sortByOrder(imageItems);
 		const uploads = await this.uploadNewFiles(files);
 		const { cancellationRules, organizer, translations, occurrences, ...pureEventData } = eventData;
 
@@ -233,7 +245,7 @@ export class EventService {
 					},
 				});
 
-				const rows = this.buildNewImageRows(created.id, sortedItems, uploads);
+				const rows = buildNewImageRows(created.id, sortedItems, uploads);
 				if (rows.length) {
 					await tx.eventImage.createMany({ data: rows });
 				}
@@ -244,7 +256,7 @@ export class EventService {
 						data: occurrences.map((o) => ({
 							eventId: created.id,
 							date: o.date,
-							maxParticipants: o.maxParticipants ?? 100,
+							maxParticipants: o.maxParticipants,
 						})),
 					});
 				}
@@ -260,20 +272,6 @@ export class EventService {
 		}
 	}
 
-	private validateStatusTransition(oldStatus: EventStatus, newStatus: EventStatus): void {
-		if (oldStatus === newStatus) return;
-
-		const allowedTransitions: Record<EventStatus, EventStatus[]> = {
-			DRAFT: ['PUBLISHED', 'CANCELLED'],
-			PUBLISHED: ['CANCELLED'],
-			CANCELLED: [],
-		};
-
-		if (!allowedTransitions[oldStatus].includes(newStatus)) {
-			throw new BadRequestException(`Cannot change status from ${oldStatus} to ${newStatus}`);
-		}
-	}
-
 	async update(
 		id: string,
 		userId: string,
@@ -283,20 +281,20 @@ export class EventService {
 		files: Express.Multer.File[] = [],
 	) {
 		const event = await this.findOneAny(id);
-		this.assertCanModify(event.userId, userId, role);
+		assertCanModify(event.userId, userId, role);
 
-		const sortedItems = this.sortByOrder(imageItems);
+		const sortedItems = sortByOrder(imageItems);
 		const existingImages = event.images ?? [];
-		this.validateExistingImageRefs(sortedItems, existingImages);
+		validateExistingImageRefs(sortedItems, existingImages);
 
 		const uploads = await this.uploadNewFiles(files);
-		const removedImages = this.findRemovedImages(existingImages, sortedItems);
+		const removedImages = findRemovedImages(existingImages, sortedItems);
 		const { cancellationRules, translations, cancellationReason, occurrences, ...pureEventData } =
 			eventData;
 
 		// Validate status transition if status is changing
 		if (pureEventData.status && pureEventData.status !== event.status) {
-			this.validateStatusTransition(event.status, pureEventData.status);
+			validateStatusTransition(event.status, pureEventData.status);
 		}
 
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
@@ -366,16 +364,7 @@ export class EventService {
 
 				// If occurrences were provided, replace them (delete all + recreate)
 				if (occurrences !== undefined) {
-					await tx.eventOccurrence.deleteMany({ where: { eventId: id } });
-					if (occurrences.length > 0) {
-						await tx.eventOccurrence.createMany({
-							data: occurrences.map((o) => ({
-								eventId: id,
-								date: o.date,
-								maxParticipants: o.maxParticipants ?? 100,
-							})),
-						});
-					}
+					await this.occurrenceService.syncForEvent(id, event.occurrences, occurrences, tx);
 				}
 
 				return tx.event.findUniqueOrThrow({
@@ -435,66 +424,26 @@ export class EventService {
 
 	async delete(id: string, userId: string, role: UserRoleType) {
 		const event = await this.findOneAny(id);
-		this.assertCanModify(event.userId, userId, role);
+		assertCanModify(event.userId, userId, role);
+
+		const activeBookingsCount = await this.prisma.booking.count({
+			where: { occurrence: { eventId: id }, status: { not: 'CANCELLED' } },
+		});
+		if (activeBookingsCount > 0) {
+			throw new ConflictException({
+				code: 'EVENT_HAS_BOOKINGS',
+				message: 'Event has active bookings, cancel it instead of deleting',
+			});
+		}
 
 		const publicIds = (event.images ?? []).map((img) => img.publicId);
-
 		await this.prisma.event.delete({ where: { id } });
 		await this.uploadService.deleteMultipleByPublicId(publicIds);
-
 		return event;
-	}
-
-	private sortByOrder<T extends { order: number }>(items: T[]): T[] {
-		return [...items].sort((a, b) => a.order - b.order);
 	}
 
 	private async uploadNewFiles(files: Express.Multer.File[]) {
 		if (!files.length) return [];
 		return this.uploadService.uploadImages(files);
-	}
-
-	private buildNewImageRows(
-		eventId: string,
-		imageItems: EventImageFileItem[],
-		uploads: Awaited<ReturnType<UploadService['uploadImages']>>,
-	): Prisma.EventImageCreateManyInput[] {
-		return imageItems.map((item, index) => ({
-			eventId,
-			url: uploads[index].url,
-			publicId: uploads[index].publicId,
-			order: item.order,
-		}));
-	}
-
-	private validateExistingImageRefs(imageItems: EventImageItem[], existingImages: EventImage[]) {
-		const existingIds = new Set(existingImages.map((img) => img.id));
-		const payloadExistingIds = imageItems
-			.filter((item) => item.kind === 'existing')
-			.map((item) => item.id);
-
-		for (const id of payloadExistingIds) {
-			if (!existingIds.has(id)) {
-				throw new BadRequestException(`Event image ${id} does not belong to this event`);
-			}
-		}
-
-		const unique = new Set(payloadExistingIds);
-		if (unique.size !== payloadExistingIds.length) {
-			throw new BadRequestException('Duplicate existing image ids in payload');
-		}
-	}
-
-	private findRemovedImages(existingImages: EventImage[], imageItems: EventImageItem[]) {
-		const keptIds = new Set(
-			imageItems.filter((item) => item.kind === 'existing').map((item) => item.id),
-		);
-		return existingImages.filter((img) => !keptIds.has(img.id));
-	}
-
-	private assertCanModify(ownerId: string, userId: string, role: UserRoleType) {
-		if (role !== 'ADMIN') {
-			throw new ForbiddenException('You do not have permission to modify this event');
-		}
 	}
 }

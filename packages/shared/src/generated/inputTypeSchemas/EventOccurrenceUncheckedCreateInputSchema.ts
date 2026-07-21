@@ -13,6 +13,8 @@ export const EventOccurrenceUncheckedCreateInputSchema: z.ZodType<Prisma.EventOc
   currentParticipants: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  cancelledAt: z.coerce.date().optional().nullable(),
+  cancelReason: z.string().optional().nullable(),
   bookings: z.lazy(() => BookingUncheckedCreateNestedManyWithoutOccurrenceInputSchema).optional(),
 });
 

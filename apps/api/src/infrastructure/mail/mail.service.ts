@@ -94,7 +94,9 @@ export class MailService {
 				this.config.get(EnvKey.NODE_ENV) === 'test';
 
 			if (devOrTest) {
-				this.logger.warn(`[DEV] Event cancelled email for ${email}: event ${eventTitle}, refund ${refundAmount}`);
+				this.logger.warn(
+					`[DEV] Event cancelled email for ${email}: event ${eventTitle}, refund ${refundAmount}`,
+				);
 				return;
 			}
 

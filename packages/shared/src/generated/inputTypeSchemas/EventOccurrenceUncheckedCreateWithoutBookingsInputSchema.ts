@@ -12,6 +12,8 @@ export const EventOccurrenceUncheckedCreateWithoutBookingsInputSchema: z.ZodType
   currentParticipants: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  cancelledAt: z.coerce.date().optional().nullable(),
+  cancelReason: z.string().optional().nullable(),
 });
 
 export default EventOccurrenceUncheckedCreateWithoutBookingsInputSchema;

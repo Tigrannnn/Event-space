@@ -87,7 +87,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 	return (
 		<html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} text-primary flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
+				className={`${geistSans.variable} ${geistMono.variable} text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
 			>
 				<QueryProvider>
 					<GoogleProvider clientId={googleClientId}>

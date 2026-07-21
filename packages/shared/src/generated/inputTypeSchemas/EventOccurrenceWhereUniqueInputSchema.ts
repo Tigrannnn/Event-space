@@ -7,6 +7,8 @@ import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { EnumEventOccurrenceStatusFilterSchema } from './EnumEventOccurrenceStatusFilterSchema';
 import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
+import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
+import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EventScalarRelationFilterSchema } from './EventScalarRelationFilterSchema';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
 import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
@@ -26,6 +28,8 @@ export const EventOccurrenceWhereUniqueInputSchema: z.ZodType<Prisma.EventOccurr
   currentParticipants: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  cancelledAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  cancelReason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
 }));

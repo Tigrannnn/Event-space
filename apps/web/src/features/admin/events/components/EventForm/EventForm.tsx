@@ -22,7 +22,6 @@ import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
-import { useConfirm } from '@/hooks/confirmModal/useConfirmModal';
 import { adminApi } from '@/features/admin/api/admin.api';
 
 interface EventFormProps {
@@ -57,7 +56,6 @@ export default function EventForm({
 	onSubmit,
 }: EventFormProps) {
 	const translate = useTranslation();
-	const confirm = useConfirm();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 
 	const { data: categoriesResponse } = useQuery({
@@ -65,7 +63,7 @@ export default function EventForm({
 		queryFn: () => adminApi.getCategories({ limit: 100 }),
 	});
 
-	const categories = categoriesResponse?.data?.data ?? [];
+	const categories = categoriesResponse?.data ?? [];
 	const categoryOptions = [
 		{ value: '', label: translate('admin.selectCategory') },
 		...categories.map((category) => ({
@@ -152,6 +150,8 @@ export default function EventForm({
 	});
 
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
+	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+	const [pendingCancelValues, setPendingCancelValues] = useState<EventFormValues | null>(null);
 
 	const addedLocales = watchedTranslations.map((t) => t.locale);
 	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(
@@ -166,20 +166,48 @@ export default function EventForm({
 		const isCancelling = values.status === 'CANCELLED' && event?.status !== 'CANCELLED';
 
 		if (isCancelling) {
-			const confirmed = await confirm({
-				title: translate('admin.cancelEventTitle'),
-				message: translate('admin.cancelEventMessage'),
-				confirmText: translate('admin.confirmCancelEvent'),
-				cancelText: translate('common.cancel'),
-			});
-			if (!confirmed) return;
+			setPendingCancelValues(values);
+			setShowCancelConfirm(true);
+			return;
 		}
 
 		onSubmit(values);
 	};
 
+	const handleConfirmCancel = () => {
+		if (pendingCancelValues) {
+			onSubmit(pendingCancelValues);
+		}
+		setPendingCancelValues(null);
+		setShowCancelConfirm(false);
+	};
+
+	const handleRejectCancel = () => {
+		setPendingCancelValues(null);
+		setShowCancelConfirm(false);
+	};
+
 	return (
 		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 p-5 sm:p-6">
+			{showCancelConfirm && (
+				<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">
+					<h3 className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+						{translate('admin.cancelEventTitle')}
+					</h3>
+					<p className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+						{translate('admin.cancelEventMessage')}
+					</p>
+					<div className="mt-4 flex gap-2">
+						<Button type="button" variant="secondary" onClick={handleRejectCancel} disabled={isPending}>
+							{translate('profile.cancel')}
+						</Button>
+						<Button type="button" variant="danger" onClick={handleConfirmCancel} disabled={isPending}>
+							{translate('admin.confirmCancelEvent')}
+						</Button>
+					</div>
+				</div>
+			)}
+
 			<ModalHeader
 				title={event ? translate('admin.updateEvent') : translate('admin.createEvent')}
 				onClose={onCancel}

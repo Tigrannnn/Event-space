@@ -13,6 +13,8 @@ export const EventOccurrenceSelectSchema: z.ZodType<Prisma.EventOccurrenceSelect
   currentParticipants: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
+  cancelledAt: z.boolean().optional(),
+  cancelReason: z.boolean().optional(),
   event: z.union([z.boolean(),z.lazy(() => EventArgsSchema)]).optional(),
   bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => EventOccurrenceCountOutputTypeArgsSchema)]).optional(),

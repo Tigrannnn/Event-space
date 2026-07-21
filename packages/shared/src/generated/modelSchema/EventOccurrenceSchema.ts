@@ -14,6 +14,8 @@ export const EventOccurrenceSchema = z.object({
   currentParticipants: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  cancelledAt: z.coerce.date().nullable(),
+  cancelReason: z.string().nullable(),
 })
 
 export type EventOccurrence = z.infer<typeof EventOccurrenceSchema>

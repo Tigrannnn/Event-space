@@ -93,16 +93,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				/>
 
 				{/* Status Badge */}
-				{/* <span
-					className={`absolute top-3 right-3 rounded-full px-3 py-1 text-xs font-bold uppercase ${
-						status === 'CONFIRMED'
-							? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-							: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-					}`}
-				>
-					{status}
-				</span> */}
-
 				<Badge
 					label={status}
 					variant={status === 'CONFIRMED' ? 'success' : status === 'CANCELLED' ? 'danger' : 'warning'}
@@ -212,7 +202,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						{translate('booking.viewEvent')}
 					</Button>
-					{occurrenceIsAvailable && booking.status === 'CONFIRMED' && (
+					{occurrenceIsAvailable && booking.paymentMethod === 'SITE_PAYMENT' && booking.status === 'CONFIRMED' && (
 						<Button
 							variant="danger"
 							size="sm"

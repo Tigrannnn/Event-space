@@ -6,6 +6,8 @@ import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { EnumEventOccurrenceStatusFilterSchema } from './EnumEventOccurrenceStatusFilterSchema';
 import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
+import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
+import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 
 export const EventOccurrenceScalarWhereInputSchema: z.ZodType<Prisma.EventOccurrenceScalarWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => EventOccurrenceScalarWhereInputSchema), z.lazy(() => EventOccurrenceScalarWhereInputSchema).array() ]).optional(),
@@ -19,6 +21,8 @@ export const EventOccurrenceScalarWhereInputSchema: z.ZodType<Prisma.EventOccurr
   currentParticipants: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
+  cancelledAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  cancelReason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
 });
 
 export default EventOccurrenceScalarWhereInputSchema;

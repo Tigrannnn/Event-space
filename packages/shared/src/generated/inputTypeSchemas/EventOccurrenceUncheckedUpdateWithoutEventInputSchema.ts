@@ -6,6 +6,8 @@ import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateO
 import { EventOccurrenceStatusSchema } from './EventOccurrenceStatusSchema';
 import { EnumEventOccurrenceStatusFieldUpdateOperationsInputSchema } from './EnumEventOccurrenceStatusFieldUpdateOperationsInputSchema';
 import { IntFieldUpdateOperationsInputSchema } from './IntFieldUpdateOperationsInputSchema';
+import { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
+import { NullableStringFieldUpdateOperationsInputSchema } from './NullableStringFieldUpdateOperationsInputSchema';
 import { BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema } from './BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema';
 
 export const EventOccurrenceUncheckedUpdateWithoutEventInputSchema: z.ZodType<Prisma.EventOccurrenceUncheckedUpdateWithoutEventInput> = z.strictObject({
@@ -16,6 +18,8 @@ export const EventOccurrenceUncheckedUpdateWithoutEventInputSchema: z.ZodType<Pr
   currentParticipants: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
+  cancelledAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  cancelReason: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   bookings: z.lazy(() => BookingUncheckedUpdateManyWithoutOccurrenceNestedInputSchema).optional(),
 });
 

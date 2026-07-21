@@ -81,7 +81,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 										src={imgSrc}
 										alt={eventTranslation.title}
 										onError={handleImageError}
-										className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 active:scale-98 sm:h-full sm:w-auto"
+										className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 sm:h-full sm:w-auto"
 									/>
 								</button>
 							))}

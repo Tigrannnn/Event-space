@@ -10,15 +10,13 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
-	CancellationPolicyRule,
 	BookingWithEstimate,
-	BookingWithOccurrence,
 	estimateStripeFeeInCents,
-	isEventAvailable,
 	CreateBookingData,
 	CreateManualBookingData,
 } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
+import { calculateRefundPercentage, mapOccurrenceForBookingResponse } from './booking.utils';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
 	CancelablePaymentIntentStatus,
@@ -61,7 +59,11 @@ export class BookingService {
 			const event = occurrence.event;
 			if (!event) throw new NotFoundException('Event not found');
 			// Ensure the event and occurrence are bookable (published and in the future)
-			if (event.status !== 'PUBLISHED' || new Date(occurrence.date) <= new Date()) {
+			if (
+				event.status !== 'PUBLISHED' ||
+				occurrence.status !== 'ACTIVE' ||
+				new Date(occurrence.date) <= new Date()
+			) {
 				throw new ForbiddenException('Event is not available for booking');
 			}
 
@@ -119,7 +121,7 @@ export class BookingService {
 				data: { paymentIntentId: paymentIntent.id },
 			});
 
-			const refundPercentage = this.calculateRefundPercentage(
+			const refundPercentage = calculateRefundPercentage(
 				new Date(),
 				new Date(occurrence.date),
 				event.cancellationRules,
@@ -134,7 +136,7 @@ export class BookingService {
 			const bookingWithEstimate = {
 				...updatedBooking,
 				amount: Number(updatedBooking.amount),
-				occurrence: this.mapOccurrenceForBookingResponse(occurrence),
+				occurrence: mapOccurrenceForBookingResponse(occurrence),
 				refundPercentage,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
@@ -180,7 +182,11 @@ export class BookingService {
 
 			const event = occurrence.event;
 			if (!event) throw new NotFoundException('Event not found');
-			if (event.status !== 'PUBLISHED' || new Date(occurrence.date) <= new Date()) {
+			if (
+				event.status !== 'PUBLISHED' ||
+				occurrence.status !== 'ACTIVE' ||
+				new Date(occurrence.date) <= new Date()
+			) {
 				throw new ForbiddenException('Event is not available for booking');
 			}
 
@@ -274,54 +280,12 @@ export class BookingService {
 		return {
 			...result.booking,
 			amount: Number(result.booking.amount),
-			occurrence: this.mapOccurrenceForBookingResponse(result.occurrence),
+			occurrence: mapOccurrenceForBookingResponse(result.occurrence),
 			refundPercentage: 0,
 			estimatedStripeFeeInCents: 0,
 			estimatedRefundInCents: 0,
 		} satisfies BookingWithEstimate;
 	}
-	// 			throw new ConflictException('Cannot update cancelled booking');
-	// 		}
-
-	// 		const diff = quantity - booking.quantity;
-	// 		if (diff === 0) return booking;
-
-	// 		if (diff > 0) {
-	// 			const event = await tx.event.findUnique({ where: { id: booking.eventId } });
-	// 			if (!event) throw new NotFoundException('Event not found');
-
-	// 			const reserved = await tx.event.updateMany({
-	// 				where: {
-	// 					id: booking.eventId,
-	// 					status: 'PUBLISHED',
-	// 					currentParticipants: { lte: event.maxParticipants - diff },
-	// 				},
-	// 				data: { currentParticipants: { increment: diff } },
-	// 			});
-
-	// 			if (reserved.count === 0) {
-	// 				const spotsLeft = Math.max(0, event.maxParticipants - event.currentParticipants);
-	// 				throw new ConflictException(
-	// 					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-	// 				);
-	// 			}
-	// 		} else {
-	// 			const released = await tx.event.updateMany({
-	// 				where: {
-	// 					id: booking.eventId,
-	// 					currentParticipants: { gte: -diff },
-	// 				},
-	// 				data: { currentParticipants: { decrement: -diff } },
-	// 			});
-
-	// 			if (released.count === 0) {
-	// 				throw new ConflictException('Unable to release spots');
-	// 			}
-	// 		}
-
-	// 		return tx.booking.update({ where: { id: bookingId }, data: { quantity } });
-	// 	});
-	// }
 
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
@@ -367,7 +331,7 @@ export class BookingService {
 					return {
 						...booking,
 						amount: Number(booking.amount),
-						occurrence: undefined,
+						occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
 						refundPercentage: 0,
 						estimatedStripeFeeInCents: 0,
 						estimatedRefundInCents: 0,
@@ -388,7 +352,7 @@ export class BookingService {
 					this.logger.warn(`Failed to get Stripe fee for booking ${booking.id}, using estimate`, error);
 				}
 
-				const refundPercentage = this.calculateRefundPercentage(
+				const refundPercentage = calculateRefundPercentage(
 					now,
 					new Date(occurrence.date),
 					event.cancellationRules,
@@ -404,7 +368,7 @@ export class BookingService {
 				return {
 					...booking,
 					amount: Number(booking.amount),
-					occurrence: this.mapOccurrenceForBookingResponse(occurrence),
+					occurrence: mapOccurrenceForBookingResponse(occurrence),
 					refundPercentage,
 					estimatedStripeFeeInCents,
 					estimatedRefundInCents,
@@ -492,7 +456,7 @@ export class BookingService {
 
 			if (paymentIntent.status === 'succeeded') {
 				const occurrenceDate = occurrence?.date ?? new Date();
-				const refundPercentage = this.calculateRefundPercentage(
+				const refundPercentage = calculateRefundPercentage(
 					new Date(),
 					new Date(occurrenceDate),
 					event.cancellationRules,
@@ -571,7 +535,7 @@ export class BookingService {
 	}
 
 	async cancelEventBookings(eventId: string): Promise<void> {
-		const { bookings, occurrences } = await this.prisma.$transaction(async (tx) => {
+		const { bookings } = await this.prisma.$transaction(async (tx) => {
 			// Get all confirmed and pending bookings for the event through occurrences
 			const bookings = await tx.booking.findMany({
 				where: {
@@ -590,12 +554,12 @@ export class BookingService {
 				data: { status: 'CANCELLED' },
 			});
 
-			const occurrences = await tx.eventOccurrence.updateMany({
+			await tx.eventOccurrence.updateMany({
 				where: { eventId },
 				data: { currentParticipants: 0 },
 			});
 
-			return { bookings, occurrences };
+			return { bookings };
 		});
 
 		// Process refunds for each booking
@@ -676,69 +640,107 @@ export class BookingService {
 		}
 	}
 
-	private mapOccurrenceForBookingResponse(
-		occurrence: Prisma.EventOccurrenceGetPayload<{
-			include: {
-				event: {
-					include: {
-						images: true;
-						cancellationRules: true;
-						translations: true;
-						category: { include: { translations: true } };
-						occurrences: true;
-					};
-				};
-			};
-		}>,
-	) {
-		return {
-			...occurrence,
-			event: this.mapEventForBookingResponse(occurrence.event),
-		};
-	}
+	async cancelOccurrenceBookings(occurrenceId: string): Promise<void> {
+		const { bookings } = await this.prisma.$transaction(async (tx) => {
+			const bookings = await tx.booking.findMany({
+				where: {
+					occurrenceId,
+					status: { in: ['PENDING', 'CONFIRMED'] },
+				},
+				include: { user: true },
+			});
 
-	private mapEventForBookingResponse(
-		event: Prisma.EventGetPayload<{
-			include: {
-				images: true;
-				cancellationRules: true;
-				translations: true;
-				category: { include: { translations: true } };
-				occurrences: true;
-			};
-		}>,
-	) {
-		return {
-			...event,
-			price: Number(event.price),
-			images: event.images ?? [],
-			cancellationRules: event.cancellationRules ?? [],
-			translations: event.translations ?? [],
-			category: event.category,
-			occurrences: event.occurrences ?? [],
-			locationUrl: event.locationUrl ?? null,
-		};
-	}
+			await tx.booking.updateMany({
+				where: {
+					occurrenceId,
+					status: { in: ['PENDING', 'CONFIRMED'] },
+				},
+				data: { status: 'CANCELLED' },
+			});
 
-	private calculateRefundPercentage(
-		now: Date,
-		eventDate: Date,
-		rules: CancellationPolicyRule[],
-	): number {
-		const msLeft = eventDate.getTime() - now.getTime();
-		const hoursLeft = msLeft / (1000 * 60 * 60); // ms to hours
+			await tx.eventOccurrence.update({
+				where: { id: occurrenceId },
+				data: { currentParticipants: 0 },
+			});
 
-		if (hoursLeft <= 0) return 0;
+			return { bookings };
+		});
 
-		const sortedRules = [...rules].sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent);
+		for (const booking of bookings) {
+			if (!booking.paymentIntentId || Number(booking.amount) === 0) {
+				continue;
+			}
 
-		for (const rule of sortedRules) {
-			if (hoursLeft >= rule.hoursBeforeEvent) {
-				return rule.refundPercentage;
+			let refundResult: { amount: number; id: string } | null = null;
+
+			try {
+				const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+
+				if (paymentIntent.status === 'succeeded') {
+					// Полный рефанд, без вычета комиссии — тур отменила турфирма, не юзер
+					const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+
+					if (baseAmountInCents > 0) {
+						const refund = await this.stripe.refund(
+							booking.paymentIntentId,
+							`occurrence-cancel-${occurrenceId}-${booking.id}`,
+							baseAmountInCents,
+						);
+						refundResult = { amount: refund.amount, id: refund.id };
+					}
+				} else if (
+					CANCELABLE_PAYMENT_INTENT_STATUSES.includes(
+						paymentIntent.status as CancelablePaymentIntentStatus,
+					)
+				) {
+					await this.stripe.cancelPaymentIntent(
+						booking.paymentIntentId,
+						`occurrence-cancel-${occurrenceId}-${booking.id}`,
+					);
+				}
+			} catch (stripeError) {
+				this.logger.error(
+					`Stripe refund failed for booking ${booking.id} (occurrence cancellation):`,
+					stripeError,
+				);
+			}
+
+			if (refundResult) {
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: booking.paymentIntentId },
+					create: {
+						bookingId: booking.id,
+						type: 'REFUND',
+						amount: new Prisma.Decimal((refundResult.amount / 100).toString()),
+						currency: 'AMD',
+						stripePaymentIntentId: booking.paymentIntentId,
+						stripeRefundId: refundResult.id,
+						status: 'SUCCEEDED',
+						reason: 'Occurrence cancelled. Full refund.',
+					},
+					update: {
+						stripeRefundId: refundResult.id,
+						status: 'SUCCEEDED',
+					},
+				});
+			} else if (booking.paymentIntentId) {
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: booking.paymentIntentId },
+					create: {
+						bookingId: booking.id,
+						type: 'REFUND',
+						amount: new Prisma.Decimal('0'),
+						currency: 'AMD',
+						stripePaymentIntentId: booking.paymentIntentId,
+						stripeRefundId: null,
+						status: 'SUCCEEDED',
+					},
+					update: {
+						status: 'SUCCEEDED',
+					},
+				});
 			}
 		}
-
-		return rules.length > 0 ? 0 : 100;
 	}
 
 	private async cancelPendingBooking(bookingId: string): Promise<void> {
