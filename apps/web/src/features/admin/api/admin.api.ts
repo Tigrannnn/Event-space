@@ -24,14 +24,16 @@ import type {
 export const adminApi = {
 	getStats: () => clientApi.get<DashboardStats>('/admin/stats').then((res) => res.data),
 	getBookings: (params?: BookingFilters) =>
-		clientApi.get<PaginatedResponse<BookingWithDetails>>('/admin/bookings', { params }).then((res) => res.data),
+		clientApi
+			.get<PaginatedResponse<BookingWithDetails>>('/admin/bookings', { params })
+			.then((res) => res.data),
 	updateBookingStatus: (id: string, status: Booking['status']) =>
 		clientApi.patch<Booking>(`/admin/bookings/${id}/status`, { status }).then((res) => res.data),
 	getBookingByReference: (ref: number) =>
 		clientApi.get<BookingWithDetails>(`/admin/bookings/by-reference/${ref}`).then((res) => res.data),
 	checkInBooking: (id: string) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`).then((res) => res.data),
-	updateBookingQuantity: (id: string, data: UpdateBookingData) =>
+	updateBooking: (id: string, data: UpdateBookingData) =>
 		clientApi.patch<BookingWithDetails>(`/admin/bookings/${id}`, data).then((res) => res.data),
 	cancelBookingByAdmin: (id: string, data: AdminCancelBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),
@@ -49,6 +51,8 @@ export const adminApi = {
 				timeout: EVENT_UPLOAD_TIMEOUTS.CLIENT_MUTATION_MS,
 			})
 			.then((res) => res.data),
+	cancelOccurrence: (occurrenceId: string) =>
+		clientApi.patch(`/admin/occurrences/${occurrenceId}/cancel`, {}).then((res) => res.data),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`).then((res) => res.data),
 	getUsers: (params?: UserFilters) =>
 		clientApi

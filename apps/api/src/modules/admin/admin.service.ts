@@ -47,7 +47,13 @@ const bookingInclude = {
 					cancellationRules: true,
 					translations: true,
 					category: { include: { translations: true } },
-					occurrences: true,
+					occurrences: {
+						include: {
+							_count: { select: { bookings: {
+								where: { status: 'CONFIRMED' }
+							} } },
+						},
+					},
 				},
 			},
 		},
@@ -176,7 +182,13 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: true,
+					occurrences: {
+						include: {
+							_count: { select: { bookings: {
+								where: { status: 'CONFIRMED' }
+							} } },
+						},
+					},
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -194,7 +206,13 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: true,
+					occurrences: {
+						include: {
+							_count: { select: { bookings: {
+								where: { status: 'CONFIRMED' }
+							} } },
+						},
+					},
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -321,7 +339,7 @@ export class AdminService {
 		return user;
 	}
 
-	async updateBookingQuantity(id: string, data: UpdateBookingData): Promise<BookingWithDetails> {
+	async updateBooking(id: string, data: UpdateBookingData): Promise<BookingWithDetails> {
 		const booking = await this.prisma.booking.findUnique({
 			where: { id },
 			include: bookingInclude,
@@ -814,7 +832,14 @@ export class AdminService {
 						},
 					},
 					images: { orderBy: { order: 'asc' } },
-					occurrences: true,
+					occurrences: {
+						orderBy: { date: 'asc' },
+						include: {
+							_count: { select: { bookings: {
+								where: { status: 'CONFIRMED' }
+							} } },
+						},
+					},
 					category: { 
 						include: { translations: true }
 					 }

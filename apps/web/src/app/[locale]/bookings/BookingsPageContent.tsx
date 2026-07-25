@@ -50,7 +50,9 @@ export default function BookingsPageContent() {
 				<div className="bg-primary/10 dark:bg-primary/20 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
 					<CalendarX className="text-primary h-12 w-12" strokeWidth={1.5} />
 				</div>
-				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">{translate('booking.noBookings')}</h2>
+				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+					{translate('booking.noBookings')}
+				</h2>
 				<p className="mt-2 text-gray-500 dark:text-gray-400">
 					{translate('booking.noBookingsDescription')}
 				</p>
@@ -64,13 +66,15 @@ export default function BookingsPageContent() {
 	return (
 		<div className="min-h-full max-w-full px-4 py-8">
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-white">{translate('booking.myBookings')}</h1>
+				<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+					{translate('booking.myBookings')}
+				</h1>
 				<div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
 					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
 					<select
 						value={statusFilter}
 						onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'CONFIRMED' | 'CANCELLED')}
-						className="bg-transparent text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
+						className="cursor-pointer bg-transparent text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
 					>
 						<option value="ALL">{translate('booking.filterAll')}</option>
 						<option value="CONFIRMED">{translate('booking.filterConfirmed')}</option>

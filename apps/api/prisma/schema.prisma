@@ -69,33 +69,46 @@ model CategoryTranslation {
 }
 
 model Event {
-  id          String           @id @default(uuid())
-  locationUrl String?          @map("location_url") @db.VarChar(1000)
-  difficulty  EventDifficulty?
-  price       Decimal          @db.Decimal(10, 2)
-  duration    Int // Minutes
+  id                 String           @id @default(uuid())
+  locationUrl        String           @map("location_url") @db.VarChar(1000)
+  meetingLocationUrl String           @map("meeting_location_url") @db.VarChar(1000)
+  difficulty         EventDifficulty?
+  price              Decimal          @db.Decimal(10, 2)
+  duration           Int // Minutes
+  status             EventStatus      @default(DRAFT)
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
 
-  status EventStatus @default(DRAFT)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  userId    String @map("user_id")
-  organizer User   @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
-
-  categoryId String   @map("category_id")
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
+  userId      String            @map("user_id")
+  organizer   User              @relation("user_events", fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String            @map("category_id")
+  category    Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   occurrences EventOccurrence[] @relation("event_occurrences")
-
-  images EventImage[] @relation("event_images")
+  images      EventImage[]      @relation("event_images")
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
-
-  translations EventTranslation[]
+  translations      EventTranslation[]
 
   @@index([categoryId])
   @@map("events")
+}
+
+model EventTranslation {
+  id      String @id @default(uuid())
+  eventId String @map("event_id")
+
+  locale Locale
+
+  title           String   @db.VarChar(100)
+  description     String   @db.VarChar(1000)
+  location        String   @db.VarChar(200)
+  meetingLocation String   @map("meeting_location") @db.VarChar(200)
+  whatsIncluded   String[] @default([]) @map("whats_included") @db.VarChar(1000)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, locale])
+  @@map("event_translations")
 }
 
 enum EventOccurrenceStatus {
@@ -148,23 +161,6 @@ model CancellationPolicyRule {
 
   @@unique([eventId, hoursBeforeEvent])
   @@map("cancellation_policy_rules")
-}
-
-model EventTranslation {
-  id      String @id @default(uuid())
-  eventId String @map("event_id")
-
-  locale Locale
-
-  title         String   @db.VarChar(100)
-  description   String   @db.VarChar(1000)
-  location      String   @db.VarChar(200)
-  whatsIncluded String[] @map("whats_included") @db.VarChar(1000)
-
-  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
-  @@unique([eventId, locale])
-  @@map("event_translations")
 }
 
 enum BookingStatus {

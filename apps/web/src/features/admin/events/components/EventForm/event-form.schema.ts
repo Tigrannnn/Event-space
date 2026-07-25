@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LocaleEnum, MAX_EVENT_IMAGES } from '@event-space/shared';
+import { EventOccurrenceStatusEnum, LocaleEnum, MAX_EVENT_IMAGES } from '@event-space/shared';
 import { EventDifficultyEnum, EventStatusEnum } from '@event-space/shared';
 
 const browserFileSchema = z.custom<File>(
@@ -34,12 +34,16 @@ export const EventTranslationFormSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	description: z.string().min(1, 'Description is required'),
 	location: z.string().min(1, 'Location is required'),
+	meetingLocation: z.string().min(1, 'Meeting location is required'),
 	whatsIncluded: z.string().min(1, 'Included items are required'),
 });
 
 export const EventOccurrenceFormSchema = z.object({
+	id: z.string().uuid().optional(),
 	date: z.string().min(1, 'Date is required'),
 	maxParticipants: z.string().optional(),
+	status: EventOccurrenceStatusEnum.default(EventOccurrenceStatusEnum.enum.ACTIVE).optional(),
+	bookingsCount: z.number().optional(),
 });
 
 export const EventFormSchema = z.object({
@@ -49,7 +53,8 @@ export const EventFormSchema = z.object({
 		.array(ImageUploaderItemSchema)
 		.min(1, 'At least one image is required')
 		.max(MAX_EVENT_IMAGES),
-	locationUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+	locationUrl: z.string().url('Must be a valid URL'),
+	meetingLocationUrl: z.string().url('Must be a valid URL'),
 	date: z.string().optional(),
 	difficulty: z.union([EventDifficultyEnum, z.literal('')]).optional(),
 	price: z.string().min(1, 'Price is required'),

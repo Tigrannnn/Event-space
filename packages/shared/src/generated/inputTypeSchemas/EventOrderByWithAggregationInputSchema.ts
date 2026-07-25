@@ -11,7 +11,8 @@ import { EventSumOrderByAggregateInputSchema } from './EventSumOrderByAggregateI
 
 export const EventOrderByWithAggregationInputSchema: z.ZodType<Prisma.EventOrderByWithAggregationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
-  locationUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  locationUrl: z.lazy(() => SortOrderSchema).optional(),
+  meetingLocationUrl: z.lazy(() => SortOrderSchema).optional(),
   difficulty: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   price: z.lazy(() => SortOrderSchema).optional(),
   duration: z.lazy(() => SortOrderSchema).optional(),

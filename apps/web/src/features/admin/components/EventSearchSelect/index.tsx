@@ -92,7 +92,7 @@ export default function EventSearchSelect({ value, onChange, label }: EventSearc
 													value={event.id}
 													onSelect={() => handleSelect(event)}
 													data-checked={value === event.id}
-													className="cursor-pointer duration-200 hover:bg-gray-100 hover:text-white dark:hover:bg-gray-900"
+													className="cursor-pointer duration-200 hover:bg-gray-100 dark:hover:bg-gray-900"
 												>
 													<div className="flex flex-col">
 														<span className="font-medium">{t.title}</span>

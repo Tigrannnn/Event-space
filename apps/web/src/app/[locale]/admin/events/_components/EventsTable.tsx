@@ -27,12 +27,14 @@ import {
 	TimeFilterSchema,
 	getEventTranslation,
 	getCategoryTranslation,
+	getApiErrorMessage,
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { ToastType, useToastStore } from '@/stores/toastStore';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -60,6 +62,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const [maxPriceInput, setMaxPriceInput] = useState('');
 	const [maxPrice, setMaxPrice] = useState<number | undefined>();
 	const { openModal } = useModalStore();
+	const { addToast } = useToastStore();
 	const confirm = useConfirm();
 	const { data, isFetching } = useAdminEvents({
 		skip,
@@ -80,7 +83,12 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
 	const hasActiveFilters = Boolean(
-		search || status !== undefined || difficulty !== undefined || time !== undefined || minPrice !== undefined || maxPrice !== undefined,
+		search ||
+		status !== undefined ||
+		difficulty !== undefined ||
+		time !== undefined ||
+		minPrice !== undefined ||
+		maxPrice !== undefined,
 	);
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -158,10 +166,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	};
 
 	const handleDelete = async (event: Event) => {
-		const t = getEventTranslation(event, locale);
+		const eventTranslation = getEventTranslation(event, locale);
 		const confirmed = await confirm({
 			title: translate('admin.deleteEvent'),
-			message: `${translate('admin.deleteEventMessage')} "${t.title}"`,
+			message: `${translate('admin.deleteEventMessage')} "${eventTranslation.title}"`,
 			confirmText: translate('admin.delete'),
 			variant: 'danger',
 		});
@@ -170,6 +178,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 			setDeletingId(event.id);
 			deleteEvent.mutate(event.id, {
 				onSettled: () => setDeletingId(null),
+				onError: (error) => {
+					const message = getApiErrorMessage(error, 'Could not delete event');
+					addToast(message, ToastType.ERROR);
+				},
 			});
 		}
 	};
@@ -256,8 +268,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								/>
 							</div>
 
-
-
 							<Select
 								value={limit}
 								onValueChange={handlePageSizeChange}
@@ -282,7 +292,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						<TableRow>
 							<TableHead className="px-3 sm:px-5">{translate('admin.event')}</TableHead>
 							<TableHead>{translate('admin.status')}</TableHead>
-							<TableHead>{translate('admin.date')}</TableHead>
 							<TableHead>{translate('admin.price')}</TableHead>
 							<TableHead className="w-32">{translate('admin.actions')}</TableHead>
 						</TableRow>
@@ -299,7 +308,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						{eventsResponse.data.map((event) => {
 							const eventTranslation = getEventTranslation(event, locale);
 							const categoryTranslation = getCategoryTranslation(event.category, locale);
-							console.log(categoryTranslation);
 							return (
 								<TableRow key={event.id}>
 									<TableCell className="px-3 sm:px-5">
@@ -318,11 +326,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									</TableCell>
 									<TableCell>
 										<Badge label={EVENT_STATUS_LABELS[event.status]} />
-									</TableCell>
-									<TableCell>
-										<div className="flex items-center gap-2 text-sm" suppressHydrationWarning>
-											{/* {formatDateTime(event.date)} */}
-										</div>
 									</TableCell>
 									<TableCell suppressHydrationWarning>{formatCurrency(event.price)}</TableCell>
 									<TableCell>

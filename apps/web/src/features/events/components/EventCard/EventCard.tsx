@@ -25,7 +25,7 @@ export interface EventCardProps {
 
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
-import { BookOpen, MapPin, Ticket } from 'lucide-react';
+import { BookOpen, MapPin, Navigation, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -43,7 +43,6 @@ export default function EventCard({ event }: EventCardProps) {
 
 	const eventIsAvailable = isEventAvailable(event);
 	const eventTranslation = getEventTranslation(event, locale);
-	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const occurrenceDate = getPrimaryEventOccurrence(event);
 	const upcomingOccurrences = getUpcomingEventOccurrences(event);
 	const firstOccurrenceDate = upcomingOccurrences[0]?.date ?? occurrenceDate;
@@ -100,34 +99,37 @@ export default function EventCard({ event }: EventCardProps) {
 			<div className="flex flex-1 flex-col p-4 sm:p-6 md:p-8">
 				<div className="mb-3 flex items-center gap-2">
 					<span className="bg-accent h-2 w-2 animate-pulse rounded-full" />
-					<span
-						className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs"
-						suppressHydrationWarning
-					>
+					<span className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs">
 						{occurrenceLabel}
 					</span>
 				</div>
-
-				
 
 				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
 					{eventTranslation.title}
 				</h3>
 
-				<div className="mb-4 flex items-center gap-2 text-gray-600 sm:mb-6 dark:text-gray-400">
-					<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
-					{event.locationUrl ? (
-						<a
-							href={event.locationUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="hover:text-primary relative z-20 cursor-pointer text-left text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
-						>
-							{eventTranslation.location}
-						</a>
-					) : (
-						<span className="text-sm font-medium sm:text-base">{eventTranslation.location}</span>
-					)}
+				<div className="mb-1 flex items-center gap-2 text-gray-600 dark:text-gray-400">
+					<MapPin className="text-primary h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+					<a
+						href={event.locationUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="hover:text-primary relative z-20 cursor-pointer text-left text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+					>
+						{eventTranslation.location}
+					</a>
+				</div>
+
+				<div className="mb-4 flex items-center gap-2 text-gray-500 sm:mb-6 dark:text-gray-500">
+					<Navigation className="h-3.5 w-3.5 shrink-0" />
+					<a
+						href={event.meetingLocationUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="hover:text-primary relative z-20 cursor-pointer text-left text-xs underline underline-offset-2 transition-colors"
+					>
+						{translate('event.meetingLocationLabel')}: {eventTranslation.meetingLocation}
+					</a>
 				</div>
 
 				{/* Footer Section: Metrics & Action - always at bottom */}

@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { EventWhereInputSchema } from './EventWhereInputSchema';
-import { StringNullableFilterSchema } from './StringNullableFilterSchema';
+import { StringFilterSchema } from './StringFilterSchema';
 import { EnumEventDifficultyNullableFilterSchema } from './EnumEventDifficultyNullableFilterSchema';
 import { EventDifficultySchema } from './EventDifficultySchema';
 import { DecimalFilterSchema } from './DecimalFilterSchema';
@@ -12,7 +12,6 @@ import { IntFilterSchema } from './IntFilterSchema';
 import { EnumEventStatusFilterSchema } from './EnumEventStatusFilterSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
-import { StringFilterSchema } from './StringFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { CategoryScalarRelationFilterSchema } from './CategoryScalarRelationFilterSchema';
@@ -30,7 +29,8 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   AND: z.union([ z.lazy(() => EventWhereInputSchema), z.lazy(() => EventWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => EventWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventWhereInputSchema), z.lazy(() => EventWhereInputSchema).array() ]).optional(),
-  locationUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  locationUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  meetingLocationUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   difficulty: z.union([ z.lazy(() => EnumEventDifficultyNullableFilterSchema), z.lazy(() => EventDifficultySchema) ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   duration: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),

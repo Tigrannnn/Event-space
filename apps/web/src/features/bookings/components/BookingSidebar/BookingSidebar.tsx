@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, Calendar, MapPin, Ticket } from 'lucide-react';
+import { BookOpen, Calendar, MapPin, Navigation, Ticket } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -168,7 +168,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							>
 								{upcomingOccurrences.map((occurrence) => (
 									<option key={occurrence.id} value={occurrence.id}>
-										{formatDateTime(occurrence.date)} - {' '}
+										{formatDateTime(occurrence.date)} -{' '}
 										{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
 										{translate('booking.spotsLeft')}
 									</option>
@@ -193,6 +193,27 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 								</a>
 							) : (
 								<span className="text-sm font-medium sm:text-base">{eventTranslation.location}</span>
+							)}
+						</div>
+					</div>
+
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
+						<Navigation className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
+						<div className="flex flex-col">
+							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
+								{translate('event.meetingLocationLabel')}
+							</span>
+							{event.meetingLocationUrl ? (
+								<a
+									href={event.meetingLocationUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="hover:text-primary text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+								>
+									{eventTranslation.meetingLocation}
+								</a>
+							) : (
+								<span className="text-sm font-medium sm:text-base">{eventTranslation.meetingLocation}</span>
 							)}
 						</div>
 					</div>

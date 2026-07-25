@@ -17,6 +17,7 @@ import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountO
 export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   id: z.boolean().optional(),
   locationUrl: z.boolean().optional(),
+  meetingLocationUrl: z.boolean().optional(),
   difficulty: z.boolean().optional(),
   price: z.boolean().optional(),
   duration: z.boolean().optional(),

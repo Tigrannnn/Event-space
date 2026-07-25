@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/translation';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search } from 'lucide-react';
+import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search, CreditCard } from 'lucide-react';
 import { getEventTranslation } from '@event-space/shared';
 import { localeIntl } from '@/lib/i18n/config';
 
@@ -54,6 +54,18 @@ export default function CheckInForm() {
 	const isCheckedIn = !!booking?.checkedInAt;
 	const isCancelled = booking?.status === 'CANCELLED';
 	const eventTranslation = booking?.occurrence?.event ? getEventTranslation(booking.occurrence.event, locale) : null;
+	const paymentMethodLabel = (() => {
+		switch (booking?.paymentMethod) {
+			case 'SITE_PAYMENT':
+				return translate('admin.payment.site');
+			case 'OFFLINE_PAID':
+				return translate('admin.payment.offline');
+			case 'PAY_ON_ARRIVAL':
+				return translate('admin.payment.onArrival');
+			default:
+				return booking?.paymentMethod;
+		}
+	})();
 
 	return (
 		<div className="mx-auto max-w-xl space-y-6">
@@ -153,6 +165,12 @@ export default function CheckInForm() {
 									<Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
 									<span className="font-bold text-gray-900 dark:text-white">
 										{booking.quantity} {translate('admin.numberOfSpots')}
+									</span>
+								</div>
+								<div className="flex items-center gap-2 border-t border-gray-200 pt-2 sm:col-span-2 dark:border-zinc-700">
+									<CreditCard className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
+									<span className="font-bold text-gray-900 dark:text-white">
+										{paymentMethodLabel}
 									</span>
 								</div>
 							</div>

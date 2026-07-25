@@ -6,7 +6,7 @@ import Button from '@/components/ui/Buttons/Button';
 import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { useUpdateBookingQuantity } from '@/features/admin/hooks/useAdmin';
+import { useupdateBooking } from '@/features/admin/hooks/useAdmin';
 import { BookingWithDetails, getEventTranslation } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
@@ -17,7 +17,7 @@ export default function UpdateBookingModal() {
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.UpdateBooking);
 	const booking = modalData?.booking as BookingWithDetails | null;
-	const { mutate: updateBookingQuantity, isPending: isLoading } = useUpdateBookingQuantity();
+	const { mutate: updateBooking, isPending: isLoading } = useupdateBooking();
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 
@@ -34,7 +34,7 @@ export default function UpdateBookingModal() {
 	const eventTranslation = getEventTranslation(booking.occurrence.event, locale);
 
 	const handleSave = () => {
-		updateBookingQuantity({ id: booking.id, data: { quantity } });
+		updateBooking({ id: booking.id, data: { quantity } });
 	};
 
 	return (

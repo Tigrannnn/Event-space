@@ -78,7 +78,7 @@ export function CategoryFilterSection({
 	}
 
 	return (
-		<div className="flex min-w-0 items-center gap-2">
+		<div className="flex min-w-0 items-center gap-2 width-[20%] overflow-x-auto">
 			{renderPills(topCategories)}
 			{remainingCategories.length > 0 && (
 				<Popover open={moreOpen} onOpenChange={setMoreOpen}>

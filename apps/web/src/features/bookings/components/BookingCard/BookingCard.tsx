@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { Calendar, MapPin, Navigation, Users } from 'lucide-react';
 import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
@@ -83,7 +83,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
-		<div className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
+		<div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
 			{/* Event Image */}
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900">
 				<EventImageWithFallback
@@ -101,10 +101,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			</div>
 
 			{/* Content */}
-			<div className="p-4 sm:p-6">
+			<div className="flex flex-1 flex-col p-4 sm:p-6">
 				<Link
 					href={localizePath(`/events/${event.id}`, locale)}
-					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
+					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white"
 				>
 					{eventTranslation.title}
 				</Link>
@@ -143,10 +143,28 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							<span>{eventTranslation.location}</span>
 						)}
 					</div>
+
+					<div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+						<Navigation className="h-3.5 w-3.5" />
+						{event.meetingLocationUrl ? (
+							<a
+								href={event.meetingLocationUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="hover:text-primary relative z-20 cursor-pointer underline underline-offset-2 transition-colors"
+							>
+								{translate('event.meetingLocationLabel')}: {eventTranslation.meetingLocation}
+							</a>
+						) : (
+							<span>
+								{translate('event.meetingLocationLabel')}: {eventTranslation.meetingLocation}
+							</span>
+						)}
+					</div>
 				</div>
 
 				{/* Quantity & Price */}
-				<div className="mb-4 flex items-center justify-between border-t border-b border-gray-100 py-3 dark:border-gray-700">
+				<div className="mt-auto mb-4 flex items-center justify-between border-t border-b border-gray-100 py-3 dark:border-gray-700">
 					<div className="flex items-center gap-2">
 						<Users className="text-primary h-5 w-5" />
 						<span className="font-medium text-gray-700 dark:text-gray-300">
@@ -154,7 +172,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						</span>
 					</div>
 					<div className="text-right">
-						<span className="text-primary text-xl font-bold" suppressHydrationWarning>
+						<span className="text-primary text-xl font-bold">
 							{formatCurrency(event.price, { quantity })}
 						</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500">
@@ -202,17 +220,19 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					>
 						{translate('booking.viewEvent')}
 					</Button>
-					{occurrenceIsAvailable && booking.paymentMethod === 'SITE_PAYMENT' && booking.status === 'CONFIRMED' && (
-						<Button
-							variant="danger"
-							size="sm"
-							className="flex-1"
-							onClick={handleCancel}
-							isLoading={isCancelling}
-						>
-							{translate('booking.cancel')}
-						</Button>
-					)}
+					{occurrenceIsAvailable &&
+						booking.paymentMethod === 'SITE_PAYMENT' &&
+						booking.status === 'CONFIRMED' && (
+							<Button
+								variant="danger"
+								size="sm"
+								className="flex-1"
+								onClick={handleCancel}
+								isLoading={isCancelling}
+							>
+								{translate('booking.cancel')}
+							</Button>
+						)}
 				</div>
 			</div>
 		</div>

@@ -16,13 +16,15 @@ import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
-import { ModalHeader } from '@/components/ui/Modal';
+import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { adminApi } from '@/features/admin/api/admin.api';
+import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
+import { XIcon } from 'lucide-react';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -62,6 +64,8 @@ export default function EventForm({
 		queryKey: ['admin', 'categories', { limit: 100 }],
 		queryFn: () => adminApi.getCategories({ limit: 100 }),
 	});
+
+	const cancelOccurrence = useCancelOccurrence();
 
 	const categories = categoriesResponse?.data ?? [];
 	const categoryOptions = [
@@ -147,11 +151,14 @@ export default function EventForm({
 	} = useFieldArray({
 		control,
 		name: 'occurrences',
+		keyName: 'fieldId',
 	});
 
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 	const [pendingCancelValues, setPendingCancelValues] = useState<EventFormValues | null>(null);
+	const [occurrencesToCancel, setOccurrencesToCancel] = useState<string[]>([]);
+	const [occurrencesToDelete, setOccurrencesToDelete] = useState<number[]>([]);
 
 	const addedLocales = watchedTranslations.map((t) => t.locale);
 	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(
@@ -163,7 +170,10 @@ export default function EventForm({
 	};
 
 	const handleFormSubmit = async (values: EventFormValues) => {
-		const isCancelling = values.status === 'CANCELLED' && event?.status !== 'CANCELLED';
+		const isCancelling =
+			(values.status === 'CANCELLED' && event?.status !== 'CANCELLED') ||
+			occurrencesToCancel.length > 0 ||
+			occurrencesToDelete.length > 0;
 
 		if (isCancelling) {
 			setPendingCancelValues(values);
@@ -174,7 +184,17 @@ export default function EventForm({
 		onSubmit(values);
 	};
 
-	const handleConfirmCancel = () => {
+	const handleConfirmCancel = async () => {
+		if (occurrencesToCancel.length > 0) {
+			await Promise.all(
+				occurrencesToCancel.map((occurrenceId) => cancelOccurrence.mutateAsync(occurrenceId)),
+			);
+		}
+
+		if (occurrencesToDelete.length > 0) {
+			removeOccurrence(occurrencesToDelete);
+		}
+
 		if (pendingCancelValues) {
 			onSubmit(pendingCancelValues);
 		}
@@ -188,24 +208,29 @@ export default function EventForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 p-5 sm:p-6">
+		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 scroll-auto p-5 sm:p-6">
 			{showCancelConfirm && (
-				<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30">
-					<h3 className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-						{translate('admin.cancelEventTitle')}
-					</h3>
-					<p className="mt-2 text-sm text-amber-700 dark:text-amber-300">
+				<Modal
+					onClose={handleRejectCancel}
+					ariaLabel={translate('admin.cancel')}
+					position="center"
+					contentClassName="p-8"
+					disableEscapeClose={true}
+					disableBackdropClose={true}
+				>
+					<ModalHeader title={translate('admin.cancelEventTitle')} onClose={handleRejectCancel} />
+					<p className="mt-2 text-lg text-amber-700 dark:text-amber-300">
 						{translate('admin.cancelEventMessage')}
 					</p>
 					<div className="mt-4 flex gap-2">
 						<Button type="button" variant="secondary" onClick={handleRejectCancel} disabled={isPending}>
-							{translate('profile.cancel')}
+							{translate('event.back')}
 						</Button>
 						<Button type="button" variant="danger" onClick={handleConfirmCancel} disabled={isPending}>
 							{translate('admin.confirmCancelEvent')}
 						</Button>
 					</div>
-				</div>
+				</Modal>
 			)}
 
 			<ModalHeader
@@ -233,6 +258,7 @@ export default function EventForm({
 											title: '',
 											description: '',
 											location: '',
+											meetingLocation: '',
 											whatsIncluded: '',
 										})
 									}
@@ -275,7 +301,7 @@ export default function EventForm({
 												}
 											}}
 										>
-											✕
+											<XIcon className="h-3 w-3" />
 										</button>
 									)}
 								</div>
@@ -295,6 +321,7 @@ export default function EventForm({
 										{...register(`translations.${activeTabIndex}.title`)}
 										className={fieldClassName}
 										disabled={isPending}
+										placeholder={translate('admin.titlePlaceholder')}
 									/>
 									{errors.translations?.[activeTabIndex]?.title && (
 										<p className="text-xs text-red-500">
@@ -304,17 +331,33 @@ export default function EventForm({
 								</label>
 							</div>
 
-							<div className="grid grid-cols-1 gap-4">
+							<div className="grid grid-cols-2 gap-4">
 								<label className="space-y-1.5">
 									<span className="text-sm font-semibold">{translate('admin.location')}</span>
 									<input
 										{...register(`translations.${activeTabIndex}.location`)}
 										className={fieldClassName}
 										disabled={isPending}
+										placeholder={translate('admin.locationPlaceholder')}
 									/>
 									{errors.translations?.[activeTabIndex]?.location && (
 										<p className="text-xs text-red-500">
 											{errors.translations[activeTabIndex]?.location?.message}
+										</p>
+									)}
+								</label>
+
+								<label className="space-y-1.5">
+									<span className="text-sm font-semibold">{translate('admin.meetingLocation')}</span>
+									<input
+										{...register(`translations.${activeTabIndex}.meetingLocation`)}
+										className={fieldClassName}
+										disabled={isPending}
+										placeholder={translate('admin.meetingLocationPlaceholder')}
+									/>
+									{errors.translations?.[activeTabIndex]?.meetingLocation && (
+										<p className="text-xs text-red-500">
+											{errors.translations[activeTabIndex]?.meetingLocation?.message}
 										</p>
 									)}
 								</label>
@@ -326,6 +369,7 @@ export default function EventForm({
 									{...register(`translations.${activeTabIndex}.description`)}
 									className={textareaClassName}
 									disabled={isPending}
+									placeholder={translate('admin.descriptionPlaceholder')}
 								/>
 								{errors.translations?.[activeTabIndex]?.description && (
 									<p className="text-xs text-red-500">
@@ -340,6 +384,7 @@ export default function EventForm({
 									{...register(`translations.${activeTabIndex}.whatsIncluded`)}
 									className={textareaClassName}
 									disabled={isPending}
+									placeholder={translate('admin.includedItemsPlaceholder')}
 								/>
 								{errors.translations?.[activeTabIndex]?.whatsIncluded && (
 									<p className="text-xs text-red-500">
@@ -351,7 +396,7 @@ export default function EventForm({
 					)}
 				</div>
 
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-1 gap-4">
 					<div className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.category')}</span>
 						<Controller
@@ -369,18 +414,34 @@ export default function EventForm({
 						/>
 						{errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
 					</div>
-					<div className="grid grid-cols-1 gap-4">
-						<label className="space-y-1.5">
-							<span className="text-sm font-semibold">{translate('admin.googleMapsUrl')}</span>
-							<input
-								{...register('locationUrl')}
-								className={fieldClassName}
-								disabled={isPending}
-								placeholder={translate('admin.googleMapsUrlPlaceholder')}
-							/>
-							{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
-						</label>
-					</div>
+				</div>
+
+				<div className="grid grid-cols-2 gap-4">
+					<label className="space-y-1.5">
+						<span className="text-sm font-semibold">{translate('admin.locationUrl')}</span>
+						<input
+							{...register('locationUrl')}
+							className={fieldClassName}
+							disabled={isPending}
+							placeholder={translate('admin.googleMapsUrlPlaceholder')}
+						/>
+						{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
+					</label>
+
+					<label className="space-y-1.5">
+						<span className="text-sm font-semibold">
+							{translate('admin.meetingLocationUrl')}
+						</span>
+						<input
+							{...register('meetingLocationUrl')}
+							className={fieldClassName}
+							disabled={isPending}
+							placeholder={translate('admin.googleMapsUrlPlaceholder')}
+						/>
+						{errors.meetingLocationUrl && (
+							<p className="text-xs text-red-500">{errors.meetingLocationUrl.message}</p>
+						)}
+					</label>
 				</div>
 
 				<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
@@ -404,61 +465,98 @@ export default function EventForm({
 
 					{occurrenceFields.length > 0 ? (
 						<div className="space-y-3">
-							{occurrenceFields.map((field, index) => (
-								<div
-									key={field.id}
-									className="flex flex-col gap-3 rounded-md border border-gray-200 p-3 md:flex-row md:items-end dark:border-gray-700"
-								>
-									<div className="flex-1 space-y-1.5">
-										<span className="text-xs font-medium text-gray-500">
-											{translate('admin.dateAndTime')}
-										</span>
-										<Controller
-											name={`occurrences.${index}.date`}
-											control={control}
-											render={({ field }) => (
-												<DateTimeField
-													value={field.value ?? ''}
-													onChange={field.onChange}
-													disabled={isPending}
-													inputClassName={dateTimeInputClassName}
-												/>
-											)}
-										/>
-										{errors.occurrences?.[index]?.date && (
-											<p className="text-xs text-red-500">{errors.occurrences[index]?.date?.message}</p>
+							{occurrenceFields.map((field, index) => {
+								const bookingsCount = field.bookingsCount ?? 0;
+								const hasBookings = bookingsCount > 0;
+								const finished = field.date ? field.date <= new Date().toISOString() : false;
+								const isCancelled = field.status === 'CANCELLED';
+								const isCancelPending =
+									(field.id && occurrencesToCancel.includes(field.id)) ||
+									occurrencesToDelete.includes(index);
+
+								return (
+									<div
+										key={field.fieldId}
+										className={`flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-end ${
+											isCancelled
+												? 'border-gray-300 bg-gray-50 opacity-60 dark:border-gray-700 dark:bg-gray-800/40'
+												: 'border-gray-200 dark:border-gray-700'
+										}`}
+									>
+										<div className="flex-1 space-y-1.5">
+											<span className="text-xs font-medium text-gray-500">
+												{translate('admin.dateAndTime')}
+												{isCancelled && (
+													<span className="ml-2 text-red-500">({translate('admin.cancelled')})</span>
+												)}
+												{finished && (
+													<span className="ml-2 text-gray-400">({translate('admin.finished')})</span>
+												)}
+											</span>
+											<Controller
+												name={`occurrences.${index}.date`}
+												control={control}
+												render={({ field: dateField }) => (
+													<DateTimeField
+														value={dateField.value ?? ''}
+														onChange={dateField.onChange}
+														disabled={isPending || isCancelled}
+														inputClassName={dateTimeInputClassName}
+													/>
+												)}
+											/>
+										</div>
+
+										<label className="w-full space-y-1.5 md:max-w-40">
+											<span className="text-xs font-medium text-gray-500">
+												{translate('admin.maxParticipants')}
+											</span>
+											<input
+												type="number"
+												min="1"
+												{...register(`occurrences.${index}.maxParticipants`)}
+												className={fieldClassName}
+												disabled={isPending || isCancelled}
+											/>
+										</label>
+
+										{bookingsCount > 0 && (
+											<span className="text-xs text-gray-500 md:pb-2">
+												{translate('admin.bookingsCount')} {bookingsCount}
+											</span>
+										)}
+
+										{isCancelPending ? (
+											<Button
+												type="button"
+												variant="secondary"
+												className="h-10 border-amber-500 px-3 text-amber-500 hover:bg-amber-500 dark:hover:bg-amber-950"
+												disabled={isPending}
+												onClick={() => {
+													setOccurrencesToCancel((prev) => prev.filter((id) => id !== field.id));
+													setOccurrencesToDelete((prev) => prev.filter((prevIndex) => prevIndex !== index));
+												}}
+											>
+												{translate('admin.reactivateOccurrence')}
+											</Button>
+										) : finished ? null : (
+											<Button
+												type="button"
+												variant="secondary"
+												className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-500 dark:hover:bg-red-950"
+												disabled={isPending}
+												onClick={() =>
+													hasBookings
+														? setOccurrencesToCancel((prev) => [...prev, field.id ?? ''])
+														: setOccurrencesToDelete((prev) => [...prev, index])
+												}
+											>
+												{hasBookings ? translate('admin.cancelOccurrence') : translate('admin.delete')}
+											</Button>
 										)}
 									</div>
-
-									<label className="w-full space-y-1.5 md:max-w-40">
-										<span className="text-xs font-medium text-gray-500">
-											{translate('admin.maxParticipants')}
-										</span>
-										<input
-											type="number"
-											min="1"
-											{...register(`occurrences.${index}.maxParticipants`)}
-											className={fieldClassName}
-											disabled={isPending}
-										/>
-										{errors.occurrences?.[index]?.maxParticipants && (
-											<p className="text-xs text-red-500">
-												{errors.occurrences[index]?.maxParticipants?.message}
-											</p>
-										)}
-									</label>
-
-									<Button
-										type="button"
-										variant="secondary"
-										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-										disabled={isPending}
-										onClick={() => removeOccurrence(index)}
-									>
-										{translate('admin.delete')}
-									</Button>
-								</div>
-							))}
+								);
+							})}
 						</div>
 					) : (
 						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
@@ -523,17 +621,6 @@ export default function EventForm({
 						)}
 					</div>
 				)}
-
-				{hasBookedOccurrences &&
-					watchedDate &&
-					originalOccurrenceDate &&
-					new Date(watchedDate).getTime() !== new Date(originalOccurrenceDate).getTime() && (
-						<div className="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/30">
-							<p className="text-sm text-amber-800 dark:text-amber-200">
-								{translate('admin.dateChangeWarning')}
-							</p>
-						</div>
-					)}
 
 				<div className="grid grid-cols-2 gap-4">
 					<label className="space-y-1.5">
@@ -628,7 +715,7 @@ export default function EventForm({
 									<Button
 										type="button"
 										variant="secondary"
-										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+										className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-500 dark:hover:bg-red-950"
 										disabled={isPending}
 										onClick={() => removeCancellation(index)}
 									>

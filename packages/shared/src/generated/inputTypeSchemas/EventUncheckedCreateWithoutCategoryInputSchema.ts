@@ -12,7 +12,8 @@ import { EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema } from
 
 export const EventUncheckedCreateWithoutCategoryInputSchema: z.ZodType<Prisma.EventUncheckedCreateWithoutCategoryInput> = z.strictObject({
   id: z.uuid().optional(),
-  locationUrl: z.string().optional().nullable(),
+  locationUrl: z.string(),
+  meetingLocationUrl: z.string(),
   difficulty: z.lazy(() => EventDifficultySchema).optional().nullable(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   duration: z.number().int(),

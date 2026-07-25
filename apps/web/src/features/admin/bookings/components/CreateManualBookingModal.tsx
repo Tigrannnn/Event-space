@@ -14,6 +14,7 @@ import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 
+
 export default function CreateManualBookingModal() {
 	const { formatDateTime } = useFormatDate();
 	const translate = useTranslation();
@@ -38,14 +39,14 @@ export default function CreateManualBookingModal() {
 	) => {
 		setFormState((current) => ({
 			...current,
-			[field]: value as any,
+			[field]: value,
 		}));
 	};
 
-	const futureOccurrences = useMemo(
+	const avalibleOccurrences = useMemo(
 		() =>
 			(selectedEvent?.occurrences ?? []).filter(
-				(occurrence) => new Date(occurrence.date) > new Date(),
+				(occurrence) => occurrence.status === 'ACTIVE' && new Date(occurrence.date) > new Date() ,
 			),
 		[selectedEvent],
 	);
@@ -60,7 +61,7 @@ export default function CreateManualBookingModal() {
 	};
 
 	const handleOccurrenceSelect = (occurrenceId: string) => {
-		const occurrence = futureOccurrences.find((occ) => occ.id === occurrenceId) ?? null;
+		const occurrence = avalibleOccurrences.find((occ) => occ.id === occurrenceId) ?? null;
 		setSelectedOccurrence(occurrence);
 		setFormState((current) => ({
 			...current,
@@ -76,7 +77,7 @@ export default function CreateManualBookingModal() {
 			name: formState.name?.trim() || undefined,
 			phone: formState.phone?.trim() || undefined,
 			email: formState.email?.trim() || undefined,
-			paymentMethod: (formState.paymentMethod as any) || 'OFFLINE_PAID',
+			paymentMethod: formState.paymentMethod || 'OFFLINE_PAID',
 		};
 
 		if (!data.occurrenceId) {
@@ -123,7 +124,7 @@ export default function CreateManualBookingModal() {
 								className="h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium outline-none"
 							>
 								<option value="">{translate('admin.selectEvent')}</option>
-								{futureOccurrences.map((occurrence) => (
+								{avalibleOccurrences.map((occurrence) => (
 									<option key={occurrence.id} value={occurrence.id}>
 										{formatDateTime(occurrence.date)} —{' '}
 										{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}

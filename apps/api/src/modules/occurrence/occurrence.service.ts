@@ -38,7 +38,7 @@ export class OccurrenceService {
 	}
 
 	async cancel(occurrenceId: string, data: CancelOccurrenceData) {
-        const { reason } = data;
+		const { reason } = data;
 
 		const occurrence = await this.prisma.eventOccurrence.findUnique({
 			where: { id: occurrenceId },
@@ -90,14 +90,44 @@ export class OccurrenceService {
 
 	async syncForEvent(
 		eventId: string,
-		existing: { id: string }[],
+		existing: { id: string; status: string; date: Date }[],
 		incoming: OccurrenceInput[],
 		tx: Prisma.TransactionClient,
 	) {
-		const incomingIds = new Set(incoming.filter((o) => o.id).map((o) => o.id));
-		const toRemove = existing.filter((o) => !incomingIds.has(o.id));
-		const toUpdate = incoming.filter((o) => o.id);
-		const toCreate = incoming.filter((o) => !o.id);
+		// Build helper maps/sets to match incoming occurrences with existing ones.
+		const incomingWithId = incoming.filter((o) => o.id);
+		const incomingWithoutId = incoming.filter((o) => !o.id);
+
+		const incomingIdSet = new Set(incomingWithId.map((o) => o.id));
+
+		// Map existing occurrences by their date (time value) so an incoming item
+		// without `id` but with the same date will be treated as an update rather
+		// than a creation/deletion. This guards against frontends that omit ids.
+		const existingByDate = new Map<number, string>();
+		for (const e of existing) {
+			const d = e.date;
+			if (d) existingByDate.set(new Date(d).getTime(), e.id);
+		}
+
+		// Incoming items without id that match existing by date should be updated.
+		const matchedFromDate = incomingWithoutId.filter((o) =>
+			existingByDate.has(new Date(o.date).getTime()),
+		);
+
+		const toUpdate = [
+			...incomingWithId,
+			...matchedFromDate.map((o) => ({ ...(o as any), id: existingByDate.get(new Date(o.date).getTime()) })),
+		];
+
+		const toCreate = incomingWithoutId.filter(
+			(o) => !existingByDate.has(new Date(o.date).getTime()),
+		);
+
+		// Remove only those existing occurrences that are neither referenced by id
+		// in the incoming payload nor matched by date with an incoming item.
+		const toRemove = existing.filter(
+			(o) => !incomingIdSet.has(o.id) && !existingByDate.has(new Date(o.date).getTime()),
+		);
 
 		if (toRemove.length) {
 			const activeBookingsCount = await tx.booking.count({
@@ -117,6 +147,9 @@ export class OccurrenceService {
 		}
 
 		for (const occ of toUpdate) {
+			const current = existing.find((e) => e.id === occ.id);
+			if (current?.status === 'CANCELLED') continue;
+
 			await tx.eventOccurrence.update({
 				where: { id: occ.id! },
 				data: { date: occ.date, maxParticipants: occ.maxParticipants ?? 100 },

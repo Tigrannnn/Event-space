@@ -11,6 +11,7 @@ export const EventTranslationUncheckedCreateInputSchema: z.ZodType<Prisma.EventT
   title: z.string(),
   description: z.string(),
   location: z.string(),
+  meetingLocation: z.string(),
   whatsIncluded: z.union([ z.lazy(() => EventTranslationCreatewhatsIncludedInputSchema), z.string().array() ]).optional(),
 });
 

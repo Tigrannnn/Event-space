@@ -90,14 +90,14 @@ export const useCancelBookingByAdmin = () => {
 	});
 };
 
-export const useUpdateBookingQuantity = () => {
+export const useupdateBooking = () => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
-			adminApi.updateBookingQuantity(id, data),
+			adminApi.updateBooking(id, data),
 		onSuccess: async () => {
 			addToast('Booking updated successfully', ToastType.SUCCESS);
 			closeModal();
@@ -167,6 +167,22 @@ export const useUpdateEvent = () => {
 		},
 	});
 };
+
+export function useCancelOccurrence() {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	return useMutation({
+		mutationFn: (occurrenceId: string) => adminApi.cancelOccurrence(occurrenceId),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
+		},
+		onError: (error) => {
+			const message = getApiErrorMessage(error, 'Could not cancel occurrence')
+			addToast(message, ToastType.ERROR)
+		},
+	});
+}
 
 export const useDeleteEvent = () => {
 	const queryClient = useQueryClient();
@@ -258,7 +274,8 @@ export const useUpdateCategory = () => {
 	const { closeModal } = useModalStore();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) => adminApi.updateCategory(id, data),
+		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
+			adminApi.updateCategory(id, data),
 		onSuccess: async () => {
 			addToast('Category updated successfully', ToastType.SUCCESS);
 			closeModal();

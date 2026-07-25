@@ -12,6 +12,7 @@ export const EventTranslationSchema = z.object({
   title: z.string(),
   description: z.string(),
   location: z.string(),
+  meetingLocation: z.string(),
   whatsIncluded: z.string().array(),
 })
 

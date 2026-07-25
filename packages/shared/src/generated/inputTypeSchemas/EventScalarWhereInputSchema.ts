@@ -2,7 +2,6 @@ import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { StringFilterSchema } from './StringFilterSchema';
-import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumEventDifficultyNullableFilterSchema } from './EnumEventDifficultyNullableFilterSchema';
 import { EventDifficultySchema } from './EventDifficultySchema';
 import { DecimalFilterSchema } from './DecimalFilterSchema';
@@ -18,7 +17,8 @@ export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput
   OR: z.lazy(() => EventScalarWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => EventScalarWhereInputSchema), z.lazy(() => EventScalarWhereInputSchema).array() ]).optional(),
   id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  locationUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  locationUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  meetingLocationUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   difficulty: z.union([ z.lazy(() => EnumEventDifficultyNullableFilterSchema), z.lazy(() => EventDifficultySchema) ]).optional().nullable(),
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   duration: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),

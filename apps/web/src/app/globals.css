@@ -23,7 +23,13 @@
 
 @theme {
 	--color-primary: #1a7000;
+	--color-primary-foreground: #ffffff;
+
 	--color-accent: #008391;
+	--color-accent-foreground: #ffffff;
+
+	--color-destructive: #dc2626;
+	--color-destructive-foreground: #ffffff;
 
 	--font-heading: var(--font-sans);
 	--font-sans: var(--font-sans);

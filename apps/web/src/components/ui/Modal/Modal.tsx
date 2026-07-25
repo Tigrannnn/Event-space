@@ -75,7 +75,7 @@ export default function Modal({
 
 			{/* Modal content with zoom animation */}
 			<div
-				className={`fixed inset-0 z-50 flex ${getPositionClass(position)} pointer-events-none overflow-y-auto p-3 sm:p-4`}
+				className={`fixed inset-0 z-50 flex ${getPositionClass(position)} pointer-events-none p-3 sm:p-4`}
 			>
 				<motion.div
 					ref={containerRef}

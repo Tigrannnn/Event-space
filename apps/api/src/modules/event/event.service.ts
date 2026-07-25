@@ -21,6 +21,7 @@ import { MailService } from '@infra/mail/mail.service';
 import {
 	assertCanModify,
 	buildNewImageRows,
+	buildOccurrenceDateFilter,
 	eventMatchesGuestCapacity,
 	findRemovedImages,
 	sortByOrder,
@@ -124,13 +125,10 @@ export class EventService {
 					}
 				: {};
 
-		const occurrenceDateFilter: Prisma.DateTimeFilter =
-			startDate || endDate
-				? {
-						...(startDate && { gte: new Date(startDate) }),
-						...(endDate && { lte: new Date(endDate) }),
-					}
-				: { gt: new Date() };
+		const occurrenceDateFilter: Prisma.DateTimeFilter = buildOccurrenceDateFilter(
+			startDate,
+			endDate,
+		) ?? { gt: new Date() };
 
 		const statusFilter = {
 			status: EventStatusEnum.enum.PUBLISHED,
@@ -299,10 +297,19 @@ export class EventService {
 
 		const isCancelling = pureEventData.status === 'CANCELLED' && event.status !== 'CANCELLED';
 
-		// Validate occurrence dates if provided
+		// Validate occurrence dates if provided.
+		// Allow past occurrences that already exist on the event (they are not being created),
+		// but prevent creating new occurrences in the past.
+		const existingOccurrences = event.occurrences ?? [];
 		for (const occurrence of occurrences ?? []) {
-			if (new Date(occurrence.date) < new Date()) {
-				throw new BadRequestException('Cannot create an occurrence in the past');
+			if (!occurrence.id) {
+				const occDate = new Date(occurrence.date);
+				const matchesExisting = existingOccurrences.some(
+					(eo) => new Date(eo.date).getTime() === occDate.getTime(),
+				);
+				if (!matchesExisting && occDate < new Date()) {
+					throw new BadRequestException('Cannot create an occurrence in the past');
+				}
 			}
 		}
 

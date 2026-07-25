@@ -76,6 +76,7 @@ export function getEventTranslation(
 			title: '',
 			description: '',
 			location: '',
+			meetingLocation: '',
 			whatsIncluded: [],
 		};
 	}

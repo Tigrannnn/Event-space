@@ -8,7 +8,8 @@ export function isAxiosApiError(error: unknown): error is AxiosError<ApiErrorDat
 	return error instanceof AxiosError && !!error.response?.data?.message;
 }
 
-export function getApiErrorMessage(error: unknown, fallback: string): string {
+export function getApiErrorMessage(error: unknown, fallback?: string): string {
+	fallback = fallback || 'An unexpected error occurred';
 	if (isAxiosApiError(error)) {
 		return error.response?.data?.message || fallback;
 	}

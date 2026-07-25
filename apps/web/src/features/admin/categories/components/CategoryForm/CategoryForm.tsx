@@ -9,6 +9,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
+import { XIcon } from 'lucide-react';
 
 interface CategoryFormProps {
 	submitLabel: string;
@@ -135,7 +136,7 @@ export default function CategoryForm({
 												}
 											}}
 										>
-											✕
+											<XIcon className="h-3 w-3" />
 										</button>
 									)}
 								</div>

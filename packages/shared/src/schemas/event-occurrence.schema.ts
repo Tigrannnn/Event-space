@@ -10,9 +10,16 @@ export const CreateEventOccurrenceSchema = z.object({
 	maxParticipants: z.number().int().min(1).optional(),
 });
 
+export const UpdateEventOccurrenceSchema = CreateEventOccurrenceSchema.extend({
+	id: z.string().uuid().optional(),
+});
+
+export type UpdateEventOccurrenceData = z.infer<typeof UpdateEventOccurrenceSchema>;
+
 export const EventOccurrenceSchema = GeneratedEventOccurrenceSchema.extend({
 	maxParticipants: z.number().int(),
 	currentParticipants: z.number().int(),
+	_count: z.object({ bookings: z.number().int() }).optional(),
 });
 
 export type EventOccurrence = z.infer<typeof EventOccurrenceSchema>;

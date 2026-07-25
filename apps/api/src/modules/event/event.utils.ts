@@ -104,3 +104,21 @@ export function eventMatchesGuestCapacity(
 
 	return minFreeSpots >= guestCount;
 }
+
+export function buildOccurrenceDateFilter(startDate?: string, endDate?: string): Prisma.DateTimeFilter | undefined {
+	if (!startDate && !endDate) {
+		return undefined;
+	}
+
+	const filter: Prisma.DateTimeFilter = {};
+
+	if (startDate) {
+		filter.gte = new Date(`${startDate}T00:00:00.000`);
+	}
+
+	if (endDate) {
+		filter.lte = new Date(`${endDate}T23:59:59.999`);
+	}
+
+	return filter;
+}

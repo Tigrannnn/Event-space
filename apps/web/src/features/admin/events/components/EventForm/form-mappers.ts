@@ -14,6 +14,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 		translations: [],
 		images: [],
 		locationUrl: '',
+		meetingLocationUrl: '',
 		date: '',
 		difficulty: '',
 		status: EventStatusEnum.enum.DRAFT,
@@ -46,6 +47,7 @@ function buildEventFields(values: EventFormValues) {
 	const occurrences = values.occurrences
 		.filter((occurrence) => occurrence.date)
 		.map((occurrence) => ({
+			id: occurrence.id,
 			date: new Date(occurrence.date).toISOString(),
 			maxParticipants: occurrence.maxParticipants ? Number(occurrence.maxParticipants) : undefined,
 		}));
@@ -58,7 +60,8 @@ function buildEventFields(values: EventFormValues) {
 		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
 		difficulty: values.difficulty || undefined,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
-		maxParticipants: primaryOccurrence?.maxParticipants ?? (Number(values.maxParticipants || 0) || undefined),
+		maxParticipants:
+			primaryOccurrence?.maxParticipants ?? (Number(values.maxParticipants || 0) || undefined),
 		duration: Number(values.duration),
 		status: values.status,
 		occurrences,
@@ -109,15 +112,18 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		}));
 
 	const occurrences = (event.occurrences ?? []).map((occurrence) => ({
+		id: occurrence.id,
 		date: toDateTimeLocalInput(occurrence.date),
 		maxParticipants: String(occurrence.maxParticipants ?? ''),
+		status: occurrence.status,
+		bookingsCount: occurrence._count?.bookings ?? 0,
 	}));
 
 	return {
 		categoryId: event.categoryId,
 		images,
 		locationUrl: event.locationUrl ?? '',
-		date: occurrences[0] ? toDateTimeLocalInput(event.occurrences?.[0]?.date ?? '') : '',
+		meetingLocationUrl: event.meetingLocationUrl ?? '',
 		difficulty: event.difficulty ?? '',
 		price: String(event.price),
 		duration: String(event.duration),
@@ -135,6 +141,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			title: t.title,
 			description: t.description,
 			location: t.location,
+			meetingLocation: t.meetingLocation,
 			whatsIncluded: t.whatsIncluded.join('\n'),
 		})),
 		cancellationReason: undefined,

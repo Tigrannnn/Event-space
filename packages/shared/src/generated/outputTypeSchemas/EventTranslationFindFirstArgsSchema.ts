@@ -16,6 +16,7 @@ export const EventTranslationSelectSchema: z.ZodType<Prisma.EventTranslationSele
   title: z.boolean().optional(),
   description: z.boolean().optional(),
   location: z.boolean().optional(),
+  meetingLocation: z.boolean().optional(),
   whatsIncluded: z.boolean().optional(),
   event: z.union([z.boolean(),z.lazy(() => EventArgsSchema)]).optional(),
 }).strict()

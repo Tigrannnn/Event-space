@@ -10,7 +10,7 @@ import {
 } from './cancellation-policy-rule.schema';
 import { CategorySchema } from './category.schema';
 import { CreateEventTranslationSchema, EventTranslationSchema } from './event-translation.schema';
-import { CreateEventOccurrenceSchema, EventOccurrenceSchema } from './event-occurrence.schema';
+import { CreateEventOccurrenceSchema, EventOccurrenceSchema, UpdateEventOccurrenceSchema } from './event-occurrence.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -32,7 +32,6 @@ export const EventSchema = GeneratedEventSchema.extend({
 	images: z.array(EventImageSchema).optional(),
 	organizer: SafeUserSchema.optional(),
 	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
-	locationUrl: z.string().url().nullable().optional(),
 	translations: z.array(EventTranslationSchema).default([]),
 	category: CategorySchema,
 	occurrences: z.array(EventOccurrenceSchema),
@@ -129,6 +128,7 @@ export type CreateEventData = z.infer<typeof CreateEventSchema>;
 // === UPDATE EVENT ===
 export const UpdateEventSchema = CreateEventSchema.partial().extend({
 	cancellationReason: z.string().optional(),
+	occurrences: z.array(UpdateEventOccurrenceSchema).optional(),
 });
 
 export type UpdateEventData = z.infer<typeof UpdateEventSchema>;

@@ -11,6 +11,7 @@ export const EventTranslationOrderByWithRelationInputSchema: z.ZodType<Prisma.Ev
   title: z.lazy(() => SortOrderSchema).optional(),
   description: z.lazy(() => SortOrderSchema).optional(),
   location: z.lazy(() => SortOrderSchema).optional(),
+  meetingLocation: z.lazy(() => SortOrderSchema).optional(),
   whatsIncluded: z.lazy(() => SortOrderSchema).optional(),
   event: z.lazy(() => EventOrderByWithRelationInputSchema).optional(),
 });

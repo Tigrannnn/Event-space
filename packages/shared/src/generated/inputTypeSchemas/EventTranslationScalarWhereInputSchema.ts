@@ -16,6 +16,7 @@ export const EventTranslationScalarWhereInputSchema: z.ZodType<Prisma.EventTrans
   title: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   description: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   location: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  meetingLocation: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   whatsIncluded: z.lazy(() => StringNullableListFilterSchema).optional(),
 });
 

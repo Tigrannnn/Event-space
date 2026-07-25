@@ -6,7 +6,6 @@ import {
 	ServiceUnavailableException,
 	Logger,
 } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
@@ -161,7 +160,7 @@ export class BookingService {
 	}
 
 	async createManualBooking(adminId: string, data: CreateManualBookingData) {
-		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email } = data;
+		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email, phone } = data;
 
 		const result = await this.prisma.$transaction(async (tx) => {
 			const occurrence = await tx.eventOccurrence.findUnique({
@@ -193,11 +192,21 @@ export class BookingService {
 			let targetUserId = userId;
 			let cancelledPaymentIntentId: string | null = null;
 
+			if (email) {
+				const existingUser = await tx.user.findUnique({ where: { email } });
+				if (existingUser) {
+					throw new ConflictException(
+						`User with email ${email} already exists. Please provide a different email or use the existing user's ID.`,
+					);
+				}
+			}
+
 			if (name) {
 				const shadowUser = await tx.user.create({
 					data: {
 						email,
 						name,
+						phone,
 						isShadow: true,
 						emailVerified: false,
 					},
