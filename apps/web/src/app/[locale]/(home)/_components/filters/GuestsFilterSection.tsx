@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { MinusIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
+import { Button } from '@/components/ui/primitives/button';
 import { FilterTriggerButton } from './FilterTriggerButton';
 import type { EventsFiltersState } from './types';
 

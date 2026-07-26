@@ -7,6 +7,7 @@ import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
 import { useTranslation } from '@/hooks/translation';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import {
 	Table,
 	TableBody,
@@ -36,11 +37,13 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface BookingsTableProps {
 	initialBookings: PaginatedResponse<BookingWithDetails>;
+	disableFetch?: boolean;
 }
 
-export default function BookingsTable({ initialBookings }: BookingsTableProps) {
+export default function BookingsTable({ initialBookings, disableFetch }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const navigation = useLocalizedNavigation();
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const [skip, setSkip] = useState(initialBookings.skip);
@@ -58,8 +61,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		status,
 		time,
 		eventId,
-	});
-	const bookingsResponse = data ?? initialBookings;
+	}, { enabled: !disableFetch });
+	const bookingsResponse = disableFetch ? initialBookings : data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
 	const pageEnd = Math.min(
 		bookingsResponse.skip + bookingsResponse.data.length,
@@ -68,7 +71,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const canGoPrevious = bookingsResponse.skip > 0;
 	const canGoNext = bookingsResponse.hasMore && bookingsResponse.nextSkip !== null;
 	const hasActiveFilters = Boolean(
-		search || status !== undefined || time !== undefined || eventId !== undefined,
+		search || status !== undefined || time !== undefined || eventId !== undefined || disableFetch,
 	);
 
 	const { openModal } = useModalStore();
@@ -114,6 +117,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		setTime(undefined);
 		setEventId(undefined);
 		resetPagination();
+		if (disableFetch) {
+			navigation.push('/admin/bookings');
+		}
 	};
 
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {

@@ -3,7 +3,7 @@
 import type React from 'react';
 import { cn } from '@/utils/cn';
 import { ChevronDownIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/primitives/button';
 
 interface FilterTriggerButtonProps extends React.ComponentProps<typeof Button> {
     isActive?: boolean;

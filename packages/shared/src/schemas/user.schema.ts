@@ -50,6 +50,7 @@ export const UserFiltersSchema = z.object({
 	search: z.string().optional(),
 	role: UserRoleSchema.optional(),
 	emailVerified: z.coerce.boolean().optional(),
+	userId: z.string().optional(),
 });
 
 export type UserFilters = z.infer<typeof UserFiltersSchema>;

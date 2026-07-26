@@ -23,24 +23,27 @@ export const useStats = () => {
 	});
 };
 
-export const useAdminUsers = (params?: UserFilters) => {
+export const useAdminUsers = (params?: UserFilters, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'users', params],
 		queryFn: () => adminApi.getUsers(params),
+		enabled: options?.enabled ?? true,
 	});
 };
 
-export const useAdminEvents = (params?: EventFilters) => {
+export const useAdminEvents = (params?: EventFilters, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'events', params],
 		queryFn: () => adminApi.getEvents(params),
+		enabled: options?.enabled ?? true,
 	});
 };
 
-export const useAdminBookings = (params?: BookingFilters) => {
+export const useAdminBookings = (params?: BookingFilters, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'bookings', params],
 		queryFn: () => adminApi.getBookings(params),
+		enabled: options?.enabled ?? true,
 	});
 };
 
@@ -90,7 +93,7 @@ export const useCancelBookingByAdmin = () => {
 	});
 };
 
-export const useupdateBooking = () => {
+export const useUpdateBooking = () => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
@@ -240,10 +243,11 @@ export const useCreateManualBooking = () => {
 	});
 };
 
-export const useAdminCategories = (params?: { skip?: number; limit?: number; search?: string }) => {
+export const useAdminCategories = (params?: { skip?: number; limit?: number; search?: string }, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'categories', params],
 		queryFn: () => adminApi.getCategories(params),
+		enabled: options?.enabled ?? true,
 	});
 };
 

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Category, getCategoryTranslation } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import {
 	Command,
 	CommandEmpty,

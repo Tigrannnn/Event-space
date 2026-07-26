@@ -6,7 +6,7 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { cn } from '@/utils/cn';
 import { useTranslation } from '@/hooks/translation';
 
-export default function LanguageSwitcher({ className }: { className?: string }) {
+export default function zLanguageSwitcher({ className }: { className?: string }) {
     const translate = useTranslation();
     const { switchLocale } = useLocalizedNavigation();
     

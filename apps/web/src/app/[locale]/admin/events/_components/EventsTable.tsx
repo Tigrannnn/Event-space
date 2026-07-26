@@ -35,6 +35,7 @@ import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -43,9 +44,10 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface EventsTableProps {
 	initialEvents: PaginatedResponse<Event>;
+	disableFetch?: boolean;
 }
 
-export default function EventsTable({ initialEvents }: EventsTableProps) {
+export default function EventsTable({ initialEvents, disableFetch }: EventsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
@@ -63,21 +65,27 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const [maxPrice, setMaxPrice] = useState<number | undefined>();
 	const { openModal } = useModalStore();
 	const { addToast } = useToastStore();
+	const navigation = useLocalizedNavigation();
 	const confirm = useConfirm();
-	const { data, isFetching } = useAdminEvents({
-		skip,
-		limit,
-		search: search || undefined,
-		status,
-		difficulty,
-		time,
-		minPrice,
-		maxPrice,
-	});
+
+	const { data, isFetching } = useAdminEvents(
+		{
+			skip,
+			limit,
+			search: search || undefined,
+			status,
+			difficulty,
+			time,
+			minPrice,
+			maxPrice,
+		},
+		{ enabled: !disableFetch },
+	);
+
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const router = useRouter();
-	const eventsResponse = data ?? initialEvents;
+	const eventsResponse = disableFetch ? initialEvents : (data ?? initialEvents);
 	const pageStart = eventsResponse.total === 0 ? 0 : eventsResponse.skip + 1;
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
 	const canGoPrevious = eventsResponse.skip > 0;
@@ -88,8 +96,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		difficulty !== undefined ||
 		time !== undefined ||
 		minPrice !== undefined ||
-		maxPrice !== undefined,
+		maxPrice !== undefined ||
+		disableFetch,
 	);
+
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
 		value: eventStatus,
@@ -153,6 +163,9 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		setMaxPriceInput('');
 		setMaxPrice(undefined);
 		resetPagination();
+		if (disableFetch) {
+			navigation.push('/admin/events');
+		}
 	};
 
 	const handlePreviousPage = () => {
@@ -291,6 +304,8 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 					<TableHeader>
 						<TableRow>
 							<TableHead className="px-3 sm:px-5">{translate('admin.event')}</TableHead>
+							<TableHead>{translate('admin.category')}</TableHead>
+							<TableHead>{translate('admin.organizer')}</TableHead>
 							<TableHead>{translate('admin.status')}</TableHead>
 							<TableHead>{translate('admin.price')}</TableHead>
 							<TableHead className="w-32">{translate('admin.actions')}</TableHead>
@@ -321,6 +336,38 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 											</button>
 											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
 												{categoryTranslation.name || '-'} · {eventTranslation.location}
+											</p>
+										</div>
+									</TableCell>
+									<TableCell>
+										<div className="max-w-md min-w-0">
+											<button
+												type="button"
+												onClick={() => {
+													router.push(`/admin/categories/${event.category?.id}`);
+												}}
+												className="text-primary mt-1 block text-left font-medium hover:underline"
+											>
+												{categoryTranslation.name || '-'}
+											</button>
+										</div>
+									</TableCell>
+									<TableCell>
+										<div className="max-w-md min-w-0">
+											<button
+												type="button"
+												onClick={() => {
+													router.push(`/admin/users/${event.organizer?.id}`);
+												}}
+												className="text-primary mt-1 block text-left font-medium hover:underline"
+											>
+												{event.organizer?.name ?? '—'}
+											</button>
+											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+												{event.organizer?.email}
+											</p>
+											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+												{event.organizer?.phone || '-'}
 											</p>
 										</div>
 									</TableCell>

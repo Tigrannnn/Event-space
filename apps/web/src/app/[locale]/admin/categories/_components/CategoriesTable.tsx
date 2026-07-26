@@ -17,6 +17,7 @@ import { useAdminCategories, useDeleteCategory } from '@/features/admin/hooks/us
 import { useModalStore, ModalType } from '@/stores';
 import { getCategoryTranslation, type PaginatedResponse, type Category } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -25,9 +26,10 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface CategoriesTableProps {
 	initialCategories: PaginatedResponse<Category>;
+	disableFetch?: boolean;
 }
 
-export default function CategoriesTable({ initialCategories }: CategoriesTableProps) {
+export default function CategoriesTable({ initialCategories, disableFetch }: CategoriesTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const [skip, setSkip] = useState(initialCategories.skip);
@@ -36,14 +38,18 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 	const [search, setSearch] = useState('');
 	const { openModal } = useModalStore();
 	const confirm = useConfirm();
-	const { data, isFetching } = useAdminCategories({
-		skip,
-		limit,
-		search: search || undefined,
-	});
+	const { data, isFetching } = useAdminCategories(
+		{
+			skip,
+			limit,
+			search: search || undefined,
+		},
+		{ enabled: !disableFetch },
+	);
 	const deleteCategory = useDeleteCategory();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
-	const categoriesResponse = data ?? initialCategories;
+	const navigation = useLocalizedNavigation();
+	const categoriesResponse = disableFetch ? initialCategories : data ?? initialCategories;
 	const pageStart = categoriesResponse.total === 0 ? 0 : categoriesResponse.skip + 1;
 	const pageEnd = Math.min(
 		categoriesResponse.skip + categoriesResponse.data.length,
@@ -51,7 +57,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 	);
 	const canGoPrevious = categoriesResponse.skip > 0;
 	const canGoNext = categoriesResponse.hasMore && categoriesResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search);
+	const hasActiveFilters = Boolean(search || disableFetch);
 
 	const resetPagination = () => {
 		setSkip(0);
@@ -72,6 +78,9 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 		setSearchInput('');
 		setSearch('');
 		resetPagination();
+		if (disableFetch) {
+			navigation.push('/admin/categories');
+		}
 	};
 
 	const handlePreviousPage = () => {

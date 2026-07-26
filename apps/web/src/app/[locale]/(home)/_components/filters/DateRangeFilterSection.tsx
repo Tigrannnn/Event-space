@@ -6,9 +6,9 @@ import { DateRange } from 'react-day-picker';
 import { addDays, endOfMonth, startOfMonth, startOfToday } from 'date-fns';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
+import { Calendar } from '@/components/ui/primitives/calendar';
+import { Button } from '@/components/ui/primitives/button';
 import { FilterTriggerButton } from './FilterTriggerButton';
 import type { DateRangeFilter, EventsFiltersState } from './types';
 

@@ -28,11 +28,18 @@ export default function EventDetailsModal() {
 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
-	const primaryOccurrence = event.occurrences?.[0];
 	const occurrences = event.occurrences ?? [];
+	const totalCapacity = occurrences.reduce((sum, o) => sum + o.maxParticipants, 0);
+	const totalBooked = occurrences.reduce((sum, o) => sum + o.currentParticipants, 0);
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(event.id);
+		addToast(translate('admin.copyId'), ToastType.SUCCESS);
+	};
+
+	const handleCopyOrganizerId = () => {
+		if (!event.organizer?.id) return;
+		navigator.clipboard.writeText(event.organizer.id);
 		addToast(translate('admin.copyId'), ToastType.SUCCESS);
 	};
 
@@ -95,11 +102,18 @@ export default function EventDetailsModal() {
 
 							<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-									{translate('admin.category')}
-								</p>
-								<p className="mt-1 font-medium text-gray-900 dark:text-white">
-									{categoryTranslation?.name || '-'}
-								</p>
+										{translate('admin.category')}
+									</p>
+									<button
+										type="button"
+										onClick={() => {
+											closeModal();
+											router.push(`/admin/users/${event.category.id}`);
+										}}
+										className="text-primary mt-1 block text-left font-medium hover:underline"
+									>
+										{categoryTranslation.name ?? '—'}
+									</button>
 							</div>
 
 							<div className="grid gap-3 sm:grid-cols-1">
@@ -111,12 +125,30 @@ export default function EventDetailsModal() {
 										{occurrences.length > 0 ? (
 											occurrences.map((occurrence) => (
 												<div key={occurrence.id} className="rounded-xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
-													<p className="text-sm font-medium text-gray-900 dark:text-white">
-														{formatDateTime(occurrence.date)}
-													</p>
+													<div className="flex items-center justify-between">
+														<p className="text-sm font-medium text-gray-900 dark:text-white">
+															{formatDateTime(occurrence.date)}
+														</p>
+														<span
+															className={`text-xs font-medium ${
+																occurrence.status === 'CANCELLED'
+																	? 'text-red-500'
+																	: 'text-gray-500 dark:text-gray-400'
+															}`}
+														>
+															{occurrence.status}
+														</span>
+													</div>
 													<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-														{occurrence.currentParticipants}/{occurrence.maxParticipants} {translate('admin.seats')}
+														{occurrence.currentParticipants}/{occurrence.maxParticipants}{' '}
+														{translate('admin.seats')}
 													</p>
+													{occurrence.cancelledAt && (
+														<p className="mt-1 text-xs text-red-500">
+															{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
+															{occurrence.cancelReason ? ` — ${occurrence.cancelReason}` : ''}
+														</p>
+													)}
 												</div>
 											))
 										) : (
@@ -132,12 +164,32 @@ export default function EventDetailsModal() {
 										{translate('event.location')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.location}</p>
+									{event.locationUrl && (
+										<a
+											href={event.locationUrl}
+											target="_blank"
+											rel="noreferrer"
+											className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
+										>
+											{translate('admin.openLocation')}
+										</a>
+									)}
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.meetingLocation')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.meetingLocation}</p>
+									{event.meetingLocationUrl && (
+										<a
+											href={event.meetingLocationUrl}
+											target="_blank"
+											rel="noreferrer"
+											className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
+										>
+											{translate('admin.openMeetingLocation')}
+										</a>
+									)}
 								</div>
 							</div>
 
@@ -163,7 +215,7 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.difficulty')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.difficulty}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.difficulty ?? '—'}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -179,14 +231,47 @@ export default function EventDetailsModal() {
 										{translate('admin.capacity')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{primaryOccurrence ? `${primaryOccurrence.currentParticipants}/${primaryOccurrence.maxParticipants}` : '—'}
+										{occurrences.length > 0 ? `${totalBooked}/${totalCapacity}` : '—'}
+									</p>
+									<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+										{translate('admin.acrossOccurrences')} ({occurrences.length})
 									</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.organizer')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.organizer?.name}</p>
+									<button
+										type="button"
+										onClick={() => {
+											closeModal();
+											router.push(`/admin/users/${event.organizer?.id}`);
+										}}
+										className="text-primary mt-1 block text-left font-medium hover:underline"
+									>
+										{event.organizer?.name ?? '—'}
+									</button>
+									{event.organizer?.email && (
+										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.email}</p>
+									)}
+									{event.organizer?.phone && (
+										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.phone}</p>
+									)}
+									{event.organizer?.id && (
+										<div className="mt-2 flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
+											<code className="flex-1 font-mono text-[0.65rem] break-all text-gray-700 dark:text-gray-300">
+												{event.organizer.id}
+											</code>
+											<button
+												type="button"
+												onClick={handleCopyOrganizerId}
+												className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+												title="Copy organizer ID"
+											>
+												<Copy className="h-3 w-3" />
+											</button>
+										</div>
+									)}
 								</div>
 							</div>
 
@@ -259,17 +344,6 @@ export default function EventDetailsModal() {
 									</ul>
 								</div>
 							) : null}
-
-							{event.locationUrl && (
-								<a
-									href={event.locationUrl}
-									target="_blank"
-									rel="noreferrer"
-									className="text-primary text-sm font-medium hover:underline"
-								>
-									{translate('admin.openMeetingLocation')}
-								</a>
-							)}
 						</div>
 					</section>
 				</div>

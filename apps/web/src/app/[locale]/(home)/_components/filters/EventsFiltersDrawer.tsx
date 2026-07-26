@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SlidersHorizontalIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/primitives/button';
 import {
 	Sheet,
 	SheetContent,
@@ -11,7 +11,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
-} from '@/components/ui/sheet';
+} from '@/components/ui/primitives/sheet';
 import { CategoryFilterSection } from './CategoryFilterSection';
 import { DateRangeFilterSection } from './DateRangeFilterSection';
 import { GuestsFilterSection } from './GuestsFilterSection';

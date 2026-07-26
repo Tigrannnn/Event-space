@@ -20,6 +20,7 @@ import type {
 	BookingWithDetails,
 	AdminCancelBookingData,
 	UpdateBookingData,
+	Category,
 } from '@event-space/shared';
 
 const safeUserSelect = {
@@ -328,6 +329,23 @@ export class AdminService {
 
 	async findOneUser(id: string): Promise<SafeUserData | null> {
 		return this.prisma.user.findUnique({ where: { id }, select: safeUserSelect });
+	}
+
+	async findOneBooking(id: string): Promise<BookingWithDetails | null> {
+		const booking = await this.prisma.booking.findUnique({
+			where: { id },
+			include: bookingInclude,
+		});
+
+		if (!booking) return null;
+		return normalizeBookingResponse(booking);
+	}
+
+	async findOneCategory(id: string): Promise<Category | null> {
+		return this.prisma.category.findUnique({
+			where: { id },
+			include: { translations: true },
+		});
 	}
 
 	async updateUserRole(id: string, role: UserRoleType): Promise<SafeUserData> {
@@ -829,6 +847,7 @@ export class AdminService {
 							name: true,
 							email: true,
 							image: true,
+							phone: true,
 						},
 					},
 					images: { orderBy: { order: 'asc' } },

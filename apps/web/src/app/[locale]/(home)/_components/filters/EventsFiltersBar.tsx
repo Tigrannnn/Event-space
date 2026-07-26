@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/primitives/button';
 import { CategoryFilterSection } from './CategoryFilterSection';
 import { DateRangeFilterSection } from './DateRangeFilterSection';
 import { GuestsFilterSection } from './GuestsFilterSection';

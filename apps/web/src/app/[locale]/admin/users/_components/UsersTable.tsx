@@ -18,6 +18,7 @@ import { useAdminUsers, useUpdateUserRole } from '@/features/admin/hooks/useAdmi
 import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -26,6 +27,7 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface UsersTableProps {
 	initialUsers: PaginatedResponse<SafeUserData>;
+	disableFetch?: boolean;
 }
 
 function formatDate(value: SafeUserData['createdAt']) {
@@ -36,29 +38,35 @@ function formatDate(value: SafeUserData['createdAt']) {
 	}).format(new Date(value));
 }
 
-export default function UsersTable({ initialUsers }: UsersTableProps) {
+export default function UsersTable({ initialUsers, disableFetch }: UsersTableProps) {
 	const translate = useTranslation();
+	const navigation = useLocalizedNavigation();
 	const [skip, setSkip] = useState(initialUsers.skip);
 	const [limit, setLimit] = useState(initialUsers.take);
 	const [searchInput, setSearchInput] = useState('');
 	const [search, setSearch] = useState('');
 	const [role, setRole] = useState<UserRoleType | undefined>();
 	const [emailVerified, setEmailVerified] = useState<boolean | undefined>();
-	const { data, isFetching } = useAdminUsers({
-		skip,
-		limit,
-		search: search || undefined,
-		role,
-		emailVerified,
-	});
+	const { data, isFetching } = useAdminUsers(
+		{
+			skip,
+			limit,
+			search: search || undefined,
+			role,
+			emailVerified,
+		},
+		{ enabled: !disableFetch },
+	);
 	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
-	const usersResponse = data ?? initialUsers;
+	const usersResponse = disableFetch ? initialUsers : data ?? initialUsers;
+	const isSingleUserLookup = Boolean(search && search.length > 0 && search.includes('-'));
+	const effectiveUsers = isSingleUserLookup && usersResponse.data.length > 0 ? usersResponse.data : usersResponse.data;
 	const pageStart = usersResponse.total === 0 ? 0 : usersResponse.skip + 1;
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
 	const canGoPrevious = usersResponse.skip > 0;
 	const canGoNext = usersResponse.hasMore && usersResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search || role !== undefined || emailVerified !== undefined);
+	const hasActiveFilters = Boolean(search || role !== undefined || emailVerified !== undefined || disableFetch);
 	const userRoleOptions = UserRoleSchema.options.map((userRole) => ({
 		value: userRole,
 		label: userRole === 'ADMIN' ? translate('admin.admin') : translate('admin.user'),
@@ -70,7 +78,8 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setSearch(searchInput.trim());
+		const trimmed = searchInput.trim();
+		setSearch(trimmed);
 		resetPagination();
 	};
 
@@ -95,6 +104,9 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 		setRole(undefined);
 		setEmailVerified(undefined);
 		resetPagination();
+		if (disableFetch) {
+			navigation.push('/admin/users');
+		}
 	};
 
 	const handleRoleChange = (userId: string, nextRole: UserRoleType) => {
@@ -195,7 +207,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{usersResponse.data.length === 0 && (
+					{effectiveUsers.length === 0 && (
 						<TableRow>
 							<TableCell colSpan={6} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noUsersFound')}
@@ -203,7 +215,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 						</TableRow>
 					)}
 
-					{usersResponse.data.map((user) => (
+					{effectiveUsers.map((user) => (
 						<TableRow key={user.id}>
 							<TableCell className="px-3 sm:px-5">
 								<div className="max-w-md min-w-0">

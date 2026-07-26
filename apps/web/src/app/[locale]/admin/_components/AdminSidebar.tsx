@@ -6,6 +6,7 @@ import { cn } from '@/utils/cn';
 import { LayoutDashboard, Calendar, Users, LogOut, Ticket, CheckCircle, X, Tag } from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 
 interface AdminSidebarProps {
 	mobileOpen?: boolean;
@@ -49,7 +50,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 
 			<nav className="flex-1 space-y-1 overflow-y-auto p-4">
 				{navItems.map((item) => {
-					const isActive = internalPathname === item.href;
+					const isActive = item.href.includes(internalPathname) || internalPathname.includes(item.href);
 					const Icon = item.icon;
 
 					return (
@@ -80,6 +81,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 					<LogOut className="h-5 w-5 shrink-0" />
 					{translate('admin.exitToSite')}
 				</Link>
+				<LanguageSwitcher className="mt-4 bg-gray-400"/>
 			</div>
 		</aside>
 	);

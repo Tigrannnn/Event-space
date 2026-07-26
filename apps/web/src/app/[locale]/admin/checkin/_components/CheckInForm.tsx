@@ -11,6 +11,7 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search, CreditCard } from 'lucide-react';
 import { getEventTranslation } from '@event-space/shared';
 import { localeIntl } from '@/lib/i18n/config';
+import { useConfirm } from '@/hooks/confirmModal';
 
 export default function CheckInForm() {
 	const translate = useTranslation();
@@ -41,6 +42,20 @@ export default function CheckInForm() {
 			addToast('Failed to check in', ToastType.ERROR);
 		},
 	});
+
+	const confirm = useConfirm();
+
+	const handleCheckIn = async () => {
+		const confirmed = await confirm({
+			variant: 'primary',
+			title: translate('admin.confirmCheckIn'),
+			message: translate('admin.confirmCheckInMessage'),
+		});
+
+		if (confirmed && booking) {
+			checkIn(booking.id);
+		}
+	};
 
 	const handleSearch = () => {
 		const num = parseInt(input.replace('#', '').trim(), 10);
@@ -192,7 +207,7 @@ export default function CheckInForm() {
 							<Button
 								variant="primary"
 								className="h-11 w-full text-sm font-bold"
-								onClick={() => checkIn(booking.id)}
+								onClick={handleCheckIn}
 								isLoading={isCheckingIn}
 							>
 								{translate('admin.confirmCheckIn')}

@@ -39,6 +39,7 @@ export const adminApi = {
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),
 	getEvents: (params?: EventFilters) =>
 		clientApi.get<PaginatedResponse<Event>>('/admin/events', { params }).then((res) => res.data),
+	getEventById: (id: string) => clientApi.get<Event>(`/admin/events/${id}`).then((res) => res.data),
 	createEvent: (formData: FormData) =>
 		clientApi
 			.post<Event>('/events', formData, {
@@ -58,6 +59,12 @@ export const adminApi = {
 		clientApi
 			.get<PaginatedResponse<SafeUserData>>('/admin/users', { params })
 			.then((res) => res.data),
+	getUserById: (id: string) =>
+		clientApi.get<SafeUserData>(`/admin/users/${id}`).then((res) => res.data),
+	getBookingById: (id: string) =>
+		clientApi.get<BookingWithDetails>(`/admin/bookings/${id}`).then((res) => res.data),
+	getCategoryById: (id: string) =>
+		clientApi.get<Category>(`/admin/categories/${id}`).then((res) => res.data),
 	updateUserRole: (id: string, role: UserRoleType) =>
 		clientApi.patch<SafeUserData>(`/admin/users/${id}/role`, { role }).then((res) => res.data),
 	createManualBooking: (data: CreateManualBookingData) =>

@@ -11,6 +11,7 @@ import {
 	Delete,
 	Post,
 	BadRequestException,
+	NotFoundException,
 } from '@nestjs/common';
 import {
 	ApiTags,
@@ -21,7 +22,6 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
-import { EventService } from '@modules/event/event.service';
 import { Roles, RolesGuard, GetCurrentUserId, ZodValidationPipe, parseOptionalQueryInt } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
@@ -52,6 +52,7 @@ import type {
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
+import { EventService } from '@modules/event/event.service';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -62,6 +63,7 @@ export class AdminController {
 	constructor(
 		private readonly adminService: AdminService,
 		private readonly bookingService: BookingService,
+		private readonly eventService: EventService,
 		private readonly rateLimiter: RateLimiterService,
 	) {}
 
@@ -79,6 +81,16 @@ export class AdminController {
 			throw new BadRequestException('Invalid reference number');
 		}
 		return this.adminService.findBookingByReference(referenceNumber);
+	}
+
+	@Get('bookings/:id')
+	@ApiOperation({ summary: 'Get booking by ID (admin only)' })
+	async getBookingById(@Param('id') id: string) {
+		const booking = await this.adminService.findOneBooking(id);
+		if (!booking) {
+			throw new NotFoundException('Booking not found');
+		}
+		return booking;
 	}
 
 	@Get('bookings')
@@ -164,6 +176,16 @@ export class AdminController {
 		return this.adminService.checkInBooking(id);
 	}
 
+	@Get('events/:id')
+	@ApiOperation({ summary: 'Get event by ID (admin only)' })
+	async getEventById(@Param('id') id: string) {
+		const event = await this.eventService.findOneAny(id);
+		if (!event) {
+			throw new NotFoundException('Event not found');
+		}
+		return event;
+	}
+
 	@Get('events')
 	@ApiOperation({ summary: 'Get all events (admin sees all statuses)' })
 	@ApiQuery({ name: 'skip', required: false, description: 'Items to skip', type: Number })
@@ -245,7 +267,7 @@ export class AdminController {
 	async getUserById(@Param('id') id: string) {
 		const user = await this.adminService.findOneUser(id);
 		if (!user) {
-			return { message: 'User not found' };
+			throw new NotFoundException('User not found');
 		}
 		return user;
 	}
@@ -304,6 +326,16 @@ export class AdminController {
 		);
 
 		return this.bookingService.createManualBooking(adminId, data);
+	}
+
+	@Get('categories/:id')
+	@ApiOperation({ summary: 'Get category by ID (admin only)' })
+	async getCategoryById(@Param('id') id: string) {
+		const category = await this.adminService.findOneCategory(id);
+		if (!category) {
+			throw new NotFoundException('Category not found');
+		}
+		return category;
 	}
 
 	@Get('categories')
