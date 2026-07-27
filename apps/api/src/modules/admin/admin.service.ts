@@ -50,9 +50,13 @@ const bookingInclude = {
 					category: { include: { translations: true } },
 					occurrences: {
 						include: {
-							_count: { select: { bookings: {
-								where: { status: 'CONFIRMED' }
-							} } },
+							_count: {
+								select: {
+									bookings: {
+										where: { status: 'CONFIRMED' },
+									},
+								},
+							},
 						},
 					},
 				},
@@ -90,9 +94,9 @@ const normalizeBookingResponse = (booking: any): BookingWithDetails => {
 				...booking.occurrence,
 				event: booking.occurrence.event
 					? {
-						...booking.occurrence.event,
-						price: Number(booking.occurrence.event.price),
-					}
+							...booking.occurrence.event,
+							price: Number(booking.occurrence.event.price),
+						}
 					: undefined,
 			}
 		: undefined;
@@ -154,7 +158,9 @@ export class AdminService {
 			this.prisma.event.count({ where: { status: 'DRAFT' } }),
 			this.prisma.event.count({ where: { status: 'CANCELLED' } }),
 			this.prisma.event.count({ where: { occurrences: { some: { date: { gte: now } } } } }),
-			this.prisma.event.count({ where: { occurrences: { some: { date: { gte: now, lte: weekFromNow } } } } }),
+			this.prisma.event.count({
+				where: { occurrences: { some: { date: { gte: now, lte: weekFromNow } } } },
+			}),
 			this.prisma.event.count({ where: { occurrences: { none: { bookings: { some: {} } } } } }),
 			this.prisma.eventOccurrence.aggregate({
 				_sum: {
@@ -185,9 +191,13 @@ export class AdminService {
 					},
 					occurrences: {
 						include: {
-							_count: { select: { bookings: {
-								where: { status: 'CONFIRMED' }
-							} } },
+							_count: {
+								select: {
+									bookings: {
+										where: { status: 'CONFIRMED' },
+									},
+								},
+							},
 						},
 					},
 					organizer: {
@@ -209,9 +219,13 @@ export class AdminService {
 					},
 					occurrences: {
 						include: {
-							_count: { select: { bookings: {
-								where: { status: 'CONFIRMED' }
-							} } },
+							_count: {
+								select: {
+									bookings: {
+										where: { status: 'CONFIRMED' },
+									},
+								},
+							},
 						},
 					},
 					organizer: {
@@ -399,7 +413,10 @@ export class AdminService {
 				});
 
 				if (reserved.count === 0) {
-					const spotsLeft = Math.max(0, booking.occurrence.maxParticipants - booking.occurrence.currentParticipants);
+					const spotsLeft = Math.max(
+						0,
+						booking.occurrence.maxParticipants - booking.occurrence.currentParticipants,
+					);
 					throw new ConflictException(
 						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
 					);
@@ -522,7 +539,9 @@ export class AdminService {
 		}
 
 		if (!event) {
-			this.logger.warn(`Event not found for booking ${bookingId} during admin cancel — skipping refund`);
+			this.logger.warn(
+				`Event not found for booking ${bookingId} during admin cancel — skipping refund`,
+			);
 			return {
 				booking: {
 					...booking,
@@ -563,9 +582,14 @@ export class AdminService {
 					refundResult = { amount: refund.amount, id: refund.id };
 				}
 			} else if (
-				CANCELABLE_PAYMENT_INTENT_STATUSES.includes(paymentIntent.status as CancelablePaymentIntentStatus)
+				CANCELABLE_PAYMENT_INTENT_STATUSES.includes(
+					paymentIntent.status as CancelablePaymentIntentStatus,
+				)
 			) {
-				await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `admin-cancel-${booking.paymentIntentId}`);
+				await this.stripe.cancelPaymentIntent(
+					booking.paymentIntentId,
+					`admin-cancel-${booking.paymentIntentId}`,
+				);
 			}
 		} catch (stripeError) {
 			refundStatus = 'FAILED';
@@ -854,14 +878,18 @@ export class AdminService {
 					occurrences: {
 						orderBy: { date: 'asc' },
 						include: {
-							_count: { select: { bookings: {
-								where: { status: 'CONFIRMED' }
-							} } },
+							_count: {
+								select: {
+									bookings: {
+										where: { status: 'CONFIRMED' },
+									},
+								},
+							},
 						},
 					},
-					category: { 
-						include: { translations: true }
-					 }
+					category: {
+						include: { translations: true },
+					},
 				},
 			}),
 			this.prisma.event.count({ where }),

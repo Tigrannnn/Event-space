@@ -32,6 +32,10 @@ export default function BookingCancelModal() {
 		{ value: 'RULES', label: translate('admin.refundStrategyRules') },
 		{ value: 'MANUAL', label: translate('admin.refundStrategyManual') },
 	] as const;
+	
+	if (booking.paymentMethod !== 'SITE_PAYMENT') {
+		setRefundType('MANUAL');
+	}
 
 	const eventTranslate = getEventTranslation(event, translate.locale);
 
@@ -62,7 +66,13 @@ export default function BookingCancelModal() {
 						</p>
 					</div>
 					<form onSubmit={handleCancelBooking} className="space-y-4">
+						
 						<div className="space-y-2">
+							{booking.paymentMethod !== 'SITE_PAYMENT' && (
+								<p className="text-sm text-gray-700 dark:text-gray-200">
+									{translate('admin.refundStrategyManual')}
+								</p>
+							)}
 							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
 								{translate('admin.refundStrategy')}
 							</label>

@@ -34,18 +34,11 @@ export default function BookingDetailsModal() {
 	const t = getEventTranslation(event, locale);
 	const adjustments = booking.adjustments ?? [];
 	const eventImages = event?.images ?? [];
-	const totalAmount = event ? Number(event.price) * booking.quantity : 0;
 
-	const handleCopyId = () => {
-		navigator.clipboard.writeText(booking.id);
+	const handleCopy = (value: string) => {
+		navigator.clipboard.writeText(value);
 		addToast(translate('admin.copyId'), ToastType.SUCCESS);
 	};
-
-	const refundOptions = [
-		{ value: 'FULL', label: translate('admin.refundStrategyFull') },
-		{ value: 'RULES', label: translate('admin.refundStrategyRules') },
-		{ value: 'MANUAL', label: translate('admin.refundStrategyManual') },
-	] as const;
 
 	return (
 		<Modal onClose={closeModal} size="xl" ariaLabel="Booking details">
@@ -86,7 +79,7 @@ export default function BookingDetailsModal() {
 								</code>
 								<button
 									type="button"
-									onClick={handleCopyId}
+									onClick={() => handleCopy(booking.id)}
 									className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
 									title="Copy ID"
 								>
@@ -104,7 +97,7 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.checkoutReference')}
+										{translate('admin.checkedAt')}
 									</p>
 									<p className="mt-1 font-medium">
 										{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
@@ -114,7 +107,14 @@ export default function BookingDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.status')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{booking.status}</p>
+									<div className="mt-1 flex items-center gap-2">
+										<p className="font-medium text-gray-900 dark:text-white">{booking.status}</p>
+										{booking.expired && (
+											<span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/40 dark:text-red-400">
+												{translate('booking.bookingExpired')}
+											</span>
+										)}
+									</div>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -140,6 +140,22 @@ export default function BookingDetailsModal() {
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.paymentMethod')}
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{booking.paymentMethod}</p>
+								</div>
+								{booking.createdByAdminId && (
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.createdByAdmin')}
+										</p>
+										<p className="mt-1 font-mono text-xs break-all text-gray-900 dark:text-white">
+											{booking.createdByAdminId}
+										</p>
+									</div>
+								)}
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.createdAt')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
@@ -155,13 +171,33 @@ export default function BookingDetailsModal() {
 									</p>
 								</div>
 							</div>
-						</section>
 
+							{booking.paymentIntentId && (
+								<div className="mt-3">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.paymentIntentId')}
+									</p>
+									<div className="mt-1 flex items-center gap-2 rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
+											{booking.paymentIntentId}
+										</code>
+										<button
+											type="button"
+											onClick={() => handleCopy(booking.paymentIntentId!)}
+											className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+											title="Copy Payment Intent ID"
+										>
+											<Copy className="h-3.5 w-3.5" />
+										</button>
+									</div>
+								</div>
+							)}
+						</section>
 
 						{adjustments.length > 0 && (
 							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-									Adjustments
+									{translate('admin.adjustments')}
 								</p>
 								<div className="mt-4 space-y-3">
 									{adjustments.map((adjustment) => (
@@ -177,11 +213,62 @@ export default function BookingDetailsModal() {
 													<p className="text-sm text-gray-500 dark:text-gray-400">{adjustment.status}</p>
 												</div>
 												<span className="text-sm font-medium text-gray-900 dark:text-white">
-													{formatCurrency(Number(adjustment.amount))}
+													{adjustment.currency.toUpperCase()} {formatCurrency(Number(adjustment.amount))}
 												</span>
 											</div>
+
 											{adjustment.reason && (
 												<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{adjustment.reason}</p>
+											)}
+
+											<div className="mt-3 grid gap-2 sm:grid-cols-2">
+												<p className="text-xs text-gray-500 dark:text-gray-400">
+													{translate('admin.createdAt')}: {formatDateTime(adjustment.createdAt)}
+												</p>
+												<p className="text-xs text-gray-500 dark:text-gray-400">
+													{translate('admin.updatedAt')}: {formatDateTime(adjustment.updatedAt)}
+												</p>
+											</div>
+
+											{(adjustment.stripePaymentIntentId || adjustment.stripeRefundId) && (
+												<div className="mt-3 space-y-2">
+													{adjustment.stripePaymentIntentId && (
+														<div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
+															<span className="shrink-0 text-[0.65rem] font-medium text-gray-500 uppercase dark:text-gray-400">
+																PI
+															</span>
+															<code className="flex-1 font-mono text-[0.7rem] break-all text-gray-700 dark:text-gray-300">
+																{adjustment.stripePaymentIntentId}
+															</code>
+															<button
+																type="button"
+																onClick={() => handleCopy(adjustment.stripePaymentIntentId!)}
+																className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+																title="Copy Payment Intent ID"
+															>
+																<Copy className="h-3 w-3" />
+															</button>
+														</div>
+													)}
+													{adjustment.stripeRefundId && (
+														<div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
+															<span className="shrink-0 text-[0.65rem] font-medium text-gray-500 uppercase dark:text-gray-400">
+																Refund
+															</span>
+															<code className="flex-1 font-mono text-[0.7rem] break-all text-gray-700 dark:text-gray-300">
+																{adjustment.stripeRefundId}
+															</code>
+															<button
+																type="button"
+																onClick={() => handleCopy(adjustment.stripeRefundId!)}
+																className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+																title="Copy Refund ID"
+															>
+																<Copy className="h-3 w-3" />
+															</button>
+														</div>
+													)}
+												</div>
 											)}
 										</div>
 									))}

@@ -3,11 +3,11 @@
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { formatDateTime } from '@/utils/date';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { localeIntl } from '@/lib/i18n/config';
+import { formatDateTime } from '@/utils/date';
 
 export default function UserDetailsModal() {
 	const translate = useTranslation();
@@ -38,8 +38,15 @@ export default function UserDetailsModal() {
 						</p>
 						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
-								<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
-								<p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+								<div className="flex flex-wrap items-center gap-2">
+									<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
+									{user.isShadow && (
+										<span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+											{translate('admin.shadowUser')}
+										</span>
+									)}
+								</div>
+								<p className="text-sm text-gray-500 dark:text-gray-400">{user.email ?? '—'}</p>
 							</div>
 
 							<div className="flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
@@ -61,9 +68,7 @@ export default function UserDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.phone')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{user.phone || '-'}
-									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{user.phone || '-'}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
