@@ -78,7 +78,7 @@ export function CategoryFilterSection({
 	}
 
 	return (
-		<div className="flex min-w-0 items-center gap-2 width-[20%] overflow-x-auto">
+		<div className="width-[20%] flex min-w-0 items-center gap-2 overflow-x-auto">
 			{renderPills(topCategories)}
 			{remainingCategories.length > 0 && (
 				<Popover open={moreOpen} onOpenChange={setMoreOpen}>
@@ -89,23 +89,33 @@ export function CategoryFilterSection({
 								: translate('filters.more')}
 						</FilterTriggerButton>
 					</PopoverTrigger>
-					<PopoverContent align="start" className="w-72 rounded-3xl p-0 text-foreground shadow-lg dark:text-white">
+					<PopoverContent
+						align="start"
+						className="text-foreground w-72 rounded-3xl p-0 shadow-lg dark:text-white"
+					>
 						<Command className="text-foreground dark:text-white">
-							<CommandInput placeholder={translate('filters.searchCategories')} className="text-foreground dark:text-white" />
+							<CommandInput
+								placeholder={translate('filters.searchCategories')}
+								className="text-foreground dark:text-white"
+							/>
 							<CommandList>
-								<CommandEmpty className="text-foreground dark:text-white">{translate('filters.noCategoriesFound')}</CommandEmpty>
+								<CommandEmpty className="text-foreground dark:text-white">
+									{translate('filters.noCategoriesFound')}
+								</CommandEmpty>
 								{remainingCategories.map((category) => {
 									const categoryTranslation = getCategoryTranslation(category, locale);
+									const displayName = categoryTranslation.name || category.slug;
 									const isChecked = filters.categories.includes(category.slug);
 
 									return (
 										<CommandItem
 											key={category.id}
-											value={categoryTranslation.name}
+											value={displayName}
 											data-checked={isChecked}
 											onSelect={() => toggleCategory(category.slug)}
+											className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer duration-300"
 										>
-											{categoryTranslation.name}
+											{displayName}
 										</CommandItem>
 									);
 								})}
