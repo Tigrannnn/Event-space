@@ -5,9 +5,10 @@ import { EventController } from './event.controller';
 import { EventMutationRateLimitGuard } from './guards/event-mutation-rate-limit.guard';
 import { BookingModule } from '../booking/booking.module';
 import { OccurrenceModule } from '@modules/occurrence/occurrence.module';
+import { FavoritesModule } from '@modules/favorites/favorites.module';
 
 @Module({
-	imports: [UploadModule, BookingModule, OccurrenceModule],
+	imports: [UploadModule, BookingModule, OccurrenceModule, FavoritesModule],
 	providers: [EventService, EventMutationRateLimitGuard],
 	controllers: [EventController],
 	exports: [EventService],

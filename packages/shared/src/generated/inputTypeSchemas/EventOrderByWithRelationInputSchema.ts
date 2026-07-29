@@ -7,6 +7,7 @@ import { UserOrderByWithRelationInputSchema } from './UserOrderByWithRelationInp
 import { CategoryOrderByWithRelationInputSchema } from './CategoryOrderByWithRelationInputSchema';
 import { EventOccurrenceOrderByRelationAggregateInputSchema } from './EventOccurrenceOrderByRelationAggregateInputSchema';
 import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
+import { FavoriteOrderByRelationAggregateInputSchema } from './FavoriteOrderByRelationAggregateInputSchema';
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
 import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTranslationOrderByRelationAggregateInputSchema';
 
@@ -26,6 +27,7 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   category: z.lazy(() => CategoryOrderByWithRelationInputSchema).optional(),
   occurrences: z.lazy(() => EventOccurrenceOrderByRelationAggregateInputSchema).optional(),
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
+  favorites: z.lazy(() => FavoriteOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),
   translations: z.lazy(() => EventTranslationOrderByRelationAggregateInputSchema).optional(),
 });

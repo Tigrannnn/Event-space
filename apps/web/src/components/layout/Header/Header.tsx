@@ -93,6 +93,19 @@ export default function Header() {
 							<></>
 						) : user ? (
 							<>
+								{/* <Button
+									variant="secondary"
+									onClick={() => navigation.push('/favorites')}
+									className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+								>
+									{translate('header.favorites')}
+									{myFavoritesCount > 0 && (
+										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+											{myFavoritesCount}
+										</span>
+									)}
+								</Button> */}
+
 								<Button
 									variant="secondary"
 									onClick={() => navigation.push('/bookings')}

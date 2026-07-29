@@ -10,6 +10,7 @@ import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
+import localFont from 'next/font/local';
 import '../globals.css'; 
 
 export const viewport: Viewport = {
@@ -18,10 +19,14 @@ export const viewport: Viewport = {
     maximumScale: 1,
 };
 
-const geistSans = Geist({
-	variable: '--font-geist-sans',
-	subsets: ['latin'],
+const fontSans = localFont({
+	src: [
+		{ path: '../../fonts/OpenSans.ttf' },
+	],
+	variable: '--font-sans',
+	display: 'swap',
 });
+
 
 const geistMono = Geist_Mono({
 	variable: '--font-geist-mono',
@@ -87,7 +92,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 	return (
 		<html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
+				className={`${fontSans.variable} ${geistMono.variable} text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
 			>
 				<QueryProvider>
 					<GoogleProvider clientId={googleClientId}>

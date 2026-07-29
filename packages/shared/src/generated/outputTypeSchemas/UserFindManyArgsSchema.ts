@@ -8,6 +8,7 @@ import { UserScalarFieldEnumSchema } from '../inputTypeSchemas/UserScalarFieldEn
 import { EventFindManyArgsSchema } from "../outputTypeSchemas/EventFindManyArgsSchema"
 import { RefreshTokenFindManyArgsSchema } from "../outputTypeSchemas/RefreshTokenFindManyArgsSchema"
 import { BookingFindManyArgsSchema } from "../outputTypeSchemas/BookingFindManyArgsSchema"
+import { FavoriteFindManyArgsSchema } from "../outputTypeSchemas/FavoriteFindManyArgsSchema"
 import { UserCountOutputTypeArgsSchema } from "../outputTypeSchemas/UserCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
@@ -28,6 +29,7 @@ export const UserSelectSchema: z.ZodType<Prisma.UserSelect> = z.object({
   events: z.union([z.boolean(),z.lazy(() => EventFindManyArgsSchema)]).optional(),
   refreshTokens: z.union([z.boolean(),z.lazy(() => RefreshTokenFindManyArgsSchema)]).optional(),
   bookings: z.union([z.boolean(),z.lazy(() => BookingFindManyArgsSchema)]).optional(),
+  favorites: z.union([z.boolean(),z.lazy(() => FavoriteFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => UserCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 

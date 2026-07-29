@@ -7,6 +7,7 @@ import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EventStatusSchema } from './EventStatusSchema';
 import { EventOccurrenceUncheckedCreateNestedManyWithoutEventInputSchema } from './EventOccurrenceUncheckedCreateNestedManyWithoutEventInputSchema';
 import { EventImageUncheckedCreateNestedManyWithoutEventInputSchema } from './EventImageUncheckedCreateNestedManyWithoutEventInputSchema';
+import { FavoriteUncheckedCreateNestedManyWithoutEventInputSchema } from './FavoriteUncheckedCreateNestedManyWithoutEventInputSchema';
 import { CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema';
 
 export const EventUncheckedCreateWithoutTranslationsInputSchema: z.ZodType<Prisma.EventUncheckedCreateWithoutTranslationsInput> = z.strictObject({
@@ -23,6 +24,7 @@ export const EventUncheckedCreateWithoutTranslationsInputSchema: z.ZodType<Prism
   categoryId: z.string(),
   occurrences: z.lazy(() => EventOccurrenceUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   images: z.lazy(() => EventImageUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
+  favorites: z.lazy(() => FavoriteUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
 });
 

@@ -26,11 +26,18 @@ import {
 	ApiBody,
 	ApiConsumes,
 } from '@nestjs/swagger';
-import { EventStatusEnum, MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/shared';
+import { MAX_EVENT_IMAGES, UserRoleSchema } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
-import type { EventStatus, UserRoleType } from '@event-space/shared';
+import type { UserRoleType } from '@event-space/shared';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { GetCurrentUser, GetCurrentUserId, Roles, RolesGuard, parseOptionalQueryInt } from '@shared';
+import {
+	GetCurrentUser,
+	GetCurrentUserId,
+	GetOptionalUserId,
+	Roles,
+	RolesGuard,
+	parseOptionalQueryInt,
+} from '@shared';
 import {
 	parseCreateEventMultipart,
 	parseUpdateEventMultipart,
@@ -39,6 +46,7 @@ import { eventImageUploadOptions } from './event-upload.options';
 import { RateLimitEventMutation } from './decorators/rate-limit-event-mutation.decorator';
 import { EventMutationRateLimitGuard } from './guards/event-mutation-rate-limit.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
+import { OptionalAccessTokenGuard } from '@modules/auth/guards/optional-access-token.guard';
 
 @ApiTags('events')
 @Controller('events')
@@ -48,10 +56,15 @@ export class EventController {
 		private readonly rateLimiter: RateLimiterService,
 	) {}
 
+	@UseGuards(OptionalAccessTokenGuard)
 	@Get()
-	@ApiOperation({ summary: 'Get events with cursor pagination, search, date filter, category filter, and price filter' })
+	@ApiOperation({
+		summary:
+			'Get events with cursor pagination, search, date filter, category filter, and price filter',
+	})
 	@ApiResponse({ status: 200, description: 'Returns paginated events' })
 	findAll(
+		@GetOptionalUserId() userId: string | undefined,
 		@Query('cursor') cursor?: string,
 		@Query('limit', new DefaultValuePipe(8), ParseIntPipe) limit: number = 8,
 		@Query('search') search?: string,
@@ -67,6 +80,7 @@ export class EventController {
 		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
 		const guests = parseOptionalQueryInt(guestsRaw, 'guests');
 		return this.eventService.findAll(
+			userId,
 			cursor,
 			safeLimit,
 			search,
@@ -79,13 +93,14 @@ export class EventController {
 		);
 	}
 
+	@UseGuards(OptionalAccessTokenGuard)
 	@Get(':id')
 	@ApiOperation({ summary: 'Get event by ID' })
 	@ApiParam({ name: 'id', description: 'Event ID' })
 	@ApiResponse({ status: 200, description: 'Event found' })
 	@ApiResponse({ status: 404, description: 'Event not found' })
-	findOne(@Param('id') id: string) {
-		return this.eventService.findOne(id);
+	findOne(@Param('id') id: string, @GetOptionalUserId() userId: string | undefined) {
+		return this.eventService.findOne(id, userId);
 	}
 
 	@Post()
@@ -142,7 +157,8 @@ export class EventController {
 			properties: {
 				payload: {
 					type: 'string',
-					description: 'JSON: partial event fields + translations + images[] ({ kind: "existing"|"file", order, id? })',
+					description:
+						'JSON: partial event fields + translations + images[] ({ kind: "existing"|"file", order, id? })',
 				},
 				files: {
 					type: 'array',

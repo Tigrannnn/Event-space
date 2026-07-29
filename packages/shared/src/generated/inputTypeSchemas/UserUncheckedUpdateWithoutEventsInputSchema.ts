@@ -9,6 +9,7 @@ import { BoolFieldUpdateOperationsInputSchema } from './BoolFieldUpdateOperation
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema } from './RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema';
 import { BookingUncheckedUpdateManyWithoutUserNestedInputSchema } from './BookingUncheckedUpdateManyWithoutUserNestedInputSchema';
+import { FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema } from './FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema';
 
 export const UserUncheckedUpdateWithoutEventsInputSchema: z.ZodType<Prisma.UserUncheckedUpdateWithoutEventsInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -25,6 +26,7 @@ export const UserUncheckedUpdateWithoutEventsInputSchema: z.ZodType<Prisma.UserU
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   refreshTokens: z.lazy(() => RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   bookings: z.lazy(() => BookingUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 });
 
 export default UserUncheckedUpdateWithoutEventsInputSchema;

@@ -34,6 +34,17 @@ export default function BottomNavbar() {
 				<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.home')}</span>
 			</button>
 
+			{/* {!isUserLoading && user && (
+				<button
+					onClick={() => router.push('/favorites')}
+					className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+					aria-label={translate('header.favorites')}
+				>
+					<Ticket height={16} />
+					<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.favorites')}</span>
+				</button>
+			)} */}
+
 			{!isUserLoading && user && (
 				<button
 					onClick={() => router.push('/bookings')}

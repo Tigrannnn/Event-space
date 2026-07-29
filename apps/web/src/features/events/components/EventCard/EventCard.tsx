@@ -14,7 +14,6 @@ import {
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
-	getCategoryTranslation,
 	getUpcomingEventOccurrences,
 	getPrimaryEventOccurrence,
 } from '@event-space/shared';

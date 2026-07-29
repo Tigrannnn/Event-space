@@ -18,6 +18,7 @@ import { CategoryScalarRelationFilterSchema } from './CategoryScalarRelationFilt
 import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 import { EventOccurrenceListRelationFilterSchema } from './EventOccurrenceListRelationFilterSchema';
 import { EventImageListRelationFilterSchema } from './EventImageListRelationFilterSchema';
+import { FavoriteListRelationFilterSchema } from './FavoriteListRelationFilterSchema';
 import { CancellationPolicyRuleListRelationFilterSchema } from './CancellationPolicyRuleListRelationFilterSchema';
 import { EventTranslationListRelationFilterSchema } from './EventTranslationListRelationFilterSchema';
 
@@ -43,6 +44,7 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   category: z.union([ z.lazy(() => CategoryScalarRelationFilterSchema), z.lazy(() => CategoryWhereInputSchema) ]).optional(),
   occurrences: z.lazy(() => EventOccurrenceListRelationFilterSchema).optional(),
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
+  favorites: z.lazy(() => FavoriteListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),
   translations: z.lazy(() => EventTranslationListRelationFilterSchema).optional(),
 }));

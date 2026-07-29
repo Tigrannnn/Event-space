@@ -9,8 +9,8 @@ generator zod {
   writeBarrelFiles      = true
   createInputTypes      = true
   createModelTypes      = true
-  addSelectQueries      = true
-  addIncludeQueries     = true
+  addSelectQueries      = false
+  addIncludeQueries     = false
   prismaJsonNullability = false
   coerceLazyConfig      = true
 }
@@ -85,6 +85,7 @@ model Event {
   category    Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   occurrences EventOccurrence[] @relation("event_occurrences")
   images      EventImage[]      @relation("event_images")
+  favorites   Favorite[]        @relation("event_favorites")
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
   translations      EventTranslation[]
@@ -161,6 +162,22 @@ model CancellationPolicyRule {
 
   @@unique([eventId, hoursBeforeEvent])
   @@map("cancellation_policy_rules")
+}
+
+model Favorite {
+  id      String @id @default(uuid())
+  userId  String @map("user_id")
+  eventId String @map("event_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation("user_favorites", fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation("event_favorites", fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@map("favorites")
 }
 
 enum BookingStatus {
@@ -263,7 +280,8 @@ model User {
   events        Event[]        @relation("user_events")
   refreshTokens RefreshToken[] @relation("refresh_tokens")
 
-  bookings Booking[] @relation("user_bookings")
+  bookings  Booking[]  @relation("user_bookings")
+  favorites Favorite[] @relation("user_favorites")
 
   @@map("users")
 }

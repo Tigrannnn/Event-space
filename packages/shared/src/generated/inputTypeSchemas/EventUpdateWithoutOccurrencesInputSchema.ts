@@ -14,6 +14,7 @@ import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateO
 import { UserUpdateOneRequiredWithoutEventsNestedInputSchema } from './UserUpdateOneRequiredWithoutEventsNestedInputSchema';
 import { CategoryUpdateOneRequiredWithoutEventsNestedInputSchema } from './CategoryUpdateOneRequiredWithoutEventsNestedInputSchema';
 import { EventImageUpdateManyWithoutEventNestedInputSchema } from './EventImageUpdateManyWithoutEventNestedInputSchema';
+import { FavoriteUpdateManyWithoutEventNestedInputSchema } from './FavoriteUpdateManyWithoutEventNestedInputSchema';
 import { CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUpdateManyWithoutEventNestedInputSchema';
 
@@ -30,6 +31,7 @@ export const EventUpdateWithoutOccurrencesInputSchema: z.ZodType<Prisma.EventUpd
   organizer: z.lazy(() => UserUpdateOneRequiredWithoutEventsNestedInputSchema).optional(),
   category: z.lazy(() => CategoryUpdateOneRequiredWithoutEventsNestedInputSchema).optional(),
   images: z.lazy(() => EventImageUpdateManyWithoutEventNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoriteUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUpdateManyWithoutEventNestedInputSchema).optional(),
 });

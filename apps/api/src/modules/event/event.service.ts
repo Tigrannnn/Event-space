@@ -30,6 +30,7 @@ import {
 } from './event.utils';
 import { OccurrenceService } from '@modules/occurrence/occurrence.service';
 import { EventOccurrenceStatusEnum } from '@event-space/shared';
+import { FavoritesService } from '@modules/favorites/favorites.service';
 
 @Injectable()
 export class EventService {
@@ -37,6 +38,7 @@ export class EventService {
 		private readonly prisma: PrismaService,
 		private readonly uploadService: UploadService,
 		private readonly bookingService: BookingService,
+		private readonly favoritesService: FavoritesService,
 		private readonly mailService: MailService,
 		private readonly occurrenceService: OccurrenceService,
 	) {}
@@ -68,6 +70,7 @@ export class EventService {
 	};
 
 	async findAll(
+		userId?: string,
 		cursor?: string,
 		limit: number = 8,
 		search?: string,
@@ -187,19 +190,37 @@ export class EventService {
 		const nextCursor =
 			hasMore && lastEvent ? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}` : null;
 
-		return { data, nextCursor, hasMore };
+		const favoritedIds = userId
+			? await this.favoritesService.getFavoritedEventIds(
+					userId,
+					data.map((e) => e.id),
+				)
+			: [];
+
+		const dataWithFavorites = data.map((event) => ({
+			...event,
+			isFavorited: favoritedIds.includes(event.id),
+		}));
+
+		return { data: dataWithFavorites, nextCursor, hasMore };
 	}
 
-	async findOne(id: string) {
+	async findOne(id: string, userId: string | undefined) {
 		const event = await this.prisma.event.findUnique({
 			where: { id },
 			include: this.eventInclude,
 		});
 		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
 		if (event.status !== 'PUBLISHED') throw new NotFoundException(`Event with ID ${id} not found`);
+
+		const isFavorited = userId
+			? (await this.favoritesService.getFavoritedEventIds(userId, [id])).length > 0
+			: false;
+
 		return {
 			...event,
 			occurrences: event.occurrences.filter((o) => o.status === 'ACTIVE'),
+			isFavorited,
 		};
 	}
 

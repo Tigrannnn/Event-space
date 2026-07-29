@@ -17,6 +17,7 @@ import { AdminModule } from '@modules/admin/admin.module';
 import { StripeModule } from './infrastructure/stripe/stripe.module';
 import { CategoryModule } from '@modules/category/category.module';
 import { OccurrenceModule } from './modules/occurrence/occurrence.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
 	imports: [
@@ -40,6 +41,7 @@ import { OccurrenceModule } from './modules/occurrence/occurrence.module';
 		AdminModule,
 		StripeModule,
 		OccurrenceModule,
+		FavoritesModule,
 	],
 	controllers: [AppController],
 })

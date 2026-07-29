@@ -12,6 +12,7 @@ import { EventStatusSchema } from './EventStatusSchema';
 import { EnumEventStatusFieldUpdateOperationsInputSchema } from './EnumEventStatusFieldUpdateOperationsInputSchema';
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema';
+import { FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema } from './FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema';
 
@@ -28,6 +29,7 @@ export const EventUncheckedUpdateWithoutImagesInputSchema: z.ZodType<Prisma.Even
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   categoryId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   occurrences: z.lazy(() => EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
+  favorites: z.lazy(() => FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
 });
