@@ -7,8 +7,8 @@ import {
 	CancelablePaymentIntentStatus,
 } from '@infra/stripe/stripe.types';
 import type {
-	SafeUserData,
-	UserRoleType,
+    SafeUserData,
+    UserRoleType,
 	TimeFilterType,
 	EventStatus,
 	EventDifficulty,
@@ -22,6 +22,7 @@ import type {
 	UpdateBookingData,
 	Category,
 } from '@event-space/shared';
+import { isUuid } from '@event-space/shared';
 
 const safeUserSelect = {
 	id: true,
@@ -304,18 +305,21 @@ export class AdminService {
 		role,
 		emailVerified,
 	}: FindAllUsersParams = {}) {
-		const where = {
-			...(search
-				? {
-						OR: [
-							{ name: { contains: search, mode: 'insensitive' as const } },
-							{ email: { contains: search, mode: 'insensitive' as const } },
-						],
-					}
-				: {}),
-			...(role ? { role } : {}),
-			...(typeof emailVerified === 'boolean' ? { emailVerified } : {}),
-		};
+			const searchIsUuid = isUuid(search);
+
+			const where = {
+				...(search
+					? {
+							OR: [
+								...(searchIsUuid ? [{ id: search }] : []),
+								{ name: { contains: search, mode: 'insensitive' as const } },
+								{ email: { contains: search, mode: 'insensitive' as const } },
+							],
+						}
+					: {}),
+				...(role ? { role } : {}),
+				...(typeof emailVerified === 'boolean' ? { emailVerified } : {}),
+			};
 
 		const [users, total] = await Promise.all([
 			this.prisma.user.findMany({
@@ -662,10 +666,13 @@ export class AdminService {
 		eventId,
 	}: FindAllBookingsParams = {}) {
 		const now = new Date();
+		const searchIsUuid = isUuid(search);
+
 		const where = {
 			...(search
 				? {
 						OR: [
+							...(searchIsUuid ? [{ id: search }] : []),
 							{ user: { name: { contains: search, mode: 'insensitive' as const } } },
 							{ user: { email: { contains: search, mode: 'insensitive' as const } } },
 							{
@@ -834,18 +841,25 @@ export class AdminService {
 		maxPrice,
 	}: FindAllEventsParams = {}) {
 		const now = new Date();
+		const searchIsUuid = isUuid(search);
+
 		const where = {
 			...(search
 				? {
-						translations: {
-							some: {
-								OR: [
-									{ title: { contains: search, mode: 'insensitive' as const } },
-									{ description: { contains: search, mode: 'insensitive' as const } },
-									{ location: { contains: search, mode: 'insensitive' as const } },
-								],
+						OR: [
+							...(searchIsUuid ? [{ id: search }] : []),
+							{
+								translations: {
+									some: {
+										OR: [
+											{ title: { contains: search, mode: 'insensitive' as const } },
+											{ description: { contains: search, mode: 'insensitive' as const } },
+											{ location: { contains: search, mode: 'insensitive' as const } },
+										],
+									},
+								},
 							},
-						},
+						],
 					}
 				: {}),
 			...(status ? { status } : {}),
@@ -913,14 +927,21 @@ export class AdminService {
 		limit = 20,
 		search,
 	}: PaginatedParams & { search?: string } = {}) {
+		const searchIsUuid = isUuid(search);
+
 		const where = {
 			...(search
 				? {
-						translations: {
-							some: {
-								name: { contains: search, mode: 'insensitive' as const },
+						OR: [
+							...(searchIsUuid ? [{ id: search }] : []),
+							{
+								translations: {
+									some: {
+										name: { contains: search, mode: 'insensitive' as const },
+									},
+								},
 							},
-						},
+						],
 					}
 				: {}),
 		};

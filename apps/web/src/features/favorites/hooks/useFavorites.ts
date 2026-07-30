@@ -29,7 +29,9 @@ export const useToggleFavorite = () => {
 			]);
 
 			const previousFavorites = queryClient.getQueryData<Event[]>(FAVORITES_QUERY_KEY) ?? [];
-			const previousFavoriteStatus = queryClient.getQueryData<boolean>(getFavoriteStatusQueryKey(eventId));
+			const previousFavoriteStatus = queryClient.getQueryData<boolean>(
+				getFavoriteStatusQueryKey(eventId),
+			);
 
 			queryClient.setQueryData<boolean>(getFavoriteStatusQueryKey(eventId), !isFavorite);
 
@@ -41,28 +43,29 @@ export const useToggleFavorite = () => {
 				return current;
 			});
 
+			addToast(
+				isFavorite ? translate('favorites.removed') : translate('favorites.added'),
+				ToastType.SUCCESS,
+			);
+
 			return { previousFavorites, previousFavoriteStatus };
 		},
-		onSuccess: async (_data, vars) => {
+		onSuccess: async (_data) => {
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEY }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 			]);
-
-			addToast(
-				vars.isFavorite
-					? translate('favorites.removed')
-					: translate('favorites.added'),
-				ToastType.SUCCESS,
-			);
 		},
 		onError: (error, vars, context) => {
 			if (context?.previousFavorites) {
 				queryClient.setQueryData(FAVORITES_QUERY_KEY, context.previousFavorites);
 			}
 			if (context?.previousFavoriteStatus !== undefined) {
-				queryClient.setQueryData(getFavoriteStatusQueryKey(vars.eventId), context.previousFavoriteStatus);
+				queryClient.setQueryData(
+					getFavoriteStatusQueryKey(vars.eventId),
+					context.previousFavoriteStatus,
+				);
 			}
 
 			const message = getApiErrorMessage(error, translate('favorites.failed'));
@@ -79,7 +82,9 @@ export const useFavoritesCount = () => {
 export const useIsFavorite = (eventId?: string) => {
 	const queryClient = useQueryClient();
 	const { data } = useGetFavorites();
-	const optimisticStatus = eventId ? queryClient.getQueryData<boolean>(getFavoriteStatusQueryKey(eventId)) : undefined;
+	const optimisticStatus = eventId
+		? queryClient.getQueryData<boolean>(getFavoriteStatusQueryKey(eventId))
+		: undefined;
 
 	if (optimisticStatus !== undefined) {
 		return optimisticStatus;

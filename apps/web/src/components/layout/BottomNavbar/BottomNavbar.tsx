@@ -47,12 +47,14 @@ export default function BottomNavbar() {
 					aria-label={translate('header.favorites')}
 				>
 					{myFavoritesCount > 0 && (
-						<span className="absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 py-0.2 text-[8px] font-semibold text-white">
+						<span className="py-0.2 absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-semibold text-white">
 							{myFavoritesCount}
 						</span>
 					)}
 					<Heart height={16} />
-					<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.favorites')}</span>
+					<span className="mt-1 text-[10px] font-medium sm:text-xs">
+						{translate('header.favorites')}
+					</span>
 				</button>
 			)}
 
@@ -63,7 +65,7 @@ export default function BottomNavbar() {
 					aria-label={translate('header.bookings')}
 				>
 					{myBookingsCount > 0 && (
-						<span className="absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 py-0.2 text-[8px] font-semibold text-white">
+						<span className="py-0.2 absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-semibold text-white">
 							{myBookingsCount}
 						</span>
 					)}
@@ -72,28 +74,18 @@ export default function BottomNavbar() {
 				</button>
 			)}
 
-			<button
-				onClick={() => (user ? router.push('/profile') : openModal(ModalType.Register))}
-				className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-				aria-label={
-					!isHydrated
-						? translate('common.loading')
-						: user
-							? translate('header.goProfile')
-							: translate('header.signUp')
-				}
-			>
-				<UserIcon height={16} />
-				<span className="mt-1 text-[10px] font-medium sm:text-xs">
-					{!isHydrated || isUserLoading ? (
-						<Skeleton className="h-4 w-full" />
-					) : user ? (
-						translate('header.profile')
-					) : (
-						translate('header.signUp')
-					)}
-				</span>
-			</button>
+			{!isUserLoading && (
+				<button
+					onClick={() => (user ? router.push('/profile') : openModal(ModalType.Register))}
+					className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+					aria-label={user ? translate('header.goProfile') : translate('header.signUp')}
+				>
+					<UserIcon height={16} />
+					<span className="mt-1 text-[10px] font-medium sm:text-xs">
+						{user ? translate('header.profile') : translate('header.signUp')}
+					</span>
+				</button>
+			)}
 		</nav>
 	);
 }

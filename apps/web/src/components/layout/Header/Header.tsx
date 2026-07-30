@@ -12,7 +12,6 @@ import { useHydrated } from '@/hooks/hydration/useHydrated';
 
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
-import type { MessageKey } from '@/lib/i18n/messages';
 import { SearchIcon } from 'lucide-react';
 
 /**
