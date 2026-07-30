@@ -91,6 +91,12 @@ export const EventSchema = GeneratedEventSchema.extend({
 
 export type Event = z.infer<typeof EventSchema>;
 
+export const EventWithFavoriteStatusSchema = EventSchema.extend({
+	isFavorited: z.boolean().default(false),
+});
+
+export type EventWithFavoriteStatus = z.infer<typeof EventWithFavoriteStatusSchema>;
+
 // === QUERIES ===
 export const EventFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),

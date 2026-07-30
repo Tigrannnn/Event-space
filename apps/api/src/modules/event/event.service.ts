@@ -190,19 +190,7 @@ export class EventService {
 		const nextCursor =
 			hasMore && lastEvent ? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}` : null;
 
-		const favoritedIds = userId
-			? await this.favoritesService.getFavoritedEventIds(
-					userId,
-					data.map((e) => e.id),
-				)
-			: [];
-
-		const dataWithFavorites = data.map((event) => ({
-			...event,
-			isFavorited: favoritedIds.includes(event.id),
-		}));
-
-		return { data: dataWithFavorites, nextCursor, hasMore };
+		return { data, nextCursor, hasMore };
 	}
 
 	async findOne(id: string, userId: string | undefined) {

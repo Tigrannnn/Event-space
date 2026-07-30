@@ -16,6 +16,7 @@ import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 // import { useModalStore } from '@/stores';
 // import { ModalType } from '@/stores/modalStore';
 
@@ -96,8 +97,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				<Badge
 					label={status}
 					variant={status === 'CONFIRMED' ? 'success' : status === 'CANCELLED' ? 'danger' : 'warning'}
-					className="absolute top-3 right-3 text-xs font-bold uppercase"
+					className="absolute top-3 left-3 text-xs font-bold uppercase"
 				></Badge>
+				<FavoriteButton eventId={event.id} className="absolute top-3 right-3" />
 			</div>
 
 			{/* Content */}

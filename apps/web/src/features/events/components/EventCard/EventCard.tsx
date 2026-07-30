@@ -10,20 +10,21 @@ import { ModalType, useModalStore } from '@/stores';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
 import {
-	Event,
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
 	getUpcomingEventOccurrences,
 	getPrimaryEventOccurrence,
+	EventWithFavoriteStatus,
 } from '@event-space/shared';
 
 export interface EventCardProps {
-	event: Event;
+	event: EventWithFavoriteStatus;
 }
 
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { BookOpen, MapPin, Navigation, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
@@ -91,6 +92,9 @@ export default function EventCard({ event }: EventCardProps) {
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				{/* {categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>} */}
 				<PriceBadge price={event.price} />
+				<div className="absolute right-3 top-3 z-20">
+					<FavoriteButton eventId={event.id} />
+				</div>
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={eventTranslation.title} />
 			</div>
 

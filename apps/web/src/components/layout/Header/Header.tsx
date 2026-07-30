@@ -7,10 +7,12 @@ import { SearchBar } from '@/components/ui/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
 
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
+import type { MessageKey } from '@/lib/i18n/messages';
 import { SearchIcon } from 'lucide-react';
 
 /**
@@ -27,6 +29,7 @@ export default function Header() {
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings } = useGetMyBookings();
+	const myFavoritesCount = useFavoritesCount();
 	const myBookingsCount = myBookings ? myBookings.filter((b) => b.status === 'CONFIRMED').length : 0;
 	const isHydrated = useHydrated();
 
@@ -93,7 +96,7 @@ export default function Header() {
 							<></>
 						) : user ? (
 							<>
-								{/* <Button
+								<Button
 									variant="secondary"
 									onClick={() => navigation.push('/favorites')}
 									className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
@@ -104,7 +107,7 @@ export default function Header() {
 											{myFavoritesCount}
 										</span>
 									)}
-								</Button> */}
+								</Button>
 
 								<Button
 									variant="secondary"

@@ -2,6 +2,17 @@ import type { Locale } from '@event-space/shared';
 
 export const messages = {
 	hy: {
+		favorites: {
+			added: 'Ավելացվել է սիրելիների մեջ',
+			removed: 'Հեռացվել է սիրելիներից',
+			failed: 'Չհաջողվեց թարմացնել սիրելիները',
+			add: 'Ավելացնել սիրելիների մեջ',
+			remove: 'Հեռացնել սիրելիներից',
+			title: 'Իմ սիրելիները',
+			empty: 'Դեռևս սիրելի միջոցառումներ չկան։ Պահպանեք այն, ինչ ձեզ դուր է գալիս։',
+			subtitle: 'Ձեր պահպանված միջոցառումները մեկ տեղում։',
+			browse: 'Դիտել միջոցառումները',
+		},
 		common: {
 			appTitle: 'Տեղական միջոցառումներ եւ արկածներ',
 			appDescription: 'Պրեմիում հարթակ տեղական միջոցառումների եւ յուրահատուկ արկածների համար',
@@ -44,6 +55,7 @@ export const messages = {
 			searchPlaceholder: 'Փնտրել միջոցառումներ...',
 			search: 'Փնտրել',
 			bookings: 'Ամրագրումներ',
+			favorites: 'Սիրելիներ',
 			profile: 'Պրոֆիլ',
 			signUp: 'Գրանցվել',
 			logIn: 'Մուտք',
@@ -496,6 +508,17 @@ export const messages = {
 		},
 	},
 	ru: {
+		favorites: {
+			added: 'Добавлено в избранное',
+			removed: 'Удалено из избранного',
+			failed: 'Не удалось обновить избранное',
+			add: 'Добавить в избранное',
+			remove: 'Удалить из избранного',
+			title: 'Избранное',
+			empty: 'У вас пока нет избранных событий. Сохраните те, которые вам понравились.',
+			subtitle: 'Ваши сохранённые события в одном месте.',
+			browse: 'Посмотреть события',
+		},
 		common: {
 			appTitle: 'Локальные события и приключения',
 			appDescription: 'Премиум платформа для локальных событий и уникальных приключений',
@@ -538,6 +561,7 @@ export const messages = {
 			searchPlaceholder: 'Искать события...',
 			search: 'Поиск',
 			bookings: 'Брони',
+			favorites: 'Избранное',
 			profile: 'Профиль',
 			signUp: 'Регистрация',
 			logIn: 'Войти',
@@ -992,6 +1016,17 @@ export const messages = {
 		},
 	},
 	en: {
+		favorites: {
+			added: 'Added to favorites',
+			removed: 'Removed from favorites',
+			failed: 'Failed to update favorites',
+			add: 'Add to favorites',
+			remove: 'Remove from favorites',
+			title: 'Favorites',
+			empty: 'You do not have any favorite events yet. Save the ones you like and come back anytime.',
+			subtitle: 'Your saved events in one place.',
+			browse: 'Browse events',
+		},
 		common: {
 			appTitle: 'Local Events & Adventures',
 			appDescription: 'Premium platform for local events and unique adventures',
@@ -1034,6 +1069,7 @@ export const messages = {
 			searchPlaceholder: 'Search events...',
 			search: 'Search',
 			bookings: 'Bookings',
+			favorites: 'Favorites',
 			profile: 'Profile',
 			signUp: 'Sign Up',
 			logIn: 'Log In',
