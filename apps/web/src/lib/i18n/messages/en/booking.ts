@@ -58,7 +58,7 @@ export const booking = {
 	noLocation: 'No location',
 	successTitle: 'Congratulations!',
 	successCongrats: 'You have successfully booked "{event}". Your spot is reserved.',
-	successEmailSent: 'A receipt has been sent to {email}',
+	successEmailSent: 'A confirmation has been sent to {email}',
 	paid: 'Paid',
 	paymentMethod: 'Payment method',
 	paymentMethodSite: 'Paid online',

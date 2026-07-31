@@ -36,6 +36,7 @@ export const admin: Messages['admin'] = {
 	cancelOccurrence: 'Отменить дату',
 	reactivateOccurrence: 'Вернуть в активное состояние',
 	bookingsCount: 'Бронирования',
+	seatsSold: 'Продано мест',
 	cancelBooking: 'Отменить бронь',
 	refundStrategy: 'Стратегия возврата',
 	refundStrategyFull: 'Полный возврат',

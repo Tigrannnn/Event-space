@@ -21,7 +21,7 @@ export const BookingCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingCreate
   paymentIntentId: z.string().optional().nullable(),
   referenceNumber: z.number().int().optional().nullable(),
   checkedInAt: z.coerce.date().optional().nullable(),
-  receiptSentAt: z.coerce.date().optional().nullable(),
+  confirmationSentAt: z.coerce.date().optional().nullable(),
   occurrence: z.lazy(() => EventOccurrenceCreateNestedOneWithoutBookingsInputSchema),
   adjustments: z.lazy(() => BookingAdjustmentCreateNestedManyWithoutBookingInputSchema).optional(),
 });

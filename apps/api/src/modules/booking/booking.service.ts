@@ -94,9 +94,21 @@ export class BookingService {
 
 			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
 
+			// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
+			// left over from a finished cycle may already be paid — and even refunded — so
+			// carrying it into a new attempt would confirm this booking without payment.
+			// Only a still-PENDING booking is in the same cycle and may keep its intent.
+			const keepsPaymentIntent = existing?.status === 'PENDING';
+
 			const upserted = await tx.booking.upsert({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
-				update: { status: 'PENDING', expired: false, quantity, amount },
+				update: {
+					status: 'PENDING',
+					expired: false,
+					quantity,
+					amount,
+					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
+				},
 				create: {
 					userId,
 					occurrenceId: occurrence.id,
@@ -205,9 +217,9 @@ export class BookingService {
 		const result = await this.prisma.$transaction(async (tx) => {
 			let booking = bookingIdHint
 				? await tx.booking.findUnique({
-					where: { id: bookingIdHint },
-					include: { occurrence: { select: { maxParticipants: true, currentParticipants: true } } },
-				})
+						where: { id: bookingIdHint },
+						include: { occurrence: { select: { maxParticipants: true, currentParticipants: true } } },
+					})
 				: null;
 
 			if (!booking) {
@@ -218,9 +230,7 @@ export class BookingService {
 			}
 
 			if (!booking) {
-				this.logger.warn(
-					`Unable to reconcile payment intent ${paymentIntentId}: booking not found`,
-				);
+				this.logger.warn(`Unable to reconcile payment intent ${paymentIntentId}: booking not found`);
 				return { action: 'skipped' as const };
 			}
 
@@ -254,6 +264,21 @@ export class BookingService {
 								: 'Payment captured after booking expired.',
 						idempotencyKey: `auto-refund-${booking.id}`,
 					};
+				}
+
+				// One payment intent can only fund one confirmation. If an adjustment already
+				// settled it, this is a stale intent from an earlier cycle — possibly already
+				// refunded — and confirming again would hand out a free booking.
+				const settled = await tx.bookingAdjustment.findFirst({
+					where: { stripePaymentIntentId: paymentIntentId },
+					select: { id: true, bookingId: true, type: true },
+				});
+
+				if (settled) {
+					this.logger.warn(
+						`Refusing to confirm booking ${booking.id}: payment intent ${paymentIntentId} was already settled by ${settled.type} adjustment ${settled.id} (booking ${settled.bookingId})`,
+					);
+					return { action: 'skipped' as const };
 				}
 
 				const reserved = await tx.eventOccurrence.updateMany({
@@ -317,7 +342,7 @@ export class BookingService {
 		});
 
 		if (result.action === 'confirmed') {
-			await this.sendReceiptSafely(result.booking.id);
+			await this.sendConfirmationSafely(result.booking.id);
 		}
 
 		if (result.action === 'refund') {
@@ -329,7 +354,12 @@ export class BookingService {
 				);
 
 				await this.prisma.bookingAdjustment.upsert({
-					where: { stripePaymentIntentId: result.paymentIntentId },
+					where: {
+						stripePaymentIntentId_type: {
+							stripePaymentIntentId: result.paymentIntentId,
+							type: 'REFUND',
+						},
+					},
 					create: {
 						bookingId: result.bookingId,
 						type: 'REFUND',
@@ -481,7 +511,7 @@ export class BookingService {
 			}
 		}
 
-		await this.sendReceiptSafely(result.booking.id);
+		await this.sendConfirmationSafely(result.booking.id);
 
 		return {
 			...result.booking,
@@ -656,6 +686,7 @@ export class BookingService {
 		}
 
 		let refundResult: { amount: number; id: string } | null = null;
+		let refundFailed = false;
 
 		try {
 			const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
@@ -698,12 +729,18 @@ export class BookingService {
 				);
 			}
 		} catch (stripeError) {
+			refundFailed = true;
 			this.logger.error(`Stripe refund failed for booking ${bookingId}:`, stripeError);
 		}
 
 		if (refundResult) {
 			await this.prisma.bookingAdjustment.upsert({
-				where: { stripePaymentIntentId: booking.paymentIntentId },
+				where: {
+					stripePaymentIntentId_type: {
+						stripePaymentIntentId: booking.paymentIntentId,
+						type: 'REFUND',
+					},
+				},
 				create: {
 					bookingId: booking.id,
 					type: 'REFUND',
@@ -719,9 +756,14 @@ export class BookingService {
 					status: 'SUCCEEDED',
 				},
 			});
-		} else if (booking.paymentIntentId) {
+		} else if (refundFailed && booking.paymentIntentId) {
 			await this.prisma.bookingAdjustment.upsert({
-				where: { stripePaymentIntentId: booking.paymentIntentId },
+				where: {
+					stripePaymentIntentId_type: {
+						stripePaymentIntentId: booking.paymentIntentId,
+						type: 'REFUND',
+					},
+				},
 				create: {
 					bookingId: booking.id,
 					type: 'REFUND',
@@ -729,10 +771,12 @@ export class BookingService {
 					currency: 'AMD',
 					stripePaymentIntentId: booking.paymentIntentId,
 					stripeRefundId: null,
-					status: 'SUCCEEDED',
+					status: 'FAILED',
+					reason: 'Refund could not be processed at Stripe',
 				},
 				update: {
-					status: 'SUCCEEDED',
+					status: 'FAILED',
+					reason: 'Refund could not be processed at Stripe',
 				},
 			});
 		}
@@ -775,6 +819,7 @@ export class BookingService {
 			}
 
 			let refundResult: { amount: number; id: string } | null = null;
+			let refundFailed = false;
 
 			try {
 				const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
@@ -802,6 +847,7 @@ export class BookingService {
 					);
 				}
 			} catch (stripeError) {
+				refundFailed = true;
 				this.logger.error(
 					`Stripe refund failed for booking ${booking.id} (event cancellation):`,
 					stripeError,
@@ -810,7 +856,12 @@ export class BookingService {
 
 			if (refundResult) {
 				await this.prisma.bookingAdjustment.upsert({
-					where: { stripePaymentIntentId: booking.paymentIntentId },
+					where: {
+						stripePaymentIntentId_type: {
+							stripePaymentIntentId: booking.paymentIntentId,
+							type: 'REFUND',
+						},
+					},
 					create: {
 						bookingId: booking.id,
 						type: 'REFUND',
@@ -826,9 +877,15 @@ export class BookingService {
 						status: 'SUCCEEDED',
 					},
 				});
-			} else if (booking.paymentIntentId) {
+			} else if (refundFailed && booking.paymentIntentId) {
+				// Only a genuine Stripe failure is worth recording — see cancel().
 				await this.prisma.bookingAdjustment.upsert({
-					where: { stripePaymentIntentId: booking.paymentIntentId },
+					where: {
+						stripePaymentIntentId_type: {
+							stripePaymentIntentId: booking.paymentIntentId,
+							type: 'REFUND',
+						},
+					},
 					create: {
 						bookingId: booking.id,
 						type: 'REFUND',
@@ -836,10 +893,12 @@ export class BookingService {
 						currency: 'AMD',
 						stripePaymentIntentId: booking.paymentIntentId,
 						stripeRefundId: null,
-						status: 'SUCCEEDED',
+						status: 'FAILED',
+						reason: 'Refund could not be processed at Stripe (event cancelled)',
 					},
 					update: {
-						status: 'SUCCEEDED',
+						status: 'FAILED',
+						reason: 'Refund could not be processed at Stripe (event cancelled)',
 					},
 				});
 			}
@@ -878,12 +937,12 @@ export class BookingService {
 			}
 
 			let refundResult: { amount: number; id: string } | null = null;
+			let refundFailed = false;
 
 			try {
 				const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
 
 				if (paymentIntent.status === 'succeeded') {
-					// Полный рефанд, без вычета комиссии — тур отменила турфирма, не юзер
 					const baseAmountInCents = Math.round(Number(booking.amount) * 100);
 
 					if (baseAmountInCents > 0) {
@@ -905,6 +964,7 @@ export class BookingService {
 					);
 				}
 			} catch (stripeError) {
+				refundFailed = true;
 				this.logger.error(
 					`Stripe refund failed for booking ${booking.id} (occurrence cancellation):`,
 					stripeError,
@@ -913,7 +973,12 @@ export class BookingService {
 
 			if (refundResult) {
 				await this.prisma.bookingAdjustment.upsert({
-					where: { stripePaymentIntentId: booking.paymentIntentId },
+					where: {
+						stripePaymentIntentId_type: {
+							stripePaymentIntentId: booking.paymentIntentId,
+							type: 'REFUND',
+						},
+					},
 					create: {
 						bookingId: booking.id,
 						type: 'REFUND',
@@ -929,9 +994,15 @@ export class BookingService {
 						status: 'SUCCEEDED',
 					},
 				});
-			} else if (booking.paymentIntentId) {
+			} else if (refundFailed && booking.paymentIntentId) {
+				// Only a genuine Stripe failure is worth recording — see cancel().
 				await this.prisma.bookingAdjustment.upsert({
-					where: { stripePaymentIntentId: booking.paymentIntentId },
+					where: {
+						stripePaymentIntentId_type: {
+							stripePaymentIntentId: booking.paymentIntentId,
+							type: 'REFUND',
+						},
+					},
 					create: {
 						bookingId: booking.id,
 						type: 'REFUND',
@@ -939,21 +1010,23 @@ export class BookingService {
 						currency: 'AMD',
 						stripePaymentIntentId: booking.paymentIntentId,
 						stripeRefundId: null,
-						status: 'SUCCEEDED',
+						status: 'FAILED',
+						reason: 'Refund could not be processed at Stripe (occurrence cancelled)',
 					},
 					update: {
-						status: 'SUCCEEDED',
+						status: 'FAILED',
+						reason: 'Refund could not be processed at Stripe (occurrence cancelled)',
 					},
 				});
 			}
 		}
 	}
 
-	private async sendReceiptSafely(bookingId: string): Promise<void> {
+	private async sendConfirmationSafely(bookingId: string): Promise<void> {
 		try {
 			const claimed = await this.prisma.booking.updateMany({
-				where: { id: bookingId, receiptSentAt: null },
-				data: { receiptSentAt: new Date() },
+				where: { id: bookingId, confirmationSentAt: null },
+				data: { confirmationSentAt: new Date() },
 			});
 
 			if (claimed.count === 0) {
@@ -976,7 +1049,7 @@ export class BookingService {
 				booking.occurrence.event.translations.find((t) => t.locale === 'en') ??
 				booking.occurrence.event.translations[0];
 
-			await this.mailService.sendBookingReceipt({
+			await this.mailService.sendBookingConfirmation({
 				to: booking.user.email,
 				locale: 'en',
 				referenceNumber: booking.referenceNumber ?? 0,
@@ -989,7 +1062,10 @@ export class BookingService {
 				paymentMethod: booking.paymentMethod,
 			});
 		} catch (error) {
-			this.logger.error(`Failed to send booking receipt for booking ${bookingId}`, error as Error);
+			this.logger.error(
+				`Failed to send booking confirmation for booking ${bookingId}`,
+				error as Error,
+			);
 		}
 	}
 

@@ -59,7 +59,7 @@ export const booking: Messages['booking'] = {
 	noLocation: 'Վայր չկա',
 	successTitle: 'Շնորհավորում ենք!',
 	successCongrats: 'Դուք հաջողությամբ ամրագրել եք «{event}»։ Ձեր տեղը ամրագրված է։',
-	successEmailSent: 'Անդորրագիրն ուղարկվել է {email} հասցեին',
+	successEmailSent: 'Հաստատումն ուղարկվել է {email} հասցեին',
 	paid: 'Վճարված է',
 	paymentMethod: 'Վճարման եղանակ',
 	paymentMethodSite: 'Վճարված է առցանց',

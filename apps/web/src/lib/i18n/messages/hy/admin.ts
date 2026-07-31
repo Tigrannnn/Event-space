@@ -36,6 +36,7 @@ export const admin: Messages['admin'] = {
 	cancelOccurrence: 'Չեղարկել շրջանը',
 	reactivateOccurrence: 'Վերականգնել որպես ակտիվ',
 	bookingsCount: 'Ամրագրումներ',
+	seatsSold: 'Վաճառված տեղեր',
 	cancelBooking: 'Չեղարկել ամրագրումը',
 	refundStrategy: 'Վերադարձի ռազմավարություն',
 	refundStrategyFull: 'Ամբողջական վերադարձ',

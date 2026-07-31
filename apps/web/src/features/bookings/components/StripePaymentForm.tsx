@@ -125,8 +125,7 @@ function StripePaymentFormContent({
 		switch (result.status) {
 			case 'confirmed':
 				await invalidateAfterResolution();
-				// Replaces the payment modal with the success summary — no closeModal() in between,
-				// so AnimatePresence swaps the two modals instead of unmounting the root.
+				addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 				openModal(ModalType.BookingSuccess, {
 					booking: result.booking,
 					event,

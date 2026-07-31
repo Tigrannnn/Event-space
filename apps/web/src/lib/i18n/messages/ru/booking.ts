@@ -59,7 +59,7 @@ export const booking: Messages['booking'] = {
 	noLocation: 'Нет места',
 	successTitle: 'Поздравляем!',
 	successCongrats: 'Вы успешно забронировали «{event}». Место закреплено за вами.',
-	successEmailSent: 'Чек отправлен на {email}',
+	successEmailSent: 'Подтверждение отправлено на {email}',
 	paid: 'Оплачено',
 	paymentMethod: 'Способ оплаты',
 	paymentMethodSite: 'Оплата на сайте',

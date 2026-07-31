@@ -140,8 +140,11 @@ export default function EventDetailsModal() {
 														</span>
 													</div>
 													<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-														{occurrence.currentParticipants}/{occurrence.maxParticipants}{' '}
-														{translate('admin.seats')}
+														{translate('admin.seatsSold')}: {occurrence.currentParticipants}/
+														{occurrence.maxParticipants} {translate('admin.seats')}
+													</p>
+													<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+														{translate('admin.bookingsCount')}: {occurrence._count?.bookings ?? 0}
 													</p>
 													{occurrence.cancelledAt && (
 														<p className="mt-1 text-xs text-red-500">

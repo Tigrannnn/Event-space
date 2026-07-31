@@ -205,10 +205,10 @@ model Booking {
 
   createdByAdminId String? @map("created_by_admin_id")
 
-  paymentIntentId String?   @unique @map("payment_intent_id")
-  referenceNumber Int?      @unique @map("reference_number")
-  checkedInAt     DateTime? @map("checked_in_at")
-  receiptSentAt   DateTime? @map("receipt_sent_at")
+  paymentIntentId    String?   @unique @map("payment_intent_id")
+  referenceNumber    Int?      @unique @map("reference_number")
+  checkedInAt        DateTime? @map("checked_in_at")
+  confirmationSentAt DateTime? @map("receipt_sent_at")
 
   user User @relation("user_bookings", fields: [userId], references: [id])
 
@@ -245,7 +245,7 @@ model BookingAdjustment {
   type                  AdjustmentType
   amount                Decimal          @db.Decimal(10, 2)
   currency              String           @default("usd")
-  stripePaymentIntentId String?          @unique @map("stripe_payment_intent_id")
+  stripePaymentIntentId String?          @map("stripe_payment_intent_id")
   stripeRefundId        String?          @unique @map("stripe_refund_id")
   status                AdjustmentStatus
   reason                String?
@@ -254,6 +254,7 @@ model BookingAdjustment {
 
   booking Booking @relation("booking_adjustments", fields: [bookingId], references: [id], onDelete: Cascade)
 
+  @@unique([stripePaymentIntentId, type])
   @@index([bookingId])
   @@map("booking_adjustments")
 }

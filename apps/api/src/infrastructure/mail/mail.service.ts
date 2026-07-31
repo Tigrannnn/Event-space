@@ -5,7 +5,7 @@ import { Locale, PaymentMethod } from '@prisma/client';
 import * as nodemailer from 'nodemailer';
 import { MailTemplateService } from './mail-template.service';
 
-const BOOKING_RECEIPT_STRINGS: Record<
+const BOOKING_CONFIRMATION_STRINGS: Record<
 	Locale,
 	{
 		subject: string;
@@ -24,9 +24,9 @@ const BOOKING_RECEIPT_STRINGS: Record<
 	}
 > = {
 	en: {
-		subject: 'Your booking receipt',
+		subject: 'Your booking confirmation',
 		title: 'Booking Confirmed',
-		intro: 'Thank you for your booking! Here are your receipt details:',
+		intro: 'Thank you for your booking! Here are the details:',
 		reference: 'Reference',
 		event: 'Event',
 		location: 'Location',
@@ -43,9 +43,9 @@ const BOOKING_RECEIPT_STRINGS: Record<
 		},
 	},
 	ru: {
-		subject: 'Ваш чек о бронировании',
+		subject: 'Подтверждение бронирования',
 		title: 'Бронирование подтверждено',
-		intro: 'Спасибо за бронирование! Вот детали вашего чека:',
+		intro: 'Спасибо за бронирование! Вот детали:',
 		reference: 'Номер брони',
 		event: 'Событие',
 		location: 'Место проведения',
@@ -62,9 +62,9 @@ const BOOKING_RECEIPT_STRINGS: Record<
 		},
 	},
 	hy: {
-		subject: 'Ձեր ամրագրման անդորրագիրը',
+		subject: 'Ամրագրման հաստատում',
 		title: 'Ամրագրումը հաստատված է',
-		intro: 'Շնորհակալություն ամրագրման համար! Ահա ձեր անդորրագրի մանրամասները.',
+		intro: 'Շնորհակալություն ամրագրման համար! Ահա մանրամասները.',
 		reference: 'Համար',
 		event: 'Միջոցառում',
 		location: 'Վայրը',
@@ -203,7 +203,7 @@ export class MailService implements OnModuleInit {
 		}
 	}
 
-	async sendBookingReceipt(params: {
+	async sendBookingConfirmation(params: {
 		to: string;
 		locale: Locale;
 		referenceNumber: number;
@@ -215,7 +215,7 @@ export class MailService implements OnModuleInit {
 		currency: string;
 		paymentMethod: PaymentMethod;
 	}): Promise<boolean> {
-		const strings = BOOKING_RECEIPT_STRINGS[params.locale] ?? BOOKING_RECEIPT_STRINGS.en;
+		const strings = BOOKING_CONFIRMATION_STRINGS[params.locale] ?? BOOKING_CONFIRMATION_STRINGS.en;
 		const formattedDate = params.occurrenceDate.toLocaleDateString(params.locale, {
 			year: 'numeric',
 			month: 'long',
@@ -228,7 +228,7 @@ export class MailService implements OnModuleInit {
 			strings.paymentMethodLabels[params.paymentMethod] ?? params.paymentMethod;
 
 		try {
-			const html = await this.templateService.render('booking-receipt', {
+			const html = await this.templateService.render('booking-confirmation', {
 				TITLE: strings.title,
 				INTRO: strings.intro,
 				LABEL_REFERENCE: strings.reference,
@@ -260,7 +260,7 @@ export class MailService implements OnModuleInit {
 
 			return true;
 		} catch (error) {
-			this.logSmtpError(`Failed to send booking receipt email to ${params.to}`, error);
+			this.logSmtpError(`Failed to send booking confirmation email to ${params.to}`, error);
 			return false;
 		}
 	}

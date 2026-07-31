@@ -34,6 +34,7 @@ export const admin = {
 	cancelOccurrence: 'Cancel occurrence',
 	reactivateOccurrence: 'Restore to Active',
 	bookingsCount: 'Bookings',
+	seatsSold: 'Seats sold',
 	cancelBooking: 'Cancel booking',
 	refundStrategy: 'Refund strategy',
 	refundStrategyFull: 'Full refund',

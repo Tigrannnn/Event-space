@@ -42,7 +42,7 @@ export class MailTemplateService {
 			this.baseTemplate = readFileSync(resolve(templatePath, 'base.mjml'), 'utf-8');
 			this.loadTemplate('verification', templatePath);
 			this.loadTemplate('event-cancelled', templatePath);
-			this.loadTemplate('booking-receipt', templatePath);
+			this.loadTemplate('booking-confirmation', templatePath);
 			console.log(`Mail templates loaded from: ${templatePath}`);
 		} catch (error) {
 			console.error('Failed to load mail templates:', error);

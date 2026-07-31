@@ -512,7 +512,12 @@ export class AdminService {
 
 		if (refundType === 'MANUAL') {
 			await this.prisma.bookingAdjustment.upsert({
-				where: { stripePaymentIntentId: booking.paymentIntentId },
+				where: {
+					stripePaymentIntentId_type: {
+						stripePaymentIntentId: booking.paymentIntentId,
+						type: 'REFUND',
+					},
+				},
 				create: {
 					bookingId: booking.id,
 					type: 'REFUND',
@@ -602,7 +607,12 @@ export class AdminService {
 
 		if (refundResult) {
 			await this.prisma.bookingAdjustment.upsert({
-				where: { stripePaymentIntentId: booking.paymentIntentId },
+				where: {
+					stripePaymentIntentId_type: {
+						stripePaymentIntentId: booking.paymentIntentId,
+						type: 'REFUND',
+					},
+				},
 				create: {
 					bookingId: booking.id,
 					type: 'REFUND',
@@ -621,7 +631,12 @@ export class AdminService {
 			});
 		} else if (booking.paymentIntentId) {
 			await this.prisma.bookingAdjustment.upsert({
-				where: { stripePaymentIntentId: booking.paymentIntentId },
+				where: {
+					stripePaymentIntentId_type: {
+						stripePaymentIntentId: booking.paymentIntentId,
+						type: 'REFUND',
+					},
+				},
 				create: {
 					bookingId: booking.id,
 					type: 'REFUND',

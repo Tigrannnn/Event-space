@@ -66,7 +66,7 @@ export function EventsFiltersDrawer({
 						type="button"
 						variant="outline"
 						size="sm"
-						className="h-9 w-full rounded-lg border-gray-200/80 bg-white/90 font-medium shadow-sm md:hidden"
+						className="h-9 w-full rounded-lg border-gray-200/80 bg-white/90 font-medium shadow-sm md:hidden dark:bg-white/10 dark:text-white dark:border-gray-700/80"
 					>
 						<SlidersHorizontalIcon className="size-4 text-primary/80" />
 						{activeCount > 0
@@ -77,7 +77,7 @@ export function EventsFiltersDrawer({
 			)}
 			<SheetContent
 				side="bottom"
-				className="flex h-[82vh] flex-col rounded-t-3xl border-t border-gray-200/80 bg-gray-50/95 p-0 shadow-lg backdrop-blur-md dark:border-gray-700/80 dark:bg-gray-900/95"
+				className="flex max-h-[80vh] overflow-y-auto flex-col rounded-t-3xl border-t border-gray-200/80 bg-gray-50/95 p-0 shadow-lg backdrop-blur-md dark:border-gray-700/80 dark:bg-gray-900/95"
 				showCloseButton
 			>
 				<SheetHeader className="border-b border-gray-200/70 px-4 py-4 dark:border-gray-700/70">
