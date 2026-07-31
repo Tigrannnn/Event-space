@@ -15,11 +15,11 @@ import {
 	getEventTranslation,
 	getUpcomingEventOccurrences,
 	getPrimaryEventOccurrence,
-	EventWithFavoriteStatus,
+	Event,
 } from '@event-space/shared';
 
 export interface EventCardProps {
-	event: EventWithFavoriteStatus;
+	event: Event;
 }
 
 import { useCurrentUser } from '@/features/users';

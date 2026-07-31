@@ -53,7 +53,8 @@ export default function CreateBookingModal() {
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {
-						addToast(translate('booking.paymentStartFailed'), ToastType.ERROR);
+						addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
+						handleClose();
 						return;
 					}
 					setBooking(data.booking as BookingWithEstimate);

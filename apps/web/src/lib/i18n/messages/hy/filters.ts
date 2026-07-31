@@ -1,0 +1,19 @@
+import type { Messages } from '../types';
+
+export const filters: Messages['filters'] = {
+	categories: 'Կատեգորիաներ',
+	when: 'Ե՞րբ',
+	guests: 'Հյուրեր',
+	guestsCount: '{count} հյուր',
+	guestsHint: 'Կցուցադրենք միջոցառումները հասանելի տեղերով',
+	price: 'Գին',
+	more: 'Ավելին',
+	reset: 'Մաքրել',
+	filters: 'Ֆիլտրեր',
+	today: 'Այսօր',
+	thisWeekend: 'Այս հանգստյան',
+	thisMonth: 'Այս ամիս',
+	searchCategories: 'Փնտրել կատեգորիա...',
+	noCategoriesFound: 'Կատեգորիաներ չեն գտնվել',
+	showTours: 'Ցույց տալ {count} միջոցառում',
+};

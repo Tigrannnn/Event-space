@@ -208,6 +208,7 @@ model Booking {
   paymentIntentId String?   @unique @map("payment_intent_id")
   referenceNumber Int?      @unique @map("reference_number")
   checkedInAt     DateTime? @map("checked_in_at")
+  receiptSentAt   DateTime? @map("receipt_sent_at")
 
   user User @relation("user_bookings", fields: [userId], references: [id])
 

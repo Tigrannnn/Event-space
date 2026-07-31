@@ -1,12 +1,12 @@
 import clientApi from '@/lib/client.api';
-import type { EventWithFavoriteStatus } from '@event-space/shared';
+import type { Event } from '@event-space/shared';
 
 export interface FavoriteToggleResponse {
 	favorited: boolean;
 }
 
 export const favoritesApi = {
-	getFavorites: () => clientApi.get<EventWithFavoriteStatus[]>('/favorites').then((res) => res.data),
+	getFavorites: () => clientApi.get<Event[]>('/favorites').then((res) => res.data),
 	addFavorite: (eventId: string) =>
 		clientApi.post<FavoriteToggleResponse>(`/favorites/${eventId}`).then((res) => res.data),
 	removeFavorite: (eventId: string) =>

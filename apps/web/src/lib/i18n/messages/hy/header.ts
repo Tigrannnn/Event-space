@@ -1,0 +1,25 @@
+import type { Messages } from '../types';
+
+export const header: Messages['header'] = {
+	searchPlaceholder: 'Փնտրել միջոցառումներ...',
+	search: 'Փնտրել',
+	bookings: 'Ամրագրումներ',
+	favorites: 'Սիրելիներ',
+	profile: 'Պրոֆիլ',
+	signUp: 'Գրանցվել',
+	logIn: 'Մուտք',
+	home: 'Գլխավոր',
+	goHome: 'Գնալ գլխավոր էջ',
+	goProfile: 'Գնալ պրոֆիլ',
+	language: 'Լեզու',
+	visitInstagram: 'Բացել Instagram-ը',
+	contactInstagramTitle: 'Մեր Instagram',
+	contactInstagramDescription: 'Տեղեկացրեք նոր միջոցառումներից եւ հետաքրքիր պատմություններից',
+	contactInstagramButton: 'Բացել Instagram',
+	contactPhoneTitle: 'զանգահարեք մեզ',
+	contactPhoneDescription: 'Հարցեր ունեք? Զանգահարեք մեզ առաքինի',
+	contactPhoneButton: 'Զանգահարել',
+	contactEmailTitle: 'Գրեք մեզ',
+	contactEmailDescription: 'Ուղարկեք մեզ էլեկտրոնային նամակ',
+	contactEmailButton: 'Նամակ գրել',
+};

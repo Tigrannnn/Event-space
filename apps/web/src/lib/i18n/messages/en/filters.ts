@@ -1,0 +1,17 @@
+export const filters = {
+	categories: 'Categories',
+	when: 'When?',
+	guests: 'Guests',
+	guestsCount: '{count} guests',
+	guestsHint: 'We will show tours with available spots',
+	price: 'Price',
+	more: 'More',
+	reset: 'Reset',
+	filters: 'Filters',
+	today: 'Today',
+	thisWeekend: 'This weekend',
+	thisMonth: 'This month',
+	searchCategories: 'Search category...',
+	noCategoriesFound: 'No categories found',
+	showTours: 'Show {count} tours',
+};

@@ -7,7 +7,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { ModalType, useModalStore } from '@/stores/modalStore';
 import {
+	Booking,
 	BookingWithEstimate,
 	EnvKey,
 	Event,
@@ -34,7 +36,10 @@ interface StripePaymentFormProps {
 	selectedOccurrence: EventOccurrence | null;
 }
 
-type ConfirmationResult = 'confirmed' | 'cancelled' | 'timeout';
+type ConfirmationResult =
+	| { status: 'confirmed'; booking: Booking }
+	| { status: 'cancelled' }
+	| { status: 'timeout' };
 
 function StripePaymentFormContent({
 	event,
@@ -52,6 +57,7 @@ function StripePaymentFormContent({
 	const formatCurrency = useFormatCurrency();
 	const params = useParams();
 	const { mutateAsync: cancelBooking } = useCancelBooking();
+	const { openModal } = useModalStore();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
@@ -65,15 +71,15 @@ function StripePaymentFormContent({
 			const updated = await bookingApi.getBooking(booking.id);
 
 			if (updated.status === 'CONFIRMED') {
-				return 'confirmed';
+				return { status: 'confirmed', booking: updated };
 			}
 
 			if (updated.status === 'CANCELLED') {
-				return 'cancelled';
+				return { status: 'cancelled' };
 			}
 		}
 
-		return 'timeout';
+		return { status: 'timeout' };
 	};
 
 	const invalidateAfterResolution = () =>
@@ -109,14 +115,23 @@ function StripePaymentFormContent({
 		setHasSubmittedPayment(true);
 		addToast(translate('booking.paymentSubmitted'), ToastType.INFO);
 
+		await bookingApi.reconcilePayment(booking.id).catch(() => {
+			// best-effort reconcile; webhook or polling can still complete later
+		});
+
 		const result = await waitForConfirmation();
 		setIsProcessing(false);
 
-		switch (result) {
+		switch (result.status) {
 			case 'confirmed':
-				addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 				await invalidateAfterResolution();
-				onClose();
+				// Replaces the payment modal with the success summary — no closeModal() in between,
+				// so AnimatePresence swaps the two modals instead of unmounting the root.
+				openModal(ModalType.BookingSuccess, {
+					booking: result.booking,
+					event,
+					occurrence: selectedOccurrence,
+				});
 				break;
 
 			case 'cancelled':
@@ -132,17 +147,6 @@ function StripePaymentFormContent({
 	};
 
 	const handleClose = async () => {
-		if (!hasSubmittedPayment) {
-			setIsCancelling(true);
-			try {
-				await cancelBooking(booking.id);
-			} catch {
-				// ignore cancellation failure on modal close
-			} finally {
-				setIsCancelling(false);
-			}
-		}
-
 		onClose();
 	};
 

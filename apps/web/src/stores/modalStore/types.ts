@@ -17,6 +17,7 @@ export enum ModalType {
 	Confirm = 'confirm',
 	EditProfile = 'edit-profile',
 	CreateBooking = 'create-booking',
+	BookingSuccess = 'booking-success',
 	UpdateBooking = 'update-booking',
 	CreateManualBooking = 'create-manual-booking',
 	BookingDetails = 'booking-details',
@@ -65,6 +66,12 @@ export interface CreateBookingModalData {
 	selectedOccurrence?: EventOccurrence;
 }
 
+export interface BookingSuccessModalData {
+	booking: Booking;
+	event: Event;
+	occurrence: EventOccurrence | null;
+}
+
 export interface UpdateBookingModalData {
 	booking: Booking & { event?: Event };
 }
@@ -102,6 +109,7 @@ export interface ModalDataMap {
 	[ModalType.Confirm]: ConfirmModalData;
 	[ModalType.EditProfile]: null;
 	[ModalType.CreateBooking]: CreateBookingModalData;
+	[ModalType.BookingSuccess]: BookingSuccessModalData;
 	[ModalType.UpdateBooking]: UpdateBookingModalData;
 	[ModalType.CreateManualBooking]: null;
 	[ModalType.BookingDetails]: BookingDetailsModalData;

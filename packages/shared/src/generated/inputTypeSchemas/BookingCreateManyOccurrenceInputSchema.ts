@@ -20,6 +20,7 @@ export const BookingCreateManyOccurrenceInputSchema: z.ZodType<Prisma.BookingCre
   paymentIntentId: z.string().optional().nullable(),
   referenceNumber: z.number().int().optional().nullable(),
   checkedInAt: z.coerce.date().optional().nullable(),
+  receiptSentAt: z.coerce.date().optional().nullable(),
 });
 
 export default BookingCreateManyOccurrenceInputSchema;

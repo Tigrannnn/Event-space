@@ -3,6 +3,7 @@ import {
 	NotFoundException,
 	ConflictException,
 	ForbiddenException,
+	BadRequestException,
 	ServiceUnavailableException,
 	Logger,
 } from '@nestjs/common';
@@ -15,12 +16,14 @@ import {
 	CreateManualBookingData,
 } from '@event-space/shared';
 import { StripeService } from '@infra/stripe/stripe.service';
+import { MailService } from '@infra/mail/mail.service';
 import { calculateRefundPercentage, mapOccurrenceForBookingResponse } from './booking.utils';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
 	CancelablePaymentIntentStatus,
 	StripeBalanceTransaction,
 	StripePaymentIntent,
+	StripePaymentIntentRetrieve,
 } from '@infra/stripe/stripe.types';
 import { getNextBookingReference } from './booking-reference';
 
@@ -31,6 +34,7 @@ export class BookingService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly stripe: StripeService,
+		private readonly mailService: MailService,
 	) {}
 
 	async create(userId: string, data: CreateBookingData) {
@@ -92,7 +96,7 @@ export class BookingService {
 
 			const upserted = await tx.booking.upsert({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
-				update: { status: 'PENDING', expired: false, quantity, paymentIntentId: null, amount },
+				update: { status: 'PENDING', expired: false, quantity, amount },
 				create: {
 					userId,
 					occurrenceId: occurrence.id,
@@ -107,13 +111,48 @@ export class BookingService {
 		});
 
 		let paymentIntent: StripePaymentIntent | null = null;
+		let clientSecret: string | null = null;
 		try {
-			// TODO: remove AMD hardcoding
-			paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'AMD', {
-				userId,
-				occurrenceId,
-				bookingId: booking.id,
-			});
+			// If a pending booking already has a payment intent, reuse it when possible.
+			if (booking.paymentIntentId) {
+				const existingIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+				if (
+					existingIntent.status === 'requires_confirmation' ||
+					existingIntent.status === 'requires_action' ||
+					existingIntent.status === 'processing' ||
+					existingIntent.status === 'requires_capture'
+				) {
+					paymentIntent = existingIntent;
+					clientSecret = existingIntent.client_secret;
+				} else if (existingIntent.status === 'succeeded') {
+					const reconciled = await this.reconcilePayment(existingIntent.id, booking.id);
+					return {
+						booking: reconciled ?? booking,
+						clientSecret: null,
+					};
+				}
+			}
+
+			if (!paymentIntent) {
+				// TODO: remove AMD hardcoding
+				paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'AMD', {
+					userId,
+					occurrenceId,
+					bookingId: booking.id,
+				});
+				clientSecret = paymentIntent.client_secret;
+
+				if (booking.paymentIntentId && booking.paymentIntentId !== paymentIntent.id) {
+					try {
+						await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `replace-${booking.id}`);
+					} catch (e) {
+						this.logger.warn(
+							`Failed to cancel stale payment intent ${booking.paymentIntentId} for booking ${booking.id}`,
+							e as Error,
+						);
+					}
+				}
+			}
 
 			const updatedBooking = await this.prisma.booking.update({
 				where: { id: booking.id },
@@ -157,6 +196,162 @@ export class BookingService {
 			await this.cancelPendingBooking(booking.id);
 			this.rethrowStripeError(error);
 		}
+	}
+
+	async reconcilePayment(paymentIntentId: string, bookingIdHint?: string) {
+		const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
+		const amountReceived = paymentIntent.amount_received ?? paymentIntent.amount;
+
+		const result = await this.prisma.$transaction(async (tx) => {
+			let booking = bookingIdHint
+				? await tx.booking.findUnique({
+					where: { id: bookingIdHint },
+					include: { occurrence: { select: { maxParticipants: true, currentParticipants: true } } },
+				})
+				: null;
+
+			if (!booking) {
+				booking = await tx.booking.findFirst({
+					where: { paymentIntentId },
+					include: { occurrence: { select: { maxParticipants: true, currentParticipants: true } } },
+				});
+			}
+
+			if (!booking) {
+				this.logger.warn(
+					`Unable to reconcile payment intent ${paymentIntentId}: booking not found`,
+				);
+				return { action: 'skipped' as const };
+			}
+
+			if (!booking.paymentIntentId) {
+				await tx.booking.update({
+					where: { id: booking.id },
+					data: { paymentIntentId },
+				});
+				booking.paymentIntentId = paymentIntentId;
+			}
+
+			if (booking.status === 'CONFIRMED') {
+				this.logger.log(`Booking ${booking.id} already confirmed`);
+				return { action: 'skipped' as const, booking };
+			}
+
+			if (paymentIntent.status === 'succeeded') {
+				if (booking.status === 'CANCELLED' || booking.status === 'EXPIRED') {
+					await tx.booking.update({
+						where: { id: booking.id },
+						data: { paymentIntentId },
+					});
+					return {
+						action: 'refund' as const,
+						bookingId: booking.id,
+						paymentIntentId,
+						amountReceived,
+						reason:
+							booking.status === 'CANCELLED'
+								? 'Payment captured after booking was cancelled.'
+								: 'Payment captured after booking expired.',
+						idempotencyKey: `auto-refund-${booking.id}`,
+					};
+				}
+
+				const reserved = await tx.eventOccurrence.updateMany({
+					where: {
+						id: booking.occurrenceId,
+						currentParticipants: { lte: booking.occurrence.maxParticipants - booking.quantity },
+					},
+					data: { currentParticipants: { increment: booking.quantity } },
+				});
+
+				if (reserved.count === 0) {
+					await tx.booking.update({
+						where: { id: booking.id },
+						data: { status: 'CANCELLED', paymentIntentId },
+					});
+					return {
+						action: 'refund' as const,
+						bookingId: booking.id,
+						paymentIntentId,
+						amountReceived,
+						reason: 'NO_SPOTS_LEFT',
+						idempotencyKey: `auto-refund-no-spots-${booking.id}`,
+					};
+				}
+
+				const referenceNumber = await getNextBookingReference(tx);
+				const confirmedBooking = await tx.booking.update({
+					where: { id: booking.id },
+					data: { status: 'CONFIRMED', paymentIntentId, referenceNumber },
+				});
+
+				await tx.bookingAdjustment.create({
+					data: {
+						bookingId: booking.id,
+						type: 'CHARGE',
+						amount: new Prisma.Decimal(booking.amount.toString()),
+						currency: 'AMD',
+						stripePaymentIntentId: paymentIntentId,
+						status: 'SUCCEEDED',
+						reason: 'Payment captured',
+					},
+				});
+
+				return { action: 'confirmed' as const, booking: confirmedBooking };
+			}
+
+			if (paymentIntent.status === 'canceled' || paymentIntent.status === 'requires_payment_method') {
+				if (booking.status === 'PENDING') {
+					const cancelledBooking = await tx.booking.update({
+						where: { id: booking.id },
+						data: { status: 'CANCELLED' },
+					});
+
+					return { action: 'cancelled' as const, booking: cancelledBooking };
+				}
+
+				return { action: 'cancelled' as const, booking };
+			}
+
+			return { action: 'pending' as const, booking };
+		});
+
+		if (result.action === 'confirmed') {
+			await this.sendReceiptSafely(result.booking.id);
+		}
+
+		if (result.action === 'refund') {
+			try {
+				const stripeRefund = await this.stripe.refund(
+					result.paymentIntentId,
+					result.idempotencyKey,
+					result.amountReceived,
+				);
+
+				await this.prisma.bookingAdjustment.upsert({
+					where: { stripePaymentIntentId: result.paymentIntentId },
+					create: {
+						bookingId: result.bookingId,
+						type: 'REFUND',
+						amount: new Prisma.Decimal((stripeRefund.amount / 100).toString()),
+						currency: 'AMD',
+						stripePaymentIntentId: result.paymentIntentId,
+						stripeRefundId: stripeRefund.id,
+						status: 'SUCCEEDED',
+						reason: result.reason,
+					},
+					update: {
+						stripeRefundId: stripeRefund.id,
+						status: 'SUCCEEDED',
+						reason: result.reason,
+					},
+				});
+			} catch (e) {
+				this.logger.error(`Failed to auto-refund booking ${result.bookingId}`, e as Error);
+			}
+		}
+
+		return result.action === 'skipped' ? null : result.booking;
 	}
 
 	async createManualBooking(adminId: string, data: CreateManualBookingData) {
@@ -285,6 +480,8 @@ export class BookingService {
 				);
 			}
 		}
+
+		await this.sendReceiptSafely(result.booking.id);
 
 		return {
 			...result.booking,
@@ -749,6 +946,50 @@ export class BookingService {
 					},
 				});
 			}
+		}
+	}
+
+	private async sendReceiptSafely(bookingId: string): Promise<void> {
+		try {
+			const claimed = await this.prisma.booking.updateMany({
+				where: { id: bookingId, receiptSentAt: null },
+				data: { receiptSentAt: new Date() },
+			});
+
+			if (claimed.count === 0) {
+				return;
+			}
+
+			const booking = await this.prisma.booking.findUnique({
+				where: { id: bookingId },
+				include: {
+					user: true,
+					occurrence: { include: { event: { include: { translations: true } } } },
+				},
+			});
+
+			if (!booking?.user?.email) {
+				return;
+			}
+
+			const translation =
+				booking.occurrence.event.translations.find((t) => t.locale === 'en') ??
+				booking.occurrence.event.translations[0];
+
+			await this.mailService.sendBookingReceipt({
+				to: booking.user.email,
+				locale: 'en',
+				referenceNumber: booking.referenceNumber ?? 0,
+				eventTitle: translation?.title ?? '',
+				eventLocation: translation?.location,
+				occurrenceDate: booking.occurrence.date,
+				quantity: booking.quantity,
+				amount: Number(booking.amount),
+				currency: 'AMD',
+				paymentMethod: booking.paymentMethod,
+			});
+		} catch (error) {
+			this.logger.error(`Failed to send booking receipt for booking ${bookingId}`, error as Error);
 		}
 	}
 

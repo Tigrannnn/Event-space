@@ -1,0 +1,23 @@
+import type { Messages } from '../types';
+
+export const common: Messages['common'] = {
+	appTitle: 'Տեղական միջոցառումներ եւ արկածներ',
+	appDescription: 'Պրեմիում հարթակ տեղական միջոցառումների եւ յուրահատուկ արկածների համար',
+	eventNotFound: 'Միջոցառումն չի գտնվել',
+	notFoundTitle: 'Էջը չի գտնվել',
+	notFoundDescription: 'Էջը, որը փնտրում եք, գոյություն չունի։',
+	goHome: 'Գլխավոր',
+	all: 'Բոլոր',
+	noEventsFound: 'Միջոցառումներ չեն գտնվել',
+	noEventsYet: 'Դեռ միջոցառումներ չկան',
+	noEventsSearchDescription: 'Փորձեք այլ որոնում։',
+	noEventsDescription: 'Ստուգեք ավելի ուշ առաջիկա միջոցառումների համար։',
+	somethingWentWrong: 'Ինչ-որ բան սխալ գնաց',
+	unexpectedError: 'Առաջացավ անսպասելի սխալ։ Փորձեք նորից կամ վերադարձեք գլխավոր էջ։',
+	tryAgain: 'Փորձել նորից',
+	close: 'Փակել',
+	cancel: 'Չեղարկել',
+	loading: 'Բեռնվում է...',
+	updating: 'Թարմացվում է...',
+	optional: 'պարտադիր չէ',
+};

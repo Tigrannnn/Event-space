@@ -31,6 +31,7 @@ export const BookingUpdateWithoutAdjustmentsInputSchema: z.ZodType<Prisma.Bookin
   paymentIntentId: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   referenceNumber: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   checkedInAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  receiptSentAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   user: z.lazy(() => UserUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
   occurrence: z.lazy(() => EventOccurrenceUpdateOneRequiredWithoutBookingsNestedInputSchema).optional(),
 });

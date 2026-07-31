@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
 	ApiTags,
@@ -89,6 +89,23 @@ export class BookingController {
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
 		return this.bookingService.cancel(userId, id);
+	}
+
+	@Post(':id/reconcile-payment')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Reconcile booking payment status' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiResponse({ status: 200, description: 'Booking payment reconciled successfully' })
+	@ApiResponse({ status: 400, description: 'Booking has no payment intent to reconcile' })
+	@ApiResponse({ status: 404, description: 'Booking not found' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	async reconcilePayment(@GetCurrentUserId() userId: string, @Param('id') id: string) {
+		const booking = await this.bookingService.findOneForUser(userId, id);
+		if (!booking.paymentIntentId) {
+			throw new BadRequestException('Booking has no payment intent to reconcile');
+		}
+		return this.bookingService.reconcilePayment(booking.paymentIntentId, booking.id);
 	}
 
 	// @Patch(':id')

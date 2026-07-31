@@ -1,0 +1,76 @@
+<mj-wrapper padding="0px 20px 40px 20px">
+	<mj-section
+		background-color="#ffffff"
+		border-radius="40px"
+		padding="40px"
+		css-class="card-bg shadow-card"
+	>
+		<mj-column>
+			<mj-text
+				align="center"
+				font-size="22px"
+				font-weight="900"
+				color="#1b4c00"
+				padding="0px 0px 8px 0px"
+				css-class="text-main"
+			>
+				{{ TITLE }}
+			</mj-text>
+			<mj-divider
+				border-width="1px"
+				border-color="#e5e7eb"
+				padding="0px 0px 24px 0px"
+				css-class="divider-color"
+			/>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				{{ INTRO }}
+			</mj-text>
+			<mj-table css-class="text-muted" font-size="14px" color="#6b7280" padding="0px 0px 20px 0px">
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_REFERENCE }}</td>
+					<td style="padding: 8px 0;">{{ REFERENCE_NUMBER }}</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_EVENT }}</td>
+					<td style="padding: 8px 0;">{{ EVENT_TITLE }}</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_LOCATION }}</td>
+					<td style="padding: 8px 0;">{{ EVENT_LOCATION }}</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_DATE }}</td>
+					<td style="padding: 8px 0;">{{ OCCURRENCE_DATE }}</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_QUANTITY }}</td>
+					<td style="padding: 8px 0;">{{ QUANTITY }}</td>
+				</tr>
+				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_PAYMENT_METHOD }}</td>
+					<td style="padding: 8px 0;">{{ PAYMENT_METHOD }}</td>
+				</tr>
+				<tr style="text-align: left;">
+					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_AMOUNT }}</td>
+					<td style="padding: 8px 0;">{{ AMOUNT }} {{ CURRENCY }}</td>
+				</tr>
+			</mj-table>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 0px 0px"
+				css-class="text-muted"
+			>
+				{{ OUTRO }}<br />
+				{{ SIGNATURE }}
+			</mj-text>
+		</mj-column>
+	</mj-section>
+</mj-wrapper>

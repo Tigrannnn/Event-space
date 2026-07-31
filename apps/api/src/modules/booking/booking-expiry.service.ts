@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '@infra/stripe/stripe.service';
+import { BookingService } from '@modules/booking/booking.service';
 
 @Injectable()
 export class BookingExpiryService {
@@ -10,7 +11,36 @@ export class BookingExpiryService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly stripe: StripeService,
+		private readonly bookingService: BookingService,
 	) {}
+
+	@Cron(CronExpression.EVERY_MINUTE)
+	async reconcileStalePendingBookings() {
+		const cutoff = new Date(Date.now() - 60 * 1000);
+		const pendingBookings = await this.prisma.booking.findMany({
+			where: {
+				status: 'PENDING',
+				expired: false,
+				paymentIntentId: { not: null },
+				createdAt: { lt: cutoff },
+			},
+			take: 50,
+		});
+
+		if (pendingBookings.length === 0) {
+			return;
+		}
+
+		this.logger.log(`Reconciling ${pendingBookings.length} stale pending bookings`);
+
+		for (const pending of pendingBookings) {
+			try {
+				await this.bookingService.reconcilePayment(pending.paymentIntentId!, pending.id);
+			} catch (e) {
+				this.logger.error(`Failed to reconcile stale booking ${pending.id}`, e as Error);
+			}
+		}
+	}
 
 	@Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
 	async handleExpiry() {

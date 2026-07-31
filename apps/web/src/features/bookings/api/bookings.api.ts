@@ -5,7 +5,7 @@ import type {
 	CreateBookingResponse,
 	UpdateBookingData,
 	BookingWithOccurrence,
-	BookingWithEstimate
+	BookingWithEstimate,
 } from '@event-space/shared';
 
 export const bookingApi = {
@@ -18,6 +18,9 @@ export const bookingApi = {
 
 	cancelBooking: (id: string) =>
 		clientApi.patch<Booking>(`/bookings/${id}/cancel`).then((res) => res.data),
+
+	reconcilePayment: (id: string) =>
+		clientApi.post<Booking>(`/bookings/${id}/reconcile-payment`).then((res) => res.data),
 
 	updateBooking: (id: string, data: UpdateBookingData) =>
 		clientApi.patch<Booking>(`/bookings/${id}`, data).then((res) => res.data),

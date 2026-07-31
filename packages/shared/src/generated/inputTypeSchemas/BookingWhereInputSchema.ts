@@ -39,6 +39,7 @@ export const BookingWhereInputSchema: z.ZodType<Prisma.BookingWhereInput> = z.st
   paymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   referenceNumber: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),
   checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  receiptSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   occurrence: z.union([ z.lazy(() => EventOccurrenceScalarRelationFilterSchema), z.lazy(() => EventOccurrenceWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),

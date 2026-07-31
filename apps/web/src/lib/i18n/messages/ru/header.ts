@@ -1,0 +1,25 @@
+import type { Messages } from '../types';
+
+export const header: Messages['header'] = {
+	searchPlaceholder: 'Искать события...',
+	search: 'Поиск',
+	bookings: 'Брони',
+	favorites: 'Избранное',
+	profile: 'Профиль',
+	signUp: 'Регистрация',
+	logIn: 'Войти',
+	home: 'Главная',
+	goHome: 'Перейти на главную',
+	goProfile: 'Перейти в профиль',
+	language: 'Язык',
+	visitInstagram: 'Посетить Instagram',
+	contactInstagramTitle: 'Наш Instagram',
+	contactInstagramDescription: 'Узнавайте о новых событиях и интересных историях',
+	contactInstagramButton: 'Перейти в Instagram',
+	contactPhoneTitle: 'Позвоните нам',
+	contactPhoneDescription: 'Есть вопросы? Позвоните нам прямо сейчас',
+	contactPhoneButton: 'Позвонить',
+	contactEmailTitle: 'Напишите нам',
+	contactEmailDescription: 'Отправьте нам электронное письмо',
+	contactEmailButton: 'Написать письмо',
+};
