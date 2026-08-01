@@ -25,7 +25,7 @@ export interface EventCardProps {
 import { useCurrentUser } from '@/features/users';
 import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
-import { BookOpen, MapPin, Navigation, Ticket } from 'lucide-react';
+import { BookOpen, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -92,7 +92,7 @@ export default function EventCard({ event }: EventCardProps) {
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				{/* {categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>} */}
 				<PriceBadge price={event.price} />
-				<div className="absolute right-3 top-3 z-20">
+				<div className="absolute top-3 right-3 z-20">
 					<FavoriteButton eventId={event.id} />
 				</div>
 				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={eventTranslation.title} />
@@ -144,10 +144,28 @@ export default function EventCard({ event }: EventCardProps) {
 					) : isUserLoading || (isMyBookingsLoading && user) ? (
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
-						<Button variant="secondary" className="relative z-20 w-full" onClick={handleViewBooking}>
-							<Ticket className="h-4 w-4" />
-							{translate('event.viewMyBooking')}
-						</Button>
+						<div
+							className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm"
+							role="group"
+						>
+							<button
+								type="button"
+								onClick={handleViewBooking}
+								className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+							>
+								<Ticket className="h-4 w-4 shrink-0" />
+								<span className="truncate">{translate('event.viewMyBooking')}</span>
+							</button>
+							<button
+								type="button"
+								onClick={handleBookClick}
+								aria-label={translate('event.bookAnotherSpot')}
+								title={translate('event.bookAnotherSpot')}
+								className="bg-primary hover:bg-primary/90 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
+							>
+								<Plus className="h-5 w-5" strokeWidth={2.5} />
+							</button>
+						</div>
 					) : (
 						<Button variant="primary" className="relative z-20 w-full" onClick={handleBookClick}>
 							<BookOpen className="h-4 w-4" />

@@ -23,6 +23,7 @@ export const booking = {
 	selectDate: 'Select date',
 	selectedDate: 'Selected date',
 	soldOut: 'Sold out',
+	alreadyBooked: 'Already booked',
 	spotsLeft: 'spots left',
 	selectSpots: 'Select spots',
 	totalPrice: 'Total price',

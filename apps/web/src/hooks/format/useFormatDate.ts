@@ -15,9 +15,9 @@ export function useFormatDate() {
     const intlLocale = localeIntl[locale];
 
     return {
-        formatDateYear: (date: string | Date) => formatDateYear(date, intlLocale),
-        formatDateShort: (date: string | Date) => formatDateShort(date, intlLocale),
-        formatDateTime: (date: string | Date) => formatDateTime(date, intlLocale),
-        formatTime: (date: string | Date) => formatTime(date, intlLocale),
+        formatDateYear: (date: string | Date | null | undefined) => formatDateYear(date, intlLocale),
+        formatDateShort: (date: string | Date | null | undefined) => formatDateShort(date, intlLocale),
+        formatDateTime: (date: string | Date | null | undefined) => formatDateTime(date, intlLocale),
+        formatTime: (date: string | Date | null | undefined) => formatTime(date, intlLocale),
     };
 }

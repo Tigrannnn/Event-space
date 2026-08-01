@@ -15,6 +15,7 @@ export const event: Messages['event'] = {
 	eventEnded: 'Միջոցառումն ավարտվել է',
 	viewMyBooking: 'Դիտել իմ ամրագրումը',
 	bookTour: 'Ամրագրել տուրը',
+	bookAnotherSpot: 'Ավելին ամրագրել',
 	secureBooking: 'Անվտանգ ամրագում',
 	date: 'Ամսաթիվ',
 	location: 'Վայր',

@@ -25,6 +25,7 @@ export const booking: Messages['booking'] = {
 	selectDate: 'Выберите дату',
 	selectedDate: 'Выбранная дата',
 	soldOut: 'Распродано',
+	alreadyBooked: 'Уже забронировано',
 	spotsLeft: 'мест осталось',
 	selectSpots: 'Выберите места',
 	totalPrice: 'Итоговая цена',

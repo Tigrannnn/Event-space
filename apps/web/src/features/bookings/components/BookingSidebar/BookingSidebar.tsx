@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, Calendar, MapPin, Navigation, Ticket } from 'lucide-react';
+import { BookOpen, Calendar, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -83,11 +83,16 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 		});
 	}, [upcomingOccurrences]);
 
+	const canBook = !hasBooking && !isSoldOut;
+
 	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
 		if (user) {
-			openModal(ModalType.CreateBooking, { event, selectedOccurrence });
+			openModal(ModalType.CreateBooking, {
+				event,
+				selectedOccurrence: canBook ? selectedOccurrence : undefined,
+			});
 		} else {
 			openModal(ModalType.Register);
 		}
@@ -225,23 +230,32 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						{translate('event.eventEnded')}
 					</div>
 				) : isUserLoading || isMyBookingsLoading ? (
-					<Skeleton className="h-12 w-full rounded-xl" />
+					<Skeleton className="h-10 w-full rounded-xl" />
 				) : hasBooking ? (
-					<Button
-						variant="secondary"
-						className="w-full py-4 text-base sm:py-5 sm:text-lg"
-						onClick={handleViewBooking}
+					<div
+						className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm"
+						role="group"
 					>
-						<Ticket className="h-4 w-4" />
-						{translate('event.viewMyBooking')}
-					</Button>
+						<button
+							type="button"
+							onClick={handleViewBooking}
+							className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+						>
+							<Ticket className="h-4 w-4 shrink-0" />
+							<span className="truncate">{translate('event.viewMyBooking')}</span>
+						</button>
+						<button
+							type="button"
+							onClick={handleBookClick}
+							aria-label={translate('event.bookAnotherSpot')}
+							title={translate('event.bookAnotherSpot')}
+							className="bg-primary hover:bg-primary/90 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
+						>
+							<Plus className="h-5 w-5" strokeWidth={2.5} />
+						</button>
+					</div>
 				) : (
-					<Button
-						variant="primary"
-						className="w-full py-4 text-base sm:py-5 sm:text-lg"
-						onClick={handleBookClick}
-						disabled={isSoldOut}
-					>
+					<Button variant="primary" className="w-full" onClick={handleBookClick} disabled={isSoldOut}>
 						<BookOpen className="h-4 w-4" />
 						{isSoldOut ? translate('event.noSpotsLeft') : translate('event.bookTour')}
 					</Button>

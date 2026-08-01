@@ -15,6 +15,7 @@ export const event: Messages['event'] = {
 	eventEnded: 'Событие завершено',
 	viewMyBooking: 'Моя бронь',
 	bookTour: 'Забронировать тур',
+	bookAnotherSpot: 'Забронировать ещё место',
 	secureBooking: 'Безопасное бронирование',
 	date: 'Дата',
 	location: 'Место',

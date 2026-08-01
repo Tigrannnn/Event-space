@@ -10,6 +10,7 @@ import { useTranslation } from '@/hooks/translation';
 import { getEventTranslation, PhoneSchema, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
+import { useGetMyBookings } from '../../hooks/useBookings';
 
 export default function BookingForm({
 	event,
@@ -31,6 +32,7 @@ export default function BookingForm({
 	const [phoneError, setPhoneError] = useState('');
 	const formatCurrency = useFormatCurrency();
 	const { formatDateTime } = useFormatDate();
+	const { data: myBookings } = useGetMyBookings();
 
 	// Filter and sort future occurrences
 	const now = new Date();
@@ -65,7 +67,9 @@ export default function BookingForm({
 			return;
 		}
 
-		setPhoneError(PhoneSchema.safeParse(nextPhone.trim()).success ? '' : translate('booking.invalidPhone'));
+		setPhoneError(
+			PhoneSchema.safeParse(nextPhone.trim()).success ? '' : translate('booking.invalidPhone'),
+		);
 	};
 
 	const handleSubmitClick = () => {
@@ -88,25 +92,34 @@ export default function BookingForm({
 
 			{/* Occurrence Selector */}
 			<div className="mt-6 space-y-2">
-				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('booking.selectDate')}</p>
+				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+					{translate('booking.selectDate')}
+				</p>
 				{futureOccurrences.length > 0 ? (
 					<div className="space-y-2">
 						{futureOccurrences.map((occurrence) => {
 							const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;
 							const isSoldOut = spotsLeft <= 0;
 							const isSelected = selectedOccurrence?.id === occurrence.id;
+							const hasBooking = myBookings?.some((booking) => {
+								const status = booking.status?.toUpperCase();
+								if (status !== 'CONFIRMED') return false;
+
+								const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
+								return Boolean(bookingOccurrenceId && bookingOccurrenceId === occurrence.id);
+							});
 
 							return (
 								<button
 									key={occurrence.id}
 									onClick={() => handleOccurrenceSelect(occurrence)}
-									disabled={isSoldOut || isLoading}
+									disabled={isSoldOut || isLoading || hasBooking}
 									className={`w-full rounded-xl border p-3 text-left transition-all ${
 										isSelected
 											? 'border-primary bg-primary/10 dark:bg-primary/20'
-											: isSoldOut
-												? 'border-gray-200 opacity-50 cursor-not-allowed dark:border-gray-700'
-												: 'border-gray-200 hover:border-primary cursor-pointer dark:border-gray-700 dark:hover:border-primary'
+											: isSoldOut || hasBooking
+												? 'cursor-not-allowed border-gray-200 opacity-50 dark:border-gray-700'
+												: 'hover:border-primary dark:hover:border-primary cursor-pointer border-gray-200 dark:border-gray-700'
 									}`}
 								>
 									<div className="flex items-center justify-between">
@@ -114,15 +127,13 @@ export default function BookingForm({
 											{formatDateTime(occurrence.date)}
 										</span>
 										<span
-											className={`text-xs ${
-												isSoldOut
-													? 'text-red-500'
-													: 'text-gray-500 dark:text-gray-400'
-											}`}
+											className={`text-xs ${isSoldOut ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
 										>
 											{isSoldOut
 												? translate('booking.soldOut')
-												: `${spotsLeft} ${translate('booking.spotsLeft')}`}
+												: hasBooking
+													? translate('booking.alreadyBooked')
+													: `${spotsLeft} ${translate('booking.spotsLeft')}`}
 										</span>
 									</div>
 								</button>
@@ -130,7 +141,9 @@ export default function BookingForm({
 						})}
 					</div>
 				) : (
-					<p className="text-sm text-gray-500 dark:text-gray-400">{translate('event.noUpcomingEvents')}</p>
+					<p className="text-sm text-gray-500 dark:text-gray-400">
+						{translate('event.noUpcomingEvents')}
+					</p>
 				)}
 			</div>
 

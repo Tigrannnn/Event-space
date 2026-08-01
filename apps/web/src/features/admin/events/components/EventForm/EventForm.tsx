@@ -468,7 +468,7 @@ export default function EventForm({
 							{occurrenceFields.map((field, index) => {
 								const activeBookingsCount = field.activeBookingsCount ?? 0;
 								const hasBookings = activeBookingsCount > 0;
-								const finished = field.date ? field.date <= new Date().toISOString() : false;
+								const finished = field.id && field.date ? field.date <= new Date().toISOString() : false;
 								const isCancelled = field.status === 'CANCELLED';
 								const isCancelPending =
 									(field.id && occurrencesToCancel.includes(field.id)) ||
@@ -478,7 +478,7 @@ export default function EventForm({
 									<div
 										key={field.fieldId}
 										className={`flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-end ${
-											isCancelled
+											isCancelled || finished
 												? 'border-gray-300 bg-gray-50 opacity-60 dark:border-gray-700 dark:bg-gray-800/40'
 												: 'border-gray-200 dark:border-gray-700'
 										}`}
@@ -500,7 +500,7 @@ export default function EventForm({
 													<DateTimeField
 														value={dateField.value ?? ''}
 														onChange={dateField.onChange}
-														disabled={isPending || isCancelled}
+														disabled={isPending || isCancelled || finished}
 														inputClassName={dateTimeInputClassName}
 													/>
 												)}
@@ -516,7 +516,7 @@ export default function EventForm({
 												min="1"
 												{...register(`occurrences.${index}.maxParticipants`)}
 												className={fieldClassName}
-												disabled={isPending || isCancelled}
+												disabled={isPending || isCancelled || finished}
 											/>
 										</label>
 

@@ -25,6 +25,7 @@ export const booking: Messages['booking'] = {
 	selectDate: 'Ընտրեք ամսաթիվ',
 	selectedDate: 'Ընտրված ամսաթիվ',
 	soldOut: 'Վաճառված',
+	alreadyBooked: 'Արդեն ամրագրված է',
 	spotsLeft: 'տեղ մնաց',
 	selectSpots: 'Ընտրեք տեղերը',
 	totalPrice: 'Ընդհանուր գին',

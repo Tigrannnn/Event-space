@@ -4,8 +4,17 @@
 
 import { LocaleIntlEnum } from "@event-space/shared";
 
-export const formatDateYear = (date: string | Date, locale = 'en-US'): string => {
-	const d = typeof date === 'string' ? new Date(date) : date;
+const getValidDate = (date: string | Date | null | undefined): Date | null => {
+	if (!date) return null;
+
+	const parsedDate = typeof date === 'string' ? new Date(date) : date;
+	return parsedDate instanceof Date && !Number.isNaN(parsedDate.getTime()) ? parsedDate : null;
+};
+
+export const formatDateYear = (date: string | Date | null | undefined, locale = 'en-US'): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
+
 	return d.toLocaleDateString(locale, {
 		day: 'numeric',
 		month: 'long',
@@ -13,16 +22,19 @@ export const formatDateYear = (date: string | Date, locale = 'en-US'): string =>
 	});
 };
 
-export const formatDateShort = (date: string | Date, locale = 'en-US'): string => {
-	const d = typeof date === 'string' ? new Date(date) : date;
+export const formatDateShort = (date: string | Date | null | undefined, locale = 'en-US'): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
+
 	return d.toLocaleDateString(locale, {
 		day: 'numeric',
 		month: 'short',
 	});
 };
 
-export const formatDateTime = (date: string | Date, locale: LocaleIntlEnum): string => {
-	const d = typeof date === 'string' ? new Date(date) : date;
+export const formatDateTime = (date: string | Date | null | undefined, locale: LocaleIntlEnum): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
 
 	// Build a deterministic string using separate formatters to avoid
 	// server/client locale differences (commas vs "at" etc.).
@@ -37,8 +49,10 @@ export const formatDateTime = (date: string | Date, locale: LocaleIntlEnum): str
 	return `${datePart}, ${timePart}`;
 };
 
-export const formatTime = (date: string | Date, locale = 'en-US'): string => {
-	const d = typeof date === 'string' ? new Date(date) : date;
+export const formatTime = (date: string | Date | null | undefined, locale = 'en-US'): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
+
 	return d.toLocaleTimeString(locale, {
 		hour: '2-digit',
 		minute: '2-digit',

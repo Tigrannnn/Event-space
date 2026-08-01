@@ -13,6 +13,7 @@ export const event = {
 	eventEnded: 'This event has ended',
 	viewMyBooking: 'View My Booking',
 	bookTour: 'Book Tour',
+	bookAnotherSpot: 'Book another spot',
 	secureBooking: 'Secure booking',
 	date: 'Date',
 	location: 'Location',

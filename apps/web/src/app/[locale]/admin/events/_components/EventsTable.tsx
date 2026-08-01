@@ -220,7 +220,7 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 						</Button>
 					</div>
 
-					<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+					<div className="flex flex-col gap-3">
 						<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
 							<div className="relative min-w-[75%] flex-1">
 								<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
