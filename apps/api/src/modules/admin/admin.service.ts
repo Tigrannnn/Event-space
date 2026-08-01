@@ -55,9 +55,7 @@ const bookingInclude = {
 						include: {
 							_count: {
 								select: {
-									bookings: {
-										where: { status: 'CONFIRMED' },
-									},
+									bookings: true,
 								},
 							},
 						},

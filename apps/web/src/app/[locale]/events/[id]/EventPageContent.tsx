@@ -8,6 +8,7 @@ import { ModalType } from '@/stores/modalStore/types';
 import { ArrowLeft, Share2, MapPin, Clock, Mountain, Users } from 'lucide-react';
 import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import {
@@ -102,14 +103,17 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 							<span className="hidden md:inline">{translate('event.back')}</span>
 						</Button>
 
-						<Button
-							variant="secondary"
-							onClick={handleShareClick}
-							className="pointer-events-auto flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3"
-						>
-							<Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
-							<span className="hidden md:inline">{translate('event.share')}</span>
-						</Button>
+						<div className="pointer-events-auto flex items-center gap-2">
+							<Button
+								variant="secondary"
+								onClick={handleShareClick}
+								className="flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3"
+							>
+								<Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+								<span className="hidden md:inline">{translate('event.share')}</span>
+							</Button>
+							<FavoriteButton eventId={event.id} />
+						</div>
 					</div>
 				</div>
 			</section>

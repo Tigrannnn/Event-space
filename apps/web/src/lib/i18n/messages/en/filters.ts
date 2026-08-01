@@ -13,5 +13,5 @@ export const filters = {
 	thisMonth: 'This month',
 	searchCategories: 'Search category...',
 	noCategoriesFound: 'No categories found',
-	showTours: 'Show {count} tours',
+	showTours: 'Show',
 };

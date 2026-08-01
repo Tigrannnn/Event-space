@@ -15,5 +15,5 @@ export const filters: Messages['filters'] = {
 	thisMonth: 'Этот месяц',
 	searchCategories: 'Поиск категории...',
 	noCategoriesFound: 'Категории не найдены',
-	showTours: 'Показать {count} туров',
+	showTours: 'Показать',
 };

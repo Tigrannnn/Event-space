@@ -23,7 +23,6 @@ export interface EventsFiltersState {
 export interface EventsFiltersBarProps {
 	categories: import('@event-space/shared').Category[];
 	priceBounds: PriceBounds;
-	eventsCount: number;
 	filters: EventsFiltersState;
 	onFiltersChange: (filters: EventsFiltersState) => void;
 	isLoadingCategories?: boolean;

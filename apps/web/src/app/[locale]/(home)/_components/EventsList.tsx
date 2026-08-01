@@ -126,7 +126,6 @@ export default function EventsList({
 		<EventsFiltersBar
 			categories={categories}
 			priceBounds={priceBounds}
-			eventsCount={filteredEvents.length}
 			filters={filters}
 			onFiltersChange={handleFiltersChange}
 			isLoadingCategories={isLoadingCategories}

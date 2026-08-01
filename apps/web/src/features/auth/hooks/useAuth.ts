@@ -96,7 +96,7 @@ export const useLogin = () => {
 		mutationFn: (data: LoginData) => authApi.login(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
-			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event'] });
@@ -140,7 +140,7 @@ export const useResetPassword = () => {
 		mutationFn: (data: ResetPasswordData) => authApi.resetPassword(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
-			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event'] });
@@ -170,7 +170,6 @@ export const useLogout = () => {
 			queryClient.setQueryData(['me'], null);
 			await Promise.all([
 				queryClient.removeQueries({ queryKey: ['my-bookings'] }),
-				queryClient.removeQueries({ queryKey: ['bookings'] }),
 				queryClient.removeQueries({ queryKey: ['events'] }),
 				queryClient.removeQueries({ queryKey: ['event'] }),
 				queryClient.removeQueries({ queryKey: ['admin'] }),

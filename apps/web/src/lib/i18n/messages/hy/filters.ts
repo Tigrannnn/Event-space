@@ -15,5 +15,5 @@ export const filters: Messages['filters'] = {
 	thisMonth: 'Այս ամիս',
 	searchCategories: 'Փնտրել կատեգորիա...',
 	noCategoriesFound: 'Կատեգորիաներ չեն գտնվել',
-	showTours: 'Ցույց տալ {count} միջոցառում',
+	showTours: 'Ցույց տալ',
 };

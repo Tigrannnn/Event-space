@@ -28,7 +28,6 @@ interface EventsFiltersDrawerProps extends EventsFiltersBarProps {
 export function EventsFiltersDrawer({
 	categories,
 	priceBounds,
-	eventsCount,
 	filters,
 	onFiltersChange,
 	isLoadingCategories = false,
@@ -127,7 +126,7 @@ export function EventsFiltersDrawer({
 						{translate('filters.reset')}
 					</Button>
 					<Button type="button" onClick={handleApply}>
-						{translate('filters.showTours').replace('{count}', String(eventsCount))}
+						{translate('filters.showTours')}
 					</Button>
 				</SheetFooter>
 			</SheetContent>

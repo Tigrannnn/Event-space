@@ -14,7 +14,6 @@ import type { EventsFiltersBarProps } from './types';
 export function EventsFiltersBar({
 	categories,
 	priceBounds,
-	eventsCount,
 	filters,
 	onFiltersChange,
 	isLoadingCategories = false,
@@ -32,7 +31,6 @@ export function EventsFiltersBar({
 				<EventsFiltersDrawer
 					categories={categories}
 					priceBounds={priceBounds}
-					eventsCount={eventsCount}
 					filters={filters}
 					onFiltersChange={onFiltersChange}
 					isLoadingCategories={isLoadingCategories}
