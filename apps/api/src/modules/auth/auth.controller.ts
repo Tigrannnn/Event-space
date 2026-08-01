@@ -6,7 +6,6 @@ import {
 	HttpStatus,
 	Res,
 	Req,
-	UnauthorizedException,
 	Ip,
 } from '@nestjs/common';
 import * as express from 'express';
@@ -14,6 +13,7 @@ import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import {
 	AUTH_CONFIG,
+	AppErrorCode,
 	ForgotPasswordSchema,
 	GoogleLoginSchema,
 	LoginSchema,
@@ -27,14 +27,13 @@ import type {
 	ForgotPasswordData,
 	GoogleLoginData,
 	LoginData,
-	MessageResponse,
 	RegisterData,
 	RegisterResponse,
 	ResendCodeData,
 	ResetPasswordData,
 	VerifyEmailData,
 } from '@event-space/shared';
-import { GetCurrentUserId, ZodValidationPipe } from '@shared';
+import { AppException, GetCurrentUserId, ZodValidationPipe } from '@shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 
 @ApiTags('auth')
@@ -105,7 +104,6 @@ export class AuthController {
 		this.setRefreshTokenCookie(res, result.refreshToken);
 
 		return {
-			message: result.message,
 			user: result.user,
 		};
 	}
@@ -115,9 +113,8 @@ export class AuthController {
 	@ApiBody(getReference('ResendCodeSchema'))
 	async resendCode(
 		@Body(new ZodValidationPipe(ResendCodeSchema)) data: ResendCodeData,
-	): Promise<MessageResponse> {
+	): Promise<void> {
 		await this.authService.resendCode(data);
-		return { message: 'Verification code sent to your email' };
 	}
 
 	@Post('login')
@@ -135,7 +132,6 @@ export class AuthController {
 		this.setRefreshTokenCookie(res, result.refreshToken);
 
 		return {
-			message: result.message,
 			user: result.user,
 		};
 	}
@@ -155,7 +151,6 @@ export class AuthController {
 		this.setRefreshTokenCookie(res, result.refreshToken);
 
 		return {
-			message: result.message,
 			user: result.user,
 		};
 	}
@@ -166,16 +161,14 @@ export class AuthController {
 	async refresh(
 		@Req() req: express.Request,
 		@Res({ passthrough: true }) res: express.Response,
-	): Promise<MessageResponse> {
+	): Promise<void> {
 		const tokenFromCookie = req.cookies['refreshToken'];
-		if (!tokenFromCookie) throw new UnauthorizedException('Refresh token missing');
+		if (!tokenFromCookie) throw new AppException(AppErrorCode.REFRESH_TOKEN_MISSING);
 
 		const result = await this.authService.refreshTokens(tokenFromCookie);
 
 		this.setAccessTokenCookie(res, result.accessToken);
 		this.setRefreshTokenCookie(res, result.refreshToken);
-
-		return { message: 'Token refreshed' };
 	}
 
 	@Post('forgot-password')
@@ -185,9 +178,8 @@ export class AuthController {
 	async forgotPassword(
 		@Body(new ZodValidationPipe(ForgotPasswordSchema)) data: ForgotPasswordData,
 		@Ip() ip: string,
-	): Promise<MessageResponse> {
+	): Promise<void> {
 		await this.authService.forgotPassword(data, ip);
-		return { message: 'Password reset code sent to your email' };
 	}
 
 	@Post('reset-password')
@@ -205,7 +197,6 @@ export class AuthController {
 		this.setRefreshTokenCookie(res, result.refreshToken);
 
 		return {
-			message: result.message,
 			user: result.user,
 		};
 	}
@@ -216,7 +207,7 @@ export class AuthController {
 	async logout(
 		@Req() req: express.Request,
 		@Res({ passthrough: true }) res: express.Response,
-	): Promise<MessageResponse> {
+	): Promise<void> {
 		const refreshToken = req.cookies['refreshToken'];
 
 		if (refreshToken) {
@@ -226,7 +217,5 @@ export class AuthController {
 		// Clear the cookie by setting its expiration to the past
 		this.clearAccessTokenCookie(res);
 		this.clearRefreshTokenCookie(res);
-
-		return { message: 'Logged out successfully' };
 	}
 }

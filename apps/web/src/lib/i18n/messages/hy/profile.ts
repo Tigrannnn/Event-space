@@ -28,4 +28,6 @@ export const profile: Messages['profile'] = {
 	changePassword: 'Փոխել գաղտնաբառը',
 	saveChanges: 'Պահպանել',
 	invalidPhone: 'Մուտքագրեք ճիշտ հեռախոսահամար',
+	updateFailed: 'Չհաջողվեց թարմացնել պրոֆիլը',
+	updateSuccess: 'Պրոֆիլը թարմացվեց',
 };

@@ -1,4 +1,5 @@
-import { BadRequestException } from '@nestjs/common';
+import { AppErrorCode } from '@event-space/shared';
+import { AppException } from '../exceptions/app.exception';
 
 export type DetectedImageFormat = 'jpeg' | 'png' | 'webp' | 'avif';
 
@@ -50,30 +51,29 @@ export function assertValidImageFile(
 	options: { maxSizeBytes: number },
 ): void {
 	if (!file.buffer?.length) {
-		throw new BadRequestException(`File ${file.originalname} is empty or unreadable`);
+		throw new AppException(AppErrorCode.IMAGE_FILE_EMPTY, { filename: file.originalname });
 	}
 
 	if (file.size > options.maxSizeBytes) {
-		throw new BadRequestException(`File ${file.originalname} exceeds 5MB limit`);
+		throw new AppException(AppErrorCode.IMAGE_FILE_TOO_LARGE, { filename: file.originalname });
 	}
 
 	const mimeOk = Boolean(file.mimetype && /^image\/(png|jpe?g|webp|avif)$/i.test(file.mimetype));
 	const extOk = /\.(png|jpe?g|webp|avif)$/i.test(file.originalname);
 
 	if (!mimeOk || !extOk) {
-		throw new BadRequestException(
-			`File ${file.originalname} must be a valid png, jpeg, jpg, webp, or avif image`,
-		);
+		throw new AppException(AppErrorCode.IMAGE_FILE_INVALID_TYPE, { filename: file.originalname });
 	}
 
 	const detected = detectImageFormat(file.buffer);
 	if (!detected) {
-		throw new BadRequestException(`File ${file.originalname} is not a valid image`);
+		throw new AppException(AppErrorCode.IMAGE_FILE_NOT_AN_IMAGE, { filename: file.originalname });
 	}
 
 	if (!EXT_BY_FORMAT[detected].test(file.originalname)) {
-		throw new BadRequestException(
-			`File ${file.originalname} extension does not match image content (${detected})`,
-		);
+		throw new AppException(AppErrorCode.IMAGE_FILE_EXTENSION_MISMATCH, {
+			filename: file.originalname,
+			format: detected,
+		});
 	}
 }

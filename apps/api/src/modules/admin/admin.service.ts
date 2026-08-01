@@ -1,11 +1,13 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { StripeService } from '@infra/stripe/stripe.service';
+import { AppException } from '@shared';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
 	CancelablePaymentIntentStatus,
 } from '@infra/stripe/stripe.types';
+import { AppErrorCode } from '@event-space/shared';
 import type {
     SafeUserData,
     UserRoleType,
@@ -382,11 +384,11 @@ export class AdminService {
 		});
 
 		if (!booking) {
-			throw new NotFoundException('Booking not found');
+			throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		}
 
 		if (booking.status === 'CANCELLED') {
-			throw new ConflictException('Cannot update cancelled booking');
+			throw new AppException(AppErrorCode.BOOKING_ALREADY_CANCELLED);
 		}
 
 		const currentQuantity = booking.quantity;
@@ -398,12 +400,12 @@ export class AdminService {
 		}
 
 		if (!booking.occurrence) {
-			throw new NotFoundException('Occurrence not found');
+			throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND);
 		}
 
 		const event = booking.occurrence.event;
 		if (!event) {
-			throw new NotFoundException('Event not found');
+			throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 		}
 
 		const updatedBooking = await this.prisma.$transaction(async (tx) => {
@@ -421,9 +423,9 @@ export class AdminService {
 						0,
 						booking.occurrence.maxParticipants - booking.occurrence.currentParticipants,
 					);
-					throw new ConflictException(
-						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-					);
+					throw spotsLeft === 0
+						? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+						: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 				}
 			} else {
 				const released = await tx.eventOccurrence.updateMany({
@@ -435,7 +437,7 @@ export class AdminService {
 				});
 
 				if (released.count === 0) {
-					throw new ConflictException('Unable to release spots');
+					throw new AppException(AppErrorCode.UNABLE_TO_RELEASE_SPOTS);
 				}
 			}
 
@@ -464,7 +466,7 @@ export class AdminService {
 				},
 			});
 
-			if (!currentBooking) throw new NotFoundException('Booking not found');
+			if (!currentBooking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 
 			if (currentBooking.status === 'CANCELLED') {
 				return {
@@ -743,15 +745,15 @@ export class AdminService {
 			where: { referenceNumber },
 			include: bookingInclude,
 		});
-		if (!booking) throw new NotFoundException('Booking not found');
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		return booking;
 	}
 
 	async checkInBooking(bookingId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
-		if (!booking) throw new NotFoundException('Booking not found');
-		if (booking.status !== 'CONFIRMED') throw new ConflictException('Booking is not confirmed');
-		if (booking.checkedInAt) throw new ConflictException('Already checked in');
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
+		if (booking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
 		return this.prisma.booking.update({
 			where: { id: bookingId },
@@ -768,7 +770,7 @@ export class AdminService {
 			});
 
 			if (!booking) {
-				throw new NotFoundException('Booking not found');
+				throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 			}
 
 			if (booking.status === status) {
@@ -797,9 +799,9 @@ export class AdminService {
 						0,
 						booking.occurrence.maxParticipants - booking.occurrence.currentParticipants,
 					);
-					throw new ConflictException(
-						spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-					);
+					throw spotsLeft === 0
+						? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+						: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 				}
 			} else if (participantDelta < 0) {
 				const releaseQty = -participantDelta;
@@ -812,7 +814,7 @@ export class AdminService {
 				});
 
 				if (released.count === 0) {
-					throw new ConflictException('Unable to release spots');
+					throw new AppException(AppErrorCode.UNABLE_TO_RELEASE_SPOTS);
 				}
 			}
 

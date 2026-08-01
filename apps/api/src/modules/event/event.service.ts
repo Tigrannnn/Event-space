@@ -1,10 +1,6 @@
+import { Injectable } from '@nestjs/common';
 import {
-	BadRequestException,
-	ConflictException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
-import {
+	AppErrorCode,
 	CreateEventData,
 	EventImageFileItem,
 	EventImageItem,
@@ -13,6 +9,7 @@ import {
 	UpdateEventData,
 	UserRoleType,
 } from '@event-space/shared';
+import { AppException } from '@shared';
 import { UploadService } from '@infra/upload/upload.service';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { EventImage, Prisma } from '@prisma/client';
@@ -198,8 +195,8 @@ export class EventService {
 			where: { id },
 			include: this.eventInclude,
 		});
-		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
-		if (event.status !== 'PUBLISHED') throw new NotFoundException(`Event with ID ${id} not found`);
+		if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id });
+		if (event.status !== 'PUBLISHED') throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id });
 
 		const isFavorited = userId
 			? (await this.favoritesService.getFavoritedEventIds(userId, [id])).length > 0
@@ -217,7 +214,7 @@ export class EventService {
 			where: { id },
 			include: this.eventInclude,
 		});
-		if (!event) throw new NotFoundException(`Event with ID ${id} not found`);
+		if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id });
 		return event;
 	}
 
@@ -234,7 +231,7 @@ export class EventService {
 		// Validate that no occurrence is in the past
 		for (const occurrence of occurrences ?? []) {
 			if (new Date(occurrence.date) < new Date()) {
-				throw new BadRequestException('Cannot create an occurrence in the past');
+				throw new AppException(AppErrorCode.OCCURRENCE_IN_PAST);
 			}
 		}
 
@@ -317,7 +314,7 @@ export class EventService {
 					(eo) => new Date(eo.date).getTime() === occDate.getTime(),
 				);
 				if (!matchesExisting && occDate < new Date()) {
-					throw new BadRequestException('Cannot create an occurrence in the past');
+					throw new AppException(AppErrorCode.OCCURRENCE_IN_PAST);
 				}
 			}
 		}
@@ -446,10 +443,7 @@ export class EventService {
 			where: { occurrence: { eventId: id }, status: { not: 'CANCELLED' } },
 		});
 		if (activeBookingsCount > 0) {
-			throw new ConflictException({
-				code: 'EVENT_HAS_BOOKINGS',
-				message: 'Event has active bookings, cancel it instead of deleting',
-			});
+			throw new AppException(AppErrorCode.EVENT_HAS_BOOKINGS);
 		}
 
 		const publicIds = (event.images ?? []).map((img) => img.publicId);

@@ -1,9 +1,10 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { BookingService } from '../booking/booking.service';
 import { MailService } from '@infra/mail/mail.service';
-import { CancelOccurrenceData } from '@event-space/shared';
+import { AppErrorCode, CancelOccurrenceData } from '@event-space/shared';
+import { AppException } from '@shared';
 
 interface OccurrenceInput {
 	id?: string;
@@ -24,11 +25,7 @@ export class OccurrenceService {
 			where: { occurrenceId, status: { not: { in: ['CANCELLED', 'EXPIRED'] } } },
 		});
 		if (count > 0) {
-			throw new ConflictException({
-				code: 'OCCURRENCE_HAS_BOOKINGS',
-				occurrenceId,
-				message: 'Occurrence has active bookings, cancel it instead of deleting',
-			});
+			throw new AppException(AppErrorCode.OCCURRENCE_HAS_BOOKINGS, { occurrenceId });
 		}
 	}
 
@@ -52,7 +49,7 @@ export class OccurrenceService {
 		});
 
 		if (!occurrence) {
-			throw new NotFoundException(`Occurrence with ID ${occurrenceId} not found`);
+			throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
 		}
 
 		if (occurrence.status === 'CANCELLED') {
@@ -137,11 +134,7 @@ export class OccurrenceService {
 				},
 			});
 			if (activeBookingsCount > 0) {
-				throw new ConflictException({
-					code: 'OCCURRENCE_HAS_BOOKINGS',
-					message:
-						'One or more occurrences being removed have active bookings, cancel them explicitly first',
-				});
+				throw new AppException(AppErrorCode.OCCURRENCES_HAVE_BOOKINGS);
 			}
 			await tx.eventOccurrence.deleteMany({ where: { id: { in: toRemove.map((o) => o.id) } } });
 		}

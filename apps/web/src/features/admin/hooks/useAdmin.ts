@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-	getApiErrorMessage,
 	type AdminCancelBookingData,
 	type Booking,
 	type BookingFilters,
@@ -15,6 +14,8 @@ import {
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
 import { adminApi } from '../api/admin.api';
+import { useApiError } from '@/hooks/apiError';
+import { useTranslation } from '@/hooks/translation';
 
 export const useStats = () => {
 	return useQuery({
@@ -72,11 +73,14 @@ export const useCancelBookingByAdmin = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: AdminCancelBookingData }) =>
 			adminApi.cancelBookingByAdmin(id, data),
 		onSuccess: async () => {
-			addToast('Booking cancelled successfully', ToastType.SUCCESS);
+			addToast(translate('admin.cancelBookingSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
@@ -88,7 +92,7 @@ export const useCancelBookingByAdmin = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to cancel booking'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.cancelBookingFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -98,11 +102,14 @@ export const useUpdateBooking = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
 			adminApi.updateBooking(id, data),
 		onSuccess: async () => {
-			addToast('Booking updated successfully', ToastType.SUCCESS);
+			addToast(translate('admin.updateBookingSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
@@ -114,7 +121,7 @@ export const useUpdateBooking = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to update booking'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.updateBookingFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -124,10 +131,13 @@ export const useCreateEvent = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: (formData: FormData) => adminApi.createEvent(formData),
 		onSuccess: async () => {
-			addToast('Event created successfully', ToastType.SUCCESS);
+			addToast(translate('admin.createEventSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
@@ -139,7 +149,7 @@ export const useCreateEvent = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to create event'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.createEventFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -149,11 +159,14 @@ export const useUpdateEvent = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
 			adminApi.updateEvent(id, formData),
 		onSuccess: async () => {
-			addToast('Event updated successfully', ToastType.SUCCESS);
+			addToast(translate('admin.updateEventSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
@@ -166,7 +179,7 @@ export const useUpdateEvent = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to update event'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.updateEventFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -175,13 +188,16 @@ export function useCancelOccurrence() {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: (occurrenceId: string) => adminApi.cancelOccurrence(occurrenceId),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
 		},
 		onError: (error) => {
-			const message = getApiErrorMessage(error, 'Could not cancel occurrence')
+			const message = apiError(error, 'admin.cancelOccurrenceFailed')
 			addToast(message, ToastType.ERROR)
 		},
 	});
@@ -222,10 +238,13 @@ export const useCreateManualBooking = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: (data: CreateManualBookingData) => adminApi.createManualBooking(data),
 		onSuccess: async () => {
-			addToast('Manual booking created successfully', ToastType.SUCCESS);
+			addToast(translate('admin.createManualBookingSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
@@ -238,7 +257,7 @@ export const useCreateManualBooking = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to create manual booking'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.createManualBookingFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -256,10 +275,13 @@ export const useCreateCategory = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: (data: CreateCategoryData) => adminApi.createCategory(data),
 		onSuccess: async () => {
-			addToast('Category created successfully', ToastType.SUCCESS);
+			addToast(translate('admin.createCategorySuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
@@ -267,7 +289,7 @@ export const useCreateCategory = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to create category'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.createCategoryFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -277,11 +299,14 @@ export const useUpdateCategory = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
+	const apiError = useApiError();
+	const translate = useTranslation();
+
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: UpdateCategoryData }) =>
 			adminApi.updateCategory(id, data),
 		onSuccess: async () => {
-			addToast('Category updated successfully', ToastType.SUCCESS);
+			addToast(translate('admin.updateCategorySuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
@@ -289,7 +314,7 @@ export const useUpdateCategory = () => {
 			]);
 		},
 		onError: (error) => {
-			addToast(getApiErrorMessage(error, 'Failed to update category'), ToastType.ERROR);
+			addToast(apiError(error, 'admin.updateCategoryFailed'), ToastType.ERROR);
 		},
 	});
 };

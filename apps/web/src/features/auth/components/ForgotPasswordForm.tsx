@@ -12,7 +12,6 @@ import {
 	AuthAction,
 	ForgotPasswordData,
 	ForgotPasswordSchema,
-	getApiErrorMessage,
 	ResetPasswordSchema,
 } from '@event-space/shared';
 import z from 'zod';

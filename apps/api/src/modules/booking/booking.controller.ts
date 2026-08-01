@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
 	ApiTags,
@@ -9,8 +9,8 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { GetCurrentUserId, ZodValidationPipe } from '@shared';
-import { CreateBookingSchema } from '@event-space/shared';
+import { AppException, GetCurrentUserId, ZodValidationPipe } from '@shared';
+import { AppErrorCode, CreateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
@@ -103,7 +103,7 @@ export class BookingController {
 	async reconcilePayment(@GetCurrentUserId() userId: string, @Param('id') id: string) {
 		const booking = await this.bookingService.findOneForUser(userId, id);
 		if (!booking.paymentIntentId) {
-			throw new BadRequestException('Booking has no payment intent to reconcile');
+			throw new AppException(AppErrorCode.BOOKING_NO_PAYMENT_INTENT);
 		}
 		return this.bookingService.reconcilePayment(booking.paymentIntentId, booking.id);
 	}

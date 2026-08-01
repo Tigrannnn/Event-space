@@ -1,4 +1,6 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { AppErrorCode } from '@event-space/shared';
+import { AppException } from '@shared';
 import { StripeService } from '../stripe.service';
 import { BookingService } from '../../../modules/booking/booking.service';
 
@@ -26,7 +28,7 @@ export class StripeWebhookService {
 			event = this.stripe.constructWebhookEvent(payload, signature);
 		} catch (error) {
 			this.logger.error('Failed to validate Stripe webhook signature', error as Error);
-			throw new BadRequestException('Invalid webhook signature');
+			throw new AppException(AppErrorCode.INVALID_WEBHOOK_SIGNATURE);
 		}
 
 		this.logger.log(`Stripe webhook received: ${event.type}`);

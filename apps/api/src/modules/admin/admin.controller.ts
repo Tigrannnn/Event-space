@@ -10,8 +10,6 @@ import {
 	Body,
 	Delete,
 	Post,
-	BadRequestException,
-	NotFoundException,
 } from '@nestjs/common';
 import {
 	ApiTags,
@@ -22,7 +20,14 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
-import { Roles, RolesGuard, GetCurrentUserId, ZodValidationPipe, parseOptionalQueryInt } from '@shared';
+import {
+	AppException,
+	Roles,
+	RolesGuard,
+	GetCurrentUserId,
+	ZodValidationPipe,
+	parseOptionalQueryInt,
+} from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
@@ -38,6 +43,7 @@ import {
 	UpdateBookingSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
+import { AppErrorCode } from '@event-space/shared';
 import type {
 	BookingStatus,
 	EventDifficulty,
@@ -78,7 +84,7 @@ export class AdminController {
 	async getBookingByReference(@Param('ref') ref: string) {
 		const referenceNumber = parseInt(ref, 10);
 		if (isNaN(referenceNumber)) {
-			throw new BadRequestException('Invalid reference number');
+			throw new AppException(AppErrorCode.INVALID_REFERENCE_NUMBER);
 		}
 		return this.adminService.findBookingByReference(referenceNumber);
 	}
@@ -88,7 +94,7 @@ export class AdminController {
 	async getBookingById(@Param('id') id: string) {
 		const booking = await this.adminService.findOneBooking(id);
 		if (!booking) {
-			throw new NotFoundException('Booking not found');
+			throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		}
 		return booking;
 	}
@@ -181,7 +187,7 @@ export class AdminController {
 	async getEventById(@Param('id') id: string) {
 		const event = await this.eventService.findOneAny(id);
 		if (!event) {
-			throw new NotFoundException('Event not found');
+			throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 		}
 		return event;
 	}
@@ -267,7 +273,7 @@ export class AdminController {
 	async getUserById(@Param('id') id: string) {
 		const user = await this.adminService.findOneUser(id);
 		if (!user) {
-			throw new NotFoundException('User not found');
+			throw new AppException(AppErrorCode.USER_NOT_FOUND);
 		}
 		return user;
 	}
@@ -333,7 +339,7 @@ export class AdminController {
 	async getCategoryById(@Param('id') id: string) {
 		const category = await this.adminService.findOneCategory(id);
 		if (!category) {
-			throw new NotFoundException('Category not found');
+			throw new AppException(AppErrorCode.CATEGORY_NOT_FOUND);
 		}
 		return category;
 	}
@@ -397,6 +403,5 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
 		);
 		await this.adminService.deleteCategory(id);
-		return { message: 'Category deleted successfully' };
 	}
 }

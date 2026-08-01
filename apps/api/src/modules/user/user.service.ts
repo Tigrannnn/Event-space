@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { SafeUserData, UpdateUserData } from '@event-space/shared';
+import { Injectable } from '@nestjs/common';
+import { AppErrorCode, SafeUserData, UpdateUserData } from '@event-space/shared';
+import { AppException } from '@shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
 @Injectable()
@@ -11,7 +12,7 @@ export class UserService {
 			where: { id: userId },
 		});
 
-		if (!user) throw new UnauthorizedException('User not found');
+		if (!user) throw new AppException(AppErrorCode.CURRENT_USER_NOT_FOUND);
 
 		const { passwordHash, ...safeUser } = user;
 

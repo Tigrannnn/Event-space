@@ -9,12 +9,14 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
+import { useApiError } from '@/hooks/apiError';
 
 export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
+	const apiError = useApiError();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 
@@ -28,10 +30,7 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 				navigation.push('/profile');
 				closeModal();
 			} catch (error: unknown) {
-				const message =
-					(error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-					'Google login failed';
-				addToast(message, ToastType.ERROR);
+				addToast(apiError(error, 'auth.googleLoginFailed'), ToastType.ERROR);
 			} finally {
 				setIsLoading(false);
 			}

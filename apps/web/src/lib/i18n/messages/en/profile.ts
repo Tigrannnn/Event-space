@@ -26,4 +26,6 @@ export const profile = {
 	changePassword: 'Change password',
 	saveChanges: 'Save Changes',
 	invalidPhone: 'Please enter a valid phone number',
+	updateFailed: 'Could not update the profile',
+	updateSuccess: 'Profile updated',
 };

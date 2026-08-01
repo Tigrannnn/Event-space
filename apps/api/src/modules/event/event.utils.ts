@@ -1,4 +1,5 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { AppErrorCode } from '@event-space/shared';
+import { AppException } from '@shared';
 import type { Event, EventImageFileItem, EventImageItem, EventOccurrenceStatus, EventStatus } from '@event-space/shared';
 import type { EventImage, Prisma } from '@prisma/client';
 import type { UserRoleType } from '@event-space/shared';
@@ -31,13 +32,13 @@ export function validateExistingImageRefs(
 
 	for (const id of payloadExistingIds) {
 		if (!existingIds.has(id)) {
-			throw new BadRequestException(`Event image ${id} does not belong to this event`);
+			throw new AppException(AppErrorCode.IMAGE_NOT_IN_EVENT, { id });
 		}
 	}
 
 	const unique = new Set(payloadExistingIds);
 	if (unique.size !== payloadExistingIds.length) {
-		throw new BadRequestException('Duplicate existing image ids in payload');
+		throw new AppException(AppErrorCode.DUPLICATE_IMAGE_IDS);
 	}
 }
 
@@ -50,7 +51,7 @@ export function findRemovedImages(existingImages: EventImage[], imageItems: Even
 
 export function assertCanModify(ownerId: string, userId: string, role: UserRoleType) {
 	if (role !== 'ADMIN') {
-		throw new ForbiddenException('You do not have permission to modify this event');
+		throw new AppException(AppErrorCode.INSUFFICIENT_PERMISSIONS);
 	}
 }
 export function validateStatusTransition(oldStatus: EventStatus, newStatus: EventStatus): void {
@@ -63,7 +64,7 @@ export function validateStatusTransition(oldStatus: EventStatus, newStatus: Even
 	};
 
 	if (!allowedTransitions[oldStatus].includes(newStatus)) {
-		throw new BadRequestException(`Cannot change status from ${oldStatus} to ${newStatus}`);
+		throw new AppException(AppErrorCode.INVALID_STATUS_TRANSITION, { from: oldStatus, to: newStatus });
 	}
 }
 

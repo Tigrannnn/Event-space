@@ -47,6 +47,7 @@ export const booking: Messages['booking'] = {
 	noBookingsMatchFilter: 'По этому фильтру бронирований нет.',
 	paymentFailed: 'Платеж не прошел. Попробуйте снова.',
 	paymentSubmitted: 'Платеж отправлен. Ждем подтверждения...',
+	paymentInProgress: 'Оплата уже выполняется. Пожалуйста, дождитесь завершения.',
 	paymentConfirmed: 'Платеж подтвержден. Бронирование готово.',
 	paymentCancelled: 'Бронь не удалось завершить. Если списание было, сумма вернется автоматически.',
 	paymentTimeout: 'Платеж занимает больше времени, чем ожидалось. Проверьте брони позже.',
@@ -67,4 +68,8 @@ export const booking: Messages['booking'] = {
 	paymentMethodOnArrival: 'Оплата на месте',
 	viewMyBookings: 'Мои бронирования',
 	refCopied: 'Код брони скопирован',
+	updateFailed: 'Не удалось обновить бронь',
+	cancelFailed: 'Не удалось отменить бронь',
+	updateSuccess: 'Бронь обновлена',
+	cancelSuccess: 'Бронь отменена',
 };

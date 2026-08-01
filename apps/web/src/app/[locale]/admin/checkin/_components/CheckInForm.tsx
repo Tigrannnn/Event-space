@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/features/admin/api/admin.api';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
+import { useApiError } from '@/hooks/apiError';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
@@ -15,6 +16,7 @@ import { useConfirm } from '@/hooks/confirmModal';
 
 export default function CheckInForm() {
 	const translate = useTranslation();
+	const apiError = useApiError();
 	const locale = translate.locale;
 	const [input, setInput] = useState('');
 	const [ref, setRef] = useState<number | null>(null);
@@ -35,11 +37,11 @@ export default function CheckInForm() {
 	const { mutate: checkIn, isPending: isCheckingIn } = useMutation({
 		mutationFn: (id: string) => adminApi.checkInBooking(id),
 		onSuccess: () => {
-			addToast('Checked in successfully', ToastType.SUCCESS);
+			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
 			queryClient.invalidateQueries({ queryKey: ['checkin-booking', ref] });
 		},
-		onError: () => {
-			addToast('Failed to check in', ToastType.ERROR);
+		onError: (error) => {
+			addToast(apiError(error, 'admin.failedToCheckIn'), ToastType.ERROR);
 		},
 	});
 

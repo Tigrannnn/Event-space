@@ -28,4 +28,6 @@ export const profile: Messages['profile'] = {
 	changePassword: 'Изменить пароль',
 	saveChanges: 'Сохранить',
 	invalidPhone: 'Введите корректный номер телефона',
+	updateFailed: 'Не удалось обновить профиль',
+	updateSuccess: 'Профиль обновлён',
 };

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToastStore, ToastType } from '@/stores/toastStore';
-import { getApiErrorMessage, type Event } from '@event-space/shared';
+import { type Event } from '@event-space/shared';
 import { favoritesApi } from '../api/favorites.api';
 import { useTranslation } from '@/hooks/translation';
+import { useApiError } from '@/hooks/apiError';
 
 const FAVORITES_QUERY_KEY = ['favorites'];
 const getFavoriteStatusQueryKey = (eventId: string) => ['favorite-status', eventId] as const;
@@ -18,6 +19,7 @@ export const useToggleFavorite = () => {
 	const { addToast } = useToastStore();
 	const queryClient = useQueryClient();
 	const translate = useTranslation();
+	const apiError = useApiError();
 
 	return useMutation({
 		mutationFn: ({ eventId, isFavorite }: { eventId: string; isFavorite: boolean }) =>
@@ -68,7 +70,7 @@ export const useToggleFavorite = () => {
 				);
 			}
 
-			const message = getApiErrorMessage(error, translate('favorites.failed'));
+			const message = apiError(error, 'favorites.failed');
 			addToast(message, ToastType.ERROR);
 		},
 	});

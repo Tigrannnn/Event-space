@@ -13,7 +13,6 @@ import {
 	BookingWithEstimate,
 	EnvKey,
 	Event,
-	getApiErrorMessage,
 	type EventOccurrence,
 } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
@@ -23,6 +22,7 @@ import { bookingApi } from '@/features/bookings/api/bookings.api';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
+import { useApiError } from '@/hooks/apiError';
 import { useParams } from 'next/navigation';
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
@@ -37,9 +37,7 @@ interface StripePaymentFormProps {
 }
 
 type ConfirmationResult =
-	| { status: 'confirmed'; booking: Booking }
-	| { status: 'cancelled' }
-	| { status: 'timeout' };
+	{ status: 'confirmed'; booking: Booking } | { status: 'cancelled' } | { status: 'timeout' };
 
 function StripePaymentFormContent({
 	event,
@@ -52,6 +50,7 @@ function StripePaymentFormContent({
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
+	const apiError = useApiError();
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
@@ -108,7 +107,7 @@ function StripePaymentFormContent({
 
 		if (error) {
 			setIsProcessing(false);
-			addToast(getApiErrorMessage(error, translate('booking.paymentFailed')), ToastType.ERROR);
+			addToast(apiError(error, 'booking.paymentFailed'), ToastType.ERROR);
 			return;
 		}
 
@@ -146,6 +145,28 @@ function StripePaymentFormContent({
 	};
 
 	const handleClose = async () => {
+		if (isProcessing) {
+			addToast(translate('booking.paymentInProgress'), ToastType.INFO);
+			return;
+		}
+		if (!hasSubmittedPayment) {
+			setIsCancelling(true);
+			try {
+				await cancelBooking(booking.id, {
+					onSuccess: async () => {
+						await invalidateAfterResolution();
+					},
+					onError: async () => {
+						await invalidateAfterResolution();
+					},
+				});
+			} catch {
+				// ignore cancellation failure on modal close
+			} finally {
+				setIsCancelling(false);
+			}
+		}
+
 		onClose();
 	};
 

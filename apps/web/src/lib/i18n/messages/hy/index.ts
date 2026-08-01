@@ -10,6 +10,7 @@ import { booking } from './booking';
 import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
+import { apiErrors } from './apiErrors';
 
 export const hy: Messages = {
 	favorites,
@@ -23,4 +24,5 @@ export const hy: Messages = {
 	cancellation,
 	admin,
 	error,
+	apiErrors,
 };

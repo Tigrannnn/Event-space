@@ -9,6 +9,7 @@ import { booking } from './booking';
 import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
+import { apiErrors } from './apiErrors';
 
 export const en = {
 	favorites,
@@ -22,4 +23,5 @@ export const en = {
 	cancellation,
 	admin,
 	error,
+	apiErrors,
 };

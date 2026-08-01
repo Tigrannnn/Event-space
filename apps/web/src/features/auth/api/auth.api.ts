@@ -4,7 +4,6 @@ import {
 	ForgotPasswordData,
 	GoogleLoginData,
 	LoginData,
-	MessageResponse,
 	RegisterData,
 	RegisterResponse,
 	ResendCodeData,
@@ -17,19 +16,19 @@ export const authApi = {
 
 	verifyEmail: (data: VerifyEmailData) => clientApi.post<AuthResponse>('/auth/verify-email', data),
 
-	resendCode: (data: ResendCodeData) => clientApi.post<MessageResponse>('/auth/resend-code', data),
+	resendCode: (data: ResendCodeData) => clientApi.post<void>('/auth/resend-code', data),
 
 	login: (data: LoginData) => clientApi.post<AuthResponse>('/auth/login', data),
 
 	googleLogin: (data: GoogleLoginData) => clientApi.post<AuthResponse>('/auth/google', data),
 
 	forgotPassword: (data: ForgotPasswordData) =>
-		clientApi.post<MessageResponse>('/auth/forgot-password', data),
+		clientApi.post<void>('/auth/forgot-password', data),
 
 	resetPassword: (data: ResetPasswordData) =>
 		clientApi.post<AuthResponse>('/auth/reset-password', data),
 
-	refreshTokens: () => clientApi.post<MessageResponse>('/auth/refresh'),
+	refreshTokens: () => clientApi.post<void>('/auth/refresh'),
 
-	logout: () => clientApi.post<MessageResponse>('/auth/logout'),
+	logout: () => clientApi.post<void>('/auth/logout'),
 };

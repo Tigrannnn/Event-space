@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import {
+	AppErrorCode,
 	CreateEventMultipartPayloadSchema,
 	EventImageFileItem,
 	EventImageItem,
@@ -9,7 +10,7 @@ import {
 	type CreateEventData,
 	type UpdateEventData,
 } from '@event-space/shared';
-import { assertValidImageFile } from '@shared';
+import { AppException, assertValidImageFile } from '@shared';
 
 export type ParsedCreateEventMultipart = {
 	eventData: CreateEventData;
@@ -59,7 +60,7 @@ export function parseUpdateEventMultipart(
 	);
 
 	if (!images) {
-		throw new BadRequestException('payload.images is required');
+		throw new AppException(AppErrorCode.IMAGES_REQUIRED);
 	}
 
 	const normalizedFiles = files ?? [];
@@ -78,13 +79,13 @@ export function parseUpdateEventMultipart(
 
 function parsePayloadJson(payloadRaw: string | undefined): unknown {
 	if (!payloadRaw?.trim()) {
-		throw new BadRequestException('payload field is required');
+		throw new AppException(AppErrorCode.PAYLOAD_REQUIRED);
 	}
 
 	try {
 		return JSON.parse(payloadRaw) as unknown;
 	} catch {
-		throw new BadRequestException('payload must be valid JSON');
+		throw new AppException(AppErrorCode.INVALID_JSON_PAYLOAD);
 	}
 }
 
@@ -103,7 +104,7 @@ function parseWithSchema<T>(schema: { parse: (payload: unknown) => T }, payload:
 				errors,
 			});
 		}
-		throw new BadRequestException('Validation failed');
+		throw new AppException(AppErrorCode.VALIDATION_FAILED);
 	}
 }
 
@@ -127,12 +128,12 @@ function validateImageOrders(items: { order: number }[]): void {
 	const unique = new Set(orders);
 
 	if (unique.size !== orders.length) {
-		throw new BadRequestException('Image orders must be unique');
+		throw new AppException(AppErrorCode.DUPLICATE_IMAGE_ORDERS);
 	}
 
 	const sorted = [...unique].sort((a, b) => a - b);
 	if (sorted[0] !== 0 || sorted[sorted.length - 1] !== sorted.length - 1) {
-		throw new BadRequestException('Image orders must be contiguous starting from 0');
+		throw new AppException(AppErrorCode.NON_CONTIGUOUS_IMAGE_ORDERS);
 	}
 }
 
@@ -143,15 +144,16 @@ function assertFilesMatchImageItems(
 	const expectedFileCount = imageItems.filter((item) => item.kind === 'file').length;
 
 	if (expectedFileCount !== files.length) {
-		throw new BadRequestException(
-			`Expected ${expectedFileCount} file(s) in files[], received ${files.length}`,
-		);
+		throw new AppException(AppErrorCode.FILE_COUNT_MISMATCH, {
+			expected: expectedFileCount,
+			received: files.length,
+		});
 	}
 }
 
 function assertWithinImageLimit(count: number): void {
 	if (count > MAX_EVENT_IMAGES) {
-		throw new BadRequestException(`Maximum ${MAX_EVENT_IMAGES} images allowed`);
+		throw new AppException(AppErrorCode.TOO_MANY_IMAGES, { max: MAX_EVENT_IMAGES });
 	}
 }
 

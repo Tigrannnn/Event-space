@@ -1,11 +1,11 @@
-import {
-	CanActivate,
-	ExecutionContext,
-	Injectable,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { EVENT_UPLOAD_CONFIG, type EventMutationRateLimitAction } from '@event-space/shared';
+import {
+	AppErrorCode,
+	EVENT_UPLOAD_CONFIG,
+	type EventMutationRateLimitAction,
+} from '@event-space/shared';
+import { AppException } from '@shared';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
 	EVENT_MUTATION_RATE_LIMIT_KEY,
@@ -35,7 +35,7 @@ export class EventMutationRateLimitGuard implements CanActivate {
 
 		const userId = request.user?.sub;
 		if (!userId) {
-			throw new UnauthorizedException();
+			throw new AppException(AppErrorCode.UNAUTHORIZED);
 		}
 
 		const ip = request.ip || request.socket?.remoteAddress || 'unknown';

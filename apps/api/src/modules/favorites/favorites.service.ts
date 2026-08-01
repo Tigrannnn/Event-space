@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
+import { AppErrorCode } from '@event-space/shared';
+import { AppException } from '@shared';
 
 @Injectable()
 export class FavoritesService {
@@ -7,7 +9,7 @@ export class FavoritesService {
 
 	async add(userId: string, eventId: string): Promise<{ favorited: boolean }> {
 		const event = await this.prisma.event.findUnique({ where: { id: eventId } });
-		if (!event) throw new NotFoundException('Event not found');
+		if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 
 		const existing = await this.prisma.favorite.findUnique({
 			where: { userId_eventId: { userId, eventId } },
@@ -23,7 +25,7 @@ export class FavoritesService {
 
 	async remove(userId: string, eventId: string): Promise<{ favorited: boolean }> {
 		const event = await this.prisma.event.findUnique({ where: { id: eventId } });
-		if (!event) throw new NotFoundException('Event not found');
+		if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 
 		const existing = await this.prisma.favorite.findUnique({
 			where: { userId_eventId: { userId, eventId } },

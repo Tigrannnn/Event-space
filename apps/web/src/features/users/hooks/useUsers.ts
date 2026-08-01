@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { SafeUserData, UpdateUserData, getApiErrorMessage } from '@event-space/shared';
+import { SafeUserData, UpdateUserData } from '@event-space/shared';
 import { useToastStore } from '@/stores/toastStore';
 import { ToastType } from '@/stores/toastStore/types';
 import { usersApi } from '../api/users.api';
+import { useApiError } from '@/hooks/apiError';
+import { useTranslation } from '@/hooks/translation';
 
 interface UseCurrentUserOptions {
 	initialData?: SafeUserData;
@@ -23,15 +25,17 @@ export function useCurrentUser(options?: UseCurrentUserOptions) {
 export function useUpdateCurrentUser() {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: UpdateUserData) => usersApi.updateMe(data),
 		onSuccess: (updatedUser) => {
 			queryClient.setQueryData(['me'], updatedUser);
-			addToast('Profile updated successfully', ToastType.SUCCESS);
+			addToast(translate('profile.updateSuccess'), ToastType.SUCCESS);
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Failed to update profile');
+			const message = apiError(error, 'profile.updateFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});

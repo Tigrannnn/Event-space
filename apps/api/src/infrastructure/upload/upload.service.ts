@@ -1,6 +1,7 @@
-import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CLOUDINARY_CONFIG, EnvKey } from '@event-space/shared';
+import { AppErrorCode, CLOUDINARY_CONFIG, EnvKey } from '@event-space/shared';
+import { AppException } from '@shared';
 import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import * as streamifier from 'streamifier';
 import { CloudinaryDeleteQueueService } from './cloudinary/delete-queue.service';
@@ -29,10 +30,10 @@ export class UploadService implements OnModuleInit {
 
 	uploadImage(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
 		if (!file) {
-			throw new BadRequestException('No file provided');
+			throw new AppException(AppErrorCode.NO_FILE_PROVIDED);
 		}
 		if (!file.buffer?.length) {
-			throw new BadRequestException('File buffer is empty');
+			throw new AppException(AppErrorCode.FILE_BUFFER_EMPTY);
 		}
 
 		return this.uploadBuffer(file.buffer);
@@ -75,7 +76,7 @@ export class UploadService implements OnModuleInit {
 
 	async deleteByPublicId(publicId: string): Promise<void> {
 		if (!publicId) {
-			throw new BadRequestException('publicId is required');
+			throw new AppException(AppErrorCode.PUBLIC_ID_REQUIRED);
 		}
 
 		const deleted = await this.tryDeletePublicId(publicId);
@@ -120,10 +121,12 @@ export class UploadService implements OnModuleInit {
 				},
 				(error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
 					if (error) {
-						return reject(new BadRequestException(error.message));
+						this.logger.error('Cloudinary upload failed', error.message);
+						return reject(new AppException(AppErrorCode.UPLOAD_FAILED));
 					}
 					if (!result?.secure_url || !result.public_id) {
-						return reject(new BadRequestException('Upload failed: missing url or publicId'));
+						this.logger.error('Cloudinary upload succeeded but returned no url/publicId');
+						return reject(new AppException(AppErrorCode.UPLOAD_FAILED));
 					}
 
 					resolve({

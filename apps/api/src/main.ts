@@ -7,7 +7,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import { ZodExceptionFilter } from './shared';
+import { AppExceptionFilter } from './shared';
 import { generateOpenApiComponents } from '@infra/swagger/swagger.registry';
 import type { Server } from 'http';
 
@@ -27,7 +27,7 @@ async function bootstrap() {
 
 	app.use('/webhooks/stripe', express.raw({ type: 'application/json' }));
 	app.use(cookieParser());
-	app.useGlobalFilters(new ZodExceptionFilter());
+	app.useGlobalFilters(new AppExceptionFilter());
 	app.getHttpAdapter().getInstance().set('trust proxy', true);
 
 	const origins = configService

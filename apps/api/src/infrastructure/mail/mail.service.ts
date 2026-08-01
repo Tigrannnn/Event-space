@@ -1,5 +1,6 @@
-import { EnvKey, getApiErrorMessage } from '@event-space/shared';
-import { Injectable, Logger, OnModuleInit, ServiceUnavailableException } from '@nestjs/common';
+import { AppErrorCode, EnvKey } from '@event-space/shared';
+import { AppException } from '@shared';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Locale, PaymentMethod } from '@prisma/client';
 import * as nodemailer from 'nodemailer';
@@ -155,8 +156,7 @@ export class MailService implements OnModuleInit {
 				return;
 			}
 
-			const errorMessage = getApiErrorMessage(error, 'Failed to send email');
-			throw new ServiceUnavailableException(errorMessage);
+			throw new AppException(AppErrorCode.EMAIL_SEND_FAILED);
 		}
 	}
 

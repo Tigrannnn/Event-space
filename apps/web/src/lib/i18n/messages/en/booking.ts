@@ -45,6 +45,7 @@ export const booking = {
 	noBookingsMatchFilter: 'No bookings match this filter.',
 	paymentFailed: 'Payment failed. Please try again.',
 	paymentSubmitted: 'Payment submitted. Waiting for confirmation...',
+	paymentInProgress: 'Payment is already in progress. Please wait for it to finish.',
 	paymentConfirmed: 'Payment confirmed! Your booking is complete.',
 	paymentCancelled:
 		'Your booking could not be completed. If you were charged, you will be refunded automatically.',
@@ -66,4 +67,8 @@ export const booking = {
 	paymentMethodOnArrival: 'Pay on arrival',
 	viewMyBookings: 'My bookings',
 	refCopied: 'Booking code copied',
+	updateFailed: 'Could not update the booking',
+	cancelFailed: 'Could not cancel the booking',
+	updateSuccess: 'Booking updated',
+	cancelSuccess: 'Booking cancelled',
 };

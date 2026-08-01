@@ -3,7 +3,6 @@ import { authApi } from '../api/auth.api';
 import {
 	AuthAction,
 	ForgotPasswordData,
-	getApiErrorMessage,
 	LoginData,
 	RegisterData,
 	ResendCodeData,
@@ -15,10 +14,13 @@ import { ToastType } from '@/stores/toastStore/types';
 import { ModalType, useModalStore } from '@/stores';
 import { useCooldown } from './useCooldown';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useApiError } from '@/hooks/apiError';
+import { useTranslation } from '@/hooks/translation';
 
 export const useRegister = () => {
 	const { openModal } = useModalStore();
 	const { addToast } = useToastStore();
+	const apiError = useApiError();
 	const { startCooldown } = useCooldown({
 		email: '',
 		action: AuthAction.REGISTER,
@@ -31,7 +33,7 @@ export const useRegister = () => {
 			startCooldown(variables.email);
 		},
 		onError: (error: unknown, variables: RegisterData) => {
-			const message = getApiErrorMessage(error, 'Registration failed');
+			const message = apiError(error, 'auth.registerFailed');
 			openModal(ModalType.VerifyEmail, { email: variables.email });
 			addToast(message, ToastType.ERROR);
 		},
@@ -40,14 +42,16 @@ export const useRegister = () => {
 
 export const useResendCode = () => {
 	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: ResendCodeData) => authApi.resendCode(data),
-		onSuccess: ({ data }) => {
-			addToast(data.message, ToastType.SUCCESS);
+		onSuccess: () => {
+			addToast(translate('auth.codeSentSuccess'), ToastType.SUCCESS);
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Failed to resend code');
+			const message = apiError(error, 'auth.resendCodeFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});
@@ -58,17 +62,23 @@ export const useVerifyEmail = () => {
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: VerifyEmailData) => authApi.verifyEmail(data),
 		onSuccess: ({ data }) => {
 			navigation.push('/profile');
 			queryClient.setQueryData(['me'], data.user);
-			addToast(data.message, ToastType.SUCCESS);
+			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['favorites'] });
+			queryClient.invalidateQueries({ queryKey: ['events'] });
+			queryClient.invalidateQueries({ queryKey: ['event'] });
+			addToast(translate('auth.verifySuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Verification failed');
+			const message = apiError(error, 'auth.verifyFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});
@@ -79,17 +89,23 @@ export const useLogin = () => {
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: LoginData) => authApi.login(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
+			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['favorites'] });
+			queryClient.invalidateQueries({ queryKey: ['events'] });
+			queryClient.invalidateQueries({ queryKey: ['event'] });
 			navigation.push('/profile');
-			addToast(data.message, ToastType.SUCCESS);
+			addToast(translate('auth.loginSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Login failed');
+			const message = apiError(error, 'auth.loginFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});
@@ -97,14 +113,16 @@ export const useLogin = () => {
 
 export const useForgotPassword = () => {
 	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: ForgotPasswordData) => authApi.forgotPassword(data),
-		onSuccess: ({ data }) => {
-			addToast(data.message, ToastType.SUCCESS);
+		onSuccess: () => {
+			addToast(translate('auth.resetCodeSentSuccess'), ToastType.SUCCESS);
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Failed to send reset code');
+			const message = apiError(error, 'auth.sendResetCodeFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});
@@ -115,17 +133,23 @@ export const useResetPassword = () => {
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: ResetPasswordData) => authApi.resetPassword(data),
 		onSuccess: ({ data }) => {
 			queryClient.setQueryData(['me'], data.user);
+			queryClient.invalidateQueries({ queryKey: ['bookings'] });
+			queryClient.invalidateQueries({ queryKey: ['favorites'] });
+			queryClient.invalidateQueries({ queryKey: ['events'] });
+			queryClient.invalidateQueries({ queryKey: ['event'] });
 			navigation.push('/profile');
-			addToast('Password reset successfully.', ToastType.SUCCESS);
+			addToast(translate('auth.resetPasswordSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Failed to reset password');
+			const message = apiError(error, 'auth.resetPasswordFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});
@@ -136,6 +160,8 @@ export const useLogout = () => {
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
 	const navigation = useLocalizedNavigation();
+	const apiError = useApiError();
+	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: () => authApi.logout(),
@@ -150,11 +176,11 @@ export const useLogout = () => {
 				queryClient.removeQueries({ queryKey: ['admin'] }),
 				queryClient.removeQueries({ queryKey: ['categories'] }),
 			]);
-			addToast('Logged out successfully.', ToastType.SUCCESS);
+			addToast(translate('auth.logoutSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
 		onError: (error: unknown) => {
-			const message = getApiErrorMessage(error, 'Logout failed');
+			const message = apiError(error, 'auth.logoutFailed');
 			addToast(message, ToastType.ERROR);
 		},
 	});

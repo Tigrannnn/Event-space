@@ -1,6 +1,7 @@
-import { ForbiddenException, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
-import { AUTH_CONFIG, AuthAction, AuthKeyType, Email } from '@event-space/shared';
+import { AUTH_CONFIG, AppErrorCode, AuthAction, AuthKeyType, Email } from '@event-space/shared';
+import { AppException } from '@shared';
 
 @Injectable()
 export class RateLimiterService {
@@ -61,19 +62,17 @@ export class RateLimiterService {
 
 		// 1. Check Resend Cooldown (only if enabled)
 		if (checkCooldown && isCoolingDown) {
-			throw new ForbiddenException('Please wait before requesting a new code');
+			throw new AppException(AppErrorCode.OTP_RESEND_COOLDOWN);
 		}
 
 		// 2. Check Local Limit (Protection against brute-force from a single device)
 		if (localCount && Number(localCount) >= this.otp_local_max_attempts) {
-			throw new ForbiddenException(
-				'Too many attempts from this device, access blocked. Try again later.',
-			);
+			throw new AppException(AppErrorCode.TOO_MANY_ATTEMPTS_FROM_DEVICE);
 		}
 
 		// 3. Check Global Limit (Botnet protection across multiple IPs)
 		if (globalCount && Number(globalCount) >= this.otp_global_max_attempts) {
-			throw new ForbiddenException('This account is under global protection. Try again later.');
+			throw new AppException(AppErrorCode.ACCOUNT_UNDER_PROTECTION);
 		}
 	}
 
@@ -129,10 +128,7 @@ export class RateLimiterService {
 	async consumeFixedWindow(key: string, max: number, windowSec: number): Promise<void> {
 		const count = await this.redis.incrWithTTL(key, windowSec);
 		if (count > max) {
-			throw new HttpException(
-				'Too many requests. Please try again later.',
-				HttpStatus.TOO_MANY_REQUESTS,
-			);
+			throw new AppException(AppErrorCode.TOO_MANY_REQUESTS);
 		}
 	}
 

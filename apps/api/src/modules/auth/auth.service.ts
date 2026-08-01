@@ -1,14 +1,8 @@
-import {
-	Injectable,
-	ConflictException,
-	Logger,
-	BadRequestException,
-	UnauthorizedException,
-	ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {
 	AUTH_CONFIG,
+	AppErrorCode,
 	EnvKey,
 	AuthAction,
 	ForgotPasswordData,
@@ -34,6 +28,7 @@ import { RedisService } from '@infra/redis/redis.service';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import { MailService } from '@infra/mail/mail.service';
 import { UserRoleType } from '@event-space/shared';
+import { AppException } from '@shared';
 
 @Injectable()
 export class AuthService {
@@ -129,7 +124,7 @@ export class AuthService {
 		const existingUser = await this.prisma.user.findUnique({ where: { email } });
 
 		if (existingUser && existingUser.emailVerified) {
-			throw new ConflictException('User with this email already exists');
+			throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS);
 		}
 
 		const hashedPassword = await bcrypt.hash(password, AUTH_CONFIG.STRATEGY.BCRYPT_SALT_ROUNDS);
@@ -151,7 +146,6 @@ export class AuthService {
 		await this.generateAndSaveOtp(action, email);
 
 		return {
-			message: 'Registration successful. Please check your email for the verification code.',
 			userId,
 		};
 	}
@@ -168,7 +162,7 @@ export class AuthService {
 		if (!savedOtp || savedOtp !== code) {
 			await this.rateLimiter.hit(action, email, ip);
 
-			throw new BadRequestException('Invalid or expired verification code');
+			throw new AppException(AppErrorCode.INVALID_VERIFICATION_CODE);
 		}
 
 		// Transaction ensures atomicity: user verification + token generation
@@ -188,7 +182,6 @@ export class AuthService {
 			const { passwordHash, ...safeUser } = user;
 
 			return {
-				message: 'Email verified successfully',
 				...tokens,
 				user: safeUser,
 			};
@@ -227,23 +220,21 @@ export class AuthService {
 		const isPasswordValid = await bcrypt.compare(password, compareHash);
 
 		if (!user) {
-			throw new UnauthorizedException('Invalid email or password');
+			throw new AppException(AppErrorCode.INVALID_CREDENTIALS);
 		}
 
 		if (!user.passwordHash) {
-			throw new BadRequestException(
-				'This account uses social login. Please log in with the associated provider (Google)',
-			);
+			throw new AppException(AppErrorCode.SOCIAL_LOGIN_REQUIRED);
 		}
 
 		if (!isPasswordValid) {
 			await this.rateLimiter.hit(action, email, ip);
 
-			throw new UnauthorizedException('Invalid email or password');
+			throw new AppException(AppErrorCode.INVALID_CREDENTIALS);
 		}
 
 		if (!user.emailVerified) {
-			throw new ForbiddenException('Please verify your email first');
+			throw new AppException(AppErrorCode.EMAIL_NOT_VERIFIED);
 		}
 
 		const tokens = await this.generateAndSaveTokens(user.id, user.email, user.role);
@@ -251,7 +242,6 @@ export class AuthService {
 		const { passwordHash, ...safeUser } = user;
 
 		return {
-			message: 'Login successful',
 			...tokens,
 			user: safeUser,
 		};
@@ -271,14 +261,14 @@ export class AuthService {
 			});
 
 			const payload = ticket.getPayload();
-			if (!payload) throw new UnauthorizedException('Invalid Google payload');
+			if (!payload) throw new AppException(AppErrorCode.GOOGLE_AUTH_FAILED);
 
 			const { sub: googleId, email, name, picture: image, email_verified } = payload;
 
-			if (!email) throw new UnauthorizedException('Email not provided by Google');
+			if (!email) throw new AppException(AppErrorCode.GOOGLE_EMAIL_MISSING);
 
 			if (!email_verified) {
-				throw new UnauthorizedException('Google email is not verified');
+				throw new AppException(AppErrorCode.GOOGLE_EMAIL_NOT_VERIFIED);
 			}
 
 			// Rate limiting: check local (IP) and global (email) attempt limits
@@ -308,23 +298,29 @@ export class AuthService {
 
 				const { passwordHash, ...safeUser } = user;
 
-				return { message: 'Google login successful', ...tokens, user: safeUser };
+				return { ...tokens, user: safeUser };
 			});
 		} catch (error: unknown) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			throw new UnauthorizedException(`Google authentication failed: ${message}`);
+			// Errors raised deliberately above (and by the rate limiter) already say what
+			// went wrong; re-wrapping them would hide their code behind a generic one.
+			if (error instanceof AppException) throw error;
+
+			this.logger.error(
+				`Google authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			);
+			throw new AppException(AppErrorCode.GOOGLE_AUTH_FAILED);
 		}
 	}
 
 	async refreshTokens(refreshToken: string): Promise<TokenServiceResponse> {
 		if (!refreshToken) {
-			throw new UnauthorizedException('Refresh token missing');
+			throw new AppException(AppErrorCode.REFRESH_TOKEN_MISSING);
 		}
 
 		const [id, validator] = refreshToken.split('.');
 
 		if (!id || !validator) {
-			throw new UnauthorizedException('Invalid token format');
+			throw new AppException(AppErrorCode.INVALID_TOKEN_FORMAT);
 		}
 
 		const tokenRecord = await this.prisma.refreshToken.findUnique({
@@ -333,19 +329,19 @@ export class AuthService {
 		});
 
 		if (!tokenRecord) {
-			throw new ForbiddenException('Access Denied');
+			throw new AppException(AppErrorCode.ACCESS_DENIED);
 		}
 
 		// Bcrypt comparison protects against DB leaks:
 		// even if the token table is exposed, the raw validator is never stored
 		const isValidatorValid = await bcrypt.compare(validator, tokenRecord.hashedToken);
 		if (!isValidatorValid) {
-			throw new ForbiddenException('Access Denied');
+			throw new AppException(AppErrorCode.ACCESS_DENIED);
 		}
 
 		return this.prisma.$transaction(async (tx) => {
 			if (new Date() > tokenRecord.expiresAt) {
-				throw new ForbiddenException('Refresh token expired');
+				throw new AppException(AppErrorCode.REFRESH_TOKEN_EXPIRED);
 			}
 
 			const deleted = await tx.refreshToken.deleteMany({
@@ -353,7 +349,7 @@ export class AuthService {
 			});
 
 			if (deleted.count === 0) {
-				throw new ForbiddenException('Refresh token already used');
+				throw new AppException(AppErrorCode.REFRESH_TOKEN_REUSED);
 			}
 
 			return this.generateAndSaveTokens(
@@ -397,7 +393,7 @@ export class AuthService {
 		if (!savedOtp || savedOtp !== code) {
 			await this.rateLimiter.hit(action, email, ip);
 
-			throw new BadRequestException('Invalid or expired code');
+			throw new AppException(AppErrorCode.INVALID_RESET_CODE);
 		}
 
 		const hashedPassword = await bcrypt.hash(newPassword, AUTH_CONFIG.STRATEGY.BCRYPT_SALT_ROUNDS);
@@ -419,7 +415,6 @@ export class AuthService {
 			const { passwordHash, ...safeUser } = user;
 
 			return {
-				message: 'Password reset successfully',
 				accessToken: tokens.accessToken,
 				refreshToken: tokens.refreshToken,
 				user: safeUser,

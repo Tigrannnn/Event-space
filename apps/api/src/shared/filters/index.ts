@@ -1,1 +1,1 @@
-export * from './zod-exception.filter'
+export * from './app-exception.filter'

@@ -45,7 +45,7 @@ export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 			)}
 			disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
 		>
-			{isUserLoading || isFavoritesLoading ? (
+			{isUserLoading || (isFavoritesLoading && user) ? (
 				<Skeleton className="h-5 w-5 rounded-full" />
 			) : (
 				<Heart className={cn('h-5 w-5 transition-all', isFavorite && 'fill-current')} />

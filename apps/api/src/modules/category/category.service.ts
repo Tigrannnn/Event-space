@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { CreateCategoryData, UpdateCategoryData } from '@event-space/shared';
+import { AppErrorCode, CreateCategoryData, UpdateCategoryData } from '@event-space/shared';
+import { AppException } from '@shared';
 
 @Injectable()
 export class CategoryService {
@@ -22,7 +23,7 @@ export class CategoryService {
 			include: this.categoryInclude,
 		});
 		if (!category) {
-			throw new NotFoundException(`Category with id ${id} not found`);
+			throw new AppException(AppErrorCode.CATEGORY_NOT_FOUND, { id });
 		}
 		return category;
 	}

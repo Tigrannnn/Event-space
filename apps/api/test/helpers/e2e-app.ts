@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '@src/app.module';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { RedisService } from '@infra/redis/redis.service';
-import { ZodExceptionFilter } from '@shared';
+import { AppExceptionFilter } from '@shared';
 import { flushTestRedis } from './flush-redis';
 import { resetDatabase } from './reset-db';
 
@@ -29,7 +29,7 @@ export async function createE2eApp(): Promise<E2eContext> {
 	await resetDatabase(prisma);
 
 	app.use(cookieParser());
-	app.useGlobalFilters(new ZodExceptionFilter());
+	app.useGlobalFilters(new AppExceptionFilter());
 	await app.init();
 
 	return { app, prisma, redis, httpServer: app.getHttpServer() };

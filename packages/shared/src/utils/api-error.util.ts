@@ -1,17 +1,39 @@
 import { AxiosError } from 'axios';
+import {
+	AppErrorCode,
+	appErrorCodeForStatus,
+	isAppErrorCode,
+	type AppErrorParams,
+} from '../enums/error-code.enum';
 
 export interface ApiErrorData {
 	message: string;
+	code?: string;
+	params?: AppErrorParams;
 }
 
-export function isAxiosApiError(error: unknown): error is AxiosError<ApiErrorData> {
-	return error instanceof AxiosError && !!error.response?.data?.message;
+export interface ResolvedApiError {
+	code: AppErrorCode;
+	params?: AppErrorParams;
 }
 
-export function getApiErrorMessage(error: unknown, fallback?: string): string {
-	fallback = fallback || 'An unexpected error occurred';
-	if (isAxiosApiError(error)) {
-		return error.response?.data?.message || fallback;
+/**
+ * The code identifying an error, for translation on the client.
+ *
+ * Always resolves to something: responses from an endpoint that has not been migrated to
+ * a domain code fall back to a code derived from the HTTP status, and failures with no
+ * response at all (network down, request cancelled) to `INTERNAL_ERROR`.
+ */
+export function resolveApiError(error: unknown): ResolvedApiError {
+	if (!(error instanceof AxiosError)) {
+		return { code: AppErrorCode.INTERNAL_ERROR };
 	}
-	return fallback;
+
+	const data = error.response?.data as ApiErrorData | undefined;
+
+	if (isAppErrorCode(data?.code)) {
+		return { code: data.code, params: data.params };
+	}
+
+	return { code: appErrorCodeForStatus(error.response?.status) };
 }

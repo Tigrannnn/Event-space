@@ -1,7 +1,8 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { UserRoleType } from '@event-space/shared';
+import { AppErrorCode, UserRoleType } from '@event-space/shared';
+import { AppException } from '../exceptions/app.exception';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
 @Injectable()
@@ -25,7 +26,7 @@ export class RolesGuard implements CanActivate {
 		const userId = user?.sub;
 
 		if (!userId) {
-			throw new ForbiddenException('You do not have permission to access this resource');
+			throw new AppException(AppErrorCode.INSUFFICIENT_PERMISSIONS);
 		}
 
 		const dbUser = await this.prisma.user.findUnique({
@@ -36,7 +37,7 @@ export class RolesGuard implements CanActivate {
 		const hasRole = requiredRoles.some((role) => dbUser?.role === role);
 
 		if (!hasRole) {
-			throw new ForbiddenException('You do not have permission to access this resource');
+			throw new AppException(AppErrorCode.INSUFFICIENT_PERMISSIONS);
 		}
 
 		return true;

@@ -27,10 +27,10 @@ import {
 	TimeFilterSchema,
 	getEventTranslation,
 	getCategoryTranslation,
-	getApiErrorMessage,
 } from '@event-space/shared';
 import type { TimeFilterType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useApiError } from '@/hooks/apiError';
 import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -49,6 +49,7 @@ interface EventsTableProps {
 
 export default function EventsTable({ initialEvents, disableFetch }: EventsTableProps) {
 	const translate = useTranslation();
+	const apiError = useApiError();
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
@@ -192,7 +193,7 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 			deleteEvent.mutate(event.id, {
 				onSettled: () => setDeletingId(null),
 				onError: (error) => {
-					const message = getApiErrorMessage(error, 'Could not delete event');
+					const message = apiError(error, 'admin.deleteEventFailed');
 					addToast(message, ToastType.ERROR);
 				},
 			});

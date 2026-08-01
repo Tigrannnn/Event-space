@@ -1,20 +1,14 @@
-import {
-	Injectable,
-	NotFoundException,
-	ConflictException,
-	ForbiddenException,
-	BadRequestException,
-	ServiceUnavailableException,
-	Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
+	AppErrorCode,
 	BookingWithEstimate,
 	estimateStripeFeeInCents,
 	CreateBookingData,
 	CreateManualBookingData,
 } from '@event-space/shared';
+import { AppException } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { MailService } from '@infra/mail/mail.service';
 import { calculateRefundPercentage, mapOccurrenceForBookingResponse } from './booking.utils';
@@ -57,31 +51,31 @@ export class BookingService {
 				},
 			});
 
-			if (!occurrence) throw new NotFoundException('Occurrence not found');
+			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
 
 			const event = occurrence.event;
-			if (!event) throw new NotFoundException('Event not found');
+			if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 			// Ensure the event and occurrence are bookable (published and in the future)
 			if (
 				event.status !== 'PUBLISHED' ||
 				occurrence.status !== 'ACTIVE' ||
 				new Date(occurrence.date) <= new Date()
 			) {
-				throw new ForbiddenException('Event is not available for booking');
+				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
 			}
 
 			const existing = await tx.booking.findUnique({
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
 			});
 			if (existing && existing.status === 'CONFIRMED') {
-				throw new ConflictException('Already booked');
+				throw new AppException(AppErrorCode.ALREADY_BOOKED);
 			}
 
 			if (occurrence.currentParticipants > occurrence.maxParticipants - quantity) {
 				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
-				throw new ConflictException(
-					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-				);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 			}
 
 			// Update user with phone if provided and user doesn't have it yet
@@ -402,16 +396,16 @@ export class BookingService {
 					},
 				},
 			});
-			if (!occurrence) throw new NotFoundException('Occurrence not found');
+			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
 
 			const event = occurrence.event;
-			if (!event) throw new NotFoundException('Event not found');
+			if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
 			if (
 				event.status !== 'PUBLISHED' ||
 				occurrence.status !== 'ACTIVE' ||
 				new Date(occurrence.date) <= new Date()
 			) {
-				throw new ForbiddenException('Event is not available for booking');
+				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
 			}
 
 			let targetUserId = userId;
@@ -420,9 +414,7 @@ export class BookingService {
 			if (email) {
 				const existingUser = await tx.user.findUnique({ where: { email } });
 				if (existingUser) {
-					throw new ConflictException(
-						`User with email ${email} already exists. Please provide a different email or use the existing user's ID.`,
-					);
+					throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS, { email });
 				}
 			}
 
@@ -440,7 +432,7 @@ export class BookingService {
 			}
 
 			if (!targetUserId) {
-				throw new ConflictException('userId or name is required');
+				throw new AppException(AppErrorCode.BOOKING_USER_OR_NAME_REQUIRED);
 			}
 
 			const existing = await tx.booking.findUnique({
@@ -448,7 +440,7 @@ export class BookingService {
 			});
 
 			if (existing && existing.status === 'CONFIRMED') {
-				throw new ConflictException('User already has a confirmed booking for this occurrence');
+				throw new AppException(AppErrorCode.ALREADY_BOOKED);
 			}
 
 			if (existing?.paymentIntentId) {
@@ -465,9 +457,9 @@ export class BookingService {
 
 			if (reserved.count === 0) {
 				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
-				throw new ConflictException(
-					spotsLeft === 0 ? 'No spots available' : `Only ${spotsLeft} spots available`,
-				);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 			}
 
 			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
@@ -618,8 +610,8 @@ export class BookingService {
 	async findOneForUser(userId: string, bookingId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 
-		if (!booking) throw new NotFoundException('Booking not found');
-		if (booking.userId !== userId) throw new ForbiddenException('Not your booking');
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (booking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
 
 		return booking;
 	}
@@ -644,8 +636,8 @@ export class BookingService {
 				},
 			});
 
-			if (!currentBooking) throw new NotFoundException('Booking not found');
-			if (currentBooking.userId !== userId) throw new ForbiddenException('Not your booking');
+			if (!currentBooking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+			if (currentBooking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
 			if (currentBooking.status === 'CANCELLED') {
 				return {
 					booking: currentBooking,
@@ -1083,9 +1075,7 @@ export class BookingService {
 			'type' in error &&
 			(error as { type: string }).type === 'StripeConnectionError'
 		) {
-			throw new ServiceUnavailableException(
-				'Payment service is unavailable. Check your internet connection and try again.',
-			);
+			throw new AppException(AppErrorCode.PAYMENT_SERVICE_UNAVAILABLE);
 		}
 
 		throw error;

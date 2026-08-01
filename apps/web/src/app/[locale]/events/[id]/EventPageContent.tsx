@@ -51,8 +51,9 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 			await navigator.clipboard.writeText(url);
 			addToast(translate('event.linkCopied'), ToastType.SUCCESS);
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : translate('event.copyFailed');
-			addToast(errorMessage, ToastType.ERROR);
+			// The browser's own failure text is untranslated, so it stays in the console.
+			console.error('Failed to copy the event link', error);
+			addToast(translate('event.copyFailed'), ToastType.ERROR);
 		}
 	};
 

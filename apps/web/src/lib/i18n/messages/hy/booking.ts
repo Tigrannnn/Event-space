@@ -47,6 +47,7 @@ export const booking: Messages['booking'] = {
 	noBookingsMatchFilter: 'Այս ֆիլտրով ամրագրումներ չկան։',
 	paymentFailed: 'Վճարումը ձախողվեց։ Փորձեք նորից։',
 	paymentSubmitted: 'Վճարումը ուղարկվեց։ Սպասում ենք հաստատմանը...',
+	paymentInProgress: 'Վճարումը արդեն ընթանում է։ Խնդրում ենք սպասել ավարտմանը։',
 	paymentConfirmed: 'Վճարումը հաստատվեց։ Ձեր ամրագրումը պատրաստ է։',
 	paymentCancelled: 'Ամրագրումը չհաջողվեց ավարտել։ Եթե գանձում եղել է, գումարը ավտոմատ կվերադարձվի։',
 	paymentTimeout: 'Վճարումը սպասվածից երկար է տեւում։ Ստուգեք ձեր ամրագրումները ավելի ուշ։',
@@ -67,4 +68,8 @@ export const booking: Messages['booking'] = {
 	paymentMethodOnArrival: 'Վճարում տեղում',
 	viewMyBookings: 'Իմ ամրագրումները',
 	refCopied: 'Ամրագրման կոդը պատճենվեց',
+	updateFailed: 'Չհաջողվեց թարմացնել ամրագրումը',
+	cancelFailed: 'Չհաջողվեց չեղարկել ամրագրումը',
+	updateSuccess: 'Ամրագրումը թարմացվեց',
+	cancelSuccess: 'Ամրագրումը չեղարկվեց',
 };
