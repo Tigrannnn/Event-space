@@ -8,8 +8,53 @@ import { ModalType } from '@/stores';
 import { Copy } from 'lucide-react';
 import { useToastStore, ToastType } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
-import { getEventTranslation, getCategoryTranslation } from '@event-space/shared';
+import {
+	getEventTranslation,
+	getCategoryTranslation,
+	type BookingStatusCounts,
+} from '@event-space/shared';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
+import { useLabels } from '@/hooks/labels/useLabels';
+
+/** Confirmed first, then what still might convert, then what no longer counts. */
+const BOOKING_STATUS_ORDER = ['CONFIRMED', 'PENDING', 'CANCELLED', 'EXPIRED'] as const;
+
+const STATS_KEY_BY_STATUS = {
+	CONFIRMED: 'confirmed',
+	PENDING: 'pending',
+	CANCELLED: 'cancelled',
+	EXPIRED: 'expired',
+} as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], keyof BookingStatusCounts>;
+
+const STATUS_TEXT_CLASS = {
+	CONFIRMED: 'text-emerald-600 dark:text-emerald-400',
+	PENDING: 'text-amber-600 dark:text-amber-400',
+	CANCELLED: 'text-red-500 dark:text-red-400',
+	EXPIRED: 'text-gray-400 dark:text-gray-500',
+} as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], string>;
+
+function BookingStatusBreakdown({
+	stats,
+	labels,
+	className = '',
+}: {
+	stats: BookingStatusCounts;
+	labels: Record<(typeof BOOKING_STATUS_ORDER)[number], string>;
+	className?: string;
+}) {
+	return (
+		<div className={`flex flex-wrap gap-x-3 gap-y-1 ${className}`}>
+			{BOOKING_STATUS_ORDER.map((status) => (
+				<span key={status} className="text-xs">
+					<span className="text-gray-500 dark:text-gray-400">{labels[status]}: </span>
+					<span className={`font-semibold ${STATUS_TEXT_CLASS[status]}`}>
+						{stats[STATS_KEY_BY_STATUS[status]]}
+					</span>
+				</span>
+			))}
+		</div>
+	);
+}
 
 export default function EventDetailsModal() {
 	const translate = useTranslation();
@@ -21,6 +66,7 @@ export default function EventDetailsModal() {
 	const event = modalData?.event;
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
+	const { BOOKING_STATUS_LABELS } = useLabels();
 
 	if (!event) {
 		return null;
@@ -31,6 +77,7 @@ export default function EventDetailsModal() {
 	const occurrences = event.occurrences ?? [];
 	const totalCapacity = occurrences.reduce((sum, o) => sum + o.maxParticipants, 0);
 	const totalBooked = occurrences.reduce((sum, o) => sum + o.currentParticipants, 0);
+	const bookingStats = event.bookingStats;
 
 	const handleCopyId = () => {
 		navigator.clipboard.writeText(event.id);
@@ -144,8 +191,15 @@ export default function EventDetailsModal() {
 														{occurrence.maxParticipants} {translate('admin.seats')}
 													</p>
 													<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-														{translate('admin.bookingsCount')}: {occurrence._count?.bookings ?? 0}
+														{translate('admin.bookingsCount')}: {occurrence.bookingStats?.total ?? 0}
 													</p>
+													{occurrence.bookingStats && occurrence.bookingStats.total > 0 && (
+														<BookingStatusBreakdown
+															stats={occurrence.bookingStats}
+															labels={BOOKING_STATUS_LABELS}
+															className="mt-1"
+														/>
+													)}
 													{occurrence.cancelledAt && (
 														<p className="mt-1 text-xs text-red-500">
 															{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
@@ -227,6 +281,30 @@ export default function EventDetailsModal() {
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.status}</p>
 								</div>
 							</div>
+
+							{bookingStats && (
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.totalBookings')}
+									</p>
+									{bookingStats.total > 0 ? (
+										<>
+											<p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+												{bookingStats.total}
+											</p>
+											<BookingStatusBreakdown
+												stats={bookingStats}
+												labels={BOOKING_STATUS_LABELS}
+												className="mt-2"
+											/>
+										</>
+									) : (
+										<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+											{translate('admin.noBookingsYet')}
+										</p>
+									)}
+								</div>
+							)}
 
 							<div className="grid gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

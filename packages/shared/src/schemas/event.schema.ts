@@ -10,7 +10,12 @@ import {
 } from './cancellation-policy-rule.schema';
 import { CategorySchema } from './category.schema';
 import { CreateEventTranslationSchema, EventTranslationSchema } from './event-translation.schema';
-import { CreateEventOccurrenceSchema, EventOccurrenceSchema, UpdateEventOccurrenceSchema } from './event-occurrence.schema';
+import {
+	BookingStatusCountsSchema,
+	CreateEventOccurrenceSchema,
+	EventOccurrenceSchema,
+	UpdateEventOccurrenceSchema,
+} from './event-occurrence.schema';
 
 export const EventStatusEnum = EventStatusSchema;
 export type EventStatus = z.infer<typeof EventStatusEnum>;
@@ -35,6 +40,8 @@ export const EventSchema = GeneratedEventSchema.extend({
 	translations: z.array(EventTranslationSchema).default([]),
 	category: CategorySchema,
 	occurrences: z.array(EventOccurrenceSchema),
+	/** Bookings across every occurrence of this event, by status. */
+	bookingStats: BookingStatusCountsSchema.optional(),
 }).openapi({
 	description: 'Event information',
 	example: {

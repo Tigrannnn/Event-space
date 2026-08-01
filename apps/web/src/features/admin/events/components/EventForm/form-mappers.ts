@@ -1,4 +1,9 @@
-import { EventStatusEnum, type Event, type EventImageItem } from '@event-space/shared';
+import {
+	countsActiveBookings,
+	EventStatusEnum,
+	type Event,
+	type EventImageItem,
+} from '@event-space/shared';
 import type { EventFormValues } from './event-form.schema';
 import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
@@ -116,7 +121,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		date: toDateTimeLocalInput(occurrence.date),
 		maxParticipants: String(occurrence.maxParticipants ?? ''),
 		status: occurrence.status,
-		bookingsCount: occurrence._count?.bookings ?? 0,
+		activeBookingsCount: countsActiveBookings(occurrence.bookingStats),
 	}));
 
 	return {

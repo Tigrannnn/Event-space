@@ -43,7 +43,11 @@ export const EventOccurrenceFormSchema = z.object({
 	date: z.string().min(1, 'Date is required'),
 	maxParticipants: z.string().optional(),
 	status: EventOccurrenceStatusEnum.default(EventOccurrenceStatusEnum.enum.ACTIVE).optional(),
-	bookingsCount: z.number().optional(),
+	/**
+	 * Bookings that still hold a seat (pending + confirmed) — the same rule the API uses to
+	 * refuse deleting an occurrence, so the form and the server agree on what is removable.
+	 */
+	activeBookingsCount: z.number().optional(),
 });
 
 export const EventFormSchema = z.object({

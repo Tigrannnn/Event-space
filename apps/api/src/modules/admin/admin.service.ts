@@ -15,6 +15,7 @@ import type {
 	EventStatus,
 	EventDifficulty,
 	BookingStatus,
+	BookingStatusCounts,
 	DashboardStats,
 	PaginatedParams,
 	CreateCategoryData,
@@ -88,6 +89,29 @@ interface FindAllEventsParams extends PaginatedParams {
 	minPrice?: number;
 	maxPrice?: number;
 }
+
+const emptyBookingStats = (): BookingStatusCounts => ({
+	total: 0,
+	pending: 0,
+	confirmed: 0,
+	cancelled: 0,
+	expired: 0,
+});
+
+const BOOKING_STATUS_TO_STATS_KEY: Record<BookingStatus, keyof BookingStatusCounts> = {
+	PENDING: 'pending',
+	CONFIRMED: 'confirmed',
+	CANCELLED: 'cancelled',
+	EXPIRED: 'expired',
+};
+
+const addBookingStats = (target: BookingStatusCounts, source: BookingStatusCounts): void => {
+	target.total += source.total;
+	target.pending += source.pending;
+	target.confirmed += source.confirmed;
+	target.cancelled += source.cancelled;
+	target.expired += source.expired;
+};
 
 const normalizeBookingResponse = (booking: any): BookingWithDetails => {
 	const normalizedOccurrence = booking.occurrence
@@ -190,17 +214,7 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: {
-						include: {
-							_count: {
-								select: {
-									bookings: {
-										where: { status: 'CONFIRMED' },
-									},
-								},
-							},
-						},
-					},
+					occurrences: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -218,17 +232,7 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: {
-						include: {
-							_count: {
-								select: {
-									bookings: {
-										where: { status: 'CONFIRMED' },
-									},
-								},
-							},
-						},
-					},
+					occurrences: true,
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -904,18 +908,7 @@ export class AdminService {
 						},
 					},
 					images: { orderBy: { order: 'asc' } },
-					occurrences: {
-						orderBy: { date: 'asc' },
-						include: {
-							_count: {
-								select: {
-									bookings: {
-										where: { status: 'CONFIRMED' },
-									},
-								},
-							},
-						},
-					},
+					occurrences: { orderBy: { date: 'asc' } },
 					category: {
 						include: { translations: true },
 					},
@@ -928,13 +921,57 @@ export class AdminService {
 		const data = hasMore ? events.slice(0, limit) : events;
 
 		return {
-			data,
+			data: await this.attachBookingStats(data),
 			total,
 			skip,
 			take: limit,
 			hasMore,
 			nextSkip: hasMore ? skip + limit : null,
 		};
+	}
+
+	/**
+	 * Adds a per-status booking breakdown to every occurrence, and the event-wide total.
+	 *
+	 * One grouped query covers the whole page rather than one per event. Prisma cannot
+	 * express this through `_count`, which allows only a single filter per relation — the
+	 * reason the old code could report just one status and left the rest invisible.
+	 */
+	private async attachBookingStats<
+		T extends { id: string; occurrences: { id: string }[] },
+	>(events: T[]): Promise<(T & { bookingStats: BookingStatusCounts })[]> {
+		if (events.length === 0) return [];
+
+		const grouped = await this.prisma.booking.groupBy({
+			by: ['occurrenceId', 'status'],
+			where: { occurrence: { eventId: { in: events.map((event) => event.id) } } },
+			_count: { _all: true },
+		});
+
+		const statsByOccurrence = new Map<string, BookingStatusCounts>();
+		for (const row of grouped) {
+			let stats = statsByOccurrence.get(row.occurrenceId);
+			if (!stats) {
+				stats = emptyBookingStats();
+				statsByOccurrence.set(row.occurrenceId, stats);
+			}
+
+			const count = row._count._all;
+			stats[BOOKING_STATUS_TO_STATS_KEY[row.status]] += count;
+			stats.total += count;
+		}
+
+		return events.map((event) => {
+			const eventStats = emptyBookingStats();
+
+			const occurrences = event.occurrences.map((occurrence) => {
+				const stats = statsByOccurrence.get(occurrence.id) ?? emptyBookingStats();
+				addBookingStats(eventStats, stats);
+				return { ...occurrence, bookingStats: stats };
+			});
+
+			return { ...event, occurrences, bookingStats: eventStats };
+		});
 	}
 
 	async findAllCategories({

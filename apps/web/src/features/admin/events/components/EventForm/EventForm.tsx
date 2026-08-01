@@ -466,8 +466,8 @@ export default function EventForm({
 					{occurrenceFields.length > 0 ? (
 						<div className="space-y-3">
 							{occurrenceFields.map((field, index) => {
-								const bookingsCount = field.bookingsCount ?? 0;
-								const hasBookings = bookingsCount > 0;
+								const activeBookingsCount = field.activeBookingsCount ?? 0;
+								const hasBookings = activeBookingsCount > 0;
 								const finished = field.date ? field.date <= new Date().toISOString() : false;
 								const isCancelled = field.status === 'CANCELLED';
 								const isCancelPending =
@@ -520,9 +520,9 @@ export default function EventForm({
 											/>
 										</label>
 
-										{bookingsCount > 0 && (
+										{activeBookingsCount > 0 && (
 											<span className="text-xs text-gray-500 md:pb-2">
-												{translate('admin.bookingsCount')} {bookingsCount}
+												{translate('admin.activeBookings')} {activeBookingsCount}
 											</span>
 										)}
 
