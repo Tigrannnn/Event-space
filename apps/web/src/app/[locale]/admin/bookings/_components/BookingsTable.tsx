@@ -1,13 +1,22 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { CalendarDays, Search, X, Eye, Ban, Plus, Pencil } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Eye, Ban, Plus, Pencil } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useUrlFilters } from '@/hooks/urlFilters';
+import AdminFilterBar from '../../_components/AdminFilterBar';
+import { DateRangePicker, formatDateParam, parseDateParam } from '@/components/filters';
+import {
+	countActiveBookingsFilters,
+	emptyBookingsFilters,
+	parseBookingsFilters,
+	serializeBookingsFilters,
+	type AdminBookingsFilters,
+} from './bookings-filters';
 import {
 	Table,
 	TableBody,
@@ -24,7 +33,16 @@ import type {
 	PaginatedResponse,
 	TimeFilterType,
 } from '@event-space/shared';
-import { BookingStatusEnum, TimeFilterSchema, getEventTranslation } from '@event-space/shared';
+import {
+	BookingStatusEnum,
+	PaymentMethodEnum,
+	TimeFilterSchema,
+	getEventTranslation,
+	type PaymentMethod,
+} from '@event-space/shared';
+import { startOfToday, subDays } from 'date-fns';
+import { useLabels } from '@/hooks/labels/useLabels';
+import type { DateRangePreset } from '@/components/filters';
 import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
@@ -46,22 +64,20 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 	const navigation = useLocalizedNavigation();
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
-	const [skip, setSkip] = useState(initialBookings.skip);
-	const [limit, setLimit] = useState(initialBookings.take);
-	const searchParams = useSearchParams();
-	const [searchInput, setSearchInput] = useState('');
-	const [search, setSearch] = useState('');
-	const [status, setStatus] = useState<BookingStatus | undefined>();
-	const [time, setTime] = useState<TimeFilterType | undefined>();
-	const [eventId, setEventId] = useState(searchParams.get('eventId') ?? undefined);
-	const { data, isFetching } = useAdminBookings({
-		skip,
-		limit,
-		search: search || undefined,
-		status,
-		time,
-		eventId,
-	}, { enabled: !disableFetch });
+	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
+		parse: parseBookingsFilters,
+		serialize: serializeBookingsFilters,
+		empty: emptyBookingsFilters,
+		countActive: countActiveBookingsFilters,
+	});
+	const { skip, limit, status, time, eventId, createdFrom, createdTo, paymentMethod } = filters;
+
+	const [searchInput, setSearchInput] = useState(filters.search ?? '');
+	useEffect(() => {
+		setSearchInput(filters.search ?? '');
+	}, [filters.search]);
+
+	const { data, isFetching } = useAdminBookings(filters, { enabled: !disableFetch });
 	const bookingsResponse = disableFetch ? initialBookings : data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
 	const pageEnd = Math.min(
@@ -70,56 +86,36 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 	);
 	const canGoPrevious = bookingsResponse.skip > 0;
 	const canGoNext = bookingsResponse.hasMore && bookingsResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(
-		search || status !== undefined || time !== undefined || eventId !== undefined || disableFetch,
-	);
+	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
 
 	const { openModal } = useModalStore();
-	const bookingStatusOptions = BookingStatusEnum.options.map((bookingStatus) => ({
-		value: bookingStatus,
-		label:
-			bookingStatus === 'CONFIRMED'
-				? translate('admin.confirmed')
-				: bookingStatus === 'CANCELLED'
-					? translate('admin.cancelled')
-					: translate('admin.pending'),
+	const { BOOKING_STATUS_LABELS, PAYMENT_METHOD_LABELS } = useLabels();
+
+	/** Looking back over a recent window is the common case, so it gets one click. */
+	const createdPresets: DateRangePreset[] = [7, 30, 90].map((days) => ({
+		key: `last-${days}`,
+		label: translate('admin.lastDays', { days }),
+		getRange: () => ({ from: subDays(startOfToday(), days - 1), to: startOfToday() }),
 	}));
 
-	const resetPagination = () => {
-		setSkip(0);
+	const applyFilter = (patch: Partial<AdminBookingsFilters>) => {
+		setFilters({ ...filters, ...patch, skip: 0 });
 	};
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setSearch(searchInput.trim());
-		resetPagination();
-	};
-
-	const handleStatusFilterChange = (value: string) => {
-		setStatus(value ? (value as BookingStatus) : undefined);
-		resetPagination();
-	};
-
-	const handleTimeFilterChange = (value: string) => {
-		setTime(value ? (value as TimeFilterType) : undefined);
-		resetPagination();
-	};
-
-	const handlePageSizeChange = (value: string) => {
-		setLimit(Number(value));
-		resetPagination();
+		applyFilter({ search: searchInput.trim() || undefined });
 	};
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-		setSearch('');
-		setStatus(undefined);
-		setTime(undefined);
-		setEventId(undefined);
-		resetPagination();
+
 		if (disableFetch) {
 			navigation.push('/admin/bookings');
+			return;
 		}
+
+		resetFilters();
 	};
 
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
@@ -131,12 +127,12 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 	};
 
 	const handlePreviousPage = () => {
-		setSkip((currentSkip: number) => Math.max(currentSkip - limit, 0));
+		setFilters({ ...filters, skip: Math.max(skip - limit, 0) });
 	};
 
 	const handleNextPage = () => {
 		if (bookingsResponse.nextSkip !== null) {
-			setSkip(bookingsResponse.nextSkip);
+			setFilters({ ...filters, skip: bookingsResponse.nextSkip });
 		}
 	};
 
@@ -165,43 +161,39 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 					</Button>
 				</div>
 
-				<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-					<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
-						<div className="relative min-w-0 flex-1">
-							<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-							<input
-								value={searchInput}
-								onChange={(event) => setSearchInput(event.target.value)}
-								placeholder={translate('admin.searchPlaceholder')}
-								className="focus:border-primary h-10 w-full rounded-md border bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
-							/>
-						</div>
-						<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
-							{translate('header.search')}
-						</Button>
-					</form>
-
-					<div className="flex flex-wrap items-center gap-2">
-						<Select
-							value={status ?? ''}
-							onValueChange={handleStatusFilterChange}
+				<AdminFilterBar
+					searchValue={searchInput}
+					onSearchValueChange={setSearchInput}
+					onSearchSubmit={handleSearchSubmit}
+					searchPlaceholder={translate('admin.searchPlaceholder')}
+					isFetching={isFetching}
+					activeCount={activeCount}
+					showReset={hasActiveFilters}
+					onReset={handleResetFilters}
+				>
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={status !== undefined}
+						value={status ?? ''}
+							onValueChange={(value) =>
+								applyFilter({ status: (value as BookingStatus) || undefined })
+							}
 							options={[
 								{ value: '', label: translate('admin.allStatuses') },
 								...BookingStatusEnum.options.map((s) => ({
 									value: s,
-									label:
-										s === 'CONFIRMED'
-											? translate('admin.confirmed')
-											: s === 'CANCELLED'
-												? translate('admin.cancelled')
-												: translate('admin.pending'),
+									label: BOOKING_STATUS_LABELS[s],
 								})),
 							]}
 						/>
 
-						<Select
-							value={time ?? ''}
-							onValueChange={handleTimeFilterChange}
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={time !== undefined}
+						value={time ?? ''}
+							onValueChange={(value) => applyFilter({ time: (value as TimeFilterType) || undefined })}
 							options={[
 								{ value: '', label: translate('admin.anyTime') },
 								...TimeFilterSchema.options.map((t) => ({
@@ -211,9 +203,49 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 							]}
 						/>
 
-						<Select
-							value={limit}
-							onValueChange={handlePageSizeChange}
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={paymentMethod !== undefined}
+						value={paymentMethod ?? ''}
+							onValueChange={(value) =>
+								applyFilter({ paymentMethod: (value as PaymentMethod) || undefined })
+							}
+							options={[
+								{ value: '', label: translate('admin.anyPaymentMethod') },
+								...PaymentMethodEnum.options.map((method) => ({
+									value: method,
+									label: PAYMENT_METHOD_LABELS[method],
+								})),
+							]}
+						/>
+
+						<DateRangePicker
+							value={
+								createdFrom || createdTo
+									? {
+											from: parseDateParam(createdFrom ?? createdTo ?? null) ?? new Date(),
+											to: parseDateParam(createdTo ?? createdFrom ?? null) ?? new Date(),
+										}
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({
+									createdFrom: range ? formatDateParam(range.from) : undefined,
+									createdTo: range ? formatDateParam(range.to) : undefined,
+								})
+							}
+							placeholder={translate('admin.bookedPeriod')}
+							// Bookings can only have been created in the past.
+							disabled={{ after: new Date() }}
+							presets={createdPresets}
+						/>
+
+					<Select
+						variant="filter"
+						size="sm"
+						value={limit}
+							onValueChange={(value) => applyFilter({ limit: Number(value) })}
 							options={[
 								...pageSizeOptions.map((ps) => ({
 									...ps,
@@ -222,14 +254,7 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 							]}
 						/>
 
-						{hasActiveFilters && (
-							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
-								<X className="h-4 w-4" />
-								{translate('admin.reset')}
-							</Button>
-						)}
-					</div>
-				</div>
+				</AdminFilterBar>
 			</div>
 
 			<Table>

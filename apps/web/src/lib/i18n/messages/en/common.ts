@@ -15,6 +15,7 @@ export const common = {
 	tryAgain: 'Try Again',
 	close: 'Close',
 	cancel: 'Cancel',
+	done: 'Done',
 	loading: 'Loading...',
 	updating: 'Updating...',
 	optional: 'optional',

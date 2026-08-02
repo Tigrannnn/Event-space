@@ -5,7 +5,7 @@ import { MinusIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Button } from '@/components/ui/primitives/button';
-import { FilterTriggerButton } from './FilterTriggerButton';
+import { FilterTriggerButton } from '@/components/filters';
 import type { EventsFiltersState } from './types';
 
 const MIN_GUESTS = 1;

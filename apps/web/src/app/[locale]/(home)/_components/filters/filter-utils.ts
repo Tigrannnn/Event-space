@@ -1,4 +1,7 @@
+import { formatDateParam } from '@/components/filters';
 import type { DateRangeFilter, EventsFiltersState, PriceBounds, PriceRangeFilter } from './types';
+
+export { formatDateParam };
 
 export function createEmptyFilters(): EventsFiltersState {
 	return {
@@ -70,13 +73,6 @@ export function filtersToSearchParams(
 	}
 
 	return params;
-}
-
-export function formatDateParam(date: Date): string {
-	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-	return `${year}-${month}-${day}`;
 }
 
 export function isPriceFilterApplied(

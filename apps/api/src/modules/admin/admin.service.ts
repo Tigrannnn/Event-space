@@ -16,6 +16,7 @@ import type {
 	EventDifficulty,
 	BookingStatus,
 	BookingStatusCounts,
+	PaymentMethod,
 	DashboardStats,
 	PaginatedParams,
 	CreateCategoryData,
@@ -68,10 +69,29 @@ const bookingInclude = {
 	adjustments: true,
 } as const;
 
+/**
+ * Turns a `YYYY-MM-DD` range into a Prisma filter covering whole days, so `createdTo` includes
+ * everything that happened on that date rather than cutting off at midnight.
+ */
+function buildCreatedAtFilter(
+	createdFrom?: string,
+	createdTo?: string,
+): { gte?: Date; lte?: Date } | undefined {
+	if (!createdFrom && !createdTo) return undefined;
+
+	return {
+		...(createdFrom ? { gte: new Date(`${createdFrom}T00:00:00.000`) } : {}),
+		...(createdTo ? { lte: new Date(`${createdTo}T23:59:59.999`) } : {}),
+	};
+}
+
 interface FindAllUsersParams extends PaginatedParams {
 	search?: string;
 	role?: UserRoleType;
 	emailVerified?: boolean;
+	createdFrom?: string;
+	createdTo?: string;
+	isShadow?: boolean;
 }
 
 interface FindAllBookingsParams extends PaginatedParams {
@@ -79,6 +99,9 @@ interface FindAllBookingsParams extends PaginatedParams {
 	status?: BookingStatus;
 	time?: TimeFilterType;
 	eventId?: string;
+	createdFrom?: string;
+	createdTo?: string;
+	paymentMethod?: PaymentMethod;
 }
 
 interface FindAllEventsParams extends PaginatedParams {
@@ -88,6 +111,7 @@ interface FindAllEventsParams extends PaginatedParams {
 	time?: TimeFilterType;
 	minPrice?: number;
 	maxPrice?: number;
+	category?: string;
 }
 
 const emptyBookingStats = (): BookingStatusCounts => ({
@@ -308,8 +332,12 @@ export class AdminService {
 		search,
 		role,
 		emailVerified,
+		createdFrom,
+		createdTo,
+		isShadow,
 	}: FindAllUsersParams = {}) {
 			const searchIsUuid = isUuid(search);
+			const createdAt = buildCreatedAtFilter(createdFrom, createdTo);
 
 			const where = {
 				...(search
@@ -323,6 +351,8 @@ export class AdminService {
 					: {}),
 				...(role ? { role } : {}),
 				...(typeof emailVerified === 'boolean' ? { emailVerified } : {}),
+				...(typeof isShadow === 'boolean' ? { isShadow } : {}),
+				...(createdAt ? { createdAt } : {}),
 			};
 
 		const [users, total] = await Promise.all([
@@ -683,9 +713,22 @@ export class AdminService {
 		status,
 		time,
 		eventId,
+		createdFrom,
+		createdTo,
+		paymentMethod,
 	}: FindAllBookingsParams = {}) {
 		const now = new Date();
 		const searchIsUuid = isUuid(search);
+		const createdAt = buildCreatedAtFilter(createdFrom, createdTo);
+
+		// `time` and `eventId` both constrain the related occurrence, so they have to be merged
+		// into a single condition — spreading them as separate `occurrence` keys would leave only
+		// the last one standing.
+		const occurrence = {
+			...(time === 'upcoming' ? { date: { gte: now } } : {}),
+			...(time === 'completed' ? { date: { lt: now } } : {}),
+			...(eventId ? { eventId } : {}),
+		};
 
 		const where = {
 			...(search
@@ -710,9 +753,9 @@ export class AdminService {
 					}
 				: {}),
 			...(status ? { status } : {}),
-			...(time === 'upcoming' ? { occurrence: { date: { gte: now } } } : {}),
-			...(time === 'completed' ? { occurrence: { date: { lt: now } } } : {}),
-			...(eventId ? { occurrence: { eventId } } : {}),
+			...(Object.keys(occurrence).length > 0 ? { occurrence } : {}),
+			...(paymentMethod ? { paymentMethod } : {}),
+			...(createdAt ? { createdAt } : {}),
 		};
 
 		const [bookings, total] = await Promise.all([
@@ -858,9 +901,17 @@ export class AdminService {
 		time,
 		minPrice,
 		maxPrice,
+		category,
 	}: FindAllEventsParams = {}) {
 		const now = new Date();
 		const searchIsUuid = isUuid(search);
+
+		// Both bounds constrain `price`, so they are built as one condition — as separate spreads
+		// the upper bound would overwrite the lower and quietly widen the result.
+		const price = {
+			...(minPrice !== undefined ? { gte: minPrice } : {}),
+			...(maxPrice !== undefined ? { lte: maxPrice } : {}),
+		};
 
 		const where = {
 			...(search
@@ -885,8 +936,8 @@ export class AdminService {
 			...(difficulty ? { difficulty } : {}),
 			...(time === 'upcoming' ? { occurrences: { some: { date: { gte: now } } } } : {}),
 			...(time === 'completed' ? { occurrences: { some: { date: { lt: now } } } } : {}),
-			...(minPrice !== undefined ? { price: { gte: minPrice } } : {}),
-			...(maxPrice !== undefined ? { price: { lte: maxPrice } } : {}),
+			...(category ? { category: { slug: category } } : {}),
+			...(Object.keys(price).length > 0 ? { price } : {}),
 		};
 
 		const [events, total] = await Promise.all([

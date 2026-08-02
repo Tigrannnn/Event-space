@@ -6,10 +6,14 @@ import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
 import { PhoneSchema, EmailSchema } from './atoms';
-import { TimeFilterSchema } from './common.schema';
+import { DateOnlySchema, TimeFilterSchema } from './common.schema';
+import { PaymentMethodSchema } from '../generated/inputTypeSchemas/PaymentMethodSchema';
 
 export const BookingStatusEnum = BookingStatusSchema;
 export type BookingStatus = z.infer<typeof BookingStatusEnum>;
+
+export const PaymentMethodEnum = PaymentMethodSchema;
+export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
 export const BookingSchema = GeneratedBookingSchema.extend({
 	amount: z.number(),
@@ -127,8 +131,13 @@ export const BookingFiltersSchema = z.object({
 	limit: z.coerce.number().optional(),
 	status: BookingStatusEnum.optional(),
 	search: z.string().optional(),
+	/** Filters by the date of the event, not by when the booking was made. */
 	time: TimeFilterSchema.optional(),
 	eventId: z.string().optional(),
+	/** Filters by when the booking was created — the question `time` cannot answer. */
+	createdFrom: DateOnlySchema.optional(),
+	createdTo: DateOnlySchema.optional(),
+	paymentMethod: PaymentMethodSchema.optional(),
 });
 
 export type BookingFilters = z.infer<typeof BookingFiltersSchema>;

@@ -2,6 +2,7 @@ import { z } from './openapi';
 import { UserSchema as GeneratedUser } from '../generated/modelSchema/UserSchema';
 import { EmailSchema, NameSchema, PhoneSchema } from './atoms';
 import { UserRoleSchema } from '../generated/inputTypeSchemas/UserRoleSchema';
+import { DateOnlySchema } from './common.schema';
 
 /**
  * Main User schema for public API responses.
@@ -51,6 +52,14 @@ export const UserFiltersSchema = z.object({
 	role: UserRoleSchema.optional(),
 	emailVerified: z.coerce.boolean().optional(),
 	userId: z.string().optional(),
+	/** Registration date. */
+	createdFrom: DateOnlySchema.optional(),
+	createdTo: DateOnlySchema.optional(),
+	/**
+	 * Placeholder accounts created when an admin books for someone without an account.
+	 * They otherwise sit in the list indistinguishable from real users.
+	 */
+	isShadow: z.coerce.boolean().optional(),
 });
 
 export type UserFilters = z.infer<typeof UserFiltersSchema>;

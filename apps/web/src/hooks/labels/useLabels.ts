@@ -6,6 +6,7 @@ import type {
 	TimeFilterType,
 	BookingStatus,
 	UserRoleType,
+	PaymentMethod,
 } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 
@@ -41,11 +42,18 @@ export function useLabels() {
 		ADMIN: translate('admin.admin'),
 	};
 
+	const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+		SITE_PAYMENT: translate('admin.payment.site'),
+		OFFLINE_PAID: translate('admin.payment.offline'),
+		PAY_ON_ARRIVAL: translate('admin.payment.onArrival'),
+	};
+
 	return {
 		EVENT_STATUS_LABELS,
 		EVENT_DIFFICULTY_LABELS,
 		TIME_FILTER_LABELS,
 		BOOKING_STATUS_LABELS,
 		USER_ROLE_LABELS,
+		PAYMENT_METHOD_LABELS,
 	};
 }

@@ -48,3 +48,14 @@ export type PaginatedCursorParams = z.infer<typeof PaginatedCursorParamsSchema>;
 
 export const TimeFilterSchema = z.enum(['upcoming', 'completed']);
 export type TimeFilterType = z.infer<typeof TimeFilterSchema>;
+
+/**
+ * A calendar day as `YYYY-MM-DD`.
+ *
+ * Deliberately a plain date rather than a timestamp: these values travel in the URL, where a
+ * full ISO string is noisy and timezone-ambiguous. The server widens a day into its full
+ * range when building the query.
+ */
+export const DateOnlySchema = z
+	.string()
+	.regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected a date in YYYY-MM-DD format');

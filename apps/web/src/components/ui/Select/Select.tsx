@@ -15,6 +15,12 @@ interface SelectProps extends Omit<
 	children?: ReactNode;
 	onValueChange?: (value: string) => void;
 	size?: 'sm' | 'md';
+	/**
+	 * `filter` matches the pill styling used by the other filter controls and can light up
+	 * when narrowing results, so an active filter is visible without reading its value.
+	 */
+	variant?: 'default' | 'filter';
+	isActive?: boolean;
 }
 
 const selectSizes = {
@@ -37,6 +43,8 @@ export default function Select({
 	onValueChange,
 	className,
 	size = 'md',
+	variant = 'default',
+	isActive = false,
 	style,
 	...props
 }: SelectProps) {
@@ -48,6 +56,10 @@ export default function Select({
 			className={cn(
 				'focus:border-primary cursor-pointer appearance-none rounded-md border border-gray-500 bg-transparent pr-10 pl-3 text-sm transition outline-none hover:border-gray-600 disabled:cursor-not-allowed disabled:opacity-60',
 				selectSizes[size],
+				variant === 'filter' && 'bg-background rounded-xl border-primary/50 shadow-sm',
+				variant === 'filter' &&
+					isActive &&
+					'border-primary/60 bg-primary/10 text-primary ring-1 ring-primary/60 dark:bg-primary/10',
 				className,
 			)}
 		>

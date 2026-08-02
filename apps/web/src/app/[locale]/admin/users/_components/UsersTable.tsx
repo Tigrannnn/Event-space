@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { Search, X, Eye } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Eye } from 'lucide-react';
+import { startOfToday, subDays } from 'date-fns';
 import Button from '@/components/ui/Buttons/Button';
 import Badge from '@/components/ui/Badge';
 import Select from '@/components/ui/Select';
@@ -19,6 +20,21 @@ import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useUrlFilters } from '@/hooks/urlFilters';
+import AdminFilterBar from '../../_components/AdminFilterBar';
+import {
+	DateRangePicker,
+	formatDateParam,
+	parseDateParam,
+	type DateRangePreset,
+} from '@/components/filters';
+import {
+	countActiveUsersFilters,
+	emptyUsersFilters,
+	parseUsersFilters,
+	serializeUsersFilters,
+	type AdminUsersFilters,
+} from './users-filters';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -41,72 +57,57 @@ function formatDate(value: SafeUserData['createdAt']) {
 export default function UsersTable({ initialUsers, disableFetch }: UsersTableProps) {
 	const translate = useTranslation();
 	const navigation = useLocalizedNavigation();
-	const [skip, setSkip] = useState(initialUsers.skip);
-	const [limit, setLimit] = useState(initialUsers.take);
-	const [searchInput, setSearchInput] = useState('');
-	const [search, setSearch] = useState('');
-	const [role, setRole] = useState<UserRoleType | undefined>();
-	const [emailVerified, setEmailVerified] = useState<boolean | undefined>();
-	const { data, isFetching } = useAdminUsers(
-		{
-			skip,
-			limit,
-			search: search || undefined,
-			role,
-			emailVerified,
-		},
-		{ enabled: !disableFetch },
-	);
+	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
+		parse: parseUsersFilters,
+		serialize: serializeUsersFilters,
+		empty: emptyUsersFilters,
+		countActive: countActiveUsersFilters,
+	});
+	const { skip, limit, role, emailVerified, createdFrom, createdTo, isShadow } = filters;
+
+	const [searchInput, setSearchInput] = useState(filters.search ?? '');
+	useEffect(() => {
+		setSearchInput(filters.search ?? '');
+	}, [filters.search]);
+
+	const { data, isFetching } = useAdminUsers(filters, { enabled: !disableFetch });
 	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
 	const usersResponse = disableFetch ? initialUsers : data ?? initialUsers;
-	const isSingleUserLookup = Boolean(search && search.length > 0 && search.includes('-'));
-	const effectiveUsers = isSingleUserLookup && usersResponse.data.length > 0 ? usersResponse.data : usersResponse.data;
 	const pageStart = usersResponse.total === 0 ? 0 : usersResponse.skip + 1;
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
 	const canGoPrevious = usersResponse.skip > 0;
 	const canGoNext = usersResponse.hasMore && usersResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search || role !== undefined || emailVerified !== undefined || disableFetch);
+	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
 	const userRoleOptions = UserRoleSchema.options.map((userRole) => ({
 		value: userRole,
 		label: userRole === 'ADMIN' ? translate('admin.admin') : translate('admin.user'),
 	}));
 
-	const resetPagination = () => {
-		setSkip(0);
+	const registeredPresets: DateRangePreset[] = [7, 30, 90].map((days) => ({
+		key: `last-${days}`,
+		label: translate('admin.lastDays', { days }),
+		getRange: () => ({ from: subDays(startOfToday(), days - 1), to: startOfToday() }),
+	}));
+
+	const applyFilter = (patch: Partial<AdminUsersFilters>) => {
+		setFilters({ ...filters, ...patch, skip: 0 });
 	};
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		const trimmed = searchInput.trim();
-		setSearch(trimmed);
-		resetPagination();
-	};
-
-	const handleRoleFilterChange = (value: string) => {
-		setRole(value ? (value as UserRoleType) : undefined);
-		resetPagination();
-	};
-
-	const handleEmailVerifiedFilterChange = (value: string) => {
-		setEmailVerified(value === '' ? undefined : value === 'true');
-		resetPagination();
-	};
-
-	const handlePageSizeChange = (value: string) => {
-		setLimit(Number(value));
-		resetPagination();
+		applyFilter({ search: searchInput.trim() || undefined });
 	};
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-		setSearch('');
-		setRole(undefined);
-		setEmailVerified(undefined);
-		resetPagination();
+
 		if (disableFetch) {
 			navigation.push('/admin/users');
+			return;
 		}
+
+		resetFilters();
 	};
 
 	const handleRoleChange = (userId: string, nextRole: UserRoleType) => {
@@ -114,17 +115,18 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 	};
 
 	const handlePreviousPage = () => {
-		setSkip((currentSkip) => Math.max(currentSkip - limit, 0));
+		setFilters({ ...filters, skip: Math.max(skip - limit, 0) });
 	};
 
 	const handleNextPage = () => {
 		if (usersResponse.nextSkip !== null) {
-			setSkip(usersResponse.nextSkip);
+			setFilters({ ...filters, skip: usersResponse.nextSkip });
 		}
 	};
 
 	const emailVerifiedFilterValue =
 		emailVerified === undefined ? '' : emailVerified ? 'true' : 'false';
+	const shadowFilterValue = isShadow === undefined ? '' : isShadow ? 'true' : 'false';
 
 	return (
 		<div className="overflow-hidden rounded-lg border border-gray-500 shadow-sm">
@@ -137,26 +139,22 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 					</p>
 				</div>
 
-				<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-					<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
-						<div className="relative min-w-0 flex-1">
-							<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-							<input
-								value={searchInput}
-								onChange={(event) => setSearchInput(event.target.value)}
-								placeholder={translate('admin.searchUsersPlaceholder')}
-								className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
-							/>
-						</div>
-						<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
-							{translate('header.search')}
-						</Button>
-					</form>
-
-					<div className="flex flex-wrap items-center gap-2">
-						<Select
-							value={role ?? ''}
-							onValueChange={handleRoleFilterChange}
+				<AdminFilterBar
+					searchValue={searchInput}
+					onSearchValueChange={setSearchInput}
+					onSearchSubmit={handleSearchSubmit}
+					searchPlaceholder={translate('admin.searchUsersPlaceholder')}
+					isFetching={isFetching}
+					activeCount={activeCount}
+					showReset={hasActiveFilters}
+					onReset={handleResetFilters}
+				>
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={role !== undefined}
+						value={role ?? ''}
+							onValueChange={(value) => applyFilter({ role: (value as UserRoleType) || undefined })}
 							options={[
 								{ value: '', label: translate('admin.allRoles') },
 								...UserRoleSchema.options.map((r) => ({
@@ -166,9 +164,14 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 							]}
 						/>
 
-						<Select
-							value={emailVerifiedFilterValue}
-							onValueChange={handleEmailVerifiedFilterChange}
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={emailVerified !== undefined}
+						value={emailVerifiedFilterValue}
+							onValueChange={(value) =>
+								applyFilter({ emailVerified: value === '' ? undefined : value === 'true' })
+							}
 							options={[
 								{ value: '', label: translate('admin.allStatuses') },
 								{ value: 'true', label: translate('admin.verified') },
@@ -176,23 +179,53 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 							]}
 						/>
 
-						<Select
-							value={limit}
-							onValueChange={handlePageSizeChange}
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={isShadow !== undefined}
+						value={shadowFilterValue}
+							onValueChange={(value) =>
+								applyFilter({ isShadow: value === '' ? undefined : value === 'true' })
+							}
+							options={[
+								{ value: '', label: translate('admin.allAccounts') },
+								{ value: 'false', label: translate('admin.realAccounts') },
+								{ value: 'true', label: translate('admin.shadowAccounts') },
+							]}
+						/>
+
+						<DateRangePicker
+							value={
+								createdFrom || createdTo
+									? {
+											from: parseDateParam(createdFrom ?? createdTo ?? null) ?? new Date(),
+											to: parseDateParam(createdTo ?? createdFrom ?? null) ?? new Date(),
+										}
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({
+									createdFrom: range ? formatDateParam(range.from) : undefined,
+									createdTo: range ? formatDateParam(range.to) : undefined,
+								})
+							}
+							placeholder={translate('admin.registeredPeriod')}
+							disabled={{ after: new Date() }}
+							presets={registeredPresets}
+						/>
+
+					<Select
+						variant="filter"
+						size="sm"
+						value={limit}
+							onValueChange={(value) => applyFilter({ limit: Number(value) })}
 							options={pageSizeOptions.map((ps) => ({
 								...ps,
 								label: `${ps.value} ${translate('admin.pageSize')}`,
 							}))}
 						/>
 
-						{hasActiveFilters && (
-							<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
-								<X className="h-4 w-4" />
-								{translate('admin.reset')}
-							</Button>
-						)}
-					</div>
-				</div>
+				</AdminFilterBar>
 			</div>
 
 			<Table>
@@ -207,7 +240,7 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{effectiveUsers.length === 0 && (
+					{usersResponse.data.length === 0 && (
 						<TableRow>
 							<TableCell colSpan={6} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noUsersFound')}
@@ -215,7 +248,7 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 						</TableRow>
 					)}
 
-					{effectiveUsers.map((user) => (
+					{usersResponse.data.map((user) => (
 						<TableRow key={user.id}>
 							<TableCell className="px-3 sm:px-5">
 								<div className="max-w-md min-w-0">

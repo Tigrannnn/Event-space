@@ -7,7 +7,7 @@ import { useFormatCurrency } from '@/hooks/format';
 import { useDebouncedCallback } from '@/hooks/debounce';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Slider } from '@/components/ui/primitives/slider';
-import { FilterTriggerButton } from './FilterTriggerButton';
+import { FilterTriggerButton } from '@/components/filters';
 import { isPriceFilterApplied } from './filter-utils';
 import type { EventsFiltersState, PriceBounds } from './types';
 

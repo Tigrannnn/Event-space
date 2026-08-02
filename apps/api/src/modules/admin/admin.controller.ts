@@ -27,11 +27,14 @@ import {
 	GetCurrentUserId,
 	ZodValidationPipe,
 	parseOptionalQueryInt,
+	parseOptionalQueryBoolean,
+	parseOptionalQueryDate,
 } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
 	BookingStatusEnum,
+	PaymentMethodEnum,
 	EventStatusEnum,
 	EventDifficultyEnum,
 	UserRoleSchema,
@@ -55,6 +58,7 @@ import type {
 	UpdateCategoryData,
 	AdminCancelBookingData,
 	UpdateBookingData,
+	PaymentMethod,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
@@ -112,6 +116,9 @@ export class AdminController {
 	@ApiQuery({ name: 'search', required: false, description: 'Search in user and event fields' })
 	@ApiQuery({ name: 'status', required: false, enum: BookingStatusEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
+	@ApiQuery({ name: 'createdFrom', required: false, description: 'Booking created on or after (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'createdTo', required: false, description: 'Booking created on or before (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
 	async getAllBookings(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -119,6 +126,9 @@ export class AdminController {
 		@Query('status') status?: BookingStatus,
 		@Query('time') time?: TimeFilterType,
 		@Query('eventId') eventId?: string,
+		@Query('createdFrom') createdFromRaw?: string,
+		@Query('createdTo') createdToRaw?: string,
+		@Query('paymentMethod') paymentMethod?: PaymentMethod,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		return this.adminService.findAllBookings({
@@ -128,6 +138,9 @@ export class AdminController {
 			status,
 			time,
 			eventId,
+			createdFrom: parseOptionalQueryDate(createdFromRaw, 'createdFrom'),
+			createdTo: parseOptionalQueryDate(createdToRaw, 'createdTo'),
+			paymentMethod,
 		});
 	}
 
@@ -211,6 +224,7 @@ export class AdminController {
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
 	@ApiQuery({ name: 'minPrice', required: false, type: Number })
 	@ApiQuery({ name: 'maxPrice', required: false, type: Number })
+	@ApiQuery({ name: 'category', required: false, description: 'Category slug' })
 	async getAllEvents(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -220,6 +234,7 @@ export class AdminController {
 		@Query('time') time?: TimeFilterType,
 		@Query('minPrice') minPriceRaw?: string,
 		@Query('maxPrice') maxPriceRaw?: string,
+		@Query('category') category?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
@@ -233,6 +248,7 @@ export class AdminController {
 			time,
 			minPrice,
 			maxPrice,
+			category,
 		});
 	}
 
@@ -248,23 +264,30 @@ export class AdminController {
 	@ApiQuery({ name: 'search', required: false, description: 'Search in name and email' })
 	@ApiQuery({ name: 'role', required: false, enum: UserRoleSchema.options })
 	@ApiQuery({ name: 'emailVerified', required: false, enum: ['true', 'false'] })
+	@ApiQuery({ name: 'isShadow', required: false, enum: ['true', 'false'] })
+	@ApiQuery({ name: 'createdFrom', required: false, description: 'Registered on or after (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'createdTo', required: false, description: 'Registered on or before (YYYY-MM-DD)' })
 	async getAllUsers(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
 		@Query('search') search?: string,
 		@Query('role') role?: UserRoleType,
 		@Query('emailVerified') emailVerified?: string,
+		@Query('isShadow') isShadow?: string,
+		@Query('createdFrom') createdFromRaw?: string,
+		@Query('createdTo') createdToRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
-		const parsedEmailVerified =
-			emailVerified === 'true' ? true : emailVerified === 'false' ? false : undefined;
 
 		return this.adminService.findAllUsers({
 			skip,
 			limit: safeLimit,
 			search,
 			role,
-			emailVerified: parsedEmailVerified,
+			emailVerified: parseOptionalQueryBoolean(emailVerified),
+			isShadow: parseOptionalQueryBoolean(isShadow),
+			createdFrom: parseOptionalQueryDate(createdFromRaw, 'createdFrom'),
+			createdTo: parseOptionalQueryDate(createdToRaw, 'createdTo'),
 		});
 	}
 

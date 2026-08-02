@@ -17,6 +17,7 @@ export const common: Messages['common'] = {
 	tryAgain: 'Попробовать снова',
 	close: 'Закрыть',
 	cancel: 'Отмена',
+	done: 'Готово',
 	loading: 'Загружается...',
 	updating: 'Обновляется...',
 	optional: 'необязательно',

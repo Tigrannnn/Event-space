@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { Pencil, Plus, Search, Trash2, Eye, X } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Pencil, Plus, Trash2, Eye } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import TablePagination from '@/components/ui/TablePagination';
 import {
@@ -18,6 +18,15 @@ import { useModalStore, ModalType } from '@/stores';
 import { getCategoryTranslation, type PaginatedResponse, type Category } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useUrlFilters } from '@/hooks/urlFilters';
+import AdminFilterBar from '../../_components/AdminFilterBar';
+import Select from '@/components/ui/Select';
+import {
+	countActiveCategoriesFilters,
+	emptyCategoriesFilters,
+	parseCategoriesFilters,
+	serializeCategoriesFilters,
+} from './categories-filters';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -32,20 +41,22 @@ interface CategoriesTableProps {
 export default function CategoriesTable({ initialCategories, disableFetch }: CategoriesTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const [skip, setSkip] = useState(initialCategories.skip);
-	const [limit, setLimit] = useState(initialCategories.take);
-	const [searchInput, setSearchInput] = useState('');
-	const [search, setSearch] = useState('');
+	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
+		parse: parseCategoriesFilters,
+		serialize: serializeCategoriesFilters,
+		empty: emptyCategoriesFilters,
+		countActive: countActiveCategoriesFilters,
+	});
+	const { skip, limit } = filters;
+
+	const [searchInput, setSearchInput] = useState(filters.search ?? '');
+	useEffect(() => {
+		setSearchInput(filters.search ?? '');
+	}, [filters.search]);
+
 	const { openModal } = useModalStore();
 	const confirm = useConfirm();
-	const { data, isFetching } = useAdminCategories(
-		{
-			skip,
-			limit,
-			search: search || undefined,
-		},
-		{ enabled: !disableFetch },
-	);
+	const { data, isFetching } = useAdminCategories(filters, { enabled: !disableFetch });
 	const deleteCategory = useDeleteCategory();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const navigation = useLocalizedNavigation();
@@ -57,39 +68,31 @@ export default function CategoriesTable({ initialCategories, disableFetch }: Cat
 	);
 	const canGoPrevious = categoriesResponse.skip > 0;
 	const canGoNext = categoriesResponse.hasMore && categoriesResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(search || disableFetch);
-
-	const resetPagination = () => {
-		setSkip(0);
-	};
+	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setSearch(searchInput.trim());
-		resetPagination();
-	};
-
-	const handlePageSizeChange = (value: string) => {
-		setLimit(Number(value));
-		resetPagination();
+		setFilters({ ...filters, search: searchInput.trim() || undefined, skip: 0 });
 	};
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-		setSearch('');
-		resetPagination();
+
 		if (disableFetch) {
 			navigation.push('/admin/categories');
+			return;
 		}
+
+		resetFilters();
 	};
 
 	const handlePreviousPage = () => {
-		setSkip((currentSkip) => Math.max(currentSkip - limit, 0));
+		setFilters({ ...filters, skip: Math.max(skip - limit, 0) });
 	};
 
 	const handleNextPage = () => {
 		if (categoriesResponse.nextSkip !== null) {
-			setSkip(categoriesResponse.nextSkip);
+			setFilters({ ...filters, skip: categoriesResponse.nextSkip });
 		}
 	};
 
@@ -130,31 +133,27 @@ export default function CategoriesTable({ initialCategories, disableFetch }: Cat
 						</Button>
 					</div>
 
-					<div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-						<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
-							<div className="relative min-w-0 flex-1">
-								<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-								<input
-									value={searchInput}
-									onChange={(event) => setSearchInput(event.target.value)}
-									placeholder={translate('admin.searchCategoriesPlaceholder')}
-									className="focus:border-primary h-10 w-full rounded-md border bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
-								/>
-							</div>
-							<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
-								{translate('header.search')}
-							</Button>
-						</form>
-
-						<div className="flex flex-wrap items-center gap-2">
-							{hasActiveFilters && (
-								<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
-									<X className="h-4 w-4" />
-									{translate('admin.reset')}
-								</Button>
-							)}
-						</div>
-					</div>
+					<AdminFilterBar
+						searchValue={searchInput}
+						onSearchValueChange={setSearchInput}
+						onSearchSubmit={handleSearchSubmit}
+						searchPlaceholder={translate('admin.searchCategoriesPlaceholder')}
+						isFetching={isFetching}
+						activeCount={activeCount}
+						showReset={hasActiveFilters}
+						onReset={handleResetFilters}
+					>
+						<Select
+							variant="filter"
+							size="sm"
+							value={limit}
+							onValueChange={(value) => setFilters({ ...filters, limit: Number(value), skip: 0 })}
+							options={pageSizeOptions.map((ps) => ({
+								...ps,
+								label: `${ps.value} ${translate('admin.pageSize')}`,
+							}))}
+						/>
+					</AdminFilterBar>
 				</div>
 
 				<Table>

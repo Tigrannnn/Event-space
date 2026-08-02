@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { CalendarDays, Pencil, Plus, Search, Trash2, Users, X, Eye } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Pencil, Plus, Trash2, Users, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -31,6 +31,16 @@ import {
 import type { TimeFilterType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useApiError } from '@/hooks/apiError';
+import { useUrlFilters } from '@/hooks/urlFilters';
+import AdminFilterBar from '../../_components/AdminFilterBar';
+import { useCategories } from '@/features/categories/hooks/useCategories';
+import {
+	countActiveEventsFilters,
+	emptyEventsFilters,
+	parseEventsFilters,
+	serializeEventsFilters,
+	type AdminEventsFilters,
+} from './events-filters';
 import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -53,35 +63,27 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
-	const [skip, setSkip] = useState(initialEvents.skip);
-	const [limit, setLimit] = useState(initialEvents.take);
-	const [searchInput, setSearchInput] = useState('');
-	const [search, setSearch] = useState('');
-	const [status, setStatus] = useState<EventStatus | undefined>();
-	const [difficulty, setDifficulty] = useState<EventDifficulty | undefined>();
-	const [time, setTime] = useState<TimeFilterType | undefined>();
-	const [minPriceInput, setMinPriceInput] = useState('');
-	const [minPrice, setMinPrice] = useState<number | undefined>();
-	const [maxPriceInput, setMaxPriceInput] = useState('');
-	const [maxPrice, setMaxPrice] = useState<number | undefined>();
+	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
+		parse: parseEventsFilters,
+		serialize: serializeEventsFilters,
+		empty: emptyEventsFilters,
+		countActive: countActiveEventsFilters,
+	});
+	const { skip, limit, status, difficulty, time, category, minPrice, maxPrice } = filters;
+
+	// The text box is uncontrolled by the URL until submitted, so typing doesn't refetch on
+	// every keystroke or fill browser history.
+	const [searchInput, setSearchInput] = useState(filters.search ?? '');
+	useEffect(() => {
+		setSearchInput(filters.search ?? '');
+	}, [filters.search]);
+
 	const { openModal } = useModalStore();
 	const { addToast } = useToastStore();
 	const navigation = useLocalizedNavigation();
 	const confirm = useConfirm();
 
-	const { data, isFetching } = useAdminEvents(
-		{
-			skip,
-			limit,
-			search: search || undefined,
-			status,
-			difficulty,
-			time,
-			minPrice,
-			maxPrice,
-		},
-		{ enabled: !disableFetch },
-	);
+	const { data, isFetching } = useAdminEvents(filters, { enabled: !disableFetch });
 
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -91,15 +93,7 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
-	const hasActiveFilters = Boolean(
-		search ||
-		status !== undefined ||
-		difficulty !== undefined ||
-		time !== undefined ||
-		minPrice !== undefined ||
-		maxPrice !== undefined ||
-		disableFetch,
-	);
+	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
 
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -111,71 +105,42 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 		label: EVENT_DIFFICULTY_LABELS[diff],
 	}));
 
-	const resetPagination = () => {
-		setSkip(0);
+	// Filtering happens by slug, matching the public site and keeping the URL readable.
+	const { data: categories = [] } = useCategories();
+	const categoryOptions = categories.map((item) => ({
+		value: item.slug,
+		label: getCategoryTranslation(item, locale)?.name ?? item.slug,
+	}));
+
+	/** Any filter change returns to the first page — page 5 of the old result set is meaningless. */
+	const applyFilter = (patch: Partial<AdminEventsFilters>) => {
+		setFilters({ ...filters, ...patch, skip: 0 });
 	};
 
 	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setSearch(searchInput.trim());
-		resetPagination();
-	};
-
-	const handleStatusFilterChange = (value: string) => {
-		setStatus(value ? (value as EventStatus) : undefined);
-		resetPagination();
-	};
-
-	const handleDifficultyFilterChange = (value: string) => {
-		setDifficulty(value ? (value as EventDifficulty) : undefined);
-		resetPagination();
-	};
-
-	const handleTimeFilterChange = (value: string) => {
-		setTime(value ? (value as TimeFilterType) : undefined);
-		resetPagination();
-	};
-
-	const handleMinPriceChange = (value: string) => {
-		setMinPriceInput(value);
-		setMinPrice(value ? Number(value) : undefined);
-		resetPagination();
-	};
-
-	const handleMaxPriceChange = (value: string) => {
-		setMaxPriceInput(value);
-		setMaxPrice(value ? Number(value) : undefined);
-		resetPagination();
-	};
-
-	const handlePageSizeChange = (value: string) => {
-		setLimit(Number(value));
-		resetPagination();
+		applyFilter({ search: searchInput.trim() || undefined });
 	};
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-		setSearch('');
-		setStatus(undefined);
-		setDifficulty(undefined);
-		setTime(undefined);
-		setMinPriceInput('');
-		setMinPrice(undefined);
-		setMaxPriceInput('');
-		setMaxPrice(undefined);
-		resetPagination();
+
+		// On the single-event page there is nothing to unfilter — clearing takes you to the full list.
 		if (disableFetch) {
 			navigation.push('/admin/events');
+			return;
 		}
+
+		resetFilters();
 	};
 
 	const handlePreviousPage = () => {
-		setSkip((currentSkip) => Math.max(currentSkip - limit, 0));
+		setFilters({ ...filters, skip: Math.max(skip - limit, 0) });
 	};
 
 	const handleNextPage = () => {
 		if (eventsResponse.nextSkip !== null) {
-			setSkip(eventsResponse.nextSkip);
+			setFilters({ ...filters, skip: eventsResponse.nextSkip });
 		}
 	};
 
@@ -220,85 +185,95 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 						</Button>
 					</div>
 
-					<div className="flex flex-col gap-3">
-						<form onSubmit={handleSearchSubmit} className="flex min-w-0 flex-1 gap-2">
-							<div className="relative min-w-[75%] flex-1">
-								<Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
-								<input
-									value={searchInput}
-									onChange={(event) => setSearchInput(event.target.value)}
-									placeholder={translate('admin.searchEventsPlaceholder')}
-									className="focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent pr-3 pl-9 text-sm transition outline-none placeholder:text-gray-400"
-								/>
-							</div>
-							<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
-								{translate('header.search')}
-							</Button>
-						</form>
+					<AdminFilterBar
+						searchValue={searchInput}
+						onSearchValueChange={setSearchInput}
+						onSearchSubmit={handleSearchSubmit}
+						searchPlaceholder={translate('admin.searchEventsPlaceholder')}
+						isFetching={isFetching}
+						activeCount={activeCount}
+						showReset={hasActiveFilters}
+						onReset={handleResetFilters}
+					>
+						<Select
+							variant="filter"
+							size="sm"
+							isActive={status !== undefined}
+							value={status ?? ''}
+							onValueChange={(value) => applyFilter({ status: (value as EventStatus) || undefined })}
+							options={[{ value: '', label: translate('admin.allStatuses') }, ...eventStatusOptions]}
+						/>
 
-						<div className="flex flex-wrap items-center gap-2">
-							<Select
-								value={status ?? ''}
-								onValueChange={handleStatusFilterChange}
-								options={[{ value: '', label: translate('admin.allStatuses') }, ...eventStatusOptions]}
+						<Select
+							variant="filter"
+							size="sm"
+							isActive={difficulty !== undefined}
+							value={difficulty ?? ''}
+							onValueChange={(value) =>
+								applyFilter({ difficulty: (value as EventDifficulty) || undefined })
+							}
+							options={[{ value: '', label: translate('admin.allDifficulty') }, ...eventDifficultyOptions]}
+						/>
+
+						<Select
+							variant="filter"
+							size="sm"
+							isActive={category !== undefined}
+							value={category ?? ''}
+							onValueChange={(value) => applyFilter({ category: value || undefined })}
+							options={[{ value: '', label: translate('admin.allCategories') }, ...categoryOptions]}
+						/>
+
+						<Select
+							variant="filter"
+							size="sm"
+							isActive={time !== undefined}
+							value={time ?? ''}
+							onValueChange={(value) => applyFilter({ time: (value as TimeFilterType) || undefined })}
+							options={[
+								{ value: '', label: translate('admin.anyTime') },
+								...TimeFilterSchema.options.map((t) => ({
+									value: t,
+									label: t === 'upcoming' ? translate('admin.upcoming') : translate('admin.completed'),
+								})),
+							]}
+						/>
+
+						<div className="flex items-center gap-2">
+							<input
+								type="number"
+								defaultValue={minPrice ?? ''}
+								key={`min-${minPrice ?? ''}`}
+								onBlur={(e) =>
+									applyFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
+								}
+								placeholder={translate('admin.minPrice')}
+								className="border-primary/50 bg-background h-9 w-28 rounded-xl border px-3 text-sm shadow-sm outline-none"
 							/>
-
-							<Select
-								value={difficulty ?? ''}
-								onValueChange={handleDifficultyFilterChange}
-								options={[
-									{ value: '', label: translate('admin.allDifficulty') },
-									...eventDifficultyOptions,
-								]}
+							<span className="text-sm text-gray-500">–</span>
+							<input
+								type="number"
+								defaultValue={maxPrice ?? ''}
+								key={`max-${maxPrice ?? ''}`}
+								onBlur={(e) =>
+									applyFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
+								}
+								placeholder={translate('admin.maxPrice')}
+								className="border-primary/50 bg-background h-9 w-28 rounded-xl border px-3 text-sm shadow-sm outline-none"
 							/>
-
-							<Select
-								value={time ?? ''}
-								onValueChange={handleTimeFilterChange}
-								options={[
-									{ value: '', label: translate('admin.anyTime') },
-									...TimeFilterSchema.options.map((t) => ({
-										value: t,
-										label: t === 'upcoming' ? translate('admin.upcoming') : translate('admin.completed'),
-									})),
-								]}
-							/>
-
-							<div className="flex items-center gap-2">
-								<input
-									type="number"
-									value={minPriceInput}
-									onChange={(e) => handleMinPriceChange(e.target.value)}
-									placeholder={translate('admin.minPrice')}
-									className="h-10 w-32 rounded-md border border-gray-500 bg-transparent px-3 text-sm text-gray-900 dark:text-gray-100"
-								/>
-								<span className="text-sm text-gray-500">-</span>
-								<input
-									type="number"
-									value={maxPriceInput}
-									onChange={(e) => handleMaxPriceChange(e.target.value)}
-									placeholder={translate('admin.maxPrice')}
-									className="h-10 w-32 rounded-md border border-gray-500 bg-transparent px-3 text-sm text-gray-900 dark:text-gray-100"
-								/>
-							</div>
-
-							<Select
-								value={limit}
-								onValueChange={handlePageSizeChange}
-								options={pageSizeOptions.map((ps) => ({
-									...ps,
-									label: `${ps.value} ${translate('admin.pageSize')}`,
-								}))}
-							/>
-
-							{hasActiveFilters && (
-								<Button type="button" size="sm" variant="secondary" onClick={handleResetFilters}>
-									<X className="h-4 w-4" />
-									{translate('admin.reset')}
-								</Button>
-							)}
 						</div>
-					</div>
+
+						<Select
+							variant="filter"
+							size="sm"
+							value={limit}
+							onValueChange={(value) => applyFilter({ limit: Number(value) })}
+							options={pageSizeOptions.map((ps) => ({
+								...ps,
+								label: `${ps.value} ${translate('admin.pageSize')}`,
+							}))}
+						/>
+					</AdminFilterBar>
 				</div>
 
 				<Table>

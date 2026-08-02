@@ -11,7 +11,7 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/primitives/command';
-import { CategoryPill, FilterTriggerButton } from './FilterTriggerButton';
+import { CategoryPill, FilterTriggerButton } from '@/components/filters';
 import { getExtraSelectedCategories, getTopCategories } from './filter-utils';
 import type { EventsFiltersState } from './types';
 
