@@ -6,7 +6,6 @@ import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
 import { useTranslation } from '@/hooks/translation';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import AdminFilterBar from '../../_components/AdminFilterBar';
 import { DateRangePicker, formatDateParam, parseDateParam } from '@/components/filters';
@@ -55,13 +54,11 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface BookingsTableProps {
 	initialBookings: PaginatedResponse<BookingWithDetails>;
-	disableFetch?: boolean;
 }
 
-export default function BookingsTable({ initialBookings, disableFetch }: BookingsTableProps) {
+export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const navigation = useLocalizedNavigation();
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
@@ -77,8 +74,8 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 		setSearchInput(filters.search ?? '');
 	}, [filters.search]);
 
-	const { data, isFetching } = useAdminBookings(filters, { enabled: !disableFetch });
-	const bookingsResponse = disableFetch ? initialBookings : data ?? initialBookings;
+	const { data, isFetching } = useAdminBookings(filters);
+	const bookingsResponse = data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
 	const pageEnd = Math.min(
 		bookingsResponse.skip + bookingsResponse.data.length,
@@ -86,7 +83,7 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 	);
 	const canGoPrevious = bookingsResponse.skip > 0;
 	const canGoNext = bookingsResponse.hasMore && bookingsResponse.nextSkip !== null;
-	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
+	const hasActiveFilters = activeCount > 0;
 
 	const { openModal } = useModalStore();
 	const { BOOKING_STATUS_LABELS, PAYMENT_METHOD_LABELS } = useLabels();
@@ -109,12 +106,6 @@ export default function BookingsTable({ initialBookings, disableFetch }: Booking
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-
-		if (disableFetch) {
-			navigation.push('/admin/bookings');
-			return;
-		}
-
 		resetFilters();
 	};
 

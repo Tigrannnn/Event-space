@@ -155,7 +155,7 @@ export default function EventDetailsModal() {
 										type="button"
 										onClick={() => {
 											closeModal();
-											router.push(`/admin/users/${event.category.id}`);
+											router.push(`/admin/categories?search=${event.category.id}`);
 										}}
 										className="text-primary mt-1 block text-left font-medium hover:underline"
 									>
@@ -326,7 +326,7 @@ export default function EventDetailsModal() {
 										type="button"
 										onClick={() => {
 											closeModal();
-											router.push(`/admin/users/${event.organizer?.id}`);
+											router.push(`/admin/users?search=${event.organizer?.id}`);
 										}}
 										className="text-primary mt-1 block text-left font-medium hover:underline"
 									>

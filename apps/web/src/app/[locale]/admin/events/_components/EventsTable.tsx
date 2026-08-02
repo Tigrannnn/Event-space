@@ -45,7 +45,6 @@ import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -54,10 +53,9 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface EventsTableProps {
 	initialEvents: PaginatedResponse<Event>;
-	disableFetch?: boolean;
 }
 
-export default function EventsTable({ initialEvents, disableFetch }: EventsTableProps) {
+export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const translate = useTranslation();
 	const apiError = useApiError();
 	const locale = translate.locale;
@@ -80,20 +78,19 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 
 	const { openModal } = useModalStore();
 	const { addToast } = useToastStore();
-	const navigation = useLocalizedNavigation();
 	const confirm = useConfirm();
 
-	const { data, isFetching } = useAdminEvents(filters, { enabled: !disableFetch });
+	const { data, isFetching } = useAdminEvents(filters);
 
 	const deleteEvent = useDeleteEvent();
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const router = useRouter();
-	const eventsResponse = disableFetch ? initialEvents : (data ?? initialEvents);
+	const eventsResponse = data ?? initialEvents;
 	const pageStart = eventsResponse.total === 0 ? 0 : eventsResponse.skip + 1;
 	const pageEnd = Math.min(eventsResponse.skip + eventsResponse.data.length, eventsResponse.total);
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
-	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
+	const hasActiveFilters = activeCount > 0;
 
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -124,13 +121,6 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-
-		// On the single-event page there is nothing to unfilter — clearing takes you to the full list.
-		if (disableFetch) {
-			navigation.push('/admin/events');
-			return;
-		}
-
 		resetFilters();
 	};
 
@@ -320,7 +310,7 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 											<button
 												type="button"
 												onClick={() => {
-													router.push(`/admin/categories/${event.category?.id}`);
+													router.push(`/admin/categories?search=${event.category?.id}`);
 												}}
 												className="text-primary mt-1 block text-left font-medium hover:underline"
 											>
@@ -333,7 +323,7 @@ export default function EventsTable({ initialEvents, disableFetch }: EventsTable
 											<button
 												type="button"
 												onClick={() => {
-													router.push(`/admin/users/${event.organizer?.id}`);
+													router.push(`/admin/users?search=${event.organizer?.id}`);
 												}}
 												className="text-primary mt-1 block text-left font-medium hover:underline"
 											>

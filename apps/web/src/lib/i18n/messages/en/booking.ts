@@ -51,7 +51,7 @@ export const booking = {
 	paymentCancelled:
 		'Your booking could not be completed. If you were charged, you will be refunded automatically.',
 	paymentTimeout: 'Payment is taking longer than expected. Check your bookings later.',
-	bookingExpired: 'Booking expired due to inactivity. Please try again.',
+	bookingExpired: 'Booking expired due to inactivity.',
 	stripeMissing: 'Stripe is not configured properly. Please contact support.',
 	unknownEvent: 'Unknown event',
 	unknownCustomer: 'Unknown customer',

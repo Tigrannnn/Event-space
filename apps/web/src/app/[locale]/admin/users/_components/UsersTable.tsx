@@ -19,7 +19,6 @@ import { useAdminUsers, useUpdateUserRole } from '@/features/admin/hooks/useAdmi
 import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import AdminFilterBar from '../../_components/AdminFilterBar';
 import {
@@ -43,7 +42,6 @@ const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 
 interface UsersTableProps {
 	initialUsers: PaginatedResponse<SafeUserData>;
-	disableFetch?: boolean;
 }
 
 function formatDate(value: SafeUserData['createdAt']) {
@@ -54,9 +52,8 @@ function formatDate(value: SafeUserData['createdAt']) {
 	}).format(new Date(value));
 }
 
-export default function UsersTable({ initialUsers, disableFetch }: UsersTableProps) {
+export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const translate = useTranslation();
-	const navigation = useLocalizedNavigation();
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseUsersFilters,
 		serialize: serializeUsersFilters,
@@ -70,15 +67,15 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 		setSearchInput(filters.search ?? '');
 	}, [filters.search]);
 
-	const { data, isFetching } = useAdminUsers(filters, { enabled: !disableFetch });
+	const { data, isFetching } = useAdminUsers(filters);
 	const { openModal } = useModalStore();
 	const updateUserRole = useUpdateUserRole();
-	const usersResponse = disableFetch ? initialUsers : data ?? initialUsers;
+	const usersResponse = data ?? initialUsers;
 	const pageStart = usersResponse.total === 0 ? 0 : usersResponse.skip + 1;
 	const pageEnd = Math.min(usersResponse.skip + usersResponse.data.length, usersResponse.total);
 	const canGoPrevious = usersResponse.skip > 0;
 	const canGoNext = usersResponse.hasMore && usersResponse.nextSkip !== null;
-	const hasActiveFilters = activeCount > 0 || Boolean(disableFetch);
+	const hasActiveFilters = activeCount > 0;
 	const userRoleOptions = UserRoleSchema.options.map((userRole) => ({
 		value: userRole,
 		label: userRole === 'ADMIN' ? translate('admin.admin') : translate('admin.user'),
@@ -101,12 +98,6 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 
 	const handleResetFilters = () => {
 		setSearchInput('');
-
-		if (disableFetch) {
-			navigation.push('/admin/users');
-			return;
-		}
-
 		resetFilters();
 	};
 
@@ -154,77 +145,76 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 						size="sm"
 						isActive={role !== undefined}
 						value={role ?? ''}
-							onValueChange={(value) => applyFilter({ role: (value as UserRoleType) || undefined })}
-							options={[
-								{ value: '', label: translate('admin.allRoles') },
-								...UserRoleSchema.options.map((r) => ({
-									value: r,
-									label: r === 'ADMIN' ? translate('admin.admin') : translate('admin.user'),
-								})),
-							]}
-						/>
+						onValueChange={(value) => applyFilter({ role: (value as UserRoleType) || undefined })}
+						options={[
+							{ value: '', label: translate('admin.allRoles') },
+							...UserRoleSchema.options.map((r) => ({
+								value: r,
+								label: r === 'ADMIN' ? translate('admin.admin') : translate('admin.user'),
+							})),
+						]}
+					/>
 
 					<Select
 						variant="filter"
 						size="sm"
 						isActive={emailVerified !== undefined}
 						value={emailVerifiedFilterValue}
-							onValueChange={(value) =>
-								applyFilter({ emailVerified: value === '' ? undefined : value === 'true' })
-							}
-							options={[
-								{ value: '', label: translate('admin.allStatuses') },
-								{ value: 'true', label: translate('admin.verified') },
-								{ value: 'false', label: translate('admin.pending') },
-							]}
-						/>
+						onValueChange={(value) =>
+							applyFilter({ emailVerified: value === '' ? undefined : value === 'true' })
+						}
+						options={[
+							{ value: '', label: translate('admin.allStatuses') },
+							{ value: 'true', label: translate('admin.verified') },
+							{ value: 'false', label: translate('admin.pending') },
+						]}
+					/>
 
 					<Select
 						variant="filter"
 						size="sm"
 						isActive={isShadow !== undefined}
 						value={shadowFilterValue}
-							onValueChange={(value) =>
-								applyFilter({ isShadow: value === '' ? undefined : value === 'true' })
-							}
-							options={[
-								{ value: '', label: translate('admin.allAccounts') },
-								{ value: 'false', label: translate('admin.realAccounts') },
-								{ value: 'true', label: translate('admin.shadowAccounts') },
-							]}
-						/>
+						onValueChange={(value) =>
+							applyFilter({ isShadow: value === '' ? undefined : value === 'true' })
+						}
+						options={[
+							{ value: '', label: translate('admin.allAccounts') },
+							{ value: 'false', label: translate('admin.realAccounts') },
+							{ value: 'true', label: translate('admin.shadowAccounts') },
+						]}
+					/>
 
-						<DateRangePicker
-							value={
-								createdFrom || createdTo
-									? {
-											from: parseDateParam(createdFrom ?? createdTo ?? null) ?? new Date(),
-											to: parseDateParam(createdTo ?? createdFrom ?? null) ?? new Date(),
-										}
-									: null
-							}
-							onChange={(range) =>
-								applyFilter({
-									createdFrom: range ? formatDateParam(range.from) : undefined,
-									createdTo: range ? formatDateParam(range.to) : undefined,
-								})
-							}
-							placeholder={translate('admin.registeredPeriod')}
-							disabled={{ after: new Date() }}
-							presets={registeredPresets}
-						/>
+					<DateRangePicker
+						value={
+							createdFrom || createdTo
+								? {
+										from: parseDateParam(createdFrom ?? createdTo ?? null) ?? new Date(),
+										to: parseDateParam(createdTo ?? createdFrom ?? null) ?? new Date(),
+									}
+								: null
+						}
+						onChange={(range) =>
+							applyFilter({
+								createdFrom: range ? formatDateParam(range.from) : undefined,
+								createdTo: range ? formatDateParam(range.to) : undefined,
+							})
+						}
+						placeholder={translate('admin.registeredPeriod')}
+						disabled={{ after: new Date() }}
+						presets={registeredPresets}
+					/>
 
 					<Select
 						variant="filter"
 						size="sm"
 						value={limit}
-							onValueChange={(value) => applyFilter({ limit: Number(value) })}
-							options={pageSizeOptions.map((ps) => ({
-								...ps,
-								label: `${ps.value} ${translate('admin.pageSize')}`,
-							}))}
-						/>
-
+						onValueChange={(value) => applyFilter({ limit: Number(value) })}
+						options={pageSizeOptions.map((ps) => ({
+							...ps,
+							label: `${ps.value} ${translate('admin.pageSize')}`,
+						}))}
+					/>
 				</AdminFilterBar>
 			</div>
 
@@ -257,9 +247,7 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 								</div>
 							</TableCell>
 							<TableCell>
-								<p className="truncate text-sm text-gray-500 dark:text-gray-400">
-									{user.phone || '-'}
-								</p>
+								<p className="truncate text-sm text-gray-500 dark:text-gray-400">{user.phone || '-'}</p>
 							</TableCell>
 							<TableCell>
 								<Select
@@ -289,7 +277,6 @@ export default function UsersTable({ initialUsers, disableFetch }: UsersTablePro
 									>
 										<Eye className="h-4 w-4" />
 									</Button>
-
 								</div>
 							</TableCell>
 						</TableRow>
