@@ -48,6 +48,11 @@ function parseList(val: string): string[] {
 		.filter(Boolean);
 }
 
+function normalizeOptionalString(value?: string): string | undefined {
+	const trimmed = value?.trim();
+	return trimmed ? trimmed : undefined;
+}
+
 function buildEventFields(values: EventFormValues) {
 	const occurrences = values.occurrences
 		.filter((occurrence) => occurrence.date)
@@ -61,7 +66,8 @@ function buildEventFields(values: EventFormValues) {
 
 	return {
 		categoryId: values.categoryId,
-		locationUrl: values.locationUrl?.trim() || null,
+		locationUrl: normalizeOptionalString(values.locationUrl),
+		meetingLocationUrl: normalizeOptionalString(values.meetingLocationUrl),
 		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
 		difficulty: values.difficulty || undefined,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
@@ -77,6 +83,7 @@ function buildEventFields(values: EventFormValues) {
 			title: t.title.trim(),
 			description: t.description.trim(),
 			location: t.location.trim(),
+			meetingLocation: t.meetingLocation.trim(),
 			whatsIncluded: parseList(t.whatsIncluded),
 		})),
 	};
