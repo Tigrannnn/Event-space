@@ -20,4 +20,5 @@ export const header = {
 	contactEmailTitle: 'Email Us',
 	contactEmailDescription: 'Send us an email message',
 	contactEmailButton: 'Send Email',
+	aboutUs: 'About Us',
 };

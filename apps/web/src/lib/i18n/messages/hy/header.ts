@@ -22,4 +22,5 @@ export const header: Messages['header'] = {
 	contactEmailTitle: 'Գրեք մեզ',
 	contactEmailDescription: 'Ուղարկեք մեզ էլեկտրոնային նամակ',
 	contactEmailButton: 'Նամակ գրել',
+	aboutUs: 'Մեր Մասին',
 };

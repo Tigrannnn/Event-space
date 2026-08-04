@@ -238,7 +238,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									applyFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
 								}
 								placeholder={translate('admin.minPrice')}
-								className="border-primary/50 bg-background h-9 w-28 rounded-xl border px-3 text-sm shadow-sm outline-none"
+								className="border-primary/50 h-9 w-28 rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900"
 							/>
 							<span className="text-sm text-gray-500">–</span>
 							<input
@@ -249,7 +249,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									applyFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
 								}
 								placeholder={translate('admin.maxPrice')}
-								className="border-primary/50 bg-background h-9 w-28 rounded-xl border px-3 text-sm shadow-sm outline-none"
+								className="border-primary/50 h-9 w-28 rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900"
 							/>
 						</div>
 

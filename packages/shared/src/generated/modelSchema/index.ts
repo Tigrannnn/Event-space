@@ -11,3 +11,4 @@ export * from './BookingReferenceSchema';
 export * from './BookingAdjustmentSchema';
 export * from './UserSchema';
 export * from './RefreshTokenSchema';
+export * from './DashboardSnapshotSchema';

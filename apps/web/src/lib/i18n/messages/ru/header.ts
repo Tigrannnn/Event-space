@@ -22,4 +22,5 @@ export const header: Messages['header'] = {
 	contactEmailTitle: 'Напишите нам',
 	contactEmailDescription: 'Отправьте нам электронное письмо',
 	contactEmailButton: 'Написать письмо',
+	aboutUs: 'О нас',
 };

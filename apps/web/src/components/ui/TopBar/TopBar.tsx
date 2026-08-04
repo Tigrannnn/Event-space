@@ -6,10 +6,12 @@ import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ContactType, ModalType } from '@/stores/modalStore/types';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
 	const translate = useTranslation();
 	const { openModal } = useModalStore();
+	const navigation = useLocalizedNavigation();
 
 	const handleOpenContact = (type: ContactType, value: string) => {
 		openModal(ModalType.ContactInfo, { type, value });
@@ -57,6 +59,14 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
 						</button>
 					)}
+
+					<button
+						onClick={() => navigation.push('/about')}
+						className="text-sm text-white transition-all duration-200 hover:text-white/80"
+						type="button"
+					>
+						{translate('header.aboutUs')}
+					</button>
 				</div>
 				<LanguageSwitcher />
 			</div>

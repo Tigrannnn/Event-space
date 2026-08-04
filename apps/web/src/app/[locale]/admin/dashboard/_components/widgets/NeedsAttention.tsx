@@ -13,26 +13,30 @@ interface NeedsAttentionProps {
 export default function NeedsAttention({ stats }: NeedsAttentionProps) {
 	const translate = useTranslation();
 	const locale = translate.locale
+	// Each card lands on the list already narrowed to what the number counts, so the follow-up
+	// action takes one click instead of re-picking the filter by hand.
 	const attentionItems = [
 		{
 			label: translate('admin.pendingBookings'),
 			value: stats.attention.pendingBookings,
-			href: '/admin/bookings',
+			href: '/admin/bookings?status=PENDING',
 			icon: Clock,
 		},
 		{
 			label: translate('admin.draftEvents'),
 			value: stats.attention.draftEvents,
-			href: '/admin/events',
+			href: '/admin/events?status=DRAFT',
 			icon: FileText,
 		},
 		{
 			label: translate('admin.eventsThisWeek'),
 			value: stats.attention.eventsThisWeek,
-			href: '/admin/events',
+			href: '/admin/events?time=upcoming',
 			icon: CalendarClock,
 		},
 		{
+			// No filter matches "no bookings" — that count comes from a relation check the list
+			// cannot express, so this one stays a plain link.
 			label: translate('admin.eventsWithoutBookings'),
 			value: stats.attention.eventsWithNoBookings,
 			href: '/admin/events',

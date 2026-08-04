@@ -56,7 +56,7 @@ export default function Select({
 			className={cn(
 				'focus:border-primary cursor-pointer appearance-none rounded-md border border-gray-500 bg-transparent pr-10 pl-3 text-sm transition outline-none hover:border-gray-600 disabled:cursor-not-allowed disabled:opacity-60',
 				selectSizes[size],
-				variant === 'filter' && 'bg-background rounded-xl border-primary/50 shadow-sm',
+				variant === 'filter' && 'rounded-xl border-primary/50 bg-white shadow-sm dark:bg-gray-900',
 				variant === 'filter' &&
 					isActive &&
 					'border-primary/60 bg-primary/10 text-primary ring-1 ring-primary/60 dark:bg-primary/10',

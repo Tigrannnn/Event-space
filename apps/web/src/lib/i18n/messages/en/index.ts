@@ -10,6 +10,7 @@ import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
 import { apiErrors } from './apiErrors';
+import { about } from './about';
 
 export const en = {
 	favorites,
@@ -24,4 +25,5 @@ export const en = {
 	admin,
 	error,
 	apiErrors,
+	about,
 };

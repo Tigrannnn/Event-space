@@ -244,7 +244,7 @@ model BookingAdjustment {
   bookingId             String           @map("booking_id")
   type                  AdjustmentType
   amount                Decimal          @db.Decimal(10, 2)
-  currency              String           @default("usd")
+  currency              String           @default("AMD")
   stripePaymentIntentId String?          @map("stripe_payment_intent_id")
   stripeRefundId        String?          @unique @map("stripe_refund_id")
   status                AdjustmentStatus
@@ -299,4 +299,32 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model DashboardSnapshot {
+  date DateTime @db.Date
+
+  totalEvents Int @map("total_events")
+  totalUsers  Int @map("total_users")
+
+  publishedEvents Int @map("published_events")
+  draftEvents     Int @map("draft_events")
+  cancelledEvents Int @map("cancelled_events")
+
+  totalBookings     Int @map("total_bookings")
+  pendingBookings   Int @map("pending_bookings")
+  confirmedBookings Int @map("confirmed_bookings")
+  cancelledBookings Int @map("cancelled_bookings")
+  expiredBookings   Int @map("expired_bookings")
+
+  totalCapacity Int @map("total_capacity")
+  usedCapacity  Int @map("used_capacity")
+
+  /// Revenue as it stood on that day, not as it looks now.
+  totalRevenue Decimal @map("total_revenue") @db.Decimal(12, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([date])
+  @@map("dashboard_snapshots")
 }

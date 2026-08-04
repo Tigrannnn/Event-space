@@ -11,6 +11,7 @@ import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
 import { apiErrors } from './apiErrors';
+import { about } from './about';
 
 export const ru: Messages = {
 	favorites,
@@ -25,4 +26,5 @@ export const ru: Messages = {
 	admin,
 	error,
 	apiErrors,
+	about,
 };

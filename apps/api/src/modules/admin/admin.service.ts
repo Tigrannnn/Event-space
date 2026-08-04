@@ -238,7 +238,9 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: true,
+					// Sorted so the dashboard's "next date" is genuinely the nearest one — widgets read
+					// occurrences[0] and would otherwise show whichever row the database returned first.
+					occurrences: { orderBy: { date: 'asc' as const } },
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -256,7 +258,9 @@ export class AdminService {
 							translations: true,
 						},
 					},
-					occurrences: true,
+					// Sorted so the dashboard's "next date" is genuinely the nearest one — widgets read
+					// occurrences[0] and would otherwise show whichever row the database returned first.
+					occurrences: { orderBy: { date: 'asc' as const } },
 					organizer: {
 						select: safeUserSelect,
 					},
@@ -280,8 +284,6 @@ export class AdminService {
 		);
 		const totalCapacity = capacityTotals._sum.maxParticipants ?? 0;
 		const usedCapacity = capacityTotals._sum.currentParticipants ?? 0;
-		const bookingConfirmationRate =
-			totalBookings > 0 ? Math.round((confirmedBookings / totalBookings) * 100) : 0;
 		const capacityUsageRate =
 			totalCapacity > 0 ? Math.round((usedCapacity / totalCapacity) * 100) : 0;
 
@@ -293,7 +295,6 @@ export class AdminService {
 			pendingBookings,
 			cancelledBookings,
 			totalRevenue,
-			bookingConfirmationRate,
 			capacityUsageRate,
 			totalCapacity,
 			usedCapacity,

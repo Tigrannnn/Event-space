@@ -13,6 +13,8 @@ import type {
 	UserFilters,
 	EventStatus,
 	DashboardStats,
+	DashboardFlow,
+	DashboardSnapshot,
 	BookingWithDetails,
 	Category,
 	CreateCategoryData,
@@ -23,6 +25,16 @@ import type {
 
 export const adminApi = {
 	getStats: () => clientApi.get<DashboardStats>('/admin/stats').then((res) => res.data),
+
+	getDashboardFlow: (from: string, to: string) =>
+		clientApi
+			.get<DashboardFlow>('/admin/stats/flow', { params: { from, to } })
+			.then((res) => res.data),
+
+	getDashboardSnapshots: (from: string, to: string) =>
+		clientApi
+			.get<DashboardSnapshot[]>('/admin/stats/snapshots', { params: { from, to } })
+			.then((res) => res.data),
 	getBookings: (params?: BookingFilters) =>
 		clientApi
 			.get<PaginatedResponse<BookingWithDetails>>('/admin/bookings', { params })

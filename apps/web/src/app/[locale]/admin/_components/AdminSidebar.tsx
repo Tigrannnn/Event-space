@@ -81,7 +81,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 					<LogOut className="h-5 w-5 shrink-0" />
 					{translate('admin.exitToSite')}
 				</Link>
-				<LanguageSwitcher className="mt-4 bg-gray-400"/>
+				<LanguageSwitcher className="mt-4" variant='admin'/>
 			</div>
 		</aside>
 	);

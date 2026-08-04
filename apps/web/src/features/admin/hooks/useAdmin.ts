@@ -24,6 +24,21 @@ export const useStats = () => {
 	});
 };
 
+export const useDashboardFlow = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'flow', from, to],
+		queryFn: () => adminApi.getDashboardFlow(from, to),
+	});
+};
+
+export const useDashboardSnapshots = (from: string, to: string, options?: { enabled?: boolean }) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'snapshots', from, to],
+		queryFn: () => adminApi.getDashboardSnapshots(from, to),
+		enabled: options?.enabled ?? true,
+	});
+};
+
 export const useAdminUsers = (params?: UserFilters, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'users', params],

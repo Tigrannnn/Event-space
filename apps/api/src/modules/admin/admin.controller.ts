@@ -20,6 +20,8 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
+import { DashboardFlowService } from './dashboard-flow.service';
+import { DashboardSnapshotService } from './dashboard-snapshot.service';
 import {
 	AppException,
 	Roles,
@@ -72,6 +74,8 @@ import { EventService } from '@modules/event/event.service';
 export class AdminController {
 	constructor(
 		private readonly adminService: AdminService,
+		private readonly dashboardFlowService: DashboardFlowService,
+		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingService: BookingService,
 		private readonly eventService: EventService,
 		private readonly rateLimiter: RateLimiterService,
@@ -81,6 +85,51 @@ export class AdminController {
 	@ApiOperation({ summary: 'Get dashboard statistics' })
 	async getDashboardStats() {
 		return this.adminService.getDashboardStats();
+	}
+
+	@Get('stats/flow')
+	@ApiOperation({ summary: 'Bookings and revenue per day over a period, with previous-period totals' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getDashboardFlow(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		return this.dashboardFlowService.getFlow(from, to);
+	}
+
+	@Get('stats/snapshots')
+	@ApiOperation({ summary: 'Frozen daily state snapshots over a period' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getDashboardSnapshots(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		return this.dashboardSnapshotService.findRange(from, to);
+	}
+
+	@Post('stats/snapshots/capture')
+	@ApiOperation({
+		summary: 'Capture a state snapshot for a day — for verifying the job and backfilling a missed run',
+	})
+	@ApiQuery({ name: 'date', required: false, description: 'YYYY-MM-DD, defaults to yesterday' })
+	async captureSnapshot(@Query('date') dateRaw?: string) {
+		const date = parseOptionalQueryDate(dateRaw, 'date');
+
+		if (date) {
+			await this.dashboardSnapshotService.capture(new Date(`${date}T00:00:00.000Z`));
+		} else {
+			await this.dashboardSnapshotService.captureYesterday();
+		}
 	}
 
 	@Get('bookings/by-reference/:ref')

@@ -63,6 +63,11 @@ export { RefreshTokenOrderByWithRelationInputSchema } from './RefreshTokenOrderB
 export { RefreshTokenWhereUniqueInputSchema } from './RefreshTokenWhereUniqueInputSchema';
 export { RefreshTokenOrderByWithAggregationInputSchema } from './RefreshTokenOrderByWithAggregationInputSchema';
 export { RefreshTokenScalarWhereWithAggregatesInputSchema } from './RefreshTokenScalarWhereWithAggregatesInputSchema';
+export { DashboardSnapshotWhereInputSchema } from './DashboardSnapshotWhereInputSchema';
+export { DashboardSnapshotOrderByWithRelationInputSchema } from './DashboardSnapshotOrderByWithRelationInputSchema';
+export { DashboardSnapshotWhereUniqueInputSchema } from './DashboardSnapshotWhereUniqueInputSchema';
+export { DashboardSnapshotOrderByWithAggregationInputSchema } from './DashboardSnapshotOrderByWithAggregationInputSchema';
+export { DashboardSnapshotScalarWhereWithAggregatesInputSchema } from './DashboardSnapshotScalarWhereWithAggregatesInputSchema';
 export { CategoryCreateInputSchema } from './CategoryCreateInputSchema';
 export { CategoryUncheckedCreateInputSchema } from './CategoryUncheckedCreateInputSchema';
 export { CategoryUpdateInputSchema } from './CategoryUpdateInputSchema';
@@ -154,6 +159,13 @@ export { RefreshTokenUncheckedUpdateInputSchema } from './RefreshTokenUncheckedU
 export { RefreshTokenCreateManyInputSchema } from './RefreshTokenCreateManyInputSchema';
 export { RefreshTokenUpdateManyMutationInputSchema } from './RefreshTokenUpdateManyMutationInputSchema';
 export { RefreshTokenUncheckedUpdateManyInputSchema } from './RefreshTokenUncheckedUpdateManyInputSchema';
+export { DashboardSnapshotCreateInputSchema } from './DashboardSnapshotCreateInputSchema';
+export { DashboardSnapshotUncheckedCreateInputSchema } from './DashboardSnapshotUncheckedCreateInputSchema';
+export { DashboardSnapshotUpdateInputSchema } from './DashboardSnapshotUpdateInputSchema';
+export { DashboardSnapshotUncheckedUpdateInputSchema } from './DashboardSnapshotUncheckedUpdateInputSchema';
+export { DashboardSnapshotCreateManyInputSchema } from './DashboardSnapshotCreateManyInputSchema';
+export { DashboardSnapshotUpdateManyMutationInputSchema } from './DashboardSnapshotUpdateManyMutationInputSchema';
+export { DashboardSnapshotUncheckedUpdateManyInputSchema } from './DashboardSnapshotUncheckedUpdateManyInputSchema';
 export { StringFilterSchema } from './StringFilterSchema';
 export { DateTimeFilterSchema } from './DateTimeFilterSchema';
 export { CategoryTranslationListRelationFilterSchema } from './CategoryTranslationListRelationFilterSchema';
@@ -274,6 +286,11 @@ export { EnumUserRoleWithAggregatesFilterSchema } from './EnumUserRoleWithAggreg
 export { RefreshTokenCountOrderByAggregateInputSchema } from './RefreshTokenCountOrderByAggregateInputSchema';
 export { RefreshTokenMaxOrderByAggregateInputSchema } from './RefreshTokenMaxOrderByAggregateInputSchema';
 export { RefreshTokenMinOrderByAggregateInputSchema } from './RefreshTokenMinOrderByAggregateInputSchema';
+export { DashboardSnapshotCountOrderByAggregateInputSchema } from './DashboardSnapshotCountOrderByAggregateInputSchema';
+export { DashboardSnapshotAvgOrderByAggregateInputSchema } from './DashboardSnapshotAvgOrderByAggregateInputSchema';
+export { DashboardSnapshotMaxOrderByAggregateInputSchema } from './DashboardSnapshotMaxOrderByAggregateInputSchema';
+export { DashboardSnapshotMinOrderByAggregateInputSchema } from './DashboardSnapshotMinOrderByAggregateInputSchema';
+export { DashboardSnapshotSumOrderByAggregateInputSchema } from './DashboardSnapshotSumOrderByAggregateInputSchema';
 export { CategoryTranslationCreateNestedManyWithoutCategoryInputSchema } from './CategoryTranslationCreateNestedManyWithoutCategoryInputSchema';
 export { EventCreateNestedManyWithoutCategoryInputSchema } from './EventCreateNestedManyWithoutCategoryInputSchema';
 export { CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInputSchema } from './CategoryTranslationUncheckedCreateNestedManyWithoutCategoryInputSchema';
@@ -665,6 +682,7 @@ export { BookingReferenceScalarFieldEnumSchema } from './BookingReferenceScalarF
 export { BookingAdjustmentScalarFieldEnumSchema } from './BookingAdjustmentScalarFieldEnumSchema';
 export { UserScalarFieldEnumSchema } from './UserScalarFieldEnumSchema';
 export { RefreshTokenScalarFieldEnumSchema } from './RefreshTokenScalarFieldEnumSchema';
+export { DashboardSnapshotScalarFieldEnumSchema } from './DashboardSnapshotScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { QueryModeSchema } from './QueryModeSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';

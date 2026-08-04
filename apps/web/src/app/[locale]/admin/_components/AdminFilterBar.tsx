@@ -57,7 +57,7 @@ export default function AdminFilterBar({
 						value={searchValue}
 						onChange={(event) => onSearchValueChange(event.target.value)}
 						placeholder={searchPlaceholder}
-						className="focus:border-primary border-primary/50 bg-background h-9 w-full rounded-xl border pr-3 pl-9 text-sm shadow-sm transition outline-none placeholder:text-gray-400"
+						className="focus:border-primary border-primary/50 h-9 w-full rounded-xl border bg-white dark:bg-gray-900 pr-3 pl-9 text-sm shadow-sm transition outline-none placeholder:text-gray-400"
 					/>
 				</div>
 				<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
@@ -82,7 +82,7 @@ export default function AdminFilterBar({
 					}}
 					applyLabel={translate('common.done')}
 				>
-					<div className="flex flex-col gap-3 [&>*]:w-full">{children}</div>
+					<div className="flex flex-col gap-3 *:w-full">{children}</div>
 				</FiltersDrawer>
 			</div>
 		</div>
