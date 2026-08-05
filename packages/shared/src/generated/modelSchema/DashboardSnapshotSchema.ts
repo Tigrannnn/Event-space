@@ -1,43 +1,29 @@
 import { z } from 'zod';
-import { Prisma } from '@prisma/client'
 
 /////////////////////////////////////////
 // DASHBOARD SNAPSHOT SCHEMA
 /////////////////////////////////////////
 
 /**
- * A frozen daily snapshot of dashboard state.
+ * One finished day of state that nothing else can reconstruct.
  * 
- * State metrics cannot be recomputed from live data after the fact: a booking confirmed in
- * January and refunded in April is no longer CONFIRMED today, so querying "January revenue"
- * now would silently return less than January actually showed. Freezing each finished day
- * keeps history stable.
+ * Booking counts and revenue used to live here too. They no longer do: [BookingStatusHistory]
+ * answers "how many were confirmed on that day" from the intervals themselves, and
+ * [BookingAdjustment] answers "how much money moved" from rows that carry their own dates. Both
+ * beat a daily freeze, which can only ever be as good as the last time the job ran.
  * 
- * Flow metrics (how many bookings were created in a period) are deliberately absent — those
- * are derived from `created_at` and never drift, so they stay live queries.
+ * What is left is state with no such record behind it — event statuses and occurrence capacity
+ * are overwritten in place, so a day that was not frozen is genuinely gone.
  */
 export const DashboardSnapshotSchema = z.object({
-  /**
-   * The calendar day this snapshot describes, at UTC midnight. It is the primary key, so the
-   * job can be re-run for a day without creating duplicates.
-   */
   date: z.coerce.date(),
   totalEvents: z.number().int(),
   totalUsers: z.number().int(),
   publishedEvents: z.number().int(),
   draftEvents: z.number().int(),
   cancelledEvents: z.number().int(),
-  totalBookings: z.number().int(),
-  pendingBookings: z.number().int(),
-  confirmedBookings: z.number().int(),
-  cancelledBookings: z.number().int(),
-  expiredBookings: z.number().int(),
   totalCapacity: z.number().int(),
   usedCapacity: z.number().int(),
-  /**
-   * Revenue as it stood on that day, not as it looks now.
-   */
-  totalRevenue: z.instanceof(Prisma.Decimal, { message: "Field 'totalRevenue' must be a Decimal. Location: ['Models', 'DashboardSnapshot']"}),
   createdAt: z.coerce.date(),
 })
 

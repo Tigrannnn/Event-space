@@ -319,6 +319,15 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+/// One finished day of state that nothing else can reconstruct.
+///
+/// Booking counts and revenue used to live here too. They no longer do: [BookingStatusHistory]
+/// answers "how many were confirmed on that day" from the intervals themselves, and
+/// [BookingAdjustment] answers "how much money moved" from rows that carry their own dates. Both
+/// beat a daily freeze, which can only ever be as good as the last time the job ran.
+///
+/// What is left is state with no such record behind it — event statuses and occurrence capacity
+/// are overwritten in place, so a day that was not frozen is genuinely gone.
 model DashboardSnapshot {
   date DateTime @db.Date
 
@@ -329,17 +338,8 @@ model DashboardSnapshot {
   draftEvents     Int @map("draft_events")
   cancelledEvents Int @map("cancelled_events")
 
-  totalBookings     Int @map("total_bookings")
-  pendingBookings   Int @map("pending_bookings")
-  confirmedBookings Int @map("confirmed_bookings")
-  cancelledBookings Int @map("cancelled_bookings")
-  expiredBookings   Int @map("expired_bookings")
-
   totalCapacity Int @map("total_capacity")
   usedCapacity  Int @map("used_capacity")
-
-  /// Revenue as it stood on that day, not as it looks now.
-  totalRevenue Decimal @map("total_revenue") @db.Decimal(12, 2)
 
   createdAt DateTime @default(now()) @map("created_at")
 

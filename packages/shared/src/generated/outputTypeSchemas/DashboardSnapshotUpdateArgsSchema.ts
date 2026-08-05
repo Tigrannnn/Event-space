@@ -13,14 +13,8 @@ export const DashboardSnapshotSelectSchema: z.ZodType<Prisma.DashboardSnapshotSe
   publishedEvents: z.boolean().optional(),
   draftEvents: z.boolean().optional(),
   cancelledEvents: z.boolean().optional(),
-  totalBookings: z.boolean().optional(),
-  pendingBookings: z.boolean().optional(),
-  confirmedBookings: z.boolean().optional(),
-  cancelledBookings: z.boolean().optional(),
-  expiredBookings: z.boolean().optional(),
   totalCapacity: z.boolean().optional(),
   usedCapacity: z.boolean().optional(),
-  totalRevenue: z.boolean().optional(),
   createdAt: z.boolean().optional(),
 }).strict()
 

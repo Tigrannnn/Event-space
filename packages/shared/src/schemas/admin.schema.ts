@@ -39,9 +39,12 @@ export type DashboardStats = z.infer<typeof DashboardStatsSchema>;
 /**
  * One finished day of dashboard state, frozen as it stood.
  *
- * Needed because state drifts: a booking confirmed in January and refunded in April is no
- * longer CONFIRMED, so recomputing "January" today would quietly report less than January
- * actually showed.
+ * Only holds state that nothing else records. Booking counts moved to the status history and
+ * revenue to the adjustment ledger — both keep their own dates, so they answer for any day rather
+ * than only for days the freeze job happened to run.
+ *
+ * What remains has no such trail: an event's status and an occurrence's capacity are overwritten
+ * in place, so "how many events were published in March" is only answerable if March was frozen.
  */
 export const DashboardSnapshotSchema = z.object({
 	date: DateOnlySchema,
@@ -52,15 +55,12 @@ export const DashboardSnapshotSchema = z.object({
 		draft: z.number(),
 		cancelled: z.number(),
 	}),
-	bookings: BookingStatusCountsSchema,
 	totalCapacity: z.number(),
 	usedCapacity: z.number(),
-	totalRevenue: z.number(),
 });
 
 export type DashboardSnapshot = z.infer<typeof DashboardSnapshotSchema>;
 
-/** A single day on the flow charts — how much happened that day, not how things stood. */
 /**
  * How bookings stood at the end of one day, reconstructed from the status history.
  *
@@ -92,6 +92,7 @@ export const BookingCohortSchema = z.object({
 
 export type BookingCohort = z.infer<typeof BookingCohortSchema>;
 
+/** A single day on the flow charts — how much happened that day, not how things stood. */
 export const DashboardFlowPointSchema = z.object({
 	date: DateOnlySchema,
 	bookingsCreated: z.number(),

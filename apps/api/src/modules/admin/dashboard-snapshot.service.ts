@@ -1,18 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { DashboardSnapshot } from '@event-space/shared';
 
 /**
  * Freezes one row of dashboard state per finished day.
  *
- * Live queries cannot answer "how did things look in March": a booking confirmed in January and
- * refunded in April is no longer CONFIRMED, so recomputing an old period today returns less than
- * that period actually showed. Snapshots stop that drift.
+ * A snapshot is the last resort, not the default: it can only report days the job actually ran,
+ * and it cannot be backfilled. So it holds only the state that leaves no other trail — event
+ * statuses and occurrence capacity, both overwritten in place.
  *
- * Only state is stored. Flow ("how many bookings were created in March") derives from
- * `createdAt`, which never changes, so it stays a live query and is not duplicated here.
+ * Two things used to be frozen here and are not any more, because a better record exists:
+ * booking counts come from BookingStatusHistory (see BookingStatusHistoryService) and revenue from
+ * the BookingAdjustment ledger (see DashboardFlowService). Both answer for any day, including days
+ * before either was written, and neither goes missing when the cron does.
+ *
+ * Flow ("how many bookings were created in March") derives from `createdAt`, which never changes,
+ * so it stays a live query and is not duplicated here either.
  */
 @Injectable()
 export class DashboardSnapshotService {
@@ -44,37 +48,17 @@ export class DashboardSnapshotService {
 	async capture(day: Date): Promise<void> {
 		const date = toUtcDay(day);
 
-		const [
-			totalEvents,
-			totalUsers,
-			publishedEvents,
-			draftEvents,
-			cancelledEvents,
-			bookingsByStatus,
-			capacity,
-			revenue,
-		] = await Promise.all([
-			this.prisma.event.count(),
-			this.prisma.user.count(),
-			this.prisma.event.count({ where: { status: 'PUBLISHED' } }),
-			this.prisma.event.count({ where: { status: 'DRAFT' } }),
-			this.prisma.event.count({ where: { status: 'CANCELLED' } }),
-			this.prisma.booking.groupBy({ by: ['status'], _count: { _all: true } }),
-			this.prisma.eventOccurrence.aggregate({
-				_sum: { currentParticipants: true, maxParticipants: true },
-			}),
-			this.prisma.booking.aggregate({
-				where: { status: 'CONFIRMED' },
-				_sum: { amount: true },
-			}),
-		]);
-
-		const counts = { PENDING: 0, CONFIRMED: 0, CANCELLED: 0, EXPIRED: 0 };
-		for (const row of bookingsByStatus) {
-			counts[row.status] = row._count._all;
-		}
-		const totalBookings =
-			counts.PENDING + counts.CONFIRMED + counts.CANCELLED + counts.EXPIRED;
+		const [totalEvents, totalUsers, publishedEvents, draftEvents, cancelledEvents, capacity] =
+			await Promise.all([
+				this.prisma.event.count(),
+				this.prisma.user.count(),
+				this.prisma.event.count({ where: { status: 'PUBLISHED' } }),
+				this.prisma.event.count({ where: { status: 'DRAFT' } }),
+				this.prisma.event.count({ where: { status: 'CANCELLED' } }),
+				this.prisma.eventOccurrence.aggregate({
+					_sum: { currentParticipants: true, maxParticipants: true },
+				}),
+			]);
 
 		const data = {
 			totalEvents,
@@ -82,14 +66,8 @@ export class DashboardSnapshotService {
 			publishedEvents,
 			draftEvents,
 			cancelledEvents,
-			totalBookings,
-			pendingBookings: counts.PENDING,
-			confirmedBookings: counts.CONFIRMED,
-			cancelledBookings: counts.CANCELLED,
-			expiredBookings: counts.EXPIRED,
 			totalCapacity: capacity._sum.maxParticipants ?? 0,
 			usedCapacity: capacity._sum.currentParticipants ?? 0,
-			totalRevenue: revenue._sum.amount ?? new Prisma.Decimal(0),
 		};
 
 		await this.prisma.dashboardSnapshot.upsert({
@@ -122,16 +100,8 @@ export class DashboardSnapshotService {
 				draft: row.draftEvents,
 				cancelled: row.cancelledEvents,
 			},
-			bookings: {
-				total: row.totalBookings,
-				pending: row.pendingBookings,
-				confirmed: row.confirmedBookings,
-				cancelled: row.cancelledBookings,
-				expired: row.expiredBookings,
-			},
 			totalCapacity: row.totalCapacity,
 			usedCapacity: row.usedCapacity,
-			totalRevenue: Number(row.totalRevenue),
 		}));
 	}
 }
