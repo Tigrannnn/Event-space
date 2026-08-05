@@ -1,11 +1,16 @@
 'use client';
 
 import type { DashboardStats as DashboardStatsData } from '@event-space/shared';
-import { useDashboardFlow, useDashboardSnapshots } from '@/features/admin/hooks/useAdmin';
+import {
+	useBookingCohort,
+	useBookingState,
+	useDashboardFlow,
+} from '@/features/admin/hooks/useAdmin';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import DashboardRangePicker from './DashboardRangePicker';
 import FlowKpiCards from './widgets/FlowKpiCards';
 import FlowChart from './widgets/FlowChart';
+import BookingFunnel from './widgets/BookingFunnel';
 import BookingStateWidget from './widgets/BookingStateWidget';
 import NeedsAttention from './widgets/NeedsAttention';
 import UpcomingEventsList from './widgets/UpcomingEventsList';
@@ -25,9 +30,9 @@ interface DashboardStatsProps {
  * The dashboard splits into two kinds of number.
  *
  * Flow ("what happened over the period") is recomputed live from `createdAt` and follows the
- * range picker. State ("how things stand") is frozen daily, because it drifts — a booking
- * confirmed in March and refunded in May is no longer CONFIRMED, so recomputing March today
- * would understate it.
+ * range picker. State ("how things stood") comes from the booking status history, which keeps the
+ * period each booking spent in each status — so March can be asked about in December and still
+ * answer with March's confirmations, not with what is left of them today.
  *
  * Needs Attention and Upcoming Events ignore the range entirely: they are a to-do list for right
  * now, and a booking that needed attention in March has long since been handled.
@@ -42,28 +47,33 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 	const showLiveState = isTodayOnly(range);
 
 	const { data: flow, isLoading: isFlowLoading } = useDashboardFlow(range.from, range.to);
-	const { data: snapshots, isLoading: areSnapshotsLoading } = useDashboardSnapshots(
+	const { data: bookingState, isLoading: isBookingStateLoading } = useBookingState(
 		range.from,
 		range.to,
 		{ enabled: !showLiveState },
 	);
+	// Unlike the state series, the cohort is meaningful for a single day too: "of the bookings made
+	// today, how many are confirmed already" is a fair question.
+	const { data: cohort, isLoading: isCohortLoading } = useBookingCohort(range.from, range.to);
 
 	return (
 		<div className="space-y-6">
 			<DashboardRangePicker range={range} onRangeChange={setRange} />
 
-			<FlowKpiCards flow={flow} isLoading={isFlowLoading} />
+			<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} />
 
 			<FlowChart flow={flow} isLoading={isFlowLoading} />
+
+			<BookingFunnel cohort={cohort} isLoading={isCohortLoading} />
 
 			<NeedsAttention stats={stats} />
 
 			<div className="grid gap-6 xl:grid-cols-2">
 				<BookingStateWidget
 					stats={stats}
-					snapshots={snapshots}
+					history={bookingState}
 					showLive={showLiveState}
-					isLoading={areSnapshotsLoading}
+					isLoading={isBookingStateLoading}
 				/>
 				<UpcomingEventsList stats={stats} />
 			</div>

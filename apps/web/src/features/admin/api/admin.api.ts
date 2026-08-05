@@ -15,6 +15,8 @@ import type {
 	DashboardStats,
 	DashboardFlow,
 	DashboardSnapshot,
+	BookingStatePoint,
+	BookingCohort,
 	BookingWithDetails,
 	Category,
 	CreateCategoryData,
@@ -35,6 +37,17 @@ export const adminApi = {
 		clientApi
 			.get<DashboardSnapshot[]>('/admin/stats/snapshots', { params: { from, to } })
 			.then((res) => res.data),
+
+	getBookingState: (from: string, to: string) =>
+		clientApi
+			.get<BookingStatePoint[]>('/admin/stats/booking-state', { params: { from, to } })
+			.then((res) => res.data),
+
+	getBookingCohort: (from: string, to: string) =>
+		clientApi
+			.get<BookingCohort>('/admin/stats/booking-cohort', { params: { from, to } })
+			.then((res) => res.data),
+
 	getBookings: (params?: BookingFilters) =>
 		clientApi
 			.get<PaginatedResponse<BookingWithDetails>>('/admin/bookings', { params })

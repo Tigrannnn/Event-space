@@ -10,39 +10,37 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts';
-import type { BookingStatusCounts, DashboardSnapshot, DashboardStats } from '@event-space/shared';
+import type { BookingStatePoint, BookingStatusCounts, DashboardStats } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { toChartDate } from '../chart-utils';
+import { BOOKING_STATUS_COLORS } from '../booking-status-colors';
 import ChartTooltip from './ChartTooltip';
 
 interface BookingStateWidgetProps {
 	stats: DashboardStats;
-	snapshots?: DashboardSnapshot[];
-	/** Today has no snapshot yet, so the live numbers are shown instead of a trend. */
+	history?: BookingStatePoint[];
+	/** A single day is a number, not a trend, so today is shown as live counts. */
 	showLive: boolean;
 	isLoading: boolean;
 }
-
-const STATUS_COLORS = {
-	confirmed: '#10b981',
-	pending: '#f59e0b',
-	cancelled: '#ef4444',
-	expired: '#9ca3af',
-} as const;
 
 /**
  * How bookings are distributed across statuses — either right now, or day by day over the
  * selected range.
  *
- * The historical view reads frozen snapshots rather than recomputing: a booking confirmed in
- * March and refunded in May is no longer CONFIRMED, so recomputing March today would show
- * fewer confirmations than March actually had.
+ * The historical view is derived from the booking status history, which stores the period each
+ * booking spent in each status. Asking it about March returns March's confirmations even if half
+ * of them were refunded since; asking the bookings table would return only what survived.
+ *
+ * One caveat on old days: bookings that predate the history were seeded with a single period
+ * running from their creation, so before that point the chart shows each booking holding the
+ * status it holds today. The transitions it never saw are not recoverable.
  */
 export default function BookingStateWidget({
 	stats,
-	snapshots,
+	history,
 	showLive,
 	isLoading,
 }: BookingStateWidgetProps) {
@@ -64,6 +62,12 @@ export default function BookingStateWidget({
 				stats.cancelledBookings,
 		),
 	};
+
+	const chartData = history?.map((point) => ({ date: point.date, ...point.bookings })) ?? [];
+
+	// Every day of the range comes back, quiet days included, so an emptily-plotted chart means
+	// there were no bookings at all rather than a hole in the data.
+	const hasBookings = chartData.some((point) => point.total > 0);
 
 	const rows = [
 		{ key: 'confirmed', label: BOOKING_STATUS_LABELS.CONFIRMED, value: liveCounts.confirmed },
@@ -97,7 +101,7 @@ export default function BookingStateWidget({
 									className="h-full rounded-full"
 									style={{
 										width: `${liveCounts.total ? (row.value / liveCounts.total) * 100 : 0}%`,
-										backgroundColor: STATUS_COLORS[row.key],
+										backgroundColor: BOOKING_STATUS_COLORS[row.key],
 									}}
 								/>
 							</div>
@@ -106,21 +110,18 @@ export default function BookingStateWidget({
 				</div>
 			) : isLoading ? (
 				<div className="h-64 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-			) : !snapshots?.length ? (
+			) : !hasBookings ? (
 				<div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-					<p className="text-sm text-gray-500">{translate('admin.noSnapshotsForRange')}</p>
+					<p className="text-sm text-gray-500">{translate('admin.noBookingsForRange')}</p>
 					<p className="max-w-xs text-xs text-gray-400">
-						{translate('admin.noSnapshotsExplanation')}
+						{translate('admin.noBookingsForRangeHint')}
 					</p>
 				</div>
 			) : (
 				<div className="h-64 w-full">
 					<ResponsiveContainer width="100%" height="100%">
 						<AreaChart
-							data={snapshots.map((snapshot) => ({
-								date: snapshot.date,
-								...snapshot.bookings,
-							}))}
+							data={chartData}
 							margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
 						>
 							<CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
@@ -152,8 +153,8 @@ export default function BookingStateWidget({
 									dataKey={row.key}
 									name={row.label}
 									stackId="bookings"
-									stroke={STATUS_COLORS[row.key]}
-									fill={STATUS_COLORS[row.key]}
+									stroke={BOOKING_STATUS_COLORS[row.key]}
+									fill={BOOKING_STATUS_COLORS[row.key]}
 									fillOpacity={0.65}
 								/>
 							))}

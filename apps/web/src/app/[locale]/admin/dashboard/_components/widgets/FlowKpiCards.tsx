@@ -1,12 +1,16 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { DollarSign, Ticket, TrendingDown, TrendingUp } from 'lucide-react';
-import type { DashboardFlow } from '@event-space/shared';
+import type { BookingCohort, DashboardFlow } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency } from '@/hooks/format';
+import { useLabels } from '@/hooks/labels/useLabels';
+import { BOOKING_STATUS_COLORS } from '../booking-status-colors';
 
 interface FlowKpiCardsProps {
 	flow?: DashboardFlow;
+	cohort?: BookingCohort;
 	isLoading: boolean;
 }
 
@@ -44,7 +48,61 @@ function DeltaBadge({ change }: { change: number | null }) {
 	);
 }
 
-export default function FlowKpiCards({ flow, isLoading }: FlowKpiCardsProps) {
+/**
+ * What became of the bookings the period created, as a strip under the count.
+ *
+ * The count alone hides the part that decides what to do about it: "340 bookings" and "340
+ * bookings, 90 of them since cancelled" are the same headline and different news. These are the
+ * same bookings by their status today, not a second period's worth.
+ */
+function CohortSplit({ cohort }: { cohort: BookingCohort }) {
+	const translate = useTranslation();
+	const { BOOKING_STATUS_LABELS } = useLabels();
+
+	const segments = (
+		[
+			{ key: 'confirmed', label: BOOKING_STATUS_LABELS.CONFIRMED, value: cohort.current.confirmed },
+			{ key: 'pending', label: BOOKING_STATUS_LABELS.PENDING, value: cohort.current.pending },
+			{ key: 'cancelled', label: BOOKING_STATUS_LABELS.CANCELLED, value: cohort.current.cancelled },
+			{ key: 'expired', label: BOOKING_STATUS_LABELS.EXPIRED, value: cohort.current.expired },
+		] as const
+	).filter((segment) => segment.value > 0);
+
+	if (cohort.current.total === 0) return null;
+
+	return (
+		<div className="mt-4">
+			<p className="text-xs text-gray-500">{translate('admin.cohortToday')}</p>
+			<div className="mt-2 flex h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+				{segments.map((segment) => (
+					<div
+						key={segment.key}
+						style={{
+							width: `${(segment.value / cohort.current.total) * 100}%`,
+							backgroundColor: BOOKING_STATUS_COLORS[segment.key],
+						}}
+					/>
+				))}
+			</div>
+			<ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+				{segments.map((segment) => (
+					<li key={segment.key} className="flex items-center gap-1.5">
+						<span
+							className="h-2 w-2 shrink-0 rounded-full"
+							style={{ backgroundColor: BOOKING_STATUS_COLORS[segment.key] }}
+						/>
+						{segment.label}
+						<span className="font-medium text-gray-900 dark:text-gray-100">
+							{segment.value.toLocaleString()}
+						</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
+export default function FlowKpiCards({ flow, cohort, isLoading }: FlowKpiCardsProps) {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
 
@@ -61,7 +119,13 @@ export default function FlowKpiCards({ flow, isLoading }: FlowKpiCardsProps) {
 		);
 	}
 
-	const cards = [
+	const cards: {
+		label: string;
+		value: string;
+		change: number | null;
+		icon: typeof DollarSign;
+		footer?: ReactNode;
+	}[] = [
 		{
 			label: translate('admin.revenueInPeriod'),
 			value: formatCurrency(flow.totals.revenue),
@@ -73,6 +137,7 @@ export default function FlowKpiCards({ flow, isLoading }: FlowKpiCardsProps) {
 			value: flow.totals.bookingsCreated.toLocaleString(),
 			change: percentChange(flow.totals.bookingsCreated, flow.previousTotals.bookingsCreated),
 			icon: Ticket,
+			footer: cohort ? <CohortSplit cohort={cohort} /> : null,
 		},
 	];
 
@@ -84,7 +149,7 @@ export default function FlowKpiCards({ flow, isLoading }: FlowKpiCardsProps) {
 				return (
 					<div key={card.label} className="rounded-lg border border-gray-500 p-4 shadow-sm sm:p-5">
 						<div className="flex items-start justify-between gap-4">
-							<div className="min-w-0">
+							<div className="min-w-0 flex-1">
 								<p className="text-sm text-gray-500">{card.label}</p>
 								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
 									{card.value}
@@ -92,6 +157,7 @@ export default function FlowKpiCards({ flow, isLoading }: FlowKpiCardsProps) {
 								<p className="mt-2">
 									<DeltaBadge change={card.change} />
 								</p>
+								{card.footer}
 							</div>
 							<div className="shrink-0 rounded-md border border-gray-500 p-2">
 								<Icon className="text-primary h-5 w-5" />

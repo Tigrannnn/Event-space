@@ -39,6 +39,21 @@ export const useDashboardSnapshots = (from: string, to: string, options?: { enab
 	});
 };
 
+export const useBookingState = (from: string, to: string, options?: { enabled?: boolean }) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'booking-state', from, to],
+		queryFn: () => adminApi.getBookingState(from, to),
+		enabled: options?.enabled ?? true,
+	});
+};
+
+export const useBookingCohort = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'booking-cohort', from, to],
+		queryFn: () => adminApi.getBookingCohort(from, to),
+	});
+};
+
 export const useAdminUsers = (params?: UserFilters, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'users', params],
