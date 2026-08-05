@@ -20,6 +20,7 @@ import {
 	StripePaymentIntentRetrieve,
 } from '@infra/stripe/stripe.types';
 import { getNextBookingReference } from './booking-reference';
+import { recordOfflinePayment } from './offline-payment';
 
 @Injectable()
 export class BookingService {
@@ -485,6 +486,10 @@ export class BookingService {
 					...bookingData,
 				},
 			});
+
+			if (paymentMethod === 'OFFLINE_PAID') {
+				await recordOfflinePayment(tx, booking.id, amount);
+			}
 
 			return { booking, cancelledPaymentIntentId, event, occurrence };
 		});
