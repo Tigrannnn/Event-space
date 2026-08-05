@@ -61,6 +61,37 @@ export const DashboardSnapshotSchema = z.object({
 export type DashboardSnapshot = z.infer<typeof DashboardSnapshotSchema>;
 
 /** A single day on the flow charts — how much happened that day, not how things stood. */
+/**
+ * How bookings stood at the end of one day, reconstructed from the status history.
+ *
+ * Unlike a snapshot this is derived, not frozen, and it is still correct for the past: the history
+ * keeps the period each booking spent in each status, so a booking confirmed in March and
+ * cancelled in May still counts as confirmed on every March day.
+ */
+export const BookingStatePointSchema = z.object({
+	date: DateOnlySchema,
+	bookings: BookingStatusCountsSchema,
+});
+
+export type BookingStatePoint = z.infer<typeof BookingStatePointSchema>;
+
+/**
+ * The bookings created in a period, followed forward to where they ended up.
+ *
+ * `everConfirmed` is the conversion numerator and cannot be read off the bookings table: a
+ * booking confirmed in March and cancelled in May now reads CANCELLED, but it did convert.
+ * `current` is the same cohort by its status today, which is a different question and is kept
+ * separate on purpose.
+ */
+export const BookingCohortSchema = z.object({
+	created: z.number().int(),
+	everConfirmed: z.number().int(),
+	attended: z.number().int(),
+	current: BookingStatusCountsSchema,
+});
+
+export type BookingCohort = z.infer<typeof BookingCohortSchema>;
+
 export const DashboardFlowPointSchema = z.object({
 	date: DateOnlySchema,
 	bookingsCreated: z.number(),

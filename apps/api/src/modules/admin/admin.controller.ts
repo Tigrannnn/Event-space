@@ -22,6 +22,7 @@ import {
 import { AdminService } from './admin.service';
 import { DashboardFlowService } from './dashboard-flow.service';
 import { DashboardSnapshotService } from './dashboard-snapshot.service';
+import { BookingStatusHistoryService } from './booking-status-history.service';
 import {
 	AppException,
 	Roles,
@@ -76,6 +77,7 @@ export class AdminController {
 		private readonly adminService: AdminService,
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
+		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
 		private readonly bookingService: BookingService,
 		private readonly eventService: EventService,
 		private readonly rateLimiter: RateLimiterService,
@@ -100,6 +102,38 @@ export class AdminController {
 		}
 
 		return this.dashboardFlowService.getFlow(from, to);
+	}
+
+	@Get('stats/booking-state')
+	@ApiOperation({
+		summary: 'How bookings stood at the end of each day of a period, from the status history',
+	})
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getBookingState(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		return this.bookingStatusHistoryService.dailyCounts(from, to);
+	}
+
+	@Get('stats/booking-cohort')
+	@ApiOperation({ summary: 'What became of the bookings created in a period' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getBookingCohort(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		return this.bookingStatusHistoryService.cohort(from, to);
 	}
 
 	@Get('stats/snapshots')
