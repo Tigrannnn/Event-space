@@ -16,6 +16,7 @@ import { NullableStringFieldUpdateOperationsInputSchema } from './NullableString
 import { NullableIntFieldUpdateOperationsInputSchema } from './NullableIntFieldUpdateOperationsInputSchema';
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
 import { BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema } from './BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema';
+import { BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema } from './BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema';
 
 export const BookingUncheckedUpdateWithoutOccurrenceInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutOccurrenceInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -33,6 +34,7 @@ export const BookingUncheckedUpdateWithoutOccurrenceInputSchema: z.ZodType<Prism
   checkedInAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   confirmationSentAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   adjustments: z.lazy(() => BookingAdjustmentUncheckedUpdateManyWithoutBookingNestedInputSchema).optional(),
+  statusHistory: z.lazy(() => BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional(),
 });
 
 export default BookingUncheckedUpdateWithoutOccurrenceInputSchema;

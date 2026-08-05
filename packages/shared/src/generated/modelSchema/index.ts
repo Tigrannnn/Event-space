@@ -7,6 +7,7 @@ export * from './EventImageSchema';
 export * from './CancellationPolicyRuleSchema';
 export * from './FavoriteSchema';
 export * from './BookingSchema';
+export * from './BookingStatusHistorySchema';
 export * from './BookingReferenceSchema';
 export * from './BookingAdjustmentSchema';
 export * from './UserSchema';

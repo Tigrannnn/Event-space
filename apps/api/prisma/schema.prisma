@@ -215,10 +215,28 @@ model Booking {
   occurrence  EventOccurrence     @relation("occurrence_bookings", fields: [occurrenceId], references: [id], onDelete: Cascade)
   adjustments BookingAdjustment[] @relation("booking_adjustments")
 
+  statusHistory BookingStatusHistory[] @relation("booking_status_history")
+
   @@unique([userId, occurrenceId])
   @@index([userId])
   @@index([occurrenceId])
   @@map("bookings")
+}
+
+/// Ведётся триггером Postgres (см. миграцию add_booking_status_history), не кодом приложения.
+/// SCD Type 2: одна строка на период жизни брони в статусе, valid_to = NULL — текущий статус.
+model BookingStatusHistory {
+  id        Int           @id @default(autoincrement())
+  bookingId String        @map("booking_id")
+  status    BookingStatus
+  validFrom DateTime      @default(now()) @map("valid_from")
+  validTo   DateTime?     @map("valid_to")
+
+  booking Booking @relation("booking_status_history", fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([validFrom, validTo])
+  @@map("booking_status_history")
 }
 
 model BookingReference {

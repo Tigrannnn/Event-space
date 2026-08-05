@@ -21,6 +21,7 @@ import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { EventOccurrenceScalarRelationFilterSchema } from './EventOccurrenceScalarRelationFilterSchema';
 import { EventOccurrenceWhereInputSchema } from './EventOccurrenceWhereInputSchema';
 import { BookingAdjustmentListRelationFilterSchema } from './BookingAdjustmentListRelationFilterSchema';
+import { BookingStatusHistoryListRelationFilterSchema } from './BookingStatusHistoryListRelationFilterSchema';
 
 export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueInput> = z.union([
   z.object({
@@ -109,6 +110,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   occurrence: z.union([ z.lazy(() => EventOccurrenceScalarRelationFilterSchema), z.lazy(() => EventOccurrenceWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),
+  statusHistory: z.lazy(() => BookingStatusHistoryListRelationFilterSchema).optional(),
 }));
 
 export default BookingWhereUniqueInputSchema;

@@ -15,6 +15,7 @@ import { EnumPaymentMethodFieldUpdateOperationsInputSchema } from './EnumPayment
 import { NullableStringFieldUpdateOperationsInputSchema } from './NullableStringFieldUpdateOperationsInputSchema';
 import { NullableIntFieldUpdateOperationsInputSchema } from './NullableIntFieldUpdateOperationsInputSchema';
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
+import { BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema } from './BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema';
 
 export const BookingUncheckedUpdateWithoutAdjustmentsInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutAdjustmentsInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -32,6 +33,7 @@ export const BookingUncheckedUpdateWithoutAdjustmentsInputSchema: z.ZodType<Pris
   referenceNumber: z.union([ z.number().int(),z.lazy(() => NullableIntFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   checkedInAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   confirmationSentAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
+  statusHistory: z.lazy(() => BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional(),
 });
 
 export default BookingUncheckedUpdateWithoutAdjustmentsInputSchema;
