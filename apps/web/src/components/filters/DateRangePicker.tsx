@@ -51,7 +51,9 @@ export function DateRangePicker({
 		return () => mediaQuery.removeEventListener('change', updateMonths);
 	}, [numberOfMonths, variant]);
 
-	const selectedRange: DateRange | undefined = value ? { from: value.from, to: value.to } : undefined;
+	const selectedRange: DateRange | undefined = value
+		? { from: value.from, to: value.to }
+		: undefined;
 
 	const label = useMemo(() => {
 		if (!value) return placeholder;
@@ -108,13 +110,15 @@ export function DateRangePicker({
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<FilterTriggerButton isActive={Boolean(value)}>
-					<CalendarIcon className="size-4 text-primary/80" />
-					{label}
+					<div className="flex items-center gap-2">
+						<CalendarIcon className="text-primary/80 size-4 shrink-0" />
+						<span className="truncate whitespace-nowrap">{label}</span>
+					</div>
 				</FilterTriggerButton>
 			</PopoverTrigger>
 			<PopoverContent
 				align="start"
-				className="w-auto rounded-3xl p-3 text-foreground shadow-lg dark:text-white"
+				className="text-foreground w-auto rounded-3xl p-3 shadow-lg dark:text-white"
 			>
 				{calendarContent}
 			</PopoverContent>
