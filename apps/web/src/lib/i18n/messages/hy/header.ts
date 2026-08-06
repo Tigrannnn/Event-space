@@ -13,6 +13,7 @@ export const header: Messages['header'] = {
 	goProfile: 'Գնալ պրոֆիլ',
 	language: 'Լեզու',
 	visitInstagram: 'Բացել Instagram-ը',
+	viewLocation: 'Տեսնել, թե որտեղ ենք գտնվում',
 	contactInstagramTitle: 'Մեր Instagram',
 	contactInstagramDescription: 'Տեղեկացրեք նոր միջոցառումներից եւ հետաքրքիր պատմություններից',
 	contactInstagramButton: 'Բացել Instagram',
@@ -22,5 +23,8 @@ export const header: Messages['header'] = {
 	contactEmailTitle: 'Գրեք մեզ',
 	contactEmailDescription: 'Ուղարկեք մեզ էլեկտրոնային նամակ',
 	contactEmailButton: 'Նամակ գրել',
+	contactLocationTitle: 'Որտեղ ենք գտնվում',
+	contactLocationDescription: 'Ահա որտեղ կարող եք գտնել մեզ',
+	contactLocationButton: 'Բացել քարտեզի վրա',
 	aboutUs: 'Մեր Մասին',
 };

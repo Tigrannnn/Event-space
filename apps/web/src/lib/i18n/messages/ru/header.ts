@@ -13,6 +13,7 @@ export const header: Messages['header'] = {
 	goProfile: 'Перейти в профиль',
 	language: 'Язык',
 	visitInstagram: 'Посетить Instagram',
+	viewLocation: 'Посмотреть, где мы находимся',
 	contactInstagramTitle: 'Наш Instagram',
 	contactInstagramDescription: 'Узнавайте о новых событиях и интересных историях',
 	contactInstagramButton: 'Перейти в Instagram',
@@ -22,5 +23,8 @@ export const header: Messages['header'] = {
 	contactEmailTitle: 'Напишите нам',
 	contactEmailDescription: 'Отправьте нам электронное письмо',
 	contactEmailButton: 'Написать письмо',
+	contactLocationTitle: 'Где нас найти',
+	contactLocationDescription: 'Вот здесь мы находимся',
+	contactLocationButton: 'Открыть на карте',
 	aboutUs: 'О нас',
 };

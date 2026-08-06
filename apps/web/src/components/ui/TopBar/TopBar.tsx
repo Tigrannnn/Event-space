@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, Phone, Instagram } from 'lucide-react';
+import { Mail, Phone, Instagram, MapPin } from 'lucide-react';
 import { COMPANY_CONFIG } from '@/config/сompany';
 import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
@@ -57,6 +57,19 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 							type="button"
 						>
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
+						</button>
+					)}
+
+					{COMPANY_CONFIG.location && (
+						<button
+							onClick={() =>
+								handleOpenContact(ContactType.Location, COMPANY_CONFIG.location.address)
+							}
+							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+							aria-label={translate('header.viewLocation')}
+							type="button"
+						>
+							<MapPin className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
 						</button>
 					)}
 

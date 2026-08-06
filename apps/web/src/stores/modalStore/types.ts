@@ -1,4 +1,11 @@
-import { Event, Booking, BookingWithDetails, SafeUserData, Category, EventOccurrence } from '@event-space/shared';
+import {
+	Event,
+	Booking,
+	BookingWithDetails,
+	SafeUserData,
+	Category,
+	EventOccurrence,
+} from '@event-space/shared';
 import type { ReactNode } from 'react';
 import type { ModalSize } from '@/components/ui/Modal/Modal.types';
 
@@ -6,6 +13,7 @@ export enum ContactType {
 	Instagram = 'instagram',
 	Phone = 'phone',
 	Email = 'email',
+	Location = 'location',
 }
 
 export enum ModalType {

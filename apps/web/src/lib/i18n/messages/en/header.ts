@@ -11,6 +11,7 @@ export const header = {
 	goProfile: 'Go to profile',
 	language: 'Language',
 	visitInstagram: 'Visit Instagram',
+	viewLocation: 'View our location',
 	contactInstagramTitle: 'Our Instagram',
 	contactInstagramDescription: 'Stay updated on new events and interesting stories',
 	contactInstagramButton: 'Visit Instagram',
@@ -20,5 +21,8 @@ export const header = {
 	contactEmailTitle: 'Email Us',
 	contactEmailDescription: 'Send us an email message',
 	contactEmailButton: 'Send Email',
+	contactLocationTitle: 'Find Us',
+	contactLocationDescription: "Here's where you'll find us",
+	contactLocationButton: 'Open in Maps',
 	aboutUs: 'About Us',
 };

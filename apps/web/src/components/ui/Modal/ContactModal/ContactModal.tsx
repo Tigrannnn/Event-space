@@ -5,7 +5,8 @@ import { ContactType, ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Button from '../../Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
-import { Instagram, Phone, Mail } from 'lucide-react';
+import { Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { COMPANY_CONFIG } from '@/config/сompany';
 
 export default function ContactModal() {
 	const { closeModal } = useModalStore();
@@ -22,6 +23,8 @@ export default function ContactModal() {
 				return <Phone className="h-12 w-12 text-primary" strokeWidth={1.5} />;
 			case ContactType.Email:
 				return <Mail className="h-12 w-12 text-primary" strokeWidth={1.5} />;
+			case ContactType.Location:
+				return <MapPin className="h-12 w-12 text-primary" strokeWidth={1.5} />;
 		}
 	};
 
@@ -33,6 +36,8 @@ export default function ContactModal() {
 				return 'header.contactPhoneTitle';
 			case ContactType.Email:
 				return 'header.contactEmailTitle';
+			case ContactType.Location:
+				return 'header.contactLocationTitle';
 		}
 	};
 
@@ -44,6 +49,8 @@ export default function ContactModal() {
 				return 'header.contactPhoneDescription';
 			case ContactType.Email:
 				return 'header.contactEmailDescription';
+			case ContactType.Location:
+				return 'header.contactLocationDescription';
 		}
 	};
 
@@ -55,6 +62,8 @@ export default function ContactModal() {
 				return 'header.contactPhoneButton';
 			case ContactType.Email:
 				return 'header.contactEmailButton';
+			case ContactType.Location:
+				return 'header.contactLocationButton';
 		}
 	};
 
@@ -68,6 +77,11 @@ export default function ContactModal() {
 				break;
 			case ContactType.Email:
 				window.location.href = `mailto:${data.value}`;
+				break;
+			case ContactType.Location:
+				// data.value is the human-readable address shown in the box below; the map link
+				// lives separately in config since a street address isn't itself a valid URL.
+				window.open(COMPANY_CONFIG.location.mapsUrl, '_blank');
 				break;
 		}
 		closeModal();
