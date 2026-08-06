@@ -1,7 +1,22 @@
+import type { Metadata } from 'next';
 import EventsList from './_components/EventsList';
+import { getRequestLocale, localeAlternates } from '@/lib/seo';
 import { serverFetch } from '@/lib/server.api';
 import { PaginatedEventsResponse } from '@/features/events/api/events.api';
 import { formatDateParam, getApiCategoryFilter, parseFiltersFromSearchParams } from './_components/filters/filter-utils';
+
+/**
+ * Only alternates — title, description and the rest stay inherited from the locale layout.
+ *
+ * The canonical is deliberately the bare URL: this page carries the catalogue filters in its
+ * query string, and every combination of them is the same page. Without it, each filtered variant
+ * could be indexed as a page of its own.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+	const locale = await getRequestLocale();
+
+	return { alternates: localeAlternates(locale) };
+}
 
 interface HomePageProps {
 	searchParams: Promise<{

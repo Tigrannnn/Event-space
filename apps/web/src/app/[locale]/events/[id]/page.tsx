@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
+import { getRequestLocale, localeAlternates, localeUrl } from '@/lib/seo';
+import { buildEventJsonLd, serializeJsonLd } from '@/lib/structured-data';
 
 interface EventPageProps {
 	params: Promise<{ id: string }>;
@@ -19,7 +21,20 @@ export default async function EventPage({ params }: EventPageProps) {
 		notFound();
 	}
 
-	return <EventPageContent initialEvent={event} key={event.id} />;
+	const locale = await getRequestLocale();
+	const jsonLd = buildEventJsonLd(event, locale, localeUrl(locale, `/events/${event.id}`));
+
+	return (
+		<>
+			{jsonLd.length > 0 && (
+				<script
+					type="application/ld+json"
+					dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+				/>
+			)}
+			<EventPageContent initialEvent={event} key={event.id} />
+		</>
+	);
 }
 
 // Generate metadata for SEO
@@ -41,6 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 	return {
 		title: `${t.title} | Event Flow`,
 		description: t.description,
+		alternates: localeAlternates(locale, `/events/${id}`),
 		openGraph: {
 			title: `${t.title} | Event Flow`,
 			description: t.description,
