@@ -6,7 +6,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { Copy } from 'lucide-react';
-import { useToastStore, ToastType } from '@/stores/toastStore';
+import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import {
 	getEventTranslation,
@@ -61,7 +61,7 @@ export default function EventDetailsModal() {
 	const locale = translate.locale;
 	const router = useRouter();
 	const { closeModal } = useModalStore();
-	const { addToast } = useToastStore();
+	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.EventDetails);
 	const event = modalData?.event;
 	const { formatDateTime } = useFormatDate();
@@ -80,14 +80,12 @@ export default function EventDetailsModal() {
 	const bookingStats = event.bookingStats;
 
 	const handleCopyId = () => {
-		navigator.clipboard.writeText(event.id);
-		addToast(translate('admin.copyId'), ToastType.SUCCESS);
+		void copyToClipboard(event.id, 'admin.copyId');
 	};
 
 	const handleCopyOrganizerId = () => {
 		if (!event.organizer?.id) return;
-		navigator.clipboard.writeText(event.organizer.id);
-		addToast(translate('admin.copyId'), ToastType.SUCCESS);
+		void copyToClipboard(event.organizer.id, 'admin.copyId');
 	};
 
 	return (

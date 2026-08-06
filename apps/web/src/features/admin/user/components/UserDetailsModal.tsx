@@ -4,7 +4,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { Copy } from 'lucide-react';
-import { useToastStore, ToastType } from '@/stores/toastStore';
+import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import { localeIntl } from '@/lib/i18n/config';
 import { formatDateTime } from '@/utils/date';
@@ -13,7 +13,7 @@ export default function UserDetailsModal() {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { closeModal } = useModalStore();
-	const { addToast } = useToastStore();
+	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.UserDetails);
 	const user = modalData?.user;
 
@@ -22,8 +22,7 @@ export default function UserDetailsModal() {
 	}
 
 	const handleCopyId = () => {
-		navigator.clipboard.writeText(user.id);
-		addToast(translate('admin.copyId'), ToastType.SUCCESS);
+		void copyToClipboard(user.id, 'admin.copyId');
 	};
 
 	return (

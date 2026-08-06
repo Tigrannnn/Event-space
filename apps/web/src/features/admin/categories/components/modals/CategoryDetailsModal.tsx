@@ -4,7 +4,7 @@ import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { Copy } from 'lucide-react';
-import { useToastStore, ToastType } from '@/stores/toastStore';
+import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import { getCategoryTranslation } from '@event-space/shared';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -12,7 +12,7 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 export default function CategoryDetailsModal() {
 	const translate = useTranslation();
 	const { closeModal } = useModalStore();
-	const { addToast } = useToastStore();
+	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.CategoryDetails);
 	const category = modalData?.category;
 
@@ -23,8 +23,7 @@ export default function CategoryDetailsModal() {
 	const categoryTranslation = getCategoryTranslation(category, translate.locale);
 
 	const handleCopyId = () => {
-		navigator.clipboard.writeText(category.id);
-		addToast(translate('admin.categoryIdCopied'), ToastType.SUCCESS);
+		void copyToClipboard(category.id, 'admin.categoryIdCopied');
 	};
 
 	return (

@@ -21,4 +21,5 @@ export const common: Messages['common'] = {
 	loading: 'Загружается...',
 	updating: 'Обновляется...',
 	optional: 'необязательно',
+	copyFailed: 'Не удалось скопировать',
 };

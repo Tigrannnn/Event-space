@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import ModalCloseButton from '@/components/ui/Buttons/ModalCloseButton';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalData, useModalStore } from '@/stores/modalStore';
-import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -15,7 +15,7 @@ import { getEventTranslation } from '@event-space/shared';
 
 export default function BookingSuccessModal() {
 	const { closeModal } = useModalStore();
-	const { addToast } = useToastStore();
+	const copyToClipboard = useCopyToClipboard();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
@@ -39,12 +39,7 @@ export default function BookingSuccessModal() {
 	}[booking.paymentMethod];
 
 	const handleCopyReference = async () => {
-		try {
-			await navigator.clipboard.writeText(reference);
-			addToast(translate('booking.refCopied'), ToastType.SUCCESS);
-		} catch {
-			addToast(translate('event.copyFailed'), ToastType.ERROR);
-		}
+		await copyToClipboard(reference, 'booking.refCopied', 'event.copyFailed');
 	};
 
 	const handleViewBookings = () => {

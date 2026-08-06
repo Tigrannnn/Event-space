@@ -21,4 +21,5 @@ export const common: Messages['common'] = {
 	loading: 'Բեռնվում է...',
 	updating: 'Թարմացվում է...',
 	optional: 'պարտադիր չէ',
+	copyFailed: 'Չհաջողվեց պատճենել',
 };

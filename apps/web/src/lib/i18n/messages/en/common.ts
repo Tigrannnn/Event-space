@@ -19,4 +19,5 @@ export const common = {
 	loading: 'Loading...',
 	updating: 'Updating...',
 	optional: 'optional',
+	copyFailed: 'Could not copy to clipboard',
 };

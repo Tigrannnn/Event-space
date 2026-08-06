@@ -10,7 +10,7 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 
-import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useCopyToClipboard } from '@/hooks/clipboard';
 import {
 	Event,
 	getEventImageUrls,
@@ -32,7 +32,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const router = useRouter();
 	const { openModal } = useModalStore();
 	const [failedImages, setFailedImages] = useState<number>(0);
-	const { addToast } = useToastStore();
+	const copyToClipboard = useCopyToClipboard();
 	const translate = useTranslation();
 	const locale = translate.locale;
 
@@ -48,14 +48,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 
 	const handleShareClick = async () => {
 		const url = typeof window !== 'undefined' ? window.location.href : '';
-		try {
-			await navigator.clipboard.writeText(url);
-			addToast(translate('event.linkCopied'), ToastType.SUCCESS);
-		} catch (error) {
-			// The browser's own failure text is untranslated, so it stays in the console.
-			console.error('Failed to copy the event link', error);
-			addToast(translate('event.copyFailed'), ToastType.ERROR);
-		}
+		await copyToClipboard(url, 'event.linkCopied', 'event.copyFailed');
 	};
 
 	return (
