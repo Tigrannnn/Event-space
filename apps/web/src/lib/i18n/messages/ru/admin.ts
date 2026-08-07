@@ -39,6 +39,7 @@ export const admin: Messages['admin'] = {
 	activeBookings: 'Активные брони',
 	anyPaymentMethod: 'Любая оплата',
 	bookedPeriod: 'Забронировано',
+	eventPeriod: 'Дата события',
 	registeredPeriod: 'Регистрация',
 	lastDays: 'Последние {days} дней',
 	allAccounts: 'Все аккаунты',

@@ -27,6 +27,7 @@ import type {
 	Category,
 } from '@event-space/shared';
 import { isUuid } from '@event-space/shared';
+import { buildOccurrenceDateFilter } from '@modules/event/event.utils';
 
 const safeUserSelect = {
 	id: true,
@@ -112,6 +113,9 @@ interface FindAllEventsParams extends PaginatedParams {
 	minPrice?: number;
 	maxPrice?: number;
 	category?: string;
+	/** `YYYY-MM-DD`, inclusive on both ends. */
+	startDate?: string;
+	endDate?: string;
 }
 
 const emptyBookingStats = (): BookingStatusCounts => ({
@@ -903,9 +907,30 @@ export class AdminService {
 		minPrice,
 		maxPrice,
 		category,
+		startDate,
+		endDate,
 	}: FindAllEventsParams = {}) {
 		const now = new Date();
 		const searchIsUuid = isUuid(search);
+
+		// `time` and the date range both constrain the same `occurrences` relation, so they are
+		// merged into a single condition. Spread separately they would collide on the `occurrences`
+		// key and the later one would silently drop the earlier filter — the same trap the price
+		// bounds below are written around.
+		const occurrenceDate: Prisma.DateTimeFilter = buildOccurrenceDateFilter(startDate, endDate) ?? {};
+
+		if (time === 'upcoming') {
+			// Whichever lower bound is stricter wins: an admin asking for August of next year and
+			// "upcoming" wants August, not everything from today onwards.
+			const rangeStart = occurrenceDate.gte as Date | undefined;
+			occurrenceDate.gte = rangeStart && rangeStart > now ? rangeStart : now;
+		}
+
+		if (time === 'completed') {
+			occurrenceDate.lt = now;
+		}
+
+		const hasOccurrenceFilter = Object.keys(occurrenceDate).length > 0;
 
 		// Both bounds constrain `price`, so they are built as one condition — as separate spreads
 		// the upper bound would overwrite the lower and quietly widen the result.
@@ -935,8 +960,7 @@ export class AdminService {
 				: {}),
 			...(status ? { status } : {}),
 			...(difficulty ? { difficulty } : {}),
-			...(time === 'upcoming' ? { occurrences: { some: { date: { gte: now } } } } : {}),
-			...(time === 'completed' ? { occurrences: { some: { date: { lt: now } } } } : {}),
+			...(hasOccurrenceFilter ? { occurrences: { some: { date: occurrenceDate } } } : {}),
 			...(category ? { category: { slug: category } } : {}),
 			...(Object.keys(price).length > 0 ? { price } : {}),
 		};

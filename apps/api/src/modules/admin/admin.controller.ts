@@ -308,6 +308,8 @@ export class AdminController {
 	@ApiQuery({ name: 'minPrice', required: false, type: Number })
 	@ApiQuery({ name: 'maxPrice', required: false, type: Number })
 	@ApiQuery({ name: 'category', required: false, description: 'Category slug' })
+	@ApiQuery({ name: 'startDate', required: false, description: 'Event runs on or after (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'endDate', required: false, description: 'Event runs on or before (YYYY-MM-DD)' })
 	async getAllEvents(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -318,10 +320,14 @@ export class AdminController {
 		@Query('minPrice') minPriceRaw?: string,
 		@Query('maxPrice') maxPriceRaw?: string,
 		@Query('category') category?: string,
+		@Query('startDate') startDateRaw?: string,
+		@Query('endDate') endDateRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
 		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
+		const startDate = parseOptionalQueryDate(startDateRaw, 'startDate');
+		const endDate = parseOptionalQueryDate(endDateRaw, 'endDate');
 		return this.adminService.findAllEvents({
 			skip,
 			limit: safeLimit,
@@ -332,6 +338,8 @@ export class AdminController {
 			minPrice,
 			maxPrice,
 			category,
+			startDate,
+			endDate,
 		});
 	}
 

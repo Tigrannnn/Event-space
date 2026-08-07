@@ -39,6 +39,7 @@ export const admin: Messages['admin'] = {
 	activeBookings: 'Ակտիվ ամրագրումներ',
 	anyPaymentMethod: 'Ցանկացած վճարում',
 	bookedPeriod: 'Ամրագրվել է',
+	eventPeriod: 'Միջոցառման ամսաթիվ',
 	registeredPeriod: 'Գրանցում',
 	lastDays: 'Վերջին {days} օրը',
 	allAccounts: 'Բոլոր հաշիվները',

@@ -14,6 +14,9 @@ export interface AdminEventsFilters {
 	category?: string;
 	minPrice?: number;
 	maxPrice?: number;
+	/** `YYYY-MM-DD`. Matches events by the date of their occurrences, not by when they were created. */
+	startDate?: string;
+	endDate?: string;
 }
 
 export function emptyEventsFilters(): AdminEventsFilters {
@@ -31,6 +34,8 @@ export function parseEventsFilters(params: URLSearchParams): AdminEventsFilters 
 		category: readString(params, 'category'),
 		minPrice: readNumber(params, 'minPrice'),
 		maxPrice: readNumber(params, 'maxPrice'),
+		startDate: readString(params, 'startDate'),
+		endDate: readString(params, 'endDate'),
 	};
 }
 
@@ -48,18 +53,25 @@ export function serializeEventsFilters(
 	writeParam(params, 'category', filters.category);
 	writeParam(params, 'minPrice', filters.minPrice);
 	writeParam(params, 'maxPrice', filters.maxPrice);
+	writeParam(params, 'startDate', filters.startDate);
+	writeParam(params, 'endDate', filters.endDate);
 	return params;
 }
 
 /** Pagination and page size are not filters — they don't count towards the "active" badge. */
 export function countActiveEventsFilters(filters: AdminEventsFilters): number {
-	return [
-		filters.search,
-		filters.status,
-		filters.difficulty,
-		filters.time,
-		filters.category,
-		filters.minPrice,
-		filters.maxPrice,
-	].filter((value) => value !== undefined).length;
+	// A date range is one filter to the admin, even though it travels as two params.
+	const dateRangeApplied = filters.startDate || filters.endDate ? 1 : 0;
+
+	return (
+		[
+			filters.search,
+			filters.status,
+			filters.difficulty,
+			filters.time,
+			filters.category,
+			filters.minPrice,
+			filters.maxPrice,
+		].filter((value) => value !== undefined).length + dateRangeApplied
+	);
 }

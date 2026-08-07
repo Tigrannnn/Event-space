@@ -37,6 +37,7 @@ export const admin = {
 	activeBookings: 'Active bookings',
 	anyPaymentMethod: 'Any payment method',
 	bookedPeriod: 'Booked',
+	eventPeriod: 'Event date',
 	registeredPeriod: 'Registered',
 	lastDays: 'Last {days} days',
 	allAccounts: 'All accounts',

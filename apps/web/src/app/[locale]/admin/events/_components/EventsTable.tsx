@@ -1,9 +1,16 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
+import { addDays, endOfMonth, startOfMonth, startOfToday } from 'date-fns';
 import { Pencil, Plus, Trash2, Users, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
+import {
+	DateRangePicker,
+	formatDateParam,
+	parseDateParam,
+	type DateRangePreset,
+} from '@/components/filters';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
 import {
@@ -67,7 +74,41 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		empty: emptyEventsFilters,
 		countActive: countActiveEventsFilters,
 	});
-	const { skip, limit, status, difficulty, time, category, minPrice, maxPrice } = filters;
+	const { skip, limit, status, difficulty, time, category, minPrice, maxPrice, startDate, endDate } =
+		filters;
+
+	// The same three shortcuts the public catalogue offers, so both sides of the product describe a
+	// period the same way.
+	const datePresets: DateRangePreset[] = [
+		{
+			key: 'today',
+			label: translate('filters.today'),
+			getRange: () => {
+				const today = startOfToday();
+				return { from: today, to: today };
+			},
+		},
+		{
+			key: 'weekend',
+			label: translate('filters.thisWeekend'),
+			getRange: () => {
+				const today = startOfToday();
+				const day = today.getDay();
+				if (day === 6) return { from: today, to: addDays(today, 1) };
+				if (day === 0) return { from: addDays(today, -1), to: today };
+				const saturday = addDays(today, 6 - day);
+				return { from: saturday, to: addDays(saturday, 1) };
+			},
+		},
+		{
+			key: 'month',
+			label: translate('filters.thisMonth'),
+			getRange: () => {
+				const today = startOfToday();
+				return { from: startOfMonth(today), to: endOfMonth(today) };
+			},
+		},
+	];
 
 	// The text box is uncontrolled by the URL until submitted, so typing doesn't refetch on
 	// every keystroke or fill browser history.
@@ -229,29 +270,26 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							]}
 						/>
 
-						<div className="flex items-center gap-2">
-							<input
-								type="number"
-								defaultValue={minPrice ?? ''}
-								key={`min-${minPrice ?? ''}`}
-								onBlur={(e) =>
-									applyFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
-								}
-								placeholder={translate('admin.minPrice')}
-								className="border-primary/50 h-9 w-28 rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900"
-							/>
-							<span className="text-sm text-gray-500">–</span>
-							<input
-								type="number"
-								defaultValue={maxPrice ?? ''}
-								key={`max-${maxPrice ?? ''}`}
-								onBlur={(e) =>
-									applyFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
-								}
-								placeholder={translate('admin.maxPrice')}
-								className="border-primary/50 h-9 w-28 rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900"
-							/>
-						</div>
+						<DateRangePicker
+							value={
+								startDate || endDate
+									? {
+											from: parseDateParam(startDate ?? endDate ?? null) ?? new Date(),
+											to: parseDateParam(endDate ?? startDate ?? null) ?? new Date(),
+										}
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({
+									startDate: range ? formatDateParam(range.from) : undefined,
+									endDate: range ? formatDateParam(range.to) : undefined,
+								})
+							}
+							placeholder={translate('admin.eventPeriod')}
+							// Deliberately not restricted to future dates: an admin needs to pull up last
+							// season's events as readily as next month's.
+							presets={datePresets}
+						/>
 
 						<Select
 							variant="filter"
@@ -263,6 +301,30 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								label: `${ps.value} ${translate('admin.pageSize')}`,
 							}))}
 						/>
+
+						<div className="flex items-center gap-2">
+							<input
+								type="number"
+								defaultValue={minPrice ?? ''}
+								key={`min-${minPrice ?? ''}`}
+								onBlur={(e) =>
+									applyFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
+								}
+								placeholder={translate('admin.minPrice')}
+								className="border-primary/50 h-9 w-36 [appearance:textfield] rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+							/>
+							<span className="text-sm text-gray-500">–</span>
+							<input
+								type="number"
+								defaultValue={maxPrice ?? ''}
+								key={`max-${maxPrice ?? ''}`}
+								onBlur={(e) =>
+									applyFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
+								}
+								placeholder={translate('admin.maxPrice')}
+								className="border-primary/50 h-9 w-36 [appearance:textfield] rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+							/>
+						</div>
 					</AdminFilterBar>
 				</div>
 

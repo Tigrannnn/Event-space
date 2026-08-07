@@ -115,6 +115,9 @@ export const EventFiltersSchema = z.object({
 	category: z.string().optional(),
 	minPrice: z.coerce.number().optional(),
 	maxPrice: z.coerce.number().optional(),
+	/** `YYYY-MM-DD`, inclusive on both ends. Matches an event by the date of its occurrences. */
+	startDate: z.string().optional(),
+	endDate: z.string().optional(),
 });
 
 export type EventFilters = z.infer<typeof EventFiltersSchema>;
