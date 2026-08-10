@@ -241,6 +241,42 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						showReset={hasActiveFilters}
 						onReset={handleResetFilters}
 					>
+						<DateRangePicker
+							value={
+								startDate || endDate
+									? {
+										from: parseDateParam(startDate ?? endDate ?? null) ?? new Date(),
+										to: parseDateParam(endDate ?? startDate ?? null) ?? new Date(),
+									}
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({
+									startDate: range ? formatDateParam(range.from) : undefined,
+									endDate: range ? formatDateParam(range.to) : undefined,
+								})
+							}
+							placeholder={translate('admin.eventPeriod')}
+							withActions
+							// Deliberately not restricted to future dates: an admin needs to pull up last
+							// season's events as readily as next month's.
+							presets={datePresets}
+						/>
+
+						<PriceRangePicker
+							value={
+								minPrice !== undefined || maxPrice !== undefined
+									? { min: minPrice ?? priceBounds.min, max: maxPrice ?? priceBounds.max }
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({ minPrice: range?.min, maxPrice: range?.max })
+							}
+							bounds={priceBounds}
+							placeholder={translate('admin.price')}
+							withActions
+						/>
+
 						<Select
 							variant="filter"
 							size="sm"
@@ -299,28 +335,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							]}
 						/>
 
-						<DateRangePicker
-							value={
-								startDate || endDate
-									? {
-											from: parseDateParam(startDate ?? endDate ?? null) ?? new Date(),
-											to: parseDateParam(endDate ?? startDate ?? null) ?? new Date(),
-										}
-									: null
-							}
-							onChange={(range) =>
-								applyFilter({
-									startDate: range ? formatDateParam(range.from) : undefined,
-									endDate: range ? formatDateParam(range.to) : undefined,
-								})
-							}
-							placeholder={translate('admin.eventPeriod')}
-						withActions
-							// Deliberately not restricted to future dates: an admin needs to pull up last
-							// season's events as readily as next month's.
-							presets={datePresets}
-						/>
-
 						<Select
 							variant="filter"
 							size="sm"
@@ -330,20 +344,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								...ps,
 								label: `${ps.value} ${translate('admin.pageSize')}`,
 							}))}
-						/>
-
-						<PriceRangePicker
-							value={
-								minPrice !== undefined || maxPrice !== undefined
-									? { min: minPrice ?? priceBounds.min, max: maxPrice ?? priceBounds.max }
-									: null
-							}
-							onChange={(range) =>
-								applyFilter({ minPrice: range?.min, maxPrice: range?.max })
-							}
-							bounds={priceBounds}
-							placeholder={translate('admin.price')}
-							withActions
 						/>
 					</AdminFilterBar>
 				</div>
