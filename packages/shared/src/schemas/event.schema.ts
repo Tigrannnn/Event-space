@@ -2,7 +2,7 @@ import { z } from './openapi';
 import { EventSchema as GeneratedEventSchema } from '../generated/modelSchema/EventSchema';
 import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSchema';
 import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
-import { TimeFilterSchema } from './common.schema';
+import { SpotsFilterSchema, TimeFilterSchema } from './common.schema';
 import { SafeUserSchema } from './user.schema';
 import {
 	CancellationPolicyRuleInputSchema,
@@ -118,6 +118,7 @@ export const EventFiltersSchema = z.object({
 	/** `YYYY-MM-DD`, inclusive on both ends. Matches an event by the date of its occurrences. */
 	startDate: z.string().optional(),
 	endDate: z.string().optional(),
+	spots: SpotsFilterSchema.optional(),
 });
 
 export type EventFilters = z.infer<typeof EventFiltersSchema>;

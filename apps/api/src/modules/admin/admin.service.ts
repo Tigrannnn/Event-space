@@ -12,6 +12,7 @@ import type {
     SafeUserData,
     UserRoleType,
 	TimeFilterType,
+	SpotsFilterType,
 	EventStatus,
 	EventDifficulty,
 	BookingStatus,
@@ -116,6 +117,7 @@ interface FindAllEventsParams extends PaginatedParams {
 	/** `YYYY-MM-DD`, inclusive on both ends. */
 	startDate?: string;
 	endDate?: string;
+	spots?: SpotsFilterType;
 }
 
 const emptyBookingStats = (): BookingStatusCounts => ({
@@ -909,6 +911,7 @@ export class AdminService {
 		category,
 		startDate,
 		endDate,
+		spots,
 	}: FindAllEventsParams = {}) {
 		const now = new Date();
 		const searchIsUuid = isUuid(search);
@@ -931,6 +934,25 @@ export class AdminService {
 		}
 
 		const hasOccurrenceFilter = Object.keys(occurrenceDate).length > 0;
+
+		// Occupancy compares one column against another, which Prisma expresses as a field
+		// reference. Keeping it in the query rather than filtering the fetched page in JS is what
+		// keeps `total` and `hasMore` honest: a filter applied after `take` would report counts
+		// that don't match the rows the table actually shows.
+		const hasFreeSpot = { lt: this.prisma.eventOccurrence.fields.maxParticipants };
+
+		// Every occurrence-level condition goes into the same `some`, so they all have to hold for
+		// one and the same date. Split across two `some` clauses, "has a date in August" and "has a
+		// date with room" would both pass for an event whose August date is sold out and whose
+		// October date is empty.
+		const occurrenceMatch: Prisma.EventOccurrenceWhereInput = {
+			...(hasOccurrenceFilter ? { date: occurrenceDate } : {}),
+			...(spots ? { status: 'ACTIVE' as const } : {}),
+			...(spots === 'available' ? { currentParticipants: hasFreeSpot } : {}),
+			...(spots === 'empty' ? { currentParticipants: 0 } : {}),
+		};
+
+		const hasOccurrenceMatch = Object.keys(occurrenceMatch).length > 0;
 
 		// Both bounds constrain `price`, so they are built as one condition — as separate spreads
 		// the upper bound would overwrite the lower and quietly widen the result.
@@ -960,7 +982,12 @@ export class AdminService {
 				: {}),
 			...(status ? { status } : {}),
 			...(difficulty ? { difficulty } : {}),
-			...(hasOccurrenceFilter ? { occurrences: { some: { date: occurrenceDate } } } : {}),
+			...(hasOccurrenceMatch ? { occurrences: { some: occurrenceMatch } } : {}),
+			// "Sold out" is the absence of a sellable date among the ones already matched above,
+			// so it rides on the same conditions rather than introducing its own.
+			...(spots === 'full'
+				? { NOT: { occurrences: { some: { ...occurrenceMatch, currentParticipants: hasFreeSpot } } } }
+				: {}),
 			...(category ? { category: { slug: category } } : {}),
 			...(Object.keys(price).length > 0 ? { price } : {}),
 		};

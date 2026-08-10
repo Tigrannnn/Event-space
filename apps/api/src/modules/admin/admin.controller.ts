@@ -42,6 +42,7 @@ import {
 	EventDifficultyEnum,
 	UserRoleSchema,
 	TimeFilterSchema,
+	SpotsFilterSchema,
 	CreateManualBookingSchema,
 	CreateCategorySchema,
 	UpdateCategorySchema,
@@ -56,6 +57,7 @@ import type {
 	EventStatus,
 	UserRoleType,
 	TimeFilterType,
+	SpotsFilterType,
 	CreateManualBookingData,
 	CreateCategoryData,
 	UpdateCategoryData,
@@ -310,6 +312,7 @@ export class AdminController {
 	@ApiQuery({ name: 'category', required: false, description: 'Category slug' })
 	@ApiQuery({ name: 'startDate', required: false, description: 'Event runs on or after (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'endDate', required: false, description: 'Event runs on or before (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'spots', required: false, enum: SpotsFilterSchema.options })
 	async getAllEvents(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -322,6 +325,7 @@ export class AdminController {
 		@Query('category') category?: string,
 		@Query('startDate') startDateRaw?: string,
 		@Query('endDate') endDateRaw?: string,
+		@Query('spots') spots?: SpotsFilterType,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
@@ -340,6 +344,7 @@ export class AdminController {
 			category,
 			startDate,
 			endDate,
+			spots,
 		});
 	}
 

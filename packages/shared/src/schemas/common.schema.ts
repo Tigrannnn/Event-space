@@ -50,6 +50,16 @@ export const TimeFilterSchema = z.enum(['upcoming', 'completed']);
 export type TimeFilterType = z.infer<typeof TimeFilterSchema>;
 
 /**
+ * How full an event's upcoming dates are.
+ *
+ * Buckets rather than a number of free spots: an event has several dates with their own capacity,
+ * so "12 free" has no single meaning, while "still sells" / "sold out" / "nobody yet" are the
+ * questions an admin actually opens this table to answer.
+ */
+export const SpotsFilterSchema = z.enum(['available', 'full', 'empty']);
+export type SpotsFilterType = z.infer<typeof SpotsFilterSchema>;
+
+/**
  * A calendar day as `YYYY-MM-DD`.
  *
  * Deliberately a plain date rather than a timestamp: these values travel in the URL, where a

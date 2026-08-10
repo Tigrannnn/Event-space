@@ -35,7 +35,7 @@ import {
 	getEventTranslation,
 	getCategoryTranslation,
 } from '@event-space/shared';
-import type { TimeFilterType } from '@event-space/shared';
+import type { SpotsFilterType, TimeFilterType } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useApiError } from '@/hooks/apiError';
 import { useUrlFilters } from '@/hooks/urlFilters';
@@ -74,7 +74,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 		empty: emptyEventsFilters,
 		countActive: countActiveEventsFilters,
 	});
-	const { skip, limit, status, difficulty, time, category, minPrice, maxPrice, startDate, endDate } =
+	const { skip, limit, status, difficulty, time, category, minPrice, maxPrice, startDate, endDate, spots } =
 		filters;
 
 	// The same three shortcuts the public catalogue offers, so both sides of the product describe a
@@ -267,6 +267,20 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									value: t,
 									label: t === 'upcoming' ? translate('admin.upcoming') : translate('admin.completed'),
 								})),
+							]}
+						/>
+
+						<Select
+							variant="filter"
+							size="sm"
+							isActive={spots !== undefined}
+							value={spots ?? ''}
+							onValueChange={(value) => applyFilter({ spots: (value as SpotsFilterType) || undefined })}
+							options={[
+								{ value: '', label: translate('admin.anySpots') },
+								{ value: 'available', label: translate('admin.spotsAvailable') },
+								{ value: 'full', label: translate('admin.spotsFull') },
+								{ value: 'empty', label: translate('admin.spotsEmpty') },
 							]}
 						/>
 

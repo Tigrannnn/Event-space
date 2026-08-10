@@ -1,5 +1,15 @@
-import { EventDifficultyEnum, EventStatusEnum, TimeFilterSchema } from '@event-space/shared';
-import type { EventDifficulty, EventStatus, TimeFilterType } from '@event-space/shared';
+import {
+	EventDifficultyEnum,
+	EventStatusEnum,
+	SpotsFilterSchema,
+	TimeFilterSchema,
+} from '@event-space/shared';
+import type {
+	EventDifficulty,
+	EventStatus,
+	SpotsFilterType,
+	TimeFilterType,
+} from '@event-space/shared';
 import { readEnum, readNumber, readString, writeParam } from '@/hooks/urlFilters';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -17,6 +27,7 @@ export interface AdminEventsFilters {
 	/** `YYYY-MM-DD`. Matches events by the date of their occurrences, not by when they were created. */
 	startDate?: string;
 	endDate?: string;
+	spots?: SpotsFilterType;
 }
 
 export function emptyEventsFilters(): AdminEventsFilters {
@@ -36,6 +47,7 @@ export function parseEventsFilters(params: URLSearchParams): AdminEventsFilters 
 		maxPrice: readNumber(params, 'maxPrice'),
 		startDate: readString(params, 'startDate'),
 		endDate: readString(params, 'endDate'),
+		spots: readEnum(params, 'spots', SpotsFilterSchema.options),
 	};
 }
 
@@ -55,6 +67,7 @@ export function serializeEventsFilters(
 	writeParam(params, 'maxPrice', filters.maxPrice);
 	writeParam(params, 'startDate', filters.startDate);
 	writeParam(params, 'endDate', filters.endDate);
+	writeParam(params, 'spots', filters.spots);
 	return params;
 }
 
@@ -72,6 +85,7 @@ export function countActiveEventsFilters(filters: AdminEventsFilters): number {
 			filters.category,
 			filters.minPrice,
 			filters.maxPrice,
+			filters.spots,
 		].filter((value) => value !== undefined).length + dateRangeApplied
 	);
 }
