@@ -9,6 +9,7 @@ export const filters = {
 	maxPrice: 'Highest price',
 	more: 'More',
 	reset: 'Reset',
+	apply: 'Apply',
 	filters: 'Filters',
 	today: 'Today',
 	thisWeekend: 'This weekend',

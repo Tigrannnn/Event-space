@@ -61,6 +61,7 @@ export function DateRangeFilterSection({
 			presets={presets}
 			numberOfMonths={numberOfMonths}
 			variant={variant}
+			withActions
 		/>
 	);
 }

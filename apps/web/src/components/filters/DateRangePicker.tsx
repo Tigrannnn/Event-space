@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primiti
 import { Calendar } from '@/components/ui/primitives/calendar';
 import { Button } from '@/components/ui/primitives/button';
 import { FilterTriggerButton } from './FilterTriggerButton';
+import { FilterPopoverActions } from './FilterPopoverActions';
 import type { DateRangePreset, DateRangeValue } from './types';
 
 interface DateRangePickerProps {
@@ -23,6 +24,14 @@ interface DateRangePickerProps {
 	presets?: DateRangePreset[];
 	numberOfMonths?: number;
 	variant?: 'popover' | 'inline';
+	/**
+	 * Hold the picked range back until an explicit apply, and close on it.
+	 *
+	 * Off by default: the admin tables let a picked range fire straight away, and that is the
+	 * quicker feel when you are scanning a list. The storefront opts in, where a filter changing
+	 * under you mid-selection is more jarring than an extra click.
+	 */
+	withActions?: boolean;
 }
 
 export function DateRangePicker({
@@ -33,10 +42,13 @@ export function DateRangePicker({
 	presets = [],
 	numberOfMonths = 2,
 	variant = 'popover',
+	withActions = false,
 }: DateRangePickerProps) {
 	const { formatDateShort } = useFormatDate();
 	const [open, setOpen] = useState(false);
+	const [draft, setDraft] = useState<DateRangeValue | null>(value);
 	const [resolvedMonths, setResolvedMonths] = useState(numberOfMonths);
+	const stagesChanges = withActions && variant === 'popover';
 
 	useEffect(() => {
 		if (variant === 'inline') {
@@ -51,8 +63,11 @@ export function DateRangePicker({
 		return () => mediaQuery.removeEventListener('change', updateMonths);
 	}, [numberOfMonths, variant]);
 
-	const selectedRange: DateRange | undefined = value
-		? { from: value.from, to: value.to }
+	// The calendar shows the staged range while one is being built, so a half-picked range is
+	// visible without having been committed anywhere.
+	const shownValue = stagesChanges ? draft : value;
+	const selectedRange: DateRange | undefined = shownValue
+		? { from: shownValue.from, to: shownValue.to }
 		: undefined;
 
 	const label = useMemo(() => {
@@ -61,10 +76,44 @@ export function DateRangePicker({
 	}, [value, formatDateShort, placeholder]);
 
 	const handleSelect = (range: DateRange | undefined) => {
+		if (stagesChanges) {
+			// Kept even when only one end is picked, so the first click stays visible on the calendar
+			// while the second is chosen.
+			setDraft(range?.from ? { from: range.from, to: range.to ?? range.from } : null);
+			return;
+		}
+
 		if (range?.from && range?.to) {
 			onChange({ from: range.from, to: range.to });
 			if (variant === 'popover') setOpen(false);
 		}
+	};
+
+	const handlePreset = (preset: DateRangePreset) => {
+		if (stagesChanges) {
+			setDraft(preset.getRange());
+			return;
+		}
+
+		onChange(preset.getRange());
+		if (variant === 'popover') setOpen(false);
+	};
+
+	const handleApply = () => {
+		onChange(draft);
+		setOpen(false);
+	};
+
+	const handleReset = () => {
+		onChange(null);
+		setDraft(null);
+		setOpen(false);
+	};
+
+	/** Reopening starts from what is applied, discarding a selection that was clicked away from. */
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (nextOpen) setDraft(value);
+		setOpen(nextOpen);
 	};
 
 	const calendarContent = (
@@ -78,10 +127,7 @@ export function DateRangePicker({
 							variant="outline"
 							size="sm"
 							className="h-8 rounded-full"
-							onClick={() => {
-								onChange(preset.getRange());
-								if (variant === 'popover') setOpen(false);
-							}}
+							onClick={() => handlePreset(preset)}
 						>
 							{preset.label}
 						</Button>
@@ -107,7 +153,7 @@ export function DateRangePicker({
 	}
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover open={open} onOpenChange={stagesChanges ? handleOpenChange : setOpen}>
 			<PopoverTrigger asChild>
 				<FilterTriggerButton isActive={Boolean(value)}>
 					<div className="flex items-center gap-2">
@@ -121,6 +167,12 @@ export function DateRangePicker({
 				className="text-foreground w-auto rounded-3xl p-3 shadow-lg dark:text-white"
 			>
 				{calendarContent}
+				{stagesChanges && (
+					<FilterPopoverActions
+						onApply={handleApply}
+						onReset={value ? handleReset : undefined}
+					/>
+				)}
 			</PopoverContent>
 		</Popover>
 	);

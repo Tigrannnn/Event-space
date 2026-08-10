@@ -7,7 +7,7 @@ import { useCurrencyMark, useFormatCurrency } from '@/hooks/format';
 import { useDebouncedCallback } from '@/hooks/debounce';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Slider } from '@/components/ui/primitives/slider';
-import { FilterTriggerButton } from '@/components/filters';
+import { FilterPopoverActions, FilterTriggerButton } from '@/components/filters';
 import { isPriceFilterApplied } from './filter-utils';
 import type { EventsFiltersState, PriceBounds } from './types';
 
@@ -37,6 +37,7 @@ export function PriceRangeFilterSection({
 		appliedRange.min,
 		appliedRange.max,
 	]);
+	const [isOpen, setIsOpen] = useState(false);
 	const filtersRef = useRef(filters);
 
 	useEffect(() => {
@@ -62,12 +63,31 @@ export function PriceRangeFilterSection({
 		const [min, max] = value as [number, number];
 		setSliderValue([min, max]);
 
+		// Inline belongs to the drawer, which applies everything at once, so dragging writes through
+		// to its draft. In a popover the range is staged until apply.
 		if (variant === 'inline') {
-			applyRange(min, max);
-			return;
+			debouncedApply(min, max);
 		}
+	};
 
-		debouncedApply(min, max);
+	const handleApply = () => {
+		applyRange(sliderValue[0], sliderValue[1]);
+		setIsOpen(false);
+	};
+
+	const handleReset = () => {
+		onFiltersChange({ ...filtersRef.current, priceRange: null });
+		setSliderValue([priceBounds.min, priceBounds.max]);
+		setIsOpen(false);
+	};
+
+	/** Reopening shows what is applied, not an edit that was abandoned by clicking away. */
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (nextOpen) {
+			const applied = filters.priceRange ?? priceBounds;
+			setSliderValue([applied.min, applied.max]);
+		}
+		setIsOpen(nextOpen);
 	};
 
 	/**
@@ -92,7 +112,10 @@ export function PriceRangeFilterSection({
 				: [currentMin, Math.max(clamped, currentMin)];
 
 		setSliderValue(next);
-		applyRange(next[0], next[1]);
+
+		if (variant === 'inline') {
+			applyRange(next[0], next[1]);
+		}
 	};
 
 	const isApplied = isPriceFilterApplied(filters.priceRange, priceBounds);
@@ -172,7 +195,7 @@ export function PriceRangeFilterSection({
 	}
 
 	return (
-		<Popover>
+		<Popover open={isOpen} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<FilterTriggerButton isActive={isApplied}>
 					<BanknoteIcon className="size-4 text-primary/80" />
@@ -181,6 +204,7 @@ export function PriceRangeFilterSection({
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-80 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
 				{sliderContent}
+				<FilterPopoverActions onApply={handleApply} onReset={isApplied ? handleReset : undefined} />
 			</PopoverContent>
 		</Popover>
 	);

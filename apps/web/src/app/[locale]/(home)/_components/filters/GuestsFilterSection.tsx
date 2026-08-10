@@ -5,7 +5,7 @@ import { MinusIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Button } from '@/components/ui/primitives/button';
-import { FilterTriggerButton } from '@/components/filters';
+import { FilterPopoverActions, FilterTriggerButton } from '@/components/filters';
 import type { EventsFiltersState } from './types';
 
 const MIN_GUESTS = 1;
@@ -35,6 +35,12 @@ export function GuestsFilterSection({
 	const updateDraftGuests = (nextCount: number) => {
 		const clamped = Math.min(MAX_GUESTS, Math.max(MIN_GUESTS, nextCount));
 		setDraftGuests(clamped);
+
+		// Inline sits inside the drawer, which has one apply button for every section, so each tap
+		// goes straight into the drawer's own draft. In a popover the value is held back until apply.
+		if (variant === 'inline') {
+			onFiltersChange({ ...filters, guests: clamped });
+		}
 	};
 
 	const handleDecrement = () => {
@@ -48,6 +54,21 @@ export function GuestsFilterSection({
 	const handleApply = () => {
 		onFiltersChange({ ...filters, guests: draftGuests });
 		setIsOpen(false);
+	};
+
+	const handleReset = () => {
+		onFiltersChange({ ...filters, guests: null });
+		setDraftGuests(MIN_GUESTS);
+		setIsOpen(false);
+	};
+
+	/**
+	 * Reopening starts from what is actually applied, not from where the last abandoned edit
+	 * stopped — otherwise closing without applying leaves the stepper lying about the filter.
+	 */
+	const handleOpenChange = (nextOpen: boolean) => {
+		if (nextOpen) setDraftGuests(filters.guests ?? MIN_GUESTS);
+		setIsOpen(nextOpen);
 	};
 
 	const stepperContent = (
@@ -79,17 +100,12 @@ export function GuestsFilterSection({
 					<PlusIcon className="size-4" />
 				</Button>
 			</div>
-			<Button
-				type="button"
-				onClick={handleApply}
-				className="mt-4 w-full"
-			>
-				{translate('admin.applyFilter') || 'Применить'}
-			</Button>
 		</>
 	);
 
 	if (variant === 'inline') {
+		// The drawer applies every section at once, so this one contributes only its stepper —
+		// and writes straight to the drawer's draft as the user taps.
 		return (
 			<div className="rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80">
 				{stepperContent}
@@ -98,7 +114,7 @@ export function GuestsFilterSection({
 	}
 
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen}>
+		<Popover open={isOpen} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<FilterTriggerButton isActive={isApplied}>
 					<UsersIcon className="size-4 text-primary/80" />
@@ -107,6 +123,7 @@ export function GuestsFilterSection({
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-72 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
 				{stepperContent}
+				<FilterPopoverActions onApply={handleApply} onReset={isApplied ? handleReset : undefined} />
 			</PopoverContent>
 		</Popover>
 	);

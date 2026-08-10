@@ -11,6 +11,7 @@ export const filters: Messages['filters'] = {
 	maxPrice: 'Цена до',
 	more: 'Ещё',
 	reset: 'Сбросить',
+	apply: 'Применить',
 	filters: 'Фильтры',
 	today: 'Сегодня',
 	thisWeekend: 'Эти выходные',

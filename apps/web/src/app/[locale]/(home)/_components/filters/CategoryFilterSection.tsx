@@ -11,7 +11,7 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/primitives/command';
-import { CategoryPill, FilterTriggerButton } from '@/components/filters';
+import { CategoryPill, FilterPopoverActions, FilterTriggerButton } from '@/components/filters';
 import { getExtraSelectedCategories, getTopCategories } from './filter-utils';
 import type { EventsFiltersState } from './types';
 
@@ -31,6 +31,7 @@ export function CategoryFilterSection({
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const [moreOpen, setMoreOpen] = useState(false);
+	const [draftCategories, setDraftCategories] = useState<string[]>(filters.categories);
 
 	const topCategories = useMemo(() => getTopCategories(categories, 3), [categories]);
 	const topSlugs = useMemo(() => topCategories.map((category) => category.slug), [topCategories]);
@@ -47,6 +48,36 @@ export function CategoryFilterSection({
 			: [...filters.categories, slug];
 
 		onFiltersChange({ ...filters, categories: nextCategories });
+	};
+
+	/**
+	 * The pills for the top categories sit outside any popover, so they stay immediate — there is
+	 * nothing to confirm. Only the "more" list stages its picks, since choosing several at once is
+	 * the whole reason that list exists.
+	 */
+	const toggleDraftCategory = (slug: string) => {
+		setDraftCategories((current) =>
+			current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug],
+		);
+	};
+
+	const handleApplyMore = () => {
+		onFiltersChange({ ...filters, categories: draftCategories });
+		setMoreOpen(false);
+	};
+
+	/** Clears only the categories hidden behind "more", leaving the visible pills as they are. */
+	const handleResetMore = () => {
+		onFiltersChange({
+			...filters,
+			categories: filters.categories.filter((slug) => topSlugs.includes(slug)),
+		});
+		setMoreOpen(false);
+	};
+
+	const handleMoreOpenChange = (nextOpen: boolean) => {
+		if (nextOpen) setDraftCategories(filters.categories);
+		setMoreOpen(nextOpen);
 	};
 
 	const renderPills = (items: Category[], fullWidth = false) =>
@@ -81,7 +112,7 @@ export function CategoryFilterSection({
 		<div className="width-[20%] flex min-w-0 items-center gap-2 overflow-x-auto">
 			{renderPills(topCategories)}
 			{remainingCategories.length > 0 && (
-				<Popover open={moreOpen} onOpenChange={setMoreOpen}>
+				<Popover open={moreOpen} onOpenChange={handleMoreOpenChange}>
 					<PopoverTrigger asChild>
 						<FilterTriggerButton isActive={extraSelectedCount > 0}>
 							{extraSelectedCount > 0
@@ -105,14 +136,14 @@ export function CategoryFilterSection({
 								{remainingCategories.map((category) => {
 									const categoryTranslation = getCategoryTranslation(category, locale);
 									const displayName = categoryTranslation.name || category.slug;
-									const isChecked = filters.categories.includes(category.slug);
+									const isChecked = draftCategories.includes(category.slug);
 
 									return (
 										<CommandItem
 											key={category.id}
 											value={displayName}
 											data-checked={isChecked}
-											onSelect={() => toggleCategory(category.slug)}
+											onSelect={() => toggleDraftCategory(category.slug)}
 											className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer duration-300"
 										>
 											{displayName}
@@ -121,6 +152,12 @@ export function CategoryFilterSection({
 								})}
 							</CommandList>
 						</Command>
+						<div className="px-3 pb-3">
+							<FilterPopoverActions
+								onApply={handleApplyMore}
+								onReset={extraSelectedCount > 0 ? handleResetMore : undefined}
+							/>
+						</div>
 					</PopoverContent>
 				</Popover>
 			)}

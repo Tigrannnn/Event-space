@@ -1,4 +1,5 @@
 export { FilterTriggerButton, CategoryPill } from './FilterTriggerButton';
+export { FilterPopoverActions } from './FilterPopoverActions';
 export { DateRangePicker } from './DateRangePicker';
 export { FiltersDrawer } from './FiltersDrawer';
 export { formatDateParam, parseDateParam } from './date-param';

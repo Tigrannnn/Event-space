@@ -11,6 +11,7 @@ export const filters: Messages['filters'] = {
 	maxPrice: 'Գինը մինչև',
 	more: 'Ավելին',
 	reset: 'Մաքրել',
+	apply: 'Կիրառել',
 	filters: 'Ֆիլտրեր',
 	today: 'Այսօր',
 	thisWeekend: 'Այս հանգստյան',
