@@ -3,13 +3,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BanknoteIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
-import { useFormatCurrency } from '@/hooks/format';
+import { useCurrencyMark, useFormatCurrency } from '@/hooks/format';
 import { useDebouncedCallback } from '@/hooks/debounce';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Slider } from '@/components/ui/primitives/slider';
 import { FilterTriggerButton } from '@/components/filters';
 import { isPriceFilterApplied } from './filter-utils';
 import type { EventsFiltersState, PriceBounds } from './types';
+
+/** Spinners are hidden: the arrows step by 1, which is meaningless against a 25 000 price. */
+const priceFieldClass =
+	'border-primary/40 focus:border-primary h-9 w-full [appearance:textfield] rounded-xl border bg-white pr-9 pl-3 text-sm font-semibold text-primary outline-none transition dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 
 interface PriceRangeFilterSectionProps {
 	filters: EventsFiltersState;
@@ -26,6 +30,7 @@ export function PriceRangeFilterSection({
 }: PriceRangeFilterSectionProps) {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
+	const currencyMark = useCurrencyMark();
 
 	const appliedRange = filters.priceRange ?? priceBounds;
 	const [sliderValue, setSliderValue] = useState<[number, number]>([
@@ -43,32 +48,51 @@ export function PriceRangeFilterSection({
 		setSliderValue([nextRange.min, nextRange.max]);
 	}, [filters.priceRange, priceBounds.min, priceBounds.max]);
 
-	const debouncedApply = useDebouncedCallback((min: number, max: number) => {
+	const applyRange = (min: number, max: number) => {
 		const isFullRange = min <= priceBounds.min && max >= priceBounds.max;
 		onFiltersChange({
 			...filtersRef.current,
 			priceRange: isFullRange ? null : { min, max },
 		});
-	}, 350);
+	};
+
+	const debouncedApply = useDebouncedCallback(applyRange, 350);
 
 	const handleSliderChange = (value: number[]) => {
 		const [min, max] = value as [number, number];
 		setSliderValue([min, max]);
 
-		const apply = (nextMin: number, nextMax: number) => {
-			const isFullRange = nextMin <= priceBounds.min && nextMax >= priceBounds.max;
-			onFiltersChange({
-				...filtersRef.current,
-				priceRange: isFullRange ? null : { min: nextMin, max: nextMax },
-			});
-		};
-
 		if (variant === 'inline') {
-			apply(min, max);
+			applyRange(min, max);
 			return;
 		}
 
 		debouncedApply(min, max);
+	};
+
+	/**
+	 * Takes a typed price and settles it against the other end of the range.
+	 *
+	 * Clamping happens here rather than on every keystroke: with a lower bound of 15 000, clamping
+	 * as you type makes "25000" impossible to enter, because the first "2" would jump to 15 000 and
+	 * swallow the rest. An empty field falls back to the bound it replaces — reading it as 0 would
+	 * silently widen the filter instead of clearing that end of it.
+	 */
+	const commitTypedPrice = (edge: 'min' | 'max', rawValue: string) => {
+		const [currentMin, currentMax] = sliderValue;
+		const parsed = Number(rawValue);
+		const fallback = edge === 'min' ? priceBounds.min : priceBounds.max;
+		const value = rawValue.trim() === '' || Number.isNaN(parsed) ? fallback : parsed;
+		const clamped = Math.min(Math.max(Math.round(value), priceBounds.min), priceBounds.max);
+
+		// The two ends can't cross: a lower bound typed above the upper one pins to it, not past it.
+		const next: [number, number] =
+			edge === 'min'
+				? [Math.min(clamped, currentMax), currentMax]
+				: [currentMin, Math.max(clamped, currentMin)];
+
+		setSliderValue(next);
+		applyRange(next[0], next[1]);
 	};
 
 	const isApplied = isPriceFilterApplied(filters.priceRange, priceBounds);
@@ -83,13 +107,50 @@ export function PriceRangeFilterSection({
 			<p className="mb-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
 				{translate('filters.price')}
 			</p>
-			<div className="mb-4 flex items-center justify-between gap-2">
-				<span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-					{formatCurrency(sliderValue[0])}
-				</span>
-				<span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-					{formatCurrency(sliderValue[1])}
-				</span>
+			<div className="mb-4 flex items-center gap-2">
+				<div className="relative flex-1">
+					<input
+						type="number"
+						inputMode="numeric"
+						// Remounting on a new slider value is what keeps the field in step with the
+						// handles without a second piece of state to hold the text being typed.
+						key={`min-${sliderValue[0]}`}
+						defaultValue={sliderValue[0]}
+						min={priceBounds.min}
+						max={priceBounds.max}
+						onBlur={(event) => commitTypedPrice('min', event.target.value)}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter') event.currentTarget.blur();
+						}}
+						aria-label={translate('filters.minPrice')}
+						className={priceFieldClass}
+					/>
+					<span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-gray-400">
+						{currencyMark}
+					</span>
+				</div>
+
+				<span className="text-sm text-gray-400">–</span>
+
+				<div className="relative flex-1">
+					<input
+						type="number"
+						inputMode="numeric"
+						key={`max-${sliderValue[1]}`}
+						defaultValue={sliderValue[1]}
+						min={priceBounds.min}
+						max={priceBounds.max}
+						onBlur={(event) => commitTypedPrice('max', event.target.value)}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter') event.currentTarget.blur();
+						}}
+						aria-label={translate('filters.maxPrice')}
+						className={priceFieldClass}
+					/>
+					<span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-gray-400">
+						{currencyMark}
+					</span>
+				</div>
 			</div>
 			<Slider
 				min={priceBounds.min}

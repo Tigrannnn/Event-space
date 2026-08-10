@@ -5,6 +5,8 @@ export const filters = {
 	guestsCount: '{count} guests',
 	guestsHint: 'We will show tours with available spots',
 	price: 'Price',
+	minPrice: 'Lowest price',
+	maxPrice: 'Highest price',
 	more: 'More',
 	reset: 'Reset',
 	filters: 'Filters',

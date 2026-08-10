@@ -7,6 +7,8 @@ export const filters: Messages['filters'] = {
 	guestsCount: '{count} гостей',
 	guestsHint: 'Покажем туры с доступными местами',
 	price: 'Цена',
+	minPrice: 'Цена от',
+	maxPrice: 'Цена до',
 	more: 'Ещё',
 	reset: 'Сбросить',
 	filters: 'Фильтры',

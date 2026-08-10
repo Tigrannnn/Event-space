@@ -19,7 +19,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 
 	return (
 		<div
-			className={`from-primary to-accent overflow-hidden bg-linear-to-br px-2 transition-[max-height,padding,opacity,border-width] duration-500 ease-in-out sm:px-2 ${
+			className={`from-primary to-accent overflow-hidden bg-linear-to-r px-2 transition-[max-height,padding,opacity,border-width] duration-500 ease-in-out sm:px-2 ${
 				isTopBarVisible
 					? 'max-h-12 border-b border-white/10 py-1 opacity-100 sm:py-2'
 					: 'max-h-0 border-b-0 py-0 opacity-0 sm:py-0'

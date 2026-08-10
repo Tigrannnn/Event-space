@@ -36,6 +36,16 @@ const CURRENCY_DISPLAY: Partial<Record<string, Record<LocaleIntlEnum, string>>> 
 };
 
 /**
+ * The currency mark on its own, without an amount.
+ *
+ * For inputs, where the number is typed rather than formatted: the field holds a bare number so it
+ * stays editable, and the mark sits beside it as a label.
+ */
+export function getCurrencyMark(locale: LocaleIntlEnum, currency: string = DEFAULT_CURRENCY): string {
+	return CURRENCY_DISPLAY[currency]?.[locale] ?? currency;
+}
+
+/**
  * Formats a numeric value as a currency string.
  *
  * The digit grouping, decimal separator, and whether the currency mark leads or trails the
