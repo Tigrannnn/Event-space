@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { addDays, endOfMonth, startOfMonth, startOfToday } from 'date-fns';
 import { Pencil, Plus, Trash2, Users, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import {
 	DateRangePicker,
+	PriceRangePicker,
 	formatDateParam,
 	parseDateParam,
 	type DateRangePreset,
@@ -132,6 +133,20 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 	const canGoPrevious = eventsResponse.skip > 0;
 	const canGoNext = eventsResponse.hasMore && eventsResponse.nextSkip !== null;
 	const hasActiveFilters = activeCount > 0;
+
+	/**
+	 * Slider ends for the price filter.
+	 *
+	 * Taken from the page on screen, then widened to cover whatever is already applied — otherwise
+	 * filtering to "from 40 000" would leave the slider unable to express the very filter it is
+	 * displaying, because the rows it derives from no longer contain anything cheaper.
+	 */
+	const priceBounds = useMemo(() => {
+		const prices = eventsResponse.data.map((event) => Number(event.price));
+		const highest = Math.max(1000, ...prices, minPrice ?? 0, maxPrice ?? 0);
+
+		return { min: 0, max: Math.ceil(highest / 1000) * 1000 };
+	}, [eventsResponse.data, minPrice, maxPrice]);
 
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 	const eventStatusOptions = EventStatusEnum.options.map((eventStatus) => ({
@@ -300,6 +315,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 								})
 							}
 							placeholder={translate('admin.eventPeriod')}
+						withActions
 							// Deliberately not restricted to future dates: an admin needs to pull up last
 							// season's events as readily as next month's.
 							presets={datePresets}
@@ -316,29 +332,19 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 							}))}
 						/>
 
-						<div className="flex items-center gap-2">
-							<input
-								type="number"
-								defaultValue={minPrice ?? ''}
-								key={`min-${minPrice ?? ''}`}
-								onBlur={(e) =>
-									applyFilter({ minPrice: e.target.value ? Number(e.target.value) : undefined })
-								}
-								placeholder={translate('admin.minPrice')}
-								className="border-primary/50 h-9 w-36 [appearance:textfield] rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							/>
-							<span className="text-sm text-gray-500">–</span>
-							<input
-								type="number"
-								defaultValue={maxPrice ?? ''}
-								key={`max-${maxPrice ?? ''}`}
-								onBlur={(e) =>
-									applyFilter({ maxPrice: e.target.value ? Number(e.target.value) : undefined })
-								}
-								placeholder={translate('admin.maxPrice')}
-								className="border-primary/50 h-9 w-36 [appearance:textfield] rounded-xl border bg-white px-3 text-sm shadow-sm outline-none dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-							/>
-						</div>
+						<PriceRangePicker
+							value={
+								minPrice !== undefined || maxPrice !== undefined
+									? { min: minPrice ?? priceBounds.min, max: maxPrice ?? priceBounds.max }
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({ minPrice: range?.min, maxPrice: range?.max })
+							}
+							bounds={priceBounds}
+							placeholder={translate('admin.price')}
+							withActions
+						/>
 					</AdminFilterBar>
 				</div>
 
