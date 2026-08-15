@@ -28,9 +28,11 @@ const nextConfig: NextConfig = {
 	eslint: {
 		ignoreDuringBuilds: true,
 	},
-	experimental: {
-		allowDevelopmentBuild: true,
-	},
+	...(process.env.NODE_ENV !== 'production' && {
+		experimental: {
+			allowDevelopmentBuild: true,
+		},
+	}),
 	turbopack: {
 		resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
 	},
