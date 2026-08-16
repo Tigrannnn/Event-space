@@ -12,6 +12,7 @@ import { useHydrated } from '@/hooks/hydration/useHydrated';
 
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
+import { useBrand } from '@/providers/BrandProvider';
 import { SearchIcon } from 'lucide-react';
 
 /**
@@ -25,6 +26,9 @@ export default function Header() {
 	const urlSearchQuery = searchParams.get('search') || '';
 	const [inputValue, setInputValue] = useState(urlSearchQuery);
 	const translate = useTranslation();
+	const brand = useBrand();
+	const [brandFirstWord, ...brandRestWords] = brand.name.split(' ');
+	const brandRest = brandRestWords.join(' ');
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings } = useGetMyBookings();
@@ -62,12 +66,16 @@ export default function Header() {
 						className="group hidden shrink-0 cursor-pointer rounded-xl bg-white/40 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl md:flex lg:px-4 lg:text-3xl"
 					>
 						<span className="text-primary group-hover:text-primary/80 transition-colors duration-300">
-							Event
+							{brandFirstWord}
 						</span>
-						<span className="text-primary/60 mx-0.5"> </span>
-						<span className="text-accent group-hover:text-accent/80 transition-colors duration-300">
-							Space
-						</span>
+						{brandRest && (
+							<>
+								<span className="text-primary/60 mx-0.5"> </span>
+								<span className="text-accent group-hover:text-accent/80 transition-colors duration-300">
+									{brandRest}
+								</span>
+							</>
+						)}
 					</div>
 					{/* Search with button */}
 					<div className="flex min-w-0 flex-1 items-center gap-2">

@@ -1,17 +1,19 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
-import { siteConfig } from '../../../site.config';
 import GoogleProvider from '@/providers/GoogleProvider';
+import { BrandProvider } from '@/providers/BrandProvider';
+import { getBrandForHost } from '@/config/brands';
 import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
 import localFont from 'next/font/local';
-import '../globals.css'; 
+import '../globals.css';
 
 export const viewport: Viewport = {
     width: 'device-width',
@@ -45,8 +47,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { locale } = await params;
 	const currentLocale = isLocale(locale) ? locale : defaultLocale;
+	const brand = getBrandForHost((await headers()).get('host'));
 
-	const title = `${siteConfig.name} | ${translate(currentLocale, 'common.appTitle')}`;
+	const title = `${brand.name} | ${translate(currentLocale, 'common.appTitle')}`;
 	const description = translate(currentLocale, 'common.appDescription');
 
 	return {
@@ -56,17 +59,17 @@ export async function generateMetadata({
 		icons: {
 			icon: '/favicon.ico',
 			shortcut: '/favicon.ico',
-			apple: [{ url: siteConfig.ogImage, sizes: '180x180', type: 'image/png' }],
+			apple: [{ url: brand.ogImage, sizes: '180x180', type: 'image/png' }],
 		},
 		openGraph: {
 			title,
 			description,
 			images: [
 				{
-					url: siteConfig.ogImage,
+					url: brand.ogImage,
 					width: 1200,
 					height: 630,
-					alt: `${siteConfig.name} Logo`,
+					alt: `${brand.name} Logo`,
 				},
 			],
 			type: 'website',
@@ -76,7 +79,7 @@ export async function generateMetadata({
 			card: 'summary_large_image',
 			title,
 			description,
-			images: [siteConfig.ogImage],
+			images: [brand.ogImage],
 		},
 	};
 }
@@ -84,6 +87,7 @@ export async function generateMetadata({
 export default async function Layout({ children, params }: LayoutProps) {
 	const { locale } = await params;
 	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
+	const brand = getBrandForHost((await headers()).get('host'));
 
 	if (!googleClientId) {
 		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
@@ -91,18 +95,23 @@ export default async function Layout({ children, params }: LayoutProps) {
 
 	return (
 		<html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
+			<head>
+				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${brand.colorAccent}; }`}</style>
+			</head>
 			<body
 				className={`${fontSans.variable} ${geistMono.variable} text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
 			>
-				<QueryProvider>
-					<GoogleProvider clientId={googleClientId}>
-						<HeaderWrapper />
-						<MainContent>{children}</MainContent>
-						<ModalRoot />
-						<BottomNavbar />
-						<ToastContainer />
-					</GoogleProvider>
-				</QueryProvider>
+				<BrandProvider brand={brand}>
+					<QueryProvider>
+						<GoogleProvider clientId={googleClientId}>
+							<HeaderWrapper />
+							<MainContent>{children}</MainContent>
+							<ModalRoot />
+							<BottomNavbar />
+							<ToastContainer />
+						</GoogleProvider>
+					</QueryProvider>
+				</BrandProvider>
 			</body>
 		</html>
 	);
