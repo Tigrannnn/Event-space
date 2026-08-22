@@ -32,7 +32,7 @@
 	--color-destructive-foreground: #ffffff;
 
 	--font-heading: var(--font-sans);
-	--font-sans: var(--font-sans);
+	--font-sans: var(--font-sans-latin), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 
 	--radius-3xl: 1.5rem;
 

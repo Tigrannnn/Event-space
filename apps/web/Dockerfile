@@ -14,7 +14,9 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV NODE_OPTIONS="--max-old-space-size=8192"
+# Keep the heap under the Docker VM's memory limit; a larger value makes Node
+# defer GC until the build is OOM-killed ("cannot allocate memory").
+ENV NODE_OPTIONS="--max-old-space-size=3072"
 ARG GOOGLE_CLIENT_ID
 ENV GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
 ARG STRIPE_PUBLISHABLE_KEY
@@ -23,10 +25,17 @@ ARG API_URL
 ENV API_URL=$API_URL
 
 COPY --from=deps /app ./
-COPY . .
 
+# Build @event-space/shared from its own sources first: it costs ~2 min (tsc over
+# ~1k generated Zod schemas), so keep it on a layer that app-only edits don't bust.
+# The zod generator writes into packages/shared/src/generated, hence both copies.
+COPY apps/api/prisma ./apps/api/prisma
+COPY packages/shared ./packages/shared
 RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 RUN npm run shared:build
+
+COPY . .
+
 RUN npm run web:build
 
 # ---- Stage 3: Runner ----

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
 import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, HeaderWrapper, MainContent } from '@/components/layout';
@@ -12,7 +12,6 @@ import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
-import localFont from 'next/font/local';
 import '../globals.css';
 
 export const viewport: Viewport = {
@@ -21,11 +20,19 @@ export const viewport: Viewport = {
     maximumScale: 1,
 };
 
-const fontSans = localFont({
-	src: [
-		{ path: '../../fonts/OpenSans.ttf' },
-	],
-	variable: '--font-sans',
+// Latin/Cyrillic come from Manrope; Armenian glyphs fall through to Noto Sans
+// Armenian via the font stack in globals.css (no single family covers all three).
+const fontSans = Manrope({
+	variable: '--font-sans-latin',
+	subsets: ['latin', 'cyrillic'],
+	weight: ['400', '500', '600', '700', '800'],
+	display: 'swap',
+});
+
+const fontArmenian = Noto_Sans_Armenian({
+	variable: '--font-sans-armenian',
+	subsets: ['armenian'],
+	weight: ['400', '500', '600', '700'],
 	display: 'swap',
 });
 
@@ -94,12 +101,17 @@ export default async function Layout({ children, params }: LayoutProps) {
 	}
 
 	return (
-		<html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
+		<html
+			lang={locale}
+			translate="no"
+			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable}`}
+			suppressHydrationWarning
+		>
 			<head>
 				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${brand.colorAccent}; }`}</style>
 			</head>
 			<body
-				className={`${fontSans.variable} ${geistMono.variable} text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white`}
+				className="text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
 			>
 				<BrandProvider brand={brand}>
 					<QueryProvider>
