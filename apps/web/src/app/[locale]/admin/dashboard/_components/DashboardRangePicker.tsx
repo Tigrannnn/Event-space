@@ -54,6 +54,7 @@ export default function DashboardRangePicker({ range, onRangeChange }: Dashboard
 				// Nothing has happened after today, so the future is not selectable.
 				disabled={{ after: startOfToday() }}
 				presets={presets}
+				withActions
 			/>
 		</div>
 	);
