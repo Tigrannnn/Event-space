@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { startOfToday, subDays } from 'date-fns';
 import { DateRangePicker, formatDateParam, parseDateParam } from '@/components/filters';
 import type { DateRangePreset } from '@/components/filters';
@@ -15,6 +16,11 @@ interface DashboardRangePickerProps {
 export default function DashboardRangePicker({ range, onRangeChange }: DashboardRangePickerProps) {
 	const translate = useTranslation();
 	const { formatDateShort } = useFormatDate();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const presets: DateRangePreset[] = [
 		{
@@ -29,15 +35,18 @@ export default function DashboardRangePicker({ range, onRangeChange }: Dashboard
 		})),
 	];
 
+	const rangeLabel = mounted
+		? `${formatDateShort(new Date(`${range.from}T00:00:00`))} — ${formatDateShort(new Date(`${range.to}T00:00:00`))}`
+		: '—';
+
 	return (
 		<div className="flex flex-wrap items-center justify-between gap-3">
 			<div>
 				<h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
 					{translate('admin.dashboard')}
 				</h1>
-				<p className="text-sm text-gray-500">
-					{formatDateShort(new Date(`${range.from}T00:00:00`))} —{' '}
-					{formatDateShort(new Date(`${range.to}T00:00:00`))}
+				<p className="text-sm text-gray-500" suppressHydrationWarning>
+					{rangeLabel}
 				</p>
 			</div>
 

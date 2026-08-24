@@ -48,7 +48,12 @@ export function DateRangePicker({
 	const [open, setOpen] = useState(false);
 	const [draft, setDraft] = useState<DateRangeValue | null>(value);
 	const [resolvedMonths, setResolvedMonths] = useState(numberOfMonths);
+	const [mounted, setMounted] = useState(false);
 	const stagesChanges = withActions && variant === 'popover';
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	useEffect(() => {
 		if (variant === 'inline') {
@@ -72,8 +77,9 @@ export function DateRangePicker({
 
 	const label = useMemo(() => {
 		if (!value) return placeholder;
+		if (!mounted) return placeholder;
 		return `${formatDateShort(value.from)} — ${formatDateShort(value.to)}`;
-	}, [value, formatDateShort, placeholder]);
+	}, [value, formatDateShort, mounted, placeholder]);
 
 	const handleSelect = (range: DateRange | undefined) => {
 		if (stagesChanges) {
@@ -158,7 +164,9 @@ export function DateRangePicker({
 				<FilterTriggerButton isActive={Boolean(value)}>
 					<div className="flex items-center gap-2">
 						<CalendarIcon className="text-primary/80 size-4 shrink-0" />
-						<span className="truncate whitespace-nowrap">{label}</span>
+						<span className="truncate whitespace-nowrap" suppressHydrationWarning>
+							{label}
+						</span>
 					</div>
 				</FilterTriggerButton>
 			</PopoverTrigger>
