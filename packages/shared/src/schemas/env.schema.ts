@@ -18,6 +18,9 @@ export const EnvSchema = z.object({
 	[EnvKey.SMTP_PASS]: z.string(),
 	[EnvKey.SMTP_FROM]: z.email(),
 	[EnvKey.MAIL_DEV_MODE]: z.enum(['true', 'false']).default('false'),
+	// Optional: when set, mail goes out over Resend's HTTP API instead of SMTP,
+	// which hosts like Railway block below their paid tiers.
+	[EnvKey.RESEND_API_KEY]: z.string().optional(),
 	[EnvKey.CLOUDINARY_CLOUD_NAME]: z.string(),
 	[EnvKey.CLOUDINARY_API_KEY]: z.string(),
 	[EnvKey.CLOUDINARY_API_SECRET]: z.string(),

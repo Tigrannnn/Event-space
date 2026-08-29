@@ -107,11 +107,53 @@ export class MailService implements OnModuleInit {
 	}
 
 	async onModuleInit() {
+		if (this.resendApiKey) {
+			this.logger.log('Mail delivery via Resend HTTP API');
+			return;
+		}
+
 		try {
 			await this.transporter.verify();
 			this.logger.log('SMTP connection verified');
 		} catch (error) {
 			this.logSmtpError('SMTP connection failed', error);
+		}
+	}
+
+	private get resendApiKey(): string | undefined {
+		return this.config.get<string>(EnvKey.RESEND_API_KEY) || undefined;
+	}
+
+	/**
+	 * Single delivery point: Resend's HTTP API when a key is configured, SMTP
+	 * otherwise. Hosts such as Railway block outbound SMTP below their paid
+	 * tiers, so production sends over HTTP while local dev keeps using SMTP.
+	 */
+	private async deliver(message: {
+		to: string;
+		subject: string;
+		text: string;
+		html: string;
+	}): Promise<void> {
+		const from = `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`;
+		const apiKey = this.resendApiKey;
+
+		if (!apiKey) {
+			await this.transporter.sendMail({ from, ...message });
+			return;
+		}
+
+		const response = await fetch('https://api.resend.com/emails', {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ from, ...message }),
+		});
+
+		if (!response.ok) {
+			throw new Error(`Resend request failed (${response.status}): ${await response.text()}`);
 		}
 	}
 
@@ -140,8 +182,7 @@ export class MailService implements OnModuleInit {
 		});
 
 		try {
-			await this.transporter.sendMail({
-				from: `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`,
+			await this.deliver({
 				to: email,
 				subject: `Your verification code to ${action}`,
 				text: `Your verification code is: ${code}, Expires in 15 minutes.`,
@@ -185,8 +226,7 @@ export class MailService implements OnModuleInit {
 		});
 
 		try {
-			await this.transporter.sendMail({
-				from: `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`,
+			await this.deliver({
 				to: email,
 				subject: `Event Cancelled: ${eventTitle}`,
 				text: `Dear ${userName},\n\nWe regret to inform you that the event "${eventTitle}" scheduled for ${formattedDate} has been cancelled.\n${cancellationReason ? `Reason for cancellation: ${cancellationReason}\n` : ''}\nYou will receive a full refund of ${refundAmount} to your original payment method. The refund may take 5-10 business days to appear in your account.\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Event Space Team`,
@@ -250,8 +290,7 @@ export class MailService implements OnModuleInit {
 				SIGNATURE: strings.signature,
 			});
 
-			await this.transporter.sendMail({
-				from: `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`,
+			await this.deliver({
 				to: params.to,
 				subject: strings.subject,
 				text: `${strings.title}\n\n${strings.reference}: ${referenceLabel}\n${strings.event}: ${params.eventTitle}\n${strings.date}: ${formattedDate}\n${strings.quantity}: ${params.quantity}\n${strings.paymentMethod}: ${paymentMethodLabel}\n${strings.amount}: ${params.amount.toFixed(2)} ${params.currency}`,
