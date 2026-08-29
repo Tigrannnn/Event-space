@@ -67,7 +67,9 @@ async function bootstrap() {
 	}
 
 	const port = configService.get<number>(EnvKey.API_PORT) ?? 5000;
-	const server = await app.listen(port);
+	// Bind dual-stack: Railway's private network resolves *.railway.internal to
+	// IPv6, and an IPv4-only listener is unreachable from sibling services.
+	const server = await app.listen(port, '::');
 	configureHttpUploadTimeouts(server);
 
 	console.log(`🚀 Server is running on: http://localhost:${port}`);

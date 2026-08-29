@@ -42,4 +42,6 @@ USER nestjs
 
 EXPOSE 5000
 
-CMD ["node", "dist/src/main.js"]
+# Apply pending migrations before booting: the managed database starts empty and
+# there is no separate release step on Railway.
+CMD ["sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/src/main.js"]

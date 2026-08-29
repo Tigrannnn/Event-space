@@ -22,21 +22,21 @@ const defaultBrand: Brand = {
  * TODO: replace placeholder colors/ogImage with each company's real ones.
  */
 const brands: Record<string, Brand> = {
-	'mygarni.event-space.com': {
+	'mygarni.event-space.space': {
 		name: 'MyGarni',
 		colorPrimary: '#c2410c',
 		colorAccent: '#0f766e',
 		description: siteConfig.description,
 		ogImage: '/brands/mygarni-logo.png',
 	},
-	'meetdilijan.event-space.com': {
+	'meetdilijan.event-space.space': {
 		name: 'Meet Dilijan',
 		colorPrimary: '#166534',
 		colorAccent: '#7c3aed',
 		description: siteConfig.description,
 		ogImage: '/brands/meetdilijan-logo.png',
 	},
-	'onewaytour.event-space.com': {
+	'onewaytour.event-space.space': {
 		name: 'Oneway Tour',
 		colorPrimary: '#1d4ed8',
 		colorAccent: '#ea580c',
