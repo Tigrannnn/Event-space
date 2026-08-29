@@ -55,6 +55,9 @@ USER nextjs
 
 EXPOSE 3000
 ENV PORT=3000
+# Next's standalone server binds to $HOSTNAME, which Docker sets to the container
+# id; that address is unreachable from Railway's proxy and answers 502.
+ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
 
 CMD ["node", "standalone/apps/web/server.js"]
