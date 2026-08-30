@@ -109,6 +109,13 @@ export default async function Layout({ children, params }: LayoutProps) {
 		>
 			<head>
 				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${brand.colorAccent}; }`}</style>
+				{/* Read at request time so the API origin follows the running
+				    environment instead of being frozen into the built bundle. */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `window.__PUBLIC_API_URL__=${JSON.stringify(process.env.PUBLIC_API_URL ?? '')};`,
+					}}
+				/>
 			</head>
 			<body
 				className="text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
