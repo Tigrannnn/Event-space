@@ -21,9 +21,6 @@ export const EnvSchema = z.object({
 	// Optional: when set, mail goes out over Resend's HTTP API instead of SMTP,
 	// which hosts like Railway block below their paid tiers.
 	[EnvKey.RESEND_API_KEY]: z.string().optional(),
-	// Optional: widens auth cookies to a parent domain (".example.com") so the
-	// front-end host can read them while the API runs on a sibling subdomain.
-	[EnvKey.COOKIE_DOMAIN]: z.string().optional(),
 	[EnvKey.CLOUDINARY_CLOUD_NAME]: z.string(),
 	[EnvKey.CLOUDINARY_API_KEY]: z.string(),
 	[EnvKey.CLOUDINARY_API_SECRET]: z.string(),
