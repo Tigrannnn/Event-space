@@ -37,7 +37,19 @@ export async function serverFetch<T = unknown>(
       cache: 'no-store',
     });
 
-    if (!refreshRes.ok) throw new Error('Refresh failed');
+    if (!refreshRes.ok) {
+      // The API reports the reason in the body; without it a failed refresh is
+      // indistinguishable from an expired, reused or unknown token.
+      console.error('[server-fetch] refresh rejected', {
+        endpoint,
+        refreshStatus: refreshRes.status,
+        refreshBody: await refreshRes.text().catch(() => '<unreadable>'),
+        hasAccessToken: Boolean(cookieStore.get('accessToken')?.value),
+        hasRefreshToken: Boolean(cookieStore.get('refreshToken')?.value),
+      });
+
+      throw new Error('Refresh failed');
+    }
 
     const setCookies = refreshRes.headers.getSetCookie?.() ?? [];
     for (const cookie of setCookies) {
