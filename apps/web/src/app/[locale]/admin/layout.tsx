@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { serverFetch } from '@/lib/server.api';
 import { SafeUserData } from '@event-space/shared';
@@ -15,14 +16,23 @@ export default async function AdminLayout({
 	children: React.ReactNode;
 }>) {
 	let user: SafeUserData | null = null;
+	let failure: unknown = null;
 
 	try {
 		user = await serverFetch('/users/me');
-	} catch {
-		redirect('/');
+	} catch (error) {
+		failure = error;
 	}
 
-	if (user?.role !== 'ADMIN') {
+	// redirect() throws its own control-flow error, so it has to stay out of the
+	// try above; the log records why access was denied — the guard is silent
+	// otherwise and the cause is invisible in production.
+	if (!user || user.role !== 'ADMIN') {
+		console.error('[admin-guard] denied', {
+			cookies: (await cookies()).getAll().map(({ name }) => name),
+			role: user?.role ?? null,
+			failure: failure instanceof Error ? failure.message : failure,
+		});
 		redirect('/');
 	}
 
