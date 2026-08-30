@@ -18,11 +18,13 @@ export default async function AdminLayout({
 
 	try {
 		user = await serverFetch('/users/me');
-	} catch {
+	} catch (error) {
+		console.error('[admin-guard] /users/me failed:', error);
 		redirect('/');
 	}
 
 	if (user?.role !== 'ADMIN') {
+		console.error('[admin-guard] role mismatch, received:', JSON.stringify(user));
 		redirect('/');
 	}
 
