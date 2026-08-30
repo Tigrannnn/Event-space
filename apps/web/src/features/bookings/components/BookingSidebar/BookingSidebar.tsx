@@ -19,11 +19,9 @@ import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
-import { formatCurrency } from '@/utils/currency';
 import { ModalType, useModalStore } from '@/stores';
 import React from 'react';
-import { formatDateTime } from '@/utils/date';
-import { useFormatDate } from '@/hooks/format';
+import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -31,6 +29,7 @@ export interface BookingSidebarProps {
 
 export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const { formatDateTime } = useFormatDate();
+	const formatCurrency = useFormatCurrency();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
 	const locale = translate.locale;
