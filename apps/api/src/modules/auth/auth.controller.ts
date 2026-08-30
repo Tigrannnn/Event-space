@@ -14,7 +14,6 @@ import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import {
 	AUTH_CONFIG,
 	AppErrorCode,
-	EnvKey,
 	ForgotPasswordSchema,
 	GoogleLoginSchema,
 	LoginSchema,
@@ -42,43 +41,42 @@ import { getReference } from '@infra/swagger/swagger.utils';
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
-	/**
-	 * Shared cookie attributes. COOKIE_DOMAIN widens the cookie to the whole
-	 * site (".example.com") so the front-end host can read it during SSR while
-	 * the API is served from a sibling subdomain; unset for single-host setups.
-	 */
-	private cookieOptions() {
-		const domain = process.env[EnvKey.COOKIE_DOMAIN];
-
-		return {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
-			sameSite: 'strict' as const,
-			path: '/',
-			...(domain && { domain }),
-		};
-	}
-
 	private setAccessTokenCookie(res: express.Response, token: string) {
 		res.cookie('accessToken', token, {
-			...this.cookieOptions(),
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
 			maxAge: AUTH_CONFIG.ACCESS.ACCESS_TOKEN_EXPIRY_MS,
+			path: '/',
 		});
 	}
 
 	private clearAccessTokenCookie(res: express.Response) {
-		res.clearCookie('accessToken', this.cookieOptions());
+		res.clearCookie('accessToken', {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
+			path: '/',
+		});
 	}
 
 	private setRefreshTokenCookie(res: express.Response, token: string) {
 		res.cookie('refreshToken', token, {
-			...this.cookieOptions(),
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
 			maxAge: AUTH_CONFIG.REFRESH.REFRESH_TOKEN_EXPIRY_MS,
+			path: '/',
 		});
 	}
 
 	private clearRefreshTokenCookie(res: express.Response) {
-		res.clearCookie('refreshToken', this.cookieOptions());
+		res.clearCookie('refreshToken', {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === 'production',
+			sameSite: 'strict',
+			path: '/',
+		});
 	}
 
 	@Post('register')
