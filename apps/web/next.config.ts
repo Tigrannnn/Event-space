@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
 	env: {
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 		STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+		PUBLIC_API_URL: process.env.PUBLIC_API_URL,
 	},
 	images: {
 		remotePatterns: [

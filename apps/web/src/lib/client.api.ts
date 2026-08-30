@@ -2,7 +2,11 @@ import { EnvKey } from '@event-space/shared';
 import axios from 'axios';
 
 const SERVER_API_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
-const BASE_URL = typeof window === 'undefined' ? SERVER_API_URL : '/api';
+// In the browser, call the API's public origin directly when it is configured:
+// Next answers cross-host rewrites with a 301, and following it downgrades POST
+// to GET. Falls back to the /api rewrite locally, where both run on one host.
+const PUBLIC_API_URL = process.env[EnvKey.PUBLIC_API_URL];
+const BASE_URL = typeof window === 'undefined' ? SERVER_API_URL : PUBLIC_API_URL || '/api';
 
 const clientApi = axios.create({
 	baseURL: BASE_URL,

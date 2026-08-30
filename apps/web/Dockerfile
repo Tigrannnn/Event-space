@@ -23,6 +23,9 @@ ARG STRIPE_PUBLISHABLE_KEY
 ENV STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY
 ARG API_URL
 ENV API_URL=$API_URL
+# Browser-facing API origin; inlined into the bundle by next.config's env block.
+ARG PUBLIC_API_URL
+ENV PUBLIC_API_URL=$PUBLIC_API_URL
 
 COPY --from=deps /app ./
 
