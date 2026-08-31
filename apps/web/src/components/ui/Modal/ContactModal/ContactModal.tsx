@@ -6,12 +6,13 @@ import Modal from '../Modal';
 import Button from '../../Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
 import { Instagram, Phone, Mail, MapPin } from 'lucide-react';
-import { COMPANY_CONFIG } from '@/config/сompany';
+import { useBrand } from '@/providers/BrandProvider';
 
 export default function ContactModal() {
 	const { closeModal } = useModalStore();
 	const data = useModalData(ModalType.ContactInfo);
 	const translate = useTranslation();
+	const { contact } = useBrand();
 
 	if (!data) return null;
 
@@ -81,7 +82,7 @@ export default function ContactModal() {
 			case ContactType.Location:
 				// data.value is the human-readable address shown in the box below; the map link
 				// lives separately in config since a street address isn't itself a valid URL.
-				window.open(COMPANY_CONFIG.location.mapsUrl, '_blank');
+				if (contact.location) window.open(contact.location.mapsUrl, '_blank');
 				break;
 		}
 		closeModal();

@@ -1,8 +1,8 @@
 'use client';
 
 import { Mail, Phone, Instagram, MapPin } from 'lucide-react';
-import { COMPANY_CONFIG } from '@/config/сompany';
 import { useTranslation } from '@/hooks/translation';
+import { useBrand } from '@/providers/BrandProvider';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ContactType, ModalType } from '@/stores/modalStore/types';
@@ -10,6 +10,7 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
 	const translate = useTranslation();
+	const { contact } = useBrand();
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
 
@@ -27,9 +28,9 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 		>
 			<div className="mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
 				<div className="flex items-center gap-4 sm:gap-6">
-					{COMPANY_CONFIG.instagram && (
+					{contact.instagram && (
 						<button
-							onClick={() => handleOpenContact(ContactType.Instagram, COMPANY_CONFIG.instagram)}
+							onClick={() => handleOpenContact(ContactType.Instagram, contact.instagram as string)}
 							className="group flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={translate('header.visitInstagram')}
 							type="button"
@@ -38,33 +39,31 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 						</button>
 					)}
 
-					{COMPANY_CONFIG.phone && (
+					{contact.phone && (
 						<button
-							onClick={() => handleOpenContact(ContactType.Phone, COMPANY_CONFIG.phone)}
+							onClick={() => handleOpenContact(ContactType.Phone, contact.phone as string)}
 							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
-							aria-label={`Call ${COMPANY_CONFIG.phone}`}
+							aria-label={`Call ${contact.phone}`}
 							type="button"
 						>
 							<Phone className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
 						</button>
 					)}
 
-					{COMPANY_CONFIG.email && (
+					{contact.email && (
 						<button
-							onClick={() => handleOpenContact(ContactType.Email, COMPANY_CONFIG.email)}
+							onClick={() => handleOpenContact(ContactType.Email, contact.email as string)}
 							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
-							aria-label={`Email ${COMPANY_CONFIG.email}`}
+							aria-label={`Email ${contact.email}`}
 							type="button"
 						>
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
 						</button>
 					)}
 
-					{COMPANY_CONFIG.location && (
+					{contact.location && (
 						<button
-							onClick={() =>
-								handleOpenContact(ContactType.Location, COMPANY_CONFIG.location.address)
-							}
+							onClick={() => handleOpenContact(ContactType.Location, contact.location!.address)}
 							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={translate('header.viewLocation')}
 							type="button"

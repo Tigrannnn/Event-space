@@ -170,6 +170,7 @@ export const useLogout = () => {
 			queryClient.setQueryData(['me'], null);
 			await Promise.all([
 				queryClient.removeQueries({ queryKey: ['my-bookings'] }),
+				queryClient.removeQueries({ queryKey: ['favorites'] }),
 				queryClient.removeQueries({ queryKey: ['events'] }),
 				queryClient.removeQueries({ queryKey: ['event'] }),
 				queryClient.removeQueries({ queryKey: ['admin'] }),
