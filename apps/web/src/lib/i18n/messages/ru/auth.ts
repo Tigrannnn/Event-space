@@ -8,7 +8,7 @@ export const auth: Messages['auth'] = {
 	forgotPasswordAria: 'Окно восстановления пароля',
 	welcomeBack: 'С возвращением',
 	loginSubtitle: 'Войдите, чтобы продолжить ваши приключения.',
-	registerTitle: 'Добро пожаловать в Event Space',
+	registerTitle: 'Добро пожаловать в {brand}',
 	registerSubtitle: 'Создайте аккаунт, чтобы присоединяться к локальным приключениям.',
 	verifyEmailTitle: 'Подтвердите email',
 	verifyEmailSubtitle: 'Введите 6-значный код, отправленный на вашу почту.',

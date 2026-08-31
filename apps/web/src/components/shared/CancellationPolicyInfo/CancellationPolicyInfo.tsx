@@ -49,11 +49,11 @@ export default function CancellationPolicyInfo({
 		const feeInDollars = (stripeFeeInCents / 100).toFixed(2);
 		
 		if (afterFee <= 0) {
-			return `${formatCurrency(0)} (${refundPercentage}% ${translate('cancellation.doesntCoverFee')}`;
+			return `${formatCurrency(0)} (${refundPercentage}% ${translate('cancellation.doesntCoverFee')})`;
 		}
 
 		const afterFeeInDollars = (afterFee / 100).toFixed(2);
-		return `~${formatCurrency(afterFeeInDollars)} (${refundPercentage}% - ~${formatCurrency(feeInDollars)})}`;
+		return `~${formatCurrency(afterFeeInDollars)} (${refundPercentage}% - ~${formatCurrency(feeInDollars)})`;
 	};
 
 	const lines: string[] = [];

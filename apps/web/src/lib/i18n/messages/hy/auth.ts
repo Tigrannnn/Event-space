@@ -8,7 +8,7 @@ export const auth: Messages['auth'] = {
 	forgotPasswordAria: 'Գաղտնաբառի վերականգնման պատուհան',
 	welcomeBack: 'Բարի վերադարձ',
 	loginSubtitle: 'Մուտք գործեք՝ ձեր արկածները շարունակելու համար։',
-	registerTitle: 'Բարի գալուստ Event Space',
+	registerTitle: 'Բարի գալուստ {brand}',
 	registerSubtitle: 'Ստեղծեք հաշիվ՝ տեղական արկածներին միանալու համար։',
 	verifyEmailTitle: 'Հաստատեք էլ. փոստը',
 	verifyEmailSubtitle: 'Մուտքագրեք էլ. փոստին ուղարկված 6-նիշ կոդը։',

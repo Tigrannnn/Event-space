@@ -10,6 +10,7 @@ import VerifyEmailForm from './VerifyEmailForm';
 import { authModalConfig } from './authModalConfig';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { useTranslation } from '@/hooks/translation';
+import { useBrand } from '@/providers/BrandProvider';
 
 /**
  * AuthModal wraps LoginForm or RegisterForm with the universal Modal component.
@@ -18,6 +19,7 @@ import { useTranslation } from '@/hooks/translation';
 export default function AuthModal() {
 	const { activeModal, openModal, closeModal } = useModalStore();
 	const translate = useTranslation();
+	const brand = useBrand();
 
 	const config = authModalConfig[activeModal as ModalType];
 
@@ -33,7 +35,11 @@ export default function AuthModal() {
 			{config && (
 				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50">
 					{/* Header */}
-					<ModalHeader title={translate(config.title)} subtitle={translate(config.subtitle)} onClose={closeModal} />
+					<ModalHeader
+							title={translate(config.title, { brand: brand.name })}
+							subtitle={translate(config.subtitle)}
+							onClose={closeModal}
+						/>
 
 					{/* Form */}
 					{activeModal === ModalType.Login && <LoginForm />}

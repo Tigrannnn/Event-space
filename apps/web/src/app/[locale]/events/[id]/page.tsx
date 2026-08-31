@@ -7,6 +7,7 @@ import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
 import { getRequestLocale, localeAlternates, localeUrl } from '@/lib/seo';
 import { buildEventJsonLd, serializeJsonLd } from '@/lib/structured-data';
+import { getBrandForHost } from '@/config/brands';
 
 interface EventPageProps {
 	params: Promise<{ id: string }>;
@@ -40,13 +41,15 @@ export default async function EventPage({ params }: EventPageProps) {
 // Generate metadata for SEO
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
-	const localeHeader = (await headers()).get('x-locale');
+	const requestHeaders = await headers();
+	const localeHeader = requestHeaders.get('x-locale');
 	const locale: Locale = localeHeader && isLocale(localeHeader) ? localeHeader : defaultLocale;
+	const brand = getBrandForHost(requestHeaders.get('host'));
 	const event = await serverFetch<Event>(`/events/${id}`);
 
 	if (!event) {
 		return {
-			title: `${translate(locale, 'common.eventNotFound')} | Event Space`,
+			title: `${translate(locale, 'common.eventNotFound')} | ${brand.name}`,
 		};
 	}
 
@@ -54,11 +57,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 	const coverImageUrl = getEventCoverImageUrl(event);
 
 	return {
-		title: `${t.title} | Event Flow`,
+		title: `${t.title} | ${brand.name}`,
 		description: t.description,
 		alternates: localeAlternates(locale, `/events/${id}`),
 		openGraph: {
-			title: `${t.title} | Event Flow`,
+			title: `${t.title} | ${brand.name}`,
 			description: t.description,
 			...(coverImageUrl
 				? {
@@ -77,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 		},
 		twitter: {
 			card: 'summary_large_image',
-			title: `${t.title} | Event Flow`,
+			title: `${t.title} | ${brand.name}`,
 			description: t.description,
 			...(coverImageUrl ? { images: [coverImageUrl] } : {}),
 		},

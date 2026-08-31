@@ -6,7 +6,7 @@ export const auth = {
 	forgotPasswordAria: 'Forgot password modal',
 	welcomeBack: 'Welcome Back',
 	loginSubtitle: 'Log in to continue your adventures.',
-	registerTitle: 'Welcome to Event Space',
+	registerTitle: 'Welcome to {brand}',
 	registerSubtitle: 'Create an account to join local adventures.',
 	verifyEmailTitle: 'Verify Your Email',
 	verifyEmailSubtitle: 'Enter the 6-digit code sent to your email.',
