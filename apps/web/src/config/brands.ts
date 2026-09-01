@@ -134,6 +134,35 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Oneway Tour'),
 	},
+	// Real prospect (not a placeholder): @one_day_tour_armenia on Instagram.
+	// Colors/logo/phone are theirs; story/mission still need their own words.
+	'onedaytour.event-space.space': {
+		name: 'One Day Tour',
+		colorPrimary: '#2d68a6',
+		colorAccent: '#f1b140',
+		description: siteConfig.description,
+		ogImage: '/brands/onedaytour-logo.png',
+		contact: {
+			instagram: 'https://instagram.com/one_day_tour_armenia',
+			phone: '+374 91 967636',
+			email: 'info@onedaytour.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: {
+			ru: {
+				...placeholderAbout('One Day Tour').ru,
+				tagline: 'Discover Armenia',
+			},
+			en: {
+				...placeholderAbout('One Day Tour').en,
+				tagline: 'Discover Armenia',
+			},
+			hy: {
+				...placeholderAbout('One Day Tour').hy,
+				tagline: 'Discover Armenia',
+			},
+		},
+	},
 };
 
 export function getBrandForHost(host: string | null): Brand {
