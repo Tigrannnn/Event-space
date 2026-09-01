@@ -141,7 +141,7 @@ const brands: Record<string, Brand> = {
 		colorPrimary: '#2d68a6',
 		colorAccent: '#f1b140',
 		description: siteConfig.description,
-		ogImage: '/brands/onedaytour-logo.png',
+		ogImage: '/brands/onedaytour-logo.jpg',
 		contact: {
 			instagram: 'https://instagram.com/one_day_tour_armenia',
 			phone: '+374 91 967636',
