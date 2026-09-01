@@ -64,8 +64,8 @@ export async function generateMetadata({
 		title,
 		description,
 		icons: {
-			icon: '/favicon.ico',
-			shortcut: '/favicon.ico',
+			icon: brand.ogImage,
+			shortcut: brand.ogImage,
 			apple: [{ url: brand.ogImage, sizes: '180x180', type: 'image/png' }],
 		},
 		openGraph: {
