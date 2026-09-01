@@ -116,6 +116,15 @@ export default async function Layout({ children, params }: LayoutProps) {
 						__html: `window.__PUBLIC_API_URL__=${JSON.stringify(process.env.PUBLIC_API_URL ?? '')};`,
 					}}
 				/>
+				{/* Umami: cookie-less analytics, so no consent banner is needed. The id is
+				    per-deployment, and omitting it simply leaves local runs untracked. */}
+				{process.env.UMAMI_WEBSITE_ID && (
+					<script
+						defer
+						src="https://cloud.umami.is/script.js"
+						data-website-id={process.env.UMAMI_WEBSITE_ID}
+					/>
+				)}
 			</head>
 			<body
 				className="text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
