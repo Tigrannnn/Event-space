@@ -6,6 +6,12 @@ import { getSiteUrl } from '@/lib/site-url';
 const PRIVATE_PATHS = ['/admin', '/profile', '/bookings', '/favorites'];
 
 /**
+ * Rendered per request for the same reason as the sitemap: the origin comes from the
+ * environment, and prerendering freezes the localhost fallback into the published file.
+ */
+export const dynamic = 'force-dynamic';
+
+/**
  * Served at /robots.txt.
  *
  * The private sections are listed once per locale rather than matched with a wildcard: every URL

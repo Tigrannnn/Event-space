@@ -24,10 +24,11 @@ const PAGE_SIZE = 100;
 const MAX_PAGES = 20;
 
 /**
- * Crawlers re-read a sitemap far more often than the catalogue changes, so the whole file is
- * cached for an hour rather than rebuilt per visit.
+ * Rendered per request rather than at build time: the site's own origin comes from the
+ * environment, and a prerendered sitemap freezes whatever was set during `docker build` —
+ * which is nothing, so every URL came out as the localhost fallback.
  */
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 type EventSummary = { id: string; updatedAt?: string };
 
