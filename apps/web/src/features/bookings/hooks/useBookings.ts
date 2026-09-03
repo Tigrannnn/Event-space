@@ -29,6 +29,9 @@ export const useCreateBooking = () => {
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
+				// The booking form's phone number is saved onto the account when it has
+				// none, so the profile is stale the moment a booking is created.
+				queryClient.invalidateQueries({ queryKey: ['me'] }),
 			]);
 		},
 	});
