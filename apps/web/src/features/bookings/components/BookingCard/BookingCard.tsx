@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
-import { Calendar, MapPin, Navigation, Users } from 'lucide-react';
+import { Calendar, MapPin, Navigation, Plus, Users } from 'lucide-react';
 import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
@@ -17,8 +17,8 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
-// import { useModalStore } from '@/stores';
-// import { ModalType } from '@/stores/modalStore';
+import { useModalStore } from '@/stores';
+import { ModalType } from '@/stores/modalStore';
 
 interface BookingCardProps {
 	booking: BookingWithEstimate;
@@ -33,21 +33,23 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
-	// const { openModal } = useModalStore();
+	const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
 	const confirm = useConfirm();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const navigation = useLocalizedNavigation();
 
-	// const handleUpdate = () => {
-	// 	openModal(ModalType.UpdateBooking, { booking });
-	// };
-
 	if (!occurrence || !event) return null;
 
 	const occurrenceIsAvailable = new Date(occurrence.date) > new Date();
 	const occurrenceDate = occurrence.date;
+	// This booking covers one date; the event may still have others left to book.
+	const canBookAnotherDate = isEventAvailable(event);
+
+	const handleBookAnotherDate = () => {
+		openModal(ModalType.CreateBooking, { event });
+	};
 
 	const handleCancel = async () => {
 		let refundMessage = translate('booking.noRefund');
@@ -211,9 +213,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex gap-2">
-					{/* <Button variant="primary" size="sm" className="flex-1" onClick={handleUpdate}>
-						Update
-					</Button> */}
 					<Button
 						variant="primary"
 						size="sm"
@@ -235,6 +234,18 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								{translate('booking.cancel')}
 							</Button>
 						)}
+					{canBookAnotherDate && (
+						<Button
+							variant="primary"
+							size="sm"
+							className="w-10 shrink-0 px-0"
+							onClick={handleBookAnotherDate}
+							aria-label={translate('event.bookAnotherSpot')}
+							title={translate('event.bookAnotherSpot')}
+						>
+							<Plus className="h-4 w-4" strokeWidth={2.5} />
+						</Button>
+					)}
 				</div>
 			</div>
 		</div>

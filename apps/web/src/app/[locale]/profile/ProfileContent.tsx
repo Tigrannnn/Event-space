@@ -2,7 +2,7 @@
 
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
-import { ArrowRight, CogIcon, LogOut, ShieldCheck, Ticket, User, UserCog } from 'lucide-react';
+import { ArrowRight, CogIcon, Heart, LogOut, ShieldCheck, Ticket, User, UserCog } from 'lucide-react';
 import { useConfirm } from '@/hooks/confirmModal';
 import { SafeUserData } from '@event-space/shared';
 import { useCurrentUser } from '@/features/users';
@@ -157,6 +157,24 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 								<div className="text-left">
 									<p className="font-medium text-gray-900 dark:text-white">{translate('profile.myBookings')}</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400">{translate('profile.viewBookings')}</p>
+								</div>
+							</div>
+							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
+						</button>
+
+						<button
+							onClick={() => navigation.push('/favorites')}
+							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
+						>
+							<div className="flex items-center gap-3">
+								<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/30 sm:h-10 sm:w-10">
+									<Heart className="h-4 w-4 text-rose-600 dark:text-rose-400 sm:h-5 sm:w-5" />
+								</div>
+								<div className="text-left">
+									<p className="font-medium text-gray-900 dark:text-white">{translate('favorites.title')}</p>
+									<p className="text-sm text-gray-500 dark:text-gray-400">
+										{translate('favorites.subtitle')}
+									</p>
 								</div>
 							</div>
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
