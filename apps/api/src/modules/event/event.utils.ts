@@ -79,47 +79,63 @@ export interface GuestCapacityEventLike {
 	occurrences?: GuestCapacityOccurrenceLike[] | null;
 }
 
+/**
+ * A party of N fits an event as soon as ONE bookable date has room for it — the
+ * other dates being smaller says nothing about that one. Restricted to the same
+ * window the date filter applies in SQL, so guests and dates narrow together:
+ * a date with enough room outside the picked range must not rescue the event.
+ */
 export function eventMatchesGuestCapacity(
 	event: GuestCapacityEventLike,
 	guestCount: number,
+	dateWindow?: OccurrenceDateWindow,
 ): boolean {
 	if (!guestCount || guestCount <= 0) {
 		return true;
 	}
 
 	const now = new Date();
-	const futureOccurrences = (event.occurrences ?? []).filter(
-		(occurrence) => new Date(occurrence.date) > now && occurrence.status === 'ACTIVE',
-	);
 
-	if (futureOccurrences.length === 0) {
-		return false;
-	}
+	return (event.occurrences ?? []).some((occurrence) => {
+		if (occurrence.status !== 'ACTIVE') return false;
 
-	const minFreeSpots = futureOccurrences.reduce((min, occurrence) => {
+		const date = new Date(occurrence.date);
+		if (date <= now) return false;
+		if (dateWindow?.from && date < dateWindow.from) return false;
+		if (dateWindow?.to && date > dateWindow.to) return false;
+
 		const currentParticipants = Number(occurrence.currentParticipants ?? 0);
 		const maxParticipants = Number(occurrence.maxParticipants ?? 0);
-		const freeSpots = Math.max(0, maxParticipants - currentParticipants);
-		return Math.min(min, freeSpots);
-	}, Number.POSITIVE_INFINITY);
+		return Math.max(0, maxParticipants - currentParticipants) >= guestCount;
+	});
+}
 
-	return minFreeSpots >= guestCount;
+/** Inclusive bounds of the `startDate`/`endDate` filter, as plain dates. */
+export interface OccurrenceDateWindow {
+	from?: Date;
+	to?: Date;
+}
+
+/**
+ * Parses the raw date params once, so the SQL filter below and the in-memory
+ * guest filter above can never disagree about which dates are in range.
+ */
+export function buildOccurrenceDateWindow(startDate?: string, endDate?: string): OccurrenceDateWindow {
+	return {
+		...(startDate ? { from: new Date(`${startDate}T00:00:00.000`) } : {}),
+		...(endDate ? { to: new Date(`${endDate}T23:59:59.999`) } : {}),
+	};
 }
 
 export function buildOccurrenceDateFilter(startDate?: string, endDate?: string): Prisma.DateTimeFilter | undefined {
-	if (!startDate && !endDate) {
+	const { from, to } = buildOccurrenceDateWindow(startDate, endDate);
+
+	if (!from && !to) {
 		return undefined;
 	}
 
-	const filter: Prisma.DateTimeFilter = {};
-
-	if (startDate) {
-		filter.gte = new Date(`${startDate}T00:00:00.000`);
-	}
-
-	if (endDate) {
-		filter.lte = new Date(`${endDate}T23:59:59.999`);
-	}
-
-	return filter;
+	return {
+		...(from ? { gte: from } : {}),
+		...(to ? { lte: to } : {}),
+	};
 }

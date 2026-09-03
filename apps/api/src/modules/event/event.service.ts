@@ -19,6 +19,7 @@ import {
 	assertCanModify,
 	buildNewImageRows,
 	buildOccurrenceDateFilter,
+	buildOccurrenceDateWindow,
 	eventMatchesGuestCapacity,
 	findRemovedImages,
 	sortByOrder,
@@ -125,6 +126,7 @@ export class EventService {
 					}
 				: {};
 
+		const occurrenceDateWindow = buildOccurrenceDateWindow(startDate, endDate);
 		const occurrenceDateFilter: Prisma.DateTimeFilter = buildOccurrenceDateFilter(
 			startDate,
 			endDate,
@@ -173,7 +175,7 @@ export class EventService {
 
 		const filteredByGuestCapacity =
 			guests && guests > 0
-				? events.filter((event) => eventMatchesGuestCapacity(event, guests))
+				? events.filter((event) => eventMatchesGuestCapacity(event, guests, occurrenceDateWindow))
 				: events;
 
 		const hasMore = filteredByGuestCapacity.length > limit;
