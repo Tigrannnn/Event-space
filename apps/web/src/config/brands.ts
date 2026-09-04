@@ -139,7 +139,7 @@ const brands: Record<string, Brand> = {
 	'onedaytour.event-space.space': {
 		name: 'One Day Tour',
 		colorPrimary: '#2d68a6',
-		colorAccent: '#f1b140',
+		colorAccent: '#d59d3d',
 		description: siteConfig.description,
 		ogImage: '/brands/onedaytour-logo.jpg',
 		contact: {
