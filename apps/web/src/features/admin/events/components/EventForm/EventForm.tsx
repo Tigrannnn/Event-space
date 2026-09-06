@@ -208,13 +208,13 @@ export default function EventForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 scroll-auto p-5 sm:p-6">
+		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 scroll-auto p-4 sm:p-6">
 			{showCancelConfirm && (
 				<Modal
 					onClose={handleRejectCancel}
 					ariaLabel={translate('admin.cancel')}
 					position="center"
-					contentClassName="p-8"
+					contentClassName="p-5 sm:p-8"
 					disableEscapeClose={true}
 					disableBackdropClose={true}
 				>
@@ -222,7 +222,7 @@ export default function EventForm({
 					<p className="mt-2 text-lg text-amber-700 dark:text-amber-300">
 						{translate('admin.cancelEventMessage')}
 					</p>
-					<div className="mt-4 flex gap-2">
+					<div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
 						<Button type="button" variant="secondary" onClick={handleRejectCancel} disabled={isPending}>
 							{translate('event.back')}
 						</Button>
@@ -240,17 +240,17 @@ export default function EventForm({
 
 			<div className="space-y-4">
 				<div className="space-y-3">
-					<div className="flex items-center justify-between">
+					<div className="flex flex-wrap items-center justify-between gap-2">
 						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 							{translate('admin.translations')}
 						</h3>
-						<div className="flex items-center gap-2">
+						<div className="flex flex-wrap items-center gap-2">
 							{availableLocalesToAdd.map((locale) => (
 								<Button
 									key={locale.value}
 									type="button"
 									variant="secondary"
-									className="h-8 text-xs"
+									className="h-8 px-3 text-xs whitespace-nowrap"
 									disabled={isPending}
 									onClick={() =>
 										appendTranslation({
@@ -331,7 +331,7 @@ export default function EventForm({
 								</label>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 								<label className="space-y-1.5">
 									<span className="text-sm font-semibold">{translate('admin.location')}</span>
 									<input
@@ -416,7 +416,7 @@ export default function EventForm({
 					</div>
 				</div>
 
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.locationUrl')}</span>
 						<input
@@ -445,8 +445,10 @@ export default function EventForm({
 				</div>
 
 				<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-					<div className="flex items-center justify-between">
-						<div>
+					{/* Squeezing the description into the space left by the button shreds it
+					    on a phone, so the button drops to its own row instead. */}
+					<div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
+						<div className="min-w-0">
 							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 								{translate('admin.occurrences')}
 							</h3>
@@ -455,7 +457,7 @@ export default function EventForm({
 						<Button
 							type="button"
 							variant="secondary"
-							className="h-8 text-xs"
+							className="h-8 shrink-0 px-3 text-xs whitespace-nowrap"
 							disabled={isPending}
 							onClick={() => appendOccurrence({ date: '', maxParticipants: '' })}
 						>
@@ -567,7 +569,7 @@ export default function EventForm({
 
 				<hr className="border-gray-200 dark:border-gray-700" />
 
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<div className="space-y-1.5">
 						<span className="text-sm font-semibold">
 							{translate('admin.difficulty')}{' '}
@@ -622,7 +624,7 @@ export default function EventForm({
 					</div>
 				)}
 
-				<div className="grid grid-cols-2 gap-4">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">
 							{translate('admin.price')} ({DEFAULT_CURRENCY})
@@ -651,8 +653,8 @@ export default function EventForm({
 				<hr className="border-gray-200 dark:border-gray-700" />
 
 				<div className="space-y-3">
-					<div className="flex items-center justify-between">
-						<div>
+					<div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
+						<div className="min-w-0">
 							<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 								{translate('admin.cancellationRules')}
 							</h3>
@@ -661,7 +663,7 @@ export default function EventForm({
 						<Button
 							type="button"
 							variant="secondary"
-							className="h-8 text-xs"
+							className="h-8 shrink-0 px-3 text-xs whitespace-nowrap"
 							disabled={isPending}
 							onClick={() => appendCancellation({ hoursBeforeEvent: 24, refundPercentage: 50 })}
 						>
@@ -672,8 +674,14 @@ export default function EventForm({
 					{cancellationFields.length > 0 ? (
 						<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
 							{cancellationFields.map((field, index) => (
-								<div key={field.id} className="flex items-end gap-4">
-									<label className="flex-1 space-y-1">
+								// Two number fields plus a button never fit one phone-width row —
+								// "Процент возврата (%)" alone shredded into three lines. Stacked,
+								// every label gets the full width and stays on one.
+								<div
+									key={field.id}
+									className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
+								>
+									<label className="space-y-1 sm:flex-1">
 										<span className="text-xs font-medium text-gray-500">
 											{translate('admin.hoursBeforeEvent')}
 										</span>
@@ -692,7 +700,7 @@ export default function EventForm({
 										)}
 									</label>
 
-									<label className="flex-1 space-y-1">
+									<label className="space-y-1 sm:flex-1">
 										<span className="text-xs font-medium text-gray-500">
 											{translate('admin.refundPercentage')}
 										</span>
@@ -754,7 +762,9 @@ export default function EventForm({
 				</div>
 			</div>
 
-			<div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+			{/* Stacked on phones (submit on top, since column-reverse flips the order),
+			    side by side once there is room for both labels on one line. */}
+			<div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-700">
 				<Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
 					{translate('admin.cancel')}
 				</Button>

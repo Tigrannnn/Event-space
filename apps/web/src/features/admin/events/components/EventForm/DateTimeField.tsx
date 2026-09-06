@@ -37,7 +37,9 @@ export default function DateTimeField({
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
 
 	return (
-		<div className="grid grid-cols-2 gap-2">
+		// A native date input needs room for "дд.мм.гггг" plus its picker icon, so it
+		// gets more of the row than the time input, which only shows "--:--".
+		<div className="grid grid-cols-[3fr_2fr] gap-2">
 			<input
 				ref={dateInputRef}
 				type="date"

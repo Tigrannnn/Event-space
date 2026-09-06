@@ -71,7 +71,7 @@ export default function CategoryForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-5 sm:p-6">
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-4 sm:p-6">
 			<ModalHeader
 				title={category ? translate('admin.updateCategory') : translate('admin.createCategory')}
 				onClose={onCancel}
@@ -79,17 +79,17 @@ export default function CategoryForm({
 
 			<div className="space-y-4">
 				<div className="space-y-3">
-					<div className="flex items-center justify-between">
+					<div className="flex flex-wrap items-center justify-between gap-2">
 						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 							{translate('admin.translations')}
 						</h3>
-						<div className="flex items-center gap-2">
+						<div className="flex flex-wrap items-center gap-2">
 							{availableLocalesToAdd.map((locale) => (
 								<Button
 									key={locale.value}
 									type="button"
 									variant="secondary"
-									className="h-8 text-xs"
+									className="h-8 px-3 text-xs whitespace-nowrap"
 									disabled={isPending}
 									onClick={() =>
 										appendTranslation({
@@ -183,7 +183,7 @@ export default function CategoryForm({
 				</div>
 			</div>
 
-			<div className="flex justify-end gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
+			<div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-700">
 				<Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
 					{translate('admin.cancel')}
 				</Button>
