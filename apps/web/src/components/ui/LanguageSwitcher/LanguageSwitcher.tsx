@@ -38,7 +38,8 @@ export default function LanguageSwitcher({ className, variant = 'glass' }: Langu
 						type="button"
 						onClick={() => switchLocale(item)}
 						className={cn(
-							'h-7 min-w-8 cursor-pointer rounded-md px-2 text-[10px] font-semibold transition-all',
+							// Narrower on small phones so the bar's left side keeps room for its links.
+							'h-7 min-w-7 cursor-pointer rounded-md px-1.5 text-[10px] font-semibold transition-all sm:min-w-8 sm:px-2',
 							isGlass
 								? isActive
 									? 'bg-white text-gray-900'

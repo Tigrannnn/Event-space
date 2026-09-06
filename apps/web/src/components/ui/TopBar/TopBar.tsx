@@ -26,12 +26,14 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 					: 'max-h-0 border-b-0 py-0 opacity-0 sm:py-0'
 			}`}
 		>
-			<div className="mx-auto flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
-				<div className="flex items-center gap-4 sm:gap-6">
+			{/* The bar is capped at max-h-12 and clips its overflow, so nothing here may
+			    wrap or grow: every child stays on one line and keeps its own width. */}
+			<div className="mx-auto flex h-full items-center justify-between gap-2 px-2 sm:px-6 lg:px-8">
+				<div className="flex min-w-0 items-center gap-3 sm:gap-6">
 					{contact.instagram && (
 						<button
 							onClick={() => handleOpenContact(ContactType.Instagram, contact.instagram as string)}
-							className="group flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+							className="group flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={translate('header.visitInstagram')}
 							type="button"
 						>
@@ -42,7 +44,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 					{contact.phone && (
 						<button
 							onClick={() => handleOpenContact(ContactType.Phone, contact.phone as string)}
-							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+							className="flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={`Call ${contact.phone}`}
 							type="button"
 						>
@@ -53,7 +55,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 					{contact.email && (
 						<button
 							onClick={() => handleOpenContact(ContactType.Email, contact.email as string)}
-							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+							className="flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={`Email ${contact.email}`}
 							type="button"
 						>
@@ -64,7 +66,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 					{contact.location && (
 						<button
 							onClick={() => handleOpenContact(ContactType.Location, contact.location!.address)}
-							className="flex items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
+							className="flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
 							aria-label={translate('header.viewLocation')}
 							type="button"
 						>
@@ -74,13 +76,15 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 
 					<button
 						onClick={() => navigation.push('/about')}
-						className="text-sm text-white transition-all duration-200 hover:text-white/80"
+						// The only child allowed to shrink: a long translation ellipsises here
+						// rather than pushing the language switcher off the screen.
+						className="truncate text-sm text-white transition-all duration-200 hover:text-white/80"
 						type="button"
 					>
 						{translate('header.aboutUs')}
 					</button>
 				</div>
-				<LanguageSwitcher />
+				<LanguageSwitcher className="shrink-0" />
 			</div>
 		</div>
 	);
