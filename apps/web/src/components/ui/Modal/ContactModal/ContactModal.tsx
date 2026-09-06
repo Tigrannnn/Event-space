@@ -90,19 +90,21 @@ export default function ContactModal() {
 
 	return (
 		<Modal ariaLabel={translate(getTitleKey())} onClose={closeModal} size="sm" position="center">
-			<div className="max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
+			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800">
 				<div className="mb-4 flex justify-center">{getIcon()}</div>
 				<h3 className="text-primary mb-2 text-center text-xl font-black">{translate(getTitleKey())}</h3>
 				<p className="mb-4 text-center text-gray-600 dark:text-gray-300">{translate(getDescriptionKey())}</p>
-				<div className="mb-6 rounded-xl bg-gray-100 p-4 text-center font-mono text-sm dark:bg-gray-700 dark:text-gray-200">
+				{/* A profile URL or address has few break opportunities, so let it break
+				    mid-word rather than push the modal wider than the screen. */}
+				<div className="mb-6 overflow-hidden rounded-xl bg-gray-100 p-4 text-center font-mono text-sm break-words dark:bg-gray-700 dark:text-gray-200">
 					{data.value}
 				</div>
 
-				<div className="flex gap-3">
-					<Button variant="secondary" onClick={closeModal} className="flex-1">
+				<div className="flex flex-col gap-3 sm:flex-row">
+					<Button variant="secondary" onClick={closeModal} className="sm:flex-1">
 						{translate('common.close')}
 					</Button>
-					<Button variant="primary" type="button" onClick={handleAction} className="flex-1">
+					<Button variant="primary" type="button" onClick={handleAction} className="sm:flex-1">
 						{translate(getButtonKey())}
 					</Button>
 				</div>
