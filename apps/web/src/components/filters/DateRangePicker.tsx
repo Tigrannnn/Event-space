@@ -170,6 +170,8 @@ export function DateRangePicker({
 					</div>
 				</FilterTriggerButton>
 			</PopoverTrigger>
+			{/* w-auto sizes to content; the viewport cap on PopoverContent is what makes the
+			    preset row wrap here instead of laying out on one line. */}
 			<PopoverContent
 				align="start"
 				className="text-foreground w-auto rounded-3xl p-3 shadow-lg dark:text-white"

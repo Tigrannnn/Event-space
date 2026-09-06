@@ -27,7 +27,11 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 w-72 rounded-xl border border-border bg-gray-300/70 p-4 text-foreground shadow-xl outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 dark:bg-gray-900/70 dark:text-white dark:shadow-black/50 backdrop-blur-lg",
+        // No popover may be wider than the screen: a fixed w-* overflows on a small
+        // phone, and a w-auto one sizes to its widest unwrapped row and drags itself
+        // off-screen. The cap is also what gives flex-wrap inside something to wrap
+        // against, so content lays out for the space that actually exists.
+        "z-50 w-72 max-w-[calc(100vw-1.5rem)] rounded-xl border border-border bg-gray-300/70 p-4 text-foreground shadow-xl outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 dark:bg-gray-900/70 dark:text-white dark:shadow-black/50 backdrop-blur-lg",
         className
       )}
       {...props}
