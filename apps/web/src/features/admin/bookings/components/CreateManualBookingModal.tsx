@@ -5,6 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input/Input';
+import Select from '@/components/ui/Select';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
@@ -107,7 +108,7 @@ export default function CreateManualBookingModal() {
 
 	return (
 		<Modal onClose={closeModal} ariaLabel={translate('admin.createManualBooking')} size="md">
-			<div className="p-5 sm:p-6">
+			<div className="p-4 sm:p-6">
 				<ModalHeader title={translate('admin.createManualBooking')} onClose={closeModal} />
 
 				<div className="grid gap-4">
@@ -118,20 +119,20 @@ export default function CreateManualBookingModal() {
 					/>
 
 					{selectedEvent && (
-						<select
+						<Select
 							value={formState.occurrenceId}
-							onChange={(event) => handleOccurrenceSelect(event.target.value)}
-								className="h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium outline-none"
-							>
-								<option value="">{translate('admin.selectEvent')}</option>
-								{avalibleOccurrences.map((occurrence) => (
-									<option key={occurrence.id} value={occurrence.id}>
-										{formatDateTime(occurrence.date)} —{' '}
-										{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
-										{translate('booking.spotsLeft')}
-									</option>
-								))}
-							</select>
+							onValueChange={handleOccurrenceSelect}
+							className="w-full font-medium"
+						>
+							<option value="">{translate('admin.selectEvent')}</option>
+							{avalibleOccurrences.map((occurrence) => (
+								<option key={occurrence.id} value={occurrence.id}>
+									{formatDateTime(occurrence.date)} —{' '}
+									{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
+									{translate('booking.spotsLeft')}
+								</option>
+							))}
+						</Select>
 					)}
 
 					<UserSearchSelect
@@ -168,14 +169,14 @@ export default function CreateManualBookingModal() {
 						className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
 					/>
 
-					<select
+					<Select
 						value={formState.paymentMethod}
-						onChange={(e) => handleChange('paymentMethod', e.target.value)}
-						className="h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm font-medium outline-none"
+						onValueChange={(value) => handleChange('paymentMethod', value)}
+						className="w-full font-medium"
 					>
 						<option value="OFFLINE_PAID">{translate('admin.payment.offline')}</option>
 						<option value="PAY_ON_ARRIVAL">{translate('admin.payment.onArrival')}</option>
-					</select>
+					</Select>
 
 					{selectedOccurrence && (
 						<QuantitySelector
