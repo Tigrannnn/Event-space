@@ -37,9 +37,12 @@ export default function DateTimeField({
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
 
 	return (
-		// A native date input needs room for "дд.мм.гггг" plus its picker icon, so it
-		// gets more of the row than the time input, which only shows "--:--".
-		<div className="grid grid-cols-[3fr_2fr] gap-2">
+		// Native date/time inputs have a min-content width they refuse to go below
+		// (~141px and ~96px), so on a phone-width card they blow the grid open and
+		// push the time field outside the border. Stacked until there is room; then
+		// the date gets the larger share, since "дд.мм.гггг" plus its picker icon
+		// needs more than "--:--".
+		<div className="grid grid-cols-1 gap-2 sm:grid-cols-[3fr_2fr]">
 			<input
 				ref={dateInputRef}
 				type="date"
