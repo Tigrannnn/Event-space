@@ -57,13 +57,18 @@ export default function Header() {
 	);
 
 	return (
-		<header className="from-primary to-accent relative top-0 z-40 bg-linear-to-r px-2 py-4 sm:px-8 md:py-6 lg:py-10">
+		<header className="from-primary to-accent relative top-0 z-40 bg-linear-to-r px-2 py-3 sm:px-8 md:py-6 lg:py-10">
 			<div className="mx-auto px-4 sm:px-6 lg:px-8">
-				<div className="flex items-center justify-between gap-4">
+				{/* The brand name and the search field do not fit one phone-width row, so the
+				    name takes its own line there rather than being dropped: on a demo built
+				    for a specific company, whose name is on it is the whole point. */}
+				<div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 					{/* Logo */}
 					<div
 						onClick={() => navigation.push('/')}
-						className="group hidden shrink-0 cursor-pointer rounded-xl bg-white/40 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl md:flex lg:px-4 lg:text-3xl"
+						// max-w-full + wrapping so an unusually long brand name breaks onto a
+						// second line instead of running off the side of a phone.
+						className="group flex max-w-full shrink-0 cursor-pointer flex-wrap rounded-xl bg-white/40 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl lg:px-4 lg:text-3xl"
 					>
 						<span className="text-primary group-hover:text-primary/80 transition-colors duration-300">
 							{brandFirstWord}
@@ -78,7 +83,7 @@ export default function Header() {
 						)}
 					</div>
 					{/* Search with button */}
-					<div className="flex min-w-0 flex-1 items-center gap-2">
+					<div className="flex w-full min-w-0 flex-1 items-center gap-2">
 						<div className="flex-1">
 							<SearchBar
 								value={inputValue}
