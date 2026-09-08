@@ -24,16 +24,16 @@
 		 * the browser's initial 16px, not the value set here, so sm/md/lg stay at
 		 * 640/768/1024px.
 		 */
-		font-size: 13px;
+		font-size: 12px;
 	}
 	@media (min-width: 40rem) {
 		html {
-			font-size: 14px;
+			font-size: 13px;
 		}
 	}
 	@media (min-width: 64rem) {
 		html {
-			font-size: 15px;
+			font-size: 14px;
 		}
 	}
 	button {
