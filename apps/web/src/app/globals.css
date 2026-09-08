@@ -15,9 +15,43 @@
 	}
 	html {
 		@apply font-sans;
+		/*
+		 * One knob for the density of the whole UI: Tailwind sizes both type and
+		 * spacing in rem, so the root size scales text, padding, gaps and radii
+		 * together instead of each component being retuned by hand.
+		 *
+		 * Breakpoints are unaffected — rem inside a media query resolves against
+		 * the browser's initial 16px, not the value set here, so sm/md/lg stay at
+		 * 640/768/1024px.
+		 */
+		font-size: 13px;
+	}
+	@media (min-width: 40rem) {
+		html {
+			font-size: 14px;
+		}
+	}
+	@media (min-width: 64rem) {
+		html {
+			font-size: 15px;
+		}
 	}
 	button {
 		@apply cursor-pointer;
+	}
+}
+
+/*
+ * Unlayered on purpose: it has to outrank the text-* utility sitting on the
+ * field. iOS Safari zooms the whole page when you focus an input smaller than
+ * 16px, which after the scale-down above would be every field on the site —
+ * tapping the phone number in the booking form would yank the layout around.
+ */
+@media (max-width: 39.999rem) {
+	input,
+	select,
+	textarea {
+		font-size: 16px;
 	}
 }
 
