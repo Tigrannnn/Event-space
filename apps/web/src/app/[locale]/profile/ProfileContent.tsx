@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
 import { ArrowRight, CogIcon, Heart, LogOut, ShieldCheck, Ticket, User, UserCog } from 'lucide-react';
@@ -10,6 +11,7 @@ import { useLogout } from '@/features/auth';
 import ProfileSkeleton from './ProfileSkeleton';
 import PageState from '@/components/ui/PageState';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 
 interface ProfileContentProps {
@@ -146,8 +148,8 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
 						</button>
 
-						<button
-							onClick={() => navigation.push('/bookings')}
+						<Link
+							href={localizePath('/bookings', navigation.locale)}
 							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 						>
 							<div className="flex items-center gap-3">
@@ -160,10 +162,10 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 								</div>
 							</div>
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
-						</button>
+						</Link>
 
-						<button
-							onClick={() => navigation.push('/favorites')}
+						<Link
+							href={localizePath('/favorites', navigation.locale)}
 							className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 						>
 							<div className="flex items-center gap-3">
@@ -178,11 +180,11 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 								</div>
 							</div>
 							<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
-						</button>
+						</Link>
 
 						{user.role === 'ADMIN' && (
-							<button
-								onClick={() => navigation.push('/admin/dashboard')}
+							<Link
+								href={localizePath('/admin/dashboard', navigation.locale)}
 								className="flex w-full cursor-pointer items-center justify-between p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 sm:p-4"
 							>
 								<div className="flex items-center gap-3">
@@ -197,7 +199,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 									</div>
 								</div>
 								<ArrowRight className="h-4 w-4 text-gray-400 sm:h-5 sm:w-5" />
-							</button>
+							</Link>
 						)}
 					</div>
 				</div>

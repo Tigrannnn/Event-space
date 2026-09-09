@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { localizePath } from '@/lib/i18n/config';
 import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
@@ -107,42 +109,46 @@ export default function Header() {
 						{!isHydrated || isUserLoading ? (
 							<></>
 						) : user ? (
+							// Links so Next prefetches the route before the click is made.
 							<>
-								<Button
-									variant="secondary"
-									onClick={() => navigation.push('/favorites')}
-									className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
-								>
-									{translate('header.favorites')}
-									{myFavoritesCount > 0 && (
-										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-											{myFavoritesCount}
-										</span>
-									)}
-								</Button>
+								<Link href={localizePath('/favorites', navigation.locale)}>
+									<Button
+										variant="secondary"
+										className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									>
+										{translate('header.favorites')}
+										{myFavoritesCount > 0 && (
+											<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+												{myFavoritesCount}
+											</span>
+										)}
+									</Button>
+								</Link>
 
-								<Button
-									variant="secondary"
-									onClick={() => navigation.push('/bookings')}
-									className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
-								>
-									{translate('header.bookings')}
-									{myBookingsCount > 0 && (
-										<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-											{myBookingsCount}
-										</span>
-									)}
-								</Button>
+								<Link href={localizePath('/bookings', navigation.locale)}>
+									<Button
+										variant="secondary"
+										className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									>
+										{translate('header.bookings')}
+										{myBookingsCount > 0 && (
+											<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+												{myBookingsCount}
+											</span>
+										)}
+									</Button>
+								</Link>
 
-								<Button
-									variant="secondary"
-									onClick={() => navigation.push('/profile')}
-									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
-								>
-									{user.name.split(' ')[0].trim().length <= 10
-										? user.name.split(' ')[0]
-										: translate('header.profile')}
-								</Button>
+								<Link href={localizePath('/profile', navigation.locale)}>
+									<Button
+										variant="secondary"
+										className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									>
+										{user.name.split(' ')[0].trim().length <= 10
+											? user.name.split(' ')[0]
+											: translate('header.profile')}
+									</Button>
+								</Link>
 							</>
 						) : (
 							<>

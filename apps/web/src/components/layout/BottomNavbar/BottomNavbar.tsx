@@ -1,6 +1,9 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { localizePath } from '@/lib/i18n/config';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
@@ -16,7 +19,7 @@ export default function BottomNavbar() {
 	const pathname = usePathname();
 	const isAdminPage = isRouteActive(pathname, '/admin');
 	const translate = useTranslation();
-	const router = useRouter();
+	const { locale } = useLocalizedNavigation();
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings } = useGetMyBookings();
@@ -28,64 +31,79 @@ export default function BottomNavbar() {
 		return null;
 	}
 
+	// Links rather than router.push: Next prefetches a Link's route (down to its
+	// loading boundary) before the click, so the skeleton appears immediately instead
+	// of the tab sitting dead until the server answers. The hrefs carry the locale —
+	// pushing a bare "/profile" made the middleware redirect first, costing a whole
+	// extra round trip before anything could render.
+	const linkClassName =
+		'text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800';
+	const badgeClassName =
+		'py-0.2 absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-semibold text-white';
+
 	return (
 		// hidden on md+, visible on mobile only
 		<nav className="fixed right-0 bottom-0 left-0 z-40 mx-auto flex h-12 max-w-7xl items-center justify-around border-t border-gray-200 bg-white sm:h-10 md:hidden dark:border-gray-800 dark:bg-gray-900">
-			<button
-				onClick={() => router.push('/')}
-				className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+			<Link
+				href={localizePath('/', locale)}
+				className={linkClassName}
 				aria-label={translate('header.goHome')}
 			>
 				<HomeIcon height={16} />
 				<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.home')}</span>
-			</button>
+			</Link>
 
 			{!isUserLoading && user && (
-				<button
-					onClick={() => router.push('/favorites')}
-					className="text-primary relative flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+				<Link
+					href={localizePath('/favorites', locale)}
+					className={`${linkClassName} relative`}
 					aria-label={translate('header.favorites')}
 				>
-					{myFavoritesCount > 0 && (
-						<span className="py-0.2 absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-semibold text-white">
-							{myFavoritesCount}
-						</span>
-					)}
+					{myFavoritesCount > 0 && <span className={badgeClassName}>{myFavoritesCount}</span>}
 					<Heart height={16} />
 					<span className="mt-1 text-[10px] font-medium sm:text-xs">
 						{translate('header.favorites')}
 					</span>
-				</button>
+				</Link>
 			)}
 
 			{!isUserLoading && user && (
-				<button
-					onClick={() => router.push('/bookings')}
-					className="text-primary relative flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+				<Link
+					href={localizePath('/bookings', locale)}
+					className={`${linkClassName} relative`}
 					aria-label={translate('header.bookings')}
 				>
-					{myBookingsCount > 0 && (
-						<span className="py-0.2 absolute top-1 right-7 inline-flex items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-semibold text-white">
-							{myBookingsCount}
-						</span>
-					)}
+					{myBookingsCount > 0 && <span className={badgeClassName}>{myBookingsCount}</span>}
 					<Ticket height={16} />
 					<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.bookings')}</span>
-				</button>
+				</Link>
 			)}
 
-			{!isUserLoading && (
-				<button
-					onClick={() => (user ? router.push('/profile') : openModal(ModalType.Register))}
-					className="text-primary flex h-full w-full flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-					aria-label={user ? translate('header.goProfile') : translate('header.signUp')}
-				>
-					<UserIcon height={16} />
-					<span className="mt-1 text-[10px] font-medium sm:text-xs">
-						{user ? translate('header.profile') : translate('header.signUp')}
-					</span>
-				</button>
-			)}
+			{!isUserLoading &&
+				(user ? (
+					<Link
+						href={localizePath('/profile', locale)}
+						className={linkClassName}
+						aria-label={translate('header.goProfile')}
+					>
+						<UserIcon height={16} />
+						<span className="mt-1 text-[10px] font-medium sm:text-xs">
+							{translate('header.profile')}
+						</span>
+					</Link>
+				) : (
+					// Signing up opens a modal — an action, not a destination, so not a link.
+					<button
+						onClick={() => openModal(ModalType.Register)}
+						className={linkClassName}
+						aria-label={translate('header.signUp')}
+					>
+						<UserIcon height={16} />
+						<span className="mt-1 text-[10px] font-medium sm:text-xs">
+							{translate('header.signUp')}
+						</span>
+					</button>
+				))}
 		</nav>
 	);
 }
