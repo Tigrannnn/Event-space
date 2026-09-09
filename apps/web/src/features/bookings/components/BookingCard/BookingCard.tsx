@@ -13,7 +13,6 @@ import { EventImageWithFallback } from '@/features/events';
 import type { BookingWithEstimate } from '@event-space/shared';
 import { localizePath, localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
@@ -38,7 +37,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const confirm = useConfirm();
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const navigation = useLocalizedNavigation();
 
 	if (!occurrence || !event) return null;
 
@@ -213,14 +211,12 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex gap-2">
-					<Button
-						variant="primary"
-						size="sm"
-						className="flex-1"
-						onClick={() => navigation.push(`/events/${event.id}`)}
-					>
-						{translate('booking.viewEvent')}
-					</Button>
+					{/* Link so the event page is prefetched before the click. */}
+					<Link href={localizePath(`/events/${event.id}`, locale)} className="flex-1">
+						<Button variant="primary" size="sm" className="w-full">
+							{translate('booking.viewEvent')}
+						</Button>
+					</Link>
 					{occurrenceIsAvailable &&
 						booking.paymentMethod === 'SITE_PAYMENT' &&
 						booking.status === 'CONFIRMED' && (

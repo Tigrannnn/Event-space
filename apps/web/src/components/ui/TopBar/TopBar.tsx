@@ -6,7 +6,9 @@ import { useBrand } from '@/providers/BrandProvider';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ContactType, ModalType } from '@/stores/modalStore/types';
+import Link from 'next/link';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { localizePath } from '@/lib/i18n/config';
 
 export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }) {
 	const translate = useTranslation();
@@ -74,15 +76,14 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 						</button>
 					)}
 
-					<button
-						onClick={() => navigation.push('/about')}
-						// The only child allowed to shrink: a long translation ellipsises here
-						// rather than pushing the language switcher off the screen.
+					{/* The only child allowed to shrink: a long translation ellipsises here
+					    rather than pushing the language switcher off the screen. */}
+					<Link
+						href={localizePath('/about', navigation.locale)}
 						className="truncate text-sm text-white transition-all duration-200 hover:text-white/80"
-						type="button"
 					>
 						{translate('header.aboutUs')}
-					</button>
+					</Link>
 				</div>
 				<LanguageSwitcher className="shrink-0" />
 			</div>

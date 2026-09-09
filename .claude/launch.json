@@ -8,6 +8,12 @@
 			"port": 3000
 		},
 		{
+			"name": "web-prod",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["--workspace", "apps/web", "run", "start"],
+			"port": 3000
+		},
+		{
 			"name": "api",
 			"runtimeExecutable": "npm",
 			"runtimeArgs": ["run", "api:dev"],

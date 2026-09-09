@@ -29,7 +29,6 @@ import { BookOpen, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useFormatDate } from '@/hooks/format';
 
 export default function EventCard({ event }: EventCardProps) {
@@ -37,7 +36,6 @@ export default function EventCard({ event }: EventCardProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
-	const navigation = useLocalizedNavigation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
 
@@ -73,12 +71,6 @@ export default function EventCard({ event }: EventCardProps) {
 		} else {
 			openModal(ModalType.Register);
 		}
-	};
-
-	const handleViewBooking = (e: React.MouseEvent) => {
-		e.stopPropagation();
-		e.preventDefault();
-		navigation.push('/bookings');
 	};
 
 	return (
@@ -148,14 +140,14 @@ export default function EventCard({ event }: EventCardProps) {
 							className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm"
 							role="group"
 						>
-							<button
-								type="button"
-								onClick={handleViewBooking}
+							<Link
+								href={localizePath('/bookings', locale)}
+								onClick={(e) => e.stopPropagation()}
 								className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
 							>
 								<Ticket className="h-4 w-4 shrink-0" />
 								<span className="truncate">{translate('event.viewMyBooking')}</span>
-							</button>
+							</Link>
 							<button
 								type="button"
 								onClick={handleBookClick}

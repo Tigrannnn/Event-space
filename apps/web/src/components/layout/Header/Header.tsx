@@ -66,8 +66,8 @@ export default function Header() {
 				    for a specific company, whose name is on it is the whole point. */}
 				<div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 					{/* Logo */}
-					<div
-						onClick={() => navigation.push('/')}
+					<Link
+						href={localizePath('/', navigation.locale)}
 						// max-w-full + wrapping so an unusually long brand name breaks onto a
 						// second line instead of running off the side of a phone.
 						className="group flex max-w-full shrink-0 cursor-pointer flex-wrap rounded-xl bg-white/40 px-2.5 py-1.5 text-xl leading-none font-black tracking-tighter uppercase backdrop-blur-md transition-all duration-300 hover:bg-white/25 sm:px-3 sm:py-2 sm:text-2xl lg:px-4 lg:text-3xl"
@@ -83,7 +83,7 @@ export default function Header() {
 								</span>
 							</>
 						)}
-					</div>
+					</Link>
 					{/* Search with button */}
 					<div className="flex w-full min-w-0 flex-1 items-center gap-2">
 						<div className="flex-1">
