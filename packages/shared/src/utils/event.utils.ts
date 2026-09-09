@@ -89,3 +89,43 @@ export function getEventTranslation(
 	}
 	return translation as EventTranslation;
 }
+
+/**
+ * What an occurrence should read as in the UI.
+ *
+ * The database keeps only ACTIVE/CANCELLED: "finished" is a fact about the clock
+ * rather than a stored state, so nothing ever writes it. That means every view has
+ * to derive it, and if they each do it their own way they disagree — the edit form
+ * greying out a date the details modal still calls ACTIVE. Hence one function.
+ */
+export type EventOccurrenceDisplayState = 'ACTIVE' | 'FINISHED' | 'CANCELLED';
+
+export function getOccurrenceDisplayState(
+	occurrence: { date: Date | string; status?: string | null },
+	now: Date = new Date(),
+): EventOccurrenceDisplayState {
+	if (occurrence.status === 'CANCELLED') return 'CANCELLED';
+	return new Date(occurrence.date) <= now ? 'FINISHED' : 'ACTIVE';
+}
+
+/**
+ * Splits dates into the ones still worth acting on and the ones that are history.
+ * A cancelled but still-future date stays in `upcoming`: it is a decision the admin
+ * may want to reverse, not an archive entry.
+ */
+export function splitOccurrencesByTime<T extends { date: Date | string }>(
+	occurrences: T[],
+	now: Date = new Date(),
+): { upcoming: T[]; past: T[] } {
+	const upcoming: T[] = [];
+	const past: T[] = [];
+
+	for (const occurrence of occurrences) {
+		(new Date(occurrence.date) > now ? upcoming : past).push(occurrence);
+	}
+
+	upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+	past.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+	return { upcoming, past };
+}

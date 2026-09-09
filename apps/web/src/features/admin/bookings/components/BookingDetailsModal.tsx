@@ -304,7 +304,9 @@ export default function BookingDetailsModal() {
 											{translate('event.duration')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{event?.duration ? `${event.duration} min` : '—'}
+											{event?.duration
+												? `${event.duration} ${translate('admin.minutesShort')}`
+												: '—'}
 										</p>
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

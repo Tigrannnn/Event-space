@@ -3,6 +3,7 @@
 import type {
 	EventStatus,
 	EventDifficulty,
+	EventOccurrenceDisplayState,
 	TimeFilterType,
 	BookingStatus,
 	UserRoleType,
@@ -23,6 +24,14 @@ export function useLabels() {
 		EASY: translate('admin.easy'),
 		MODERATE: translate('admin.moderate'),
 		HARD: translate('admin.hard'),
+	};
+
+	// "Finished" is derived from the date, not stored, so it lives alongside the two
+	// real database states rather than in EVENT_STATUS_LABELS.
+	const EVENT_OCCURRENCE_STATE_LABELS: Record<EventOccurrenceDisplayState, string> = {
+		ACTIVE: translate('admin.active'),
+		FINISHED: translate('admin.finished'),
+		CANCELLED: translate('admin.cancelled'),
 	};
 
 	const TIME_FILTER_LABELS: Record<TimeFilterType, string> = {
@@ -51,6 +60,7 @@ export function useLabels() {
 	return {
 		EVENT_STATUS_LABELS,
 		EVENT_DIFFICULTY_LABELS,
+		EVENT_OCCURRENCE_STATE_LABELS,
 		TIME_FILTER_LABELS,
 		BOOKING_STATUS_LABELS,
 		USER_ROLE_LABELS,

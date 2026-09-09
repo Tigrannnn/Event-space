@@ -11,10 +11,14 @@ import { useTranslation } from '@/hooks/translation';
 import {
 	getEventTranslation,
 	getCategoryTranslation,
+	getOccurrenceDisplayState,
+	splitOccurrencesByTime,
 	type BookingStatusCounts,
+	type EventOccurrenceDisplayState,
 } from '@event-space/shared';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { useState } from 'react';
 
 /** Confirmed first, then what still might convert, then what no longer counts. */
 const BOOKING_STATUS_ORDER = ['CONFIRMED', 'PENDING', 'CANCELLED', 'EXPIRED'] as const;
@@ -32,6 +36,12 @@ const STATUS_TEXT_CLASS = {
 	CANCELLED: 'text-red-500 dark:text-red-400',
 	EXPIRED: 'text-gray-400 dark:text-gray-500',
 } as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], string>;
+
+const OCCURRENCE_STATE_CLASS = {
+	ACTIVE: 'text-emerald-600 dark:text-emerald-400',
+	FINISHED: 'text-gray-400 dark:text-gray-500',
+	CANCELLED: 'text-red-500 dark:text-red-400',
+} as const satisfies Record<EventOccurrenceDisplayState, string>;
 
 function BookingStatusBreakdown({
 	stats,
@@ -66,7 +76,13 @@ export default function EventDetailsModal() {
 	const event = modalData?.event;
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
-	const { BOOKING_STATUS_LABELS } = useLabels();
+	const {
+		BOOKING_STATUS_LABELS,
+		EVENT_OCCURRENCE_STATE_LABELS,
+		EVENT_STATUS_LABELS,
+		EVENT_DIFFICULTY_LABELS,
+	} = useLabels();
+	const [showPast, setShowPast] = useState(false);
 
 	if (!event) {
 		return null;
@@ -75,6 +91,48 @@ export default function EventDetailsModal() {
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const occurrences = event.occurrences ?? [];
+	const { upcoming: upcomingOccurrences, past: pastOccurrences } =
+		splitOccurrencesByTime(occurrences);
+
+	const renderOccurrence = (occurrence: (typeof occurrences)[number]) => {
+		const state = getOccurrenceDisplayState(occurrence);
+
+		return (
+			<div
+				key={occurrence.id}
+				className="rounded-xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800"
+			>
+				<div className="flex items-center justify-between gap-2">
+					<p className="text-sm font-medium text-gray-900 dark:text-white">
+						{formatDateTime(occurrence.date)}
+					</p>
+					<span className={`shrink-0 text-xs font-medium ${OCCURRENCE_STATE_CLASS[state]}`}>
+						{EVENT_OCCURRENCE_STATE_LABELS[state]}
+					</span>
+				</div>
+				<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+					{translate('admin.seatsSold')}: {occurrence.currentParticipants}/
+					{occurrence.maxParticipants} {translate('admin.seats')}
+				</p>
+				<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+					{translate('admin.bookingsCount')}: {occurrence.bookingStats?.total ?? 0}
+				</p>
+				{occurrence.bookingStats && occurrence.bookingStats.total > 0 && (
+					<BookingStatusBreakdown
+						stats={occurrence.bookingStats}
+						labels={BOOKING_STATUS_LABELS}
+						className="mt-1"
+					/>
+				)}
+				{occurrence.cancelledAt && (
+					<p className="mt-1 text-xs text-red-500">
+						{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
+						{occurrence.cancelReason ? ` — ${occurrence.cancelReason}` : ''}
+					</p>
+				)}
+			</div>
+		);
+	};
 	const totalCapacity = occurrences.reduce((sum, o) => sum + o.maxParticipants, 0);
 	const totalBooked = occurrences.reduce((sum, o) => sum + o.currentParticipants, 0);
 	const bookingStats = event.bookingStats;
@@ -166,48 +224,34 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.date')}
 									</p>
+									{/* Only what still needs attention is listed; a year of run tours would
+									    otherwise bury the two dates the admin actually came here for. */}
 									<div className="mt-2 space-y-2">
-										{occurrences.length > 0 ? (
-											occurrences.map((occurrence) => (
-												<div key={occurrence.id} className="rounded-xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
-													<div className="flex items-center justify-between">
-														<p className="text-sm font-medium text-gray-900 dark:text-white">
-															{formatDateTime(occurrence.date)}
-														</p>
-														<span
-															className={`text-xs font-medium ${
-																occurrence.status === 'CANCELLED'
-																	? 'text-red-500'
-																	: 'text-gray-500 dark:text-gray-400'
-															}`}
-														>
-															{occurrence.status}
-														</span>
-													</div>
-													<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-														{translate('admin.seatsSold')}: {occurrence.currentParticipants}/
-														{occurrence.maxParticipants} {translate('admin.seats')}
-													</p>
-													<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-														{translate('admin.bookingsCount')}: {occurrence.bookingStats?.total ?? 0}
-													</p>
-													{occurrence.bookingStats && occurrence.bookingStats.total > 0 && (
-														<BookingStatusBreakdown
-															stats={occurrence.bookingStats}
-															labels={BOOKING_STATUS_LABELS}
-															className="mt-1"
-														/>
-													)}
-													{occurrence.cancelledAt && (
-														<p className="mt-1 text-xs text-red-500">
-															{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
-															{occurrence.cancelReason ? ` — ${occurrence.cancelReason}` : ''}
-														</p>
-													)}
-												</div>
-											))
+										{upcomingOccurrences.length > 0 ? (
+											upcomingOccurrences.map(renderOccurrence)
 										) : (
-											<p className="text-sm text-gray-500 dark:text-gray-400">—</p>
+											<p className="text-sm text-gray-500 dark:text-gray-400">
+												{occurrences.length > 0
+													? translate('admin.noUpcomingDates')
+													: '—'}
+											</p>
+										)}
+
+										{pastOccurrences.length > 0 && (
+											<>
+												<button
+													type="button"
+													onClick={() => setShowPast((shown) => !shown)}
+													className="text-primary cursor-pointer text-xs font-medium hover:underline"
+												>
+													{showPast
+														? translate('admin.hidePastDates')
+														: `${translate('admin.pastDates')} (${pastOccurrences.length})`}
+												</button>
+												{showPast && (
+													<div className="space-y-2">{pastOccurrences.map(renderOccurrence)}</div>
+												)}
+											</>
 										)}
 									</div>
 								</div>
@@ -261,7 +305,9 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.duration')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.duration} min</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{event.duration} {translate('admin.minutesShort')}
+									</p>
 								</div>
 							</div>
 
@@ -270,13 +316,17 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.difficulty')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.difficulty ?? '—'}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{event.difficulty ? EVENT_DIFFICULTY_LABELS[event.difficulty] : '—'}
+									</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.status')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{event.status}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{EVENT_STATUS_LABELS[event.status] ?? event.status}
+									</p>
 								</div>
 							</div>
 

@@ -154,6 +154,19 @@ export default function EventForm({
 		keyName: 'fieldId',
 	});
 
+	// Past dates keep their original index: `register` addresses fields by position,
+	// so the list may be filtered for display but never renumbered.
+	const [showPastOccurrences, setShowPastOccurrences] = useState(false);
+	const nowIso = new Date().toISOString();
+	const isPastOccurrence = (date?: string) => !!date && date <= nowIso;
+	const indexedOccurrences = occurrenceFields.map((field, index) => ({ field, index }));
+	const pastOccurrencesCount = indexedOccurrences.filter(({ field }) =>
+		isPastOccurrence(field.date),
+	).length;
+	const visibleOccurrences = showPastOccurrences
+		? indexedOccurrences
+		: indexedOccurrences.filter(({ field }) => !isPastOccurrence(field.date));
+
 	const [activeTabIndex, setActiveTabIndex] = useState(0);
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 	const [pendingCancelValues, setPendingCancelValues] = useState<EventFormValues | null>(null);
@@ -465,12 +478,17 @@ export default function EventForm({
 						</Button>
 					</div>
 
+					{occurrenceFields.length > 0 && visibleOccurrences.length === 0 && (
+						<p className="text-xs text-gray-500">{translate('admin.noUpcomingDates')}</p>
+					)}
+
 					{occurrenceFields.length > 0 ? (
 						<div className="space-y-3">
-							{occurrenceFields.map((field, index) => {
+							{visibleOccurrences.map(({ field, index }) => {
 								const activeBookingsCount = field.activeBookingsCount ?? 0;
 								const hasBookings = activeBookingsCount > 0;
-								const finished = field.id && field.date ? field.date <= new Date().toISOString() : false;
+								// A row that was never saved has no date to be past yet.
+								const finished = !!field.id && isPastOccurrence(field.date);
 								const isCancelled = field.status === 'CANCELLED';
 								const isCancelPending =
 									(field.id && occurrencesToCancel.includes(field.id)) ||
@@ -564,6 +582,18 @@ export default function EventForm({
 						<div className="rounded-lg border border-dashed border-gray-300 p-4 text-center dark:border-gray-600">
 							<p className="text-xs text-gray-500">{translate('admin.noOccurrences')}</p>
 						</div>
+					)}
+
+					{pastOccurrencesCount > 0 && (
+						<button
+							type="button"
+							onClick={() => setShowPastOccurrences((shown) => !shown)}
+							className="text-primary cursor-pointer text-xs font-medium hover:underline"
+						>
+							{showPastOccurrences
+								? translate('admin.hidePastDates')
+								: `${translate('admin.pastDates')} (${pastOccurrencesCount})`}
+						</button>
 					)}
 				</div>
 
