@@ -7,13 +7,11 @@ import { usePathname } from 'next/navigation';
 import { isRouteActive } from '@/utils/route';
 
 /**
- * Collapsing the top bar hands its height (max-h-12) back to <main>, which is the
- * scroll container — so <main> grows and its scrollable distance shrinks by the
- * same amount. On a page that only just overflows, the browser clamps the scroll
- * position back toward the top, which would re-show the bar and start the whole
- * thing over, flipping every transition. Keeping the two thresholds further apart
- * than the bar is tall means a clamped position always stays inside the hidden
- * band, so the state can settle.
+ * Hysteresis rather than one threshold: collapsing the top bar shortens the page by
+ * its own height, which nudges the scroll position back up. A single threshold would
+ * re-show the bar and flip the state every frame. The gap between the two values is
+ * wider than the bar is tall, so a nudged position lands inside the hidden band and
+ * the state settles.
  */
 const HIDE_TOP_BAR_AT = 96;
 const SHOW_TOP_BAR_AT = 16;
@@ -28,11 +26,8 @@ export default function HeaderWrapper() {
 	const isTopBarVisibleRef = useRef(true);
 
 	useEffect(() => {
-		const mainEl = document.querySelector('main');
-		const readScroll = () => (mainEl ? (mainEl.scrollTop as number) : window.scrollY);
-
 		const handleScroll = () => {
-			const currentScroll = readScroll();
+			const currentScroll = window.scrollY;
 			const nextVisible = isTopBarVisibleRef.current
 				? currentScroll < HIDE_TOP_BAR_AT
 				: currentScroll <= SHOW_TOP_BAR_AT;
@@ -42,11 +37,6 @@ export default function HeaderWrapper() {
 			isTopBarVisibleRef.current = nextVisible;
 			setIsTopBarVisible(nextVisible);
 		};
-
-		if (mainEl) {
-			mainEl.addEventListener('scroll', handleScroll, { passive: true });
-			return () => mainEl.removeEventListener('scroll', handleScroll);
-		}
 
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);

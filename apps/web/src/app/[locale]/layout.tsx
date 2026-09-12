@@ -15,9 +15,12 @@ import { translate } from '@/lib/i18n/messages';
 import '../globals.css';
 
 export const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
+	width: 'device-width',
+	initialScale: 1,
+	// Lets the page fill the screen edge to edge, which is what makes
+	// env(safe-area-inset-*) report anything but zero — the bottom nav uses it to
+	// clear the home indicator.
+	viewportFit: 'cover',
 };
 
 // Latin/Cyrillic come from Manrope; Armenian glyphs fall through to Noto Sans
@@ -127,7 +130,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 				)}
 			</head>
 			<body
-				className="text-black flex h-screen flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
+				className="text-black flex min-h-dvh flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
 			>
 				<BrandProvider brand={brand}>
 					<QueryProvider>

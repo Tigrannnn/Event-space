@@ -15,8 +15,8 @@ export default function MainContent({ children }: MainContentProps) {
 	return (
 		<main
 			className={cn(
-				'min-h-0 flex-1 overflow-auto',
-				isAdminRoute ? 'pb-0' : 'pb-16 sm:pb-14 lg:pb-0',
+				'flex-1',
+				isAdminRoute ? 'pb-0' : 'pb-[calc(4rem+env(safe-area-inset-bottom))] sm:pb-14 lg:pb-0',
 			)}
 		>
 			{children}

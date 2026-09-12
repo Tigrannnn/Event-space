@@ -43,7 +43,7 @@ export default function BottomNavbar() {
 
 	return (
 		// hidden on md+, visible on mobile only
-		<nav className="fixed right-0 bottom-0 left-0 z-40 mx-auto flex h-12 max-w-7xl items-center justify-around border-t border-gray-200 bg-white sm:h-10 md:hidden dark:border-gray-800 dark:bg-gray-900">
+		<nav className="fixed right-0 bottom-0 left-0 z-40 mx-auto flex min-h-12 max-w-7xl items-center justify-around border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] sm:min-h-10 md:hidden dark:border-gray-800 dark:bg-gray-900">
 			<Link
 				href={localizePath('/', locale)}
 				className={linkClassName}
