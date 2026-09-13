@@ -60,7 +60,7 @@ export default function AdminFilterBar({
 						className="focus:border-primary border-primary/50 h-9 w-full rounded-xl border bg-white dark:bg-gray-900 pr-3 pl-9 text-sm shadow-sm transition outline-none placeholder:text-gray-400"
 					/>
 				</div>
-				<Button type="submit" size="sm" variant="secondary" disabled={isFetching}>
+				<Button type="submit" size="sm" variant="secondary" className="max-sm:px-3 max-sm:py-1.5 max-sm:text-xs" disabled={isFetching}>
 					{translate('header.search')}
 				</Button>
 			</form>

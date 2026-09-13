@@ -83,7 +83,7 @@ export default function Modal({
 					initial="hidden"
 					animate="visible"
 					exit="exit"
-					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50`}
+					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90dvh] overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50`}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="modal-title"

@@ -132,10 +132,10 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 			<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<p className="font-semibold text-gray-900 dark:text-gray-100">
+						<p className="text-sm font-semibold text-gray-900 sm:text-base dark:text-gray-100">
 							{translate('admin.allBookings')}
 						</p>
-						<p className="text-sm text-gray-500">
+						<p className="text-xs text-gray-500 sm:text-sm">
 							{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 							{bookingsResponse.total} {translate('admin.bookings')}
 						</p>
@@ -292,7 +292,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
 											{eventTranslation?.title || translate('booking.unknownEvent')}
 										</p>
-										<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+										<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 											{eventTranslation?.location || '—'}
 										</p>
 									</div>

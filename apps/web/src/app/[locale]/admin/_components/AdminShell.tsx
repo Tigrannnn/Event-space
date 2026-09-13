@@ -68,7 +68,7 @@ export default function AdminShell({ children }: AdminShellProps) {
 					>
 						<Menu className="h-5 w-5" />
 					</button>
-					<h1 className="truncate text-lg font-semibold text-gray-900 dark:text-gray-100">{pageTitle}</h1>
+					<h1 className="truncate text-base font-semibold text-gray-900 sm:text-lg dark:text-gray-100">{pageTitle}</h1>
 				</header>
 
 				<main className={cn('flex-1 overflow-auto p-2 sm:p-3')}>{children}</main>

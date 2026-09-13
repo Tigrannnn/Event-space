@@ -217,15 +217,15 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 				<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<p className="font-semibold text-gray-900 dark:text-gray-100">
+							<p className="text-sm font-semibold text-gray-900 sm:text-base dark:text-gray-100">
 								{translate('admin.allEvents')}
 							</p>
-							<p className="text-sm text-gray-500">
+							<p className="text-xs text-gray-500 sm:text-sm">
 								{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 								{eventsResponse.total} {translate('admin.eventsCount')}
 							</p>
 						</div>
-						<Button type="button" size="sm" onClick={() => openModal(ModalType.CreateEvent)}>
+						<Button type="button" size="sm" className="max-sm:px-3 max-sm:py-1.5 max-sm:text-xs" onClick={() => openModal(ModalType.CreateEvent)}>
 							<Plus className="h-4 w-4" />
 							{translate('admin.createEvent')}
 						</Button>
@@ -382,7 +382,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 											>
 												{eventTranslation.title}
 											</button>
-											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+											<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 												{categoryTranslation.name || '-'} · {eventTranslation.location}
 											</p>
 										</div>
@@ -411,10 +411,10 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 											>
 												{event.organizer?.name ?? '—'}
 											</button>
-											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+											<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 												{event.organizer?.email}
 											</p>
-											<p className="truncate text-sm text-gray-500 dark:text-gray-400">
+											<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 												{event.organizer?.phone || '-'}
 											</p>
 										</div>

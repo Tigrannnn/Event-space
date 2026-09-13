@@ -123,8 +123,8 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 		<div className="overflow-hidden rounded-lg border border-gray-500 shadow-sm">
 			<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 				<div>
-					<p className="font-semibold text-gray-900 dark:text-gray-100">{translate('admin.allUsers')}</p>
-					<p className="text-sm text-gray-500">
+					<p className="text-sm font-semibold text-gray-900 sm:text-base dark:text-gray-100">{translate('admin.allUsers')}</p>
+					<p className="text-xs text-gray-500 sm:text-sm">
 						{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 						{usersResponse.total} {translate('admin.accountsCount')}
 					</p>
@@ -243,11 +243,11 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 							<TableCell className="px-3 sm:px-5">
 								<div className="max-w-md min-w-0">
 									<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
-									<p className="truncate text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+									<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">{user.email}</p>
 								</div>
 							</TableCell>
 							<TableCell>
-								<p className="truncate text-sm text-gray-500 dark:text-gray-400">{user.phone || '-'}</p>
+								<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">{user.phone || '-'}</p>
 							</TableCell>
 							<TableCell>
 								<Select

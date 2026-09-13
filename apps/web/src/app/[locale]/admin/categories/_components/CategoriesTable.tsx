@@ -110,15 +110,15 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 				<div className="flex flex-col gap-4 px-3 py-3 sm:px-5 sm:py-4">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<p className="font-semibold text-gray-900 dark:text-gray-100">
+							<p className="text-sm font-semibold text-gray-900 sm:text-base dark:text-gray-100">
 								{translate('admin.allCategories')}
 							</p>
-							<p className="text-sm text-gray-500">
+							<p className="text-xs text-gray-500 sm:text-sm">
 								{translate('admin.showing')} {pageStart}-{pageEnd} {translate('admin.of')}{' '}
 								{categoriesResponse.total} categories
 							</p>
 						</div>
-						<Button type="button" size="sm" onClick={() => openModal(ModalType.CreateCategory)}>
+						<Button type="button" size="sm" className="max-sm:px-3 max-sm:py-1.5 max-sm:text-xs" onClick={() => openModal(ModalType.CreateCategory)}>
 							<Plus className="h-4 w-4" />
 							{translate('admin.createCategory')}
 						</Button>

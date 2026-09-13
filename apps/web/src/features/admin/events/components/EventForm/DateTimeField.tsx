@@ -41,8 +41,9 @@ export default function DateTimeField({
 		// (~141px and ~96px), so on a phone-width card they blow the grid open and
 		// push the time field outside the border. Stacked until there is room; then
 		// the date gets the larger share, since "дд.мм.гггг" plus its picker icon
-		// needs more than "--:--".
-		<div className="grid grid-cols-1 gap-2 sm:grid-cols-[3fr_2fr]">
+		// needs more than "--:--". Stacked, the track is minmax(0, 1fr) rather than 1fr:
+		// a plain 1fr still grows to the input's min-content width.
+		<div className="grid grid-cols-[minmax(0,1fr)] gap-2 sm:grid-cols-[3fr_2fr]">
 			<input
 				ref={dateInputRef}
 				type="date"

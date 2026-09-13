@@ -44,8 +44,12 @@ const fieldClassName =
 	'focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm outline-none text-gray-900 dark:text-gray-100 ' +
 	'[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none';
 
+// iOS Safari keeps a native date input at its own intrinsic width whatever `width` says,
+// so on a phone it juts out of the card. Dropping the native appearance makes it obey
+// w-full; the value is then left-aligned to match the other fields.
 const dateTimeInputClassName =
-	fieldClassName + ' cursor-pointer [color-scheme:light] dark:[color-scheme:dark]';
+	fieldClassName +
+	' min-w-0 cursor-pointer [color-scheme:light] dark:[color-scheme:dark] max-sm:appearance-none [&::-webkit-date-and-time-value]:text-left';
 
 const textareaClassName =
 	'focus:border-primary w-full resize-y rounded-md border border-gray-500 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-gray-400 text-gray-900 dark:text-gray-100 min-h-[100px]';
@@ -221,7 +225,7 @@ export default function EventForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5 scroll-auto p-4 sm:p-6">
+		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
 			{showCancelConfirm && (
 				<Modal
 					onClose={handleRejectCancel}
@@ -457,7 +461,7 @@ export default function EventForm({
 					</label>
 				</div>
 
-				<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+				<div className="space-y-3 rounded-lg border border-gray-200 p-3 sm:p-4 dark:border-gray-700">
 					{/* Squeezing the description into the space left by the button shreds it
 					    on a phone, so the button drops to its own row instead. */}
 					<div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between">
@@ -702,7 +706,7 @@ export default function EventForm({
 					</div>
 
 					{cancellationFields.length > 0 ? (
-						<div className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+						<div className="space-y-3 rounded-lg border border-gray-200 p-3 sm:p-4 dark:border-gray-700">
 							{cancellationFields.map((field, index) => (
 								// Two number fields plus a button never fit one phone-width row —
 								// "Процент возврата (%)" alone shredded into three lines. Stacked,

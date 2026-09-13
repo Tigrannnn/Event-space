@@ -35,7 +35,7 @@ export default function TablePagination({
 				className,
 			)}
 		>
-			<p className="text-sm text-gray-500">
+			<p className="text-xs text-gray-500 sm:text-sm">
 				Page {currentPage}
 				{isLoading ? ` · ${translate('common.updating')}` : ''}
 			</p>
@@ -44,6 +44,7 @@ export default function TablePagination({
 					type="button"
 					size="sm"
 					variant="secondary"
+					className="max-sm:px-3 max-sm:py-1.5 max-sm:text-xs"
 					onClick={onPreviousPage}
 					disabled={!canGoPrevious || isLoading}
 				>
@@ -53,6 +54,7 @@ export default function TablePagination({
 					type="button"
 					size="sm"
 					variant="secondary"
+					className="max-sm:px-3 max-sm:py-1.5 max-sm:text-xs"
 					onClick={onNextPage}
 					disabled={!canGoNext || isLoading}
 				>
