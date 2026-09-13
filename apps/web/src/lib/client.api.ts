@@ -38,6 +38,30 @@ clientApi.interceptors.request.use((config) => {
 	return config;
 });
 
+/**
+ * Requests tend to fail with 401 together: the page loads after the access token has
+ * expired, and /users/me, /bookings/my and the rest go out at once. The server rotates
+ * the refresh token on every use, so if each refreshed on its own only the first would
+ * succeed and the rest would present the token it had just spent. That is how a card
+ * could show "my booking" (its query retries) while the nav offered to sign up
+ * (/users/me does not retry). Every 401 now waits on one shared refresh.
+ *
+ * Browser only: on the server a module-level promise would be shared across visitors.
+ */
+let refreshInFlight: Promise<void> | null = null;
+
+const refreshSession = (): Promise<void> => {
+	const refresh = () =>
+		axios.post(`${resolveBaseUrl()}/auth/refresh`, {}, { withCredentials: true }).then(() => undefined);
+
+	if (typeof window === 'undefined') return refresh();
+
+	refreshInFlight ??= refresh().finally(() => {
+		refreshInFlight = null;
+	});
+	return refreshInFlight;
+};
+
 clientApi.interceptors.response.use(
 	(response) => response,
 	async (error) => {
@@ -54,7 +78,7 @@ clientApi.interceptors.response.use(
 		) {
 			originalRequest._retry = true;
 			try {
-				await axios.post(`${resolveBaseUrl()}/auth/refresh`, {}, { withCredentials: true });
+				await refreshSession();
 				return clientApi(originalRequest);
 			} catch (refreshError) {
 				return Promise.reject(refreshError);
