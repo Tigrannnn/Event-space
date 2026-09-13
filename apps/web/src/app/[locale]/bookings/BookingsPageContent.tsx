@@ -46,7 +46,7 @@ export default function BookingsPageContent() {
 
 	if (!bookings || bookings.length === 0) {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center px-4">
+			<div className="flex flex-1 flex-col items-center justify-center px-4">
 				<div className="bg-primary/10 dark:bg-primary/20 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
 					<CalendarX className="text-primary h-12 w-12" strokeWidth={1.5} />
 				</div>

@@ -19,7 +19,7 @@ export default function FavoritesPageContent() {
 
 	if (!favorites?.length) {
 		return (
-			<div className="flex min-h-full flex-col items-center justify-center px-4 py-12 text-center">
+			<div className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
 				<div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
 					<Heart className="h-12 w-12" />
 				</div>

@@ -23,7 +23,7 @@ export default function PageState({
 	return (
 		<section
 			className={cn(
-				'flex min-h-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8',
+				'flex flex-1 items-center justify-center px-4 py-8 sm:px-6 lg:px-8',
 				className,
 			)}
 		>
