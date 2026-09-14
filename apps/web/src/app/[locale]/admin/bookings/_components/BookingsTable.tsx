@@ -318,10 +318,10 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
 								</TableCell>
 								<TableCell>
-									<div className="flex flex-wrap gap-2">
+									<div className="flex gap-2">
 										<Button
 											type="button"
-											size="sm"
+											size="xs"
 											variant="secondary"
 											onClick={() => handleOpenBookingDetails(booking)}
 										>
@@ -330,7 +330,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 										<Button
 											type="button"
-											size="sm"
+											size="xs"
 											variant="secondary"
 											onClick={() => openModal(ModalType.UpdateBooking, { booking })}
 											disabled={booking.status === 'CANCELLED'}
@@ -340,7 +340,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 										<Button
 											type="button"
-											size="sm"
+											size="xs"
 											variant="danger"
 											onClick={() => handleOpenBookingAction(booking)}
 											disabled={booking.status === 'CANCELLED'}
