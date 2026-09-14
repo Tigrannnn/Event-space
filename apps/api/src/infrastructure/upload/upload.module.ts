@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import {
 	CloudinaryDeleteQueueService,
 	CloudinaryDeleteRetryWorker,
-	CloudinaryOrphanReconciliationService,
 } from './cloudinary';
 import { UploadService } from './upload.service';
 
@@ -13,7 +12,6 @@ import { UploadService } from './upload.service';
 		UploadService,
 		CloudinaryDeleteQueueService,
 		CloudinaryDeleteRetryWorker,
-		CloudinaryOrphanReconciliationService,
 	],
 	exports: [UploadService],
 })

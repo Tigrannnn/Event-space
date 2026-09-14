@@ -14,10 +14,4 @@ export const CLOUDINARY_CONFIG = {
 		/** TTL for attempt counters (7 days). */
 		ATTEMPTS_TTL_SEC: 7 * 24 * 60 * 60,
 	},
-	RECONCILIATION: {
-		/** Interval between orphan scans (ms). Default: 24h. */
-		INTERVAL_MS: 24 * 60 * 60 * 1000,
-		/** Delay before the first reconciliation run after startup (ms). */
-		INITIAL_DELAY_MS: 10 * 60 * 1000,
-	},
 } as const;
