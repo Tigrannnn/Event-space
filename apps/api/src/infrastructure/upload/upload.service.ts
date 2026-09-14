@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AppErrorCode, CLOUDINARY_CONFIG, EnvKey } from '@event-space/shared';
+import { AppErrorCode, EnvKey } from '@event-space/shared';
 import { AppException } from '@shared';
 import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import * as streamifier from 'streamifier';
@@ -14,11 +14,16 @@ export interface CloudinaryUploadResult {
 @Injectable()
 export class UploadService implements OnModuleInit {
 	private readonly logger = new Logger(UploadService.name);
+	private readonly folder: string;
 
 	constructor(
 		private readonly configService: ConfigService,
 		private readonly deleteQueue: CloudinaryDeleteQueueService,
-	) {}
+	) {
+		// Read here rather than in onModuleInit: the delete retry worker drains its queue
+		// as soon as it initialises, which may be before this service's hook runs.
+		this.folder = this.configService.getOrThrow<string>(EnvKey.CLOUDINARY_UPLOAD_FOLDER);
+	}
 
 	onModuleInit(): void {
 		cloudinary.config({
@@ -61,6 +66,14 @@ export class UploadService implements OnModuleInit {
 	 * Attempts to delete a Cloudinary asset. Returns true when deleted or already absent.
 	 */
 	async tryDeletePublicId(publicId: string): Promise<boolean> {
+		// A deployment deletes only from its own folder. Anything else — say, production ids
+		// queued by a local copy before the folders were split — is dropped rather than
+		// retried, which is why this reports success.
+		if (!publicId.startsWith(`${this.folder}/`)) {
+			this.logger.warn(`Refusing to delete ${publicId}: outside folder "${this.folder}"`);
+			return true;
+		}
+
 		try {
 			const result = await cloudinary.uploader.destroy(publicId);
 			if (result.result === 'ok' || result.result === 'not found') {
@@ -111,7 +124,7 @@ export class UploadService implements OnModuleInit {
 		return new Promise((resolve, reject) => {
 			const uploadStream = cloudinary.uploader.upload_stream(
 				{
-					folder: CLOUDINARY_CONFIG.UPLOAD_FOLDER,
+					folder: this.folder,
 					resource_type: 'image',
 					allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
 					transformation: [

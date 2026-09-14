@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
-import { CLOUDINARY_CONFIG } from '@event-space/shared';
+import { CLOUDINARY_CONFIG, EnvKey } from '@event-space/shared';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CloudinaryDeleteQueueService } from './delete-queue.service';
 
@@ -13,9 +14,15 @@ export class CloudinaryOrphanReconciliationService implements OnModuleInit, OnMo
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly deleteQueue: CloudinaryDeleteQueueService,
+		private readonly configService: ConfigService,
 	) {}
 
 	onModuleInit(): void {
+		if (this.configService.get<string>(EnvKey.CLOUDINARY_RECONCILE_ORPHANS) !== 'true') {
+			this.logger.log('Cloudinary orphan reconciliation is off (CLOUDINARY_RECONCILE_ORPHANS is not "true")');
+			return;
+		}
+
 		this.initialTimer = setTimeout(() => {
 			void this.reconcileOrphans();
 			this.timer = setInterval(
@@ -62,7 +69,7 @@ export class CloudinaryOrphanReconciliationService implements OnModuleInit, OnMo
 	}
 
 	private async listCloudinaryPublicIds(): Promise<string[]> {
-		const prefix = `${CLOUDINARY_CONFIG.UPLOAD_FOLDER}/`;
+		const prefix = `${this.configService.getOrThrow<string>(EnvKey.CLOUDINARY_UPLOAD_FOLDER)}/`;
 		const ids: string[] = [];
 		let nextCursor: string | undefined;
 

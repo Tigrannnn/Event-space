@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EnvKey } from '../enums';
+import { CLOUDINARY_CONFIG } from '../constants/cloudinary.constant';
 
 export const EnvSchema = z.object({
 	[EnvKey.API_PORT]: z.coerce.number().default(5000),
@@ -27,6 +28,14 @@ export const EnvSchema = z.object({
 	[EnvKey.CLOUDINARY_CLOUD_NAME]: z.string(),
 	[EnvKey.CLOUDINARY_API_KEY]: z.string(),
 	[EnvKey.CLOUDINARY_API_SECRET]: z.string(),
+	// The folder uploads go into, and the only folder this deployment may delete from.
+	// Give each environment its own: a local API on the production Cloudinary account
+	// would otherwise treat every production image as one of its own.
+	[EnvKey.CLOUDINARY_UPLOAD_FOLDER]: z.string().min(1).default(CLOUDINARY_CONFIG.UPLOAD_FOLDER),
+	// Orphan reconciliation deletes every asset in the folder that this deployment's
+	// database doesn't reference. Opt-in, so a copy pointed at another database can't
+	// wipe production images just by starting up.
+	[EnvKey.CLOUDINARY_RECONCILE_ORPHANS]: z.enum(['true', 'false']).default('false'),
 	[EnvKey.STRIPE_PUBLISHABLE_KEY]: z.string(),
 	[EnvKey.STRIPE_SECRET_KEY]: z.string(),
 	[EnvKey.STRIPE_WEBHOOK_SECRET]: z.string(),
