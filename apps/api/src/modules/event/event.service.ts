@@ -26,6 +26,7 @@ import {
 	validateExistingImageRefs,
 	validateStatusTransition,
 } from './event.utils';
+import { eventMatchesSearch, parseSearchQuery } from './event-search.util';
 import { OccurrenceService } from '@modules/occurrence/occurrence.service';
 import { EventOccurrenceStatusEnum } from '@event-space/shared';
 import { FavoritesService } from '@modules/favorites/favorites.service';
@@ -83,33 +84,6 @@ export class EventService {
 		// cursors of the form "<date>_<id>" still work: only the id part is read.
 		const cursorId = cursor ? cursor.split('_').pop() : undefined;
 
-		const searchFilter = search
-			? {
-					OR: [
-						{
-							translations: {
-								some: {
-									OR: [
-										{ title: { contains: search, mode: 'insensitive' as const } },
-										{ description: { contains: search, mode: 'insensitive' as const } },
-										{ location: { contains: search, mode: 'insensitive' as const } },
-									],
-								},
-							},
-						},
-						{
-							category: {
-								translations: {
-									some: {
-										name: { contains: search, mode: 'insensitive' as const },
-									},
-								},
-							},
-						},
-					],
-				}
-			: {};
-
 		const categoryFilter = categorySlug
 			? {
 					category: {
@@ -141,21 +115,36 @@ export class EventService {
 			},
 		};
 
-		const filters = [statusFilter, searchFilter, categoryFilter, priceFilter].filter(
+		const filters: Prisma.EventWhereInput[] = [statusFilter, categoryFilter, priceFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
-
-		const where: Prisma.EventWhereInput = {
-			AND: filters.length > 0 ? filters : undefined,
-		};
-
 		if (cursorId) {
-			if (!where.AND) {
-				where.AND = [];
-			} else if (!Array.isArray(where.AND)) {
-				where.AND = [where.AND];
-			}
-			(where.AND as Prisma.EventWhereInput[]).push({ id: { gt: cursorId } });
+			filters.push({ id: { gt: cursorId } });
+		}
+		const where: Prisma.EventWhereInput = { AND: filters };
+
+		const matchesGuests = (event: Parameters<typeof eventMatchesGuestCapacity>[0]) =>
+			!guests || guests <= 0 || eventMatchesGuestCapacity(event, guests, occurrenceDateWindow);
+
+		const searchWords = search ? parseSearchQuery(search) : [];
+		if (searchWords.length > 0) {
+			// Word endings, typos and other alphabets can't be expressed as a database filter, so
+			// every event that passes the other filters is matched here. A catalogue holds tens of
+			// events, not thousands, which keeps that cheap.
+			const candidates = await this.prisma.event.findMany({
+				where,
+				orderBy: [{ id: 'asc' }],
+				include: this.eventInclude,
+			});
+			const matching = candidates.filter(
+				(event) => eventMatchesSearch(event, searchWords) && matchesGuests(event),
+			);
+
+			const hasMore = matching.length > limit;
+			const data = matching.slice(0, limit);
+			const nextCursor = hasMore ? data[data.length - 1].id : null;
+
+			return { data, nextCursor, hasMore };
 		}
 
 		const events = await this.prisma.event.findMany({
@@ -170,10 +159,7 @@ export class EventService {
 
 		// The guest filter runs after the query, so the next page starts after the last event
 		// fetched, not the last one kept — otherwise hidden events would be fetched again.
-		const data =
-			guests && guests > 0
-				? page.filter((event) => eventMatchesGuestCapacity(event, guests, occurrenceDateWindow))
-				: page;
+		const data = page.filter(matchesGuests);
 		const nextCursor = hasMore ? page[page.length - 1].id : null;
 
 		return { data, nextCursor, hasMore };
