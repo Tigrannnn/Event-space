@@ -79,7 +79,9 @@ export class EventService {
 		maxPrice?: number,
 		guests?: number,
 	) {
-		const [cursorDate, cursorId] = cursor ? cursor.split('_') : [null, null];
+		// Pages are ordered by event id, so the cursor is the last id already sent. Older
+		// cursors of the form "<date>_<id>" still work: only the id part is read.
+		const cursorId = cursor ? cursor.split('_').pop() : undefined;
 
 		const searchFilter = search
 			? {
@@ -147,23 +149,13 @@ export class EventService {
 			AND: filters.length > 0 ? filters : undefined,
 		};
 
-		// Safely inject cursor pagination directly into AND condition only when both cursor values exist
-		if (cursorDate && cursorId) {
+		if (cursorId) {
 			if (!where.AND) {
 				where.AND = [];
 			} else if (!Array.isArray(where.AND)) {
 				where.AND = [where.AND];
 			}
-			(where.AND as Prisma.EventWhereInput[]).push({
-				occurrences: {
-					some: {
-						OR: [
-							{ date: { gt: new Date(cursorDate) } },
-							{ date: { equals: new Date(cursorDate) }, eventId: { gt: cursorId } },
-						],
-					},
-				},
-			});
+			(where.AND as Prisma.EventWhereInput[]).push({ id: { gt: cursorId } });
 		}
 
 		const events = await this.prisma.event.findMany({
@@ -173,21 +165,16 @@ export class EventService {
 			include: this.eventInclude,
 		});
 
-		const filteredByGuestCapacity =
+		const hasMore = events.length > limit;
+		const page = hasMore ? events.slice(0, limit) : events;
+
+		// The guest filter runs after the query, so the next page starts after the last event
+		// fetched, not the last one kept — otherwise hidden events would be fetched again.
+		const data =
 			guests && guests > 0
-				? events.filter((event) => eventMatchesGuestCapacity(event, guests, occurrenceDateWindow))
-				: events;
-
-		const hasMore = filteredByGuestCapacity.length > limit;
-		const data = hasMore ? filteredByGuestCapacity.slice(0, limit) : filteredByGuestCapacity;
-
-		const lastEvent = data[data.length - 1];
-		// Cursor is based on the earliest future occurrence date for the last event
-		const earliestOccurrence = (lastEvent as any)?.occurrences?.find(
-			(o: any) => new Date(o.date) > new Date(),
-		);
-		const nextCursor =
-			hasMore && lastEvent ? `${earliestOccurrence?.date.toISOString()}_${lastEvent.id}` : null;
+				? page.filter((event) => eventMatchesGuestCapacity(event, guests, occurrenceDateWindow))
+				: page;
+		const nextCursor = hasMore ? page[page.length - 1].id : null;
 
 		return { data, nextCursor, hasMore };
 	}
