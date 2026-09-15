@@ -163,6 +163,20 @@ const brands: Record<string, Brand> = {
 			},
 		},
 	},
+	'rstour.event-space.space': {
+		name: 'RS Tour',
+		colorPrimary: '#E6572D',
+		colorAccent: '#EB8E34',
+		description: siteConfig.description,
+		ogImage: '/brands/rstour-logo.png',
+		contact: {
+			instagram: 'https://instagram.com/rstour',
+			phone: '+374 99 000 000',
+			email: 'info@rstour.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('RS Tour'),
+	},
 };
 
 export function getBrandForHost(host: string | null): Brand {
