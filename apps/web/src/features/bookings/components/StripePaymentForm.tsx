@@ -58,9 +58,12 @@ function StripePaymentFormContent({
 	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const { openModal } = useModalStore();
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [isValidating, setIsValidating] = useState(false);
+	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 	const [isCancelling, setIsCancelling] = useState(false);
 	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 	const eventTitle = getEventTranslation(event, locale).title;
+	const formattedAmount = formatCurrency(booking.amount);
 
 	const occurrenceDate = selectedOccurrence?.date;
 
@@ -88,8 +91,38 @@ function StripePaymentFormContent({
 			queryClient.invalidateQueries({ queryKey: ['events'] }),
 		]);
 
-	const handleSubmit = async (formEvent: FormEvent) => {
+	/**
+	 * The form's pay button only validates the card and asks for confirmation; the charge starts
+	 * from the confirmation's own button. The confirmation lives inside this form rather than going
+	 * through the modal store: opening another modal would replace this one and unmount the
+	 * payment element, leaving nothing to confirm the payment with.
+	 */
+	const handleRequestPayment = async (formEvent: FormEvent) => {
 		formEvent.preventDefault();
+
+		if (!stripe || !elements || isProcessing) {
+			return;
+		}
+
+		// Checked before asking, so a mistyped card number shows next to the field instead of
+		// after the customer has already agreed to pay.
+		setIsValidating(true);
+		const { error } = await elements.submit();
+		setIsValidating(false);
+
+		if (error) {
+			// Validation errors are already shown inline by the payment element.
+			if (error.type !== 'validation_error') {
+				addToast(apiError(error, 'booking.paymentFailed'), ToastType.ERROR);
+			}
+			return;
+		}
+
+		setIsConfirmOpen(true);
+	};
+
+	const handleConfirmPayment = async () => {
+		setIsConfirmOpen(false);
 
 		if (!stripe || !elements) {
 			return;
@@ -214,7 +247,7 @@ function StripePaymentFormContent({
 	}, []);
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
+		<form onSubmit={handleRequestPayment} className="relative space-y-5 p-5 sm:p-6">
 			<ModalHeader title={translate('booking.completePayment')} onClose={handleClose} />
 
 			<p className="text-sm text-gray-500 dark:text-gray-400">{translate('booking.cardDetails')}</p>
@@ -269,13 +302,71 @@ function StripePaymentFormContent({
 				</Button>
 				<Button
 					type="submit"
-					isLoading={isProcessing}
-					disabled={!stripe || !elements || isProcessing || isCancelling}
+					isLoading={isProcessing || isValidating}
+					disabled={!stripe || !elements || isProcessing || isValidating || isCancelling}
 					className="flex-1"
 				>
 					{isProcessing ? translate('booking.confirming') : translate('booking.payNow')}
 				</Button>
 			</div>
+
+			{isConfirmOpen && (
+				<div
+					className="absolute inset-0 z-20 bg-black/40 p-4 backdrop-blur-[2px]"
+					onKeyDown={(keyEvent) => {
+						if (keyEvent.key === 'Escape') setIsConfirmOpen(false);
+					}}
+				>
+					{/* Sticky, because the form can be taller than the modal and is usually scrolled to its
+					    bottom when the pay button is pressed. */}
+					<div
+						role="alertdialog"
+						aria-modal="true"
+						aria-labelledby="payment-confirm-title"
+						aria-describedby="payment-confirm-message"
+						className="sticky top-4 mx-auto max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800"
+					>
+						<h3 id="payment-confirm-title" className="text-primary mb-2 text-xl font-black">
+							{translate('booking.confirmPaymentTitle')}
+						</h3>
+						<p
+							id="payment-confirm-message"
+							className="mb-3 leading-relaxed text-gray-600 dark:text-gray-300"
+						>
+							{translate('booking.confirmPaymentMessage', { amount: formattedAmount })}
+						</p>
+
+						<div className="mb-3 space-y-1 rounded-xl bg-gray-50 p-3 text-sm dark:bg-gray-900">
+							<p className="font-semibold text-gray-900 dark:text-white">{eventTitle}</p>
+							{occurrenceDate && (
+								<p className="text-gray-500 dark:text-gray-400">{formatDateTime(occurrenceDate)}</p>
+							)}
+							<p className="text-gray-600 dark:text-gray-300">
+								{translate('booking.spots')}: <span className="font-medium">{booking.quantity}</span>
+							</p>
+						</div>
+
+						<p className="mb-6 text-xs text-gray-500 dark:text-gray-400">
+							{translate('booking.confirmPaymentNote')}
+						</p>
+
+						<div className="flex gap-3">
+							<Button
+								type="button"
+								variant="secondary"
+								onClick={() => setIsConfirmOpen(false)}
+								className="flex-1"
+								autoFocus
+							>
+								{translate('booking.confirmPaymentBack')}
+							</Button>
+							<Button type="button" onClick={handleConfirmPayment} className="flex-1">
+								{translate('booking.confirmPaymentPay', { amount: formattedAmount })}
+							</Button>
+						</div>
+					</div>
+				</div>
+			)}
 		</form>
 	);
 }
