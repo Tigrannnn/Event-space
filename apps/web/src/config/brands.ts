@@ -166,7 +166,7 @@ const brands: Record<string, Brand> = {
 	'rstour.event-space.space': {
 		name: 'RS Tour',
 		colorPrimary: '#E6572D',
-		colorAccent: '#F2A45C',
+		colorAccent: '#f78c12',
 		description: siteConfig.description,
 		ogImage: '/brands/rstour-logo.png',
 		contact: {
