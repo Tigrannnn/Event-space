@@ -28,7 +28,7 @@ export function EventsFiltersDrawer({
 }: EventsFiltersDrawerProps) {
 	const translate = useTranslation();
 	const [draftFilters, setDraftFilters] = useState<EventsFiltersState>(filters);
-	const activeCount = countActiveFilters(filters, priceBounds);
+	const activeCount = countActiveFilters(filters);
 
 	useEffect(() => {
 		if (open) {

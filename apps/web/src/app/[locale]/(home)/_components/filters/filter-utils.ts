@@ -75,20 +75,17 @@ export function filtersToSearchParams(
 	return params;
 }
 
-export function isPriceFilterApplied(
-	priceRange: PriceRangeFilter | null,
-	priceBounds: PriceBounds,
-): boolean {
-	if (!priceRange) return false;
-	return priceRange.min > priceBounds.min || priceRange.max < priceBounds.max;
+/** The picker commits a range covering every price as null, so a set range is always a filter. */
+export function isPriceFilterApplied(priceRange: PriceRangeFilter | null): boolean {
+	return priceRange !== null;
 }
 
-export function countActiveFilters(filters: EventsFiltersState, priceBounds: PriceBounds): number {
+export function countActiveFilters(filters: EventsFiltersState): number {
 	let count = 0;
 	if (filters.categories.length > 0) count += 1;
 	if (filters.dateRange) count += 1;
 	if (filters.guests !== null && filters.guests > 0) count += 1;
-	if (isPriceFilterApplied(filters.priceRange, priceBounds)) count += 1;
+	if (isPriceFilterApplied(filters.priceRange)) count += 1;
 	return count;
 }
 

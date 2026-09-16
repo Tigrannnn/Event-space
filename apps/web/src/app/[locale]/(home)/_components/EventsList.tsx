@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
@@ -101,10 +101,23 @@ export default function EventsList({
 		[events, filters.categories],
 	);
 
-	const priceBounds = useMemo(() => {
-		const sourceEvents = events.length > 0 ? events : initialEvents;
-		return computePriceBounds(sourceEvents.map((event) => Number(event.price)));
-	}, [events, initialEvents]);
+	// The loaded events are already narrowed by the price filter, so bounds read straight from them
+	// shrink to the filter itself — and the slider can then no longer widen it again. The highest
+	// price seen so far is kept instead, and the applied range always fits inside the bounds.
+	const currentHighestPrice = Math.max(
+		0,
+		...(events.length > 0 ? events : initialEvents).map((event) => Number(event.price)),
+		filters.priceRange?.max ?? 0,
+	);
+	const [highestPriceSeen, setHighestPriceSeen] = useState(currentHighestPrice);
+	if (currentHighestPrice > highestPriceSeen) {
+		setHighestPriceSeen(currentHighestPrice);
+	}
+	const highestPrice = Math.max(highestPriceSeen, currentHighestPrice);
+	const priceBounds = useMemo(
+		() => computePriceBounds(highestPrice > 0 ? [highestPrice] : []),
+		[highestPrice],
+	);
 
 	const loadMoreRef = useIntersectionObserver(
 		useCallback(() => {

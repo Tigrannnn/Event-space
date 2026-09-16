@@ -19,7 +19,7 @@ export function EventsFiltersBar({
 	isLoadingCategories = false,
 }: EventsFiltersBarProps) {
 	const translate = useTranslation();
-	const hasActiveFilters = countActiveFilters(filters, priceBounds) > 0;
+	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {
 		onFiltersChange(createEmptyFilters());

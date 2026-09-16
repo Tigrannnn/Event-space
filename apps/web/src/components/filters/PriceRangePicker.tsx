@@ -57,9 +57,10 @@ export function PriceRangePicker({
 	const [isOpen, setIsOpen] = useState(false);
 	const stagesChanges = withActions && variant === 'popover';
 
-	// A range covering everything is the same as no filter, so it is reported as cleared rather
-	// than as a filter that happens to exclude nothing.
-	const isApplied = Boolean(value) && (applied.min > bounds.min || applied.max < bounds.max);
+	// A range covering everything is committed as null (see `commit`), so any value here is a real
+	// filter. Comparing it to the bounds instead breaks whenever the bounds are derived from the
+	// filtered results: they shrink to the filter, and the filter then looks like "everything".
+	const isApplied = Boolean(value);
 
 	const commit = (min: number, max: number) => {
 		const coversEverything = min <= bounds.min && max >= bounds.max;
