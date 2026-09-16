@@ -9,18 +9,23 @@ type EventWithOccurrences = Partial<
 	occurrences?: Array<Partial<EventOccurrence>> | null;
 };
 
+/**
+ * Whether a date can still be booked. The cut-off is the start, not the end: a tour that left at
+ * 07:30 can't be joined at noon just because it runs until evening — and the API refuses to book
+ * an occurrence whose start has passed, so anything later here would offer a date it rejects.
+ */
+function hasNotStarted(occurrence: Partial<EventOccurrence>, now: number): boolean {
+	return new Date(occurrence.date ?? 0).getTime() > now;
+}
+
 export function getUpcomingEventOccurrences(event: EventWithOccurrences): EventOccurrence[] {
 	const occurrences = Array.isArray(event.occurrences) ? event.occurrences : [];
 	if (!occurrences.length) return [];
 
 	const now = Date.now();
-	const durationMs = Number(event.duration ?? 0) * 60 * 1000;
 
 	return [...occurrences]
-		.filter((occ) => {
-			const endTime = new Date(occ.date ?? 0).getTime() + durationMs;
-			return endTime >= now;
-		})
+		.filter((occ) => hasNotStarted(occ, now))
 		.sort(
 			(left, right) => new Date(left.date ?? 0).getTime() - new Date(right.date ?? 0).getTime(),
 		) as EventOccurrence[];
@@ -55,12 +60,7 @@ export function isEventAvailable(event: EventWithOccurrences): boolean {
 	if (!occurrences.length) return false;
 
 	const now = Date.now();
-	const durationMs = Number(event.duration ?? 0) * 60 * 1000;
-
-	return occurrences.some((occ) => {
-		const endTime = new Date(occ.date ?? 0).getTime() + durationMs;
-		return endTime >= now;
-	});
+	return occurrences.some((occ) => hasNotStarted(occ, now));
 }
 
 export function getEventTranslation(
