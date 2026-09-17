@@ -1,8 +1,26 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { GripVertical, Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
+import {
+	DndContext,
+	KeyboardSensor,
+	MouseSensor,
+	TouchSensor,
+	closestCenter,
+	useSensor,
+	useSensors,
+	type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+	SortableContext,
+	arrayMove,
+	rectSortingStrategy,
+	sortableKeyboardCoordinates,
+	useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { MAX_EVENT_IMAGES } from '@event-space/shared';
 import type { ImageUploaderItem } from './types';
 import { useTranslation } from '@/hooks/translation';
@@ -25,9 +43,10 @@ function getPreviewUrl(item: ImageUploaderItem): string {
 	return item.kind === 'existing' ? item.url : item.previewUrl;
 }
 
-function getItemKey(item: ImageUploaderItem, index: number): string {
+// Must stay the same while the item moves, so no index in it; blob URLs are unique per file.
+function getItemKey(item: ImageUploaderItem): string {
 	if (item.kind === 'existing') return item.id;
-	return `file-${item.previewUrl}-${item.file.name}-${index}`;
+	return `file-${item.previewUrl}`;
 }
 
 function reorderItems(items: ImageUploaderItem[]): ImageUploaderItem[] {
@@ -40,8 +59,69 @@ function revokeFilePreview(item: ImageUploaderItem): void {
 	}
 }
 
-function isFileDragEvent(event: React.DragEvent): boolean {
-	return Array.from(event.dataTransfer.types).includes('Files');
+// Stops a press on a control inside the thumbnail from starting a drag of the thumbnail.
+const stopDragStart = {
+	onMouseDown: (event: React.SyntheticEvent) => event.stopPropagation(),
+	onTouchStart: (event: React.SyntheticEvent) => event.stopPropagation(),
+	onKeyDown: (event: React.SyntheticEvent) => event.stopPropagation(),
+};
+
+interface SortableThumbnailProps {
+	item: ImageUploaderItem;
+	index: number;
+	canReorder: boolean;
+	disabled: boolean;
+	onRemove: () => void;
+}
+
+function SortableThumbnail({ item, index, canReorder, disabled, onRemove }: SortableThumbnailProps) {
+	const translate = useTranslation();
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id: getItemKey(item),
+		disabled: !canReorder,
+	});
+
+	return (
+		<div
+			ref={setNodeRef}
+			style={{ transform: CSS.Translate.toString(transform), transition }}
+			{...attributes}
+			{...listeners}
+			className={[
+				// select-none + no touch callout: the long press that starts a drag on a phone
+				// would otherwise select text or open the image menu.
+				'group relative h-32 w-32 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-100 shadow-sm select-none [-webkit-touch-callout:none] dark:border-gray-700 dark:bg-gray-800',
+				isDragging ? 'ring-primary z-10 opacity-80 shadow-lg ring-2' : '',
+				canReorder ? 'cursor-grab active:cursor-grabbing' : '',
+			].join(' ')}
+		>
+			<img
+				src={getPreviewUrl(item)}
+				alt={`Event image ${index + 1}`}
+				className="pointer-events-none h-full w-full object-cover"
+				draggable={false}
+			/>
+			{canReorder && (
+				<div className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white">
+					<GripVertical className="h-3.5 w-3.5" />
+				</div>
+			)}
+			{index === 0 && (
+				<span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+					{translate('admin.cover')}
+				</span>
+			)}
+			<button
+				type="button"
+				disabled={disabled}
+				onClick={onRemove}
+				{...stopDragStart}
+				className="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
+			>
+				<X className="h-4 w-4" />
+			</button>
+		</div>
+	);
 }
 
 export default function ImageUploader({
@@ -52,8 +132,6 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
 	const translate = useTranslation();
 	const inputId = useId();
-	const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-	const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 	const fileItemsRef = useRef<ImageUploaderItem[]>([]);
 
 	const sorted = useMemo(() => [...value].sort((a, b) => a.order - b.order), [value]);
@@ -109,47 +187,20 @@ export default function ImageUploader({
 		onChange(reorderItems(next));
 	};
 
-	const moveItem = (fromIndex: number, toIndex: number) => {
-		if (fromIndex === toIndex) return;
-		const next = [...sorted];
-		const [moved] = next.splice(fromIndex, 1);
-		next.splice(toIndex, 0, moved);
-		onChange(reorderItems(next));
-	};
+	const sensors = useSensors(
+		// A few pixels of travel so a click on the thumbnail is still just a click.
+		useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+		// On touch a short hold starts the drag; moving before that scrolls the page.
+		useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+	);
 
-	const handleReorderDragStart = (index: number) => {
-		if (!canReorder) return;
-		setDraggedIndex(index);
-	};
-
-	const handleThumbnailDragOver = (event: React.DragEvent, index: number) => {
-		if (isFileDragEvent(event)) {
-			event.preventDefault();
-			return;
-		}
-		if (!canReorder || draggedIndex === null) return;
-		event.preventDefault();
-		setDropTargetIndex(index);
-	};
-
-	const handleThumbnailDrop = (event: React.DragEvent, index: number) => {
-		event.preventDefault();
-		event.stopPropagation();
-
-		if (event.dataTransfer.files?.length) {
-			addFiles(Array.from(event.dataTransfer.files));
-			return;
-		}
-
-		if (draggedIndex === null) return;
-		moveItem(draggedIndex, index);
-		setDraggedIndex(null);
-		setDropTargetIndex(null);
-	};
-
-	const handleReorderDragEnd = () => {
-		setDraggedIndex(null);
-		setDropTargetIndex(null);
+	const handleDragEnd = ({ active, over }: DragEndEvent) => {
+		if (!over || active.id === over.id) return;
+		const fromIndex = sorted.findIndex((item) => getItemKey(item) === active.id);
+		const toIndex = sorted.findIndex((item) => getItemKey(item) === over.id);
+		if (fromIndex === -1 || toIndex === -1) return;
+		onChange(reorderItems(arrayMove(sorted, fromIndex, toIndex)));
 	};
 
 	return (
@@ -169,54 +220,20 @@ export default function ImageUploader({
 			>
 				<input {...getInputProps({ id: inputId })} />
 
-				{sorted.map((item, index) => {
-					const isDragging = draggedIndex === index;
-					const isDropTarget = dropTargetIndex === index && draggedIndex !== index;
-
-					return (
-						<div
-							key={getItemKey(item, index)}
-							draggable={canReorder}
-							onDragStart={() => handleReorderDragStart(index)}
-							onDragOver={(e) => handleThumbnailDragOver(e, index)}
-							onDrop={(e) => handleThumbnailDrop(e, index)}
-							onDragEnd={handleReorderDragEnd}
-							className={[
-								'group relative h-32 w-32 shrink-0 overflow-hidden rounded-xl border bg-gray-100 shadow-sm dark:bg-gray-800',
-								isDragging ? 'opacity-50' : '',
-								isDropTarget
-									? 'border-primary ring-primary/30 ring-2'
-									: 'border-gray-200 dark:border-gray-700',
-								canReorder ? 'cursor-grab active:cursor-grabbing' : '',
-							].join(' ')}
-						>
-							<img
-								src={getPreviewUrl(item)}
-								alt={`Event image ${index + 1}`}
-								className="pointer-events-none h-full w-full object-cover"
-								draggable={false}
-							/>
-							{canReorder && (
-								<div className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white">
-									<GripVertical className="h-3.5 w-3.5" />
-								</div>
-							)}
-							{index === 0 && (
-								<span className="absolute top-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-									{translate('admin.cover')}
-								</span>
-							)}
-							<button
-								type="button"
+				<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+					<SortableContext items={sorted.map(getItemKey)} strategy={rectSortingStrategy}>
+						{sorted.map((item, index) => (
+							<SortableThumbnail
+								key={getItemKey(item)}
+								item={item}
+								index={index}
+								canReorder={canReorder}
 								disabled={disabled}
-								onClick={() => removeAt(index)}
-								className="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
-							>
-								<X className="h-4 w-4" />
-							</button>
-						</div>
-					);
-				})}
+								onRemove={() => removeAt(index)}
+							/>
+						))}
+					</SortableContext>
+				</DndContext>
 
 				{canAddMore && !disabled && (
 					<button
