@@ -138,6 +138,56 @@ export const formatRelativeTime = (
 	return formatter.format(Math.round(elapsedSeconds), 'second');
 };
 
+type DurationUnit = 'day' | 'hour' | 'minute';
+
+/**
+ * Unit words for durations, owned for the same reason as the month names above. Russian needs
+ * three forms, picked with `Intl.PluralRules` (plural *categories* are stable across environments;
+ * it's the displayed words that have been seen to differ). Armenian doesn't inflect after a number.
+ */
+const DURATION_UNITS: Record<LocaleIntlEnum, Record<DurationUnit, Partial<Record<Intl.LDMLPluralRule, string>>>> = {
+	'en-US': {
+		day: { one: 'day', other: 'days' },
+		hour: { one: 'hour', other: 'hours' },
+		minute: { one: 'minute', other: 'minutes' },
+	},
+	'ru-RU': {
+		day: { one: 'день', few: 'дня', many: 'дней', other: 'дня' },
+		hour: { one: 'час', few: 'часа', many: 'часов', other: 'часа' },
+		minute: { one: 'минута', few: 'минуты', many: 'минут', other: 'минуты' },
+	},
+	'hy-AM': {
+		day: { other: 'օր' },
+		hour: { other: 'ժամ' },
+		minute: { other: 'րոպե' },
+	},
+};
+
+function formatDurationUnit(count: number, unit: DurationUnit, locale: LocaleIntlEnum): string {
+	const forms = DURATION_UNITS[locale][unit];
+	const category = new Intl.PluralRules(locale).select(count);
+	return `${count} ${forms[category] ?? forms.other}`;
+}
+
+/**
+ * Event length (stored in minutes) in the largest units that read naturally: "2 дня",
+ * "1 день 18 часов", "3 часа 30 минут", "45 минут". From a day up, minutes are dropped —
+ * nobody plans a multi-day tour to the minute.
+ */
+export const formatDuration = (totalMinutes: number, locale: LocaleIntlEnum): string => {
+	const minutesTotal = Math.max(0, Math.round(totalMinutes));
+	const days = Math.floor(minutesTotal / (60 * 24));
+	const hours = Math.floor((minutesTotal % (60 * 24)) / 60);
+	const minutes = minutesTotal % 60;
+
+	const parts: string[] = [];
+	if (days) parts.push(formatDurationUnit(days, 'day', locale));
+	if (hours) parts.push(formatDurationUnit(hours, 'hour', locale));
+	if (!days && (minutes || !hours)) parts.push(formatDurationUnit(minutes, 'minute', locale));
+
+	return parts.join(' ');
+};
+
 export const formatTime = (date: string | Date | null | undefined, locale: LocaleIntlEnum): string => {
 	const d = getValidDate(date);
 	if (!d) return '';

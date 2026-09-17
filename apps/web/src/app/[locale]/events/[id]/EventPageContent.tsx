@@ -21,6 +21,7 @@ import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
+import { useFormatDate } from '@/hooks/format';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -35,6 +36,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const copyToClipboard = useCopyToClipboard();
 	const translate = useTranslation();
 	const locale = translate.locale;
+	const { formatDuration } = useFormatDate();
 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
@@ -147,7 +149,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 							<InfoCard
 								icon={Clock}
 								label={translate('event.duration')}
-								value={`${Math.floor(event.duration / 60)} ${translate('event.hours')}`}
+								value={formatDuration(event.duration)}
 							/>
 							{event.difficulty && (
 								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={event.difficulty} />

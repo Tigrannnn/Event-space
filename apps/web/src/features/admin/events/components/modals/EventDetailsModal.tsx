@@ -74,7 +74,7 @@ export default function EventDetailsModal() {
 	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.EventDetails);
 	const event = modalData?.event;
-	const { formatDateTime } = useFormatDate();
+	const { formatDateTime, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const {
 		BOOKING_STATUS_LABELS,
@@ -306,7 +306,7 @@ export default function EventDetailsModal() {
 										{translate('event.duration')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{event.duration} {translate('admin.minutesShort')}
+										{formatDuration(event.duration)}
 									</p>
 								</div>
 							</div>

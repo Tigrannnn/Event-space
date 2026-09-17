@@ -20,7 +20,7 @@ export default function BookingDetailsModal() {
 	const { BOOKING_STATUS_LABELS, PAYMENT_METHOD_LABELS, ADJUSTMENT_TYPE_LABELS, ADJUSTMENT_STATUS_LABELS } =
 		useLabels();
 	const locale = translate.locale;
-	const { formatDateTime } = useFormatDate();
+	const { formatDateTime, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
@@ -309,9 +309,7 @@ export default function BookingDetailsModal() {
 											{translate('event.duration')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{event?.duration
-												? `${event.duration} ${translate('admin.minutesShort')}`
-												: '—'}
+											{event?.duration ? formatDuration(event.duration) : '—'}
 										</p>
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

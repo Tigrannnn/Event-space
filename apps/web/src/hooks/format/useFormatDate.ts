@@ -6,6 +6,7 @@ import {
     formatDateYear,
     formatDateShort,
     formatDateTime,
+    formatDuration,
     formatRelativeTime,
     formatTime,
 } from '@/utils/date';
@@ -20,6 +21,7 @@ export function useFormatDate() {
         formatDateShort: (date: string | Date | null | undefined) => formatDateShort(date, intlLocale),
         formatDateTime: (date: string | Date | null | undefined) => formatDateTime(date, intlLocale),
         formatTime: (date: string | Date | null | undefined) => formatTime(date, intlLocale),
+        formatDuration: (minutes: number) => formatDuration(minutes, intlLocale),
         formatRelative: (date: string | Date | null | undefined) =>
             formatRelativeTime(date, intlLocale),
     };

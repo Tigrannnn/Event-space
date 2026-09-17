@@ -22,6 +22,7 @@ import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { useFormatDate } from '@/hooks/format';
 import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
 import { XIcon } from 'lucide-react';
@@ -135,6 +136,8 @@ export default function EventForm({
 	const watchedRules = useWatch({ control, name: 'cancellationRules' });
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 	const watchedStatus = useWatch({ control, name: 'status' });
+	const watchedDuration = Number(useWatch({ control, name: 'duration' }));
+	const { formatDuration } = useFormatDate();
 
 	const {
 		fields: translationFields,
@@ -706,7 +709,13 @@ export default function EventForm({
 							className={fieldClassName}
 							disabled={isPending}
 						/>
-						{errors.duration && <p className="text-xs text-red-500">{errorText(errors.duration.message)}</p>}
+						{errors.duration ? (
+							<p className="text-xs text-red-500">{errorText(errors.duration.message)}</p>
+						) : (
+							watchedDuration > 0 && (
+								<p className="text-xs text-gray-500 dark:text-gray-400">= {formatDuration(watchedDuration)}</p>
+							)
+						)}
 					</label>
 				</div>
 
