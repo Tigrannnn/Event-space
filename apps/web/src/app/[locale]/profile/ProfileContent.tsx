@@ -13,6 +13,7 @@ import PageState from '@/components/ui/PageState';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
+import { useLabels } from '@/hooks/labels/useLabels';
 
 interface ProfileContentProps {
 	initialUser: SafeUserData | null;
@@ -28,6 +29,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
+	const { USER_ROLE_LABELS } = useLabels();
 	const confirm = useConfirm();
 
 	if (hasInitialUser && isLoading) {
@@ -112,7 +114,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 							)}
 							<span className="mt-2 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 capitalize dark:bg-blue-900 dark:text-blue-200">
 								<UserCog className="mr-1 h-3 w-3" />
-								{user.role.toLowerCase()}
+								{USER_ROLE_LABELS[user.role]}
 							</span>
 						</div>
 					</div>

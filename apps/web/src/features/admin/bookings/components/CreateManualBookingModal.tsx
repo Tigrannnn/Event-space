@@ -14,7 +14,12 @@ import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
-
+import {
+	buildManualBookingData,
+	validateManualBooking,
+	type ManualBookingErrors,
+	type ManualBookingField,
+} from './manual-booking-form';
 
 export default function CreateManualBookingModal() {
 	const { formatDateTime } = useFormatDate();
@@ -32,7 +37,16 @@ export default function CreateManualBookingModal() {
 		email: undefined,
 		paymentMethod: 'OFFLINE_PAID',
 	});
-	const [error, setError] = useState<string | null>(null);
+	const [errors, setErrors] = useState<ManualBookingErrors>({});
+
+	const clearErrors = (...fields: ManualBookingField[]) => {
+		setErrors((current) => {
+			if (!fields.some((field) => current[field])) return current;
+			const next = { ...current };
+			for (const field of fields) delete next[field];
+			return next;
+		});
+	};
 
 	const handleChange = (
 		field: keyof CreateManualBookingData,
@@ -47,7 +61,7 @@ export default function CreateManualBookingModal() {
 	const avalibleOccurrences = useMemo(
 		() =>
 			(selectedEvent?.occurrences ?? []).filter(
-				(occurrence) => occurrence.status === 'ACTIVE' && new Date(occurrence.date) > new Date() ,
+				(occurrence) => occurrence.status === 'ACTIVE' && new Date(occurrence.date) > new Date(),
 			),
 		[selectedEvent],
 	);
@@ -59,6 +73,7 @@ export default function CreateManualBookingModal() {
 			...current,
 			occurrenceId: '',
 		}));
+		clearErrors('event', 'occurrence');
 	};
 
 	const handleOccurrenceSelect = (occurrenceId: string) => {
@@ -68,42 +83,32 @@ export default function CreateManualBookingModal() {
 			...current,
 			occurrenceId,
 		}));
+		clearErrors('occurrence');
 	};
 
 	const handleSubmit = () => {
-		const data: CreateManualBookingData = {
-			occurrenceId: String(formState.occurrenceId),
+		const draft = {
+			eventId: selectedEvent?.id,
+			hasAvailableDates: avalibleOccurrences.length > 0,
+			occurrenceId: formState.occurrenceId,
 			quantity: Number(formState.quantity),
-			userId: formState.userId?.trim() || undefined,
-			name: formState.name?.trim() || undefined,
-			phone: formState.phone?.trim() || undefined,
-			email: formState.email?.trim() || undefined,
-			paymentMethod: formState.paymentMethod || 'OFFLINE_PAID',
+			userId: formState.userId,
+			name: formState.name,
+			phone: formState.phone,
+			email: formState.email,
+			paymentMethod: formState.paymentMethod,
 		};
 
-		if (!data.occurrenceId) {
-			setError(translate('admin.invalidReference'));
-			return;
-		}
+		const nextErrors = validateManualBooking(draft);
+		setErrors(nextErrors);
+		if (Object.keys(nextErrors).length > 0) return;
 
-		if (!data.userId && !data.name) {
-			setError(translate('admin.enterShadowUserName'));
-			return;
-		}
+		createManualBooking(buildManualBookingData(draft));
+	};
 
-		if (data.userId && data.name) {
-			setError(translate('admin.enterShadowUserName'));
-			return;
-		}
-
-		// If creating a shadow user, phone is required
-		if (data.name && !data.phone) {
-			setError(translate('admin.enterPhoneForShadowUser'));
-			return;
-		}
-
-		setError(null);
-		createManualBooking(data);
+	const renderError = (field: ManualBookingField) => {
+		const key = errors[field];
+		return key ? <p className="-mt-2 text-xs text-red-500">{translate(key)}</p> : null;
 	};
 
 	return (
@@ -117,57 +122,89 @@ export default function CreateManualBookingModal() {
 						onChange={handleEventSelect}
 						label={translate('admin.eventField')}
 					/>
+					{renderError('event')}
 
-					{selectedEvent && (
-						<Select
-							value={formState.occurrenceId}
-							onValueChange={handleOccurrenceSelect}
-							className="w-full font-medium"
-						>
-							<option value="">{translate('admin.selectEvent')}</option>
-							{avalibleOccurrences.map((occurrence) => (
-								<option key={occurrence.id} value={occurrence.id}>
-									{formatDateTime(occurrence.date)} —{' '}
-									{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
-									{translate('booking.spotsLeft')}
-								</option>
-							))}
-						</Select>
-					)}
+					{selectedEvent &&
+						(avalibleOccurrences.length > 0 ? (
+							<>
+								<Select
+									value={formState.occurrenceId}
+									onValueChange={handleOccurrenceSelect}
+									className="w-full font-medium"
+								>
+									<option value="">{translate('admin.selectDate')}</option>
+									{avalibleOccurrences.map((occurrence) => (
+										<option key={occurrence.id} value={occurrence.id}>
+											{formatDateTime(occurrence.date)} —{' '}
+											{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
+											{translate('booking.spotsLeft')}
+										</option>
+									))}
+								</Select>
+								{renderError('occurrence')}
+							</>
+						) : (
+							// Shown straight away rather than after submitting: an empty date list with no
+							// explanation reads as a broken form.
+							<p
+								className={
+									errors.occurrence ? 'text-xs text-red-500' : 'text-sm text-gray-500 dark:text-gray-400'
+								}
+							>
+								{translate('admin.validation.noAvailableDates')}
+							</p>
+						))}
 
 					<UserSearchSelect
 						label={translate('admin.userField')}
 						existingUserId={formState.userId ?? ''}
 						newUserName={formState.name ?? ''}
-						onExistingUserSelect={(user) =>
+						onExistingUserSelect={(user) => {
+							// Only the id is kept for an existing user — see buildManualBookingData.
 							setFormState((state) => ({
 								...state,
-								phone: user?.phone || undefined,
 								userId: user?.id || undefined,
-								name: user?.name || undefined,
-								email: user?.email || undefined,
-							}))
-						}
-						onNewUserName={(name) =>
-							setFormState((state) => ({ ...state, name: name || undefined, userId: undefined }))
-						}
+								name: undefined,
+								phone: undefined,
+								email: undefined,
+							}));
+							clearErrors('user', 'phone', 'email');
+						}}
+						onNewUserName={(name) => {
+							setFormState((state) => ({ ...state, name: name || undefined, userId: undefined }));
+							clearErrors('user');
+						}}
 					/>
+					{renderError('user')}
 
-					<Input
-						label={translate('admin.phoneField')}
-						value={formState.phone ?? ''}
-						onChange={(e) => handleChange('phone', e.target.value)}
-						placeholder={translate('admin.phonePlaceholder')}
-						className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
-					/>
+					{/* Contact details belong to a new user; an existing one already has them. */}
+					{!formState.userId && (
+						<>
+							<Input
+								label={translate('admin.phoneField')}
+								value={formState.phone ?? ''}
+								onChange={(e) => {
+									handleChange('phone', e.target.value);
+									clearErrors('phone');
+								}}
+								placeholder={translate('admin.phonePlaceholder')}
+								className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+							/>
+							{renderError('phone')}
 
-					<Input
-						label={translate('admin.emailField')}
-						value={formState.email ?? ''}
-						onChange={(e) => handleChange('email', e.target.value)}
-						placeholder={translate('admin.emailPlaceholder')}
-						className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
-					/>
+							<Input
+								label={translate('admin.emailField')}
+								value={formState.email ?? ''}
+								onChange={(e) => {
+									handleChange('email', e.target.value);
+									clearErrors('email');
+								}}
+								placeholder={translate('admin.emailPlaceholder')}
+								className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+							/>
+							{renderError('email')}
+						</>
+					)}
 
 					<Select
 						value={formState.paymentMethod}
@@ -190,8 +227,6 @@ export default function CreateManualBookingModal() {
 							label={translate('admin.numberOfSpots')}
 						/>
 					)}
-
-					{error && <p className="text-sm text-red-500">{error}</p>}
 				</div>
 
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row">

@@ -299,7 +299,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</TableCell>
 								<TableCell>
 									<Badge
-										label={booking.status}
+										label={BOOKING_STATUS_LABELS[booking.status]}
 										variant={
 											booking.status === 'CONFIRMED'
 												? 'success'

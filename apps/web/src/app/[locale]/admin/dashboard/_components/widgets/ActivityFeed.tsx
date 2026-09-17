@@ -31,7 +31,7 @@ export default function ActivityFeed({ stats }: ActivityFeedProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatRelative } = useFormatDate();
-	const { BOOKING_STATUS_LABELS } = useLabels();
+	const { BOOKING_STATUS_LABELS, USER_ROLE_LABELS } = useLabels();
 
 	const entries: ActivityEntry[] = [
 		...stats.recentBookings.map((booking) => {
@@ -53,7 +53,7 @@ export default function ActivityFeed({ stats }: ActivityFeedProps) {
 			at: new Date(user.createdAt),
 			icon: <UserPlus className="h-4 w-4" />,
 			title: `${user.name} ${translate('admin.joinedActivity')}`,
-			meta: `${user.email ?? translate('booking.noEmail')} · ${user.role}`,
+			meta: `${user.email ?? translate('booking.noEmail')} · ${USER_ROLE_LABELS[user.role]}`,
 		})),
 		...stats.recentEvents.map((event) => ({
 			id: `event-${event.id}`,

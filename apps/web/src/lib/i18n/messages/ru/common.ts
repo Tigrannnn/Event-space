@@ -22,4 +22,6 @@ export const common: Messages['common'] = {
 	updating: 'Обновляется...',
 	optional: 'необязательно',
 	copyFailed: 'Не удалось скопировать',
+	scrollLeft: 'Прокрутить влево',
+	scrollRight: 'Прокрутить вправо',
 };

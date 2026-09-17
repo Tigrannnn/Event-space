@@ -6,11 +6,13 @@ import { ModalType } from '@/stores';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
+import { useLabels } from '@/hooks/labels/useLabels';
 import { localeIntl } from '@/lib/i18n/config';
 import { formatDateTime } from '@/utils/date';
 
 export default function UserDetailsModal() {
 	const translate = useTranslation();
+	const { USER_ROLE_LABELS } = useLabels();
 	const locale = translate.locale;
 	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
@@ -73,7 +75,7 @@ export default function UserDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.role')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{user.role}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{USER_ROLE_LABELS[user.role]}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">

@@ -8,6 +8,8 @@ import type {
 	BookingStatus,
 	UserRoleType,
 	PaymentMethod,
+	AdjustmentType,
+	AdjustmentStatus,
 } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 
@@ -43,12 +45,23 @@ export function useLabels() {
 		PENDING: translate('admin.pending'),
 		CONFIRMED: translate('admin.confirmed'),
 		CANCELLED: translate('admin.cancelled'),
-		EXPIRED: translate('booking.bookingExpired'),
+		EXPIRED: translate('admin.expired'),
 	};
 
 	const USER_ROLE_LABELS: Record<UserRoleType, string> = {
 		USER: translate('admin.user'),
 		ADMIN: translate('admin.admin'),
+	};
+
+	const ADJUSTMENT_TYPE_LABELS: Record<AdjustmentType, string> = {
+		CHARGE: translate('admin.charge'),
+		REFUND: translate('admin.refund'),
+	};
+
+	const ADJUSTMENT_STATUS_LABELS: Record<AdjustmentStatus, string> = {
+		PENDING: translate('admin.pending'),
+		SUCCEEDED: translate('admin.succeeded'),
+		FAILED: translate('admin.failed'),
 	};
 
 	const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -58,6 +71,8 @@ export function useLabels() {
 	};
 
 	return {
+		ADJUSTMENT_TYPE_LABELS,
+		ADJUSTMENT_STATUS_LABELS,
 		EVENT_STATUS_LABELS,
 		EVENT_DIFFICULTY_LABELS,
 		EVENT_OCCURRENCE_STATE_LABELS,

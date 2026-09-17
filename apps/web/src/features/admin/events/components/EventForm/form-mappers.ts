@@ -69,7 +69,9 @@ function buildEventFields(values: EventFormValues) {
 		locationUrl: normalizeOptionalString(values.locationUrl),
 		meetingLocationUrl: normalizeOptionalString(values.meetingLocationUrl),
 		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
-		difficulty: values.difficulty || undefined,
+		// Difficulty is nullable but not optional on the API: an unset field has to be sent as null,
+		// because undefined drops the key from the JSON and the request is rejected.
+		difficulty: values.difficulty || null,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
 		maxParticipants:
 			primaryOccurrence?.maxParticipants ?? (Number(values.maxParticipants || 0) || undefined),

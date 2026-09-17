@@ -153,8 +153,8 @@ export default function EventDetailsModal() {
 
 				<div className="grid grid-cols-1 gap-6">
 					{event.images?.length ? (
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-							{event.images.slice(0, 2).map((image) => (
+						<div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+							{event.images.map((image) => (
 								<div
 									key={image.id}
 									className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 dark:border-gray-700"
@@ -164,7 +164,7 @@ export default function EventDetailsModal() {
 										alt={eventTranslation.title}
 										width={600}
 										height={400}
-										className="h-48 w-full object-cover"
+										className="h-32 w-full object-cover sm:h-40"
 									/>
 								</div>
 							))}

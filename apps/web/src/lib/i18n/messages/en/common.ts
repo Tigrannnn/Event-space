@@ -20,4 +20,6 @@ export const common = {
 	updating: 'Updating...',
 	optional: 'optional',
 	copyFailed: 'Could not copy to clipboard',
+	scrollLeft: 'Scroll left',
+	scrollRight: 'Scroll right',
 };

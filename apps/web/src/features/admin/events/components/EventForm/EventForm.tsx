@@ -25,6 +25,8 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
 import { XIcon } from 'lucide-react';
+import type { MessageKey } from '@/lib/i18n/messages';
+import { ToastType, useToastStore } from '@/stores/toastStore';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -63,6 +65,10 @@ export default function EventForm({
 }: EventFormProps) {
 	const translate = useTranslation();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
+	const { addToast } = useToastStore();
+
+	// Schema messages are translation keys, so validation reads in the admin's language.
+	const errorText = (message?: string) => (message ? translate(message as MessageKey) : undefined);
 
 	const { data: categoriesResponse } = useQuery({
 		queryKey: ['admin', 'categories', { limit: 100 }],
@@ -225,7 +231,10 @@ export default function EventForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
+		<form
+			onSubmit={handleSubmit(handleFormSubmit, () =>
+				addToast(translate('admin.validation.fixErrors'), ToastType.ERROR),
+			)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
 			{showCancelConfirm && (
 				<Modal
 					onClose={handleRejectCancel}
@@ -326,6 +335,12 @@ export default function EventForm({
 						})}
 					</div>
 
+					{(errors.translations?.message || errors.translations?.root?.message) && (
+						<p className="text-xs text-red-500">
+							{errorText(errors.translations?.message ?? errors.translations?.root?.message)}
+						</p>
+					)}
+
 					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
 						<div
 							key={translationFields[activeTabIndex].id}
@@ -342,7 +357,7 @@ export default function EventForm({
 									/>
 									{errors.translations?.[activeTabIndex]?.title && (
 										<p className="text-xs text-red-500">
-											{errors.translations[activeTabIndex]?.title?.message}
+											{errorText(errors.translations[activeTabIndex]?.title?.message)}
 										</p>
 									)}
 								</label>
@@ -359,7 +374,7 @@ export default function EventForm({
 									/>
 									{errors.translations?.[activeTabIndex]?.location && (
 										<p className="text-xs text-red-500">
-											{errors.translations[activeTabIndex]?.location?.message}
+											{errorText(errors.translations[activeTabIndex]?.location?.message)}
 										</p>
 									)}
 								</label>
@@ -374,7 +389,7 @@ export default function EventForm({
 									/>
 									{errors.translations?.[activeTabIndex]?.meetingLocation && (
 										<p className="text-xs text-red-500">
-											{errors.translations[activeTabIndex]?.meetingLocation?.message}
+											{errorText(errors.translations[activeTabIndex]?.meetingLocation?.message)}
 										</p>
 									)}
 								</label>
@@ -390,7 +405,7 @@ export default function EventForm({
 								/>
 								{errors.translations?.[activeTabIndex]?.description && (
 									<p className="text-xs text-red-500">
-										{errors.translations[activeTabIndex]?.description?.message}
+										{errorText(errors.translations[activeTabIndex]?.description?.message)}
 									</p>
 								)}
 							</label>
@@ -405,7 +420,7 @@ export default function EventForm({
 								/>
 								{errors.translations?.[activeTabIndex]?.whatsIncluded && (
 									<p className="text-xs text-red-500">
-										{errors.translations[activeTabIndex]?.whatsIncluded?.message}
+										{errorText(errors.translations[activeTabIndex]?.whatsIncluded?.message)}
 									</p>
 								)}
 							</label>
@@ -429,7 +444,7 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
+						{errors.categoryId && <p className="text-xs text-red-500">{errorText(errors.categoryId.message)}</p>}
 					</div>
 				</div>
 
@@ -442,7 +457,7 @@ export default function EventForm({
 							disabled={isPending}
 							placeholder={translate('admin.googleMapsUrlPlaceholder')}
 						/>
-						{errors.locationUrl && <p className="text-xs text-red-500">{errors.locationUrl.message}</p>}
+						{errors.locationUrl && <p className="text-xs text-red-500">{errorText(errors.locationUrl.message)}</p>}
 					</label>
 
 					<label className="space-y-1.5">
@@ -456,7 +471,7 @@ export default function EventForm({
 							placeholder={translate('admin.googleMapsUrlPlaceholder')}
 						/>
 						{errors.meetingLocationUrl && (
-							<p className="text-xs text-red-500">{errors.meetingLocationUrl.message}</p>
+							<p className="text-xs text-red-500">{errorText(errors.meetingLocationUrl.message)}</p>
 						)}
 					</label>
 				</div>
@@ -529,6 +544,11 @@ export default function EventForm({
 													/>
 												)}
 											/>
+											{errors.occurrences?.[index]?.date && (
+												<p className="text-xs text-red-500">
+													{errorText(errors.occurrences[index]?.date?.message)}
+												</p>
+											)}
 										</div>
 
 										<label className="w-full space-y-1.5 md:max-w-40">
@@ -588,6 +608,12 @@ export default function EventForm({
 						</div>
 					)}
 
+					{(errors.occurrences?.message || errors.occurrences?.root?.message) && (
+						<p className="text-xs text-red-500">
+							{errorText(errors.occurrences?.message ?? errors.occurrences?.root?.message)}
+						</p>
+					)}
+
 					{pastOccurrencesCount > 0 && (
 						<button
 							type="button"
@@ -622,7 +648,7 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.difficulty && <p className="text-xs text-red-500">{errors.difficulty.message}</p>}
+						{errors.difficulty && <p className="text-xs text-red-500">{errorText(errors.difficulty.message)}</p>}
 					</div>
 					<div className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.status')}</span>
@@ -639,7 +665,7 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.status && <p className="text-xs text-red-500">{errors.status.message}</p>}
+						{errors.status && <p className="text-xs text-red-500">{errorText(errors.status.message)}</p>}
 					</div>
 				</div>
 
@@ -653,7 +679,7 @@ export default function EventForm({
 							placeholder={translate('admin.cancellationReasonPlaceholder')}
 						/>
 						{errors.cancellationReason && (
-							<p className="text-xs text-red-500">{errors.cancellationReason.message}</p>
+							<p className="text-xs text-red-500">{errorText(errors.cancellationReason.message)}</p>
 						)}
 					</div>
 				)}
@@ -670,7 +696,7 @@ export default function EventForm({
 							className={fieldClassName}
 							disabled={isPending}
 						/>
-						{errors.price && <p className="text-xs text-red-500">{errors.price.message}</p>}
+						{errors.price && <p className="text-xs text-red-500">{errorText(errors.price.message)}</p>}
 					</label>
 					<label className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.durationMin')}</span>
@@ -680,7 +706,7 @@ export default function EventForm({
 							className={fieldClassName}
 							disabled={isPending}
 						/>
-						{errors.duration && <p className="text-xs text-red-500">{errors.duration.message}</p>}
+						{errors.duration && <p className="text-xs text-red-500">{errorText(errors.duration.message)}</p>}
 					</label>
 				</div>
 
@@ -729,7 +755,7 @@ export default function EventForm({
 										/>
 										{errors.cancellationRules?.[index]?.hoursBeforeEvent && (
 											<p className="text-xs text-red-500">
-												{errors.cancellationRules[index]?.hoursBeforeEvent?.message}
+												{errorText(errors.cancellationRules[index]?.hoursBeforeEvent?.message)}
 											</p>
 										)}
 									</label>
@@ -749,7 +775,7 @@ export default function EventForm({
 										/>
 										{errors.cancellationRules?.[index]?.refundPercentage && (
 											<p className="text-xs text-red-500">
-												{errors.cancellationRules[index]?.refundPercentage?.message}
+												{errorText(errors.cancellationRules[index]?.refundPercentage?.message)}
 											</p>
 										)}
 									</label>
@@ -792,7 +818,7 @@ export default function EventForm({
 							<ImageUploader value={field.value ?? []} onChange={field.onChange} disabled={isPending} />
 						)}
 					/>
-					{errors.images && <p className="text-xs text-red-500">{errors.images.message}</p>}
+					{errors.images && <p className="text-xs text-red-500">{errorText(errors.images.message)}</p>}
 				</div>
 			</div>
 

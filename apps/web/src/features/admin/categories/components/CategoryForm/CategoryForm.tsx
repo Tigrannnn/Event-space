@@ -10,6 +10,7 @@ import { ModalHeader } from '@/components/ui/Modal';
 import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { XIcon } from 'lucide-react';
+import type { MessageKey } from '@/lib/i18n/messages';
 
 interface CategoryFormProps {
 	submitLabel: string;
@@ -37,6 +38,8 @@ export default function CategoryForm({
 	onSubmit,
 }: CategoryFormProps) {
 	const translate = useTranslation();
+	// Schema messages are translation keys, so validation reads in the admin's language.
+	const errorText = (message?: string) => (message ? translate(message as MessageKey) : undefined);
 
 	const {
 		register,
@@ -144,6 +147,12 @@ export default function CategoryForm({
 						})}
 					</div>
 
+					{(errors.translations?.message || errors.translations?.root?.message) && (
+						<p className="text-xs text-red-500">
+							{errorText(errors.translations?.message ?? errors.translations?.root?.message)}
+						</p>
+					)}
+
 					{translationFields.length > 0 && activeTabIndex < translationFields.length && (
 						<div
 							key={translationFields[activeTabIndex].id}
@@ -159,7 +168,7 @@ export default function CategoryForm({
 									/>
 									{errors.translations?.[activeTabIndex]?.name && (
 										<p className="text-xs text-red-500">
-											{errors.translations[activeTabIndex]?.name?.message}
+											{errorText(errors.translations[activeTabIndex]?.name?.message)}
 										</p>
 									)}
 								</label>
@@ -178,7 +187,7 @@ export default function CategoryForm({
 							placeholder="category-slug"
 						/>
 						<p className="text-xs text-gray-500">{translate('admin.slugDescription')}</p>
-						{errors.slug && <p className="text-xs text-red-500">{errors.slug.message}</p>}
+						{errors.slug && <p className="text-xs text-red-500">{errorText(errors.slug.message)}</p>}
 					</label>
 				</div>
 			</div>

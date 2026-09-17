@@ -22,4 +22,6 @@ export const common: Messages['common'] = {
 	updating: 'Թարմացվում է...',
 	optional: 'պարտադիր չէ',
 	copyFailed: 'Չհաջողվեց պատճենել',
+	scrollLeft: 'Ոլորել ձախ',
+	scrollRight: 'Ոլորել աջ',
 };

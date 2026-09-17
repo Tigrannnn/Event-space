@@ -13,6 +13,7 @@ import { EventImageWithFallback } from '@/features/events';
 import type { BookingWithEstimate } from '@event-space/shared';
 import { localizePath, localeIntl } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
+import { useLabels } from '@/hooks/labels/useLabels';
 import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
@@ -36,6 +37,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const formatCurrency = useFormatCurrency();
 	const confirm = useConfirm();
 	const translate = useTranslation();
+	const { BOOKING_STATUS_LABELS } = useLabels();
 	const locale = translate.locale;
 
 	if (!occurrence || !event) return null;
@@ -95,7 +97,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Status Badge */}
 				<Badge
-					label={status}
+					label={BOOKING_STATUS_LABELS[status]}
 					variant={status === 'CONFIRMED' ? 'success' : status === 'CANCELLED' ? 'danger' : 'warning'}
 					className="absolute top-3 left-3 text-xs font-bold uppercase"
 				></Badge>
