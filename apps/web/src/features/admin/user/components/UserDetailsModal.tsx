@@ -30,12 +30,12 @@ export default function UserDetailsModal() {
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.userDetails')} onClose={closeModal} />
 
-				<div className="grid gap-6">
+				<div className="grid grid-cols-1 gap-6">
 					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 							{translate('admin.accountInformation')}
 						</p>
-						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
+						<div className="mt-4 grid grid-cols-1 gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
 								<div className="flex flex-wrap items-center gap-2">
 									<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
@@ -62,7 +62,7 @@ export default function UserDetailsModal() {
 								</button>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.phone')}
@@ -85,7 +85,7 @@ export default function UserDetailsModal() {
 								</div>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.createdAt')}

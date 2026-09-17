@@ -31,12 +31,12 @@ export default function CategoryDetailsModal() {
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.categoryDetails')} onClose={closeModal} />
 
-				<div className="grid gap-6">
+				<div className="grid grid-cols-1 gap-6">
 					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 							{translate('admin.eventInformation')}
 						</p>
-						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
+						<div className="mt-4 grid grid-cols-1 gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
 								<button
 									type="button"
@@ -64,7 +64,7 @@ export default function CategoryDetailsModal() {
 								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 									{translate('admin.slug')}
 								</p>
-								<p className="mt-1 font-medium text-gray-900 dark:text-white">
+								<p className="mt-1 font-medium wrap-anywhere text-gray-900 dark:text-white">
 									{category.slug}
 								</p>
 							</div>
@@ -91,7 +91,7 @@ export default function CategoryDetailsModal() {
 								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 									{translate('admin.translations')}
 								</p>
-								<div className="grid gap-2">
+								<div className="grid grid-cols-1 gap-2">
 									{category.translations.map((translation) => (
 										<div
 											key={translation.id}

@@ -111,7 +111,7 @@ export default function CreateManualBookingModal() {
 			<div className="p-4 sm:p-6">
 				<ModalHeader title={translate('admin.createManualBooking')} onClose={closeModal} />
 
-				<div className="grid gap-4">
+				<div className="grid grid-cols-1 gap-4">
 					<EventSearchSelect
 						value={selectedEvent?.id ?? ''}
 						onChange={handleEventSelect}

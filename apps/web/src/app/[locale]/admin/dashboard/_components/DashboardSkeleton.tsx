@@ -58,13 +58,13 @@ export default function DashboardSkeleton() {
 				))}
 			</div>
 
-			<div className="grid gap-6 xl:grid-cols-[1fr_1.2fr]">
+			<div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1.2fr]">
 				<SkeletonCard className="rounded-lg border-gray-500 p-5">
 					<div className="mb-4">
 						<Skeleton className="h-5 w-40" />
 						<Skeleton className="mt-2 h-4 w-56" />
 					</div>
-					<div className="grid gap-3 sm:grid-cols-2">
+					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 						{Array.from({ length: 4 }).map((_, index) => (
 							<div key={index} className="rounded-md border border-gray-500 p-4">
 								<div className="flex items-center justify-between gap-4">
@@ -89,7 +89,7 @@ export default function DashboardSkeleton() {
 				</SkeletonCard>
 			</div>
 
-			<div className="grid gap-6 xl:grid-cols-2">
+			<div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 				<SkeletonCard className="rounded-lg border-gray-500 p-5">
 					<div className="mb-4 flex items-center justify-between">
 						<div>

@@ -109,7 +109,9 @@ export default function UserSearchSelect({
 						className="focus:border-primary h-10 w-full cursor-pointer rounded-md border border-gray-500 bg-transparent px-3 text-left text-sm transition outline-none hover:border-gray-600"
 					>
 						{selectedUser ? (
-							<span className="text-gray-900 dark:text-gray-100">
+							// The button is a fixed-height single line; a long email is cut off rather than
+							// pushing the button, and the modal with it, wider than a phone screen.
+							<span className="block truncate text-gray-900 dark:text-gray-100">
 								{selectedUser.name} — {selectedUser.email}
 							</span>
 						) : (
@@ -140,7 +142,7 @@ export default function UserSearchSelect({
 												>
 													<div className="flex flex-col">
 														<span className="font-medium">{user.name}</span>
-														<span className="text-xs text-gray-400">{user.email} ({translate('common.optional')})</span>
+														<span className="text-xs wrap-anywhere text-gray-400">{user.email} ({translate('common.optional')})</span>
 													</div>
 												</CommandItem>
 											))}

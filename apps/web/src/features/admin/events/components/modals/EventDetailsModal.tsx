@@ -151,9 +151,9 @@ export default function EventDetailsModal() {
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.eventDetails')} onClose={closeModal} />
 
-				<div className="grid gap-6">
+				<div className="grid grid-cols-1 gap-6">
 					{event.images?.length ? (
-						<div className="grid gap-3 sm:grid-cols-2">
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 							{event.images.slice(0, 2).map((image) => (
 								<div
 									key={image.id}
@@ -175,7 +175,7 @@ export default function EventDetailsModal() {
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 							{translate('admin.eventInformation')}
 						</p>
-						<div className="mt-4 grid gap-4 text-sm text-gray-700 dark:text-gray-200">
+						<div className="mt-4 grid grid-cols-1 gap-4 text-sm text-gray-700 dark:text-gray-200">
 							<div>
 								<button
 									type="button"
@@ -219,7 +219,7 @@ export default function EventDetailsModal() {
 									</button>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-1">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.date')}
@@ -257,7 +257,7 @@ export default function EventDetailsModal() {
 								</div>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.location')}
@@ -292,7 +292,7 @@ export default function EventDetailsModal() {
 								</div>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.price')}
@@ -311,7 +311,7 @@ export default function EventDetailsModal() {
 								</div>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.difficulty')}
@@ -354,7 +354,7 @@ export default function EventDetailsModal() {
 								</div>
 							)}
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.capacity')}
@@ -381,7 +381,7 @@ export default function EventDetailsModal() {
 										{event.organizer?.name ?? '—'}
 									</button>
 									{event.organizer?.email && (
-										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.email}</p>
+										<p className="mt-0.5 text-xs wrap-anywhere text-gray-500 dark:text-gray-400">{event.organizer.email}</p>
 									)}
 									{event.organizer?.phone && (
 										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.phone}</p>
@@ -404,7 +404,7 @@ export default function EventDetailsModal() {
 								</div>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.createdAt')}
@@ -437,7 +437,7 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.whatIncluded')}
 									</p>
-									<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+									<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 										{eventTranslation.whatsIncluded.map((item) => (
 											<li
 												key={item}
@@ -455,7 +455,7 @@ export default function EventDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.cancellationRules')}
 									</p>
-									<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-1 dark:text-gray-200">
+									<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-1 dark:text-gray-200">
 										{event.cancellationRules.map((rule) => (
 											<li
 												key={rule.id}

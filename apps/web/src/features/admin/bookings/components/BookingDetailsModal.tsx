@@ -44,7 +44,7 @@ export default function BookingDetailsModal() {
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.bookingDetails')} onClose={closeModal} />
 
-				<div className="grid gap-6">
+				<div className="grid grid-cols-1 gap-6">
 					<div className="space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -54,7 +54,7 @@ export default function BookingDetailsModal() {
 								<p className="text-lg font-semibold text-gray-900 dark:text-white">
 									{booking.user?.name ?? translate('admin.unknownCustomer')}
 								</p>
-								<p className="text-sm text-gray-500 dark:text-gray-400">
+								<p className="text-sm wrap-anywhere text-gray-500 dark:text-gray-400">
 									{booking.user?.email ?? translate('admin.noEmail')}
 								</p>
 								{booking.user?.phone && (
@@ -85,7 +85,7 @@ export default function BookingDetailsModal() {
 									<Copy className="h-4 w-4" />
 								</button>
 							</div>
-							<div className="mt-3 grid gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+							<div className="mt-3 grid grid-cols-1 gap-3 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.reference')}
@@ -220,7 +220,7 @@ export default function BookingDetailsModal() {
 												<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{adjustment.reason}</p>
 											)}
 
-											<div className="mt-3 grid gap-2 sm:grid-cols-2">
+											<div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
 												<p className="text-xs text-gray-500 dark:text-gray-400">
 													{translate('admin.createdAt')}: {formatDateTime(adjustment.createdAt)}
 												</p>
@@ -290,7 +290,7 @@ export default function BookingDetailsModal() {
 										{t.location || translate('admin.noLocation')}
 									</p>
 								</div>
-								<div className="grid gap-3 sm:grid-cols-2">
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('event.date')}
@@ -329,7 +329,7 @@ export default function BookingDetailsModal() {
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 											{translate('admin.included')}
 										</p>
-										<ul className="mt-2 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+										<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
 											{t.whatsIncluded.map((item) => (
 												<li
 													key={item}
@@ -369,7 +369,7 @@ export default function BookingDetailsModal() {
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 									{translate('admin.eventImages')}
 								</p>
-								<div className="mt-4 grid gap-3 sm:grid-cols-2">
+								<div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
 									{eventImages.map((image) => (
 										<div
 											key={image.id}
