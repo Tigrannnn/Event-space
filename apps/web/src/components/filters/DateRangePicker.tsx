@@ -156,9 +156,9 @@ export function DateRangePicker({
 		return (
 			// The calendar sizes itself to its cells, which left it against one edge of the drawer's
 			// full-width card. Here it fills the card instead — bigger days are easier to hit with a
-			// thumb — but stops at 400px, past which the cells stretch into empty boxes.
+			// thumb — but stops at 375px, past which the cells stretch into empty boxes.
 			<div className="flex flex-col items-center rounded-3xl border border-gray-200/80 bg-white p-3 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80 [&_[data-slot=calendar]]:w-full">
-				<div className="w-full max-w-[400px]">{calendarContent}</div>
+				<div className="w-full max-w-[375px]">{calendarContent}</div>
 			</div>
 		);
 	}
