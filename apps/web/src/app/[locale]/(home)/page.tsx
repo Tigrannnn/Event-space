@@ -15,7 +15,7 @@ import { formatDateParam, getApiCategoryFilter, parseFiltersFromSearchParams } f
 export async function generateMetadata(): Promise<Metadata> {
 	const locale = await getRequestLocale();
 
-	return { alternates: localeAlternates(locale) };
+	return { alternates: await localeAlternates(locale) };
 }
 
 interface HomePageProps {

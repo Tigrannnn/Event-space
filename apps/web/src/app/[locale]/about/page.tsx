@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	return {
 		title: `About Us | ${brand.name}`,
 		description: `Learn more about ${brand.name}`,
-		alternates: localeAlternates(locale, '/about'),
+		alternates: await localeAlternates(locale, '/about'),
 	};
 }
 

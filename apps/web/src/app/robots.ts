@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { locales } from '@/lib/i18n/config';
-import { getSiteUrl } from '@/lib/site-url';
+import { getRequestSiteUrl } from '@/lib/site-url';
 
 /** Sections that only exist for a signed-in user — nothing there is worth a crawl budget. */
 const PRIVATE_PATHS = ['/admin', '/profile', '/bookings', '/favorites'];
@@ -21,8 +21,8 @@ export const dynamic = 'force-dynamic';
  * Disallow is not a security measure — those routes are behind a guard. It keeps crawlers off
  * pages that redirect to a login and would otherwise burn crawl budget and surface as soft 404s.
  */
-export default function robots(): MetadataRoute.Robots {
-	const siteUrl = getSiteUrl();
+export default async function robots(): Promise<MetadataRoute.Robots> {
+	const siteUrl = await getRequestSiteUrl();
 
 	return {
 		rules: {

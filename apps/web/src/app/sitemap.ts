@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { EnvKey } from '@event-space/shared';
 import { defaultLocale, locales } from '@/lib/i18n/config';
 import { localeUrl } from '@/lib/seo';
+import { getRequestSiteUrl } from '@/lib/site-url';
 
 /**
  * Public pages that live at a fixed path.
@@ -45,9 +46,12 @@ type EventSummary = { id: string; updatedAt?: string };
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const events = await fetchPublishedEvents();
+	// Each company's demo subdomain is its own site, so its sitemap lists its own URLs.
+	const origin = await getRequestSiteUrl();
 
 	const staticEntries = STATIC_PAGES.flatMap((page) =>
 		entriesForPath(page.path, {
+			origin,
 			changeFrequency: page.changeFrequency,
 			priority: page.priority,
 		}),
@@ -55,6 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	const eventEntries = events.flatMap((event) =>
 		entriesForPath(`/events/${event.id}`, {
+			origin,
 			changeFrequency: 'weekly',
 			priority: 0.8,
 			lastModified: event.updatedAt ? new Date(event.updatedAt) : undefined,
@@ -67,18 +72,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 function entriesForPath(
 	path: string,
 	options: {
+		origin: string;
 		changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'];
 		priority: number;
 		lastModified?: Date;
 	},
 ): MetadataRoute.Sitemap {
 	const languages = {
-		...Object.fromEntries(locales.map((locale) => [locale, localeUrl(locale, path)])),
-		'x-default': localeUrl(defaultLocale, path),
+		...Object.fromEntries(locales.map((locale) => [locale, localeUrl(locale, path, options.origin)])),
+		'x-default': localeUrl(defaultLocale, path, options.origin),
 	};
 
 	return locales.map((locale) => ({
-		url: localeUrl(locale, path),
+		url: localeUrl(locale, path, options.origin),
 		lastModified: options.lastModified,
 		changeFrequency: options.changeFrequency,
 		priority: options.priority,

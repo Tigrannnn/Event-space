@@ -11,6 +11,7 @@ import { getBrandForHost } from '@/config/brands';
 import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
+import { getRequestSiteUrl } from '@/lib/site-url';
 import { translate } from '@/lib/i18n/messages';
 import '../globals.css';
 
@@ -63,7 +64,9 @@ export async function generateMetadata({
 	const description = translate(currentLocale, 'common.appDescription');
 
 	return {
-		metadataBase: new URL(clientEnv[EnvKey.FRONTEND_URL] || 'http://localhost:3000'),
+		// The request's own origin, so a company's demo subdomain serves its own logo rather than
+		// pointing every preview at the main domain.
+		metadataBase: new URL(await getRequestSiteUrl()),
 		title,
 		description,
 		icons: {
@@ -74,14 +77,11 @@ export async function generateMetadata({
 		openGraph: {
 			title,
 			description,
-			images: [
-				{
-					url: brand.ogImage,
-					width: 1200,
-					height: 630,
-					alt: `${brand.name} Logo`,
-				},
-			],
+			siteName: brand.name,
+			// No width/height: these are logos of whatever size the company sent, and declaring a
+			// size they don't have makes a messenger lay the preview out for an image that never
+			// arrives.
+			images: [{ url: brand.ogImage, alt: `${brand.name} Logo` }],
 			type: 'website',
 			locale: localeOpenGraph[currentLocale as keyof typeof localeOpenGraph] || 'en_US',
 		},

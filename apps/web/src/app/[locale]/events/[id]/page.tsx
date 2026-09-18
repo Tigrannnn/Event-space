@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
-import { getRequestLocale, localeAlternates, localeUrl } from '@/lib/seo';
+import { getRequestLocale, localeAlternates, requestLocaleUrl } from '@/lib/seo';
 import { buildEventJsonLd, serializeJsonLd } from '@/lib/structured-data';
 import { getBrandForHost } from '@/config/brands';
 
@@ -23,7 +23,7 @@ export default async function EventPage({ params }: EventPageProps) {
 	}
 
 	const locale = await getRequestLocale();
-	const jsonLd = buildEventJsonLd(event, locale, localeUrl(locale, `/events/${event.id}`));
+	const jsonLd = buildEventJsonLd(event, locale, await requestLocaleUrl(locale, `/events/${event.id}`));
 
 	return (
 		<>
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 	return {
 		title: `${t.title} | ${brand.name}`,
 		description: t.description,
-		alternates: localeAlternates(locale, `/events/${id}`),
+		alternates: await localeAlternates(locale, `/events/${id}`),
 		openGraph: {
 			title: `${t.title} | ${brand.name}`,
 			description: t.description,
