@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
 	AppErrorCode,
 	CreateEventData,
+	EventDifficulty,
 	EventImageFileItem,
 	EventImageItem,
 	EventStatus,
@@ -79,6 +80,7 @@ export class EventService {
 		minPrice?: number,
 		maxPrice?: number,
 		guests?: number,
+		difficulties?: EventDifficulty[],
 	) {
 		// Pages are ordered by event id, so the cursor is the last id already sent. Older
 		// cursors of the form "<date>_<id>" still work: only the id part is read.
@@ -102,6 +104,8 @@ export class EventService {
 					}
 				: {};
 
+		const difficultyFilter = difficulties?.length ? { difficulty: { in: difficulties } } : {};
+
 		const occurrenceDateWindow = buildOccurrenceDateWindow(startDate, endDate);
 		const occurrenceDateFilter: Prisma.DateTimeFilter = buildOccurrenceDateFilter(
 			startDate,
@@ -115,9 +119,12 @@ export class EventService {
 			},
 		};
 
-		const filters: Prisma.EventWhereInput[] = [statusFilter, categoryFilter, priceFilter].filter(
-			(f) => Object.keys(f).length > 0,
-		);
+		const filters: Prisma.EventWhereInput[] = [
+			statusFilter,
+			categoryFilter,
+			priceFilter,
+			difficultyFilter,
+		].filter((f) => Object.keys(f).length > 0);
 		if (cursorId) {
 			filters.push({ id: { gt: cursorId } });
 		}

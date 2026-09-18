@@ -15,6 +15,7 @@ export interface PriceRangeFilter {
 
 export interface EventsFiltersState {
 	categories: string[];
+	difficulties: import('@event-space/shared').EventDifficulty[];
 	dateRange: DateRangeFilter | null;
 	guests: number | null;
 	priceRange: PriceRangeFilter | null;

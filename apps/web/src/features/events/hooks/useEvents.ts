@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery, InfiniteData } from '@tanstack/react-query';
-import { Event } from '@event-space/shared';
+import { Event, EventDifficulty } from '@event-space/shared';
 import { eventApi, PaginatedEventsResponse } from '../api/events.api';
 
 /**
@@ -14,14 +14,38 @@ interface UseEventsOptions {
 	minPrice?: number;
 	maxPrice?: number;
 	guests?: number;
+	difficulties?: EventDifficulty[];
 	initialData?: InfiniteData<PaginatedEventsResponse>;
 }
 
 export const useEvents = (options: UseEventsOptions = {}) => {
-	const { limit = 8, search = '', startDate, endDate, category, minPrice, maxPrice, guests, initialData } = options;
+	const {
+		limit = 8,
+		search = '',
+		startDate,
+		endDate,
+		category,
+		minPrice,
+		maxPrice,
+		guests,
+		difficulties,
+		initialData,
+	} = options;
 
 	return useInfiniteQuery({
-		queryKey: ['events', 'infinite', search, limit, startDate, endDate, category, minPrice, maxPrice, guests],
+		queryKey: [
+			'events',
+			'infinite',
+			search,
+			limit,
+			startDate,
+			endDate,
+			category,
+			minPrice,
+			maxPrice,
+			guests,
+			difficulties,
+		],
 		queryFn: async ({ pageParam, signal }): Promise<PaginatedEventsResponse> => {
 			return eventApi.getEvents(
 				{
@@ -34,6 +58,7 @@ export const useEvents = (options: UseEventsOptions = {}) => {
 					minPrice,
 					maxPrice,
 					guests,
+					difficulties,
 				},
 				signal,
 			);

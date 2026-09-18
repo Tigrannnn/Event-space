@@ -5,6 +5,7 @@ import { useTranslation } from '@/hooks/translation';
 import { FiltersDrawer } from '@/components/filters';
 import { CategoryFilterSection } from './CategoryFilterSection';
 import { DateRangeFilterSection } from './DateRangeFilterSection';
+import { DifficultyFilterSection } from './DifficultyFilterSection';
 import { GuestsFilterSection } from './GuestsFilterSection';
 import { PriceRangeFilterSection } from './PriceRangeFilterSection';
 import { countActiveFilters, createEmptyFilters } from './filter-utils';
@@ -80,6 +81,8 @@ export function EventsFiltersDrawer({
 					variant="inline"
 				/>
 			</div>
+
+			<DifficultyFilterSection filters={draftFilters} onFiltersChange={setDraftFilters} variant="inline" />
 
 			<GuestsFilterSection filters={draftFilters} onFiltersChange={setDraftFilters} variant="inline" />
 

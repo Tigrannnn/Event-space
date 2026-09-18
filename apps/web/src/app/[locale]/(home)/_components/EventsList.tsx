@@ -88,6 +88,7 @@ export default function EventsList({
 		minPrice: filters.priceRange?.min,
 		maxPrice: filters.priceRange?.max,
 		guests: filters.guests ?? undefined,
+		difficulties: filters.difficulties,
 		initialData,
 	});
 

@@ -1,4 +1,5 @@
 import { formatDateParam } from '@/components/filters';
+import { EventDifficultyEnum, type EventDifficulty } from '@event-space/shared';
 import type { DateRangeFilter, EventsFiltersState, PriceBounds, PriceRangeFilter } from './types';
 
 export { formatDateParam };
@@ -6,6 +7,7 @@ export { formatDateParam };
 export function createEmptyFilters(): EventsFiltersState {
 	return {
 		categories: [],
+		difficulties: [],
 		dateRange: null,
 		guests: null,
 		priceRange: null,
@@ -16,6 +18,14 @@ export function parseFiltersFromSearchParams(searchParams: URLSearchParams): Eve
 	const categoriesParam = searchParams.get('categories') ?? searchParams.get('category');
 	const categories = categoriesParam
 		? categoriesParam.split(',').map((slug) => slug.trim()).filter(Boolean)
+		: [];
+
+	const difficultiesParam = searchParams.get('difficulty');
+	const difficulties = difficultiesParam
+		? difficultiesParam
+				.split(',')
+				.map((value) => value.trim())
+				.filter((value): value is EventDifficulty => EventDifficultyEnum.safeParse(value).success)
 		: [];
 
 	const startDate = searchParams.get('startDate');
@@ -36,7 +46,7 @@ export function parseFiltersFromSearchParams(searchParams: URLSearchParams): Eve
 			? { min: parsedMin, max: parsedMax }
 			: null;
 
-	return { categories, dateRange, guests, priceRange };
+	return { categories, difficulties, dateRange, guests, priceRange };
 }
 
 export function filtersToSearchParams(
@@ -47,6 +57,7 @@ export function filtersToSearchParams(
 
 	params.delete('category');
 	params.delete('categories');
+	params.delete('difficulty');
 	params.delete('startDate');
 	params.delete('endDate');
 	params.delete('minPrice');
@@ -56,6 +67,10 @@ export function filtersToSearchParams(
 
 	if (filters.categories.length > 0) {
 		params.set('categories', filters.categories.join(','));
+	}
+
+	if (filters.difficulties.length > 0) {
+		params.set('difficulty', filters.difficulties.join(','));
 	}
 
 	if (filters.dateRange) {
@@ -83,6 +98,7 @@ export function isPriceFilterApplied(priceRange: PriceRangeFilter | null): boole
 export function countActiveFilters(filters: EventsFiltersState): number {
 	let count = 0;
 	if (filters.categories.length > 0) count += 1;
+	if (filters.difficulties.length > 0) count += 1;
 	if (filters.dateRange) count += 1;
 	if (filters.guests !== null && filters.guests > 0) count += 1;
 	if (isPriceFilterApplied(filters.priceRange)) count += 1;

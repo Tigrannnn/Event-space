@@ -28,6 +28,7 @@ interface HomePageProps {
 		minPrice?: string;
 		maxPrice?: string;
 		guests?: string;
+		difficulty?: string;
 	}>;
 }
 
@@ -57,6 +58,9 @@ export default async function Home({ searchParams }: HomePageProps) {
 	}
 	if (filters.guests !== null && filters.guests > 0) {
 		urlParams.set('guests', String(filters.guests));
+	}
+	if (filters.difficulties.length > 0) {
+		urlParams.set('difficulty', filters.difficulties.join(','));
 	}
 
 	const apiCategory = getApiCategoryFilter(filters.categories);

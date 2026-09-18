@@ -37,6 +37,7 @@ import {
 	Roles,
 	RolesGuard,
 	parseOptionalQueryInt,
+	parseOptionalQueryDifficulties,
 } from '@shared';
 import {
 	parseCreateEventMultipart,
@@ -74,11 +75,13 @@ export class EventController {
 		@Query('minPrice') minPriceRaw?: string,
 		@Query('maxPrice') maxPriceRaw?: string,
 		@Query('guests') guestsRaw?: string,
+		@Query('difficulty') difficultyRaw?: string,
 	) {
 		const safeLimit = Math.min(limit, 20);
 		const minPrice = parseOptionalQueryInt(minPriceRaw, 'minPrice');
 		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
 		const guests = parseOptionalQueryInt(guestsRaw, 'guests');
+		const difficulties = parseOptionalQueryDifficulties(difficultyRaw);
 		return this.eventService.findAll(
 			userId,
 			cursor,
@@ -90,6 +93,7 @@ export class EventController {
 			minPrice,
 			maxPrice,
 			guests,
+			difficulties,
 		);
 	}
 

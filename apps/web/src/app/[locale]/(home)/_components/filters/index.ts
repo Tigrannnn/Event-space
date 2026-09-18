@@ -1,4 +1,5 @@
 export { EventsFiltersBar } from './EventsFiltersBar';
+export { DifficultyFilterSection } from './DifficultyFilterSection';
 export { EventsFiltersDrawer } from './EventsFiltersDrawer';
 export type { EventsFiltersState, EventsFiltersBarProps, PriceBounds } from './types';
 export {

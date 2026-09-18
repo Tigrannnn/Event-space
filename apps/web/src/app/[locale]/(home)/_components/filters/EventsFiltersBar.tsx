@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/primitives/button';
 import { HorizontalScroll } from '@/components/ui/HorizontalScroll';
 import { CategoryFilterSection } from './CategoryFilterSection';
 import { DateRangeFilterSection } from './DateRangeFilterSection';
+import { DifficultyFilterSection } from './DifficultyFilterSection';
 import { GuestsFilterSection } from './GuestsFilterSection';
 import { PriceRangeFilterSection } from './PriceRangeFilterSection';
 import { EventsFiltersDrawer } from './EventsFiltersDrawer';
@@ -62,6 +63,7 @@ export function EventsFiltersBar({
 
 					<DateRangeFilterSection filters={filters} onFiltersChange={onFiltersChange} />
 					<GuestsFilterSection filters={filters} onFiltersChange={onFiltersChange} />
+					<DifficultyFilterSection filters={filters} onFiltersChange={onFiltersChange} />
 					<PriceRangeFilterSection
 						filters={filters}
 						priceBounds={priceBounds}

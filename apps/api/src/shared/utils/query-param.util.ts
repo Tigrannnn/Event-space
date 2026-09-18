@@ -1,4 +1,9 @@
-import { AppErrorCode, DateOnlySchema } from '@event-space/shared';
+import {
+	AppErrorCode,
+	DateOnlySchema,
+	EventDifficulty,
+	EventDifficultyEnum,
+} from '@event-space/shared';
 import { AppException } from '../exceptions/app.exception';
 
 export function parseOptionalQueryInt(value?: string, fieldName = 'value'): number | undefined {
@@ -12,6 +17,32 @@ export function parseOptionalQueryInt(value?: string, fieldName = 'value'): numb
 	}
 
 	return parsed;
+}
+
+/**
+ * Reads a comma-separated list of difficulties ("EASY,HARD"), as the catalogue filter sends it.
+ *
+ * An unknown value is a client mistake, not a reason to return the whole catalogue unfiltered,
+ * so it is rejected rather than dropped.
+ */
+export function parseOptionalQueryDifficulties(value?: string): EventDifficulty[] | undefined {
+	if (value === undefined || value === '') {
+		return undefined;
+	}
+
+	const parsed = value
+		.split(',')
+		.map((item) => item.trim())
+		.filter(Boolean)
+		.map((item) => {
+			const result = EventDifficultyEnum.safeParse(item);
+			if (!result.success) {
+				throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: 'difficulty' });
+			}
+			return result.data;
+		});
+
+	return parsed.length > 0 ? parsed : undefined;
 }
 
 /**
