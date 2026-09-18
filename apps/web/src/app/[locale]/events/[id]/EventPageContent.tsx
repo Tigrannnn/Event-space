@@ -22,6 +22,7 @@ import { IncludedItem } from '@/components/ui/IncludedItem';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
+import { useLabels } from '@/hooks/labels/useLabels';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -37,6 +38,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDuration } = useFormatDate();
+	const { EVENT_DIFFICULTY_LABELS } = useLabels();
 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
@@ -152,7 +154,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								value={formatDuration(event.duration)}
 							/>
 							{event.difficulty && (
-								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={event.difficulty} />
+								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={EVENT_DIFFICULTY_LABELS[event.difficulty]} />
 							)}
 						</div>
 

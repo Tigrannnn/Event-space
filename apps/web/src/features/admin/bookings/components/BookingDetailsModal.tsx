@@ -17,8 +17,13 @@ import { useLabels } from '@/hooks/labels/useLabels';
 
 export default function BookingDetailsModal() {
 	const translate = useTranslation();
-	const { BOOKING_STATUS_LABELS, PAYMENT_METHOD_LABELS, ADJUSTMENT_TYPE_LABELS, ADJUSTMENT_STATUS_LABELS } =
-		useLabels();
+	const {
+		BOOKING_STATUS_LABELS,
+		PAYMENT_METHOD_LABELS,
+		ADJUSTMENT_TYPE_LABELS,
+		ADJUSTMENT_STATUS_LABELS,
+		EVENT_DIFFICULTY_LABELS,
+	} = useLabels();
 	const locale = translate.locale;
 	const { formatDateTime, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
@@ -317,7 +322,7 @@ export default function BookingDetailsModal() {
 											{translate('event.difficulty')}
 										</p>
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{event?.difficulty ?? '—'}
+											{event?.difficulty ? EVENT_DIFFICULTY_LABELS[event.difficulty] : '—'}
 										</p>
 									</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
