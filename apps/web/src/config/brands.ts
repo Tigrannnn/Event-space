@@ -163,6 +163,24 @@ const brands: Record<string, Brand> = {
 			},
 		},
 	},
+	// Real prospect (not a placeholder): @110_places on Instagram.
+	// Colors and phone are theirs; story/mission still need their own words.
+	// The brand yellow is the accent rather than the primary: white button text on it is
+	// unreadable, and the dark green it sits on in their logo carries the primary role.
+	'110places.event-space.space': {
+		name: '110 Places',
+		colorPrimary: '#082B25',
+		colorAccent: '#F4D54C',
+		description: siteConfig.description,
+		ogImage: '/brands/110places-logo.jpg',
+		contact: {
+			instagram: 'https://www.instagram.com/110_places/',
+			phone: '+374 41 200110',
+			email: 'info@110places.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('110 Places'),
+	},
 	'rstour.event-space.space': {
 		name: 'RS Tour',
 		colorPrimary: '#E6572D',
