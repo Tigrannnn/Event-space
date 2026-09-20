@@ -134,8 +134,6 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Oneway Tour'),
 	},
-	// Real prospect (not a placeholder): @one_day_tour_armenia on Instagram.
-	// Colors/logo/phone are theirs; story/mission still need their own words.
 	'onedaytour.event-space.space': {
 		name: 'One Day Tour',
 		colorPrimary: '#2d68a6',
@@ -163,15 +161,10 @@ const brands: Record<string, Brand> = {
 			},
 		},
 	},
-	// Real prospect (not a placeholder): @110_places on Instagram.
-	// Colors and phone are theirs; story/mission still need their own words.
-	// The brand yellow is the accent rather than the primary: white button text on it is
-	// unreadable, and the green it sits on in their logo carries the primary role — lightened
-	// from the logo's near-black #082B25, which disappeared against the dark theme's background.
 	'110places.event-space.space': {
 		name: '110 Places',
-		colorPrimary: '#217F62',
-		colorAccent: '#F4D54C',
+		colorPrimary: '#0c6323',
+		colorAccent: '#a28700',
 		description: siteConfig.description,
 		ogImage: '/brands/110places-logo.jpg',
 		contact: {
