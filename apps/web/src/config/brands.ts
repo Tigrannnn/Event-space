@@ -166,7 +166,7 @@ const brands: Record<string, Brand> = {
 		colorPrimary: '#0c6323',
 		colorAccent: '#a28700',
 		description: siteConfig.description,
-		ogImage: '/brands/110places-logo.jpg',
+		ogImage: '/brands/110places-logo.png',
 		contact: {
 			instagram: 'https://www.instagram.com/110_places/',
 			phone: '+374 41 200110',
