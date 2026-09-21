@@ -137,13 +137,13 @@ export default function EventCard({ event }: EventCardProps) {
 						<Skeleton className="h-12 w-full rounded-xl" />
 					) : hasBooking ? (
 						<div
-							className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm"
+							className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full rounded-xl border shadow-sm"
 							role="group"
 						>
 							<Link
 								href={localizePath('/bookings', locale)}
 								onClick={(e) => e.stopPropagation()}
-								className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+								className="focus-visible:ring-primary bg-primary/6 text-primary rounded-l-[11px] hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
 							>
 								<Ticket className="h-4 w-4 shrink-0" />
 								<span className="truncate">{translate('event.viewMyBooking')}</span>
@@ -153,7 +153,7 @@ export default function EventCard({ event }: EventCardProps) {
 								onClick={handleBookClick}
 								aria-label={translate('event.bookAnotherSpot')}
 								title={translate('event.bookAnotherSpot')}
-								className="bg-primary hover:bg-accent focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
+								className="bg-primary shadow-primary/20 hover:bg-accent hover:shadow-accent/30 dark:shadow-primary/10 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 cursor-pointer items-center justify-center rounded-r-[11px] border-l text-white shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset active:scale-95 sm:w-14"
 							>
 								<Plus className="h-5 w-5" strokeWidth={2.5} />
 							</button>
