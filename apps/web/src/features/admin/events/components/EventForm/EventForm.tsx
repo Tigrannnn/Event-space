@@ -27,7 +27,6 @@ import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
 import { XIcon } from 'lucide-react';
 import type { MessageKey } from '@/lib/i18n/messages';
-import { ToastType, useToastStore } from '@/stores/toastStore';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -66,7 +65,6 @@ export default function EventForm({
 }: EventFormProps) {
 	const translate = useTranslation();
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
-	const { addToast } = useToastStore();
 
 	// Schema messages are translation keys, so validation reads in the admin's language.
 	const errorText = (message?: string) => (message ? translate(message as MessageKey) : undefined);
@@ -235,9 +233,7 @@ export default function EventForm({
 
 	return (
 		<form
-			onSubmit={handleSubmit(handleFormSubmit, () =>
-				addToast(translate('admin.validation.fixErrors'), ToastType.ERROR),
-			)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
+			onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
 			{showCancelConfirm && (
 				<Modal
 					onClose={handleRejectCancel}

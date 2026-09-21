@@ -240,7 +240,6 @@ export const admin: Messages['admin'] = {
 		percentageMin: 'Процент не может быть отрицательным',
 		percentageMax: 'Процент не может быть больше 100',
 		fileExpected: 'Это не файл',
-		fixErrors: 'Не все поля заполнены — проверьте поля, отмеченные красным',
 		nameRequired: 'Введите название',
 		slugRequired: 'Введите slug',
 		eventRequired: 'Выберите событие',

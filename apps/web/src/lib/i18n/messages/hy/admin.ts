@@ -240,7 +240,6 @@ export const admin: Messages['admin'] = {
 		percentageMin: 'Տոկոսը չի կարող բացասական լինել',
 		percentageMax: 'Տոկոսը չի կարող 100-ից ավելի լինել',
 		fileExpected: 'Սա ֆայլ չէ',
-		fixErrors: 'Ոչ բոլոր դաշտերն են լրացված․ ստուգեք կարմիրով նշված դաշտերը',
 		nameRequired: 'Մուտքագրեք անվանումը',
 		slugRequired: 'Մուտքագրեք slug-ը',
 		eventRequired: 'Ընտրեք միջոցառումը',

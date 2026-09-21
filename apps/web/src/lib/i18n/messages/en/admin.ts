@@ -238,7 +238,6 @@ export const admin = {
 		percentageMin: 'The percentage can\'t be negative',
 		percentageMax: 'The percentage can\'t be over 100',
 		fileExpected: 'This is not a file',
-		fixErrors: 'Some fields need attention — check the ones marked in red',
 		nameRequired: 'Enter a name',
 		slugRequired: 'Enter a slug',
 		eventRequired: 'Choose an event',
