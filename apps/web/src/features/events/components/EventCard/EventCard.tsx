@@ -153,7 +153,7 @@ export default function EventCard({ event }: EventCardProps) {
 								onClick={handleBookClick}
 								aria-label={translate('event.bookAnotherSpot')}
 								title={translate('event.bookAnotherSpot')}
-								className="bg-primary hover:bg-primary/90 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
+								className="bg-primary hover:bg-accent focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
 							>
 								<Plus className="h-5 w-5" strokeWidth={2.5} />
 							</button>
