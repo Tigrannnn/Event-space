@@ -175,6 +175,25 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('110 Places'),
 	},
+	// Real prospect (not a placeholder): @1000_1travel_ on Instagram.
+	// Colors, logo, phone and address are theirs; no email given, so none is shown.
+	// Hostnames can't contain "+", hence "plus" in the subdomain.
+	'1000plus1travel.event-space.space': {
+		name: '1000+1 Travel',
+		colorPrimary: '#EC8232',
+		colorAccent: '#4C9FD7',
+		description: siteConfig.description,
+		ogImage: '/brands/1000plus1travel-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/1000_1travel_/',
+			phone: '+374 91 772211',
+			location: {
+				address: 'Ք. Երևան, Պռոշյան 2/1',
+				mapsUrl: 'https://maps.google.com/?q=Proshyan+2%2F1,+Yerevan,+Armenia',
+			},
+		},
+		about: placeholderAbout('1000+1 Travel'),
+	},
 	'rstour.event-space.space': {
 		name: 'RS Tour',
 		colorPrimary: '#E6572D',
