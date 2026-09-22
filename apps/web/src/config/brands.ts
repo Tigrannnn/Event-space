@@ -196,6 +196,22 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('1000+1 Travel'),
 	},
+	// Real prospect (not a placeholder): @yerivar_tours on Instagram.
+	// They gave one colour, #22544E, which is too dark to see against the dark theme — the
+	// primary is that teal lightened, and the accent is a brighter tint of the same hue.
+	'yerivar.event-space.space': {
+		name: 'Yerivar',
+		colorPrimary: '#2F746C',
+		colorAccent: '#49B6A9',
+		description: siteConfig.description,
+		ogImage: '/brands/yerivar-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/yerivar_tours/',
+			phone: '+374 91 032743',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('Yerivar'),
+	},
 	'rstour.event-space.space': {
 		name: 'RS Tour',
 		colorPrimary: '#E6572D',
