@@ -176,14 +176,16 @@ const brands: Record<string, Brand> = {
 		about: placeholderAbout('110 Places'),
 	},
 	// Real prospect (not a placeholder): @1000_1travel_ on Instagram.
-	// Colors, logo, phone and address are theirs; no email given, so none is shown.
-	// Hostnames can't contain "+", hence "plus" in the subdomain.
-	'1000plus1travel.event-space.space': {
+	// Logo, phone and address are theirs; no email given, so none is shown.
+	// The subdomain follows their handle, with "-" for "_": underscores aren't valid in
+	// hostnames and HTTPS certificates won't cover them.
+	// Primary is their orange darkened (#EC8232 → #CD6313) so white button text stays legible.
+	'1000-1travel.event-space.space': {
 		name: '1000+1 Travel',
-		colorPrimary: '#EC8232',
+		colorPrimary: '#CD6313',
 		colorAccent: '#4C9FD7',
 		description: siteConfig.description,
-		ogImage: '/brands/1000plus1travel-logo.png',
+		ogImage: '/brands/1000-1travel-logo.png',
 		contact: {
 			instagram: 'https://www.instagram.com/1000_1travel_/',
 			phone: '+374 91 772211',
