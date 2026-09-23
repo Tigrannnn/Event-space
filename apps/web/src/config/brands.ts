@@ -197,12 +197,13 @@ const brands: Record<string, Brand> = {
 		about: placeholderAbout('1000+1 Travel'),
 	},
 	// Real prospect (not a placeholder): @yerivar_tours on Instagram.
-	// They gave one colour, #22544E, which is too dark to see against the dark theme — the
-	// primary is that teal lightened, and the accent is a brighter tint of the same hue.
+	// They gave one colour, #22544E, which is too dark to see against the dark theme, so the
+	// primary is that teal lightened. The accent shifts the hue towards blue at the same
+	// brightness rather than simply going lighter, so the pair reads as two colours.
 	'yerivar.event-space.space': {
 		name: 'Yerivar',
 		colorPrimary: '#2F746C',
-		colorAccent: '#49B6A9',
+		colorAccent: '#377086',
 		description: siteConfig.description,
 		ogImage: '/brands/yerivar-logo.png',
 		contact: {
