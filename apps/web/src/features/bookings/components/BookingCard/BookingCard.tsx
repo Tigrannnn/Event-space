@@ -184,8 +184,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							{translate('booking.total')}
 						</span>
 
-						{/* Refund estimate & commission */}
+						{/* Refund estimate & commission — only a paid booking has anything to refund */}
 						{(() => {
+							if (status !== 'CONFIRMED') return null;
+
 							if (refundPercentage === 0 || estimatedRefundInCents === 0) {
 								return (
 									<div className="mt-1 text-sm text-gray-500 dark:text-gray-400">

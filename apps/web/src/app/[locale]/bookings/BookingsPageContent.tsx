@@ -12,6 +12,8 @@ import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
+type StatusFilter = 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+
 export default function BookingsPageContent() {
 	const translate = useTranslation();
 	const searchParams = useSearchParams();
@@ -20,7 +22,7 @@ export default function BookingsPageContent() {
 	const { locale } = useTranslation();
 	const navigation = useLocalizedNavigation();
 	const { data: bookings, isLoading } = useGetMyBookings();
-	const [statusFilter, setStatusFilter] = useState<'ALL' | 'CONFIRMED' | 'CANCELLED'>('CONFIRMED');
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>('CONFIRMED');
 
 	const filteredBookings = useMemo(() => {
 		if (!bookings?.length) return [];
@@ -73,11 +75,12 @@ export default function BookingsPageContent() {
 					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
 					<select
 						value={statusFilter}
-						onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'CONFIRMED' | 'CANCELLED')}
+						onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
 						className="cursor-pointer bg-transparent text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
 					>
 						<option value="ALL">{translate('booking.filterAll')}</option>
 						<option value="CONFIRMED">{translate('booking.filterConfirmed')}</option>
+						<option value="PENDING">{translate('booking.filterPending')}</option>
 						<option value="CANCELLED">{translate('booking.filterCancelled')}</option>
 					</select>
 				</div>

@@ -44,6 +44,7 @@ export const booking: Messages['booking'] = {
 	invalidPhone: 'Մուտքագրեք ճիշտ հեռախոսահամար',
 	filterAll: 'Բոլորը',
 	filterConfirmed: 'Հաստատված',
+	filterPending: 'Սպասման մեջ',
 	filterCancelled: 'Չեղարկված',
 	noBookingsMatchFilter: 'Այս ֆիլտրով ամրագրումներ չկան։',
 	paymentFailed: 'Վճարումը ձախողվեց։ Փորձեք նորից։',

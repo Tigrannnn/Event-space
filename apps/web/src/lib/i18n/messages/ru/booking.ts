@@ -44,6 +44,7 @@ export const booking: Messages['booking'] = {
 	invalidPhone: 'Введите корректный номер телефона',
 	filterAll: 'Все',
 	filterConfirmed: 'Подтвержденные',
+	filterPending: 'В ожидании',
 	filterCancelled: 'Отменённые',
 	noBookingsMatchFilter: 'По этому фильтру бронирований нет.',
 	paymentFailed: 'Платеж не прошел. Попробуйте снова.',

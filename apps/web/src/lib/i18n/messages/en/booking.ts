@@ -42,6 +42,7 @@ export const booking = {
 	invalidPhone: 'Please enter a valid phone number',
 	filterAll: 'All',
 	filterConfirmed: 'Confirmed',
+	filterPending: 'Pending',
 	filterCancelled: 'Cancelled',
 	noBookingsMatchFilter: 'No bookings match this filter.',
 	paymentFailed: 'Payment failed. Please try again.',
