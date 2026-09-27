@@ -157,10 +157,13 @@ export default function CheckInForm() {
 								{translate('admin.customer')}
 							</span>
 							<h3 className="text-lg leading-tight font-bold text-gray-900 dark:text-white">
-								{booking.user?.name || translate('booking.unknownCustomer')}
+								{booking.user?.name || '-'}
 							</h3>
 							<p className="text-sm text-gray-500 dark:text-zinc-400">
-								{booking.user?.email || translate('booking.unknownCustomer')}
+								{booking.user?.email || '-'}
+							</p>
+							<p className="text-sm text-gray-500 dark:text-zinc-400">
+								{booking.user?.phone || '-'}
 							</p>
 						</div>
 

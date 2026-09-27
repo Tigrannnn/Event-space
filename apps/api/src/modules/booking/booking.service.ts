@@ -320,7 +320,10 @@ export class BookingService {
 				return { action: 'confirmed' as const, booking: confirmedBooking };
 			}
 
-			if (paymentIntent.status === 'canceled' || paymentIntent.status === 'requires_payment_method') {
+			// requires_payment_method is not terminal: it is the state of a fresh intent the user
+			// has not paid yet, and of an intent whose card was declined. The booking stays
+			// PENDING so the user can retry; stale ones are expired by BookingExpiryService.
+			if (paymentIntent.status === 'canceled') {
 				if (booking.status === 'PENDING') {
 					const cancelledBooking = await tx.booking.update({
 						where: { id: booking.id },

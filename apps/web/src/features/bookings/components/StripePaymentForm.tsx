@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState, useEffect } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,7 +17,6 @@ import {
 } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
-import { useCancelBooking } from '@/features/bookings/hooks/useBookings';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
@@ -55,11 +54,8 @@ function StripePaymentFormContent({
 	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const params = useParams();
-	const { mutateAsync: cancelBooking } = useCancelBooking();
 	const { openModal } = useModalStore();
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [isCancelling, setIsCancelling] = useState(false);
-	const [hasSubmittedPayment, setHasSubmittedPayment] = useState(false);
 	const eventTitle = getEventTranslation(event, locale).title;
 
 	const occurrenceDate = selectedOccurrence?.date;
@@ -111,7 +107,6 @@ function StripePaymentFormContent({
 			return;
 		}
 
-		setHasSubmittedPayment(true);
 		addToast(translate('booking.paymentSubmitted'), ToastType.INFO);
 
 		await bookingApi.reconcilePayment(booking.id).catch(() => {
@@ -144,74 +139,16 @@ function StripePaymentFormContent({
 		}
 	};
 
-	const handleClose = async () => {
+	// Closing the modal leaves the booking PENDING so the user can come back and pay later;
+	// stale pending bookings are expired server-side by BookingExpiryService.
+	const handleClose = () => {
 		if (isProcessing) {
 			addToast(translate('booking.paymentInProgress'), ToastType.INFO);
 			return;
 		}
-		if (!hasSubmittedPayment) {
-			setIsCancelling(true);
-			try {
-				await cancelBooking(booking.id, {
-					onSuccess: async () => {
-						await invalidateAfterResolution();
-					},
-					onError: async () => {
-						await invalidateAfterResolution();
-					},
-				});
-			} catch {
-				// ignore cancellation failure on modal close
-			} finally {
-				setIsCancelling(false);
-			}
-		}
 
 		onClose();
 	};
-
-	// Try to cancel pending booking on page unload/visibility change.
-	// Note: browsers may not wait for async calls on unload; server-side TTL is recommended as a fallback.
-	useEffect(() => {
-		const tryCancel = () => {
-			if (hasSubmittedPayment) return;
-			// best-effort: fire-and-forget cancellation
-			cancelBooking(booking.id).catch(() => {
-				/* ignore */
-			});
-		};
-
-		const onBeforeUnload = () => {
-			tryCancel();
-		};
-
-		const onVisibilityChange = () => {
-			if (document.visibilityState === 'hidden') {
-				tryCancel();
-			}
-		};
-
-		window.addEventListener('beforeunload', onBeforeUnload);
-		document.addEventListener('visibilitychange', onVisibilityChange);
-
-		return () => {
-			window.removeEventListener('beforeunload', onBeforeUnload);
-			document.removeEventListener('visibilitychange', onVisibilityChange);
-		};
-	}, [booking.id, hasSubmittedPayment, cancelBooking]);
-
-	// Auto-close after 1 hour as a fallback in case user leaves page open without completing payment
-	useEffect(() => {
-		const timer = setTimeout(
-			() => {
-				handleClose();
-				addToast(translate('booking.bookingExpired'), ToastType.ERROR);
-			},
-			60 * 60 * 1000,
-		);
-
-		return () => clearTimeout(timer);
-	}, []);
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-5 p-5 sm:p-6">
@@ -261,8 +198,7 @@ function StripePaymentFormContent({
 					type="button"
 					variant="secondary"
 					onClick={handleClose}
-					isLoading={isCancelling}
-					disabled={isProcessing || isCancelling}
+					disabled={isProcessing}
 					className="flex-1"
 				>
 					{translate('booking.cancel')}
@@ -270,7 +206,7 @@ function StripePaymentFormContent({
 				<Button
 					type="submit"
 					isLoading={isProcessing}
-					disabled={!stripe || !elements || isProcessing || isCancelling}
+					disabled={!stripe || !elements || isProcessing}
 					className="flex-1"
 				>
 					{isProcessing ? translate('booking.confirming') : translate('booking.payNow')}

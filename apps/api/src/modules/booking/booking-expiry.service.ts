@@ -17,13 +17,18 @@ export class BookingExpiryService {
 	@Cron(CronExpression.EVERY_MINUTE)
 	async reconcileStalePendingBookings() {
 		const cutoff = new Date(Date.now() - 60 * 1000);
+		// Unpaid bookings stay PENDING for up to a month; only recent attempts are worth polling
+		// Stripe for every minute. Older ones are still settled by the webhook.
+		const recentSince = new Date(Date.now() - 24 * 60 * 60 * 1000);
 		const pendingBookings = await this.prisma.booking.findMany({
 			where: {
 				status: 'PENDING',
 				expired: false,
 				paymentIntentId: { not: null },
 				createdAt: { lt: cutoff },
+				updatedAt: { gte: recentSince },
 			},
+			orderBy: { updatedAt: 'desc' },
 			take: 50,
 		});
 
@@ -42,11 +47,14 @@ export class BookingExpiryService {
 		}
 	}
 
-	@Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
+	// Daily, so a pending booking is expired soon after it turns a month old. Uses updatedAt,
+	// not createdAt: re-booking reuses the same row, and a fresh attempt on a months-old row
+	// must not be expired right away.
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async handleExpiry() {
-		const cutoff = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago
+		const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
 		const expired = await this.prisma.booking.findMany({
-			where: { status: 'PENDING', expired: false, createdAt: { lt: cutoff } },
+			where: { status: 'PENDING', expired: false, updatedAt: { lt: cutoff } },
 			take: 50,
 		});
 
