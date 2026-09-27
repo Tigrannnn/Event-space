@@ -15,6 +15,8 @@ import {
 
 interface FiltersDrawerProps {
 	activeCount: number;
+	/** Whether the reset button is shown. Defaults to having any active filter. */
+	canReset?: boolean;
 	onApply: () => void;
 	onReset: () => void;
 	children: ReactNode;
@@ -32,6 +34,7 @@ interface FiltersDrawerProps {
  */
 export function FiltersDrawer({
 	activeCount,
+	canReset = activeCount > 0,
 	onApply,
 	onReset,
 	children,
@@ -71,10 +74,12 @@ export function FiltersDrawer({
 				<div className="flex-1 space-y-6 overflow-y-auto px-4 py-5">{children}</div>
 
 				<SheetFooter className="flex-row items-center justify-between border-t border-gray-200/70 bg-white/90 px-4 py-4 dark:border-gray-700/70 dark:bg-gray-900/90">
-					<Button type="button" variant="ghost" onClick={onReset}>
-						{translate('filters.reset')}
-					</Button>
-					<Button type="button" onClick={onApply}>
+					{canReset && (
+						<Button type="button" variant="ghost" onClick={onReset}>
+							{translate('filters.reset')}
+						</Button>
+					)}
+					<Button type="button" className="ml-auto" onClick={onApply}>
 						{applyLabel}
 					</Button>
 				</SheetFooter>

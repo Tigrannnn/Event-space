@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from '@/hooks/translation';
 import { FiltersDrawer } from '@/components/filters';
 import { CategoryFilterSection } from './CategoryFilterSection';
@@ -30,33 +30,47 @@ export function EventsFiltersDrawer({
 	const translate = useTranslation();
 	const [draftFilters, setDraftFilters] = useState<EventsFiltersState>(filters);
 	const activeCount = countActiveFilters(filters);
+	// Reset is offered while something is applied or picked in the draft.
+	const canReset = activeCount > 0 || countActiveFilters(draftFilters) > 0;
 
-	useEffect(() => {
-		if (open) {
-			setDraftFilters(filters);
-		}
-	}, [filters, open]);
+	// Callers may leave the sheet uncontrolled; it still has to close itself on apply/reset.
+	const [internalOpen, setInternalOpen] = useState(false);
+	const isControlled = open !== undefined;
+	const isOpen = isControlled ? open : internalOpen;
+
+	const setOpen = (next: boolean) => {
+		if (!isControlled) setInternalOpen(next);
+		onOpenChange?.(next);
+	};
+
+	// Each opening starts from the applied filters, dropping a draft that was never applied.
+	const [wasOpen, setWasOpen] = useState(isOpen);
+	if (isOpen !== wasOpen) {
+		setWasOpen(isOpen);
+		if (isOpen) setDraftFilters(filters);
+	}
 
 	const handleApply = () => {
 		onFiltersChange(draftFilters);
-		onOpenChange?.(false);
+		setOpen(false);
 	};
 
 	const handleReset = () => {
 		const empty = createEmptyFilters();
 		setDraftFilters(empty);
 		onFiltersChange(empty);
-		onOpenChange?.(false);
+		setOpen(false);
 	};
 
 	return (
 		<FiltersDrawer
 			activeCount={activeCount}
+			canReset={canReset}
 			onApply={handleApply}
 			onReset={handleReset}
 			applyLabel={translate('filters.showTours')}
-			open={open}
-			onOpenChange={onOpenChange}
+			open={isOpen}
+			onOpenChange={setOpen}
 			showTrigger={showTrigger}
 		>
 			{isLoadingCategories ? (
