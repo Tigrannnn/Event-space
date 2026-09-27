@@ -219,7 +219,7 @@ export const admin: Messages['admin'] = {
 	emailPlaceholder: 'user@example.com',
 	payment: {
 		site: 'Վճարում հարթակում',
-		offline: 'Անլար (վճարվել)',
+		offline: 'Վճարված',
 		onArrival: 'Վճարել տեղում',
 	},
 	validation: {

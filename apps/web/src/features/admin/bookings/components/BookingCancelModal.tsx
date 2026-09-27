@@ -32,10 +32,9 @@ export default function BookingCancelModal() {
 		{ value: 'RULES', label: translate('admin.refundStrategyRules') },
 		{ value: 'MANUAL', label: translate('admin.refundStrategyManual') },
 	] as const;
-	
-	if (booking.paymentMethod !== 'SITE_PAYMENT') {
-		setRefundType('MANUAL');
-	}
+
+	// Only a site payment went through Stripe; anything else can only be refunded by hand.
+	const isSitePayment = booking.paymentMethod === 'SITE_PAYMENT';
 
 	const eventTranslate = getEventTranslation(event, translate.locale);
 
@@ -45,7 +44,7 @@ export default function BookingCancelModal() {
 		cancelBooking.mutate({
 			id: booking.id,
 			data: {
-				refundType,
+				refundType: isSitePayment ? refundType : 'MANUAL',
 				reason: reason.trim() || undefined,
 			},
 		});
@@ -66,21 +65,21 @@ export default function BookingCancelModal() {
 						</p>
 					</div>
 					<form onSubmit={handleCancelBooking} className="space-y-4">
-						
 						<div className="space-y-2">
-							{booking.paymentMethod !== 'SITE_PAYMENT' && (
+							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
+								{translate('admin.refundStrategy')}
+							</label>
+							{isSitePayment ? (
+								<Select
+									value={refundType}
+									onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
+									options={refundOptions.map((option) => ({ value: option.value, label: option.label }))}
+								/>
+							) : (
 								<p className="text-sm text-gray-700 dark:text-gray-200">
 									{translate('admin.refundStrategyManual')}
 								</p>
 							)}
-							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
-								{translate('admin.refundStrategy')}
-							</label>
-							<Select
-								value={refundType}
-								onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
-								options={refundOptions.map((option) => ({ value: option.value, label: option.label }))}
-							/>
 						</div>
 
 						<div className="flex justify-end gap-2">
