@@ -99,7 +99,6 @@ export class BookingService {
 				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
 				update: {
 					status: 'PENDING',
-					expired: false,
 					quantity,
 					amount,
 					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
@@ -108,7 +107,6 @@ export class BookingService {
 					userId,
 					occurrenceId: occurrence.id,
 					status: 'PENDING',
-					expired: false,
 					quantity,
 					amount,
 				},
@@ -243,7 +241,7 @@ export class BookingService {
 			}
 
 			if (paymentIntent.status === 'succeeded') {
-				if (booking.status === 'CANCELLED' || booking.status === 'EXPIRED') {
+				if (booking.status === 'CANCELLED') {
 					await tx.booking.update({
 						where: { id: booking.id },
 						data: { paymentIntentId },
@@ -253,10 +251,7 @@ export class BookingService {
 						bookingId: booking.id,
 						paymentIntentId,
 						amountReceived,
-						reason:
-							booking.status === 'CANCELLED'
-								? 'Payment captured after booking was cancelled.'
-								: 'Payment captured after booking expired.',
+						reason: 'Payment captured after booking was cancelled.',
 						idempotencyKey: `auto-refund-${booking.id}`,
 					};
 				}
@@ -322,7 +317,7 @@ export class BookingService {
 
 			// requires_payment_method is not terminal: it is the state of a fresh intent the user
 			// has not paid yet, and of an intent whose card was declined. The booking stays
-			// PENDING so the user can retry; stale ones are expired by BookingExpiryService.
+			// PENDING so the user can retry, however long that takes.
 			if (paymentIntent.status === 'canceled') {
 				if (booking.status === 'PENDING') {
 					const cancelledBooking = await tx.booking.update({
@@ -525,7 +520,7 @@ export class BookingService {
 
 	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
 		const bookings = await this.prisma.booking.findMany({
-			where: { userId, status: { not: 'EXPIRED' } },
+			where: { userId },
 			include: {
 				occurrence: {
 					include: {

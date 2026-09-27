@@ -139,8 +139,7 @@ function StripePaymentFormContent({
 		}
 	};
 
-	// Closing the modal leaves the booking PENDING so the user can come back and pay later;
-	// stale pending bookings are expired server-side by BookingExpiryService.
+	// Closing the modal leaves the booking PENDING so the user can come back and pay later.
 	const handleClose = () => {
 		if (isProcessing) {
 			addToast(translate('booking.paymentInProgress'), ToastType.INFO);

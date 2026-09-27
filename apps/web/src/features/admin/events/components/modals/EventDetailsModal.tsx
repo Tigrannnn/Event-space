@@ -21,20 +21,18 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { useState } from 'react';
 
 /** Confirmed first, then what still might convert, then what no longer counts. */
-const BOOKING_STATUS_ORDER = ['CONFIRMED', 'PENDING', 'CANCELLED', 'EXPIRED'] as const;
+const BOOKING_STATUS_ORDER = ['CONFIRMED', 'PENDING', 'CANCELLED'] as const;
 
 const STATS_KEY_BY_STATUS = {
 	CONFIRMED: 'confirmed',
 	PENDING: 'pending',
 	CANCELLED: 'cancelled',
-	EXPIRED: 'expired',
 } as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], keyof BookingStatusCounts>;
 
 const STATUS_TEXT_CLASS = {
 	CONFIRMED: 'text-emerald-600 dark:text-emerald-400',
 	PENDING: 'text-amber-600 dark:text-amber-400',
 	CANCELLED: 'text-red-500 dark:text-red-400',
-	EXPIRED: 'text-gray-400 dark:text-gray-500',
 } as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], string>;
 
 const OCCURRENCE_STATE_CLASS = {

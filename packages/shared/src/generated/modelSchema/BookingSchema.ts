@@ -13,7 +13,6 @@ export const BookingSchema = z.object({
   id: z.uuid(),
   userId: z.string(),
   occurrenceId: z.string(),
-  expired: z.boolean(),
   quantity: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

@@ -53,14 +53,6 @@ export default function BookingStateWidget({
 		pending: stats.pendingBookings,
 		confirmed: stats.confirmedBookings,
 		cancelled: stats.cancelledBookings,
-		// Not in the live stats payload yet — the remainder is what the other statuses don't cover.
-		expired: Math.max(
-			0,
-			stats.totalBookings -
-				stats.pendingBookings -
-				stats.confirmedBookings -
-				stats.cancelledBookings,
-		),
 	};
 
 	const chartData = history?.map((point) => ({ date: point.date, ...point.bookings })) ?? [];
@@ -73,7 +65,6 @@ export default function BookingStateWidget({
 		{ key: 'confirmed', label: BOOKING_STATUS_LABELS.CONFIRMED, value: liveCounts.confirmed },
 		{ key: 'pending', label: BOOKING_STATUS_LABELS.PENDING, value: liveCounts.pending },
 		{ key: 'cancelled', label: BOOKING_STATUS_LABELS.CANCELLED, value: liveCounts.cancelled },
-		{ key: 'expired', label: BOOKING_STATUS_LABELS.EXPIRED, value: liveCounts.expired },
 	] as const;
 
 	return (

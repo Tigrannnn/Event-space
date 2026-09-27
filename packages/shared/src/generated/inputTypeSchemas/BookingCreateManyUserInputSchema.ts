@@ -10,7 +10,6 @@ export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateMan
   id: z.uuid().optional(),
   occurrenceId: z.string(),
   status: z.lazy(() => BookingStatusSchema).optional(),
-  expired: z.boolean().optional(),
   quantity: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

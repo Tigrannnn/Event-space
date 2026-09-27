@@ -125,14 +125,12 @@ const emptyBookingStats = (): BookingStatusCounts => ({
 	pending: 0,
 	confirmed: 0,
 	cancelled: 0,
-	expired: 0,
 });
 
 const BOOKING_STATUS_TO_STATS_KEY: Record<BookingStatus, keyof BookingStatusCounts> = {
 	PENDING: 'pending',
 	CONFIRMED: 'confirmed',
 	CANCELLED: 'cancelled',
-	EXPIRED: 'expired',
 };
 
 const addBookingStats = (target: BookingStatusCounts, source: BookingStatusCounts): void => {
@@ -140,7 +138,6 @@ const addBookingStats = (target: BookingStatusCounts, source: BookingStatusCount
 	target.pending += source.pending;
 	target.confirmed += source.confirmed;
 	target.cancelled += source.cancelled;
-	target.expired += source.expired;
 };
 
 const normalizeBookingResponse = (booking: any): BookingWithDetails => {

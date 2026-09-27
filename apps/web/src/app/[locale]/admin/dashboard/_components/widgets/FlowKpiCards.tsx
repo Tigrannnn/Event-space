@@ -64,7 +64,6 @@ function CohortSplit({ cohort }: { cohort: BookingCohort }) {
 			{ key: 'confirmed', label: BOOKING_STATUS_LABELS.CONFIRMED, value: cohort.current.confirmed },
 			{ key: 'pending', label: BOOKING_STATUS_LABELS.PENDING, value: cohort.current.pending },
 			{ key: 'cancelled', label: BOOKING_STATUS_LABELS.CANCELLED, value: cohort.current.cancelled },
-			{ key: 'expired', label: BOOKING_STATUS_LABELS.EXPIRED, value: cohort.current.expired },
 		] as const
 	).filter((segment) => segment.value > 0);
 

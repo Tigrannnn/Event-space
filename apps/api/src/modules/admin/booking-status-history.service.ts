@@ -134,15 +134,14 @@ export class BookingStatusHistoryService {
 }
 
 function emptyTally(): StatusTally {
-	return { PENDING: 0, CONFIRMED: 0, CANCELLED: 0, EXPIRED: 0 };
+	return { PENDING: 0, CONFIRMED: 0, CANCELLED: 0 };
 }
 
 function toCounts(tally: StatusTally): BookingStatusCounts {
 	return {
-		total: tally.PENDING + tally.CONFIRMED + tally.CANCELLED + tally.EXPIRED,
+		total: tally.PENDING + tally.CONFIRMED + tally.CANCELLED,
 		pending: tally.PENDING,
 		confirmed: tally.CONFIRMED,
 		cancelled: tally.CANCELLED,
-		expired: tally.EXPIRED,
 	};
 }

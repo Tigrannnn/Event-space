@@ -28,7 +28,6 @@ export const BookingStatusCountsSchema = z.object({
 	pending: z.number().int(),
 	confirmed: z.number().int(),
 	cancelled: z.number().int(),
-	expired: z.number().int(),
 });
 
 export type BookingStatusCounts = z.infer<typeof BookingStatusCountsSchema>;

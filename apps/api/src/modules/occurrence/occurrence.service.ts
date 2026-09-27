@@ -22,7 +22,7 @@ export class OccurrenceService {
 
 	async assertCanDelete(occurrenceId: string) {
 		const count = await this.prisma.booking.count({
-			where: { occurrenceId, status: { not: { in: ['CANCELLED', 'EXPIRED'] } } },
+			where: { occurrenceId, status: { not: 'CANCELLED' } },
 		});
 		if (count > 0) {
 			throw new AppException(AppErrorCode.OCCURRENCE_HAS_BOOKINGS, { occurrenceId });
@@ -130,7 +130,7 @@ export class OccurrenceService {
 			const activeBookingsCount = await tx.booking.count({
 				where: {
 					occurrenceId: { in: toRemove.map((o) => o.id) },
-					status: { not: { in: ['CANCELLED', 'EXPIRED'] } },
+					status: { not: 'CANCELLED' },
 				},
 			});
 			if (activeBookingsCount > 0) {

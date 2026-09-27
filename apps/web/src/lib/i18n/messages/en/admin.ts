@@ -141,7 +141,6 @@ export const admin = {
 	searchUserByNameOrEmail: 'Search user by name or email...',
 	selectEvent: 'Select event...',
 	selectDate: 'Choose a date...',
-	expired: 'Expired',
 	charge: 'Charge',
 	succeeded: 'Succeeded',
 	failed: 'Failed',

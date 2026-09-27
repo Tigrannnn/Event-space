@@ -45,7 +45,6 @@ export function useLabels() {
 		PENDING: translate('admin.pending'),
 		CONFIRMED: translate('admin.confirmed'),
 		CANCELLED: translate('admin.cancelled'),
-		EXPIRED: translate('admin.expired'),
 	};
 
 	const USER_ROLE_LABELS: Record<UserRoleType, string> = {

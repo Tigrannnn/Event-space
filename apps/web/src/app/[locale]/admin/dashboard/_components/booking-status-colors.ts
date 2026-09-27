@@ -9,7 +9,6 @@ export const BOOKING_STATUS_COLORS = {
 	confirmed: '#10b981',
 	pending: '#f59e0b',
 	cancelled: '#ef4444',
-	expired: '#9ca3af',
 } as const;
 
 export type BookingStatusKey = keyof typeof BOOKING_STATUS_COLORS;

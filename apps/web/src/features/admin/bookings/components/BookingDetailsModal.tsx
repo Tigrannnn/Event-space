@@ -114,14 +114,7 @@ export default function BookingDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.status')}
 									</p>
-									<div className="mt-1 flex items-center gap-2">
-										<p className="font-medium text-gray-900 dark:text-white">{BOOKING_STATUS_LABELS[booking.status]}</p>
-										{booking.expired && (
-											<span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/40 dark:text-red-400">
-												{translate('admin.expired')}
-											</span>
-										)}
-									</div>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{BOOKING_STATUS_LABELS[booking.status]}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">

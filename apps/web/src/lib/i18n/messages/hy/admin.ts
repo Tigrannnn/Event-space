@@ -143,7 +143,6 @@ export const admin: Messages['admin'] = {
 	searchUserByNameOrEmail: 'Փնտրել օգտատիրոջը անունով կամ email-ով...',
 	selectEvent: 'Ընտրել միջոցառում...',
 	selectDate: 'Ընտրեք ամսաթիվը...',
-	expired: 'Ժամկետանց',
 	charge: 'Գանձում',
 	succeeded: 'Հաջողված',
 	failed: 'Ձախողված',
