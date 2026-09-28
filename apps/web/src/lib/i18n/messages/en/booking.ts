@@ -43,6 +43,7 @@ export const booking = {
 	filterAll: 'All',
 	filterConfirmed: 'Confirmed',
 	filterPending: 'Pending',
+	filterCheckedIn: 'Checked in',
 	filterCancelled: 'Cancelled',
 	noBookingsMatchFilter: 'No bookings match this filter.',
 	paymentFailed: 'Payment failed. Please try again.',

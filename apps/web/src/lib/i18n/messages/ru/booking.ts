@@ -45,6 +45,7 @@ export const booking: Messages['booking'] = {
 	filterAll: 'Все',
 	filterConfirmed: 'Подтвержденные',
 	filterPending: 'В ожидании',
+	filterCheckedIn: 'Зарегистрированные',
 	filterCancelled: 'Отменённые',
 	noBookingsMatchFilter: 'По этому фильтру бронирований нет.',
 	paymentFailed: 'Платеж не прошел. Попробуйте снова.',

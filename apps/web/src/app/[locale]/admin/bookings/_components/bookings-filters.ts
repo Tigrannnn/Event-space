@@ -1,5 +1,5 @@
-import { BookingStatusEnum, PaymentMethodEnum, TimeFilterSchema } from '@event-space/shared';
-import type { BookingStatus, PaymentMethod, TimeFilterType } from '@event-space/shared';
+import { BookingDisplayStatusEnum, PaymentMethodEnum, TimeFilterSchema } from '@event-space/shared';
+import type { BookingDisplayStatus, PaymentMethod, TimeFilterType } from '@event-space/shared';
 import { readEnum, readNumber, readString, writeParam } from '@/hooks/urlFilters';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -8,7 +8,7 @@ export interface AdminBookingsFilters {
 	skip: number;
 	limit: number;
 	search?: string;
-	status?: BookingStatus;
+	status?: BookingDisplayStatus;
 	/** Date of the event. */
 	time?: TimeFilterType;
 	eventId?: string;
@@ -27,7 +27,7 @@ export function parseBookingsFilters(params: URLSearchParams): AdminBookingsFilt
 		skip: readNumber(params, 'skip') ?? 0,
 		limit: readNumber(params, 'limit') ?? DEFAULT_PAGE_SIZE,
 		search: readString(params, 'search'),
-		status: readEnum(params, 'status', BookingStatusEnum.options),
+		status: readEnum(params, 'status', BookingDisplayStatusEnum.options),
 		time: readEnum(params, 'time', TimeFilterSchema.options),
 		eventId: readString(params, 'eventId'),
 		createdFrom: readString(params, 'createdFrom'),

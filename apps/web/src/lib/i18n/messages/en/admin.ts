@@ -170,6 +170,7 @@ export const admin = {
 	published: 'Published',
 	cancelled: 'Cancelled',
 	confirmed: 'Confirmed',
+	checkedIn: 'Checked in',
 	confirmCheckIn: 'Confirm check-in',
 	user: 'User',
 	admin: 'Admin',

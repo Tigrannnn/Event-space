@@ -123,7 +123,7 @@ export default function CheckInForm() {
 							isCancelled
 								? 'bg-red-50/50 dark:bg-red-950/10'
 								: isCheckedIn
-									? 'bg-amber-50/50 dark:bg-amber-950/10'
+									? 'bg-blue-50/50 dark:bg-blue-950/10'
 									: 'bg-emerald-50/50 dark:bg-emerald-950/10'
 						}`}
 					>
@@ -141,8 +141,8 @@ export default function CheckInForm() {
 								<XCircle className="h-3.5 w-3.5" /> {translate('admin.cancelled')}
 							</span>
 						) : isCheckedIn ? (
-							<span className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-								<AlertCircle className="h-3.5 w-3.5" /> {translate('admin.alreadyCheckedIn')}
+							<span className="flex items-center gap-1.5 rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+								<AlertCircle className="h-3.5 w-3.5" /> {translate('admin.checkedIn')}
 							</span>
 						) : (
 							<span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">

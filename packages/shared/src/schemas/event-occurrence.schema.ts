@@ -28,6 +28,8 @@ export const BookingStatusCountsSchema = z.object({
 	pending: z.number().int(),
 	confirmed: z.number().int(),
 	cancelled: z.number().int(),
+	/** Checked-in bookings — a subset of `confirmed`, not an extra status. Only on per-event stats. */
+	checkedIn: z.number().int().optional(),
 });
 
 export type BookingStatusCounts = z.infer<typeof BookingStatusCountsSchema>;

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { CalendarPlus, Ticket, UserPlus } from 'lucide-react';
 import type { DashboardStats } from '@event-space/shared';
-import { getEventTranslation } from '@event-space/shared';
+import { getBookingDisplayStatus, getEventTranslation } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -45,7 +45,7 @@ export default function ActivityFeed({ stats }: ActivityFeedProps) {
 				at: new Date(booking.createdAt),
 				icon: <Ticket className="h-4 w-4" />,
 				title: `${booking.user?.name || translate('booking.unknownUser')} ${translate('admin.bookedActivity')} ${eventTitle}`,
-				meta: `${booking.quantity} ${booking.quantity === 1 ? translate('booking.spot') : translate('booking.spots')} · ${BOOKING_STATUS_LABELS[booking.status]}`,
+				meta: `${booking.quantity} ${booking.quantity === 1 ? translate('booking.spot') : translate('booking.spots')} · ${BOOKING_STATUS_LABELS[getBookingDisplayStatus(booking)]}`,
 			};
 		}),
 		...stats.recentUsers.map((user) => ({

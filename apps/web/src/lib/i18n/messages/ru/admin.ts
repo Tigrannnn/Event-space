@@ -172,6 +172,7 @@ export const admin: Messages['admin'] = {
 	published: 'Опубликовано',
 	cancelled: 'Отменено',
 	confirmed: 'Подтверждено',
+	checkedIn: 'Зарегистрировано',
 	confirmCheckIn: 'Подтвердить регистрацию',
 	user: 'Пользователь',
 	admin: 'Админ',

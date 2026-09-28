@@ -172,6 +172,7 @@ export const admin: Messages['admin'] = {
 	published: 'Հրապարակված',
 	cancelled: 'Չեղարկված',
 	confirmed: 'Հաստատված',
+	checkedIn: 'Գրանցված',
 	confirmCheckIn: 'Հաստատել ստուգումը',
 	user: 'Օգտատեր',
 	admin: 'Ադմին',

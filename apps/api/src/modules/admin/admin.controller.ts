@@ -36,7 +36,7 @@ import {
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
-	BookingStatusEnum,
+	BookingDisplayStatusEnum,
 	PaymentMethodEnum,
 	EventStatusEnum,
 	EventDifficultyEnum,
@@ -52,6 +52,7 @@ import {
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import { AppErrorCode } from '@event-space/shared';
 import type {
+	BookingDisplayStatus,
 	BookingStatus,
 	EventDifficulty,
 	EventStatus,
@@ -199,7 +200,7 @@ export class AdminController {
 	})
 	@ApiQuery({ name: 'eventId', required: false })
 	@ApiQuery({ name: 'search', required: false, description: 'Search in user and event fields' })
-	@ApiQuery({ name: 'status', required: false, enum: BookingStatusEnum.options })
+	@ApiQuery({ name: 'status', required: false, enum: BookingDisplayStatusEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
 	@ApiQuery({ name: 'createdFrom', required: false, description: 'Booking created on or after (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'createdTo', required: false, description: 'Booking created on or before (YYYY-MM-DD)' })
@@ -208,7 +209,7 @@ export class AdminController {
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
 		@Query('search') search?: string,
-		@Query('status') status?: BookingStatus,
+		@Query('status') status?: BookingDisplayStatus,
 		@Query('time') time?: TimeFilterType,
 		@Query('eventId') eventId?: string,
 		@Query('createdFrom') createdFromRaw?: string,

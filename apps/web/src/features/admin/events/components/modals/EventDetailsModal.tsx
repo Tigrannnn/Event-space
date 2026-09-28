@@ -20,16 +20,26 @@ import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useState } from 'react';
 
-/** Confirmed first, then what still might convert, then what no longer counts. */
-const BOOKING_STATUS_ORDER = ['CONFIRMED', 'PENDING', 'CANCELLED'] as const;
+/** Attended first, then paid, then what still might convert, then what no longer counts. */
+const BOOKING_STATUS_ORDER = ['CHECKED_IN', 'CONFIRMED', 'PENDING', 'CANCELLED'] as const;
 
-const STATS_KEY_BY_STATUS = {
-	CONFIRMED: 'confirmed',
-	PENDING: 'pending',
-	CANCELLED: 'cancelled',
-} as const satisfies Record<(typeof BOOKING_STATUS_ORDER)[number], keyof BookingStatusCounts>;
+/** `checkedIn` is a subset of `confirmed`, so confirmed here means paid and not yet checked in. */
+function countForStatus(stats: BookingStatusCounts, status: (typeof BOOKING_STATUS_ORDER)[number]) {
+	const checkedIn = stats.checkedIn ?? 0;
+	switch (status) {
+		case 'CHECKED_IN':
+			return checkedIn;
+		case 'CONFIRMED':
+			return stats.confirmed - checkedIn;
+		case 'PENDING':
+			return stats.pending;
+		case 'CANCELLED':
+			return stats.cancelled;
+	}
+}
 
 const STATUS_TEXT_CLASS = {
+	CHECKED_IN: 'text-blue-600 dark:text-blue-400',
 	CONFIRMED: 'text-emerald-600 dark:text-emerald-400',
 	PENDING: 'text-amber-600 dark:text-amber-400',
 	CANCELLED: 'text-red-500 dark:text-red-400',
@@ -56,7 +66,7 @@ function BookingStatusBreakdown({
 				<span key={status} className="text-xs">
 					<span className="text-gray-500 dark:text-gray-400">{labels[status]}: </span>
 					<span className={`font-semibold ${STATUS_TEXT_CLASS[status]}`}>
-						{stats[STATS_KEY_BY_STATUS[status]]}
+						{countForStatus(stats, status)}
 					</span>
 				</span>
 			))}

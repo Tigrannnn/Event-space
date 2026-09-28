@@ -27,13 +27,14 @@ import {
 import { useAdminBookings, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
 import { useModalStore } from '@/stores/modalStore';
 import type {
-	BookingStatus,
+	BookingDisplayStatus,
 	BookingWithDetails,
 	PaginatedResponse,
 	TimeFilterType,
 } from '@event-space/shared';
 import {
-	BookingStatusEnum,
+	BookingDisplayStatusEnum,
+	getBookingDisplayStatus,
 	PaymentMethodEnum,
 	TimeFilterSchema,
 	getEventTranslation,
@@ -43,7 +44,7 @@ import { startOfToday, subDays } from 'date-fns';
 import { useLabels } from '@/hooks/labels/useLabels';
 import type { DateRangePreset } from '@/components/filters';
 import { ModalType } from '@/stores';
-import { formatBookingReference } from '@/utils/booking';
+import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 
@@ -168,11 +169,11 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						isActive={status !== undefined}
 						value={status ?? ''}
 							onValueChange={(value) =>
-								applyFilter({ status: (value as BookingStatus) || undefined })
+								applyFilter({ status: (value as BookingDisplayStatus) || undefined })
 							}
 							options={[
 								{ value: '', label: translate('admin.allStatuses') },
-								...BookingStatusEnum.options.map((s) => ({
+								...BookingDisplayStatusEnum.options.map((s) => ({
 									value: s,
 									label: BOOKING_STATUS_LABELS[s],
 								})),
@@ -299,14 +300,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</TableCell>
 								<TableCell>
 									<Badge
-										label={BOOKING_STATUS_LABELS[booking.status]}
-										variant={
-											booking.status === 'CONFIRMED'
-												? 'success'
-												: booking.status === 'CANCELLED'
-													? 'danger'
-													: 'warning'
-										}
+										label={BOOKING_STATUS_LABELS[getBookingDisplayStatus(booking)]}
+										variant={getBookingStatusBadgeVariant(getBookingDisplayStatus(booking))}
 									/>
 								</TableCell>
 								<TableCell>{booking.quantity}</TableCell>

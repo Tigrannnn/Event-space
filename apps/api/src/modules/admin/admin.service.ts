@@ -15,6 +15,7 @@ import type {
 	SpotsFilterType,
 	EventStatus,
 	EventDifficulty,
+	BookingDisplayStatus,
 	BookingStatus,
 	BookingStatusCounts,
 	PaymentMethod,
@@ -98,7 +99,7 @@ interface FindAllUsersParams extends PaginatedParams {
 
 interface FindAllBookingsParams extends PaginatedParams {
 	search?: string;
-	status?: BookingStatus;
+	status?: BookingDisplayStatus;
 	time?: TimeFilterType;
 	eventId?: string;
 	createdFrom?: string;
@@ -125,6 +126,7 @@ const emptyBookingStats = (): BookingStatusCounts => ({
 	pending: 0,
 	confirmed: 0,
 	cancelled: 0,
+	checkedIn: 0,
 });
 
 const BOOKING_STATUS_TO_STATS_KEY: Record<BookingStatus, keyof BookingStatusCounts> = {
@@ -138,6 +140,21 @@ const addBookingStats = (target: BookingStatusCounts, source: BookingStatusCount
 	target.pending += source.pending;
 	target.confirmed += source.confirmed;
 	target.cancelled += source.cancelled;
+	target.checkedIn = (target.checkedIn ?? 0) + (source.checkedIn ?? 0);
+};
+
+/** The columns a display status stands for — see BookingDisplayStatusEnum. */
+const bookingDisplayStatusWhere = (status?: BookingDisplayStatus): Prisma.BookingWhereInput => {
+	switch (status) {
+		case undefined:
+			return {};
+		case 'CHECKED_IN':
+			return { status: 'CONFIRMED', checkedInAt: { not: null } };
+		case 'CONFIRMED':
+			return { status: 'CONFIRMED', checkedInAt: null };
+		default:
+			return { status };
+	}
 };
 
 const normalizeBookingResponse = (booking: any): BookingWithDetails => {
@@ -756,7 +773,7 @@ export class AdminService {
 						],
 					}
 				: {}),
-			...(status ? { status } : {}),
+			...bookingDisplayStatusWhere(status),
 			...(Object.keys(occurrence).length > 0 ? { occurrence } : {}),
 			...(paymentMethod ? { paymentMethod } : {}),
 			...(createdAt ? { createdAt } : {}),
@@ -1042,11 +1059,23 @@ export class AdminService {
 	>(events: T[]): Promise<(T & { bookingStats: BookingStatusCounts })[]> {
 		if (events.length === 0) return [];
 
-		const grouped = await this.prisma.booking.groupBy({
-			by: ['occurrenceId', 'status'],
-			where: { occurrence: { eventId: { in: events.map((event) => event.id) } } },
-			_count: { _all: true },
-		});
+		const eventIds = events.map((event) => event.id);
+		const [grouped, checkedIn] = await Promise.all([
+			this.prisma.booking.groupBy({
+				by: ['occurrenceId', 'status'],
+				where: { occurrence: { eventId: { in: eventIds } } },
+				_count: { _all: true },
+			}),
+			this.prisma.booking.groupBy({
+				by: ['occurrenceId'],
+				where: {
+					occurrence: { eventId: { in: eventIds } },
+					status: 'CONFIRMED',
+					checkedInAt: { not: null },
+				},
+				_count: { _all: true },
+			}),
+		]);
 
 		const statsByOccurrence = new Map<string, BookingStatusCounts>();
 		for (const row of grouped) {
@@ -1059,6 +1088,11 @@ export class AdminService {
 			const count = row._count._all;
 			stats[BOOKING_STATUS_TO_STATS_KEY[row.status]] += count;
 			stats.total += count;
+		}
+
+		for (const row of checkedIn) {
+			const stats = statsByOccurrence.get(row.occurrenceId);
+			if (stats) stats.checkedIn = row._count._all;
 		}
 
 		return events.map((event) => {

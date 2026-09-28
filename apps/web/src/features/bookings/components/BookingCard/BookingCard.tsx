@@ -3,9 +3,14 @@
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTime } from '@/utils/date';
-import { formatBookingReference } from '@/utils/booking';
+import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { Calendar, MapPin, Navigation, Plus, Users } from 'lucide-react';
-import { getEventCoverImageUrl, isEventAvailable, getEventTranslation } from '@event-space/shared';
+import {
+	getBookingDisplayStatus,
+	getEventCoverImageUrl,
+	isEventAvailable,
+	getEventTranslation,
+} from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useCancelBooking, useCreateBooking } from '../../hooks/useBookings';
@@ -48,6 +53,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	if (!occurrence || !event) return null;
 
 	const occurrenceIsAvailable = new Date(occurrence.date) > new Date();
+	// Checked-in bookings read as their own status: attended, so neither cancellable nor refundable.
+	const displayStatus = getBookingDisplayStatus(booking);
 	const occurrenceDate = occurrence.date;
 	// This booking covers one date; the event may still have others left to book.
 	const canBookAnotherDate = isEventAvailable(event);
@@ -131,8 +138,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Status Badge */}
 				<Badge
-					label={BOOKING_STATUS_LABELS[status]}
-					variant={status === 'CONFIRMED' ? 'success' : status === 'CANCELLED' ? 'danger' : 'warning'}
+					label={BOOKING_STATUS_LABELS[displayStatus]}
+					variant={getBookingStatusBadgeVariant(displayStatus)}
 					className="absolute top-3 left-3 text-xs font-bold uppercase"
 				></Badge>
 				<FavoriteButton eventId={event.id} className="absolute top-3 right-3" />
@@ -218,9 +225,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							{translate('booking.total')}
 						</span>
 
-						{/* Refund estimate & commission — only a paid booking has anything to refund */}
+						{/* Refund estimate & commission — only a paid, not yet attended booking can be refunded */}
 						{(() => {
-							if (status !== 'CONFIRMED') return null;
+							if (displayStatus !== 'CONFIRMED') return null;
 
 							if (refundPercentage === 0 || estimatedRefundInCents === 0) {
 								return (
@@ -268,7 +275,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					)}
 					{occurrenceIsAvailable &&
 						booking.paymentMethod === 'SITE_PAYMENT' &&
-						booking.status === 'CONFIRMED' && (
+						displayStatus === 'CONFIRMED' && (
 							<Button
 								variant="danger"
 								size="sm"

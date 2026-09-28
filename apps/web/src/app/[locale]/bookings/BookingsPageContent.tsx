@@ -11,8 +11,9 @@ import { CalendarX, Filter } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { getBookingDisplayStatus, type BookingDisplayStatus } from '@event-space/shared';
 
-type StatusFilter = 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+type StatusFilter = 'ALL' | BookingDisplayStatus;
 
 export default function BookingsPageContent() {
 	const translate = useTranslation();
@@ -27,7 +28,7 @@ export default function BookingsPageContent() {
 	const filteredBookings = useMemo(() => {
 		if (!bookings?.length) return [];
 		if (statusFilter === 'ALL') return bookings;
-		return bookings.filter((booking) => booking.status === statusFilter);
+		return bookings.filter((booking) => getBookingDisplayStatus(booking) === statusFilter);
 	}, [bookings, statusFilter]);
 
 	useEffect(() => {
@@ -80,6 +81,7 @@ export default function BookingsPageContent() {
 					>
 						<option value="ALL">{translate('booking.filterAll')}</option>
 						<option value="CONFIRMED">{translate('booking.filterConfirmed')}</option>
+						<option value="CHECKED_IN">{translate('booking.filterCheckedIn')}</option>
 						<option value="PENDING">{translate('booking.filterPending')}</option>
 						<option value="CANCELLED">{translate('booking.filterCancelled')}</option>
 					</select>

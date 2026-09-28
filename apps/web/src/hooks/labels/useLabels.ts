@@ -5,7 +5,7 @@ import type {
 	EventDifficulty,
 	EventOccurrenceDisplayState,
 	TimeFilterType,
-	BookingStatus,
+	BookingDisplayStatus,
 	UserRoleType,
 	PaymentMethod,
 	AdjustmentType,
@@ -41,9 +41,10 @@ export function useLabels() {
 		completed: translate('admin.completed'),
 	};
 
-	const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
+	const BOOKING_STATUS_LABELS: Record<BookingDisplayStatus, string> = {
 		PENDING: translate('admin.pending'),
 		CONFIRMED: translate('admin.confirmed'),
+		CHECKED_IN: translate('admin.checkedIn'),
 		CANCELLED: translate('admin.cancelled'),
 	};
 

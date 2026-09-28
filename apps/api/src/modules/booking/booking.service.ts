@@ -641,6 +641,8 @@ export class BookingService {
 
 			if (!currentBooking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 			if (currentBooking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+			// The tour has been attended; only an admin can still cancel it.
+			if (currentBooking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 			if (currentBooking.status === 'CANCELLED') {
 				return {
 					booking: currentBooking,

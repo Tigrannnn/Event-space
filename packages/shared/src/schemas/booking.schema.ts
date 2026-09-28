@@ -12,6 +12,21 @@ import { PaymentMethodSchema } from '../generated/inputTypeSchemas/PaymentMethod
 export const BookingStatusEnum = BookingStatusSchema;
 export type BookingStatus = z.infer<typeof BookingStatusEnum>;
 
+/**
+ * Status as people see it. A checked-in booking stays CONFIRMED in the database — seats, refunds
+ * and payments all key off CONFIRMED — but reads as its own status wherever bookings are shown
+ * or filtered. CONFIRMED here means paid and not checked in yet.
+ */
+export const BookingDisplayStatusEnum = z.enum(['PENDING', 'CONFIRMED', 'CHECKED_IN', 'CANCELLED']);
+export type BookingDisplayStatus = z.infer<typeof BookingDisplayStatusEnum>;
+
+export function getBookingDisplayStatus(booking: {
+	status: BookingStatus;
+	checkedInAt?: Date | string | null;
+}): BookingDisplayStatus {
+	return booking.status === 'CONFIRMED' && booking.checkedInAt ? 'CHECKED_IN' : booking.status;
+}
+
 export const PaymentMethodEnum = PaymentMethodSchema;
 export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
@@ -129,7 +144,7 @@ export type AdminCancelBookingData = z.infer<typeof AdminCancelBookingSchema>;
 export const BookingFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),
 	limit: z.coerce.number().optional(),
-	status: BookingStatusEnum.optional(),
+	status: BookingDisplayStatusEnum.optional(),
 	search: z.string().optional(),
 	/** Filters by the date of the event, not by when the booking was made. */
 	time: TimeFilterSchema.optional(),

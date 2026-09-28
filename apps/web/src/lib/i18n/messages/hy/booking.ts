@@ -45,6 +45,7 @@ export const booking: Messages['booking'] = {
 	filterAll: 'Բոլորը',
 	filterConfirmed: 'Հաստատված',
 	filterPending: 'Սպասման մեջ',
+	filterCheckedIn: 'Գրանցված',
 	filterCancelled: 'Չեղարկված',
 	noBookingsMatchFilter: 'Այս ֆիլտրով ամրագրումներ չկան։',
 	paymentFailed: 'Վճարումը ձախողվեց։ Փորձեք նորից։',

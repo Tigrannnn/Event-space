@@ -10,7 +10,7 @@ import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
-import { getEventTranslation } from '@event-space/shared';
+import { getBookingDisplayStatus, getEventTranslation } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -114,7 +114,7 @@ export default function BookingDetailsModal() {
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.status')}
 									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{BOOKING_STATUS_LABELS[booking.status]}</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{BOOKING_STATUS_LABELS[getBookingDisplayStatus(booking)]}</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
