@@ -15,6 +15,9 @@ export interface AdminBookingsFilters {
 	/** Date the booking was made — a different question from `time`. */
 	createdFrom?: string;
 	createdTo?: string;
+	/** Date of the tour, as an exact range — `time` only splits upcoming from completed. */
+	tourFrom?: string;
+	tourTo?: string;
 	paymentMethod?: PaymentMethod;
 }
 
@@ -32,6 +35,8 @@ export function parseBookingsFilters(params: URLSearchParams): AdminBookingsFilt
 		eventId: readString(params, 'eventId'),
 		createdFrom: readString(params, 'createdFrom'),
 		createdTo: readString(params, 'createdTo'),
+		tourFrom: readString(params, 'tourFrom'),
+		tourTo: readString(params, 'tourTo'),
 		paymentMethod: readEnum(params, 'paymentMethod', PaymentMethodEnum.options),
 	};
 }
@@ -48,16 +53,21 @@ export function serializeBookingsFilters(
 	writeParam(params, 'eventId', filters.eventId);
 	writeParam(params, 'createdFrom', filters.createdFrom);
 	writeParam(params, 'createdTo', filters.createdTo);
+	writeParam(params, 'tourFrom', filters.tourFrom);
+	writeParam(params, 'tourTo', filters.tourTo);
 	writeParam(params, 'paymentMethod', filters.paymentMethod);
 	return params;
 }
 
 export function countActiveBookingsFilters(filters: AdminBookingsFilters): number {
 	const dateRangeApplied = filters.createdFrom || filters.createdTo ? 1 : 0;
+	const tourRangeApplied = filters.tourFrom || filters.tourTo ? 1 : 0;
 
 	return (
 		[filters.search, filters.status, filters.time, filters.eventId, filters.paymentMethod].filter(
 			(value) => value !== undefined,
-		).length + dateRangeApplied
+		).length +
+		dateRangeApplied +
+		tourRangeApplied
 	);
 }

@@ -40,7 +40,7 @@ import {
 	getEventTranslation,
 	type PaymentMethod,
 } from '@event-space/shared';
-import { startOfToday, subDays } from 'date-fns';
+import { addDays, startOfToday, subDays } from 'date-fns';
 import { useLabels } from '@/hooks/labels/useLabels';
 import type { DateRangePreset } from '@/components/filters';
 import { ModalType } from '@/stores';
@@ -68,7 +68,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		empty: emptyBookingsFilters,
 		countActive: countActiveBookingsFilters,
 	});
-	const { skip, limit, status, time, eventId, createdFrom, createdTo, paymentMethod } = filters;
+	const { skip, limit, status, time, eventId, createdFrom, createdTo, tourFrom, tourTo, paymentMethod } =
+		filters;
 
 	const [searchInput, setSearchInput] = useState(filters.search ?? '');
 	useEffect(() => {
@@ -95,6 +96,20 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		label: translate('admin.lastDays', { days }),
 		getRange: () => ({ from: subDays(startOfToday(), days - 1), to: startOfToday() }),
 	}));
+
+	/** Tours are mostly looked up ahead of time: today's group, this week's, this month's. */
+	const tourPresets: DateRangePreset[] = [
+		{
+			key: 'today',
+			label: translate('admin.today'),
+			getRange: () => ({ from: startOfToday(), to: startOfToday() }),
+		},
+		...[7, 30].map((days) => ({
+			key: `next-${days}`,
+			label: translate('admin.nextDays', { days }),
+			getRange: () => ({ from: startOfToday(), to: addDays(startOfToday(), days - 1) }),
+		})),
+	];
 
 	const applyFilter = (patch: Partial<AdminBookingsFilters>) => {
 		setFilters({ ...filters, ...patch, skip: 0 });
@@ -231,6 +246,25 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 							// Bookings can only have been created in the past.
 							disabled={{ after: new Date() }}
 							presets={createdPresets}
+						/>
+
+						<DateRangePicker
+							value={
+								tourFrom || tourTo
+									? {
+											from: parseDateParam(tourFrom ?? tourTo ?? null) ?? new Date(),
+											to: parseDateParam(tourTo ?? tourFrom ?? null) ?? new Date(),
+										}
+									: null
+							}
+							onChange={(range) =>
+								applyFilter({
+									tourFrom: range ? formatDateParam(range.from) : undefined,
+									tourTo: range ? formatDateParam(range.to) : undefined,
+								})
+							}
+							placeholder={translate('admin.tourDate')}
+							presets={tourPresets}
 						/>
 
 					<Select

@@ -204,6 +204,8 @@ export class AdminController {
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
 	@ApiQuery({ name: 'createdFrom', required: false, description: 'Booking created on or after (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'createdTo', required: false, description: 'Booking created on or before (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'tourFrom', required: false, description: 'Tour date on or after (YYYY-MM-DD)' })
+	@ApiQuery({ name: 'tourTo', required: false, description: 'Tour date on or before (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
 	async getAllBookings(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
@@ -214,6 +216,8 @@ export class AdminController {
 		@Query('eventId') eventId?: string,
 		@Query('createdFrom') createdFromRaw?: string,
 		@Query('createdTo') createdToRaw?: string,
+		@Query('tourFrom') tourFromRaw?: string,
+		@Query('tourTo') tourToRaw?: string,
 		@Query('paymentMethod') paymentMethod?: PaymentMethod,
 	) {
 		const safeLimit = Math.min(limit, 100);
@@ -226,6 +230,8 @@ export class AdminController {
 			eventId,
 			createdFrom: parseOptionalQueryDate(createdFromRaw, 'createdFrom'),
 			createdTo: parseOptionalQueryDate(createdToRaw, 'createdTo'),
+			tourFrom: parseOptionalQueryDate(tourFromRaw, 'tourFrom'),
+			tourTo: parseOptionalQueryDate(tourToRaw, 'tourTo'),
 			paymentMethod,
 		});
 	}

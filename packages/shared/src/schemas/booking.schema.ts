@@ -152,6 +152,9 @@ export const BookingFiltersSchema = z.object({
 	/** Filters by when the booking was created — the question `time` cannot answer. */
 	createdFrom: DateOnlySchema.optional(),
 	createdTo: DateOnlySchema.optional(),
+	/** Filters by the date of the tour itself. */
+	tourFrom: DateOnlySchema.optional(),
+	tourTo: DateOnlySchema.optional(),
 	paymentMethod: PaymentMethodSchema.optional(),
 });
 

@@ -73,18 +73,15 @@ const bookingInclude = {
 } as const;
 
 /**
- * Turns a `YYYY-MM-DD` range into a Prisma filter covering whole days, so `createdTo` includes
- * everything that happened on that date rather than cutting off at midnight.
+ * Turns a `YYYY-MM-DD` range into a Prisma filter covering whole days, so the end date includes
+ * everything that happened on it rather than cutting off at midnight.
  */
-function buildCreatedAtFilter(
-	createdFrom?: string,
-	createdTo?: string,
-): { gte?: Date; lte?: Date } | undefined {
-	if (!createdFrom && !createdTo) return undefined;
+function buildDayRangeFilter(from?: string, to?: string): { gte?: Date; lte?: Date } | undefined {
+	if (!from && !to) return undefined;
 
 	return {
-		...(createdFrom ? { gte: new Date(`${createdFrom}T00:00:00.000`) } : {}),
-		...(createdTo ? { lte: new Date(`${createdTo}T23:59:59.999`) } : {}),
+		...(from ? { gte: new Date(`${from}T00:00:00.000`) } : {}),
+		...(to ? { lte: new Date(`${to}T23:59:59.999`) } : {}),
 	};
 }
 
@@ -104,6 +101,9 @@ interface FindAllBookingsParams extends PaginatedParams {
 	eventId?: string;
 	createdFrom?: string;
 	createdTo?: string;
+	/** Date of the tour itself, not of the booking. */
+	tourFrom?: string;
+	tourTo?: string;
 	paymentMethod?: PaymentMethod;
 }
 
@@ -358,7 +358,7 @@ export class AdminService {
 		isShadow,
 	}: FindAllUsersParams = {}) {
 			const searchIsUuid = isUuid(search);
-			const createdAt = buildCreatedAtFilter(createdFrom, createdTo);
+			const createdAt = buildDayRangeFilter(createdFrom, createdTo);
 
 			const where = {
 				...(search
@@ -736,18 +736,26 @@ export class AdminService {
 		eventId,
 		createdFrom,
 		createdTo,
+		tourFrom,
+		tourTo,
 		paymentMethod,
 	}: FindAllBookingsParams = {}) {
 		const now = new Date();
 		const searchIsUuid = isUuid(search);
-		const createdAt = buildCreatedAtFilter(createdFrom, createdTo);
+		const createdAt = buildDayRangeFilter(createdFrom, createdTo);
+		const tourDate = buildDayRangeFilter(tourFrom, tourTo);
 
-		// `time` and `eventId` both constrain the related occurrence, so they have to be merged
-		// into a single condition — spreading them as separate `occurrence` keys would leave only
-		// the last one standing.
+		// `time`, the tour date range and `eventId` all constrain the related occurrence, so they
+		// have to be merged into a single condition — spreading them as separate `occurrence` keys
+		// would leave only the last one standing. The two date conditions go through AND for the
+		// same reason: both set `date`, and "upcoming" plus a range must honour both bounds.
+		const occurrenceDates = [
+			...(time === 'upcoming' ? [{ date: { gte: now } }] : []),
+			...(time === 'completed' ? [{ date: { lt: now } }] : []),
+			...(tourDate ? [{ date: tourDate }] : []),
+		];
 		const occurrence = {
-			...(time === 'upcoming' ? { date: { gte: now } } : {}),
-			...(time === 'completed' ? { date: { lt: now } } : {}),
+			...(occurrenceDates.length > 0 ? { AND: occurrenceDates } : {}),
 			...(eventId ? { eventId } : {}),
 		};
 
