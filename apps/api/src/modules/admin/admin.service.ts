@@ -951,9 +951,16 @@ export class AdminService {
 			occurrenceDate.gte = rangeStart && rangeStart > now ? rangeStart : now;
 		}
 
+		// An event is completed only once nothing is left to run: it has a past date and no future
+		// one. The "no future date" half is an exclusion over all of its dates, added to `where`
+		// below; here the event only has to have happened at least once.
 		if (time === 'completed') {
 			occurrenceDate.lt = now;
 		}
+
+		// A cancelled date will not take place, so it neither makes an event upcoming nor keeps it
+		// from being completed.
+		const upcomingDate: Prisma.EventOccurrenceWhereInput = { date: { gte: now }, status: 'ACTIVE' };
 
 		const hasOccurrenceFilter = Object.keys(occurrenceDate).length > 0;
 
@@ -969,12 +976,23 @@ export class AdminService {
 		// October date is empty.
 		const occurrenceMatch: Prisma.EventOccurrenceWhereInput = {
 			...(hasOccurrenceFilter ? { date: occurrenceDate } : {}),
-			...(spots ? { status: 'ACTIVE' as const } : {}),
+			...(spots || time === 'upcoming' ? { status: 'ACTIVE' as const } : {}),
 			...(spots === 'available' ? { currentParticipants: hasFreeSpot } : {}),
 			...(spots === 'empty' ? { currentParticipants: 0 } : {}),
 		};
 
 		const hasOccurrenceMatch = Object.keys(occurrenceMatch).length > 0;
+
+		// Conditions an event must not meet. Kept in one NOT list because both would otherwise be
+		// spread onto the same `NOT` key and the later would drop the earlier.
+		const exclusions: Prisma.EventWhereInput[] = [
+			...(time === 'completed' ? [{ occurrences: { some: upcomingDate } }] : []),
+			// "Sold out" is the absence of a sellable date among the ones already matched above,
+			// so it rides on the same conditions rather than introducing its own.
+			...(spots === 'full'
+				? [{ occurrences: { some: { ...occurrenceMatch, currentParticipants: hasFreeSpot } } }]
+				: []),
+		];
 
 		// Both bounds constrain `price`, so they are built as one condition — as separate spreads
 		// the upper bound would overwrite the lower and quietly widen the result.
@@ -1005,11 +1023,7 @@ export class AdminService {
 			...(status ? { status } : {}),
 			...(difficulty ? { difficulty } : {}),
 			...(hasOccurrenceMatch ? { occurrences: { some: occurrenceMatch } } : {}),
-			// "Sold out" is the absence of a sellable date among the ones already matched above,
-			// so it rides on the same conditions rather than introducing its own.
-			...(spots === 'full'
-				? { NOT: { occurrences: { some: { ...occurrenceMatch, currentParticipants: hasFreeSpot } } } }
-				: {}),
+			...(exclusions.length > 0 ? { NOT: exclusions } : {}),
 			...(category ? { category: { slug: category } } : {}),
 			...(Object.keys(price).length > 0 ? { price } : {}),
 		};
