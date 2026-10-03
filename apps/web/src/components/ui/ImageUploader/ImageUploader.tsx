@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
-import { GripVertical, Plus, X } from 'lucide-react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { AlertTriangle, GripVertical, Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import {
 	DndContext,
@@ -24,6 +24,13 @@ import { CSS } from '@dnd-kit/utilities';
 import { MAX_EVENT_IMAGES } from '@event-space/shared';
 import type { ImageUploaderItem } from './types';
 import { useTranslation } from '@/hooks/translation';
+
+/**
+ * Below this width a photo is visibly soft once it fills the event page on a laptop. It is also
+ * the telltale of a picture saved out of a messenger, which shrinks whatever passes through it —
+ * the usual reason an event ends up with blurry photos.
+ */
+const MIN_GOOD_IMAGE_WIDTH = 1200;
 
 const ACCEPTED_IMAGE_TYPES = {
 	'image/png': ['.png'],
@@ -72,9 +79,19 @@ interface SortableThumbnailProps {
 	canReorder: boolean;
 	disabled: boolean;
 	onRemove: () => void;
+	lowResWidth?: number;
+	onMeasured: (width: number) => void;
 }
 
-function SortableThumbnail({ item, index, canReorder, disabled, onRemove }: SortableThumbnailProps) {
+function SortableThumbnail({
+	item,
+	index,
+	canReorder,
+	disabled,
+	onRemove,
+	lowResWidth,
+	onMeasured,
+}: SortableThumbnailProps) {
 	const translate = useTranslation();
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id: getItemKey(item),
@@ -100,7 +117,17 @@ function SortableThumbnail({ item, index, canReorder, disabled, onRemove }: Sort
 				alt={`Event image ${index + 1}`}
 				className="pointer-events-none h-full w-full object-cover"
 				draggable={false}
+				onLoad={(event) => onMeasured(event.currentTarget.naturalWidth)}
 			/>
+			{lowResWidth !== undefined && (
+				<div
+					className="absolute inset-x-0 bottom-0 flex items-center gap-1 bg-amber-500/90 px-1.5 py-1 text-[10px] font-medium text-white"
+					title={translate('admin.imageLowRes', { width: String(lowResWidth) })}
+				>
+					<AlertTriangle className="h-3 w-3 shrink-0" />
+					<span className="truncate">{lowResWidth} px</span>
+				</div>
+			)}
 			{canReorder && (
 				<div className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white">
 					<GripVertical className="h-3.5 w-3.5" />
@@ -132,6 +159,8 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
 	const translate = useTranslation();
 	const inputId = useId();
+	// Natural width per image, filled in as each thumbnail loads.
+	const [widths, setWidths] = useState<Record<string, number>>({});
 	const fileItemsRef = useRef<ImageUploaderItem[]>([]);
 
 	const sorted = useMemo(() => [...value].sort((a, b) => a.order - b.order), [value]);
@@ -195,6 +224,15 @@ export default function ImageUploader({
 		useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
 	);
 
+	const rememberWidth = useCallback((key: string, width: number) => {
+		setWidths((current) => (current[key] === width ? current : { ...current, [key]: width }));
+	}, []);
+
+	const lowResCount = sorted.filter((item) => {
+		const width = widths[getItemKey(item)];
+		return width !== undefined && width < MIN_GOOD_IMAGE_WIDTH;
+	}).length;
+
 	const handleDragEnd = ({ active, over }: DragEndEvent) => {
 		if (!over || active.id === over.id) return;
 		const fromIndex = sorted.findIndex((item) => getItemKey(item) === active.id);
@@ -222,16 +260,24 @@ export default function ImageUploader({
 
 				<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
 					<SortableContext items={sorted.map(getItemKey)} strategy={rectSortingStrategy}>
-						{sorted.map((item, index) => (
-							<SortableThumbnail
-								key={getItemKey(item)}
-								item={item}
-								index={index}
-								canReorder={canReorder}
-								disabled={disabled}
-								onRemove={() => removeAt(index)}
-							/>
-						))}
+						{sorted.map((item, index) => {
+							const width = widths[getItemKey(item)];
+
+							return (
+								<SortableThumbnail
+									key={getItemKey(item)}
+									item={item}
+									index={index}
+									canReorder={canReorder}
+									disabled={disabled}
+									onRemove={() => removeAt(index)}
+									lowResWidth={
+										width !== undefined && width < MIN_GOOD_IMAGE_WIDTH ? width : undefined
+									}
+									onMeasured={(measured) => rememberWidth(getItemKey(item), measured)}
+								/>
+							);
+						})}
 					</SortableContext>
 				</DndContext>
 
@@ -251,6 +297,13 @@ export default function ImageUploader({
 					</button>
 				)}
 			</div>
+
+			{lowResCount > 0 && (
+				<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500">
+					<AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+					<span>{translate('admin.imageLowResHint', { count: String(lowResCount) })}</span>
+				</p>
+			)}
 		</div>
 	);
 }

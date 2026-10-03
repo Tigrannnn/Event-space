@@ -127,8 +127,11 @@ export class UploadService implements OnModuleInit {
 					folder: this.folder,
 					resource_type: 'image',
 					allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'avif'],
+					// 2000px wide is enough for a laptop shown full-screen and leaves room for a
+					// phone's pixel density; `limit` only ever shrinks, so a smaller photo is
+					// stored as it is. The earlier 1200 cap was itself softening good photos.
 					transformation: [
-						{ width: 1200, crop: 'limit' },
+						{ width: 2000, crop: 'limit' },
 						{ quality: 'auto', fetch_format: 'auto' },
 					],
 				},
