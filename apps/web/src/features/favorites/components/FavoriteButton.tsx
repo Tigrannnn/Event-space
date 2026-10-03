@@ -33,13 +33,15 @@ export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 		toggleFavorite.mutate({ eventId, isFavorite });
 	};
 
+	// 44px on touch — the smallest target a thumb hits reliably — and back to 40px from the
+	// small breakpoint up, where a pointer does the aiming.
 	return (
 		<button
 			type="button"
 			onClick={handleClick}
 			aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
 			className={cn(
-				`relative z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/70 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition-all hover:scale-105 hover:bg-gray-200/80 hover:text-gray-300 sm:h-10 sm:w-10 dark:border-gray-700 dark:bg-gray-800/90 dark:text-gray-300 ${isFavorite ? 'dark:hover:text-rose-400' : 'dark:hover:text-gray-700'}`,
+				`relative z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-white/90 text-gray-700 shadow-sm backdrop-blur transition-all hover:scale-105 hover:bg-gray-200/80 hover:text-gray-300 sm:h-10 sm:w-10 dark:border-gray-700 dark:bg-gray-800/90 dark:text-gray-300 ${isFavorite ? 'dark:hover:text-rose-400' : 'dark:hover:text-gray-700'}`,
 				isFavorite &&
 					'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-900/60 dark:hover:text-rose-500',
 				className,
@@ -49,7 +51,7 @@ export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 			{isUserLoading || (isFavoritesLoading && user) ? (
 				<Skeleton className="h-5 w-5 rounded-full" />
 			) : (
-				<Heart className={cn('h-3 w-3 transition-all sm:h-5 sm:w-5', isFavorite && 'fill-current')} />
+				<Heart className={cn('h-5 w-5 transition-all', isFavorite && 'fill-current')} />
 			)}
 		</button>
 	);
