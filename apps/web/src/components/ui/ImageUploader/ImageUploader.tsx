@@ -121,11 +121,11 @@ function SortableThumbnail({
 			/>
 			{lowResWidth !== undefined && (
 				<div
-					className="absolute inset-x-0 bottom-0 flex items-center gap-1 bg-amber-500/90 px-1.5 py-1 text-[10px] font-medium text-white"
+					className="absolute right-1 bottom-1 flex items-center gap-1 rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-medium text-white"
 					title={translate('admin.imageLowRes', { width: String(lowResWidth) })}
 				>
 					<AlertTriangle className="h-3 w-3 shrink-0" />
-					<span className="truncate">{lowResWidth} px</span>
+					<span>{lowResWidth} px</span>
 				</div>
 			)}
 			{canReorder && (
@@ -249,6 +249,15 @@ export default function ImageUploader({
 					: translate('admin.dropImagesHint')}
 			</p>
 
+			{lowResCount > 0 && (
+				<p className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-500">
+					<AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+					{lowResCount === 1
+						? translate('admin.imageLowResHintOne')
+						: translate('admin.imageLowResHint', { count: String(lowResCount) })}
+				</p>
+			)}
+
 			<div
 				{...getRootProps()}
 				className={[
@@ -298,12 +307,6 @@ export default function ImageUploader({
 				)}
 			</div>
 
-			{lowResCount > 0 && (
-				<p className="flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-500">
-					<AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-					<span>{translate('admin.imageLowResHint', { count: String(lowResCount) })}</span>
-				</p>
-			)}
 		</div>
 	);
 }
