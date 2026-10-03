@@ -15,6 +15,7 @@ import {
 	splitOccurrencesByTime,
 	type BookingStatusCounts,
 	type EventOccurrenceDisplayState,
+	optimizeImageUrl,
 } from '@event-space/shared';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -168,7 +169,7 @@ export default function EventDetailsModal() {
 									className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 dark:border-gray-700"
 								>
 									<Image
-										src={image.url}
+										src={optimizeImageUrl(image.url)}
 										alt={eventTranslation.title}
 										width={600}
 										height={400}

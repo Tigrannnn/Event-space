@@ -1,4 +1,4 @@
-import { getEventTranslation, type Event, type Locale } from '@event-space/shared';
+import { getEventTranslation, optimizeImageUrl, type Event, type Locale } from '@event-space/shared';
 
 /** Enough dates to cover a season; a schedule longer than this is noise in a search result. */
 const MAX_DATES = 20;
@@ -28,7 +28,7 @@ export function buildEventJsonLd(event: Event, locale: Locale, url: string): obj
 
 	const images = [...(event.images ?? [])]
 		.sort((first, second) => first.order - second.order)
-		.map((image) => image.url);
+		.map((image) => optimizeImageUrl(image.url));
 
 	return upcoming.map((occurrence) => {
 		const start = new Date(occurrence.date);

@@ -10,7 +10,7 @@ import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
-import { getBookingDisplayStatus, getEventTranslation } from '@event-space/shared';
+import { getBookingDisplayStatus, getEventTranslation, optimizeImageUrl } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -380,7 +380,7 @@ export default function BookingDetailsModal() {
 												width={500}
 												height={320}
 												alt={t.title || 'Event image'}
-												src={image.url}
+												src={optimizeImageUrl(image.url)}
 												className="h-44 w-full object-cover"
 											/>
 										</div>
