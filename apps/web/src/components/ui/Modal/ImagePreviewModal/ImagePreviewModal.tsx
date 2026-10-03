@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
@@ -11,10 +11,38 @@ export default function ImagePreviewModal() {
 	const { activeModal, closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.ImagePreview);
 
-	const images = modalData?.images ?? [];
+	// Memoised so the preload effect below doesn't re-run on every render.
+	const images = useMemo(() => modalData?.images ?? [], [modalData]);
 	const initialIndex = modalData?.initialIndex ?? 0;
 
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
+	const [loadedSrcs, setLoadedSrcs] = useState<Set<string>>(new Set());
+
+	const markLoaded = useCallback((src: string) => {
+		setLoadedSrcs((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
+	}, []);
+
+	/**
+	 * Pulls every image of the event into the browser cache as soon as the preview opens.
+	 *
+	 * An event holds a handful of images at most, and the one being looked at is already cached
+	 * from the page behind — so this is about the rest: without it, each press of "next" starts
+	 * its own download, and the picture only changes once that download finishes.
+	 */
+	useEffect(() => {
+		const loaders = images.map((src) => {
+			const loader = new window.Image();
+			loader.onload = () => markLoaded(src);
+			loader.src = src;
+			return loader;
+		});
+
+		return () => {
+			for (const loader of loaders) {
+				loader.onload = null;
+			}
+		};
+	}, [images, markLoaded]);
 
 	const handlePrevious = useCallback(() => {
 		setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -41,6 +69,7 @@ export default function ImagePreviewModal() {
 
 	// Guard against empty images or invalid index to prevent Next.js Image errors
 	const currentImage = images[currentIndex];
+	const isLoading = Boolean(currentImage) && !loadedSrcs.has(currentImage);
 
 	return (
 		<Modal
@@ -83,10 +112,23 @@ export default function ImagePreviewModal() {
 								src={currentImage}
 								alt={`Preview ${currentIndex + 1}`}
 								fill
-								className="rounded-2xl object-contain"
+								// Same URL the page itself loaded: the optimizer would turn it into a
+								// different one, which means a second download of a picture already on
+								// screen — plus a wait while the server resizes it.
+								unoptimized={currentImage.startsWith('http')}
+								className={`rounded-2xl object-contain transition-opacity duration-200 ${
+									isLoading ? 'opacity-40' : 'opacity-100'
+								}`}
 								onClick={(e) => e.stopPropagation()}
-								priority
+								onLoad={() => markLoaded(currentImage)}
 							/>
+							{/* The <img> keeps painting the previous picture until the next one decodes,
+							    so without this the counter changes and nothing else does. */}
+							{isLoading && (
+								<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+									<Loader2 className="h-10 w-10 animate-spin text-white" />
+								</div>
+							)}
 						</div>
 					</div>
 
