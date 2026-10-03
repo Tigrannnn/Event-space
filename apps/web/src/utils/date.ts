@@ -91,11 +91,13 @@ export const formatDateTime = (date: string | Date | null | undefined, locale: L
 	// pattern would use ("at", "в", none at all), which is a second axis environments could differ
 	// on independently of the month name.
 	const datePart = formatWithOwnedMonth(d, locale, { month: 'short', day: 'numeric' }, 'short');
+	// 24-hour everywhere, stated rather than left to the locale: English would otherwise print
+	// "7:00 PM" while Russian and Armenian print "19:00" for the same departure.
 	const timePart = new Intl.DateTimeFormat(locale, {
 		hour: '2-digit',
 		minute: '2-digit',
-		hour12: true,
-		hourCycle: 'h12',
+		hour12: false,
+		hourCycle: 'h23',
 	}).format(d);
 
 	return `${datePart}, ${timePart}`;
@@ -195,5 +197,7 @@ export const formatTime = (date: string | Date | null | undefined, locale: Local
 	return d.toLocaleTimeString(locale, {
 		hour: '2-digit',
 		minute: '2-digit',
+		hour12: false,
+		hourCycle: 'h23',
 	});
 };
