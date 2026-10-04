@@ -199,6 +199,7 @@ export class AdminController {
 		type: Number,
 	})
 	@ApiQuery({ name: 'eventId', required: false })
+	@ApiQuery({ name: 'occurrenceId', required: false })
 	@ApiQuery({ name: 'search', required: false, description: 'Search in user and event fields' })
 	@ApiQuery({ name: 'status', required: false, enum: BookingDisplayStatusEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
@@ -214,6 +215,7 @@ export class AdminController {
 		@Query('status') status?: BookingDisplayStatus,
 		@Query('time') time?: TimeFilterType,
 		@Query('eventId') eventId?: string,
+		@Query('occurrenceId') occurrenceId?: string,
 		@Query('createdFrom') createdFromRaw?: string,
 		@Query('createdTo') createdToRaw?: string,
 		@Query('tourFrom') tourFromRaw?: string,
@@ -228,6 +230,7 @@ export class AdminController {
 			status,
 			time,
 			eventId,
+			occurrenceId,
 			createdFrom: parseOptionalQueryDate(createdFromRaw, 'createdFrom'),
 			createdTo: parseOptionalQueryDate(createdToRaw, 'createdTo'),
 			tourFrom: parseOptionalQueryDate(tourFromRaw, 'tourFrom'),

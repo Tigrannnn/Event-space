@@ -99,6 +99,7 @@ interface FindAllBookingsParams extends PaginatedParams {
 	status?: BookingDisplayStatus;
 	time?: TimeFilterType;
 	eventId?: string;
+	occurrenceId?: string;
 	createdFrom?: string;
 	createdTo?: string;
 	/** Date of the tour itself, not of the booking. */
@@ -734,6 +735,7 @@ export class AdminService {
 		status,
 		time,
 		eventId,
+		occurrenceId,
 		createdFrom,
 		createdTo,
 		tourFrom,
@@ -782,6 +784,7 @@ export class AdminService {
 					}
 				: {}),
 			...bookingDisplayStatusWhere(status),
+			...(occurrenceId ? { occurrenceId } : {}),
 			...(Object.keys(occurrence).length > 0 ? { occurrence } : {}),
 			...(paymentMethod ? { paymentMethod } : {}),
 			...(createdAt ? { createdAt } : {}),

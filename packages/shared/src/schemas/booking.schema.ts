@@ -149,6 +149,8 @@ export const BookingFiltersSchema = z.object({
 	/** Filters by the date of the event, not by when the booking was made. */
 	time: TimeFilterSchema.optional(),
 	eventId: z.string().optional(),
+	/** Filters down to a single date of that event. */
+	occurrenceId: z.string().optional(),
 	/** Filters by when the booking was created — the question `time` cannot answer. */
 	createdFrom: DateOnlySchema.optional(),
 	createdTo: DateOnlySchema.optional(),

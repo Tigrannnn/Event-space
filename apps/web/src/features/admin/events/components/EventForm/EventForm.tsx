@@ -20,6 +20,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useFormatDate } from '@/hooks/format';
@@ -186,6 +187,7 @@ export default function EventForm({
 	const [occurrencesToDelete, setOccurrencesToDelete] = useState<string[]>([]);
 	const [isApplyingCancel, setIsApplyingCancel] = useState(false);
 	const { addToast } = useToastStore();
+	const router = useRouter();
 
 	const deletedIndexes = occurrenceFields
 		.map((field, index) => (occurrencesToDelete.includes(field.fieldId) ? index : -1))
@@ -608,11 +610,24 @@ export default function EventForm({
 											/>
 										</label>
 
-										{activeBookingsCount > 0 && (
-											<span className="text-xs text-gray-500 md:pb-2">
-												{translate('admin.activeBookings')} {activeBookingsCount}
-											</span>
-										)}
+										{activeBookingsCount > 0 &&
+											(event && field.id ? (
+												<button
+													type="button"
+													onClick={() =>
+														router.push(
+															`/admin/bookings?eventId=${event.id}&occurrenceId=${field.id}`,
+														)
+													}
+													className="text-primary cursor-pointer text-xs font-medium hover:underline md:pb-2"
+												>
+													{translate('admin.activeBookings')} {activeBookingsCount}
+												</button>
+											) : (
+												<span className="text-xs text-gray-500 md:pb-2">
+													{translate('admin.activeBookings')} {activeBookingsCount}
+												</span>
+											))}
 
 										{isCancelPending ? (
 											<Button

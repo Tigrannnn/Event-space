@@ -12,6 +12,7 @@ export interface AdminBookingsFilters {
 	/** Date of the event. */
 	time?: TimeFilterType;
 	eventId?: string;
+	occurrenceId?: string;
 	/** Date the booking was made — a different question from `time`. */
 	createdFrom?: string;
 	createdTo?: string;
@@ -33,6 +34,7 @@ export function parseBookingsFilters(params: URLSearchParams): AdminBookingsFilt
 		status: readEnum(params, 'status', BookingDisplayStatusEnum.options),
 		time: readEnum(params, 'time', TimeFilterSchema.options),
 		eventId: readString(params, 'eventId'),
+		occurrenceId: readString(params, 'occurrenceId'),
 		createdFrom: readString(params, 'createdFrom'),
 		createdTo: readString(params, 'createdTo'),
 		tourFrom: readString(params, 'tourFrom'),
@@ -51,6 +53,7 @@ export function serializeBookingsFilters(
 	writeParam(params, 'status', filters.status);
 	writeParam(params, 'time', filters.time);
 	writeParam(params, 'eventId', filters.eventId);
+	writeParam(params, 'occurrenceId', filters.occurrenceId);
 	writeParam(params, 'createdFrom', filters.createdFrom);
 	writeParam(params, 'createdTo', filters.createdTo);
 	writeParam(params, 'tourFrom', filters.tourFrom);
@@ -64,7 +67,14 @@ export function countActiveBookingsFilters(filters: AdminBookingsFilters): numbe
 	const tourRangeApplied = filters.tourFrom || filters.tourTo ? 1 : 0;
 
 	return (
-		[filters.search, filters.status, filters.time, filters.eventId, filters.paymentMethod].filter(
+		[
+			filters.search,
+			filters.status,
+			filters.time,
+			filters.eventId,
+			filters.occurrenceId,
+			filters.paymentMethod,
+		].filter(
 			(value) => value !== undefined,
 		).length +
 		dateRangeApplied +

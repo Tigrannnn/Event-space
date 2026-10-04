@@ -123,9 +123,16 @@ export default function EventDetailsModal() {
 					{translate('admin.seatsSold')}: {occurrence.currentParticipants}/
 					{occurrence.maxParticipants} {translate('admin.seats')}
 				</p>
-				<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+				<button
+					type="button"
+					onClick={() => {
+						closeModal();
+						router.push(`/admin/bookings?eventId=${event.id}&occurrenceId=${occurrence.id}`);
+					}}
+					className="text-primary mt-0.5 cursor-pointer text-xs font-medium hover:underline"
+				>
 					{translate('admin.bookingsCount')}: {occurrence.bookingStats?.total ?? 0}
-				</p>
+				</button>
 				{occurrence.bookingStats && occurrence.bookingStats.total > 0 && (
 					<BookingStatusBreakdown
 						stats={occurrence.bookingStats}
