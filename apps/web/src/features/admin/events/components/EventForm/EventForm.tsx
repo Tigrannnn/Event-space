@@ -27,6 +27,7 @@ import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
 import { XIcon } from 'lucide-react';
 import type { MessageKey } from '@/lib/i18n/messages';
+import { ToastType, useToastStore } from '@/stores/toastStore';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -182,7 +183,18 @@ export default function EventForm({
 	const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 	const [pendingCancelValues, setPendingCancelValues] = useState<EventFormValues | null>(null);
 	const [occurrencesToCancel, setOccurrencesToCancel] = useState<string[]>([]);
-	const [occurrencesToDelete, setOccurrencesToDelete] = useState<number[]>([]);
+	const [occurrencesToDelete, setOccurrencesToDelete] = useState<string[]>([]);
+	const [isApplyingCancel, setIsApplyingCancel] = useState(false);
+	const { addToast } = useToastStore();
+
+	const deletedIndexes = occurrenceFields
+		.map((field, index) => (occurrencesToDelete.includes(field.fieldId) ? index : -1))
+		.filter((index) => index >= 0);
+
+	const withoutDeletedOccurrences = (values: EventFormValues): EventFormValues => ({
+		...values,
+		occurrences: values.occurrences.filter((_, index) => !deletedIndexes.includes(index)),
+	});
 
 	const addedLocales = watchedTranslations.map((t) => t.locale);
 	const availableLocalesToAdd = AVAILABLE_LOCALES.filter(
@@ -209,24 +221,37 @@ export default function EventForm({
 	};
 
 	const handleConfirmCancel = async () => {
-		if (occurrencesToCancel.length > 0) {
-			await Promise.all(
-				occurrencesToCancel.map((occurrenceId) => cancelOccurrence.mutateAsync(occurrenceId)),
-			);
+		if (isApplyingCancel) return;
+		setIsApplyingCancel(true);
+
+		try {
+			if (occurrencesToCancel.length > 0) {
+				await Promise.all(
+					occurrencesToCancel.map((occurrenceId) => cancelOccurrence.mutateAsync(occurrenceId)),
+				);
+			}
+		} catch {
+			addToast(translate('admin.occurrenceCancelFailed'), ToastType.ERROR);
+			setIsApplyingCancel(false);
+			return;
 		}
 
-		if (occurrencesToDelete.length > 0) {
-			removeOccurrence(occurrencesToDelete);
+		if (deletedIndexes.length > 0) {
+			removeOccurrence(deletedIndexes);
 		}
 
 		if (pendingCancelValues) {
-			onSubmit(pendingCancelValues);
+			onSubmit(withoutDeletedOccurrences(pendingCancelValues));
 		}
 		setPendingCancelValues(null);
+		setOccurrencesToCancel([]);
+		setOccurrencesToDelete([]);
+		setIsApplyingCancel(false);
 		setShowCancelConfirm(false);
 	};
 
 	const handleRejectCancel = () => {
+		if (isApplyingCancel) return;
 		setPendingCancelValues(null);
 		setShowCancelConfirm(false);
 	};
@@ -248,10 +273,21 @@ export default function EventForm({
 						{translate('admin.cancelEventMessage')}
 					</p>
 					<div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
-						<Button type="button" variant="secondary" onClick={handleRejectCancel} disabled={isPending}>
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={handleRejectCancel}
+							disabled={isPending || isApplyingCancel}
+						>
 							{translate('event.back')}
 						</Button>
-						<Button type="button" variant="danger" onClick={handleConfirmCancel} disabled={isPending}>
+						<Button
+							type="button"
+							variant="danger"
+							onClick={handleConfirmCancel}
+							disabled={isPending}
+							isLoading={isApplyingCancel}
+						>
 							{translate('admin.confirmCancelEvent')}
 						</Button>
 					</div>
@@ -508,17 +544,19 @@ export default function EventForm({
 								// A row that was never saved has no date to be past yet.
 								const finished = !!field.id && isPastOccurrence(field.date);
 								const isCancelled = field.status === 'CANCELLED';
-								const isCancelPending =
-									(field.id && occurrencesToCancel.includes(field.id)) ||
-									occurrencesToDelete.includes(index);
+								const cancelPending = !!field.id && occurrencesToCancel.includes(field.id);
+								const deletePending = occurrencesToDelete.includes(field.fieldId);
+								const isCancelPending = cancelPending || deletePending;
 
 								return (
 									<div
 										key={field.fieldId}
 										className={`flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-end ${
-											isCancelled || finished
-												? 'border-gray-300 bg-gray-50 opacity-60 dark:border-gray-700 dark:bg-gray-800/40'
-												: 'border-gray-200 dark:border-gray-700'
+											isCancelPending
+												? 'border-amber-400 bg-amber-50 dark:border-amber-600/70 dark:bg-amber-950/30'
+												: isCancelled || finished
+													? 'border-gray-300 bg-gray-50 opacity-60 dark:border-gray-700 dark:bg-gray-800/40'
+													: 'border-gray-200 dark:border-gray-700'
 										}`}
 									>
 										<div className="flex-1 space-y-1.5">
@@ -529,6 +567,13 @@ export default function EventForm({
 												)}
 												{finished && (
 													<span className="ml-2 text-gray-400">({translate('admin.finished')})</span>
+												)}
+												{isCancelPending && (
+													<span className="ml-2 font-semibold text-amber-600 dark:text-amber-400">
+														{deletePending
+															? translate('admin.occurrenceWillBeDeleted')
+															: translate('admin.occurrenceWillBeCancelled')}
+													</span>
 												)}
 											</span>
 											<Controller
@@ -577,7 +622,9 @@ export default function EventForm({
 												disabled={isPending}
 												onClick={() => {
 													setOccurrencesToCancel((prev) => prev.filter((id) => id !== field.id));
-													setOccurrencesToDelete((prev) => prev.filter((prevIndex) => prevIndex !== index));
+													setOccurrencesToDelete((prev) =>
+														prev.filter((fieldId) => fieldId !== field.fieldId),
+													);
 												}}
 											>
 												{translate('admin.reactivateOccurrence')}
@@ -588,11 +635,17 @@ export default function EventForm({
 												variant="secondary"
 												className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-500 dark:hover:bg-red-950"
 												disabled={isPending}
-												onClick={() =>
-													hasBookings
-														? setOccurrencesToCancel((prev) => [...prev, field.id ?? ''])
-														: setOccurrencesToDelete((prev) => [...prev, index])
-												}
+												onClick={() => {
+													if (hasBookings) {
+														setOccurrencesToCancel((prev) => [...prev, field.id ?? '']);
+														return;
+													}
+													if (!field.id) {
+														removeOccurrence(index);
+														return;
+													}
+													setOccurrencesToDelete((prev) => [...prev, field.fieldId]);
+												}}
 											>
 												{hasBookings ? translate('admin.cancelOccurrence') : translate('admin.delete')}
 											</Button>
