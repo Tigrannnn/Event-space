@@ -111,9 +111,12 @@ export class OccurrenceService {
 			existingByDate.has(new Date(o.date).getTime()),
 		);
 
-		const toUpdate = [
+		const toUpdate: OccurrenceInput[] = [
 			...incomingWithId,
-			...matchedFromDate.map((o) => ({ ...(o as any), id: existingByDate.get(new Date(o.date).getTime()) })),
+			...matchedFromDate.map((o) => ({
+				...o,
+				id: existingByDate.get(new Date(o.date).getTime()),
+			})),
 		];
 
 		const toCreate = incomingWithoutId.filter(
@@ -122,8 +125,9 @@ export class OccurrenceService {
 
 		// Remove only those existing occurrences that are neither referenced by id
 		// in the incoming payload nor matched by date with an incoming item.
+		const incomingDates = new Set(incoming.map((o) => new Date(o.date).getTime()));
 		const toRemove = existing.filter(
-			(o) => !incomingIdSet.has(o.id) && !existingByDate.has(new Date(o.date).getTime()),
+			(o) => !incomingIdSet.has(o.id) && !incomingDates.has(new Date(o.date).getTime()),
 		);
 
 		if (toRemove.length) {
@@ -137,6 +141,26 @@ export class OccurrenceService {
 				throw new AppException(AppErrorCode.OCCURRENCES_HAVE_BOOKINGS);
 			}
 			await tx.eventOccurrence.deleteMany({ where: { id: { in: toRemove.map((o) => o.id) } } });
+		}
+
+		const movedIds = toUpdate
+			.filter((occ) => {
+				const current = existing.find((e) => e.id === occ.id);
+				return (
+					current &&
+					current.status !== 'CANCELLED' &&
+					new Date(current.date).getTime() !== new Date(occ.date).getTime()
+				);
+			})
+			.map((occ) => occ.id!);
+
+		if (movedIds.length) {
+			const bookedMoved = await tx.booking.count({
+				where: { occurrenceId: { in: movedIds }, status: { not: 'CANCELLED' } },
+			});
+			if (bookedMoved > 0) {
+				throw new AppException(AppErrorCode.OCCURRENCE_DATE_LOCKED);
+			}
 		}
 
 		for (const occ of toUpdate) {

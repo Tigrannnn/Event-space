@@ -585,11 +585,16 @@ export default function EventForm({
 													<DateTimeField
 														value={dateField.value ?? ''}
 														onChange={dateField.onChange}
-														disabled={isPending || isCancelled || finished}
+														disabled={isPending || isCancelled || finished || hasBookings}
 														inputClassName={dateTimeInputClassName}
 													/>
 												)}
 											/>
+											{hasBookings && !isCancelled && !finished && (
+												<p className="text-xs text-gray-500 dark:text-gray-400">
+													{translate('admin.occurrenceDateLocked')}
+												</p>
+											)}
 											{errors.occurrences?.[index]?.date && (
 												<p className="text-xs text-red-500">
 													{errorText(errors.occurrences[index]?.date?.message)}

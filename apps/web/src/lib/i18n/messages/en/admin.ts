@@ -33,6 +33,7 @@ export const admin = {
 	bookingDetails: 'Booking details',
 	cancelOccurrence: 'Cancel occurrence',
 	reactivateOccurrence: 'Restore to Active',
+	occurrenceDateLocked: 'A date with bookings cannot be moved — cancel it or the bookings',
 	occurrenceWillBeCancelled: 'Will be cancelled on save',
 	occurrenceWillBeDeleted: 'Will be deleted on save',
 	occurrenceCancelFailed: 'Could not cancel the date. Try again.',

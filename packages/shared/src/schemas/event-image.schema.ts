@@ -1,6 +1,6 @@
 import { z } from './openapi';
 import { MAX_EVENT_IMAGES } from '../constants/event-images.constant';
-import { CreateEventSchema } from './event.schema';
+import { CreateEventSchema, UpdateEventSchema } from './event.schema';
 
 // ============================================================
 // API: MULTIPART UPLOAD SCHEMAS
@@ -32,7 +32,7 @@ export const CreateEventMultipartPayloadSchema = CreateEventSchema.extend({
 	images: z.array(EventImageFileItemSchema).max(MAX_EVENT_IMAGES).default([]),
 }).openapi({ description: 'JSON payload field for POST /events (multipart)' });
 
-export const UpdateEventMultipartPayloadSchema = CreateEventSchema.partial()
+export const UpdateEventMultipartPayloadSchema = UpdateEventSchema
 	.extend({
 		images: z.array(EventImageItemSchema).max(MAX_EVENT_IMAGES),
 	})

@@ -99,6 +99,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, cancel it instead of deleting',
 	},
+	[AppErrorCode.OCCURRENCE_DATE_LOCKED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Occurrence has active bookings, its date cannot be moved',
+	},
 	[AppErrorCode.OCCURRENCES_HAVE_BOOKINGS]: {
 		status: HttpStatus.CONFLICT,
 		message:

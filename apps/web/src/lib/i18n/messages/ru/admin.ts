@@ -35,6 +35,7 @@ export const admin: Messages['admin'] = {
 	bookingDetails: 'Детали брони',
 	cancelOccurrence: 'Отменить дату',
 	reactivateOccurrence: 'Вернуть в активное состояние',
+	occurrenceDateLocked: 'Дату с бронями менять нельзя — отмените её или брони',
 	occurrenceWillBeCancelled: 'Будет отменена при сохранении',
 	occurrenceWillBeDeleted: 'Будет удалена при сохранении',
 	occurrenceCancelFailed: 'Не удалось отменить дату. Попробуйте ещё раз.',

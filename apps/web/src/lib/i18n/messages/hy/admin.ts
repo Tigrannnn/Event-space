@@ -35,6 +35,7 @@ export const admin: Messages['admin'] = {
 	bookingDetails: 'Ամրագրման մանրամասներ',
 	cancelOccurrence: 'Չեղարկել շրջանը',
 	reactivateOccurrence: 'Վերականգնել որպես ակտիվ',
+	occurrenceDateLocked: 'Ամրագրումներով ամսաթիվը չի տեղափոխվում՝ չեղարկեք այն կամ ամրագրումները',
 	occurrenceWillBeCancelled: 'Կչեղարկվի պահպանելիս',
 	occurrenceWillBeDeleted: 'Կջնջվի պահպանելիս',
 	occurrenceCancelFailed: 'Չհաջողվեց չեղարկել ամսաթիվը։ Փորձեք նորից։',
