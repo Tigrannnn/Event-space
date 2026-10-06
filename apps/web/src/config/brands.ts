@@ -213,6 +213,21 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Yerivar'),
 	},
+	'express.event-space.space': {
+		name: 'Express Tours',
+		colorPrimary: '#8C2A3C',
+		colorAccent: '#B08968',
+		description: siteConfig.description,
+		ogImage: '/brands/express-logo.png',
+		contact: {
+			phone: '+374 93 132525',
+			location: {
+				address: 'Azatutyan 24/19, Yerevan, Armenia',
+				mapsUrl: 'https://maps.google.com/?q=Azatutyan+24%2F19,+Yerevan,+Armenia',
+			},
+		},
+		about: placeholderAbout('Express Tours'),
+	},
 	'rstour.event-space.space': {
 		name: 'RS Tour',
 		colorPrimary: '#E6572D',
