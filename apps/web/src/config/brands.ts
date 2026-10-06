@@ -215,8 +215,8 @@ const brands: Record<string, Brand> = {
 	},
 	'express.event-space.space': {
 		name: 'Express Tours',
-		colorPrimary: '#8C2A3C',
-		colorAccent: '#B08968',
+		colorPrimary: '#85182c',
+		colorAccent: '#c2a86b',
 		description: siteConfig.description,
 		ogImage: '/brands/express-logo.png',
 		contact: {
