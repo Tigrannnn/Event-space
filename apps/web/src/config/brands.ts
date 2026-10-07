@@ -213,6 +213,23 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Yerivar'),
 	},
+	'ampar.event-space.space': {
+		name: 'Ampar',
+		colorPrimary: '#6055BE',
+		colorAccent: '#BD4A4B',
+		description: siteConfig.description,
+		ogImage: '/brands/ampar-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/ampar_travel',
+			phone: '+374 94 358075',
+			email: 'info@ampartravel.am',
+			location: {
+				address: 'ք. Երևան, Տիգրան Մեծ 40',
+				mapsUrl: 'https://maps.google.com/?q=Tigran+Mets+40,+Yerevan,+Armenia',
+			},
+		},
+		about: placeholderAbout('Ampar'),
+	},
 	'dilitour.event-space.space': {
 		name: 'Dili Tour',
 		colorPrimary: '#BE6926',
