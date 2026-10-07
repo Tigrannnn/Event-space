@@ -216,7 +216,7 @@ const brands: Record<string, Brand> = {
 	'dilitour.event-space.space': {
 		name: 'Dili Tour',
 		colorPrimary: '#BE6926',
-		colorAccent: '#BE8626',
+		colorAccent: '#BE4E26',
 		description: siteConfig.description,
 		ogImage: '/brands/dilitour-logo.png',
 		contact: {
