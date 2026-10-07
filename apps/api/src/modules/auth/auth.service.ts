@@ -20,7 +20,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { Prisma } from '@prisma/client';
+import { Prisma, type Locale } from '@prisma/client';
 import { AuthServiceResponse, JwtPayload, TokenServiceResponse } from './types';
 import { OAuth2Client } from 'google-auth-library';
 import { PrismaService } from '@infra/prisma/prisma.service';
@@ -98,7 +98,11 @@ export class AuthService {
 		};
 	}
 
-	private async generateAndSaveOtp(action: AuthAction, email: Email): Promise<string> {
+	private async generateAndSaveOtp(
+		action: AuthAction,
+		email: Email,
+		locale: Locale,
+	): Promise<string> {
 		const digits = AUTH_CONFIG.OTP.DIGITS;
 		const min = Math.pow(10, digits - 1);
 		const max = Math.pow(10, digits);
@@ -110,12 +114,12 @@ export class AuthService {
 
 		await this.rateLimiter.setCooldown(action, email);
 
-		await this.mail.sendVerificationCode(email, otp, action);
+		await this.mail.sendVerificationCode(email, otp, action, locale);
 
 		return otp;
 	}
 
-	async register(data: RegisterData, ip: string): Promise<RegisterResponse> {
+	async register(data: RegisterData, ip: string, locale: Locale): Promise<RegisterResponse> {
 		const { email, password, name } = data;
 		const action = AuthAction.REGISTER;
 
@@ -143,7 +147,7 @@ export class AuthService {
 			userId = newUser.id;
 		}
 
-		await this.generateAndSaveOtp(action, email);
+		await this.generateAndSaveOtp(action, email, locale);
 
 		return {
 			userId,
@@ -188,7 +192,7 @@ export class AuthService {
 		});
 	}
 
-	async resendCode(data: ResendCodeData): Promise<void> {
+	async resendCode(data: ResendCodeData, locale: Locale): Promise<void> {
 		const { action, email } = data;
 
 		await this.rateLimiter.validate(action, email, undefined, { checkCooldown: true });
@@ -197,7 +201,7 @@ export class AuthService {
 
 		if (!user) return;
 
-		await this.generateAndSaveOtp(action, email);
+		await this.generateAndSaveOtp(action, email, locale);
 	}
 
 	async login(data: LoginData, ip: string): Promise<AuthServiceResponse> {
@@ -361,7 +365,7 @@ export class AuthService {
 		});
 	}
 
-	async forgotPassword(data: ForgotPasswordData, ip: string): Promise<void> {
+	async forgotPassword(data: ForgotPasswordData, ip: string, locale: Locale): Promise<void> {
 		const { email } = data;
 		const action = AuthAction.RESET_PASSWORD;
 
@@ -376,7 +380,7 @@ export class AuthService {
 			return;
 		}
 
-		await this.generateAndSaveOtp(action, email);
+		await this.generateAndSaveOtp(action, email, locale);
 
 		return;
 	}

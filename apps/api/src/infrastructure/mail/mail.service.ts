@@ -1,87 +1,17 @@
-import { AppErrorCode, EnvKey } from '@event-space/shared';
+import { AppErrorCode, AuthAction, EnvKey } from '@event-space/shared';
 import { AppException } from '@shared';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Locale, PaymentMethod } from '@prisma/client';
 import * as nodemailer from 'nodemailer';
 import { MailTemplateService } from './mail-template.service';
-
-const BOOKING_CONFIRMATION_STRINGS: Record<
-	Locale,
-	{
-		subject: string;
-		title: string;
-		intro: string;
-		reference: string;
-		event: string;
-		location: string;
-		date: string;
-		quantity: string;
-		paymentMethod: string;
-		amount: string;
-		outro: string;
-		signature: string;
-		paymentMethodLabels: Record<PaymentMethod, string>;
-	}
-> = {
-	en: {
-		subject: 'Your booking confirmation',
-		title: 'Booking Confirmed',
-		intro: 'Thank you for your booking! Here are the details:',
-		reference: 'Reference',
-		event: 'Event',
-		location: 'Location',
-		date: 'Date',
-		quantity: 'Quantity',
-		paymentMethod: 'Payment method',
-		amount: 'Amount',
-		outro: 'We look forward to seeing you there.',
-		signature: 'The Event Space Team',
-		paymentMethodLabels: {
-			SITE_PAYMENT: 'Paid online',
-			OFFLINE_PAID: 'Paid offline',
-			PAY_ON_ARRIVAL: 'Pay on arrival',
-		},
-	},
-	ru: {
-		subject: 'Подтверждение бронирования',
-		title: 'Бронирование подтверждено',
-		intro: 'Спасибо за бронирование! Вот детали:',
-		reference: 'Номер брони',
-		event: 'Событие',
-		location: 'Место проведения',
-		date: 'Дата',
-		quantity: 'Количество мест',
-		paymentMethod: 'Способ оплаты',
-		amount: 'Сумма',
-		outro: 'Будем рады видеть вас на мероприятии.',
-		signature: 'Команда Event Space',
-		paymentMethodLabels: {
-			SITE_PAYMENT: 'Оплачено онлайн',
-			OFFLINE_PAID: 'Оплачено оффлайн',
-			PAY_ON_ARRIVAL: 'Оплата при прибытии',
-		},
-	},
-	hy: {
-		subject: 'Ամրագրման հաստատում',
-		title: 'Ամրագրումը հաստատված է',
-		intro: 'Շնորհակալություն ամրագրման համար! Ահա մանրամասները.',
-		reference: 'Համար',
-		event: 'Միջոցառում',
-		location: 'Վայրը',
-		date: 'Ամսաթիվ',
-		quantity: 'Քանակ',
-		paymentMethod: 'Վճարման եղանակ',
-		amount: 'Գումար',
-		outro: 'Կսպասենք ձեզ միջոցառմանը:',
-		signature: 'Event Space թիմ',
-		paymentMethodLabels: {
-			SITE_PAYMENT: 'Վճարված է առցանց',
-			OFFLINE_PAID: 'Վճարված է օֆլայն',
-			PAY_ON_ARRIVAL: 'Վճարում ժամանելուն պես',
-		},
-	},
-};
+import {
+	BOOKING_CONFIRMATION_STRINGS,
+	EVENT_CANCELLED_STRINGS,
+	VERIFICATION_STRINGS,
+	formatMailDate,
+	pickLocale,
+} from './mail-strings';
 
 @Injectable()
 export class MailService implements OnModuleInit {
@@ -175,17 +105,28 @@ export class MailService implements OnModuleInit {
 		});
 	}
 
-	async sendVerificationCode(email: string, code: string, action: string): Promise<void> {
+	async sendVerificationCode(
+		email: string,
+		code: string,
+		action: AuthAction,
+		locale: Locale,
+	): Promise<void> {
+		const strings = pickLocale(VERIFICATION_STRINGS, locale);
+		const actionLabel = strings.actions[action] ?? action;
+
 		const html = await this.templateService.render('verification', {
+			TITLE: strings.title,
+			INTRO: strings.intro(actionLabel),
 			CODE: code,
-			ACTION: action,
+			EXPIRY: strings.expiry,
+			IGNORE_NOTE: strings.ignoreNote,
 		});
 
 		try {
 			await this.deliver({
 				to: email,
-				subject: `Your verification code to ${action}`,
-				text: `Your verification code is: ${code}, Expires in 15 minutes.`,
+				subject: strings.subject,
+				text: `${strings.intro(actionLabel)} ${code}\n${strings.expiry}`,
 				html: html,
 			});
 		} catch (error) {
@@ -201,43 +142,56 @@ export class MailService implements OnModuleInit {
 		}
 	}
 
-	async sendEventCancelledEmail(
-		email: string,
-		userName: string,
-		eventTitle: string,
-		eventDate: Date,
-		refundAmount: string,
-		cancellationReason?: string,
-	): Promise<void> {
-		const formattedDate = eventDate.toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
+	async sendEventCancelledEmail(params: {
+		email: string;
+		userName: string;
+		eventTitle: string;
+		eventDate: Date;
+		refundAmount: string;
+		locale: Locale;
+		cancellationReason?: string;
+	}): Promise<void> {
+		const strings = pickLocale(EVENT_CANCELLED_STRINGS, params.locale);
+		const formattedDate = formatMailDate(params.eventDate, params.locale);
+		const reasonLine = params.cancellationReason
+			? strings.reason(params.cancellationReason)
+			: undefined;
 
 		const html = await this.templateService.render('event-cancelled', {
-			USER_NAME: userName,
-			EVENT_TITLE: eventTitle,
-			EVENT_DATE: formattedDate,
-			REFUND_AMOUNT: refundAmount,
-			CANCELLATION_REASON: cancellationReason || '',
+			TITLE: strings.title,
+			GREETING: strings.greeting(params.userName),
+			BODY: strings.body(params.eventTitle, formattedDate),
+			REASON_BLOCK: reasonLine
+				? `<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${reasonLine}</mj-text>`
+				: '',
+			REFUND: strings.refund(params.refundAmount),
+			SUPPORT: strings.support,
+			SIGNOFF: strings.signoff,
+			SIGNATURE: strings.signature,
 		});
 
 		try {
 			await this.deliver({
-				to: email,
-				subject: `Event Cancelled: ${eventTitle}`,
-				text: `Dear ${userName},\n\nWe regret to inform you that the event "${eventTitle}" scheduled for ${formattedDate} has been cancelled.\n${cancellationReason ? `Reason for cancellation: ${cancellationReason}\n` : ''}\nYou will receive a full refund of ${refundAmount} to your original payment method. The refund may take 5-10 business days to appear in your account.\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nThe Event Space Team`,
+				to: params.email,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					strings.greeting(params.userName),
+					strings.body(params.eventTitle, formattedDate),
+					reasonLine,
+					strings.refund(params.refundAmount),
+					strings.support,
+					`${strings.signoff} ${strings.signature}`,
+				]
+					.filter(Boolean)
+					.join('\n\n'),
 				html: html,
 			});
 		} catch (error) {
-			this.logSmtpError(`Failed to send event cancelled email to ${email}`, error);
+			this.logSmtpError(`Failed to send event cancelled email to ${params.email}`, error);
 
 			if (this.isDevOrTest()) {
 				this.logger.warn(
-					`[DEV] Event cancelled email for ${email}: event ${eventTitle}, refund ${refundAmount}`,
+					`[DEV] Event cancelled email for ${params.email}: event ${params.eventTitle}, refund ${params.refundAmount}`,
 				);
 			}
 		}
@@ -255,14 +209,8 @@ export class MailService implements OnModuleInit {
 		currency: string;
 		paymentMethod: PaymentMethod;
 	}): Promise<boolean> {
-		const strings = BOOKING_CONFIRMATION_STRINGS[params.locale] ?? BOOKING_CONFIRMATION_STRINGS.en;
-		const formattedDate = params.occurrenceDate.toLocaleDateString(params.locale, {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
+		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const formattedDate = formatMailDate(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const paymentMethodLabel =
 			strings.paymentMethodLabels[params.paymentMethod] ?? params.paymentMethod;

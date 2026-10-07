@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma, type Locale } from '@prisma/client';
+import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	AppErrorCode,
 	BookingWithEstimate,
@@ -32,7 +33,7 @@ export class BookingService {
 		private readonly mailService: MailService,
 	) {}
 
-	async create(userId: string, data: CreateBookingData) {
+	async create(userId: string, data: CreateBookingData, locale: Locale = DEFAULT_LOCALE) {
 		const { occurrenceId, quantity = 1, phone } = data;
 
 		const { booking, event, occurrence } = await this.prisma.$transaction(async (tx) => {
@@ -130,7 +131,7 @@ export class BookingService {
 					paymentIntent = existingIntent;
 					clientSecret = existingIntent.client_secret;
 				} else if (existingIntent.status === 'succeeded') {
-					const reconciled = await this.reconcilePayment(existingIntent.id, booking.id);
+					const reconciled = await this.reconcilePayment(existingIntent.id, booking.id, locale);
 					return {
 						booking: reconciled ?? booking,
 						clientSecret: null,
@@ -203,7 +204,11 @@ export class BookingService {
 		}
 	}
 
-	async reconcilePayment(paymentIntentId: string, bookingIdHint?: string) {
+	async reconcilePayment(
+		paymentIntentId: string,
+		bookingIdHint?: string,
+		locale: Locale = DEFAULT_LOCALE,
+	) {
 		const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
 		const amountReceived = paymentIntent.amount_received ?? paymentIntent.amount;
 
@@ -335,7 +340,7 @@ export class BookingService {
 		});
 
 		if (result.action === 'confirmed') {
-			await this.sendConfirmationSafely(result.booking.id);
+			await this.sendConfirmationSafely(result.booking.id, locale);
 		}
 
 		if (result.action === 'refund') {
@@ -377,7 +382,11 @@ export class BookingService {
 		return result.action === 'skipped' ? null : result.booking;
 	}
 
-	async createManualBooking(adminId: string, data: CreateManualBookingData) {
+	async createManualBooking(
+		adminId: string,
+		data: CreateManualBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+	) {
 		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email, phone } = data;
 
 		const result = await this.prisma.$transaction(async (tx) => {
@@ -506,7 +515,7 @@ export class BookingService {
 			}
 		}
 
-		await this.sendConfirmationSafely(result.booking.id);
+		await this.sendConfirmationSafely(result.booking.id, locale);
 
 		return {
 			...result.booking,
@@ -1019,7 +1028,7 @@ export class BookingService {
 		}
 	}
 
-	private async sendConfirmationSafely(bookingId: string): Promise<void> {
+	private async sendConfirmationSafely(bookingId: string, locale: Locale): Promise<void> {
 		try {
 			const claimed = await this.prisma.booking.updateMany({
 				where: { id: bookingId, confirmationSentAt: null },
@@ -1043,12 +1052,12 @@ export class BookingService {
 			}
 
 			const translation =
-				booking.occurrence.event.translations.find((t) => t.locale === 'en') ??
+				booking.occurrence.event.translations.find((t) => t.locale === locale) ??
 				booking.occurrence.event.translations[0];
 
 			await this.mailService.sendBookingConfirmation({
 				to: booking.user.email,
-				locale: 'en',
+				locale,
 				referenceNumber: booking.referenceNumber ?? 0,
 				eventTitle: translation?.title ?? '',
 				eventLocation: translation?.location,

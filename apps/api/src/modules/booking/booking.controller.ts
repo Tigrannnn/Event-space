@@ -9,10 +9,11 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { AppException, GetCurrentUserId, ZodValidationPipe } from '@shared';
+import { AppException, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
 import { AppErrorCode, CreateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
+import type { Locale } from '@prisma/client';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 
@@ -39,6 +40,7 @@ export class BookingController {
 	async create(
 		@GetCurrentUserId() userId: string,
 		@Body(new ZodValidationPipe(CreateBookingSchema)) data: CreateBookingData,
+		@GetLocale() locale: Locale,
 	) {
 		// Rate limit: max 10 booking attempts per minute
 		await this.rateLimiter.consumePerUser(
@@ -47,7 +49,7 @@ export class BookingController {
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
 		);
-		return this.bookingService.create(userId, data);
+		return this.bookingService.create(userId, data, locale);
 	}
 
 	@Get('my')
@@ -100,12 +102,16 @@ export class BookingController {
 	@ApiResponse({ status: 400, description: 'Booking has no payment intent to reconcile' })
 	@ApiResponse({ status: 404, description: 'Booking not found' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
-	async reconcilePayment(@GetCurrentUserId() userId: string, @Param('id') id: string) {
+	async reconcilePayment(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@GetLocale() locale: Locale,
+	) {
 		const booking = await this.bookingService.findOneForUser(userId, id);
 		if (!booking.paymentIntentId) {
 			throw new AppException(AppErrorCode.BOOKING_NO_PAYMENT_INTENT);
 		}
-		return this.bookingService.reconcilePayment(booking.paymentIntentId, booking.id);
+		return this.bookingService.reconcilePayment(booking.paymentIntentId, booking.id, locale);
 	}
 
 	// @Patch(':id')

@@ -14,7 +14,7 @@
 				padding="0px 0px 8px 0px"
 				css-class="text-main"
 			>
-				Verify your email
+				{{ TITLE }}
 			</mj-text>
 			<mj-text
 				align="center"
@@ -23,7 +23,7 @@
 				padding="0px 0px 32px 0px"
 				css-class="text-muted"
 			>
-				Enter this code to complete {{ ACTION }}:
+				{{ INTRO }}
 			</mj-text>
 			<mj-table padding="0px" container-background-color="#f0fdf9" css-class="code-box-table">
 				<tr>
@@ -56,7 +56,7 @@
 				padding="24px 0px 32px 0px"
 				css-class="text-muted"
 			>
-				Expires in 15 minutes
+				{{ EXPIRY }}
 			</mj-text>
 			<mj-divider border-width="1px" border-color="#e5e7eb" padding="0px" css-class="divider-color" />
 			<mj-text
@@ -66,7 +66,7 @@
 				padding="32px 0px 0px 0px"
 				css-class="text-muted"
 			>
-				If you didn't request this, you can safely ignore this email.
+				{{ IGNORE_NOTE }}
 			</mj-text>
 		</mj-column>
 	</mj-section>

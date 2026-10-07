@@ -9,6 +9,7 @@ import {
 	Ip,
 } from '@nestjs/common';
 import * as express from 'express';
+import type { Locale } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import {
@@ -34,7 +35,7 @@ import type {
 	ResetPasswordData,
 	VerifyEmailData,
 } from '@event-space/shared';
-import { AppException, GetCurrentUserId, ZodValidationPipe } from '@shared';
+import { AppException, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 
 @ApiTags('auth')
@@ -87,8 +88,9 @@ export class AuthController {
 	async register(
 		@Body(new ZodValidationPipe(RegisterSchema)) data: RegisterData,
 		@Ip() ip: string,
+		@GetLocale() locale: Locale,
 	): Promise<RegisterResponse> {
-		return this.authService.register(data, ip);
+		return this.authService.register(data, ip, locale);
 	}
 
 	@Post('verify-email')
@@ -115,8 +117,9 @@ export class AuthController {
 	@ApiBody(getReference('ResendCodeSchema'))
 	async resendCode(
 		@Body(new ZodValidationPipe(ResendCodeSchema)) data: ResendCodeData,
+		@GetLocale() locale: Locale,
 	): Promise<void> {
-		await this.authService.resendCode(data);
+		await this.authService.resendCode(data, locale);
 	}
 
 	@Post('login')
@@ -180,8 +183,9 @@ export class AuthController {
 	async forgotPassword(
 		@Body(new ZodValidationPipe(ForgotPasswordSchema)) data: ForgotPasswordData,
 		@Ip() ip: string,
+		@GetLocale() locale: Locale,
 	): Promise<void> {
-		await this.authService.forgotPassword(data, ip);
+		await this.authService.forgotPassword(data, ip, locale);
 	}
 
 	@Post('reset-password')

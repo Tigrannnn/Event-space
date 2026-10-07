@@ -3,6 +3,7 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { BookingService } from '../booking/booking.service';
 import { MailService } from '@infra/mail/mail.service';
+import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { AppErrorCode, CancelOccurrenceData } from '@event-space/shared';
 import { AppException } from '@shared';
 
@@ -65,20 +66,25 @@ export class OccurrenceService {
 			data: { status: 'CANCELLED', cancelledAt: new Date(), cancelReason: reason },
 		});
 
-		const eventTitle = occurrence.event.translations[0]?.title ?? 'Event';
+		const locale = DEFAULT_LOCALE;
+		const eventTitle =
+			occurrence.event.translations.find((t) => t.locale === locale)?.title ??
+			occurrence.event.translations[0]?.title ??
+			'Event';
 
 		for (const booking of bookingsSnapshot) {
 			if (booking.user?.email) {
 				// TODO: remove AMD hardcoding
 				const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
-				await this.mailService.sendEventCancelledEmail(
-					booking.user.email,
-					booking.user.name || 'User',
+				await this.mailService.sendEventCancelledEmail({
+					email: booking.user.email,
+					userName: booking.user.name || 'User',
 					eventTitle,
-					occurrence.date,
+					eventDate: occurrence.date,
 					refundAmount,
-					reason,
-				);
+					locale,
+					cancellationReason: reason,
+				});
 			}
 		}
 

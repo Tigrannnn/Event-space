@@ -26,6 +26,11 @@ const clientApi = axios.create({
 clientApi.interceptors.request.use((config) => {
 	config.baseURL = resolveBaseUrl();
 
+	if (typeof document !== 'undefined') {
+		const locale = document.documentElement.lang;
+		if (locale) config.headers.set('X-Locale', locale);
+	}
+
 	if (config.data instanceof FormData) {
 		// Let the browser set multipart boundary; a manual Content-Type breaks file uploads.
 		if (config.headers && typeof config.headers.delete === 'function') {
