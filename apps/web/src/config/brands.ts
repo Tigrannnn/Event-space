@@ -213,6 +213,20 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Yerivar'),
 	},
+	'dilitour.event-space.space': {
+		name: 'Dili Tour',
+		colorPrimary: '#BE6926',
+		colorAccent: '#BE8626',
+		description: siteConfig.description,
+		ogImage: '/brands/dilitour-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/dili_tours/',
+			phone: '+374 94 016966',
+			email: 'info@dilitour.am',
+			location: { address: 'Dilijan, Armenia', mapsUrl: 'https://maps.google.com/?q=Dilijan+Armenia' },
+		},
+		about: placeholderAbout('Dili Tour'),
+	},
 	'express.event-space.space': {
 		name: 'Express Tours',
 		colorPrimary: '#85182c',
