@@ -28,7 +28,7 @@ import { RedisService } from '@infra/redis/redis.service';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import { MailService } from '@infra/mail/mail.service';
 import { UserRoleType } from '@event-space/shared';
-import { AppException } from '@shared';
+import { AppException, DEFAULT_MAIL_LOCALE } from '@shared';
 
 @Injectable()
 export class AuthService {
@@ -101,7 +101,7 @@ export class AuthService {
 	private async generateAndSaveOtp(
 		action: AuthAction,
 		email: Email,
-		locale: Locale,
+		locale?: Locale,
 		brandHost?: string,
 	): Promise<string> {
 		const digits = AUTH_CONFIG.OTP.DIGITS;
@@ -115,9 +115,17 @@ export class AuthService {
 
 		await this.rateLimiter.setCooldown(action, email);
 
-		await this.prisma.user.updateMany({ where: { email }, data: { locale } });
+		if (locale) {
+			await this.prisma.user.updateMany({ where: { email }, data: { locale } });
+		}
 
-		await this.mail.sendVerificationCode(email, otp, action, locale, brandHost);
+		await this.mail.sendVerificationCode(
+			email,
+			otp,
+			action,
+			locale ?? DEFAULT_MAIL_LOCALE,
+			brandHost,
+		);
 
 		return otp;
 	}
@@ -125,7 +133,7 @@ export class AuthService {
 	async register(
 		data: RegisterData,
 		ip: string,
-		locale: Locale,
+		locale?: Locale,
 		brandHost?: string,
 	): Promise<RegisterResponse> {
 		const { email, password, name } = data;
@@ -200,7 +208,7 @@ export class AuthService {
 		});
 	}
 
-	async resendCode(data: ResendCodeData, locale: Locale, brandHost?: string): Promise<void> {
+	async resendCode(data: ResendCodeData, locale?: Locale, brandHost?: string): Promise<void> {
 		const { action, email } = data;
 
 		await this.rateLimiter.validate(action, email, undefined, { checkCooldown: true });
@@ -376,7 +384,7 @@ export class AuthService {
 	async forgotPassword(
 		data: ForgotPasswordData,
 		ip: string,
-		locale: Locale,
+		locale?: Locale,
 		brandHost?: string,
 	): Promise<void> {
 		const { email } = data;

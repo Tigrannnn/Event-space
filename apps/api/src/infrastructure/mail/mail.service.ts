@@ -13,6 +13,7 @@ import {
 	type MailBrand,
 } from './mail-brand';
 import {
+	BOOKING_CANCELLED_STRINGS,
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
 	escapeHtml,
@@ -329,6 +330,72 @@ export class MailService implements OnModuleInit {
 			return true;
 		} catch (error) {
 			this.logSmtpError(`Failed to send booking confirmation email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendBookingCancelledEmail(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		referenceNumber: number;
+		eventTitle: string;
+		occurrenceDate: Date;
+		refundAmount?: number;
+		refundFailed?: boolean;
+		nothingPaid?: boolean;
+		offlinePaid?: boolean;
+		currency: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(BOOKING_CANCELLED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
+		const body = strings.body(
+			params.eventTitle,
+			formatMailDate(params.occurrenceDate, params.locale),
+			referenceLabel,
+		);
+
+		const refundLine = params.refundFailed
+			? strings.refundPending
+			: params.refundAmount
+				? strings.refund(formatMailAmount(params.refundAmount, params.currency, params.locale))
+				: params.offlinePaid
+					? strings.offlineRefund
+					: params.nothingPaid
+						? strings.nothingPaid
+						: strings.noRefund;
+
+		try {
+			const html = await this.templateService.render('booking-cancelled', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				BODY: body,
+				REFUND: refundLine,
+				SUPPORT: strings.support,
+				SIGNOFF: strings.signoff,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					strings.greeting(params.userName),
+					body,
+					refundLine,
+					strings.support,
+					`${strings.signoff} ${brand.name}`,
+				].join('\n\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send booking cancelled email to ${params.to}`, error);
 			return false;
 		}
 	}

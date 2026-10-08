@@ -9,7 +9,13 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { AppException, GetBrandHost, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
+import {
+	AppException,
+	GetBrandHost,
+	GetCurrentUserId,
+	GetLocale,
+	ZodValidationPipe,
+} from '@shared';
 import { AppErrorCode, CreateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
@@ -40,7 +46,7 @@ export class BookingController {
 	async create(
 		@GetCurrentUserId() userId: string,
 		@Body(new ZodValidationPipe(CreateBookingSchema)) data: CreateBookingData,
-		@GetLocale() locale: Locale,
+		@GetLocale() locale: Locale | undefined,
 		@GetBrandHost() brandHost: string | undefined,
 	) {
 		// Rate limit: max 10 booking attempts per minute
@@ -83,7 +89,11 @@ export class BookingController {
 	@ApiResponse({ status: 404, description: 'Booking not found' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
 	@ApiResponse({ status: 429, description: 'Too many cancellation attempts' })
-	async cancel(@GetCurrentUserId() userId: string, @Param('id') id: string) {
+	async cancel(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@GetLocale() locale: Locale | undefined,
+	) {
 		// Rate limit: max 30 cancellation attempts per hour
 		await this.rateLimiter.consumePerUser(
 			`${BOOKING_CONFIG.KEY_PREFIX}:cancel`,
@@ -91,7 +101,7 @@ export class BookingController {
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
-		return this.bookingService.cancel(userId, id);
+		return this.bookingService.cancel(userId, id, locale);
 	}
 
 	@Post(':id/reconcile-payment')
@@ -106,7 +116,7 @@ export class BookingController {
 	async reconcilePayment(
 		@GetCurrentUserId() userId: string,
 		@Param('id') id: string,
-		@GetLocale() locale: Locale,
+		@GetLocale() locale: Locale | undefined,
 	) {
 		const booking = await this.bookingService.findOneForUser(userId, id);
 		if (!booking.paymentIntentId) {

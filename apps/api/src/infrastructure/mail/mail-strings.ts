@@ -107,6 +107,72 @@ export const EVENT_CANCELLED_STRINGS: Record<Locale, EventCancelledStrings> = {
 	},
 };
 
+interface BookingCancelledStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	body: (eventTitle: string, eventDate: string, reference: string) => string;
+	refund: (amount: string) => string;
+	noRefund: string;
+	nothingPaid: string;
+	offlineRefund: string;
+	refundPending: string;
+	support: string;
+	signoff: string;
+}
+
+export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> = {
+	en: {
+		subject: (eventTitle) => `Booking cancelled: ${eventTitle}`,
+		title: 'Booking cancelled',
+		greeting: (userName) => `Dear ${userName},`,
+		body: (eventTitle, eventDate, reference) =>
+			`Booking ${reference} for "${eventTitle}" on ${eventDate} has been cancelled at your request.`,
+		refund: (amount) =>
+			`A refund of ${amount} is on its way back to the card you paid with. It usually takes 5–10 business days to appear.`,
+		noRefund: 'Under the cancellation terms for this tour, this cancellation is not refundable.',
+		nothingPaid: 'Nothing was paid for this booking, so there is nothing to refund.',
+		offlineRefund:
+			'The payment you made in person is refunded by the company — reply to this email and we will arrange it.',
+		refundPending:
+			'The refund could not be processed automatically. We are looking into it and will get back to you.',
+		support: 'If you cancelled by mistake, just reply to this email — we will sort it out.',
+		signoff: 'Best regards,',
+	},
+	ru: {
+		subject: (eventTitle) => `Бронь отменена: ${eventTitle}`,
+		title: 'Бронь отменена',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		body: (eventTitle, eventDate, reference) =>
+			`Бронь ${reference} на тур «${eventTitle}» ${eventDate} отменена по вашей просьбе.`,
+		refund: (amount) =>
+			`Возврат ${amount} отправлен на карту, с которой была оплата. Обычно деньги приходят за 5–10 рабочих дней.`,
+		noRefund: 'По условиям отмены этого тура возврат не предусмотрен.',
+		nothingPaid: 'Оплата по этой брони не проходила, возвращать нечего.',
+		offlineRefund:
+			'Оплату, внесённую на месте, возвращает компания — ответьте на это письмо, и мы всё оформим.',
+		refundPending: 'Возврат не удалось провести автоматически. Мы разбираемся и свяжемся с вами.',
+		support: 'Если отменили случайно — просто ответьте на это письмо, всё вернём.',
+		signoff: 'С уважением,',
+	},
+	hy: {
+		subject: (eventTitle) => `Ամրագրումը չեղարկված է՝ ${eventTitle}`,
+		title: 'Ամրագրումը չեղարկված է',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		body: (eventTitle, eventDate, reference) =>
+			`${reference} ամրագրումը «${eventTitle}» տուրի համար ${eventDate}-ին չեղարկվել է Ձեր խնդրանքով։`,
+		refund: (amount) =>
+			`${amount} գումարը վերադարձվում է այն քարտին, որով վճարել եք։ Սովորաբար դա տևում է 5–10 աշխատանքային օր։`,
+		noRefund: 'Այս տուրի չեղարկման պայմաններով գումարը չի վերադարձվում։',
+		nothingPaid: 'Այս ամրագրման համար վճարում չի կատարվել, վերադարձնելու բան չկա։',
+		offlineRefund:
+			'Տեղում կատարված վճարումը վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։',
+		refundPending: 'Վերադարձը չհաջողվեց կատարել ավտոմատ։ Մենք ճշտում ենք և կկապվենք Ձեզ հետ։',
+		support: 'Եթե չեղարկել եք սխալմամբ, պարզապես պատասխանեք այս նամակին՝ կվերականգնենք։',
+		signoff: 'Հարգանքով՝',
+	},
+};
+
 interface BookingConfirmationStrings {
 	subject: string;
 	title: string;

@@ -586,7 +586,7 @@ export class BookingService {
 						refundPercentage: 0,
 						estimatedStripeFeeInCents: 0,
 						estimatedRefundInCents: 0,
-					} as BookingWithEstimate;
+					};
 				}
 
 				let stripeFeeInCents = 0;
@@ -623,7 +623,7 @@ export class BookingService {
 					refundPercentage,
 					estimatedStripeFeeInCents,
 					estimatedRefundInCents,
-				} as BookingWithEstimate;
+				};
 			}),
 		);
 
@@ -639,61 +639,87 @@ export class BookingService {
 		return booking;
 	}
 
-	async cancel(userId: string, bookingId: string) {
-		const { booking, occurrence, event } = await this.prisma.$transaction(async (tx) => {
-			const currentBooking = await tx.booking.findUnique({
-				where: { id: bookingId },
-				include: {
-					occurrence: {
-						include: {
-							event: {
-								include: {
-									cancellationRules: true,
-									translations: true,
-									category: { include: { translations: true } },
-									occurrences: true,
+	async cancel(userId: string, bookingId: string, locale?: Locale) {
+		const { booking, occurrence, event, user, alreadyCancelled } = await this.prisma.$transaction(
+			async (tx) => {
+				const currentBooking = await tx.booking.findUnique({
+					where: { id: bookingId },
+					include: {
+						user: true,
+						occurrence: {
+							include: {
+								event: {
+									include: {
+										cancellationRules: true,
+										translations: true,
+										category: { include: { translations: true } },
+										occurrences: true,
+									},
 								},
 							},
 						},
 					},
-				},
-			});
+				});
 
-			if (!currentBooking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-			if (currentBooking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
-			// The tour has been attended; only an admin can still cancel it.
-			if (currentBooking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
-			if (currentBooking.status === 'CANCELLED') {
+				if (!currentBooking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+				if (currentBooking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+				// The tour has been attended; only an admin can still cancel it.
+				if (currentBooking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
+
+				if (locale) {
+					await tx.user.update({ where: { id: userId }, data: { locale } });
+				}
+
+				if (currentBooking.status === 'CANCELLED') {
+					return {
+						booking: currentBooking,
+						occurrence: currentBooking.occurrence,
+						event: currentBooking.occurrence?.event,
+						user: currentBooking.user,
+						alreadyCancelled: true,
+					};
+				}
+
+				if (currentBooking.status === 'CONFIRMED') {
+					await tx.eventOccurrence.updateMany({
+						where: {
+							id: currentBooking.occurrenceId,
+							currentParticipants: { gte: currentBooking.quantity },
+						},
+						data: { currentParticipants: { decrement: currentBooking.quantity } },
+					});
+				}
+
+				const updatedBooking = await tx.booking.update({
+					where: { id: bookingId },
+					data: { status: 'CANCELLED' },
+				});
+
 				return {
-					booking: currentBooking,
+					booking: updatedBooking,
 					occurrence: currentBooking.occurrence,
 					event: currentBooking.occurrence?.event,
+					user: currentBooking.user,
+					alreadyCancelled: false,
 				};
-			}
+			},
+		);
 
-			if (currentBooking.status === 'CONFIRMED') {
-				await tx.eventOccurrence.updateMany({
-					where: {
-						id: currentBooking.occurrenceId,
-						currentParticipants: { gte: currentBooking.quantity },
-					},
-					data: { currentParticipants: { decrement: currentBooking.quantity } },
-				});
-			}
-
-			const updatedBooking = await tx.booking.update({
-				where: { id: bookingId },
-				data: { status: 'CANCELLED' },
-			});
-
-			return {
-				booking: updatedBooking,
-				occurrence: currentBooking.occurrence,
-				event: currentBooking.occurrence?.event,
-			};
-		});
+		if (alreadyCancelled) {
+			return booking;
+		}
 
 		if (!booking.paymentIntentId || Number(booking.amount) === 0) {
+			await this.sendCancellationSafely({
+				booking,
+				event,
+				occurrence,
+				user,
+				locale,
+				offlinePaid: booking.paymentMethod === 'OFFLINE_PAID',
+				nothingPaid: booking.paymentMethod !== 'OFFLINE_PAID',
+			});
+
 			return booking;
 		}
 
@@ -798,7 +824,58 @@ export class BookingService {
 			});
 		}
 
+		await this.sendCancellationSafely({
+			booking,
+			event,
+			occurrence,
+			user,
+			locale,
+			refundAmount: refundResult ? refundResult.amount / 100 : undefined,
+			refundFailed,
+		});
+
 		return booking;
+	}
+
+	private async sendCancellationSafely(params: {
+		booking: { referenceNumber: number | null; brandHost: string | null };
+		event?: { translations: { locale: Locale; title: string }[] } | null;
+		occurrence?: { date: Date } | null;
+		user: { email: string | null; name: string; locale: Locale | null };
+		locale?: Locale;
+		refundAmount?: number;
+		refundFailed?: boolean;
+		nothingPaid?: boolean;
+		offlinePaid?: boolean;
+	}): Promise<void> {
+		const { booking, event, occurrence, user } = params;
+
+		if (!user.email || !event || !occurrence) {
+			return;
+		}
+
+		const mailLocale = user.locale ?? params.locale ?? DEFAULT_LOCALE;
+		const translation =
+			event.translations.find((t) => t.locale === mailLocale) ?? event.translations[0];
+
+		try {
+			await this.mailService.sendBookingCancelledEmail({
+				to: user.email,
+				locale: mailLocale,
+				userName: user.name,
+				referenceNumber: booking.referenceNumber ?? 0,
+				eventTitle: translation?.title ?? '',
+				occurrenceDate: occurrence.date,
+				refundAmount: params.refundAmount,
+				refundFailed: params.refundFailed,
+				nothingPaid: params.nothingPaid,
+				offlinePaid: params.offlinePaid,
+				currency: 'AMD',
+				brandHost: booking.brandHost ?? undefined,
+			});
+		} catch (error) {
+			this.logger.error('Failed to send booking cancelled email', error as Error);
+		}
 	}
 
 	async cancelEventBookings(eventId: string): Promise<void> {

@@ -88,7 +88,7 @@ export class AuthController {
 	async register(
 		@Body(new ZodValidationPipe(RegisterSchema)) data: RegisterData,
 		@Ip() ip: string,
-		@GetLocale() locale: Locale,
+		@GetLocale() locale: Locale | undefined,
 		@GetBrandHost() brandHost: string | undefined,
 	): Promise<RegisterResponse> {
 		return this.authService.register(data, ip, locale, brandHost);
@@ -118,7 +118,7 @@ export class AuthController {
 	@ApiBody(getReference('ResendCodeSchema'))
 	async resendCode(
 		@Body(new ZodValidationPipe(ResendCodeSchema)) data: ResendCodeData,
-		@GetLocale() locale: Locale,
+		@GetLocale() locale: Locale | undefined,
 		@GetBrandHost() brandHost: string | undefined,
 	): Promise<void> {
 		await this.authService.resendCode(data, locale, brandHost);
@@ -185,7 +185,7 @@ export class AuthController {
 	async forgotPassword(
 		@Body(new ZodValidationPipe(ForgotPasswordSchema)) data: ForgotPasswordData,
 		@Ip() ip: string,
-		@GetLocale() locale: Locale,
+		@GetLocale() locale: Locale | undefined,
 		@GetBrandHost() brandHost: string | undefined,
 	): Promise<void> {
 		await this.authService.forgotPassword(data, ip, locale, brandHost);
