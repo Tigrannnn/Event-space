@@ -198,12 +198,6 @@ export default function EventsList({
 				isEnabled={hasNextPage}
 				loadMoreRef={loadMoreRef}
 			/>
-
-			{!hasNextPage && filteredEvents.length > 0 && (
-				<div className="col-span-full py-8 text-center text-sm text-gray-400 dark:text-gray-500">
-					{translate('common.noEventsDescription')}
-				</div>
-			)}
 		</div>
 	);
 }
