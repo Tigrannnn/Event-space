@@ -38,7 +38,6 @@
 			{{ NOTE_BLOCK }}
 			{{ INCLUDED_BLOCK }}
 			{{ CANCELLATION_BLOCK }}
-			{{ ACTIONS_BLOCK }}
 			<mj-text
 				align="left"
 				font-size="15px"

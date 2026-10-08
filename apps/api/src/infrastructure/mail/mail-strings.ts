@@ -128,8 +128,6 @@ interface BookingConfirmationStrings {
 	cancellationRule: (hours: number, percent: number) => string;
 	cancellationNone: string;
 	bringCash: (amount: string) => string;
-	addToCalendar: string;
-	myBookings: string;
 	outro: string;
 	signature: string;
 	paymentMethodLabels: Record<PaymentMethod, string>;
@@ -158,8 +156,6 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 			`More than ${hours} h before the start — ${percent}% refunded`,
 		cancellationNone: 'Cancellation is not refundable.',
 		bringCash: (amount) => `Payment on arrival: please bring ${amount}.`,
-		addToCalendar: 'Add to calendar',
-		myBookings: 'My bookings',
 		outro: 'We look forward to seeing you there.',
 		signature: 'The Event Space Team',
 		paymentMethodLabels: {
@@ -189,8 +185,6 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		cancellationRule: (hours, percent) => `Более чем за ${hours} ч до начала — возврат ${percent}%`,
 		cancellationNone: 'Возврат при отмене не предусмотрен.',
 		bringCash: (amount) => `Оплата при встрече: возьмите с собой ${amount}.`,
-		addToCalendar: 'Добавить в календарь',
-		myBookings: 'Мои брони',
 		outro: 'Будем рады видеть вас на мероприятии.',
 		signature: 'Команда Event Space',
 		paymentMethodLabels: {
@@ -221,8 +215,6 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 			`Մեկնարկից ${hours} ժամ առաջ և ավելի՝ վերադարձվում է ${percent}%`,
 		cancellationNone: 'Չեղարկման դեպքում գումարը չի վերադարձվում։',
 		bringCash: (amount) => `Վճարում ժամանելուն պես՝ վերցրեք ${amount}։`,
-		addToCalendar: 'Ավելացնել օրացույցում',
-		myBookings: 'Իմ ամրագրումները',
 		outro: 'Կսպասենք ձեզ միջոցառմանը:',
 		signature: 'Event Space թիմ',
 		paymentMethodLabels: {

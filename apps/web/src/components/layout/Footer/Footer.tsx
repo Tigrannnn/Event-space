@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
@@ -9,6 +10,9 @@ export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const locale = translate.locale;
+	const pathname = usePathname();
+
+	if (pathname.includes('/admin')) return null;
 
 	return (
 		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900">

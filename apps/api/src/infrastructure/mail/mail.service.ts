@@ -313,7 +313,6 @@ export class MailService implements OnModuleInit {
 						: '',
 				INCLUDED_BLOCK: this.buildListBlock(strings.included, params.whatsIncluded ?? []),
 				CANCELLATION_BLOCK: this.buildListBlock(strings.cancellationTitle, cancellationLines),
-				ACTIONS_BLOCK: this.buildActionsBlock(strings, params, brand),
 				OUTRO: strings.outro,
 				SIGNATURE: brand.name,
 			});
@@ -386,59 +385,5 @@ export class MailService implements OnModuleInit {
 			`<strong>${escapeHtml(title)}</strong><ul style="margin: 8px 0 0; padding-left: 18px;">${list}</ul>` +
 			'</mj-text>'
 		);
-	}
-
-	private buildActionsBlock(
-		strings: { addToCalendar: string; myBookings: string; event: string },
-		params: {
-			locale: Locale;
-			eventTitle: string;
-			occurrenceDate: Date;
-			durationMinutes?: number;
-			meetingLocation?: string;
-		},
-		brand: MailBrand,
-	): string {
-		const siteUrl = brand.siteUrl;
-		const links: string[] = [];
-
-		const calendarUrl = this.buildCalendarUrl(params);
-		if (calendarUrl) {
-			links.push(
-				`<a href="${escapeHtml(calendarUrl)}" style="color: #00a5ba;">${escapeHtml(strings.addToCalendar)}</a>`,
-			);
-		}
-
-		if (siteUrl) {
-			links.push(
-				`<a href="${escapeHtml(`${siteUrl}/${params.locale}/bookings`)}" style="color: #00a5ba;">${escapeHtml(strings.myBookings)}</a>`,
-			);
-		}
-
-		if (!links.length) return '';
-
-		return (
-			'<mj-text align="left" font-size="14px" padding="0px 0px 20px 0px">' +
-			links.join(' &nbsp;·&nbsp; ') +
-			'</mj-text>'
-		);
-	}
-
-	private buildCalendarUrl(params: {
-		eventTitle: string;
-		occurrenceDate: Date;
-		durationMinutes?: number;
-		meetingLocation?: string;
-	}): string {
-		const stamp = (date: Date) => date.toISOString().replace(/[-:]|\.\d{3}/g, '');
-		const end = new Date(params.occurrenceDate.getTime() + (params.durationMinutes ?? 120) * 60_000);
-		const query = new URLSearchParams({
-			action: 'TEMPLATE',
-			text: params.eventTitle,
-			dates: `${stamp(params.occurrenceDate)}/${stamp(end)}`,
-			...(params.meetingLocation ? { location: params.meetingLocation } : {}),
-		});
-
-		return `https://calendar.google.com/calendar/render?${query.toString()}`;
 	}
 }
