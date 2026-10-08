@@ -142,9 +142,9 @@ const brands: Record<string, Brand> = {
 	'onedaytour.event-space.space': {
 		name: 'One Day Tour',
 		colorPrimary: '#2d68a6',
-		colorAccent: '#d59d3d',
+		colorAccent: '#cc8100',
 		description: siteConfig.description,
-		ogImage: '/brands/onedaytour-logo.jpg',
+		ogImage: '/brands/onedaytour-logo.png',
 		contact: {
 			instagram: 'https://instagram.com/one_day_tour_armenia',
 			phone: '+374 91 967636',
