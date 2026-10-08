@@ -7,6 +7,10 @@ import * as nodemailer from 'nodemailer';
 import { MailTemplateService } from './mail-template.service';
 import {
 	BOOKING_CONFIRMATION_STRINGS,
+	escapeHtml,
+	formatMailAmount,
+	formatMailDay,
+	formatMailTime,
 	EVENT_CANCELLED_STRINGS,
 	VERIFICATION_STRINGS,
 	formatMailDate,
@@ -201,39 +205,80 @@ export class MailService implements OnModuleInit {
 		to: string;
 		locale: Locale;
 		referenceNumber: number;
+		userName: string;
+		bookedAt: Date;
 		eventTitle: string;
 		eventLocation?: string;
+		meetingLocation?: string;
+		meetingLocationUrl?: string;
 		occurrenceDate: Date;
+		durationMinutes?: number;
 		quantity: number;
 		amount: number;
 		currency: string;
 		paymentMethod: PaymentMethod;
+		whatsIncluded?: string[];
+		cancellationRules?: { hoursBeforeEvent: number; refundPercentage: number }[];
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const formattedDate = formatMailDate(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const paymentMethodLabel =
 			strings.paymentMethodLabels[params.paymentMethod] ?? params.paymentMethod;
+		const totalAmount = formatMailAmount(params.amount, params.currency, params.locale);
+		const timeRange = this.buildTimeRange(
+			params.occurrenceDate,
+			params.durationMinutes,
+			params.locale,
+		);
+
+		const rows: [string, string][] = [
+			[strings.reference, referenceLabel],
+			[strings.event, params.eventTitle],
+			[strings.location, params.eventLocation || '—'],
+			[strings.date, timeRange ? formatMailDay(params.occurrenceDate, params.locale) : formattedDate],
+			...(timeRange ? ([[strings.time, timeRange]] as [string, string][]) : []),
+			[strings.quantity, String(params.quantity)],
+			[strings.bookedBy, params.userName],
+			[strings.bookedAt, formatMailDate(params.bookedAt, params.locale)],
+			[strings.paymentMethod, paymentMethodLabel],
+			[strings.amount, totalAmount],
+		];
+
+		const cancellationLines = (params.cancellationRules ?? [])
+			.slice()
+			.sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent)
+			.map((rule) => strings.cancellationRule(rule.hoursBeforeEvent, rule.refundPercentage));
+
+		const textLines = [
+			strings.title,
+			'',
+			...rows.map(([label, value]) => `${label}: ${value}`),
+			...(params.meetingLocation ? ['', `${strings.meetingPoint}: ${params.meetingLocation}`] : []),
+			...(params.meetingLocationUrl ? [params.meetingLocationUrl] : []),
+			...(params.paymentMethod === 'PAY_ON_ARRIVAL' ? ['', strings.bringCash(totalAmount)] : []),
+			...(params.whatsIncluded?.length
+				? ['', `${strings.included}:`, ...params.whatsIncluded.map((item) => `— ${item}`)]
+				: []),
+			...(cancellationLines.length ? ['', `${strings.cancellationTitle}:`, ...cancellationLines] : []),
+			'',
+			strings.outro,
+			strings.signature,
+		];
 
 		try {
 			const html = await this.templateService.render('booking-confirmation', {
 				TITLE: strings.title,
 				INTRO: strings.intro,
-				LABEL_REFERENCE: strings.reference,
-				REFERENCE_NUMBER: referenceLabel,
-				LABEL_EVENT: strings.event,
-				EVENT_TITLE: params.eventTitle,
-				LABEL_LOCATION: strings.location,
-				EVENT_LOCATION: params.eventLocation || '—',
-				LABEL_DATE: strings.date,
-				OCCURRENCE_DATE: formattedDate,
-				LABEL_QUANTITY: strings.quantity,
-				QUANTITY: String(params.quantity),
-				LABEL_PAYMENT_METHOD: strings.paymentMethod,
-				PAYMENT_METHOD: paymentMethodLabel,
-				LABEL_AMOUNT: strings.amount,
-				AMOUNT: params.amount.toFixed(2),
-				CURRENCY: params.currency,
+				HIGHLIGHT_BLOCK: this.buildMeetingBlock(strings, params),
+				DETAILS_ROWS: this.buildDetailRows(rows),
+				NOTE_BLOCK:
+					params.paymentMethod === 'PAY_ON_ARRIVAL'
+						? this.buildNoteBlock(strings.bringCash(totalAmount))
+						: '',
+				INCLUDED_BLOCK: this.buildListBlock(strings.included, params.whatsIncluded ?? []),
+				CANCELLATION_BLOCK: this.buildListBlock(strings.cancellationTitle, cancellationLines),
+				ACTIONS_BLOCK: this.buildActionsBlock(strings, params),
 				OUTRO: strings.outro,
 				SIGNATURE: strings.signature,
 			});
@@ -241,7 +286,7 @@ export class MailService implements OnModuleInit {
 			await this.deliver({
 				to: params.to,
 				subject: strings.subject,
-				text: `${strings.title}\n\n${strings.reference}: ${referenceLabel}\n${strings.event}: ${params.eventTitle}\n${strings.date}: ${formattedDate}\n${strings.quantity}: ${params.quantity}\n${strings.paymentMethod}: ${paymentMethodLabel}\n${strings.amount}: ${params.amount.toFixed(2)} ${params.currency}`,
+				text: textLines.join('\n'),
 				html,
 			});
 
@@ -250,5 +295,113 @@ export class MailService implements OnModuleInit {
 			this.logSmtpError(`Failed to send booking confirmation email to ${params.to}`, error);
 			return false;
 		}
+	}
+
+	private buildTimeRange(start: Date, durationMinutes: number | undefined, locale: Locale): string {
+		const startLabel = formatMailTime(start, locale);
+		if (!durationMinutes) return startLabel;
+
+		const end = new Date(start.getTime() + durationMinutes * 60_000);
+		return `${startLabel} — ${formatMailTime(end, locale)}`;
+	}
+
+	private buildDetailRows(rows: [string, string][]): string {
+		return rows
+			.map(
+				([label, value], index) =>
+					`<tr style="${index < rows.length - 1 ? 'border-bottom: 1px solid #e5e7eb; ' : ''}text-align: left;">` +
+					`<td style="padding: 8px 0; font-weight: 600;">${escapeHtml(label)}</td>` +
+					`<td style="padding: 8px 0;">${escapeHtml(value)}</td></tr>`,
+			)
+			.join('');
+	}
+
+	private buildMeetingBlock(
+		strings: { meetingPoint: string; openMap: string },
+		params: { meetingLocation?: string; meetingLocationUrl?: string },
+	): string {
+		if (!params.meetingLocation && !params.meetingLocationUrl) return '';
+
+		const link = params.meetingLocationUrl
+			? `<br /><a href="${escapeHtml(params.meetingLocationUrl)}" style="color: #00a5ba;">${escapeHtml(strings.openMap)}</a>`
+			: '';
+
+		return (
+			'<mj-text align="left" font-size="15px" color="#111827" padding="0px 0px 20px 0px" css-class="text-main">' +
+			`<strong>${escapeHtml(strings.meetingPoint)}:</strong> ${escapeHtml(params.meetingLocation ?? '')}${link}` +
+			'</mj-text>'
+		);
+	}
+
+	private buildNoteBlock(note: string): string {
+		return (
+			'<mj-text align="left" font-size="15px" color="#b45309" padding="0px 0px 20px 0px">' +
+			escapeHtml(note) +
+			'</mj-text>'
+		);
+	}
+
+	private buildListBlock(title: string, items: string[]): string {
+		if (!items.length) return '';
+
+		const list = items.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+		return (
+			'<mj-text align="left" font-size="14px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">' +
+			`<strong>${escapeHtml(title)}</strong><ul style="margin: 8px 0 0; padding-left: 18px;">${list}</ul>` +
+			'</mj-text>'
+		);
+	}
+
+	private buildActionsBlock(
+		strings: { addToCalendar: string; myBookings: string; event: string },
+		params: {
+			locale: Locale;
+			eventTitle: string;
+			occurrenceDate: Date;
+			durationMinutes?: number;
+			meetingLocation?: string;
+		},
+	): string {
+		const siteUrl = (this.config.get<string>(EnvKey.FRONTEND_URL) ?? '').replace(/\/+$/, '');
+		const links: string[] = [];
+
+		const calendarUrl = this.buildCalendarUrl(params);
+		if (calendarUrl) {
+			links.push(
+				`<a href="${escapeHtml(calendarUrl)}" style="color: #00a5ba;">${escapeHtml(strings.addToCalendar)}</a>`,
+			);
+		}
+
+		if (siteUrl) {
+			links.push(
+				`<a href="${escapeHtml(`${siteUrl}/${params.locale}/bookings`)}" style="color: #00a5ba;">${escapeHtml(strings.myBookings)}</a>`,
+			);
+		}
+
+		if (!links.length) return '';
+
+		return (
+			'<mj-text align="left" font-size="14px" padding="0px 0px 20px 0px">' +
+			links.join(' &nbsp;·&nbsp; ') +
+			'</mj-text>'
+		);
+	}
+
+	private buildCalendarUrl(params: {
+		eventTitle: string;
+		occurrenceDate: Date;
+		durationMinutes?: number;
+		meetingLocation?: string;
+	}): string {
+		const stamp = (date: Date) => date.toISOString().replace(/[-:]|\.\d{3}/g, '');
+		const end = new Date(params.occurrenceDate.getTime() + (params.durationMinutes ?? 120) * 60_000);
+		const query = new URLSearchParams({
+			action: 'TEMPLATE',
+			text: params.eventTitle,
+			dates: `${stamp(params.occurrenceDate)}/${stamp(end)}`,
+			...(params.meetingLocation ? { location: params.meetingLocation } : {}),
+		});
+
+		return `https://calendar.google.com/calendar/render?${query.toString()}`;
 	}
 }

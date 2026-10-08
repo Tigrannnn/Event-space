@@ -115,9 +115,21 @@ interface BookingConfirmationStrings {
 	event: string;
 	location: string;
 	date: string;
+	time: string;
 	quantity: string;
+	bookedBy: string;
+	bookedAt: string;
 	paymentMethod: string;
 	amount: string;
+	meetingPoint: string;
+	openMap: string;
+	included: string;
+	cancellationTitle: string;
+	cancellationRule: (hours: number, percent: number) => string;
+	cancellationNone: string;
+	bringCash: (amount: string) => string;
+	addToCalendar: string;
+	myBookings: string;
 	outro: string;
 	signature: string;
 	paymentMethodLabels: Record<PaymentMethod, string>;
@@ -132,9 +144,22 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		event: 'Event',
 		location: 'Location',
 		date: 'Date',
+		time: 'Time',
 		quantity: 'Quantity',
+		bookedBy: 'Booked by',
+		bookedAt: 'Booked on',
 		paymentMethod: 'Payment method',
 		amount: 'Amount',
+		meetingPoint: 'Meeting point',
+		openMap: 'Open in maps',
+		included: "What's included",
+		cancellationTitle: 'Cancellation',
+		cancellationRule: (hours, percent) =>
+			`More than ${hours} h before the start — ${percent}% refunded`,
+		cancellationNone: 'Cancellation is not refundable.',
+		bringCash: (amount) => `Payment on arrival: please bring ${amount}.`,
+		addToCalendar: 'Add to calendar',
+		myBookings: 'My bookings',
 		outro: 'We look forward to seeing you there.',
 		signature: 'The Event Space Team',
 		paymentMethodLabels: {
@@ -151,9 +176,21 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		event: 'Событие',
 		location: 'Место проведения',
 		date: 'Дата',
+		time: 'Время',
 		quantity: 'Количество мест',
+		bookedBy: 'Кто бронировал',
+		bookedAt: 'Дата брони',
 		paymentMethod: 'Способ оплаты',
 		amount: 'Сумма',
+		meetingPoint: 'Место сбора',
+		openMap: 'Открыть на карте',
+		included: 'Что входит',
+		cancellationTitle: 'Отмена брони',
+		cancellationRule: (hours, percent) => `Более чем за ${hours} ч до начала — возврат ${percent}%`,
+		cancellationNone: 'Возврат при отмене не предусмотрен.',
+		bringCash: (amount) => `Оплата при встрече: возьмите с собой ${amount}.`,
+		addToCalendar: 'Добавить в календарь',
+		myBookings: 'Мои брони',
 		outro: 'Будем рады видеть вас на мероприятии.',
 		signature: 'Команда Event Space',
 		paymentMethodLabels: {
@@ -170,9 +207,22 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		event: 'Միջոցառում',
 		location: 'Վայրը',
 		date: 'Ամսաթիվ',
+		time: 'Ժամը',
 		quantity: 'Քանակ',
+		bookedBy: 'Ամրագրել է',
+		bookedAt: 'Ամրագրման ամսաթիվ',
 		paymentMethod: 'Վճարման եղանակ',
 		amount: 'Գումար',
+		meetingPoint: 'Հավաքատեղի',
+		openMap: 'Բացել քարտեզում',
+		included: 'Ինչ է ներառված',
+		cancellationTitle: 'Չեղարկում',
+		cancellationRule: (hours, percent) =>
+			`Մեկնարկից ${hours} ժամ առաջ և ավելի՝ վերադարձվում է ${percent}%`,
+		cancellationNone: 'Չեղարկման դեպքում գումարը չի վերադարձվում։',
+		bringCash: (amount) => `Վճարում ժամանելուն պես՝ վերցրեք ${amount}։`,
+		addToCalendar: 'Ավելացնել օրացույցում',
+		myBookings: 'Իմ ամրագրումները',
 		outro: 'Կսպասենք ձեզ միջոցառմանը:',
 		signature: 'Event Space թիմ',
 		paymentMethodLabels: {
@@ -184,6 +234,40 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 };
 
 const LOCALE_INTL: Record<Locale, string> = { en: 'en-US', ru: 'ru-RU', hy: 'hy-AM' };
+
+export function formatMailDay(date: Date, locale: Locale): string {
+	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+	}).format(date);
+}
+
+export function formatMailAmount(amount: number, currency: string, locale: Locale): string {
+	const formatted = new Intl.NumberFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+		maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+	}).format(amount);
+
+	return `${formatted} ${currency}`;
+}
+
+export function formatMailTime(date: Date, locale: Locale): string {
+	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+		hourCycle: 'h23',
+	}).format(date);
+}
+
+export function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;');
+}
 
 export function formatMailDate(date: Date, locale: Locale): string {
 	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {

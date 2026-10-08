@@ -31,36 +31,14 @@
 			>
 				{{ INTRO }}
 			</mj-text>
+			{{ HIGHLIGHT_BLOCK }}
 			<mj-table css-class="text-muted" font-size="14px" color="#6b7280" padding="0px 0px 20px 0px">
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_REFERENCE }}</td>
-					<td style="padding: 8px 0;">{{ REFERENCE_NUMBER }}</td>
-				</tr>
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_EVENT }}</td>
-					<td style="padding: 8px 0;">{{ EVENT_TITLE }}</td>
-				</tr>
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_LOCATION }}</td>
-					<td style="padding: 8px 0;">{{ EVENT_LOCATION }}</td>
-				</tr>
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_DATE }}</td>
-					<td style="padding: 8px 0;">{{ OCCURRENCE_DATE }}</td>
-				</tr>
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_QUANTITY }}</td>
-					<td style="padding: 8px 0;">{{ QUANTITY }}</td>
-				</tr>
-				<tr style="border-bottom: 1px solid #e5e7eb; text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_PAYMENT_METHOD }}</td>
-					<td style="padding: 8px 0;">{{ PAYMENT_METHOD }}</td>
-				</tr>
-				<tr style="text-align: left;">
-					<td style="padding: 8px 0; font-weight: 600;">{{ LABEL_AMOUNT }}</td>
-					<td style="padding: 8px 0;">{{ AMOUNT }} {{ CURRENCY }}</td>
-				</tr>
+				{{ DETAILS_ROWS }}
 			</mj-table>
+			{{ NOTE_BLOCK }}
+			{{ INCLUDED_BLOCK }}
+			{{ CANCELLATION_BLOCK }}
+			{{ ACTIONS_BLOCK }}
 			<mj-text
 				align="left"
 				font-size="15px"

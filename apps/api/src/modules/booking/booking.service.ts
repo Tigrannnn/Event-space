@@ -1043,7 +1043,9 @@ export class BookingService {
 				where: { id: bookingId },
 				include: {
 					user: true,
-					occurrence: { include: { event: { include: { translations: true } } } },
+					occurrence: {
+						include: { event: { include: { translations: true, cancellationRules: true } } },
+					},
 				},
 			});
 
@@ -1055,17 +1057,29 @@ export class BookingService {
 				booking.occurrence.event.translations.find((t) => t.locale === locale) ??
 				booking.occurrence.event.translations[0];
 
+			const event = booking.occurrence.event;
+
 			await this.mailService.sendBookingConfirmation({
 				to: booking.user.email,
 				locale,
 				referenceNumber: booking.referenceNumber ?? 0,
+				userName: booking.user.name,
+				bookedAt: booking.createdAt,
 				eventTitle: translation?.title ?? '',
 				eventLocation: translation?.location,
+				meetingLocation: translation?.meetingLocation,
+				meetingLocationUrl: event.meetingLocationUrl,
 				occurrenceDate: booking.occurrence.date,
+				durationMinutes: event.duration,
 				quantity: booking.quantity,
 				amount: Number(booking.amount),
 				currency: 'AMD',
 				paymentMethod: booking.paymentMethod,
+				whatsIncluded: translation?.whatsIncluded,
+				cancellationRules: event.cancellationRules.map((rule) => ({
+					hoursBeforeEvent: rule.hoursBeforeEvent,
+					refundPercentage: rule.refundPercentage,
+				})),
 			});
 		} catch (error) {
 			this.logger.error(
