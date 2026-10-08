@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
 import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
-import { BottomNavbar, HeaderWrapper, MainContent } from '@/components/layout';
+import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
 import GoogleProvider from '@/providers/GoogleProvider';
@@ -137,6 +137,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 						<GoogleProvider clientId={googleClientId}>
 							<HeaderWrapper />
 							<MainContent>{children}</MainContent>
+							<Footer />
 							<ModalRoot />
 							<BottomNavbar />
 							<ToastContainer />

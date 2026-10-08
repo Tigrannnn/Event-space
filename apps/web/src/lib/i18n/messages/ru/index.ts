@@ -12,6 +12,7 @@ import { admin } from './admin';
 import { error } from './error';
 import { apiErrors } from './apiErrors';
 import { about } from './about';
+import { legal } from './legal';
 
 export const ru: Messages = {
 	favorites,
@@ -27,4 +28,5 @@ export const ru: Messages = {
 	error,
 	apiErrors,
 	about,
+	legal,
 };

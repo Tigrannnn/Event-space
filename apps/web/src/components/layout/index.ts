@@ -2,5 +2,6 @@
 export { default as Header } from './Header';
 export { default as HeaderWrapper } from './Header/HeaderWrapper';
 export { default as BottomNavbar } from './BottomNavbar';
+export { default as Footer } from './Footer/Footer';
 export { MainContent } from './MainContent';
 export { default as TopBar } from '@/components/ui/TopBar';

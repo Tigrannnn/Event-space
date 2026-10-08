@@ -11,6 +11,7 @@ import { admin } from './admin';
 import { error } from './error';
 import { apiErrors } from './apiErrors';
 import { about } from './about';
+import { legal } from './legal';
 
 export const en = {
 	favorites,
@@ -26,4 +27,5 @@ export const en = {
 	error,
 	apiErrors,
 	about,
+	legal,
 };

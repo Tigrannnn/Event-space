@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { ModalHeader } from '@/components/ui/Modal';
+import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
+import { localizePath } from '@/lib/i18n/config';
 import Input from '@/components/ui/Inputs/Input';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
@@ -177,7 +179,37 @@ export default function BookingForm({
 				</>
 			)}
 
-			<div className="mt-6 flex gap-3">
+			<p className="mt-6 text-xs text-gray-500 dark:text-gray-400">
+				{translate('legal.agreeNote')
+					.split(/(\{terms\}|\{privacy\})/)
+					.map((part, index) => {
+						if (part === '{terms}') {
+							return (
+								<Link
+									key={index}
+									href={localizePath('/terms', translate.locale)}
+									className="text-primary hover:underline"
+								>
+									{translate('legal.termsLink')}
+								</Link>
+							);
+						}
+						if (part === '{privacy}') {
+							return (
+								<Link
+									key={index}
+									href={localizePath('/privacy', translate.locale)}
+									className="text-primary hover:underline"
+								>
+									{translate('legal.privacyLink')}
+								</Link>
+							);
+						}
+						return <span key={index}>{part}</span>;
+					})}
+			</p>
+
+			<div className="mt-4 flex gap-3">
 				<Button variant="secondary" onClick={onClose} disabled={isLoading} className="flex-1">
 					{translate('booking.cancel')}
 				</Button>
