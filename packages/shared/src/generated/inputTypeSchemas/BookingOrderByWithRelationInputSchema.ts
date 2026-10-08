@@ -24,6 +24,7 @@ export const BookingOrderByWithRelationInputSchema: z.ZodType<Prisma.BookingOrde
   referenceNumber: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   checkedInAt: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   confirmationSentAt: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
+  reminderSentAt: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   user: z.lazy(() => UserOrderByWithRelationInputSchema).optional(),
   occurrence: z.lazy(() => EventOccurrenceOrderByWithRelationInputSchema).optional(),
   adjustments: z.lazy(() => BookingAdjustmentOrderByRelationAggregateInputSchema).optional(),

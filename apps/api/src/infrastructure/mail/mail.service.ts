@@ -14,6 +14,7 @@ import {
 } from './mail-brand';
 import {
 	BOOKING_CONFIRMATION_STRINGS,
+	BOOKING_REMINDER_STRINGS,
 	escapeHtml,
 	formatMailAmount,
 	formatMailDay,
@@ -328,6 +329,95 @@ export class MailService implements OnModuleInit {
 			return true;
 		} catch (error) {
 			this.logSmtpError(`Failed to send booking confirmation email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendBookingReminder(params: {
+		to: string;
+		locale: Locale;
+		referenceNumber: number;
+		userName: string;
+		eventTitle: string;
+		eventLocation?: string;
+		meetingLocation?: string;
+		meetingLocationUrl?: string;
+		occurrenceDate: Date;
+		durationMinutes?: number;
+		quantity: number;
+		amount: number;
+		currency: string;
+		paymentMethod: PaymentMethod;
+		whatsIncluded?: string[];
+		brandHost?: string;
+	}): Promise<boolean> {
+		const labels = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const strings = pickLocale(BOOKING_REMINDER_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const day = formatMailDay(params.occurrenceDate, params.locale);
+		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
+		const totalAmount = formatMailAmount(params.amount, params.currency, params.locale);
+		const timeRange = this.buildTimeRange(
+			params.occurrenceDate,
+			params.durationMinutes,
+			params.locale,
+		);
+
+		const rows: [string, string][] = [
+			[labels.event, params.eventTitle],
+			[labels.date, day],
+			[labels.time, timeRange],
+			[labels.location, params.eventLocation || '—'],
+			[labels.quantity, String(params.quantity)],
+			[labels.reference, referenceLabel],
+		];
+
+		const intro = strings.intro(params.eventTitle, day);
+		const textLines = [
+			strings.greeting(params.userName),
+			'',
+			intro,
+			'',
+			...rows.map(([label, value]) => `${label}: ${value}`),
+			...(params.meetingLocation ? ['', `${labels.meetingPoint}: ${params.meetingLocation}`] : []),
+			...(params.meetingLocationUrl ? [params.meetingLocationUrl] : []),
+			...(params.paymentMethod === 'PAY_ON_ARRIVAL' ? ['', labels.bringCash(totalAmount)] : []),
+			...(params.whatsIncluded?.length
+				? ['', `${labels.included}:`, ...params.whatsIncluded.map((item) => `— ${item}`)]
+				: []),
+			'',
+			strings.outro,
+			brand.name,
+		];
+
+		try {
+			const html = await this.templateService.render('booking-reminder', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				INTRO: intro,
+				HIGHLIGHT_BLOCK: this.buildMeetingBlock(labels, params),
+				DETAILS_ROWS: this.buildDetailRows(rows),
+				NOTE_BLOCK:
+					params.paymentMethod === 'PAY_ON_ARRIVAL'
+						? this.buildNoteBlock(labels.bringCash(totalAmount))
+						: '',
+				INCLUDED_BLOCK: this.buildListBlock(labels.included, params.whatsIncluded ?? []),
+				OUTRO: strings.outro,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: textLines.join('\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send booking reminder email to ${params.to}`, error);
 			return false;
 		}
 	}

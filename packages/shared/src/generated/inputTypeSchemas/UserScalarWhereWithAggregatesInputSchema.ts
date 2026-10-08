@@ -6,6 +6,8 @@ import { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAg
 import { EnumUserRoleWithAggregatesFilterSchema } from './EnumUserRoleWithAggregatesFilterSchema';
 import { UserRoleSchema } from './UserRoleSchema';
 import { BoolWithAggregatesFilterSchema } from './BoolWithAggregatesFilterSchema';
+import { EnumLocaleNullableWithAggregatesFilterSchema } from './EnumLocaleNullableWithAggregatesFilterSchema';
+import { LocaleSchema } from './LocaleSchema';
 import { DateTimeWithAggregatesFilterSchema } from './DateTimeWithAggregatesFilterSchema';
 
 export const UserScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.UserScalarWhereWithAggregatesInput> = z.strictObject({
@@ -21,6 +23,7 @@ export const UserScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.UserScal
   emailVerified: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean() ]).optional(),
   isShadow: z.union([ z.lazy(() => BoolWithAggregatesFilterSchema), z.boolean() ]).optional(),
   phone: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
+  locale: z.union([ z.lazy(() => EnumLocaleNullableWithAggregatesFilterSchema), z.lazy(() => LocaleSchema) ]).optional().nullable(),
   googleId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeWithAggregatesFilterSchema), z.coerce.date() ]).optional(),

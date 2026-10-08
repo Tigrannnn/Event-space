@@ -120,6 +120,8 @@ export class BookingService {
 				},
 			});
 
+			await tx.user.update({ where: { id: userId }, data: { locale } });
+
 			return { booking: upserted, event, occurrence };
 		});
 
@@ -1062,15 +1064,17 @@ export class BookingService {
 				return;
 			}
 
+			const mailLocale = booking.user.locale ?? locale;
+
 			const translation =
-				booking.occurrence.event.translations.find((t) => t.locale === locale) ??
+				booking.occurrence.event.translations.find((t) => t.locale === mailLocale) ??
 				booking.occurrence.event.translations[0];
 
 			const event = booking.occurrence.event;
 
 			await this.mailService.sendBookingConfirmation({
 				to: booking.user.email,
-				locale,
+				locale: mailLocale,
 				referenceNumber: booking.referenceNumber ?? 0,
 				userName: booking.user.name,
 				bookedAt: booking.createdAt,

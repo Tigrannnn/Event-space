@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { UserRoleSchema } from '../inputTypeSchemas/UserRoleSchema'
+import { LocaleSchema } from '../inputTypeSchemas/LocaleSchema'
 
 /////////////////////////////////////////
 // USER SCHEMA
@@ -7,6 +8,7 @@ import { UserRoleSchema } from '../inputTypeSchemas/UserRoleSchema'
 
 export const UserSchema = z.object({
   role: UserRoleSchema,
+  locale: LocaleSchema.nullable(),
   id: z.uuid(),
   email: z.string().nullable(),
   name: z.string(),

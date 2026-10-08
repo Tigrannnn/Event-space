@@ -115,6 +115,8 @@ export class AuthService {
 
 		await this.rateLimiter.setCooldown(action, email);
 
+		await this.prisma.user.updateMany({ where: { email }, data: { locale } });
+
 		await this.mail.sendVerificationCode(email, otp, action, locale, brandHost);
 
 		return otp;

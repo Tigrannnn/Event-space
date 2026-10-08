@@ -225,6 +225,41 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 	},
 };
 
+interface BookingReminderStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	intro: (eventTitle: string, day: string) => string;
+	outro: string;
+}
+
+export const BOOKING_REMINDER_STRINGS: Record<Locale, BookingReminderStrings> = {
+	en: {
+		subject: (eventTitle) => `Tomorrow: ${eventTitle}`,
+		title: 'Your tour is tomorrow',
+		greeting: (userName) => `Dear ${userName},`,
+		intro: (eventTitle, day) =>
+			`A reminder that "${eventTitle}" starts tomorrow, on ${day}. Here are the details:`,
+		outro: 'See you tomorrow. If anything changes, just reply to this email.',
+	},
+	ru: {
+		subject: (eventTitle) => `Завтра: ${eventTitle}`,
+		title: 'Тур завтра',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		intro: (eventTitle, day) =>
+			`Напоминаем: тур «${eventTitle}» начинается завтра, ${day} — вот детали:`,
+		outro: 'До встречи. Если планы изменились — просто ответьте на это письмо.',
+	},
+	hy: {
+		subject: (eventTitle) => `Վաղը՝ ${eventTitle}`,
+		title: 'Տուրը վաղն է',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		intro: (eventTitle, day) =>
+			`Հիշեցնում ենք՝ «${eventTitle}» տուրը մեկնարկում է վաղը՝ ${day}։ Ահա մանրամասները.`,
+		outro: 'Կսպասենք Ձեզ վաղը։ Եթե ծրագրերը փոխվել են, պարզապես պատասխանեք այս նամակին։',
+	},
+};
+
 const LOCALE_INTL: Record<Locale, string> = { en: 'en-US', ru: 'ru-RU', hy: 'hy-AM' };
 
 export function formatMailDay(date: Date, locale: Locale): string {

@@ -6,6 +6,8 @@ import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumUserRoleFilterSchema } from './EnumUserRoleFilterSchema';
 import { UserRoleSchema } from './UserRoleSchema';
 import { BoolFilterSchema } from './BoolFilterSchema';
+import { EnumLocaleNullableFilterSchema } from './EnumLocaleNullableFilterSchema';
+import { LocaleSchema } from './LocaleSchema';
 import { DateTimeFilterSchema } from './DateTimeFilterSchema';
 import { EventListRelationFilterSchema } from './EventListRelationFilterSchema';
 import { RefreshTokenListRelationFilterSchema } from './RefreshTokenListRelationFilterSchema';
@@ -25,6 +27,7 @@ export const UserWhereInputSchema: z.ZodType<Prisma.UserWhereInput> = z.strictOb
   emailVerified: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
   isShadow: z.union([ z.lazy(() => BoolFilterSchema), z.boolean() ]).optional(),
   phone: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  locale: z.union([ z.lazy(() => EnumLocaleNullableFilterSchema), z.lazy(() => LocaleSchema) ]).optional().nullable(),
   googleId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),

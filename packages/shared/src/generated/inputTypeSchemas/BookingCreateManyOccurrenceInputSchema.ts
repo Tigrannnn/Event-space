@@ -21,6 +21,7 @@ export const BookingCreateManyOccurrenceInputSchema: z.ZodType<Prisma.BookingCre
   referenceNumber: z.number().int().optional().nullable(),
   checkedInAt: z.coerce.date().optional().nullable(),
   confirmationSentAt: z.coerce.date().optional().nullable(),
+  reminderSentAt: z.coerce.date().optional().nullable(),
 });
 
 export default BookingCreateManyOccurrenceInputSchema;
