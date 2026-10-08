@@ -35,7 +35,7 @@ import type {
 	ResetPasswordData,
 	VerifyEmailData,
 } from '@event-space/shared';
-import { AppException, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
+import { AppException, GetBrandHost, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 
 @ApiTags('auth')
@@ -89,8 +89,9 @@ export class AuthController {
 		@Body(new ZodValidationPipe(RegisterSchema)) data: RegisterData,
 		@Ip() ip: string,
 		@GetLocale() locale: Locale,
+		@GetBrandHost() brandHost: string | undefined,
 	): Promise<RegisterResponse> {
-		return this.authService.register(data, ip, locale);
+		return this.authService.register(data, ip, locale, brandHost);
 	}
 
 	@Post('verify-email')
@@ -118,8 +119,9 @@ export class AuthController {
 	async resendCode(
 		@Body(new ZodValidationPipe(ResendCodeSchema)) data: ResendCodeData,
 		@GetLocale() locale: Locale,
+		@GetBrandHost() brandHost: string | undefined,
 	): Promise<void> {
-		await this.authService.resendCode(data, locale);
+		await this.authService.resendCode(data, locale, brandHost);
 	}
 
 	@Post('login')
@@ -184,8 +186,9 @@ export class AuthController {
 		@Body(new ZodValidationPipe(ForgotPasswordSchema)) data: ForgotPasswordData,
 		@Ip() ip: string,
 		@GetLocale() locale: Locale,
+		@GetBrandHost() brandHost: string | undefined,
 	): Promise<void> {
-		await this.authService.forgotPassword(data, ip, locale);
+		await this.authService.forgotPassword(data, ip, locale, brandHost);
 	}
 
 	@Post('reset-password')

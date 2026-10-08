@@ -6,6 +6,13 @@ import { Locale, PaymentMethod } from '@prisma/client';
 import * as nodemailer from 'nodemailer';
 import { MailTemplateService } from './mail-template.service';
 import {
+	buildBrandFooter,
+	buildBrandLogoBlock,
+	buildBrandTitle,
+	resolveMailBrand,
+	type MailBrand,
+} from './mail-brand';
+import {
 	BOOKING_CONFIRMATION_STRINGS,
 	escapeHtml,
 	formatMailAmount,
@@ -54,6 +61,19 @@ export class MailService implements OnModuleInit {
 		}
 	}
 
+	brandFor(host?: string | null): MailBrand {
+		return resolveMailBrand(host, this.config.get<string>(EnvKey.FRONTEND_URL) ?? '');
+	}
+
+	private brandVariables(brand: MailBrand): Record<string, string> {
+		return {
+			BRAND_NAME: brand.name,
+			BRAND_LOGO: buildBrandLogoBlock(brand),
+			BRAND_TITLE: buildBrandTitle(brand),
+			BRAND_FOOTER: buildBrandFooter(brand),
+		};
+	}
+
 	private get resendApiKey(): string | undefined {
 		return this.config.get<string>(EnvKey.RESEND_API_KEY) || undefined;
 	}
@@ -68,12 +88,16 @@ export class MailService implements OnModuleInit {
 		subject: string;
 		text: string;
 		html: string;
+		brand?: MailBrand;
 	}): Promise<void> {
-		const from = `"Event Space" <${this.config.get(EnvKey.SMTP_FROM)}>`;
+		const { brand, ...mail } = message;
+		const senderName = brand?.name ?? 'Event Space';
+		const from = `"${senderName}" <${this.config.get(EnvKey.SMTP_FROM)}>`;
+		const replyTo = brand?.replyTo;
 		const apiKey = this.resendApiKey;
 
 		if (!apiKey) {
-			await this.transporter.sendMail({ from, ...message });
+			await this.transporter.sendMail({ from, ...mail, ...(replyTo ? { replyTo } : {}) });
 			return;
 		}
 
@@ -83,7 +107,7 @@ export class MailService implements OnModuleInit {
 				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ from, ...message }),
+			body: JSON.stringify({ from, ...mail, ...(replyTo ? { reply_to: replyTo } : {}) }),
 		});
 
 		if (!response.ok) {
@@ -114,11 +138,14 @@ export class MailService implements OnModuleInit {
 		code: string,
 		action: AuthAction,
 		locale: Locale,
+		brandHost?: string,
 	): Promise<void> {
 		const strings = pickLocale(VERIFICATION_STRINGS, locale);
 		const actionLabel = strings.actions[action] ?? action;
+		const brand = this.brandFor(brandHost);
 
 		const html = await this.templateService.render('verification', {
+			...this.brandVariables(brand),
 			TITLE: strings.title,
 			INTRO: strings.intro(actionLabel),
 			CODE: code,
@@ -132,6 +159,7 @@ export class MailService implements OnModuleInit {
 				subject: strings.subject,
 				text: `${strings.intro(actionLabel)} ${code}\n${strings.expiry}`,
 				html: html,
+				brand,
 			});
 		} catch (error) {
 			this.logSmtpError(`Failed to send email to ${email}`, error);
@@ -154,14 +182,17 @@ export class MailService implements OnModuleInit {
 		refundAmount: string;
 		locale: Locale;
 		cancellationReason?: string;
+		brandHost?: string;
 	}): Promise<void> {
 		const strings = pickLocale(EVENT_CANCELLED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
 		const formattedDate = formatMailDate(params.eventDate, params.locale);
 		const reasonLine = params.cancellationReason
 			? strings.reason(params.cancellationReason)
 			: undefined;
 
 		const html = await this.templateService.render('event-cancelled', {
+			...this.brandVariables(brand),
 			TITLE: strings.title,
 			GREETING: strings.greeting(params.userName),
 			BODY: strings.body(params.eventTitle, formattedDate),
@@ -171,20 +202,21 @@ export class MailService implements OnModuleInit {
 			REFUND: strings.refund(params.refundAmount),
 			SUPPORT: strings.support,
 			SIGNOFF: strings.signoff,
-			SIGNATURE: strings.signature,
+			SIGNATURE: brand.name,
 		});
 
 		try {
 			await this.deliver({
 				to: params.email,
 				subject: strings.subject(params.eventTitle),
+				brand,
 				text: [
 					strings.greeting(params.userName),
 					strings.body(params.eventTitle, formattedDate),
 					reasonLine,
 					strings.refund(params.refundAmount),
 					strings.support,
-					`${strings.signoff} ${strings.signature}`,
+					`${strings.signoff} ${brand.name}`,
 				]
 					.filter(Boolean)
 					.join('\n\n'),
@@ -219,8 +251,10 @@ export class MailService implements OnModuleInit {
 		paymentMethod: PaymentMethod;
 		whatsIncluded?: string[];
 		cancellationRules?: { hoursBeforeEvent: number; refundPercentage: number }[];
+		brandHost?: string;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
 		const formattedDate = formatMailDate(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const paymentMethodLabel =
@@ -263,11 +297,12 @@ export class MailService implements OnModuleInit {
 			...(cancellationLines.length ? ['', `${strings.cancellationTitle}:`, ...cancellationLines] : []),
 			'',
 			strings.outro,
-			strings.signature,
+			brand.name,
 		];
 
 		try {
 			const html = await this.templateService.render('booking-confirmation', {
+				...this.brandVariables(brand),
 				TITLE: strings.title,
 				INTRO: strings.intro,
 				HIGHLIGHT_BLOCK: this.buildMeetingBlock(strings, params),
@@ -278,9 +313,9 @@ export class MailService implements OnModuleInit {
 						: '',
 				INCLUDED_BLOCK: this.buildListBlock(strings.included, params.whatsIncluded ?? []),
 				CANCELLATION_BLOCK: this.buildListBlock(strings.cancellationTitle, cancellationLines),
-				ACTIONS_BLOCK: this.buildActionsBlock(strings, params),
+				ACTIONS_BLOCK: this.buildActionsBlock(strings, params, brand),
 				OUTRO: strings.outro,
-				SIGNATURE: strings.signature,
+				SIGNATURE: brand.name,
 			});
 
 			await this.deliver({
@@ -288,6 +323,7 @@ export class MailService implements OnModuleInit {
 				subject: strings.subject,
 				text: textLines.join('\n'),
 				html,
+				brand,
 			});
 
 			return true;
@@ -361,8 +397,9 @@ export class MailService implements OnModuleInit {
 			durationMinutes?: number;
 			meetingLocation?: string;
 		},
+		brand: MailBrand,
 	): string {
-		const siteUrl = (this.config.get<string>(EnvKey.FRONTEND_URL) ?? '').replace(/\/+$/, '');
+		const siteUrl = brand.siteUrl;
 		const links: string[] = [];
 
 		const calendarUrl = this.buildCalendarUrl(params);

@@ -22,6 +22,7 @@ export const BookingSelectSchema: z.ZodType<Prisma.BookingSelect> = z.object({
   amount: z.boolean().optional(),
   paymentMethod: z.boolean().optional(),
   createdByAdminId: z.boolean().optional(),
+  brandHost: z.boolean().optional(),
   paymentIntentId: z.boolean().optional(),
   referenceNumber: z.boolean().optional(),
   checkedInAt: z.boolean().optional(),

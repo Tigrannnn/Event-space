@@ -9,7 +9,7 @@ import {
 	ApiBody,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
-import { AppException, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
+import { AppException, GetBrandHost, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
 import { AppErrorCode, CreateBookingSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
@@ -41,6 +41,7 @@ export class BookingController {
 		@GetCurrentUserId() userId: string,
 		@Body(new ZodValidationPipe(CreateBookingSchema)) data: CreateBookingData,
 		@GetLocale() locale: Locale,
+		@GetBrandHost() brandHost: string | undefined,
 	) {
 		// Rate limit: max 10 booking attempts per minute
 		await this.rateLimiter.consumePerUser(
@@ -49,7 +50,7 @@ export class BookingController {
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
 		);
-		return this.bookingService.create(userId, data, locale);
+		return this.bookingService.create(userId, data, locale, brandHost);
 	}
 
 	@Get('my')

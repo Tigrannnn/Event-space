@@ -6,3 +6,4 @@ export * from './cloudinary.constant';
 export * from './event-images.constant';
 export * from './event-upload.constant';
 export * from './currency.constant';
+export * from './brands.constant';

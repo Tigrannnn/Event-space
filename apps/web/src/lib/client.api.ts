@@ -29,6 +29,7 @@ clientApi.interceptors.request.use((config) => {
 	if (typeof document !== 'undefined') {
 		const locale = document.documentElement.lang;
 		if (locale) config.headers.set('X-Locale', locale);
+		config.headers.set('X-Brand-Host', window.location.host);
 	}
 
 	if (config.data instanceof FormData) {

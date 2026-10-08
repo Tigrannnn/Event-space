@@ -203,6 +203,9 @@ model Booking {
 
   createdByAdminId String? @map("created_by_admin_id")
 
+  /// Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.
+  brandHost String? @map("brand_host")
+
   paymentIntentId    String?   @unique @map("payment_intent_id")
   referenceNumber    Int?      @unique @map("reference_number")
   checkedInAt        DateTime? @map("checked_in_at")

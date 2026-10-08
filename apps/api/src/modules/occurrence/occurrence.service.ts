@@ -84,6 +84,7 @@ export class OccurrenceService {
 					refundAmount,
 					locale,
 					cancellationReason: reason,
+					brandHost: booking.brandHost ?? undefined,
 				});
 			}
 		}

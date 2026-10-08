@@ -102,6 +102,7 @@ export class AuthService {
 		action: AuthAction,
 		email: Email,
 		locale: Locale,
+		brandHost?: string,
 	): Promise<string> {
 		const digits = AUTH_CONFIG.OTP.DIGITS;
 		const min = Math.pow(10, digits - 1);
@@ -114,12 +115,17 @@ export class AuthService {
 
 		await this.rateLimiter.setCooldown(action, email);
 
-		await this.mail.sendVerificationCode(email, otp, action, locale);
+		await this.mail.sendVerificationCode(email, otp, action, locale, brandHost);
 
 		return otp;
 	}
 
-	async register(data: RegisterData, ip: string, locale: Locale): Promise<RegisterResponse> {
+	async register(
+		data: RegisterData,
+		ip: string,
+		locale: Locale,
+		brandHost?: string,
+	): Promise<RegisterResponse> {
 		const { email, password, name } = data;
 		const action = AuthAction.REGISTER;
 
@@ -147,7 +153,7 @@ export class AuthService {
 			userId = newUser.id;
 		}
 
-		await this.generateAndSaveOtp(action, email, locale);
+		await this.generateAndSaveOtp(action, email, locale, brandHost);
 
 		return {
 			userId,
@@ -192,7 +198,7 @@ export class AuthService {
 		});
 	}
 
-	async resendCode(data: ResendCodeData, locale: Locale): Promise<void> {
+	async resendCode(data: ResendCodeData, locale: Locale, brandHost?: string): Promise<void> {
 		const { action, email } = data;
 
 		await this.rateLimiter.validate(action, email, undefined, { checkCooldown: true });
@@ -201,7 +207,7 @@ export class AuthService {
 
 		if (!user) return;
 
-		await this.generateAndSaveOtp(action, email, locale);
+		await this.generateAndSaveOtp(action, email, locale, brandHost);
 	}
 
 	async login(data: LoginData, ip: string): Promise<AuthServiceResponse> {
@@ -365,7 +371,12 @@ export class AuthService {
 		});
 	}
 
-	async forgotPassword(data: ForgotPasswordData, ip: string, locale: Locale): Promise<void> {
+	async forgotPassword(
+		data: ForgotPasswordData,
+		ip: string,
+		locale: Locale,
+		brandHost?: string,
+	): Promise<void> {
 		const { email } = data;
 		const action = AuthAction.RESET_PASSWORD;
 
@@ -380,7 +391,7 @@ export class AuthService {
 			return;
 		}
 
-		await this.generateAndSaveOtp(action, email, locale);
+		await this.generateAndSaveOtp(action, email, locale, brandHost);
 
 		return;
 	}

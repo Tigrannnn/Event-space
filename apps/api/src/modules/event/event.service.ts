@@ -405,6 +405,7 @@ export class EventService {
 							refundAmount,
 							locale,
 							cancellationReason,
+							brandHost: booking.brandHost ?? undefined,
 						});
 					}
 				}

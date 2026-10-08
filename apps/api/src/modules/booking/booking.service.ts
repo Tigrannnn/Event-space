@@ -33,7 +33,12 @@ export class BookingService {
 		private readonly mailService: MailService,
 	) {}
 
-	async create(userId: string, data: CreateBookingData, locale: Locale = DEFAULT_LOCALE) {
+	async create(
+		userId: string,
+		data: CreateBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
+	) {
 		const { occurrenceId, quantity = 1, phone } = data;
 
 		const { booking, event, occurrence } = await this.prisma.$transaction(async (tx) => {
@@ -103,6 +108,7 @@ export class BookingService {
 					quantity,
 					amount,
 					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
+					...(brandHost ? { brandHost } : {}),
 				},
 				create: {
 					userId,
@@ -110,6 +116,7 @@ export class BookingService {
 					status: 'PENDING',
 					quantity,
 					amount,
+					brandHost,
 				},
 			});
 
@@ -386,6 +393,7 @@ export class BookingService {
 		adminId: string,
 		data: CreateManualBookingData,
 		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
 	) {
 		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email, phone } = data;
 
@@ -482,6 +490,7 @@ export class BookingService {
 				paymentMethod,
 				createdByAdminId: adminId,
 				referenceNumber,
+				brandHost,
 			};
 
 			const booking = await tx.booking.upsert({
@@ -1075,6 +1084,7 @@ export class BookingService {
 				amount: Number(booking.amount),
 				currency: 'AMD',
 				paymentMethod: booking.paymentMethod,
+				brandHost: booking.brandHost ?? undefined,
 				whatsIncluded: translation?.whatsIncluded,
 				cancellationRules: event.cancellationRules.map((rule) => ({
 					hoursBeforeEvent: rule.hoursBeforeEvent,
