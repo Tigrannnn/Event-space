@@ -127,7 +127,9 @@ model EventOccurrence {
   createdAt           DateTime              @default(now()) @map("created_at")
   updatedAt           DateTime              @updatedAt @map("updated_at")
   cancelledAt         DateTime?
-  cancelReason        String?
+  cancelReasonRu      String?               @map("cancel_reason_ru") @db.VarChar(500)
+  cancelReasonEn      String?               @map("cancel_reason_en") @db.VarChar(500)
+  cancelReasonHy      String?               @map("cancel_reason_hy") @db.VarChar(500)
 
   event    Event     @relation("event_occurrences", fields: [eventId], references: [id])
   bookings Booking[] @relation("occurrence_bookings")

@@ -13,3 +13,4 @@ export * from './booking-adjustment.schema';
 export * from './cancellation-policy-rule.schema';
 export * from './category.schema';
 export * from './locale.schema';
+export * from './cancellation-reason.schema';

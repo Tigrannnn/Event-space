@@ -79,7 +79,7 @@ export const EventFormSchema = z.object({
 		)
 		.default([])
 		.optional(),
-	cancellationReason: z.string().optional(),
+	cancellationReasons: z.object({ ru: z.string().optional(), en: z.string().optional(), hy: z.string().optional() }).optional(),
 });
 
 export type EventFormValues = z.infer<typeof EventFormSchema>;

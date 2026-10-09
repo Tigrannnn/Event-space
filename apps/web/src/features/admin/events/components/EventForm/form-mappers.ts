@@ -1,4 +1,5 @@
 import {
+	compactCancellationReasons,
 	countsActiveBookings,
 	EventStatusEnum,
 	type Event,
@@ -37,7 +38,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 				refundPercentage: 50,
 			},
 		],
-		cancellationReason: undefined,
+		cancellationReasons: undefined,
 	};
 }
 
@@ -79,7 +80,7 @@ function buildEventFields(values: EventFormValues) {
 		status: values.status,
 		occurrences,
 		cancellationRules: values.cancellationRules,
-		cancellationReason: values.cancellationReason?.trim() || undefined,
+		cancellationReasons: compactCancellationReasons(values.cancellationReasons),
 		translations: values.translations.map((t) => ({
 			locale: t.locale,
 			title: t.title.trim(),
@@ -158,7 +159,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 			meetingLocation: t.meetingLocation,
 			whatsIncluded: t.whatsIncluded.join('\n'),
 		})),
-		cancellationReason: undefined,
+		cancellationReasons: undefined,
 	};
 }
 

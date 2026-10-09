@@ -9,11 +9,14 @@ import {
 	EventDifficultyEnum,
 	DEFAULT_CURRENCY,
 	getCategoryTranslation,
+	hasCancellationReason,
+	type CancellationReasons,
 	type Category,
 } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
 import DateTimeField from './DateTimeField';
+import CancellationReasonField from './CancellationReasonField';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
@@ -186,6 +189,9 @@ export default function EventForm({
 	const [occurrencesToCancel, setOccurrencesToCancel] = useState<string[]>([]);
 	const [occurrencesToDelete, setOccurrencesToDelete] = useState<string[]>([]);
 	const [isApplyingCancel, setIsApplyingCancel] = useState(false);
+	const [cancelReasons, setCancelReasons] = useState<CancellationReasons>({});
+	const [noCancelReason, setNoCancelReason] = useState(false);
+	const [showReasonError, setShowReasonError] = useState(false);
 	const { addToast } = useToastStore();
 	const router = useRouter();
 
@@ -214,6 +220,9 @@ export default function EventForm({
 			occurrencesToDelete.length > 0;
 
 		if (isCancelling) {
+			setCancelReasons({});
+			setNoCancelReason(false);
+			setShowReasonError(false);
 			setPendingCancelValues(values);
 			setShowCancelConfirm(true);
 			return;
@@ -222,14 +231,26 @@ export default function EventForm({
 		onSubmit(values);
 	};
 
+	const isCancellingEvent = watchedStatus === 'CANCELLED' && event?.status !== 'CANCELLED';
+	const needsCancelReason =
+		occurrencesToCancel.length > 0 || (isCancellingEvent && hasBookedOccurrences);
+	const reasonMissing = needsCancelReason && !noCancelReason && !hasCancellationReason(cancelReasons);
+	const reasonsToSend = needsCancelReason && !noCancelReason ? cancelReasons : undefined;
+
 	const handleConfirmCancel = async () => {
 		if (isApplyingCancel) return;
+		if (reasonMissing) {
+			setShowReasonError(true);
+			return;
+		}
 		setIsApplyingCancel(true);
 
 		try {
 			if (occurrencesToCancel.length > 0) {
 				await Promise.all(
-					occurrencesToCancel.map((occurrenceId) => cancelOccurrence.mutateAsync(occurrenceId)),
+					occurrencesToCancel.map((occurrenceId) =>
+						cancelOccurrence.mutateAsync({ occurrenceId, reasons: reasonsToSend }),
+					),
 				);
 			}
 		} catch {
@@ -243,7 +264,9 @@ export default function EventForm({
 		}
 
 		if (pendingCancelValues) {
-			onSubmit(withoutDeletedOccurrences(pendingCancelValues));
+			onSubmit(
+				withoutDeletedOccurrences({ ...pendingCancelValues, cancellationReasons: reasonsToSend }),
+			);
 		}
 		setPendingCancelValues(null);
 		setOccurrencesToCancel([]);
@@ -274,6 +297,18 @@ export default function EventForm({
 					<p className="mt-2 text-lg text-amber-700 dark:text-amber-300">
 						{translate('admin.cancelEventMessage')}
 					</p>
+					{needsCancelReason && (
+						<CancellationReasonField
+							reasons={cancelReasons}
+							noReason={noCancelReason}
+							disabled={isApplyingCancel}
+							onReasonsChange={setCancelReasons}
+							onNoReasonChange={setNoCancelReason}
+						/>
+					)}
+					{showReasonError && reasonMissing && (
+						<p className="mt-2 text-xs text-red-500">{translate('admin.cancelReasonRequired')}</p>
+					)}
 					<div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
 						<Button
 							type="button"
@@ -740,21 +775,6 @@ export default function EventForm({
 						{errors.status && <p className="text-xs text-red-500">{errorText(errors.status.message)}</p>}
 					</div>
 				</div>
-
-				{watchedStatus === 'CANCELLED' && (
-					<div className="space-y-1.5">
-						<span className="text-sm font-semibold">{translate('admin.cancellationReason')}</span>
-						<textarea
-							{...register('cancellationReason')}
-							className={textareaClassName}
-							disabled={isPending}
-							placeholder={translate('admin.cancellationReasonPlaceholder')}
-						/>
-						{errors.cancellationReason && (
-							<p className="text-xs text-red-500">{errorText(errors.cancellationReason.message)}</p>
-						)}
-					</div>
-				)}
 
 				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 					<label className="space-y-1.5">

@@ -105,6 +105,13 @@ export default function EventDetailsModal() {
 
 	const renderOccurrence = (occurrence: (typeof occurrences)[number]) => {
 		const state = getOccurrenceDisplayState(occurrence);
+		const cancelReason =
+			(locale === 'ru' ? occurrence.cancelReasonRu : null) ??
+			(locale === 'en' ? occurrence.cancelReasonEn : null) ??
+			(locale === 'hy' ? occurrence.cancelReasonHy : null) ??
+			occurrence.cancelReasonRu ??
+			occurrence.cancelReasonEn ??
+			occurrence.cancelReasonHy;
 
 		return (
 			<div
@@ -143,7 +150,7 @@ export default function EventDetailsModal() {
 				{occurrence.cancelledAt && (
 					<p className="mt-1 text-xs text-red-500">
 						{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
-						{occurrence.cancelReason ? ` — ${occurrence.cancelReason}` : ''}
+						{cancelReason ? ` — ${cancelReason}` : ''}
 					</p>
 				)}
 			</div>

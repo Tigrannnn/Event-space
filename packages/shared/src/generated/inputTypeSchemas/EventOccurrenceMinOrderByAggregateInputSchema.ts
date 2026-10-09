@@ -13,7 +13,9 @@ export const EventOccurrenceMinOrderByAggregateInputSchema: z.ZodType<Prisma.Eve
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   cancelledAt: z.lazy(() => SortOrderSchema).optional(),
-  cancelReason: z.lazy(() => SortOrderSchema).optional(),
+  cancelReasonRu: z.lazy(() => SortOrderSchema).optional(),
+  cancelReasonEn: z.lazy(() => SortOrderSchema).optional(),
+  cancelReasonHy: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default EventOccurrenceMinOrderByAggregateInputSchema;

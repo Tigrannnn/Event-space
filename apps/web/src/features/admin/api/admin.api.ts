@@ -16,6 +16,7 @@ import type {
 	DashboardFlow,
 	DashboardSnapshot,
 	BookingStatePoint,
+	CancellationReasons,
 	BookingCohort,
 	BookingWithDetails,
 	Category,
@@ -77,8 +78,10 @@ export const adminApi = {
 				timeout: EVENT_UPLOAD_TIMEOUTS.CLIENT_MUTATION_MS,
 			})
 			.then((res) => res.data),
-	cancelOccurrence: (occurrenceId: string) =>
-		clientApi.patch(`/admin/occurrences/${occurrenceId}/cancel`, {}).then((res) => res.data),
+	cancelOccurrence: (occurrenceId: string, reasons?: CancellationReasons) =>
+		clientApi
+			.patch(`/admin/occurrences/${occurrenceId}/cancel`, { reasons })
+			.then((res) => res.data),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`).then((res) => res.data),
 	getUsers: (params?: UserFilters) =>
 		clientApi

@@ -25,7 +25,9 @@ export const EventOccurrenceWhereInputSchema: z.ZodType<Prisma.EventOccurrenceWh
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   cancelledAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
-  cancelReason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  cancelReasonRu: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  cancelReasonEn: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  cancelReasonHy: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   event: z.union([ z.lazy(() => EventScalarRelationFilterSchema), z.lazy(() => EventWhereInputSchema) ]).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
 });

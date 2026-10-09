@@ -3,6 +3,7 @@ import {
 	type AdminCancelBookingData,
 	type Booking,
 	type BookingFilters,
+	type CancellationReasons,
 	type CreateManualBookingData,
 	type EventFilters,
 	type UserRoleType,
@@ -222,7 +223,13 @@ export function useCancelOccurrence() {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: (occurrenceId: string) => adminApi.cancelOccurrence(occurrenceId),
+		mutationFn: ({
+			occurrenceId,
+			reasons,
+		}: {
+			occurrenceId: string;
+			reasons?: CancellationReasons;
+		}) => adminApi.cancelOccurrence(occurrenceId, reasons),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
 		},

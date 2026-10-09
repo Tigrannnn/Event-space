@@ -4,6 +4,7 @@ import {
 	EventOccurrenceSchema as GeneratedEventOccurrenceSchema,
 } from '../generated';
 import { EventSchema } from './event.schema';
+import { CancellationReasonsSchema } from './cancellation-reason.schema';
 
 export const CreateEventOccurrenceSchema = z.object({
 	date: z.coerce.date(),
@@ -58,7 +59,7 @@ export const EventOccurrenceWithEventSchema = EventOccurrenceSchema.extend({
 export type EventOccurrenceWithEvent = z.infer<typeof EventOccurrenceWithEventSchema>;
 
 export const CancelOccurrenceData = z.object({
-	reason: z.string().optional(),
+	reasons: CancellationReasonsSchema.optional(),
 });
 
 export type CancelOccurrenceData = z.infer<typeof CancelOccurrenceData>;

@@ -4,7 +4,12 @@ import { Prisma } from '@prisma/client';
 import { BookingService } from '../booking/booking.service';
 import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
-import { AppErrorCode, CancelOccurrenceData } from '@event-space/shared';
+import {
+	AppErrorCode,
+	CancelOccurrenceData,
+	compactCancellationReasons,
+	pickCancellationReason,
+} from '@event-space/shared';
 import { AppException } from '@shared';
 
 interface OccurrenceInput {
@@ -36,7 +41,7 @@ export class OccurrenceService {
 	}
 
 	async cancel(occurrenceId: string, data: CancelOccurrenceData) {
-		const { reason } = data;
+		const reasons = compactCancellationReasons(data.reasons);
 
 		const occurrence = await this.prisma.eventOccurrence.findUnique({
 			where: { id: occurrenceId },
@@ -63,17 +68,22 @@ export class OccurrenceService {
 
 		const updated = await this.prisma.eventOccurrence.update({
 			where: { id: occurrenceId },
-			data: { status: 'CANCELLED', cancelledAt: new Date(), cancelReason: reason },
+			data: {
+				status: 'CANCELLED',
+				cancelledAt: new Date(),
+				cancelReasonRu: reasons?.ru ?? null,
+				cancelReasonEn: reasons?.en ?? null,
+				cancelReasonHy: reasons?.hy ?? null,
+			},
 		});
-
-		const locale = DEFAULT_LOCALE;
-		const eventTitle =
-			occurrence.event.translations.find((t) => t.locale === locale)?.title ??
-			occurrence.event.translations[0]?.title ??
-			'Event';
 
 		for (const booking of bookingsSnapshot) {
 			if (booking.user?.email) {
+				const locale = booking.user.locale ?? DEFAULT_LOCALE;
+				const eventTitle =
+					occurrence.event.translations.find((t) => t.locale === locale)?.title ??
+					occurrence.event.translations[0]?.title ??
+					'Event';
 				// TODO: remove AMD hardcoding
 				const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
 				await this.mailService.sendEventCancelledEmail({
@@ -83,7 +93,7 @@ export class OccurrenceService {
 					eventDate: occurrence.date,
 					refundAmount,
 					locale,
-					cancellationReason: reason,
+					cancellationReason: pickCancellationReason(reasons, locale),
 					brandHost: booking.brandHost ?? undefined,
 				});
 			}

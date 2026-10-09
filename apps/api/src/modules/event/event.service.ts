@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import {
 	AppErrorCode,
+	compactCancellationReasons,
 	CreateEventData,
 	EventDifficulty,
 	EventImageFileItem,
 	EventImageItem,
 	EventStatus,
 	EventStatusEnum,
+	pickCancellationReason,
 	UpdateEventData,
 	UserRoleType,
 } from '@event-space/shared';
@@ -276,7 +278,7 @@ export class EventService {
 
 		const uploads = await this.uploadNewFiles(files);
 		const removedImages = findRemovedImages(existingImages, sortedItems);
-		const { cancellationRules, translations, cancellationReason, occurrences, ...pureEventData } =
+		const { cancellationRules, translations, cancellationReasons, occurrences, ...pureEventData } =
 			eventData;
 
 		// Validate status transition if status is changing
@@ -381,11 +383,7 @@ export class EventService {
 				// Cancel all bookings and process refunds
 				await this.bookingService.cancelEventBookings(id);
 
-				const locale = DEFAULT_LOCALE;
-				const eventTitle =
-					event.translations.find((t) => t.locale === locale)?.title ??
-					event.translations[0]?.title ??
-					'Event';
+				const reasons = compactCancellationReasons(cancellationReasons);
 
 				// Gather all bookings from occurrences included in updated
 				const occurrencesWithBookings = updated.occurrences ?? [];
@@ -395,6 +393,11 @@ export class EventService {
 
 				for (const { booking, occurrenceDate } of allBookings) {
 					if (booking.user && booking.user.email) {
+						const locale = booking.user.locale ?? DEFAULT_LOCALE;
+						const eventTitle =
+							event.translations.find((t) => t.locale === locale)?.title ??
+							event.translations[0]?.title ??
+							'Event';
 						// TODO: remove AMD hardcoding
 						const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
 						await this.mailService.sendEventCancelledEmail({
@@ -404,7 +407,7 @@ export class EventService {
 							eventDate: occurrenceDate,
 							refundAmount,
 							locale,
-							cancellationReason,
+							cancellationReason: pickCancellationReason(reasons, locale),
 							brandHost: booking.brandHost ?? undefined,
 						});
 					}

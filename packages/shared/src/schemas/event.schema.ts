@@ -9,6 +9,7 @@ import {
 	CancellationPolicyRuleSchema,
 } from './cancellation-policy-rule.schema';
 import { CategorySchema } from './category.schema';
+import { CancellationReasonsSchema } from './cancellation-reason.schema';
 import { CreateEventTranslationSchema, EventTranslationSchema } from './event-translation.schema';
 import {
 	BookingStatusCountsSchema,
@@ -144,7 +145,7 @@ export type CreateEventData = z.infer<typeof CreateEventSchema>;
 
 // === UPDATE EVENT ===
 export const UpdateEventSchema = CreateEventSchema.partial().extend({
-	cancellationReason: z.string().optional(),
+	cancellationReasons: CancellationReasonsSchema.optional(),
 	occurrences: z.array(UpdateEventOccurrenceSchema).optional(),
 });
 
