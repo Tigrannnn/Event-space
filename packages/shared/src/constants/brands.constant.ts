@@ -281,6 +281,20 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('RS Tour'),
 	},
+	'buggytour.event-space.space': {
+		name: 'Buggy Tour',
+		colorPrimary: '#089439',
+		colorAccent: '#8E8229',
+		description: siteConfig.description,
+		ogImage: '/brands/buggytour-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/buggytourarmenia/',
+			phone: '+374 77 550995',
+			email: 'info@buggytour.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('Buggy Tour'),
+	},
 };
 
 export function getBrandForHost(host: string | null): Brand {
