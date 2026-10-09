@@ -553,7 +553,7 @@ export default function EventForm({
 								return (
 									<div
 										key={field.fieldId}
-										className={`flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-end ${
+										className={`flex flex-col gap-3 rounded-md border p-3 md:flex-row md:items-start ${
 											isCancelPending
 												? 'border-amber-400 bg-amber-50 dark:border-amber-600/70 dark:bg-amber-950/30'
 												: isCancelled || finished
@@ -624,12 +624,12 @@ export default function EventForm({
 															`/admin/bookings?eventId=${event.id}&occurrenceId=${field.id}`,
 														)
 													}
-													className="text-primary cursor-pointer text-xs font-medium hover:underline md:pb-2"
+													className="text-primary cursor-pointer text-xs font-medium hover:underline md:mt-[22px] md:flex md:h-10 md:items-center"
 												>
 													{translate('admin.activeBookings')} {activeBookingsCount}
 												</button>
 											) : (
-												<span className="text-xs text-gray-500 md:pb-2">
+												<span className="text-xs text-gray-500 md:mt-[22px] md:flex md:h-10 md:items-center">
 													{translate('admin.activeBookings')} {activeBookingsCount}
 												</span>
 											))}
@@ -638,7 +638,7 @@ export default function EventForm({
 											<Button
 												type="button"
 												variant="secondary"
-												className="h-10 border-amber-500 px-3 text-amber-500 hover:bg-amber-500 dark:hover:bg-amber-950"
+												className="h-10 border-amber-500 px-3 text-amber-500 hover:bg-amber-500 md:mt-[22px] dark:hover:bg-amber-950"
 												disabled={isPending}
 												onClick={() => {
 													setOccurrencesToCancel((prev) => prev.filter((id) => id !== field.id));
@@ -653,7 +653,7 @@ export default function EventForm({
 											<Button
 												type="button"
 												variant="secondary"
-												className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-500 dark:hover:bg-red-950"
+												className="h-10 border-red-500 px-3 text-red-500 hover:bg-red-500 md:mt-[22px] dark:hover:bg-red-950"
 												disabled={isPending}
 												onClick={() => {
 													if (hasBookings) {
