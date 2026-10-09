@@ -295,6 +295,20 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Buggy Tour'),
 	},
+	'syuniktour.event-space.space': {
+		name: 'Syunik Tour',
+		colorPrimary: '#238B30',
+		colorAccent: '#978211',
+		description: siteConfig.description,
+		ogImage: '/brands/syuniqtour-logo.png',
+		contact: {
+			instagram: 'https://www.instagram.com/syunik_tour_armenia/',
+			phone: '+374 77 934403',
+			email: 'info@syuniktour.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('Syunik Tour'),
+	},
 };
 
 export function getBrandForHost(host: string | null): Brand {
