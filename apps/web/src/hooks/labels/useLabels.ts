@@ -23,6 +23,7 @@ export function useLabels() {
 	};
 
 	const EVENT_DIFFICULTY_LABELS: Record<EventDifficulty, string> = {
+		NONE: translate('admin.noDifficulty'),
 		EASY: translate('admin.easy'),
 		MODERATE: translate('admin.moderate'),
 		HARD: translate('admin.hard'),

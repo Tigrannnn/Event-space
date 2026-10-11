@@ -1,6 +1,7 @@
 import {
 	compactCancellationReasons,
 	countsActiveBookings,
+	EventDifficultyEnum,
 	EventStatusEnum,
 	type Event,
 	type EventImageItem,
@@ -22,7 +23,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 		locationUrl: '',
 		meetingLocationUrl: '',
 		date: '',
-		difficulty: '',
+		difficulty: EventDifficultyEnum.enum.NONE,
 		status: EventStatusEnum.enum.DRAFT,
 		price: '',
 		maxParticipants: '',
@@ -70,9 +71,7 @@ function buildEventFields(values: EventFormValues) {
 		locationUrl: normalizeOptionalString(values.locationUrl),
 		meetingLocationUrl: normalizeOptionalString(values.meetingLocationUrl),
 		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
-		// Difficulty is nullable but not optional on the API: an unset field has to be sent as null,
-		// because undefined drops the key from the JSON and the request is rejected.
-		difficulty: values.difficulty || null,
+		difficulty: values.difficulty,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
 		maxParticipants:
 			primaryOccurrence?.maxParticipants ?? (Number(values.maxParticipants || 0) || undefined),
@@ -139,7 +138,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		images,
 		locationUrl: event.locationUrl ?? '',
 		meetingLocationUrl: event.meetingLocationUrl ?? '',
-		difficulty: event.difficulty ?? '',
+		difficulty: event.difficulty,
 		price: String(event.price),
 		duration: String(event.duration),
 		status: event.status,

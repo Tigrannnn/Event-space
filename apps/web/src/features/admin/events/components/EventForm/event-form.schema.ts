@@ -61,7 +61,7 @@ export const EventFormSchema = z.object({
 	locationUrl: z.string().url('admin.validation.invalidUrl'),
 	meetingLocationUrl: z.string().url('admin.validation.invalidUrl'),
 	date: z.string().optional(),
-	difficulty: z.union([EventDifficultyEnum, z.literal('')]).optional(),
+	difficulty: EventDifficultyEnum,
 	price: z.string().min(1, 'admin.validation.priceRequired'),
 	maxParticipants: z.string().optional(),
 	duration: z.string().min(1, 'admin.validation.durationRequired'),

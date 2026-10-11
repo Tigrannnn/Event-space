@@ -8,7 +8,7 @@ import { EventStatusSchema } from '../inputTypeSchemas/EventStatusSchema'
 /////////////////////////////////////////
 
 export const EventSchema = z.object({
-  difficulty: EventDifficultySchema.nullable(),
+  difficulty: EventDifficultySchema,
   status: EventStatusSchema,
   id: z.uuid(),
   locationUrl: z.string(),

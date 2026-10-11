@@ -153,7 +153,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								label={translate('event.duration')}
 								value={formatDuration(event.duration)}
 							/>
-							{event.difficulty && (
+							{event.difficulty !== 'NONE' && (
 								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={EVENT_DIFFICULTY_LABELS[event.difficulty]} />
 							)}
 						</div>

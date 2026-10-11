@@ -14,7 +14,7 @@ export const EventUncheckedCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.E
   id: z.uuid().optional(),
   locationUrl: z.string(),
   meetingLocationUrl: z.string(),
-  difficulty: z.lazy(() => EventDifficultySchema).optional().nullable(),
+  difficulty: z.lazy(() => EventDifficultySchema).optional(),
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   duration: z.number().int(),
   status: z.lazy(() => EventStatusSchema).optional(),

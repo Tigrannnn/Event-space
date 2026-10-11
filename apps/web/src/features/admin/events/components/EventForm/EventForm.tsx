@@ -90,13 +90,10 @@ export default function EventForm({
 		})),
 	];
 
-	const difficultyOptions = [
-		{ value: '', label: translate('admin.noSelection') },
-		...EventDifficultyEnum.options.map((diff) => ({
-			value: diff,
-			label: EVENT_DIFFICULTY_LABELS[diff],
-		})),
-	];
+	const difficultyOptions = EventDifficultyEnum.options.map((diff) => ({
+		value: diff,
+		label: EVENT_DIFFICULTY_LABELS[diff],
+	}));
 
 	const getValidStatusOptions = () => {
 		const allowedTransitions: Record<string, string[]> = {

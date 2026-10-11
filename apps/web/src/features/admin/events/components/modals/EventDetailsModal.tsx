@@ -340,7 +340,7 @@ export default function EventDetailsModal() {
 										{translate('event.difficulty')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{event.difficulty ? EVENT_DIFFICULTY_LABELS[event.difficulty] : '—'}
+										{EVENT_DIFFICULTY_LABELS[event.difficulty]}
 									</p>
 								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

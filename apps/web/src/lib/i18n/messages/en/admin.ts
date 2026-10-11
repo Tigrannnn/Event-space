@@ -184,6 +184,7 @@ export const admin = {
 	easy: 'Easy',
 	moderate: 'Moderate',
 	hard: 'Hard',
+	noDifficulty: 'No difficulty',
 	upcoming: 'Upcoming',
 	completed: 'Completed',
 	finished: 'Finished',

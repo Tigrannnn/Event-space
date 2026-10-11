@@ -186,6 +186,7 @@ export const admin: Messages['admin'] = {
 	easy: 'Легко',
 	moderate: 'Средне',
 	hard: 'Сложно',
+	noDifficulty: 'Без сложности',
 	upcoming: 'Предстоящие',
 	completed: 'Завершенные',
 	finished: 'Завершено',

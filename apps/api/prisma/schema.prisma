@@ -21,6 +21,7 @@ datasource db {
 }
 
 enum EventDifficulty {
+  NONE
   EASY
   MODERATE
   HARD
@@ -72,7 +73,7 @@ model Event {
   id                 String           @id @default(uuid())
   locationUrl        String           @map("location_url") @db.VarChar(1000)
   meetingLocationUrl String           @map("meeting_location_url") @db.VarChar(1000)
-  difficulty         EventDifficulty?
+  difficulty         EventDifficulty  @default(NONE)
   price              Decimal          @db.Decimal(10, 2)
   duration           Int // Minutes
   status             EventStatus      @default(DRAFT)
