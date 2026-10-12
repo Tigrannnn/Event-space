@@ -20,7 +20,9 @@ const ARMENIAN: Record<string, string> = {
 
 /**
  * Spellings that name the same sound in different transliterations — Tsaghkadzor, Tsakhkadzor
- * and Tsaxkadzor all end up as "cahkadzor". Applied in order, so the longer groups go first.
+ * and Tsaxkadzor all end up as "cahkadzor", Kobuleti and Cobuleti as "kobuleti". A plain "c" is
+ * folded into "k" before "ts" and "ch" claim the letter "c" for themselves. Applied in order, so
+ * the longer groups go first.
  * Collisions this creates only ever widen a match; they never hide one.
  */
 const SOUND_FOLDS: Array<[RegExp, string]> = [
@@ -28,6 +30,7 @@ const SOUND_FOLDS: Array<[RegExp, string]> = [
 	[/dzh/g, 'j'],
 	[/zh/g, 'j'],
 	[/[kg]h|x/g, 'h'],
+	[/c(?!h)/g, 'k'],
 	[/ts|tz|ch/g, 'c'],
 	[/sh/g, 's'],
 	[/ph/g, 'p'],
@@ -108,6 +111,12 @@ function wordsMatch(query: string, word: string): boolean {
 	// "гегард" doesn't match "Гегаркуникская".
 	const prefix = commonPrefixLength(query, word);
 	if (prefix >= 3 && ENDING.test(query.slice(prefix))) return true;
+
+	// The first letter is the one people miss by a neighbouring key: "baxpat" for "haxpat". Safe
+	// only for a longer word with everything after it intact, where nothing else fits that gap.
+	if (query.length >= 6 && query.length === word.length && query.slice(1) === word.slice(1)) {
+		return true;
+	}
 
 	// A typo in a word whose start is right: "gegard" → "geghard", "haxpt" → "haxpat",
 	// "haxpatdt" → "haxpat". The allowance grows with the word — a quarter of its length — so a

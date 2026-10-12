@@ -82,6 +82,25 @@ describe('eventMatchesSearch', () => {
 		expect(finds('dlijn', event({ en: 'Dilijan National Park' }))).toBe(true);
 	});
 
+	it('finds a place when the first letter is a neighbouring key', () => {
+		expect(finds('baxpat', event({ en: 'Haxpat Monastery' }))).toBe(true);
+		expect(finds('axpat', event({ en: 'Haxpat Monastery' }))).toBe(true);
+	});
+
+	it('spells k as c', () => {
+		const kobuleti = event({ ru: 'Поездка в Кобулети', en: 'Trip to Kobuleti' });
+		expect(finds('cobuleti', kobuleti)).toBe(true);
+		expect(finds('cobuleti', event({ ru: 'Кобулети' }))).toBe(true);
+		expect(finds('kobuleti', event({ en: 'Cobuleti beach' }))).toBe(true);
+		expect(finds('cascade', event({ ru: 'Каскад' }))).toBe(true);
+	});
+
+	it('keeps ch and ts apart from a plain c', () => {
+		expect(finds('chambarak', event({ en: 'Chambarak' }))).toBe(true);
+		expect(finds('cambarak', event({ en: 'Chambarak' }))).toBe(true);
+		expect(finds('tsaxkadzor', event({ en: 'Tsaghkadzor' }))).toBe(true);
+	});
+
 	it('finds a word that is still being typed', () => {
 		expect(finds('tate', event({ en: 'Tatev Monastery' }))).toBe(true);
 	});
@@ -105,6 +124,8 @@ describe('eventMatchesSearch', () => {
 		['haxpatdt', 'Happy tours for everyone'],
 		['sevan', 'Seven days in Yerevan'],
 		['tatev', 'Titan town'],
+		['hours', 'Tours around Areni'],
+		['mother', 'Another day'],
 	])('does not let «%s» match «%s»', (search, text) => {
 		expect(finds(search, event({ ru: text }))).toBe(false);
 	});
