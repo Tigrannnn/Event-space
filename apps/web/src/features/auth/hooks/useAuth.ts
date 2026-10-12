@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth.api';
 import {
+	AppErrorCode,
 	AuthAction,
 	ForgotPasswordData,
 	LoginData,
 	RegisterData,
 	ResendCodeData,
 	ResetPasswordData,
+	resolveApiError,
 	VerifyEmailData,
 } from '@event-space/shared';
 import { useToastStore } from '@/stores/toastStore';
@@ -34,7 +36,9 @@ export const useRegister = () => {
 		},
 		onError: (error: unknown, variables: RegisterData) => {
 			const message = apiError(error, 'auth.registerFailed');
-			openModal(ModalType.VerifyEmail, { email: variables.email });
+			if (resolveApiError(error).code === AppErrorCode.OTP_RESEND_COOLDOWN) {
+				openModal(ModalType.VerifyEmail, { email: variables.email });
+			}
 			addToast(message, ToastType.ERROR);
 		},
 	});
