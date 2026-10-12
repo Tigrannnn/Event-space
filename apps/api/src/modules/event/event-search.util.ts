@@ -88,6 +88,10 @@ function editDistance(a: string, b: string): number {
 	return rows[a.length][b.length];
 }
 
+function consonantSkeleton(word: string): string {
+	return word.replace(/[aeiou]/g, '').replace(/(.)\1+/g, '$1');
+}
+
 /** Letters a word can end in without changing what it means: Russian endings, English plurals. */
 const ENDING = /^[aeious]{1,2}$/;
 
@@ -105,10 +109,32 @@ function wordsMatch(query: string, word: string): boolean {
 	const prefix = commonPrefixLength(query, word);
 	if (prefix >= 3 && ENDING.test(query.slice(prefix))) return true;
 
-	// A typo in a longer word whose start is right: "gegard" → "geghard". Short words get none —
-	// one letter apart, "поход" is "погода" and "арени" is "Армении".
-	const allowedEdits = query.length >= 9 ? 2 : query.length >= 6 ? 1 : 0;
-	return allowedEdits > 0 && prefix >= 2 && editDistance(query, word) <= allowedEdits;
+	// A typo in a word whose start is right: "gegard" → "geghard", "haxpt" → "haxpat",
+	// "haxpatdt" → "haxpat". The allowance grows with the word — a quarter of its length — so a
+	// six-letter place name forgives one slip and an eight-letter query two. A five-letter query
+	// must also share its first three letters and may only lose or gain a letter: swap one for
+	// another and "sevan" is "seven", "арени" is "Армении" and "поход" is "погода".
+	const longer = Math.max(query.length, word.length);
+	const sameLength = query.length === word.length;
+	const allowedEdits = query.length < 5 || (longer <= 5 && sameLength) ? 0 : Math.floor(longer / 4);
+	const requiredPrefix = query.length >= 6 ? 2 : 3;
+
+	if (allowedEdits > 0 && prefix >= requiredPrefix && editDistance(query, word) <= allowedEdits) {
+		return true;
+	}
+
+	// A name typed without some of its vowels: "hxpt" and "haxpt" are both "haxpat". Same first
+	// letter, at least three consonants, and the query has to be the shorter one — swapping a
+	// vowel for another ("sevan" for "seven") is a different word, not a dropped letter.
+	const skeleton = consonantSkeleton(query);
+	return (
+		query.length >= 3 &&
+		query.length < word.length &&
+		word.length >= 5 &&
+		query[0] === word[0] &&
+		skeleton.length >= 3 &&
+		skeleton === consonantSkeleton(word)
+	);
 }
 
 export interface SearchableEvent {

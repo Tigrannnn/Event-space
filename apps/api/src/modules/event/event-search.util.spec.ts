@@ -67,6 +67,21 @@ describe('eventMatchesSearch', () => {
 		expect(finds('tsagkadzor', event({ en: 'Tsaghkadzor' }))).toBe(true);
 	});
 
+	it('finds a short place name with letters added at the end', () => {
+		expect(finds('haxpatdt', event({ en: 'Haxpat Monastery' }))).toBe(true);
+		expect(finds('haxpatik', event({ en: 'Haxpat Monastery' }))).toBe(true);
+	});
+
+	it('finds a short place name with a letter dropped', () => {
+		expect(finds('haxpt', event({ en: 'Haxpat Monastery' }))).toBe(true);
+		expect(finds('hxpat', event({ en: 'Haxpat Monastery' }))).toBe(true);
+	});
+
+	it('finds a name typed without its vowels', () => {
+		expect(finds('hxpt', event({ en: 'Haxpat Monastery' }))).toBe(true);
+		expect(finds('dlijn', event({ en: 'Dilijan National Park' }))).toBe(true);
+	});
+
 	it('finds a word that is still being typed', () => {
 		expect(finds('tate', event({ en: 'Tatev Monastery' }))).toBe(true);
 	});
@@ -86,6 +101,10 @@ describe('eventMatchesSearch', () => {
 		['поход', 'В плохую погоду маршрут меняется'],
 		['tatev', 'Վերցրեք թեթև նախուտեստ'],
 		['gegard', 'Гегаркуникская область'],
+		['haxpt', 'Hotel and spa packages'],
+		['haxpatdt', 'Happy tours for everyone'],
+		['sevan', 'Seven days in Yerevan'],
+		['tatev', 'Titan town'],
 	])('does not let «%s» match «%s»', (search, text) => {
 		expect(finds(search, event({ ru: text }))).toBe(false);
 	});
