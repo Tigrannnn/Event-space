@@ -10,6 +10,7 @@ export const DashboardSnapshotSelectSchema: z.ZodType<Prisma.DashboardSnapshotSe
   cancelledEvents: z.boolean().optional(),
   totalCapacity: z.boolean().optional(),
   usedCapacity: z.boolean().optional(),
+  expectedRevenue: z.boolean().optional(),
   createdAt: z.boolean().optional(),
 }).strict()
 

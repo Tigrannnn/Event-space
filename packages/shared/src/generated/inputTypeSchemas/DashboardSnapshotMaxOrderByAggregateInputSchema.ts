@@ -12,6 +12,7 @@ export const DashboardSnapshotMaxOrderByAggregateInputSchema: z.ZodType<Prisma.D
   cancelledEvents: z.lazy(() => SortOrderSchema).optional(),
   totalCapacity: z.lazy(() => SortOrderSchema).optional(),
   usedCapacity: z.lazy(() => SortOrderSchema).optional(),
+  expectedRevenue: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
 });
 

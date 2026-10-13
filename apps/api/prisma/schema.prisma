@@ -270,6 +270,7 @@ model BookingAdjustment {
   currency              String           @default("AMD")
   stripePaymentIntentId String?          @map("stripe_payment_intent_id")
   stripeRefundId        String?          @unique @map("stripe_refund_id")
+  feeAmount             Decimal?         @map("fee_amount") @db.Decimal(10, 2)
   status                AdjustmentStatus
   reason                String?
   createdAt             DateTime         @default(now()) @map("created_at")
@@ -347,6 +348,8 @@ model DashboardSnapshot {
 
   totalCapacity Int @map("total_capacity")
   usedCapacity  Int @map("used_capacity")
+
+  expectedRevenue Decimal? @map("expected_revenue") @db.Decimal(14, 2)
 
   createdAt DateTime @default(now()) @map("created_at")
 

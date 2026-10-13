@@ -11,6 +11,7 @@ export const BookingAdjustmentMaxOrderByAggregateInputSchema: z.ZodType<Prisma.B
   currency: z.lazy(() => SortOrderSchema).optional(),
   stripePaymentIntentId: z.lazy(() => SortOrderSchema).optional(),
   stripeRefundId: z.lazy(() => SortOrderSchema).optional(),
+  feeAmount: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   reason: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),

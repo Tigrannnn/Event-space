@@ -14,6 +14,7 @@ export const BookingAdjustmentCreateInputSchema: z.ZodType<Prisma.BookingAdjustm
   currency: z.string().optional(),
   stripePaymentIntentId: z.string().optional().nullable(),
   stripeRefundId: z.string().optional().nullable(),
+  feeAmount: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional().nullable(),
   status: z.lazy(() => AdjustmentStatusSchema),
   reason: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),

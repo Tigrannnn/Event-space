@@ -16,6 +16,7 @@ export const BookingAdjustmentSchema = z.object({
   currency: z.string(),
   stripePaymentIntentId: z.string().nullable(),
   stripeRefundId: z.string().nullable(),
+  feeAmount: z.instanceof(Prisma.Decimal, { message: "Field 'feeAmount' must be a Decimal. Location: ['Models', 'BookingAdjustment']"}).nullable(),
   reason: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

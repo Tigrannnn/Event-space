@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { SortOrderSchema } from './SortOrderSchema';
+import { SortOrderInputSchema } from './SortOrderInputSchema';
 import { DashboardSnapshotCountOrderByAggregateInputSchema } from './DashboardSnapshotCountOrderByAggregateInputSchema';
 import { DashboardSnapshotAvgOrderByAggregateInputSchema } from './DashboardSnapshotAvgOrderByAggregateInputSchema';
 import { DashboardSnapshotMaxOrderByAggregateInputSchema } from './DashboardSnapshotMaxOrderByAggregateInputSchema';
@@ -17,6 +18,7 @@ export const DashboardSnapshotOrderByWithAggregationInputSchema: z.ZodType<Prism
   cancelledEvents: z.lazy(() => SortOrderSchema).optional(),
   totalCapacity: z.lazy(() => SortOrderSchema).optional(),
   usedCapacity: z.lazy(() => SortOrderSchema).optional(),
+  expectedRevenue: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   _count: z.lazy(() => DashboardSnapshotCountOrderByAggregateInputSchema).optional(),
   _avg: z.lazy(() => DashboardSnapshotAvgOrderByAggregateInputSchema).optional(),

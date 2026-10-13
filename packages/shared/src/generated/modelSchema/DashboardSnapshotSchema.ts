@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Prisma } from '@prisma/client'
 
 /////////////////////////////////////////
 // DASHBOARD SNAPSHOT SCHEMA
@@ -24,6 +25,7 @@ export const DashboardSnapshotSchema = z.object({
   cancelledEvents: z.number().int(),
   totalCapacity: z.number().int(),
   usedCapacity: z.number().int(),
+  expectedRevenue: z.instanceof(Prisma.Decimal, { message: "Field 'expectedRevenue' must be a Decimal. Location: ['Models', 'DashboardSnapshot']"}).nullable(),
   createdAt: z.coerce.date(),
 })
 

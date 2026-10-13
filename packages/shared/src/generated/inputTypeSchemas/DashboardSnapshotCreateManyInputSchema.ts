@@ -1,6 +1,8 @@
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
+import { isValidDecimalInput } from './isValidDecimalInput';
+import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 
 export const DashboardSnapshotCreateManyInputSchema: z.ZodType<Prisma.DashboardSnapshotCreateManyInput> = z.strictObject({
   date: z.coerce.date(),
@@ -11,6 +13,7 @@ export const DashboardSnapshotCreateManyInputSchema: z.ZodType<Prisma.DashboardS
   cancelledEvents: z.number().int(),
   totalCapacity: z.number().int(),
   usedCapacity: z.number().int(),
+  expectedRevenue: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }).optional().nullable(),
   createdAt: z.coerce.date().optional(),
 });
 
