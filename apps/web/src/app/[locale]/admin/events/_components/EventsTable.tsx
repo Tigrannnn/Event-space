@@ -53,6 +53,7 @@ import Badge from '@/components/ui/Badge';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -347,6 +348,8 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 						/>
 					</AdminFilterBar>
 				</div>
+
+				<TimeZoneNote className="px-3 pb-2 sm:px-5" />
 
 				<Table>
 					<TableHeader>

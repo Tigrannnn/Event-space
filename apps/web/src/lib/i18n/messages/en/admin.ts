@@ -209,6 +209,7 @@ export const admin = {
 	occurrences: 'Occurrences',
 	occurrencesDescription: 'Add one or more dates for this event.',
 	addOccurrence: 'Add occurrence',
+	timeZoneHint: 'Enter times in Yerevan time ({offset}). Guests see it exactly as entered, wherever you are.',
 	dateAndTime: 'Date and time',
 	noOccurrences: 'No occurrences yet.',
 	hoursBeforeEvent: 'Hours before event',

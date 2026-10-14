@@ -6,11 +6,13 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
+import { useFormatDate } from '@/hooks/format';
 import { getCategoryTranslation } from '@event-space/shared';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 
 export default function CategoryDetailsModal() {
 	const translate = useTranslation();
+	const { formatDateTime } = useFormatDate();
 	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.CategoryDetails);
@@ -74,7 +76,7 @@ export default function CategoryDetailsModal() {
 									{translate('admin.createdAt')}
 								</p>
 								<p className="mt-1 font-medium text-gray-900 dark:text-white">
-									{new Date(category.createdAt).toLocaleString()}
+									{formatDateTime(category.createdAt)}
 								</p>
 							</div>
 
@@ -83,7 +85,7 @@ export default function CategoryDetailsModal() {
 									{translate('admin.updatedAt')}
 								</p>
 								<p className="mt-1 font-medium text-gray-900 dark:text-white">
-									{new Date(category.updatedAt).toLocaleString()}
+									{formatDateTime(category.updatedAt)}
 								</p>
 							</div>
 

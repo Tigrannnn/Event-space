@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
-import { formatDateTime } from '@/utils/date';
+import { formatDateTimeZone } from '@/utils/date';
 import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { Calendar, MapPin, Navigation, Plus, Users } from 'lucide-react';
 import {
@@ -171,7 +171,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">
 					<div className="flex items-center gap-2">
 						<Calendar className="h-4 w-4" />
-						<span>{formatDateTime(occurrenceDate ?? new Date(), localeIntl[locale])}</span>
+						<span>{formatDateTimeZone(occurrenceDate ?? new Date(), localeIntl[locale])}</span>
 					</div>
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />

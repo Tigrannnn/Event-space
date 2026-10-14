@@ -12,6 +12,7 @@ import {
 	hasCancellationReason,
 	type CancellationReasons,
 	type Category,
+	zonedLocalInputToDate,
 } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues } from './form-mappers';
@@ -32,6 +33,7 @@ import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
 import { XIcon } from 'lucide-react';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 interface EventFormProps {
 	submitLabel: string;
@@ -170,8 +172,11 @@ export default function EventForm({
 	// Past dates keep their original index: `register` addresses fields by position,
 	// so the list may be filtered for display but never renumbered.
 	const [showPastOccurrences, setShowPastOccurrences] = useState(false);
-	const nowIso = new Date().toISOString();
-	const isPastOccurrence = (date?: string) => !!date && date <= nowIso;
+	const nowMs = new Date().getTime();
+	const isPastOccurrence = (date?: string) => {
+		const moment = date ? zonedLocalInputToDate(date) : null;
+		return !!moment && moment.getTime() <= nowMs;
+	};
 	const indexedOccurrences = occurrenceFields.map((field, index) => ({ field, index }));
 	const pastOccurrencesCount = indexedOccurrences.filter(({ field }) =>
 		isPastOccurrence(field.date),
@@ -554,6 +559,7 @@ export default function EventForm({
 								{translate('admin.occurrences')}
 							</h3>
 							<p className="text-xs text-gray-500">{translate('admin.occurrencesDescription')}</p>
+							<TimeZoneNote messageKey="admin.timeZoneHint" className="mt-1.5" />
 						</div>
 						<Button
 							type="button"
@@ -893,7 +899,7 @@ export default function EventForm({
 
 				{watchedDate && watchedPrice && (
 					<CancellationPolicyInfo
-						eventDate={watchedDate}
+						eventDate={zonedLocalInputToDate(watchedDate) ?? ''}
 						price={Number(watchedPrice) || 0}
 						cancellationRules={watchedRules ?? []}
 					/>

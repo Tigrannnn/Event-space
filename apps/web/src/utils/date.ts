@@ -2,7 +2,13 @@
  * Date formatting utilities
  */
 
-import { LocaleIntlEnum } from '@event-space/shared';
+import {
+	APP_TIME_ZONE,
+	APP_TIME_ZONE_NAME,
+	formatZoneOffset,
+	getZonedMonthIndex,
+	LocaleIntlEnum,
+} from '@event-space/shared';
 
 const getValidDate = (date: string | Date | null | undefined): Date | null => {
 	if (!date) return null;
@@ -61,12 +67,24 @@ function formatWithOwnedMonth(
 	locale: LocaleIntlEnum,
 	options: Intl.DateTimeFormatOptions,
 	monthForm: 'short' | 'long',
+	inAppTimeZone = false,
 ): string {
-	const parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
-	const month = MONTH_NAMES[locale][monthForm][date.getMonth()];
+	const parts = new Intl.DateTimeFormat(
+		locale,
+		inAppTimeZone ? { ...options, timeZone: APP_TIME_ZONE } : options,
+	).formatToParts(date);
+	const monthIndex = inAppTimeZone ? getZonedMonthIndex(date) : date.getMonth();
+	const month = MONTH_NAMES[locale][monthForm][monthIndex];
 
 	return parts.map((part) => (part.type === 'month' ? month : part.value)).join('');
 }
+
+const zoneOffsetLabel = (date: Date): string => formatZoneOffset(date, APP_TIME_ZONE);
+
+export const formatZoneName = (locale: LocaleIntlEnum, date: Date = new Date()): string => {
+	const language = locale.slice(0, 2) as keyof typeof APP_TIME_ZONE_NAME;
+	return `${APP_TIME_ZONE_NAME[language]} (${zoneOffsetLabel(date)})`;
+};
 
 export const formatDateYear = (date: string | Date | null | undefined, locale: LocaleIntlEnum): string => {
 	const d = getValidDate(date);
@@ -90,10 +108,17 @@ export const formatDateTime = (date: string | Date | null | undefined, locale: L
 	// join character is ours to control rather than whatever phrasing a locale's own date+time
 	// pattern would use ("at", "в", none at all), which is a second axis environments could differ
 	// on independently of the month name.
-	const datePart = formatWithOwnedMonth(d, locale, { month: 'short', day: 'numeric' }, 'short');
+	const datePart = formatWithOwnedMonth(
+		d,
+		locale,
+		{ month: 'short', day: 'numeric' },
+		'short',
+		true,
+	);
 	// 24-hour everywhere, stated rather than left to the locale: English would otherwise print
 	// "7:00 PM" while Russian and Armenian print "19:00" for the same departure.
 	const timePart = new Intl.DateTimeFormat(locale, {
+		timeZone: APP_TIME_ZONE,
 		hour: '2-digit',
 		minute: '2-digit',
 		hour12: false,
@@ -194,10 +219,33 @@ export const formatTime = (date: string | Date | null | undefined, locale: Local
 	const d = getValidDate(date);
 	if (!d) return '';
 
-	return d.toLocaleTimeString(locale, {
+	const time = new Intl.DateTimeFormat(locale, {
+		timeZone: APP_TIME_ZONE,
 		hour: '2-digit',
 		minute: '2-digit',
 		hour12: false,
 		hourCycle: 'h23',
-	});
+	}).format(d);
+
+	return time;
+};
+
+export const formatDateTimeZone = (
+	date: string | Date | null | undefined,
+	locale: LocaleIntlEnum,
+): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
+
+	return `${formatDateTime(d, locale)} · ${formatZoneName(locale, d)}`;
+};
+
+export const formatTimeZone = (
+	date: string | Date | null | undefined,
+	locale: LocaleIntlEnum,
+): string => {
+	const d = getValidDate(date);
+	if (!d) return '';
+
+	return `${formatTime(d, locale)} · ${formatZoneName(locale, d)}`;
 };

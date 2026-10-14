@@ -25,7 +25,7 @@ export default function BookingDetailsModal() {
 		EVENT_DIFFICULTY_LABELS,
 	} = useLabels();
 	const locale = translate.locale;
-	const { formatDateTime, formatDuration } = useFormatDate();
+	const { formatDateTime, formatDateTimeZone, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
@@ -299,7 +299,7 @@ export default function BookingDetailsModal() {
 										{translate('event.date')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{booking.occurrence?.date ? formatDateTime(booking.occurrence.date) : '—'}
+										{booking.occurrence?.date ? formatDateTimeZone(booking.occurrence.date) : '—'}
 									</p>
 								</div>
 									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

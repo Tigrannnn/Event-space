@@ -211,6 +211,7 @@ export const admin: Messages['admin'] = {
 	occurrences: 'События',
 	occurrencesDescription: 'Добавьте одну или несколько дат для этого мероприятия.',
 	addOccurrence: 'Добавить дату',
+	timeZoneHint: 'Время указывается по Еревану ({offset}). Гости увидят его именно таким, где бы вы ни были.',
 	dateAndTime: 'Дата и время',
 	noOccurrences: 'Пока нет дат.',
 	hoursBeforeEvent: 'Часов до события',

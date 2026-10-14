@@ -4,6 +4,7 @@ import { formatDateTime } from '@/utils/date';
 import { BookingWithEstimate, estimateStripeFeeInCents } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 export interface CancellationPolicyInfoProps {
 	eventDate: Date | string;
@@ -90,6 +91,7 @@ export default function CancellationPolicyInfo({
 			<p className="mt-2 text-xs italic">
 				{translate('cancellation.feeNote')}
 			</p>
+			<TimeZoneNote className="mt-2" />
 		</div>
 	);
 }

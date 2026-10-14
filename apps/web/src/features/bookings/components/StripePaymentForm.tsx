@@ -51,7 +51,7 @@ function StripePaymentFormContent({
 	const translate = useTranslation();
 	const apiError = useApiError();
 	const locale = translate.locale;
-	const { formatDateTime } = useFormatDate();
+	const { formatDateTimeZone } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const params = useParams();
 	const { openModal } = useModalStore();
@@ -159,7 +159,7 @@ function StripePaymentFormContent({
 				<div className="space-y-1 rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
 					<p className="text-sm font-semibold text-gray-900 dark:text-white">{eventTitle}</p>
 					<p className="text-sm text-gray-500 dark:text-gray-400">
-						{formatDateTime(selectedOccurrence.date)}
+						{formatDateTimeZone(selectedOccurrence.date)}
 					</p>
 					<p className="text-sm text-gray-600 dark:text-gray-300">
 						{translate('booking.spots')}: <span className="font-medium">{booking.quantity}</span>

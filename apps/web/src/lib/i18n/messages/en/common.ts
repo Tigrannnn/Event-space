@@ -22,4 +22,5 @@ export const common = {
 	copyFailed: 'Could not copy to clipboard',
 	scrollLeft: 'Scroll left',
 	scrollRight: 'Scroll right',
+	timesInZone: 'All times are Yerevan time ({offset})',
 };

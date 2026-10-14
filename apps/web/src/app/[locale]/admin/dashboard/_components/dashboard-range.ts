@@ -1,4 +1,5 @@
-import { startOfToday, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
+import { toZonedDateKey } from '@event-space/shared';
 import { formatDateParam } from '@/components/filters';
 import { readString, writeParam } from '@/hooks/urlFilters';
 
@@ -10,11 +11,16 @@ export interface DashboardRange {
 /** Last 30 days — long enough for a trend to be visible, short enough to stay readable. */
 export const DEFAULT_RANGE_DAYS = 30;
 
+function today(): Date {
+	const [year, month, day] = toZonedDateKey(new Date()).split('-').map(Number);
+	return new Date(year, month - 1, day);
+}
+
 export function defaultDashboardRange(): DashboardRange {
-	const today = startOfToday();
+	const current = today();
 	return {
-		from: formatDateParam(subDays(today, DEFAULT_RANGE_DAYS - 1)),
-		to: formatDateParam(today),
+		from: formatDateParam(subDays(current, DEFAULT_RANGE_DAYS - 1)),
+		to: formatDateParam(current),
 	};
 }
 
@@ -46,6 +52,6 @@ export function serializeDashboardRange(
  * widget shows live numbers instead of a chart.
  */
 export function isTodayOnly(range: DashboardRange): boolean {
-	const today = formatDateParam(startOfToday());
-	return range.from === today && range.to === today;
+	const current = formatDateParam(today());
+	return range.from === current && range.to === current;
 }

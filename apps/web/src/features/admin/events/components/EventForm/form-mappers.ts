@@ -5,14 +5,14 @@ import {
 	EventStatusEnum,
 	type Event,
 	type EventImageItem,
+	toZonedLocalInput,
+	zonedLocalInputToDate,
 } from '@event-space/shared';
 import type { EventFormValues } from './event-form.schema';
 import type { ImageUploaderItem } from '@/components/ui/ImageUploader/types';
 
-function toDateTimeLocalInput(value: string | Date): string {
-	const date = new Date(value);
-	const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-	return local.toISOString().slice(0, 16);
+function fromDateTimeLocalInput(value: string): string {
+	return (zonedLocalInputToDate(value) ?? new Date(value)).toISOString();
 }
 
 export function getDefaultEventFormValues(): EventFormValues {
@@ -60,7 +60,7 @@ function buildEventFields(values: EventFormValues) {
 		.filter((occurrence) => occurrence.date)
 		.map((occurrence) => ({
 			id: occurrence.id,
-			date: new Date(occurrence.date).toISOString(),
+			date: fromDateTimeLocalInput(occurrence.date),
 			maxParticipants: occurrence.maxParticipants ? Number(occurrence.maxParticipants) : undefined,
 		}));
 
@@ -70,7 +70,7 @@ function buildEventFields(values: EventFormValues) {
 		categoryId: values.categoryId,
 		locationUrl: normalizeOptionalString(values.locationUrl),
 		meetingLocationUrl: normalizeOptionalString(values.meetingLocationUrl),
-		date: primaryOccurrence?.date ?? new Date(values.date ?? '').toISOString(),
+		date: primaryOccurrence?.date ?? fromDateTimeLocalInput(values.date ?? ''),
 		difficulty: values.difficulty,
 		price: parseFloat(parseFloat(values.price).toFixed(2)),
 		maxParticipants:
@@ -127,7 +127,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 
 	const occurrences = (event.occurrences ?? []).map((occurrence) => ({
 		id: occurrence.id,
-		date: toDateTimeLocalInput(occurrence.date),
+		date: toZonedLocalInput(occurrence.date),
 		maxParticipants: String(occurrence.maxParticipants ?? ''),
 		status: occurrence.status,
 		activeBookingsCount: countsActiveBookings(occurrence.bookingStats),

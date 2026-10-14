@@ -24,4 +24,5 @@ export const common: Messages['common'] = {
 	copyFailed: 'Не удалось скопировать',
 	scrollLeft: 'Прокрутить влево',
 	scrollRight: 'Прокрутить вправо',
+	timesInZone: 'Всё время указано по Еревану ({offset})',
 };

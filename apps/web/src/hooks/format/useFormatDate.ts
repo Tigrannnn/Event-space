@@ -9,6 +9,9 @@ import {
     formatDuration,
     formatRelativeTime,
     formatTime,
+    formatDateTimeZone,
+    formatTimeZone,
+    formatZoneName,
 } from '@/utils/date';
 
 export function useFormatDate() {
@@ -21,6 +24,10 @@ export function useFormatDate() {
         formatDateShort: (date: string | Date | null | undefined) => formatDateShort(date, intlLocale),
         formatDateTime: (date: string | Date | null | undefined) => formatDateTime(date, intlLocale),
         formatTime: (date: string | Date | null | undefined) => formatTime(date, intlLocale),
+        formatDateTimeZone: (date: string | Date | null | undefined) =>
+            formatDateTimeZone(date, intlLocale),
+        formatTimeZone: (date: string | Date | null | undefined) => formatTimeZone(date, intlLocale),
+        zoneName: () => formatZoneName(intlLocale),
         formatDuration: (minutes: number) => formatDuration(minutes, intlLocale),
         formatRelative: (date: string | Date | null | undefined) =>
             formatRelativeTime(date, intlLocale),

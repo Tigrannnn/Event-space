@@ -83,7 +83,7 @@ export default function EventDetailsModal() {
 	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.EventDetails);
 	const event = modalData?.event;
-	const { formatDateTime, formatDuration } = useFormatDate();
+	const { formatDateTime, formatDateTimeZone, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const {
 		BOOKING_STATUS_LABELS,
@@ -120,7 +120,7 @@ export default function EventDetailsModal() {
 			>
 				<div className="flex items-center justify-between gap-2">
 					<p className="text-sm font-medium text-gray-900 dark:text-white">
-						{formatDateTime(occurrence.date)}
+						{formatDateTimeZone(occurrence.date)}
 					</p>
 					<span className={`shrink-0 text-xs font-medium ${OCCURRENCE_STATE_CLASS[state]}`}>
 						{EVENT_OCCURRENCE_STATE_LABELS[state]}

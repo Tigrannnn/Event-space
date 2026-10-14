@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Eye } from 'lucide-react';
 import { startOfToday, subDays } from 'date-fns';
+import { APP_TIME_ZONE } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
 import Badge from '@/components/ui/Badge';
 import Select from '@/components/ui/Select';
@@ -46,6 +47,7 @@ interface UsersTableProps {
 
 function formatDate(value: SafeUserData['createdAt']) {
 	return new Intl.DateTimeFormat('en', {
+		timeZone: APP_TIME_ZONE,
 		month: 'short',
 		day: 'numeric',
 		year: 'numeric',

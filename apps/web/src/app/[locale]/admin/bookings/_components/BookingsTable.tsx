@@ -47,6 +47,7 @@ import { ModalType } from '@/stores';
 import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 const pageSizeOptions = [10, 20, 50, 100].map((pageSize) => ({
 	value: String(pageSize),
@@ -282,6 +283,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 				</AdminFilterBar>
 			</div>
+
+			<TimeZoneNote className="px-3 pb-2 sm:px-5" />
 
 			<Table>
 				<TableHeader>

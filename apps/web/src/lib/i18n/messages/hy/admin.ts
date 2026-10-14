@@ -211,6 +211,7 @@ export const admin: Messages['admin'] = {
 	occurrences: 'Ժամանակահատվածներ',
 	occurrencesDescription: 'Ավելացրեք մեկ կամ ավելի ամսաթվեր այս միջոցառման համար։',
 	addOccurrence: 'Ավելացնել ժամանակահատված',
+	timeZoneHint: 'Ժամը նշեք Երևանի ժամանակով ({offset})։ Հյուրերը այն կտեսնեն հենց այդպես՝ անկախ ձեր գտնվելու վայրից։',
 	dateAndTime: 'Ամսաթիվ եւ ժամ',
 	noOccurrences: 'Դեռ ժամանակահատվածներ չկան։',
 	hoursBeforeEvent: 'Ժամ միջոցառումից առաջ',

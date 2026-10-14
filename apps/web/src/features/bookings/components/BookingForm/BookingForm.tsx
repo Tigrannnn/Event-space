@@ -13,6 +13,7 @@ import { getEventTranslation, PhoneSchema, type EventOccurrence } from '@event-s
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 import { useGetMyBookings } from '../../hooks/useBookings';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 export default function BookingForm({
 	event,
@@ -97,6 +98,7 @@ export default function BookingForm({
 				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 					{translate('booking.selectDate')}
 				</p>
+				<TimeZoneNote />
 				{futureOccurrences.length > 0 ? (
 					<div className="space-y-2">
 						{futureOccurrences.map((occurrence) => {

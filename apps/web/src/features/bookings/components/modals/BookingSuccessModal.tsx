@@ -18,7 +18,7 @@ export default function BookingSuccessModal() {
 	const copyToClipboard = useCopyToClipboard();
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const { formatDateTime } = useFormatDate();
+	const { formatDateTimeZone } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const navigation = useLocalizedNavigation();
 	const { data: user } = useCurrentUser();
@@ -93,7 +93,7 @@ export default function BookingSuccessModal() {
 					<DetailRow
 						icon={<Calendar className="h-4 w-4" />}
 						label={translate('event.date')}
-						value={occurrence ? formatDateTime(occurrence.date) : '—'}
+						value={occurrence ? formatDateTimeZone(occurrence.date) : '—'}
 					/>
 					<DetailRow
 						icon={<Users className="h-4 w-4" />}

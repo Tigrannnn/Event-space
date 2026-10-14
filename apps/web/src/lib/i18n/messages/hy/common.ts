@@ -24,4 +24,5 @@ export const common: Messages['common'] = {
 	copyFailed: 'Չհաջողվեց պատճենել',
 	scrollLeft: 'Ոլորել ձախ',
 	scrollRight: 'Ոլորել աջ',
+	timesInZone: 'Բոլոր ժամերը նշված են Երևանի ժամանակով ({offset})',
 };

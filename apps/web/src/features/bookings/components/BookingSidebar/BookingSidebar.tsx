@@ -22,6 +22,7 @@ import { useTranslation } from '@/hooks/translation';
 import { ModalType, useModalStore } from '@/stores';
 import React from 'react';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -178,6 +179,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 									</option>
 								))}
 							</Select>
+							<TimeZoneNote className="mt-2" />
 						</div>
 					</div>
 					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
