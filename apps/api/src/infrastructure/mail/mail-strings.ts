@@ -1,4 +1,9 @@
-import { AuthAction } from '@event-space/shared';
+import {
+	APP_TIME_ZONE,
+	APP_TIME_ZONE_NAME,
+	AuthAction,
+	formatZoneOffset,
+} from '@event-space/shared';
 import type { Locale, PaymentMethod } from '@prisma/client';
 
 export const DEFAULT_LOCALE: Locale = 'ru';
@@ -330,6 +335,7 @@ const LOCALE_INTL: Record<Locale, string> = { en: 'en-US', ru: 'ru-RU', hy: 'hy-
 
 export function formatMailDay(date: Date, locale: Locale): string {
 	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		timeZone: APP_TIME_ZONE,
 		day: 'numeric',
 		month: 'long',
 		year: 'numeric',
@@ -347,6 +353,7 @@ export function formatMailAmount(amount: number, currency: string, locale: Local
 
 export function formatMailTime(date: Date, locale: Locale): string {
 	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		timeZone: APP_TIME_ZONE,
 		hour: '2-digit',
 		minute: '2-digit',
 		hour12: false,
@@ -362,8 +369,14 @@ export function escapeHtml(value: string): string {
 		.replace(/"/g, '&quot;');
 }
 
+export function formatMailZoneLabel(date: Date, locale: Locale): string {
+	const name = APP_TIME_ZONE_NAME[locale] ?? APP_TIME_ZONE_NAME[DEFAULT_LOCALE];
+	return `${name} (${formatZoneOffset(date, APP_TIME_ZONE)})`;
+}
+
 export function formatMailDate(date: Date, locale: Locale): string {
-	return new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+	const formatted = new Intl.DateTimeFormat(LOCALE_INTL[locale] ?? LOCALE_INTL[DEFAULT_LOCALE], {
+		timeZone: APP_TIME_ZONE,
 		day: 'numeric',
 		month: 'long',
 		year: 'numeric',
@@ -372,4 +385,6 @@ export function formatMailDate(date: Date, locale: Locale): string {
 		hour12: false,
 		hourCycle: 'h23',
 	}).format(date);
+
+	return `${formatted} · ${formatMailZoneLabel(date, locale)}`;
 }

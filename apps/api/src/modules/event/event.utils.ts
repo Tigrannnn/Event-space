@@ -3,6 +3,7 @@ import { AppException } from '@shared';
 import type { Event, EventImageFileItem, EventImageItem, EventOccurrenceStatus, EventStatus } from '@event-space/shared';
 import type { EventImage, Prisma } from '@prisma/client';
 import type { UserRoleType } from '@event-space/shared';
+import { endOfDay, startOfDay } from '../../shared/utils/app-day.util';
 
 export function sortByOrder<T extends { order: number }>(items: T[]): T[] {
 	return [...items].sort((a, b) => a.order - b.order);
@@ -122,8 +123,8 @@ export interface OccurrenceDateWindow {
  */
 export function buildOccurrenceDateWindow(startDate?: string, endDate?: string): OccurrenceDateWindow {
 	return {
-		...(startDate ? { from: new Date(`${startDate}T00:00:00.000`) } : {}),
-		...(endDate ? { to: new Date(`${endDate}T23:59:59.999`) } : {}),
+		...(startDate ? { from: startOfDay(startDate) } : {}),
+		...(endDate ? { to: endOfDay(endDate) } : {}),
 	};
 }
 

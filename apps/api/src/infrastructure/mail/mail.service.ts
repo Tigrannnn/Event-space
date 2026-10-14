@@ -23,6 +23,7 @@ import {
 	EVENT_CANCELLED_STRINGS,
 	VERIFICATION_STRINGS,
 	formatMailDate,
+	formatMailZoneLabel,
 	pickLocale,
 } from './mail-strings';
 
@@ -490,11 +491,12 @@ export class MailService implements OnModuleInit {
 	}
 
 	private buildTimeRange(start: Date, durationMinutes: number | undefined, locale: Locale): string {
+		const zone = formatMailZoneLabel(start, locale);
 		const startLabel = formatMailTime(start, locale);
-		if (!durationMinutes) return startLabel;
+		if (!durationMinutes) return `${startLabel} · ${zone}`;
 
 		const end = new Date(start.getTime() + durationMinutes * 60_000);
-		return `${startLabel} — ${formatMailTime(end, locale)}`;
+		return `${startLabel} — ${formatMailTime(end, locale)} · ${zone}`;
 	}
 
 	private buildDetailRows(rows: [string, string][]): string {
