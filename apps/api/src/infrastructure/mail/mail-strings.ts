@@ -119,6 +119,7 @@ interface BookingCancelledStrings {
 	body: (eventTitle: string, eventDate: string, reference: string) => string;
 	refund: (amount: string) => string;
 	noRefund: string;
+	refundCoveredByFee: (entitled: string, fee: string) => string;
 	nothingPaid: string;
 	offlineRefund: string;
 	refundPending: string;
@@ -136,6 +137,8 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		refund: (amount) =>
 			`A refund of ${amount} is on its way back to the card you paid with. It usually takes 5–10 business days to appear.`,
 		noRefund: 'Under the cancellation terms for this tour, this cancellation is not refundable.',
+		refundCoveredByFee: (entitled, fee) =>
+			`Under the cancellation terms you were entitled to ${entitled}, but the payment provider's fee (${fee}) is not refundable and covers that amount in full, so the refund is 0.`,
 		nothingPaid: 'Nothing was paid for this booking, so there is nothing to refund.',
 		offlineRefund:
 			'The payment you made in person is refunded by the company — reply to this email and we will arrange it.',
@@ -153,6 +156,8 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		refund: (amount) =>
 			`Возврат ${amount} отправлен на карту, с которой была оплата. Обычно деньги приходят за 5–10 рабочих дней.`,
 		noRefund: 'По условиям отмены этого тура возврат не предусмотрен.',
+		refundCoveredByFee: (entitled, fee) =>
+			`По условиям отмены вам полагался возврат ${entitled}, но комиссия платёжной системы (${fee}) не возвращается и полностью покрывает эту сумму, поэтому возврат составляет 0.`,
 		nothingPaid: 'Оплата по этой брони не проходила, возвращать нечего.',
 		offlineRefund:
 			'Оплату, внесённую на месте, возвращает компания — ответьте на это письмо, и мы всё оформим.',
@@ -169,6 +174,8 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		refund: (amount) =>
 			`${amount} գումարը վերադարձվում է այն քարտին, որով վճարել եք։ Սովորաբար դա տևում է 5–10 աշխատանքային օր։`,
 		noRefund: 'Այս տուրի չեղարկման պայմաններով գումարը չի վերադարձվում։',
+		refundCoveredByFee: (entitled, fee) =>
+			`Չեղարկման պայմանների համաձայն Ձեզ հասանելի էր ${entitled}, սակայն վճարային համակարգի միջնորդավճարը (${fee}) չի վերադարձվում և ամբողջությամբ ծածկում է այդ գումարը, ուստի վերադարձվող գումարը 0 է։`,
 		nothingPaid: 'Այս ամրագրման համար վճարում չի կատարվել, վերադարձնելու բան չկա։',
 		offlineRefund:
 			'Տեղում կատարված վճարումը վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։',

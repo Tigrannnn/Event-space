@@ -1,0 +1,378 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { type Locale } from '@prisma/client';
+import { PrismaService } from '@infra/prisma/prisma.service';
+import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
+import {
+	AppErrorCode,
+	BookingWithEstimate,
+	estimateStripeFeeInCents,
+	CreateBookingData,
+	CreateManualBookingData,
+} from '@event-space/shared';
+import { AppException } from '@shared';
+import { StripeService } from '@infra/stripe/stripe.service';
+import { StripePaymentIntent } from '@infra/stripe/stripe.types';
+import {
+	calculateRefundPercentage,
+	getNextBookingReference,
+	mapOccurrenceForBookingResponse,
+} from '../booking.utils';
+import { BookingLedgerService } from '../money/booking-ledger.service';
+import { BookingNotificationService } from './booking-notification.service';
+import { BookingPaymentService } from './booking-payment.service';
+
+@Injectable()
+export class BookingCreationService {
+	private readonly logger = new Logger(BookingCreationService.name);
+
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly stripe: StripeService,
+		private readonly notifications: BookingNotificationService,
+		private readonly payments: BookingPaymentService,
+		private readonly ledger: BookingLedgerService,
+	) {}
+
+	async create(
+		userId: string,
+		data: CreateBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
+	) {
+		const { occurrenceId, quantity = 1, phone } = data;
+
+		const { booking, event, occurrence } = await this.prisma.$transaction(async (tx) => {
+			// Load the specific occurrence by id and include its event
+			const occurrence = await tx.eventOccurrence.findUnique({
+				where: { id: occurrenceId },
+				include: {
+					event: {
+						include: {
+							cancellationRules: true,
+							translations: true,
+							category: { include: { translations: true } },
+							occurrences: true,
+							images: true,
+						},
+					},
+				},
+			});
+
+			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
+
+			const event = occurrence.event;
+			if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
+			// Ensure the event and occurrence are bookable (published and in the future)
+			if (
+				event.status !== 'PUBLISHED' ||
+				occurrence.status !== 'ACTIVE' ||
+				new Date(occurrence.date) <= new Date()
+			) {
+				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
+			}
+
+			const existing = await tx.booking.findUnique({
+				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
+			});
+			if (existing && existing.status === 'CONFIRMED') {
+				throw new AppException(AppErrorCode.ALREADY_BOOKED);
+			}
+
+			if (occurrence.currentParticipants > occurrence.maxParticipants - quantity) {
+				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+			}
+
+			if (phone) {
+				await tx.user.update({
+					where: { id: userId },
+					data: { phone: { set: phone } },
+				});
+			}
+
+			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
+
+			// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
+			// left over from a finished cycle may already be paid — and even refunded — so
+			// carrying it into a new attempt would confirm this booking without payment.
+			// Only a still-PENDING booking is in the same cycle and may keep its intent.
+			const keepsPaymentIntent = existing?.status === 'PENDING';
+
+			const upserted = await tx.booking.upsert({
+				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
+				update: {
+					status: 'PENDING',
+					quantity,
+					amount,
+					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
+					...(brandHost ? { brandHost } : {}),
+				},
+				create: {
+					userId,
+					occurrenceId: occurrence.id,
+					status: 'PENDING',
+					quantity,
+					amount,
+					brandHost,
+				},
+			});
+
+			await tx.user.update({ where: { id: userId }, data: { locale } });
+
+			return { booking: upserted, event, occurrence };
+		});
+
+		let paymentIntent: StripePaymentIntent | null = null;
+		try {
+			// If a pending booking already has a payment intent, reuse it when possible.
+			if (booking.paymentIntentId) {
+				const existingIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
+				if (
+					existingIntent.status === 'requires_confirmation' ||
+					existingIntent.status === 'requires_action' ||
+					existingIntent.status === 'processing' ||
+					existingIntent.status === 'requires_capture'
+				) {
+					paymentIntent = existingIntent;
+				} else if (existingIntent.status === 'succeeded') {
+					const reconciled = await this.payments.reconcilePayment(existingIntent.id, booking.id, locale);
+					return {
+						booking: reconciled ?? booking,
+						clientSecret: null,
+					};
+				}
+			}
+
+			if (!paymentIntent) {
+				// TODO: remove AMD hardcoding
+				paymentIntent = await this.stripe.createPaymentIntent(Number(booking.amount), 'AMD', {
+					userId,
+					occurrenceId,
+					bookingId: booking.id,
+				});
+
+				if (booking.paymentIntentId && booking.paymentIntentId !== paymentIntent.id) {
+					try {
+						await this.stripe.cancelPaymentIntent(booking.paymentIntentId, `replace-${booking.id}`);
+					} catch (e) {
+						this.logger.warn(
+							`Failed to cancel stale payment intent ${booking.paymentIntentId} for booking ${booking.id}`,
+							e as Error,
+						);
+					}
+				}
+			}
+
+			const updatedBooking = await this.prisma.booking.update({
+				where: { id: booking.id },
+				data: { paymentIntentId: paymentIntent.id },
+			});
+
+			const refundPercentage = calculateRefundPercentage(
+				new Date(),
+				new Date(occurrence.date),
+				event.cancellationRules,
+			);
+			const estimatedStripeFeeInCents = estimateStripeFeeInCents(Number(updatedBooking.amount));
+			const baseAmountInCents = Math.round(Number(updatedBooking.amount) * 100);
+			const estimatedRefundInCents = Math.max(
+				0,
+				Math.round((baseAmountInCents * refundPercentage) / 100) - estimatedStripeFeeInCents,
+			);
+
+			const bookingWithEstimate = {
+				...updatedBooking,
+				amount: Number(updatedBooking.amount),
+				occurrence: mapOccurrenceForBookingResponse(occurrence),
+				refundPercentage,
+				estimatedStripeFeeInCents,
+				estimatedRefundInCents,
+			} satisfies BookingWithEstimate;
+
+			return {
+				booking: bookingWithEstimate,
+				clientSecret: paymentIntent.client_secret,
+			};
+		} catch (error) {
+			if (paymentIntent) {
+				try {
+					await this.stripe.cancelPaymentIntent(paymentIntent.id);
+				} catch (e) {
+					this.logger.error('Failed to cancel payment intent after booking creation error', e as Error);
+				}
+			}
+
+			await this.cancelPendingBooking(booking.id);
+			this.rethrowStripeError(error);
+		}
+	}
+
+	async createManualBooking(
+		adminId: string,
+		data: CreateManualBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
+	) {
+		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email, phone } = data;
+
+		const result = await this.prisma.$transaction(async (tx) => {
+			const occurrence = await tx.eventOccurrence.findUnique({
+				where: { id: occurrenceId },
+				include: {
+					event: {
+						include: {
+							cancellationRules: true,
+							translations: true,
+							category: { include: { translations: true } },
+							occurrences: true,
+							images: true,
+						},
+					},
+				},
+			});
+			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
+
+			const event = occurrence.event;
+			if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
+			if (
+				event.status !== 'PUBLISHED' ||
+				occurrence.status !== 'ACTIVE' ||
+				new Date(occurrence.date) <= new Date()
+			) {
+				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
+			}
+
+			let targetUserId = userId;
+			let cancelledPaymentIntentId: string | null = null;
+
+			if (email) {
+				const existingUser = await tx.user.findUnique({ where: { email } });
+				if (existingUser) {
+					throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS, { email });
+				}
+			}
+
+			if (name) {
+				const shadowUser = await tx.user.create({
+					data: {
+						email,
+						name,
+						phone,
+						isShadow: true,
+						emailVerified: false,
+					},
+				});
+				targetUserId = shadowUser.id;
+			}
+
+			if (!targetUserId) {
+				throw new AppException(AppErrorCode.BOOKING_USER_OR_NAME_REQUIRED);
+			}
+
+			const existing = await tx.booking.findUnique({
+				where: { userId_occurrenceId: { userId: targetUserId, occurrenceId: occurrence.id } },
+			});
+
+			if (existing && existing.status === 'CONFIRMED') {
+				throw new AppException(AppErrorCode.ALREADY_BOOKED);
+			}
+
+			if (existing?.paymentIntentId) {
+				cancelledPaymentIntentId = existing.paymentIntentId;
+			}
+
+			const reserved = await tx.eventOccurrence.updateMany({
+				where: {
+					id: occurrence.id,
+					currentParticipants: { lte: occurrence.maxParticipants - quantity },
+				},
+				data: { currentParticipants: { increment: quantity } },
+			});
+
+			if (reserved.count === 0) {
+				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+			}
+
+			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
+
+			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
+
+			const bookingData = {
+				status: 'CONFIRMED' as const,
+				quantity,
+				amount,
+				paymentIntentId: null,
+				paymentMethod,
+				createdByAdminId: adminId,
+				referenceNumber,
+				brandHost,
+			};
+
+			const booking = await tx.booking.upsert({
+				where: { userId_occurrenceId: { userId: targetUserId, occurrenceId: occurrence.id } },
+				update: bookingData,
+				create: {
+					userId: targetUserId,
+					occurrenceId: occurrence.id,
+					...bookingData,
+				},
+			});
+
+			if (paymentMethod === 'OFFLINE_PAID') {
+				await this.ledger.recordOfflinePayment(tx, booking.id, amount);
+			}
+
+			return { booking, cancelledPaymentIntentId, event, occurrence };
+		});
+
+		if (result.cancelledPaymentIntentId) {
+			try {
+				await this.stripe.cancelPaymentIntent(
+					result.cancelledPaymentIntentId,
+					`manual-override-${result.booking.id}`,
+				);
+			} catch (e) {
+				this.logger.warn(
+					`Failed to cancel orphaned payment intent ${result.cancelledPaymentIntentId} for booking ${result.booking.id}`,
+					e as Error,
+				);
+			}
+		}
+
+		await this.notifications.sendConfirmation(result.booking.id, locale);
+
+		return {
+			...result.booking,
+			amount: Number(result.booking.amount),
+			occurrence: mapOccurrenceForBookingResponse(result.occurrence),
+			refundPercentage: 0,
+			estimatedStripeFeeInCents: 0,
+			estimatedRefundInCents: 0,
+		} satisfies BookingWithEstimate;
+	}
+
+	private async cancelPendingBooking(bookingId: string): Promise<void> {
+		await this.prisma.booking.update({
+			where: { id: bookingId },
+			data: { status: 'CANCELLED', paymentIntentId: null },
+		});
+	}
+
+	private rethrowStripeError(error: unknown): never {
+		if (
+			error &&
+			typeof error === 'object' &&
+			'type' in error &&
+			(error as { type: string }).type === 'StripeConnectionError'
+		) {
+			throw new AppException(AppErrorCode.PAYMENT_SERVICE_UNAVAILABLE);
+		}
+
+		throw error;
+	}
+}

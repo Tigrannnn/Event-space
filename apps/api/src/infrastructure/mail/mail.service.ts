@@ -344,6 +344,7 @@ export class MailService implements OnModuleInit {
 		occurrenceDate: Date;
 		refundAmount?: number;
 		refundFailed?: boolean;
+		refundCoveredByFee?: { entitled: number; fee: number };
 		nothingPaid?: boolean;
 		offlinePaid?: boolean;
 		currency: string;
@@ -362,11 +363,16 @@ export class MailService implements OnModuleInit {
 			? strings.refundPending
 			: params.refundAmount
 				? strings.refund(formatMailAmount(params.refundAmount, params.currency, params.locale))
-				: params.offlinePaid
-					? strings.offlineRefund
-					: params.nothingPaid
-						? strings.nothingPaid
-						: strings.noRefund;
+				: params.refundCoveredByFee
+					? strings.refundCoveredByFee(
+							formatMailAmount(params.refundCoveredByFee.entitled, params.currency, params.locale),
+							formatMailAmount(params.refundCoveredByFee.fee, params.currency, params.locale),
+						)
+					: params.offlinePaid
+						? strings.offlineRefund
+						: params.nothingPaid
+							? strings.nothingPaid
+							: strings.noRefund;
 
 		try {
 			const html = await this.templateService.render('booking-cancelled', {
