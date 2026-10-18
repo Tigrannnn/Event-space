@@ -15,6 +15,7 @@ export interface World {
 	tourInHours?: number;
 	crashOnCompleteTimes?: number;
 	failQueueInsert?: boolean;
+	chargeRecorded?: boolean;
 }
 
 export interface BookingRow {
@@ -199,8 +200,12 @@ export function createWorld(world: World = {}) {
 				create: Record<string, unknown>;
 				update: Record<string, unknown>;
 			}) => {
-				ledger.push({ where: args.where, create: args.create, update: args.update });
 				const key = args.where.stripePaymentIntentId_type;
+				const owner = rows.find((row) => row.id === args.create.bookingId);
+				if (key.type === 'CHARGE' && world.chargeRecorded !== false && owner?.status === 'CONFIRMED') {
+					return Promise.resolve({});
+				}
+				ledger.push({ where: args.where, create: args.create, update: args.update });
 				const existing = table.find(
 					(row) => row.stripePaymentIntentId === key.stripePaymentIntentId && row.type === key.type,
 				);

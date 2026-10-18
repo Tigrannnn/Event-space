@@ -51,11 +51,13 @@ export class BookingRefundService {
 		let refunded: { amountInCents: number; id: string } | null = null;
 		let failed = false;
 		let coveredByFee: RefundOutcome['coveredByFee'] = null;
+		let paidInCents: number | null = null;
 
 		try {
 			const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
 
 			if (paymentIntent.status === 'succeeded') {
+				paidInCents = paymentIntent.amount_received ?? paymentIntent.amount;
 				const amountInCents = await plan.amountInCents(paymentIntent);
 
 				if (amountInCents > 0) {
@@ -84,6 +86,15 @@ export class BookingRefundService {
 				`Stripe refund failed for booking ${booking.id}${plan.failureLogSuffix}:`,
 				stripeError,
 			);
+		}
+
+		if (paidInCents !== null) {
+			await this.ledger.recordChargeIfMissing({
+				bookingId: booking.id,
+				paymentIntentId: booking.paymentIntentId,
+				amountInCents: paidInCents,
+				reason: 'Payment captured, recorded when the booking was cancelled',
+			});
 		}
 
 		if (refunded) {

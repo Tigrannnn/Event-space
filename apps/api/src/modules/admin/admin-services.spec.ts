@@ -36,6 +36,18 @@ function bookingRow(over: Record<string, unknown> = {}) {
 	};
 }
 
+type RefundSource = ((name: string) => unknown[]) | { name: string; args: unknown }[];
+
+const refundUpserts = (source: RefundSource) =>
+	(typeof source === 'function'
+		? source('bookingAdjustment.upsert')
+		: source.filter((call) => call.name === 'bookingAdjustment.upsert').map((call) => call.args)
+	).filter(
+		(args) =>
+			(args as { where?: { stripePaymentIntentId_type?: { type?: string } } }).where
+				?.stripePaymentIntentId_type?.type === 'REFUND',
+	);
+
 describe('admin: users', () => {
 	it('lists without filters, newest first, asking for one extra row', async () => {
 		const { prisma, argsOf } = fakePrisma({ 'user.findMany': [{ id: 'u1' }], 'user.count': 1 });
@@ -388,7 +400,7 @@ describe('admin: cancelling a booking with money', () => {
 			booking: { status: 'CANCELLED', amount: 20000 },
 		});
 		expect(stripeCalls).toHaveLength(0);
-		expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
+		expect(refundUpserts(calls)).toHaveLength(0);
 	});
 
 	it('frees the seats of a confirmed booking', async () => {
@@ -414,7 +426,7 @@ describe('admin: cancelling a booking with money', () => {
 			refundType: 'MANUAL',
 			message: 'Booking cancelled. Refund will be handled manually.',
 		});
-		expect(argsOf('bookingAdjustment.upsert')[0]).toMatchObject({
+		expect(refundUpserts(argsOf)[0]).toMatchObject({
 			where: { stripePaymentIntentId_type: { stripePaymentIntentId: 'pi_1', type: 'REFUND' } },
 			create: {
 				bookingId: 'b1',
@@ -444,7 +456,7 @@ describe('admin: cancelling a booking with money', () => {
 			'admin-refund-pi_1-1910000',
 			1910000,
 		]);
-		const upsert = argsOf('bookingAdjustment.upsert')[0] as {
+		const upsert = refundUpserts(argsOf)[0] as {
 			create: { amount: { toString(): string } };
 		};
 		expect(upsert).toMatchObject({
@@ -503,12 +515,12 @@ describe('admin: cancelling a booking with money', () => {
 		});
 
 		expect(stripeCalls.some((call) => call.name === 'refund')).toBe(false);
-		expect(argsOf('bookingAdjustment.upsert')[0]).toMatchObject({
+		expect(refundUpserts(argsOf)[0]).toMatchObject({
 			create: { type: 'REFUND', status: 'SUCCEEDED', stripeRefundId: null },
 		});
-		expect(
-			(argsOf('bookingAdjustment.upsert')[0] as { create: { reason: string } }).create.reason,
-		).toContain('covers it entirely');
+		expect((refundUpserts(argsOf)[0] as { create: { reason: string } }).create.reason).toContain(
+			'covers it entirely',
+		);
 		expect(result).toMatchObject({ processed: true });
 		expect(result.message).toContain('covered entirely by the payment provider fee');
 	});
@@ -534,11 +546,39 @@ describe('admin: cancelling a booking with money', () => {
 		const { admin, argsOf } = setup({}, { fails: true });
 		const result = await admin.adminCancelBooking('a1', 'b1', { refundType: 'RULES' });
 
-		expect(argsOf('bookingAdjustment.upsert')[0]).toMatchObject({
+		expect(refundUpserts(argsOf)[0]).toMatchObject({
 			create: { type: 'REFUND', stripeRefundId: null, status: 'FAILED' },
 			update: { status: 'FAILED' },
 		});
 		expect(result).toMatchObject({ processed: true });
+	});
+
+	it('writes the payment down before the refund when it was never recorded', async () => {
+		const { admin, calls } = setup({});
+		await admin.adminCancelBooking('a1', 'b1', { refundType: 'FULL' });
+
+		const upserts = calls
+			.filter((call) => call.name === 'bookingAdjustment.upsert')
+			.map(
+				(call) =>
+					call.args as {
+						where: { stripePaymentIntentId_type: { type: string } };
+						create: { amount: { toString(): string } };
+					},
+			);
+
+		expect(upserts.map((args) => args.where.stripePaymentIntentId_type.type)).toEqual([
+			'CHARGE',
+			'REFUND',
+		]);
+		expect(upserts[0].create.amount.toString()).toBe('20000');
+	});
+
+	it('does not invent a payment when Stripe never took it', async () => {
+		const { admin, calls } = setup({}, { intentStatus: 'requires_payment_method' });
+		await admin.adminCancelBooking('a1', 'b1', { refundType: 'FULL' });
+
+		expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
 	});
 
 	it('cancels an unpaid intent and leaves the ledger alone', async () => {
@@ -549,7 +589,7 @@ describe('admin: cancelling a booking with money', () => {
 			'pi_1',
 			'admin-cancel-pi_1',
 		]);
-		expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
+		expect(refundUpserts(calls)).toHaveLength(0);
 		expect(result).toMatchObject({ processed: false });
 	});
 
@@ -564,7 +604,7 @@ describe('admin: cancelling a booking with money', () => {
 		const result = await admin.adminCancelBooking('a1', 'b1', { refundType: 'RULES' });
 
 		expect(stripeCalls.some((call) => call.name === 'refund')).toBe(false);
-		expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
+		expect(refundUpserts(calls)).toHaveLength(0);
 		expect(result).toMatchObject({ processed: false });
 	});
 
@@ -588,7 +628,7 @@ describe('admin: cancelling a booking with money', () => {
 			const result = await admin.adminCancelBooking('a1', 'b1', { refundType: 'RULES' });
 
 			expect(stripeCalls).toHaveLength(0);
-			expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
+			expect(refundUpserts(calls)).toHaveLength(0);
 			expect(calls.some((call) => call.name === 'eventOccurrence.updateMany')).toBe(false);
 			expect(result).toMatchObject({
 				processed: false,
@@ -600,7 +640,7 @@ describe('admin: cancelling a booking with money', () => {
 			const { admin, calls } = cancelledSetup({ id: 'adj1' });
 			await admin.adminCancelBooking('a1', 'b1', { refundType: 'MANUAL' });
 
-			expect(calls.some((call) => call.name === 'bookingAdjustment.upsert')).toBe(false);
+			expect(refundUpserts(calls)).toHaveLength(0);
 		});
 
 		it('still lets a cancellation without a recorded refund be finished', async () => {

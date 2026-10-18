@@ -74,6 +74,8 @@ export function fakeStripe(options: { intentStatus?: string; fails?: boolean; fe
 			return Promise.resolve({
 				id,
 				status: options.intentStatus ?? 'succeeded',
+				amount: 2000000,
+				amount_received: 2000000,
 				latest_charge: 'ch_1',
 			});
 		},

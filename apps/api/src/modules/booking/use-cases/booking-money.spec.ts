@@ -308,3 +308,45 @@ describe('money paths: payment confirmation', () => {
 		expect(ledger).toHaveLength(0);
 	});
 });
+
+describe('money paths: the payment is written down before a refund', () => {
+	const types = (table: { type: string }[]) => table.map((row) => row.type).sort();
+
+	it('records a payment that was never written down when it refunds it', async () => {
+		const { service, table } = createWorld({ chargeRecorded: false, fee: 90000 });
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(types(table)).toEqual(['CHARGE', 'REFUND']);
+		const charge = table.find((row) => row.type === 'CHARGE');
+		expect(charge).toMatchObject({
+			bookingId: 'b1',
+			stripePaymentIntentId: 'pi_b1',
+			status: 'SUCCEEDED',
+		});
+		expect(Number(charge?.amount)).toBe(20000);
+	});
+
+	it('records the payment even when Stripe refuses the refund', async () => {
+		const { service, table } = createWorld({ chargeRecorded: false, stripeFails: true });
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(types(table)).toEqual(['CHARGE', 'REFUND']);
+	});
+
+	it('records nothing when Stripe never took the payment', async () => {
+		const { service, table } = createWorld({
+			chargeRecorded: false,
+			intentStatus: 'requires_payment_method',
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(types(table)).not.toContain('CHARGE');
+	});
+
+	it('does not write a second payment when one is already recorded', async () => {
+		const { service, table } = createWorld({ fee: 90000 });
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(types(table)).toEqual(['REFUND']);
+	});
+});

@@ -79,6 +79,15 @@ export class AdminBookingCancellationService {
 
 		const adminReason = `Admin cancellation${reason ? `: ${reason}` : ''}`;
 
+		if (settlement.paidInCents !== null) {
+			await this.ledger.recordChargeIfMissing({
+				bookingId: booking.id,
+				paymentIntentId,
+				amountInCents: settlement.paidInCents,
+				reason: 'Payment captured, recorded when an admin cancelled the booking',
+			});
+		}
+
 		// Only money that moved, or a genuine Stripe failure, is worth a ledger row. Cancelling an
 		// intent nobody paid, or a rule that returns nothing, leaves the ledger as it was.
 		if (settlement.refund) {
@@ -162,13 +171,16 @@ export class AdminBookingCancellationService {
 		refund: { amount: number; id: string } | null;
 		failed: boolean;
 		coveredByFee: { grossInCents: number; feeInCents: number } | null;
+		paidInCents: number | null;
 	}> {
 		const { paymentIntentId, refundType } = params;
+		let paidInCents: number | null = null;
 
 		try {
 			const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
 
 			if (paymentIntent.status === 'succeeded') {
+				paidInCents = paymentIntent.amount_received ?? paymentIntent.amount;
 				const baseInCents = Math.round(params.amount * 100);
 				const refundPercentage = calculateRefundPercentage(
 					new Date(),
@@ -189,6 +201,7 @@ export class AdminBookingCancellationService {
 							refund: null,
 							failed: false,
 							coveredByFee: { grossInCents, feeInCents },
+							paidInCents,
 						};
 					}
 				}
@@ -203,6 +216,7 @@ export class AdminBookingCancellationService {
 						refund: { amount: refund.amount, id: refund.id },
 						failed: false,
 						coveredByFee: null,
+						paidInCents,
 					};
 				}
 			} else if (
@@ -213,10 +227,10 @@ export class AdminBookingCancellationService {
 				await this.stripe.cancelPaymentIntent(paymentIntentId, `admin-cancel-${paymentIntentId}`);
 			}
 
-			return { refund: null, failed: false, coveredByFee: null };
+			return { refund: null, failed: false, coveredByFee: null, paidInCents };
 		} catch (stripeError) {
 			this.logger.error(`Admin refund failed for booking ${params.bookingId}:`, stripeError);
-			return { refund: null, failed: true, coveredByFee: null };
+			return { refund: null, failed: true, coveredByFee: null, paidInCents };
 		}
 	}
 
