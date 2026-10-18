@@ -129,7 +129,6 @@ export const DashboardRevenuePointSchema = z.object({
 	date: DateOnlySchema,
 	earned: z.number(),
 	kept: z.number(),
-	lost: z.number(),
 	expected: z.number(),
 });
 
@@ -142,7 +141,6 @@ export const DashboardRevenueTotalsSchema = z.object({
 	toCollectOnSite: z.number(),
 	corrections: z.number(),
 	kept: z.number(),
-	lost: z.number(),
 	toursFinished: z.number(),
 	toursUpcoming: z.number(),
 });

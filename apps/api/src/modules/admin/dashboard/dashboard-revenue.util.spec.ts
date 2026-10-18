@@ -33,27 +33,19 @@ function refund(amount: number, at: Date) {
 	return { type: 'REFUND' as const, amount, feeAmount: null, createdAt: at };
 }
 
-describe('classifyBookingRevenue, kept and lost money', () => {
+describe('classifyBookingRevenue, money kept from cancellations', () => {
 	it('marks money kept from a cancellation before the tour, apart from earned tours', () => {
 		const booking = paid(25000, { status: 'CANCELLED' });
 		booking.adjustments.push(refund(15000, now));
 		const result = classifyBookingRevenue(booking, upcomingTour, now);
-		expect(result).toMatchObject({ earned: 10000, kept: 10000, lost: 0 });
+		expect(result).toMatchObject({ earned: 10000, kept: 10000 });
 	});
 
 	it('does not call money kept when the tour is already over', () => {
 		const booking = paid(25000, { status: 'CANCELLED' });
 		booking.adjustments.push(refund(15000, now));
 		const result = classifyBookingRevenue(booking, finishedTour, now);
-		expect(result).toMatchObject({ earned: 10000, kept: 0, lost: 0 });
-	});
-
-	it('reports the fee that stays with the payment provider after a full refund as lost', () => {
-		const booking = paid(25000, { status: 'CANCELLED' });
-		booking.adjustments[0].feeAmount = 900;
-		booking.adjustments.push(refund(25000, now));
-		const result = classifyBookingRevenue(booking, upcomingTour, now);
-		expect(result).toMatchObject({ earned: -900, kept: 0, lost: 900 });
+		expect(result).toMatchObject({ earned: 10000, kept: 0 });
 	});
 });
 

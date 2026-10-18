@@ -212,7 +212,7 @@ export function summarizeTours(
 
 	for (let day = new Date(start); day <= end; day = new Date(day.getTime() + DAY_MS)) {
 		const key = toDateKey(day);
-		buckets.set(key, { date: key, earned: 0, kept: 0, lost: 0, expected: 0 });
+		buckets.set(key, { date: key, earned: 0, kept: 0, expected: 0 });
 	}
 
 	let total: BookingRevenue = { ...EMPTY_BOOKING_REVENUE };
@@ -225,9 +225,8 @@ export function summarizeTours(
 
 		const point = buckets.get(toDateKey(tour.date));
 		if (point) {
-			point.earned = round2(point.earned + revenue.earned - revenue.kept + revenue.lost);
+			point.earned = round2(point.earned + revenue.earned - revenue.kept);
 			point.kept = round2(point.kept + revenue.kept);
-			point.lost = round2(point.lost + revenue.lost);
 			point.expected = round2(point.expected + revenue.expected);
 		}
 

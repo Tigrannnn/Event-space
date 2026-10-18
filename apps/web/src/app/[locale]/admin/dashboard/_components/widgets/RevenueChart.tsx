@@ -35,16 +35,14 @@ export default function RevenueChart({ revenue, isLoading }: RevenueChartProps) 
 		);
 	}
 
-	const data = revenue.points.map((point) => ({ ...point, lostBelow: -point.lost }));
 	const hasAnyMoney = revenue.points.some(
-		(point) => point.earned !== 0 || point.kept !== 0 || point.lost !== 0 || point.expected !== 0,
+		(point) => point.earned !== 0 || point.kept !== 0 || point.expected !== 0,
 	);
 	const today = toZonedDateKey(new Date());
 	const showToday = revenue.points.some((point) => point.date === today);
 
 	const finalLabel = translate('admin.revenueFinalLegend');
 	const keptLabel = translate('admin.revenueKeptLegend');
-	const lostLabel = translate('admin.revenueLostLegend');
 	const expectedLabel = translate('admin.revenueExpectedLegend');
 
 	return (
@@ -57,7 +55,7 @@ export default function RevenueChart({ revenue, isLoading }: RevenueChartProps) 
 			{hasAnyMoney ? (
 				<div className="h-72 w-full">
 					<ResponsiveContainer width="100%" height="100%">
-						<BarChart data={data} margin={{ top: 16, right: 8, bottom: 0, left: 0 }}>
+						<BarChart data={revenue.points} margin={{ top: 16, right: 8, bottom: 0, left: 0 }}>
 							<CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
 							<XAxis
 								dataKey="date"
@@ -109,7 +107,6 @@ export default function RevenueChart({ revenue, isLoading }: RevenueChartProps) 
 								fill="#f59e0b"
 								radius={[4, 4, 0, 0]}
 							/>
-							<Bar dataKey="lostBelow" stackId="money" name={lostLabel} fill="#ef4444" />
 						</BarChart>
 					</ResponsiveContainer>
 				</div>
