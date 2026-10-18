@@ -56,6 +56,7 @@ export const DashboardSnapshotSchema = z.object({
 	}),
 	totalCapacity: z.number(),
 	usedCapacity: z.number(),
+	expectedRevenue: z.number().nullable(),
 });
 
 export type DashboardSnapshot = z.infer<typeof DashboardSnapshotSchema>;
@@ -119,3 +120,58 @@ export const DashboardFlowSchema = z.object({
 });
 
 export type DashboardFlow = z.infer<typeof DashboardFlowSchema>;
+
+export const DashboardRevenuePointSchema = z.object({
+	date: DateOnlySchema,
+	earned: z.number(),
+	expected: z.number(),
+});
+
+export type DashboardRevenuePoint = z.infer<typeof DashboardRevenuePointSchema>;
+
+export const DashboardRevenueTotalsSchema = z.object({
+	earned: z.number(),
+	expected: z.number(),
+	refunded: z.number(),
+	toCollectOnSite: z.number(),
+	corrections: z.number(),
+	toursFinished: z.number(),
+	toursUpcoming: z.number(),
+});
+
+export const DashboardRevenueSchema = z.object({
+	points: z.array(DashboardRevenuePointSchema),
+	totals: DashboardRevenueTotalsSchema,
+	previousTotals: z.object({
+		earned: z.number(),
+	}),
+	upcoming: z.object({
+		expected: z.number(),
+		toCollectOnSite: z.number(),
+		tours: z.number(),
+	}),
+});
+
+export type DashboardRevenue = z.infer<typeof DashboardRevenueSchema>;
+
+export const DashboardExpectedPointSchema = z.object({
+	date: DateOnlySchema,
+	expected: z.number(),
+	added: z.number(),
+	cancelled: z.number(),
+	settled: z.number(),
+});
+
+export const DashboardExpectedTimelineSchema = z.object({
+	points: z.array(DashboardExpectedPointSchema),
+	opening: z.number(),
+	closing: z.number(),
+	totals: z.object({
+		added: z.number(),
+		cancelled: z.number(),
+		settled: z.number(),
+	}),
+});
+
+export type DashboardExpectedPoint = z.infer<typeof DashboardExpectedPointSchema>;
+export type DashboardExpectedTimeline = z.infer<typeof DashboardExpectedTimelineSchema>;

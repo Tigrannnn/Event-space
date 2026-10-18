@@ -12,6 +12,7 @@ interface FlowKpiCardsProps {
 	flow?: DashboardFlow;
 	cohort?: BookingCohort;
 	isLoading: boolean;
+	onlyBookings?: boolean;
 }
 
 /**
@@ -101,7 +102,12 @@ function CohortSplit({ cohort }: { cohort: BookingCohort }) {
 	);
 }
 
-export default function FlowKpiCards({ flow, cohort, isLoading }: FlowKpiCardsProps) {
+export default function FlowKpiCards({
+	flow,
+	cohort,
+	isLoading,
+	onlyBookings = false,
+}: FlowKpiCardsProps) {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
 
@@ -140,9 +146,11 @@ export default function FlowKpiCards({ flow, cohort, isLoading }: FlowKpiCardsPr
 		},
 	];
 
+	const visibleCards = onlyBookings ? cards.slice(1) : cards;
+
 	return (
 		<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-			{cards.map((card) => {
+			{visibleCards.map((card) => {
 				const Icon = card.icon;
 
 				return (
@@ -150,9 +158,7 @@ export default function FlowKpiCards({ flow, cohort, isLoading }: FlowKpiCardsPr
 						<div className="flex items-start justify-between gap-4">
 							<div className="min-w-0 flex-1">
 								<p className="text-sm text-gray-500">{card.label}</p>
-								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-									{card.value}
-								</p>
+								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
 								<p className="mt-2">
 									<DeltaBadge change={card.change} />
 								</p>

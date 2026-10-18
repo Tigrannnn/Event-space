@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { DashboardSnapshot } from '@event-space/shared';
+import { DashboardRevenueService } from './dashboard-revenue.service';
 
 /**
  * Freezes one row of dashboard state per finished day.
@@ -22,7 +23,10 @@ import type { DashboardSnapshot } from '@event-space/shared';
 export class DashboardSnapshotService {
 	private readonly logger = new Logger(DashboardSnapshotService.name);
 
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly revenueService: DashboardRevenueService,
+	) {}
 
 	/**
 	 * Runs just after midnight and freezes the day that just ended.
@@ -48,17 +52,25 @@ export class DashboardSnapshotService {
 	async capture(day: Date): Promise<void> {
 		const date = toUtcDay(day);
 
-		const [totalEvents, totalUsers, publishedEvents, draftEvents, cancelledEvents, capacity] =
-			await Promise.all([
-				this.prisma.event.count(),
-				this.prisma.user.count(),
-				this.prisma.event.count({ where: { status: 'PUBLISHED' } }),
-				this.prisma.event.count({ where: { status: 'DRAFT' } }),
-				this.prisma.event.count({ where: { status: 'CANCELLED' } }),
-				this.prisma.eventOccurrence.aggregate({
-					_sum: { currentParticipants: true, maxParticipants: true },
-				}),
-			]);
+		const [
+			totalEvents,
+			totalUsers,
+			publishedEvents,
+			draftEvents,
+			cancelledEvents,
+			capacity,
+			expectedRevenue,
+		] = await Promise.all([
+			this.prisma.event.count(),
+			this.prisma.user.count(),
+			this.prisma.event.count({ where: { status: 'PUBLISHED' } }),
+			this.prisma.event.count({ where: { status: 'DRAFT' } }),
+			this.prisma.event.count({ where: { status: 'CANCELLED' } }),
+			this.prisma.eventOccurrence.aggregate({
+				_sum: { currentParticipants: true, maxParticipants: true },
+			}),
+			this.revenueService.getUpcomingExpected(),
+		]);
 
 		const data = {
 			totalEvents,
@@ -68,6 +80,7 @@ export class DashboardSnapshotService {
 			cancelledEvents,
 			totalCapacity: capacity._sum.maxParticipants ?? 0,
 			usedCapacity: capacity._sum.currentParticipants ?? 0,
+			expectedRevenue,
 		};
 
 		await this.prisma.dashboardSnapshot.upsert({
@@ -104,6 +117,7 @@ export class DashboardSnapshotService {
 			},
 			totalCapacity: row.totalCapacity,
 			usedCapacity: row.usedCapacity,
+			expectedRevenue: row.expectedRevenue === null ? null : Number(row.expectedRevenue),
 		}));
 	}
 }

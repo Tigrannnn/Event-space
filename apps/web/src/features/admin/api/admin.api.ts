@@ -14,6 +14,8 @@ import type {
 	EventStatus,
 	DashboardStats,
 	DashboardFlow,
+	DashboardRevenue,
+	DashboardExpectedTimeline,
 	DashboardSnapshot,
 	BookingStatePoint,
 	CancellationReasons,
@@ -32,6 +34,16 @@ export const adminApi = {
 	getDashboardFlow: (from: string, to: string) =>
 		clientApi
 			.get<DashboardFlow>('/admin/stats/flow', { params: { from, to } })
+			.then((res) => res.data),
+
+	getDashboardRevenue: (from: string, to: string) =>
+		clientApi
+			.get<DashboardRevenue>('/admin/stats/revenue', { params: { from, to } })
+			.then((res) => res.data),
+
+	getDashboardExpectedTimeline: (from: string, to: string) =>
+		clientApi
+			.get<DashboardExpectedTimeline>('/admin/stats/revenue/timeline', { params: { from, to } })
 			.then((res) => res.data),
 
 	getDashboardSnapshots: (from: string, to: string) =>

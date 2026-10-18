@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { startOfToday, subDays } from 'date-fns';
+import { addDays, startOfToday, subDays } from 'date-fns';
 import { DateRangePicker, formatDateParam, parseDateParam } from '@/components/filters';
 import type { DateRangePreset } from '@/components/filters';
 import { useTranslation } from '@/hooks/translation';
@@ -33,6 +33,11 @@ export default function DashboardRangePicker({ range, onRangeChange }: Dashboard
 			label: translate('admin.lastDays', { days }),
 			getRange: () => ({ from: subDays(startOfToday(), days - 1), to: startOfToday() }),
 		})),
+		...[30, 90].map((days) => ({
+			key: `next-${days}`,
+			label: translate('admin.nextDays', { days }),
+			getRange: () => ({ from: startOfToday(), to: addDays(startOfToday(), days - 1) }),
+		})),
 	];
 
 	const rangeLabel = mounted
@@ -60,8 +65,6 @@ export default function DashboardRangePicker({ range, onRangeChange }: Dashboard
 					onRangeChange({ from: formatDateParam(next.from), to: formatDateParam(next.to) });
 				}}
 				placeholder={translate('admin.period')}
-				// Nothing has happened after today, so the future is not selectable.
-				disabled={{ after: startOfToday() }}
 				presets={presets}
 				withActions
 			/>

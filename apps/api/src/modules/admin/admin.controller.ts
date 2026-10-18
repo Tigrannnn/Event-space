@@ -26,18 +26,22 @@ import { AdminEventsService } from './events/admin-events.service';
 import { AdminCategoriesService } from './categories/admin-categories.service';
 import { DashboardStatsService } from './dashboard/dashboard-stats.service';
 import { DashboardFlowService } from './dashboard/dashboard-flow.service';
+import { DashboardRevenueService } from './dashboard/dashboard-revenue.service';
 import { DashboardSnapshotService } from './dashboard/dashboard-snapshot.service';
 import { BookingStatusHistoryService } from './dashboard/booking-status-history.service';
 import {
 	AppException,
 	Roles,
 	RolesGuard,
+	GetBrandHost,
 	GetCurrentUserId,
+	GetLocale,
 	ZodValidationPipe,
 	parseOptionalQueryInt,
 	parseOptionalQueryBoolean,
 	parseOptionalQueryDate,
 } from '@shared';
+import type { Locale } from '@prisma/client';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
@@ -75,6 +79,16 @@ import { BookingService } from '@modules/booking/booking.service';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { EventService } from '@modules/event/event.service';
 
+const MAX_REVENUE_RANGE_DAYS = 366;
+
+function assertRevenueRange(from: string, to: string): void {
+	const days = (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000;
+
+	if (days < 0 || days >= MAX_REVENUE_RANGE_DAYS) {
+		throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: 'to' });
+	}
+}
+
 @ApiTags('admin')
 @ApiBearerAuth()
 @UseGuards(AccessTokenGuard, RolesGuard)
@@ -89,6 +103,7 @@ export class AdminController {
 		private readonly eventsAdminService: AdminEventsService,
 		private readonly categoriesService: AdminCategoriesService,
 		private readonly dashboardFlowService: DashboardFlowService,
+		private readonly dashboardRevenueService: DashboardRevenueService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
 		private readonly bookingService: BookingService,
@@ -117,6 +132,44 @@ export class AdminController {
 		}
 
 		return this.dashboardFlowService.getFlow(from, to);
+	}
+
+	@Get('stats/revenue')
+	@ApiOperation({
+		summary: 'Revenue by tour date: earned for finished tours, expected for upcoming ones',
+	})
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getDashboardRevenue(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		assertRevenueRange(from, to);
+
+		return this.dashboardRevenueService.getRevenue(from, to);
+	}
+
+	@Get('stats/revenue/timeline')
+	@ApiOperation({
+		summary: 'What was expected on each day of a period, with a reconciliation of the change',
+	})
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getDashboardExpectedTimeline(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		assertRevenueRange(from, to);
+
+		return this.dashboardRevenueService.getExpectedTimeline(from, to);
 	}
 
 	@Get('stats/booking-state')
@@ -486,6 +539,8 @@ export class AdminController {
 	async createManualBooking(
 		@GetCurrentUserId() adminId: string,
 		@Body(new ZodValidationPipe(CreateManualBookingSchema)) data: CreateManualBookingData,
+		@GetLocale() locale: Locale | undefined,
+		@GetBrandHost() brandHost: string | undefined,
 	) {
 		await this.rateLimiter.consumePerUser(
 			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
@@ -494,7 +549,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
 
-		return this.bookingService.createManualBooking(adminId, data);
+		return this.bookingService.createManualBooking(adminId, data, locale, brandHost);
 	}
 
 	@Get('categories/:id')

@@ -8,6 +8,7 @@ import { DashboardStatsService } from './dashboard/dashboard-stats.service';
 import { AdminController } from './admin.controller';
 import { DashboardSnapshotService } from './dashboard/dashboard-snapshot.service';
 import { DashboardFlowService } from './dashboard/dashboard-flow.service';
+import { DashboardRevenueService } from './dashboard/dashboard-revenue.service';
 import { BookingStatusHistoryService } from './dashboard/booking-status-history.service';
 import { EventModule } from '@modules/event/event.module';
 import { BookingModule } from '@modules/booking/booking.module';
@@ -25,6 +26,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		DashboardStatsService,
 		DashboardSnapshotService,
 		DashboardFlowService,
+		DashboardRevenueService,
 		BookingStatusHistoryService,
 	],
 })

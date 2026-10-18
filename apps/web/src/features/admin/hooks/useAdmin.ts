@@ -32,6 +32,20 @@ export const useDashboardFlow = (from: string, to: string) => {
 	});
 };
 
+export const useDashboardRevenue = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'revenue', from, to],
+		queryFn: () => adminApi.getDashboardRevenue(from, to),
+	});
+};
+
+export const useDashboardExpectedTimeline = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'revenue', 'timeline', from, to],
+		queryFn: () => adminApi.getDashboardExpectedTimeline(from, to),
+	});
+};
+
 export const useDashboardSnapshots = (from: string, to: string, options?: { enabled?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'snapshots', from, to],

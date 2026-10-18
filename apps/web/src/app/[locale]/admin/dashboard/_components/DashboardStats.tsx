@@ -1,15 +1,22 @@
 'use client';
 
+import { useState } from 'react';
 import type { DashboardStats as DashboardStatsData } from '@event-space/shared';
 import {
 	useBookingCohort,
 	useBookingState,
 	useDashboardFlow,
+	useDashboardExpectedTimeline,
+	useDashboardRevenue,
 } from '@/features/admin/hooks/useAdmin';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import DashboardRangePicker from './DashboardRangePicker';
 import FlowKpiCards from './widgets/FlowKpiCards';
 import FlowChart from './widgets/FlowChart';
+import RevenueKpiCards from './widgets/RevenueKpiCards';
+import RevenueChart from './widgets/RevenueChart';
+import ExpectedTimeline from './widgets/ExpectedTimeline';
+import { useTranslation } from '@/hooks/translation';
 import BookingFunnel from './widgets/BookingFunnel';
 import BookingStateWidget from './widgets/BookingStateWidget';
 import NeedsAttention from './widgets/NeedsAttention';
@@ -38,6 +45,8 @@ interface DashboardStatsProps {
  * now, and a booking that needed attention in March has long since been handled.
  */
 export default function DashboardStats({ stats }: DashboardStatsProps) {
+	const translate = useTranslation();
+	const [moneyView, setMoneyView] = useState<'tours' | 'cash'>('tours');
 	const { filters: range, setFilters: setRange } = useUrlFilters({
 		parse: parseDashboardRange,
 		serialize: serializeDashboardRange,
@@ -47,6 +56,11 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 	const showLiveState = isTodayOnly(range);
 
 	const { data: flow, isLoading: isFlowLoading } = useDashboardFlow(range.from, range.to);
+	const { data: revenue, isLoading: isRevenueLoading } = useDashboardRevenue(range.from, range.to);
+	const { data: timeline, isLoading: isTimelineLoading } = useDashboardExpectedTimeline(
+		range.from,
+		range.to,
+	);
 	const { data: bookingState, isLoading: isBookingStateLoading } = useBookingState(
 		range.from,
 		range.to,
@@ -60,9 +74,36 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 		<div className="space-y-6">
 			<DashboardRangePicker range={range} onRangeChange={setRange} />
 
-			<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} />
+			<div className="flex gap-2">
+				{(['tours', 'cash'] as const).map((view) => (
+					<button
+						key={view}
+						type="button"
+						onClick={() => setMoneyView(view)}
+						className={`cursor-pointer rounded-md border px-3 py-1.5 text-sm transition-colors ${
+							moneyView === view
+								? 'border-primary text-primary font-semibold'
+								: 'border-gray-500 text-gray-500 hover:text-gray-900 dark:hover:text-gray-100'
+						}`}
+					>
+						{translate(view === 'tours' ? 'admin.revenueViewTours' : 'admin.revenueViewCash')}
+					</button>
+				))}
+			</div>
 
-			<FlowChart flow={flow} isLoading={isFlowLoading} />
+			{moneyView === 'tours' ? (
+				<>
+					<RevenueKpiCards revenue={revenue} isLoading={isRevenueLoading} />
+					<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} onlyBookings />
+					<RevenueChart revenue={revenue} isLoading={isRevenueLoading} />
+					<ExpectedTimeline timeline={timeline} isLoading={isTimelineLoading} />
+				</>
+			) : (
+				<>
+					<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} />
+					<FlowChart flow={flow} isLoading={isFlowLoading} />
+				</>
+			)}
 
 			<BookingFunnel cohort={cohort} isLoading={isCohortLoading} />
 
