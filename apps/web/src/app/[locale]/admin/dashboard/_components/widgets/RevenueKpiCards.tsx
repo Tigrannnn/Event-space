@@ -23,9 +23,7 @@ function StatBlock({ label, value, tone }: { label: string; value: string; tone?
 			<p className="text-xs text-gray-500">{label}</p>
 			<p
 				className={`mt-1 text-lg font-semibold ${
-					tone === 'warning'
-						? 'text-amber-600 dark:text-amber-400'
-						: 'text-gray-900 dark:text-gray-100'
+					tone === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-gray-100'
 				}`}
 			>
 				{value}
@@ -34,7 +32,11 @@ function StatBlock({ label, value, tone }: { label: string; value: string; tone?
 	);
 }
 
-export default function RevenueKpiCards({ revenue, isLoading, bookingsCard }: RevenueKpiCardsProps) {
+export default function RevenueKpiCards({
+	revenue,
+	isLoading,
+	bookingsCard,
+}: RevenueKpiCardsProps) {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
 
@@ -61,50 +63,52 @@ export default function RevenueKpiCards({ revenue, isLoading, bookingsCard }: Re
 	return (
 		<div className="space-y-4">
 			<div className="rounded-lg border border-gray-500 p-4 shadow-sm sm:p-5">
-				<div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
-					<div className="flex min-w-0 items-start gap-4">
-						<div className="shrink-0 rounded-md border border-gray-500 p-2">
-							<DollarSign className="text-primary h-5 w-5" />
-						</div>
-						<div className="min-w-0">
-							<p className="text-sm text-gray-500">{translate('admin.revenueEarned')}</p>
-							<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-								{formatCurrency(totals.earned)}
-							</p>
-							<p className="mt-2 text-xs text-gray-500">
-								{translate('admin.revenueEarnedHint', { count: totals.toursFinished })}
-								{change !== null && (
-									<span
-										className={`ml-2 font-medium ${
-											change >= 0
-												? 'text-emerald-600 dark:text-emerald-400'
-												: 'text-red-500 dark:text-red-400'
-										}`}
-									>
-										{change >= 0 ? '+' : ''}
-										{change}% {translate('admin.vsPreviousPeriod')}
+				<div className="flex items-start justify-between gap-4">
+					<div className="flex min-w-0 flex-1 flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+						<div className="flex min-w-0 items-start gap-4">
+							<div className="min-w-0">
+								<p className="text-sm text-gray-500">{translate('admin.revenueEarned')}</p>
+								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+									{formatCurrency(totals.earned)}
+								</p>
+								<p className="mt-2 text-xs text-gray-500">
+									{translate('admin.revenueEarnedHint', { count: totals.toursFinished })}
+									{change !== null && (
+										<span
+											className={`ml-2 font-medium ${
+												change >= 0
+													? 'text-emerald-600 dark:text-emerald-400'
+													: 'text-red-500 dark:text-red-400'
+											}`}
+										>
+											{change >= 0 ? '+' : ''}
+											{change}% {translate('admin.vsPreviousPeriod')}
+										</span>
+									)}
+								</p>
+								<p className="mt-1 text-xs text-gray-500">
+									{translate('admin.revenueKept')}:{' '}
+									<span className="font-medium text-gray-900 dark:text-gray-100">
+										{formatCurrency(totals.kept)}
 									</span>
-								)}
-							</p>
-							<p className="mt-1 text-xs text-gray-500">
-								{translate('admin.revenueKept')}:{' '}
-								<span className="font-medium text-gray-900 dark:text-gray-100">
-									{formatCurrency(totals.kept)}
-								</span>
-							</p>
+								</p>
+							</div>
+						</div>
+
+						<div className="grid shrink-0 grid-cols-2 gap-3 md:w-96">
+							<StatBlock
+								label={translate('admin.revenueRefundedDeducted')}
+								value={formatCurrency(totals.refunded)}
+							/>
+							<StatBlock
+								label={translate('admin.revenueCorrections')}
+								value={formatCurrency(totals.corrections)}
+								tone={totals.corrections > 0 ? 'warning' : undefined}
+							/>
 						</div>
 					</div>
-
-					<div className="grid shrink-0 grid-cols-2 gap-3 md:w-96">
-						<StatBlock
-							label={translate('admin.revenueRefundedDeducted')}
-							value={formatCurrency(totals.refunded)}
-						/>
-						<StatBlock
-							label={translate('admin.revenueCorrections')}
-							value={formatCurrency(totals.corrections)}
-							tone={totals.corrections > 0 ? 'warning' : undefined}
-						/>
+					<div className="shrink-0 rounded-md border border-gray-500 p-2">
+						<DollarSign className="text-primary h-5 w-5" />
 					</div>
 				</div>
 			</div>
