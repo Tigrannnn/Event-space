@@ -11,7 +11,7 @@ import {
 } from '@/features/admin/hooks/useAdmin';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import DashboardRangePicker from './DashboardRangePicker';
-import FlowKpiCards from './widgets/FlowKpiCards';
+import FlowKpiCards, { BookingsCreatedCard } from './widgets/FlowKpiCards';
 import FlowChart from './widgets/FlowChart';
 import RevenueKpiCards from './widgets/RevenueKpiCards';
 import RevenueChart from './widgets/RevenueChart';
@@ -93,8 +93,13 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
 			{moneyView === 'tours' ? (
 				<>
-					<RevenueKpiCards revenue={revenue} isLoading={isRevenueLoading} />
-					<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} onlyBookings />
+					<RevenueKpiCards
+						revenue={revenue}
+						isLoading={isRevenueLoading}
+						bookingsCard={
+							<BookingsCreatedCard flow={flow} cohort={cohort} isLoading={isFlowLoading} />
+						}
+					/>
 					<RevenueChart revenue={revenue} isLoading={isRevenueLoading} />
 					<ExpectedTimeline timeline={timeline} isLoading={isTimelineLoading} />
 				</>

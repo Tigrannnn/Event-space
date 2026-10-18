@@ -6,6 +6,8 @@ import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.u
 interface FlowTotals {
 	bookingsCreated: number;
 	revenue: number;
+	collected: number;
+	refunded: number;
 }
 
 /**
@@ -122,10 +124,16 @@ function toDailyPoints(window: FlowWindow, start: Date, end: Date): DashboardFlo
 }
 
 function toTotals(window: FlowWindow): FlowTotals {
-	const revenue = toMoneyMovements(window).reduce((sum, movement) => sum + movement.amount, 0);
+	const movements = toMoneyMovements(window);
+	const revenue = movements.reduce((sum, movement) => sum + movement.amount, 0);
+	const collected = movements
+		.filter((movement) => movement.amount > 0)
+		.reduce((sum, movement) => sum + movement.amount, 0);
 
 	return {
 		bookingsCreated: window.bookings.length,
 		revenue,
+		collected,
+		refunded: collected - revenue,
 	};
 }

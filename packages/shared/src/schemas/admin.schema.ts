@@ -112,10 +112,14 @@ export const DashboardFlowSchema = z.object({
 	totals: z.object({
 		bookingsCreated: z.number(),
 		revenue: z.number(),
+		collected: z.number(),
+		refunded: z.number(),
 	}),
 	previousTotals: z.object({
 		bookingsCreated: z.number(),
 		revenue: z.number(),
+		collected: z.number(),
+		refunded: z.number(),
 	}),
 });
 

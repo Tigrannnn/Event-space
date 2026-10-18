@@ -12,7 +12,6 @@ interface FlowKpiCardsProps {
 	flow?: DashboardFlow;
 	cohort?: BookingCohort;
 	isLoading: boolean;
-	onlyBookings?: boolean;
 }
 
 /**
@@ -102,12 +101,86 @@ function CohortSplit({ cohort }: { cohort: BookingCohort }) {
 	);
 }
 
-export default function FlowKpiCards({
+interface KpiCardProps {
+	label: string;
+	value: string;
+	change: number | null;
+	icon: typeof DollarSign;
+	footer?: ReactNode;
+}
+
+function KpiCard({ label, value, change, icon: Icon, footer }: KpiCardProps) {
+	return (
+		<div className="rounded-lg border border-gray-500 p-4 shadow-sm sm:p-5">
+			<div className="flex items-start justify-between gap-4">
+				<div className="min-w-0 flex-1">
+					<p className="text-sm text-gray-500">{label}</p>
+					<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+					<p className="mt-2">
+						<DeltaBadge change={change} />
+					</p>
+					{footer}
+				</div>
+				<div className="shrink-0 rounded-md border border-gray-500 p-2">
+					<Icon className="text-primary h-5 w-5" />
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function MoneySplit({ collected, refunded }: { collected: number; refunded: number }) {
+	const translate = useTranslation();
+	const formatCurrency = useFormatCurrency();
+
+	const rows = [
+		{ label: translate('admin.revenueReceived'), value: collected },
+		{ label: translate('admin.revenueRefunded'), value: refunded },
+	];
+
+	return (
+		<dl className="mt-4 space-y-1 text-xs text-gray-500">
+			{rows.map((row) => (
+				<div key={row.label} className="flex items-center justify-between gap-4">
+					<dt>{row.label}</dt>
+					<dd className="font-medium text-gray-900 dark:text-gray-100">
+						{formatCurrency(row.value)}
+					</dd>
+				</div>
+			))}
+		</dl>
+	);
+}
+
+export function BookingsCreatedCard({
 	flow,
 	cohort,
 	isLoading,
-	onlyBookings = false,
-}: FlowKpiCardsProps) {
+}: {
+	flow?: DashboardFlow;
+	cohort?: BookingCohort;
+	isLoading: boolean;
+}) {
+	const translate = useTranslation();
+
+	if (isLoading || !flow) {
+		return (
+			<div className="h-32 animate-pulse rounded-lg border border-gray-500 bg-gray-100 dark:bg-gray-800" />
+		);
+	}
+
+	return (
+		<KpiCard
+			label={translate('admin.bookingsCreated')}
+			value={flow.totals.bookingsCreated.toLocaleString()}
+			change={percentChange(flow.totals.bookingsCreated, flow.previousTotals.bookingsCreated)}
+			icon={Ticket}
+			footer={cohort ? <CohortSplit cohort={cohort} /> : null}
+		/>
+	);
+}
+
+export default function FlowKpiCards({ flow, cohort, isLoading }: FlowKpiCardsProps) {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
 
@@ -124,53 +197,16 @@ export default function FlowKpiCards({
 		);
 	}
 
-	const cards: {
-		label: string;
-		value: string;
-		change: number | null;
-		icon: typeof DollarSign;
-		footer?: ReactNode;
-	}[] = [
-		{
-			label: translate('admin.revenueInPeriod'),
-			value: formatCurrency(flow.totals.revenue),
-			change: percentChange(flow.totals.revenue, flow.previousTotals.revenue),
-			icon: DollarSign,
-		},
-		{
-			label: translate('admin.bookingsCreated'),
-			value: flow.totals.bookingsCreated.toLocaleString(),
-			change: percentChange(flow.totals.bookingsCreated, flow.previousTotals.bookingsCreated),
-			icon: Ticket,
-			footer: cohort ? <CohortSplit cohort={cohort} /> : null,
-		},
-	];
-
-	const visibleCards = onlyBookings ? cards.slice(1) : cards;
-
 	return (
 		<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-			{visibleCards.map((card) => {
-				const Icon = card.icon;
-
-				return (
-					<div key={card.label} className="rounded-lg border border-gray-500 p-4 shadow-sm sm:p-5">
-						<div className="flex items-start justify-between gap-4">
-							<div className="min-w-0 flex-1">
-								<p className="text-sm text-gray-500">{card.label}</p>
-								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{card.value}</p>
-								<p className="mt-2">
-									<DeltaBadge change={card.change} />
-								</p>
-								{card.footer}
-							</div>
-							<div className="shrink-0 rounded-md border border-gray-500 p-2">
-								<Icon className="text-primary h-5 w-5" />
-							</div>
-						</div>
-					</div>
-				);
-			})}
+			<KpiCard
+				label={translate('admin.revenueInPeriod')}
+				value={formatCurrency(flow.totals.revenue)}
+				change={percentChange(flow.totals.revenue, flow.previousTotals.revenue)}
+				icon={DollarSign}
+				footer={<MoneySplit collected={flow.totals.collected} refunded={flow.totals.refunded} />}
+			/>
+			<BookingsCreatedCard flow={flow} cohort={cohort} isLoading={false} />
 		</div>
 	);
 }
