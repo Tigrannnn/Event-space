@@ -86,6 +86,12 @@ export default function RevenueKpiCards({ revenue, isLoading, bookingsCard }: Re
 									</span>
 								)}
 							</p>
+							<p className="mt-1 text-xs text-gray-500">
+								{translate('admin.revenueKept')}:{' '}
+								<span className="font-medium text-gray-900 dark:text-gray-100">
+									{formatCurrency(totals.kept)}
+								</span>
+							</p>
 						</div>
 					</div>
 

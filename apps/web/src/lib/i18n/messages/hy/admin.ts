@@ -366,6 +366,7 @@ export const admin: Messages['admin'] = {
 	revenueByTourHint: 'Առանցքի վրա՝ տուրի ամսաթիվը։ «Այսօրից» ձախ գումարը վերջնական է, աջ՝ դեռ կարող է վերադարձվել։ Կապույտը չեղարկված ամրագրումներից պահված գումարն է։',
 	revenueFinalLegend: 'Վերջնական',
 	revenueKeptLegend: 'Պահված չեղարկումներից',
+	revenueKept: 'Դրանից պահված չեղարկումներից',
 	revenueExpectedLegend: 'Դեռ ճշգրիտ չէ',
 	revenueToday: 'Այսօր',
 	revenueViewTours: 'Ըստ տուրերի',

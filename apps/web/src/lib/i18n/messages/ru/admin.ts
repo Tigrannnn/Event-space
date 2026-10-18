@@ -365,6 +365,7 @@ export const admin: Messages['admin'] = {
 	revenueByTourHint: 'Дата тура на оси. Слева от «сегодня» деньги окончательные, справа — ещё могут вернуться. Синее — деньги, удержанные с отменённых броней.',
 	revenueFinalLegend: 'Окончательно',
 	revenueKeptLegend: 'Удержано с отмен',
+	revenueKept: 'Из них удержано с отмен',
 	revenueExpectedLegend: 'Пока не точно',
 	revenueToday: 'Сегодня',
 	revenueViewTours: 'По турам',

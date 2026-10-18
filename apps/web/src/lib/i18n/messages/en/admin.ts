@@ -363,6 +363,7 @@ export const admin = {
 	revenueByTourHint: 'Tour date on the axis. Left of "today" the money is final, right of it it can still be returned. Blue is money kept from cancelled bookings.',
 	revenueFinalLegend: 'Final',
 	revenueKeptLegend: 'Kept from cancellations',
+	revenueKept: 'Of that, kept from cancellations',
 	revenueExpectedLegend: 'Not final yet',
 	revenueToday: 'Today',
 	revenueViewTours: 'By tour',
