@@ -87,7 +87,9 @@ export class DashboardSnapshotService {
 	 */
 	async findRange(from: string, to: string): Promise<DashboardSnapshot[]> {
 		const rows = await this.prisma.dashboardSnapshot.findMany({
-			where: { date: { gte: new Date(`${from}T00:00:00.000Z`), lte: new Date(`${to}T00:00:00.000Z`) } },
+			where: {
+				date: { gte: new Date(`${from}T00:00:00.000Z`), lte: new Date(`${to}T00:00:00.000Z`) },
+			},
 			orderBy: { date: 'asc' },
 		});
 
@@ -108,7 +110,5 @@ export class DashboardSnapshotService {
 
 /** Strips the time so a snapshot is keyed by calendar day, not by the moment the job ran. */
 function toUtcDay(value: Date): Date {
-	return new Date(
-		Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()),
-	);
+	return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
 }

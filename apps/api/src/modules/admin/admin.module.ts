@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
-import { AdminService } from './admin.service';
+import { AdminUsersService } from './users/admin-users.service';
+import { AdminBookingsService } from './bookings/admin-bookings.service';
+import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
+import { AdminEventsService } from './events/admin-events.service';
+import { AdminCategoriesService } from './categories/admin-categories.service';
+import { DashboardStatsService } from './dashboard/dashboard-stats.service';
 import { AdminController } from './admin.controller';
-import { DashboardSnapshotService } from './dashboard-snapshot.service';
-import { DashboardFlowService } from './dashboard-flow.service';
-import { BookingStatusHistoryService } from './booking-status-history.service';
+import { DashboardSnapshotService } from './dashboard/dashboard-snapshot.service';
+import { DashboardFlowService } from './dashboard/dashboard-flow.service';
+import { BookingStatusHistoryService } from './dashboard/booking-status-history.service';
 import { EventModule } from '@modules/event/event.module';
 import { BookingModule } from '@modules/booking/booking.module';
 import { StripeModule } from '@infra/stripe/stripe.module';
@@ -12,7 +17,12 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 	imports: [EventModule, BookingModule, StripeModule],
 	controllers: [AdminController],
 	providers: [
-		AdminService,
+		AdminUsersService,
+		AdminBookingsService,
+		AdminBookingCancellationService,
+		AdminEventsService,
+		AdminCategoriesService,
+		DashboardStatsService,
 		DashboardSnapshotService,
 		DashboardFlowService,
 		BookingStatusHistoryService,

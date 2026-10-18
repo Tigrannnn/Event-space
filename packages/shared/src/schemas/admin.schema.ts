@@ -12,7 +12,6 @@ export const DashboardStatsSchema = z.object({
 	confirmedBookings: z.number(),
 	pendingBookings: z.number(),
 	cancelledBookings: z.number(),
-	totalRevenue: z.number(),
 	capacityUsageRate: z.number(),
 	totalCapacity: z.number(),
 	usedCapacity: z.number(),

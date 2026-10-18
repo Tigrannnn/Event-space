@@ -19,10 +19,15 @@ import {
 	ApiResponse,
 	ApiBody,
 } from '@nestjs/swagger';
-import { AdminService } from './admin.service';
-import { DashboardFlowService } from './dashboard-flow.service';
-import { DashboardSnapshotService } from './dashboard-snapshot.service';
-import { BookingStatusHistoryService } from './booking-status-history.service';
+import { AdminUsersService } from './users/admin-users.service';
+import { AdminBookingsService } from './bookings/admin-bookings.service';
+import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
+import { AdminEventsService } from './events/admin-events.service';
+import { AdminCategoriesService } from './categories/admin-categories.service';
+import { DashboardStatsService } from './dashboard/dashboard-stats.service';
+import { DashboardFlowService } from './dashboard/dashboard-flow.service';
+import { DashboardSnapshotService } from './dashboard/dashboard-snapshot.service';
+import { BookingStatusHistoryService } from './dashboard/booking-status-history.service';
 import {
 	AppException,
 	Roles,
@@ -77,7 +82,12 @@ import { EventService } from '@modules/event/event.service';
 @Controller('admin')
 export class AdminController {
 	constructor(
-		private readonly adminService: AdminService,
+		private readonly dashboardStatsService: DashboardStatsService,
+		private readonly usersService: AdminUsersService,
+		private readonly bookingsAdminService: AdminBookingsService,
+		private readonly bookingCancellationService: AdminBookingCancellationService,
+		private readonly eventsAdminService: AdminEventsService,
+		private readonly categoriesService: AdminCategoriesService,
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
@@ -89,11 +99,13 @@ export class AdminController {
 	@Get('stats')
 	@ApiOperation({ summary: 'Get dashboard statistics' })
 	async getDashboardStats() {
-		return this.adminService.getDashboardStats();
+		return this.dashboardStatsService.getStats();
 	}
 
 	@Get('stats/flow')
-	@ApiOperation({ summary: 'Bookings and revenue per day over a period, with previous-period totals' })
+	@ApiOperation({
+		summary: 'Bookings and revenue per day over a period, with previous-period totals',
+	})
 	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
 	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
 	async getDashboardFlow(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
@@ -156,7 +168,8 @@ export class AdminController {
 
 	@Post('stats/snapshots/capture')
 	@ApiOperation({
-		summary: 'Capture a state snapshot for a day — for verifying the job and backfilling a missed run',
+		summary:
+			'Capture a state snapshot for a day — for verifying the job and backfilling a missed run',
 	})
 	@ApiQuery({ name: 'date', required: false, description: 'YYYY-MM-DD, defaults to yesterday' })
 	async captureSnapshot(@Query('date') dateRaw?: string) {
@@ -176,13 +189,13 @@ export class AdminController {
 		if (isNaN(referenceNumber)) {
 			throw new AppException(AppErrorCode.INVALID_REFERENCE_NUMBER);
 		}
-		return this.adminService.findBookingByReference(referenceNumber);
+		return this.bookingsAdminService.findByReference(referenceNumber);
 	}
 
 	@Get('bookings/:id')
 	@ApiOperation({ summary: 'Get booking by ID (admin only)' })
 	async getBookingById(@Param('id') id: string) {
-		const booking = await this.adminService.findOneBooking(id);
+		const booking = await this.bookingsAdminService.findOne(id);
 		if (!booking) {
 			throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		}
@@ -203,8 +216,16 @@ export class AdminController {
 	@ApiQuery({ name: 'search', required: false, description: 'Search in user and event fields' })
 	@ApiQuery({ name: 'status', required: false, enum: BookingDisplayStatusEnum.options })
 	@ApiQuery({ name: 'time', required: false, enum: TimeFilterSchema.options })
-	@ApiQuery({ name: 'createdFrom', required: false, description: 'Booking created on or after (YYYY-MM-DD)' })
-	@ApiQuery({ name: 'createdTo', required: false, description: 'Booking created on or before (YYYY-MM-DD)' })
+	@ApiQuery({
+		name: 'createdFrom',
+		required: false,
+		description: 'Booking created on or after (YYYY-MM-DD)',
+	})
+	@ApiQuery({
+		name: 'createdTo',
+		required: false,
+		description: 'Booking created on or before (YYYY-MM-DD)',
+	})
 	@ApiQuery({ name: 'tourFrom', required: false, description: 'Tour date on or after (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'tourTo', required: false, description: 'Tour date on or before (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
@@ -223,7 +244,7 @@ export class AdminController {
 		@Query('paymentMethod') paymentMethod?: PaymentMethod,
 	) {
 		const safeLimit = Math.min(limit, 100);
-		return this.adminService.findAllBookings({
+		return this.bookingsAdminService.findAll({
 			skip,
 			limit: safeLimit,
 			search,
@@ -253,7 +274,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.updateBookingStatus(id, status);
+		return this.bookingsAdminService.updateStatus(id, status);
 	}
 
 	@Patch('bookings/:id')
@@ -271,23 +292,20 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.updateBooking(id, data);
+		return this.bookingsAdminService.updateQuantity(id, data);
 	}
 
 	@Post('bookings/:id/checkin')
 	@ApiOperation({ summary: 'Check in a booking' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	async checkInBooking(
-		@GetCurrentUserId() adminId: string,
-		@Param('id') id: string,
-	) {
+	async checkInBooking(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
 		await this.rateLimiter.consumePerUser(
 			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
 			adminId,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.checkInBooking(id);
+		return this.bookingsAdminService.checkIn(id);
 	}
 
 	@Get('events/:id')
@@ -320,8 +338,16 @@ export class AdminController {
 	@ApiQuery({ name: 'minPrice', required: false, type: Number })
 	@ApiQuery({ name: 'maxPrice', required: false, type: Number })
 	@ApiQuery({ name: 'category', required: false, description: 'Category slug' })
-	@ApiQuery({ name: 'startDate', required: false, description: 'Event runs on or after (YYYY-MM-DD)' })
-	@ApiQuery({ name: 'endDate', required: false, description: 'Event runs on or before (YYYY-MM-DD)' })
+	@ApiQuery({
+		name: 'startDate',
+		required: false,
+		description: 'Event runs on or after (YYYY-MM-DD)',
+	})
+	@ApiQuery({
+		name: 'endDate',
+		required: false,
+		description: 'Event runs on or before (YYYY-MM-DD)',
+	})
 	@ApiQuery({ name: 'spots', required: false, enum: SpotsFilterSchema.options })
 	async getAllEvents(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
@@ -342,7 +368,7 @@ export class AdminController {
 		const maxPrice = parseOptionalQueryInt(maxPriceRaw, 'maxPrice');
 		const startDate = parseOptionalQueryDate(startDateRaw, 'startDate');
 		const endDate = parseOptionalQueryDate(endDateRaw, 'endDate');
-		return this.adminService.findAllEvents({
+		return this.eventsAdminService.findAll({
 			skip,
 			limit: safeLimit,
 			search,
@@ -371,8 +397,16 @@ export class AdminController {
 	@ApiQuery({ name: 'role', required: false, enum: UserRoleSchema.options })
 	@ApiQuery({ name: 'emailVerified', required: false, enum: ['true', 'false'] })
 	@ApiQuery({ name: 'isShadow', required: false, enum: ['true', 'false'] })
-	@ApiQuery({ name: 'createdFrom', required: false, description: 'Registered on or after (YYYY-MM-DD)' })
-	@ApiQuery({ name: 'createdTo', required: false, description: 'Registered on or before (YYYY-MM-DD)' })
+	@ApiQuery({
+		name: 'createdFrom',
+		required: false,
+		description: 'Registered on or after (YYYY-MM-DD)',
+	})
+	@ApiQuery({
+		name: 'createdTo',
+		required: false,
+		description: 'Registered on or before (YYYY-MM-DD)',
+	})
 	async getAllUsers(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -385,7 +419,7 @@ export class AdminController {
 	) {
 		const safeLimit = Math.min(limit, 100);
 
-		return this.adminService.findAllUsers({
+		return this.usersService.findAll({
 			skip,
 			limit: safeLimit,
 			search,
@@ -400,7 +434,7 @@ export class AdminController {
 	@Get('users/:id')
 	@ApiOperation({ summary: 'Get user by ID (admin only)' })
 	async getUserById(@Param('id') id: string) {
-		const user = await this.adminService.findOneUser(id);
+		const user = await this.usersService.findOne(id);
 		if (!user) {
 			throw new AppException(AppErrorCode.USER_NOT_FOUND);
 		}
@@ -421,7 +455,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.updateUserRole(id, role);
+		return this.usersService.updateRole(id, role);
 	}
 
 	@Post('bookings/:id/cancel')
@@ -440,7 +474,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
 
-		return this.adminService.adminCancelBooking(adminId, id, data);
+		return this.bookingCancellationService.cancel(adminId, id, data);
 	}
 
 	@Post('bookings/manual')
@@ -466,7 +500,7 @@ export class AdminController {
 	@Get('categories/:id')
 	@ApiOperation({ summary: 'Get category by ID (admin only)' })
 	async getCategoryById(@Param('id') id: string) {
-		const category = await this.adminService.findOneCategory(id);
+		const category = await this.categoriesService.findOne(id);
 		if (!category) {
 			throw new AppException(AppErrorCode.CATEGORY_NOT_FOUND);
 		}
@@ -484,7 +518,7 @@ export class AdminController {
 		@Query('search') search?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
-		return this.adminService.findAllCategories({ skip, limit: safeLimit, search });
+		return this.categoriesService.findAll({ skip, limit: safeLimit, search });
 	}
 
 	@Post('categories')
@@ -501,7 +535,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.createCategory(data);
+		return this.categoriesService.create(data);
 	}
 
 	@Patch('categories/:id')
@@ -518,7 +552,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.adminService.updateCategory(id, data);
+		return this.categoriesService.update(id, data);
 	}
 
 	@Delete('categories/:id')
@@ -531,6 +565,6 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
 			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
 		);
-		await this.adminService.deleteCategory(id);
+		await this.categoriesService.delete(id);
 	}
 }

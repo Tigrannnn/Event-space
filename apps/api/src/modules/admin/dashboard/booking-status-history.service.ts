@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { BookingStatus } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { BookingCohort, BookingStatePoint, BookingStatusCounts } from '@event-space/shared';
-import { endOfDay, startOfDay, toDateKey } from './dashboard-dates';
+import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.util';
 
 type StatusTally = Record<BookingStatus, number>;
 

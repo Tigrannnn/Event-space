@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { DashboardFlow, DashboardFlowPoint } from '@event-space/shared';
-import { endOfDay, startOfDay, toDateKey } from './dashboard-dates';
+import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.util';
 
 interface FlowTotals {
 	bookingsCreated: number;
