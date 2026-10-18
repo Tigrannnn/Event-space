@@ -128,6 +128,8 @@ export type DashboardFlow = z.infer<typeof DashboardFlowSchema>;
 export const DashboardRevenuePointSchema = z.object({
 	date: DateOnlySchema,
 	earned: z.number(),
+	kept: z.number(),
+	lost: z.number(),
 	expected: z.number(),
 });
 
@@ -139,6 +141,8 @@ export const DashboardRevenueTotalsSchema = z.object({
 	refunded: z.number(),
 	toCollectOnSite: z.number(),
 	corrections: z.number(),
+	kept: z.number(),
+	lost: z.number(),
 	toursFinished: z.number(),
 	toursUpcoming: z.number(),
 });

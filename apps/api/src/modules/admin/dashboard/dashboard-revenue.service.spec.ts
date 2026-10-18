@@ -77,6 +77,31 @@ describe('summarizeTours', () => {
 	});
 });
 
+describe('summarizeTours, chart columns', () => {
+	const start = startOfDay('2026-10-08');
+	const end = endOfDay('2026-10-14');
+
+	function withFee(amount: number, fee: number, refunded: number) {
+		const booking = confirmed(amount, amount, refunded, 'CANCELLED');
+		booking.adjustments[0].feeAmount = fee;
+		return booking;
+	}
+
+	it('keeps lost fees and kept cancellation money out of the earned column', () => {
+		const tours = [
+			tour('2026-10-10T06:00:00Z', [confirmed(20000), withFee(10000, 400, 10000)]),
+			tour('2026-10-13T06:00:00Z', [confirmed(30000, 30000, 12000, 'CANCELLED')]),
+		];
+
+		const summary = summarizeTours(tours, start, end, now);
+		const byDate = Object.fromEntries(summary.points.map((point) => [point.date, point]));
+
+		expect(byDate['2026-10-10']).toMatchObject({ earned: 20000, kept: 0, lost: 400 });
+		expect(byDate['2026-10-13']).toMatchObject({ earned: 0, kept: 18000, lost: 0, expected: 0 });
+		expect(summary.totals.earned).toBe(20000 - 400 + 18000);
+	});
+});
+
 describe('DashboardRevenueService', () => {
 	it('compares earned money with the period of the same length before it', async () => {
 		const prisma = {

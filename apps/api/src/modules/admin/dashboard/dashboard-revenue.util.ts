@@ -24,6 +24,8 @@ export interface BookingRevenue {
 	refunded: number;
 	toCollectOnSite: number;
 	corrections: number;
+	kept: number;
+	lost: number;
 }
 
 const MINUTE_MS = 60 * 1000;
@@ -34,6 +36,8 @@ export const EMPTY_BOOKING_REVENUE: BookingRevenue = {
 	refunded: 0,
 	toCollectOnSite: 0,
 	corrections: 0,
+	kept: 0,
+	lost: 0,
 };
 
 export function round2(value: number): number {
@@ -81,6 +85,8 @@ export function classifyBookingRevenue(
 
 	const net = collected - refunded;
 	const settled = finished || cancelled;
+	const keptFromCancellation = !finished && cancelled && net > 0 ? net : 0;
+	const lostOnRefund = settled && net < 0 ? -net : 0;
 
 	return {
 		earned: settled ? round2(net) : 0,
@@ -88,6 +94,8 @@ export function classifyBookingRevenue(
 		refunded: round2(refunded),
 		toCollectOnSite: 0,
 		corrections: round2(corrections),
+		kept: round2(keptFromCancellation),
+		lost: round2(lostOnRefund),
 	};
 }
 
@@ -98,5 +106,7 @@ export function addBookingRevenue(a: BookingRevenue, b: BookingRevenue): Booking
 		refunded: round2(a.refunded + b.refunded),
 		toCollectOnSite: round2(a.toCollectOnSite + b.toCollectOnSite),
 		corrections: round2(a.corrections + b.corrections),
+		kept: round2(a.kept + b.kept),
+		lost: round2(a.lost + b.lost),
 	};
 }
