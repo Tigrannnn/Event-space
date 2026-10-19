@@ -15,6 +15,7 @@ export const filters: Messages['filters'] = {
 	filters: 'Ֆիլտրեր',
 	today: 'Այսօր',
 	thisWeekend: 'Այս հանգստյան',
+	thisWeek: 'Այս շաբաթ',
 	thisMonth: 'Այս ամիս',
 	searchCategories: 'Փնտրել կատեգորիա...',
 	noCategoriesFound: 'Կատեգորիաներ չեն գտնվել',

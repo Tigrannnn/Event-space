@@ -17,7 +17,6 @@ import RevenueKpiCards from './widgets/RevenueKpiCards';
 import RevenueChart from './widgets/RevenueChart';
 import ExpectedTimeline from './widgets/ExpectedTimeline';
 import { useTranslation } from '@/hooks/translation';
-import BookingFunnel from './widgets/BookingFunnel';
 import BookingStateWidget from './widgets/BookingStateWidget';
 import NeedsAttention from './widgets/NeedsAttention';
 import UpcomingEventsList from './widgets/UpcomingEventsList';
@@ -68,7 +67,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 	);
 	// Unlike the state series, the cohort is meaningful for a single day too: "of the bookings made
 	// today, how many are confirmed already" is a fair question.
-	const { data: cohort, isLoading: isCohortLoading } = useBookingCohort(range.from, range.to);
+	const { data: cohort } = useBookingCohort(range.from, range.to);
 
 	return (
 		<div className="space-y-6">
@@ -109,8 +108,6 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 					<FlowChart flow={flow} isLoading={isFlowLoading} />
 				</>
 			)}
-
-			<BookingFunnel cohort={cohort} isLoading={isCohortLoading} />
 
 			<NeedsAttention stats={stats} />
 

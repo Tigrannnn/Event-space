@@ -13,6 +13,7 @@ export const filters = {
 	filters: 'Filters',
 	today: 'Today',
 	thisWeekend: 'This weekend',
+	thisWeek: 'This week',
 	thisMonth: 'This month',
 	searchCategories: 'Search category...',
 	noCategoriesFound: 'No categories found',

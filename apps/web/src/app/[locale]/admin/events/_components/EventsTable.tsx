@@ -91,6 +91,14 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 			},
 		},
 		{
+			key: 'week',
+			label: translate('filters.thisWeek'),
+			getRange: () => {
+				const today = startOfToday();
+				return { from: today, to: addDays(today, 6) };
+			},
+		},
+		{
 			key: 'weekend',
 			label: translate('filters.thisWeekend'),
 			getRange: () => {

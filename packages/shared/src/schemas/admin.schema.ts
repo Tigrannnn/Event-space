@@ -25,7 +25,7 @@ export const DashboardStatsSchema = z.object({
 		pendingBookings: z.number(),
 		draftEvents: z.number(),
 		eventsThisWeek: z.number(),
-		eventsWithNoBookings: z.number(),
+		pendingUsers: z.number(),
 	}),
 	recentBookings: z.array(BookingWithDetailsSchema),
 	recentUsers: z.array(SafeUserSchema),

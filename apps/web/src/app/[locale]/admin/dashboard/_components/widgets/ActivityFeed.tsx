@@ -76,7 +76,7 @@ export default function ActivityFeed({ stats }: ActivityFeedProps) {
 					<p className="text-sm text-gray-500">{translate('admin.noRecentActivity')}</p>
 				)}
 
-				{entries.slice(0, 8).map((entry) => (
+				{entries.slice(0, 15).map((entry) => (
 					<div
 						key={entry.id}
 						className="flex items-start gap-3 rounded-md border border-gray-500 p-3"

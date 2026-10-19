@@ -3,6 +3,11 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import type { DashboardStats } from '@event-space/shared';
 import { bookingInclude, safeUserSelect } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
+import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.util';
+import { addDaysToKey } from './dashboard-expected.util';
+
+const WEEK_DAYS = 7;
+const RECENT_ACTIVITY_LIMIT = 15;
 
 const dashboardEventInclude = {
 	cancellationRules: true,
@@ -20,8 +25,9 @@ export class DashboardStatsService {
 
 	async getStats(): Promise<DashboardStats> {
 		const now = new Date();
-		const weekFromNow = new Date(now);
-		weekFromNow.setDate(weekFromNow.getDate() + 7);
+		const today = toDateKey(now);
+		const weekStart = startOfDay(today);
+		const weekEnd = endOfDay(addDaysToKey(today, WEEK_DAYS - 1));
 
 		const [
 			totalEvents,
@@ -35,7 +41,7 @@ export class DashboardStatsService {
 			cancelledEvents,
 			upcomingEventsCount,
 			eventsThisWeek,
-			eventsWithNoBookings,
+			pendingUsers,
 			capacityTotals,
 			recentBookings,
 			recentUsers,
@@ -53,24 +59,24 @@ export class DashboardStatsService {
 			this.prisma.event.count({ where: { status: 'CANCELLED' } }),
 			this.prisma.event.count({ where: { occurrences: { some: { date: { gte: now } } } } }),
 			this.prisma.event.count({
-				where: { occurrences: { some: { date: { gte: now, lte: weekFromNow } } } },
+				where: { occurrences: { some: { date: { gte: weekStart, lte: weekEnd } } } },
 			}),
-			this.prisma.event.count({ where: { occurrences: { none: { bookings: { some: {} } } } } }),
+			this.prisma.user.count({ where: { emailVerified: false, isShadow: false } }),
 			this.prisma.eventOccurrence.aggregate({
 				_sum: { currentParticipants: true, maxParticipants: true },
 			}),
 			this.prisma.booking.findMany({
-				take: 5,
+				take: RECENT_ACTIVITY_LIMIT,
 				orderBy: { createdAt: 'desc' },
 				include: bookingInclude,
 			}),
 			this.prisma.user.findMany({
-				take: 5,
+				take: RECENT_ACTIVITY_LIMIT,
 				orderBy: { createdAt: 'desc' },
 				select: safeUserSelect,
 			}),
 			this.prisma.event.findMany({
-				take: 5,
+				take: RECENT_ACTIVITY_LIMIT,
 				orderBy: { createdAt: 'desc' },
 				include: dashboardEventInclude,
 			}),
@@ -118,7 +124,7 @@ export class DashboardStatsService {
 				pendingBookings,
 				draftEvents,
 				eventsThisWeek,
-				eventsWithNoBookings,
+				pendingUsers,
 			},
 			recentBookings: recentBookings.map((booking) => normalizeBookingResponse(booking)),
 			recentUsers,

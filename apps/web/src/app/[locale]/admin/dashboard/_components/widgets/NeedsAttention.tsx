@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { Clock, FileText, CalendarClock, AlertCircle } from 'lucide-react';
+import { addDays, startOfToday } from 'date-fns';
+import { Clock, FileText, CalendarClock, UserCheck } from 'lucide-react';
 import type { DashboardStats } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { localizePath } from '@/lib/i18n/config';
+import { formatDateParam } from '@/components/filters';
 
 interface NeedsAttentionProps {
 	stats: DashboardStats;
@@ -12,7 +14,9 @@ interface NeedsAttentionProps {
 
 export default function NeedsAttention({ stats }: NeedsAttentionProps) {
 	const translate = useTranslation();
-	const locale = translate.locale
+	const locale = translate.locale;
+	const weekStart = startOfToday();
+	const thisWeekHref = `/admin/events?startDate=${formatDateParam(weekStart)}&endDate=${formatDateParam(addDays(weekStart, 6))}`;
 	// Each card lands on the list already narrowed to what the number counts, so the follow-up
 	// action takes one click instead of re-picking the filter by hand.
 	const attentionItems = [
@@ -31,16 +35,14 @@ export default function NeedsAttention({ stats }: NeedsAttentionProps) {
 		{
 			label: translate('admin.eventsThisWeek'),
 			value: stats.attention.eventsThisWeek,
-			href: '/admin/events?time=upcoming',
+			href: thisWeekHref,
 			icon: CalendarClock,
 		},
 		{
-			// No filter matches "no bookings" — that count comes from a relation check the list
-			// cannot express, so this one stays a plain link.
-			label: translate('admin.eventsWithoutBookings'),
-			value: stats.attention.eventsWithNoBookings,
-			href: '/admin/events',
-			icon: AlertCircle,
+			label: translate('admin.pendingUsers'),
+			value: stats.attention.pendingUsers,
+			href: '/admin/users?emailVerified=false&isShadow=false',
+			icon: UserCheck,
 		},
 	];
 

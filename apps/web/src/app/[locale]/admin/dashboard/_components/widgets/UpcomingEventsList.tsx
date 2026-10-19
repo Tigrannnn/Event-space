@@ -24,7 +24,7 @@ export default function UpcomingEventsList({ stats }: UpcomingEventsListProps) {
 					<p className="text-sm text-gray-500">{translate('admin.nextEventsCalendar')}</p>
 				</div>
 				<Link
-					href={localizePath('/admin/events', locale)}
+					href={localizePath('/admin/events?time=upcoming', locale)}
 					className="text-primary text-sm font-semibold"
 				>
 					{translate('admin.viewAll')}

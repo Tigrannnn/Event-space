@@ -1,3 +1,4 @@
+import { endOfDay, startOfDay } from '../../shared/utils/app-day.util';
 import { createAdmin, fakePrisma, fakeStripe } from './admin.test-helpers';
 
 const HOUR = 60 * 60 * 1000;
@@ -857,12 +858,11 @@ describe('admin: dashboard stats', () => {
 				if (text.includes('PUBLISHED')) return 6;
 				if (text.includes('DRAFT')) return 3;
 				if (text.includes('CANCELLED')) return 1;
-				if (text.includes('none')) return 2;
 				if (text.includes('lte')) return 4;
 				if (text.includes('gte')) return 5;
 				return 10;
 			},
-			'user.count': 7,
+			'user.count': (args: unknown) => (JSON.stringify(args ?? {}).includes('emailVerified') ? 2 : 7),
 			'booking.count': (args: unknown) => {
 				const text = JSON.stringify(args ?? {});
 				if (text.includes('CONFIRMED')) return 20;
@@ -889,7 +889,7 @@ describe('admin: dashboard stats', () => {
 			totalCapacity: 80,
 			usedCapacity: 20,
 			events: { published: 6, draft: 3, cancelled: 1, upcoming: 5 },
-			attention: { pendingBookings: 5, draftEvents: 3, eventsThisWeek: 4, eventsWithNoBookings: 2 },
+			attention: { pendingBookings: 5, draftEvents: 3, eventsThisWeek: 4, pendingUsers: 2 },
 		});
 		expect(stats.recentBookings[0]).toMatchObject({ amount: 20000 });
 		expect(stats.recentEvents[0]).toMatchObject({
@@ -898,6 +898,43 @@ describe('admin: dashboard stats', () => {
 			occurrences: [],
 		});
 		expect(stats.upcomingEvents).toHaveLength(1);
+	});
+
+	it('counts events this week over seven whole days starting today', async () => {
+		jest.useFakeTimers().setSystemTime(new Date('2026-10-19T10:00:00Z'));
+		try {
+			const { prisma, argsOf } = fakePrisma();
+			await createAdmin(prisma, fakeStripe().stripe).getDashboardStats();
+
+			const week = argsOf('event.count').find((args) => JSON.stringify(args ?? {}).includes('lte')) as {
+				where: { occurrences: { some: { date: { gte: Date; lte: Date } } } };
+			};
+
+			expect(week.where.occurrences.some.date.gte).toEqual(startOfDay('2026-10-19'));
+			expect(week.where.occurrences.some.date.lte).toEqual(endOfDay('2026-10-25'));
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('counts only users who have not confirmed their email, not shadow guests', async () => {
+		const { prisma, argsOf } = fakePrisma();
+		await createAdmin(prisma, fakeStripe().stripe).getDashboardStats();
+
+		expect(argsOf('user.count')).toContainEqual({
+			where: { emailVerified: false, isShadow: false },
+		});
+	});
+
+	it('shows fifteen recent bookings, users and events', async () => {
+		const { prisma, argsOf } = fakePrisma();
+		await createAdmin(prisma, fakeStripe().stripe).getDashboardStats();
+
+		const takes = ['booking.findMany', 'user.findMany'].map(
+			(name) => (argsOf(name)[0] as { take: number }).take,
+		);
+		expect(takes).toEqual([15, 15]);
+		expect(argsOf('event.findMany').map((args) => (args as { take: number }).take)).toEqual([15, 5]);
 	});
 
 	it('reports zero usage when there is no capacity', async () => {

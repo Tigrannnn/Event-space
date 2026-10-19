@@ -15,6 +15,7 @@ export const filters: Messages['filters'] = {
 	filters: 'Фильтры',
 	today: 'Сегодня',
 	thisWeekend: 'Эти выходные',
+	thisWeek: 'За эту неделю',
 	thisMonth: 'Этот месяц',
 	searchCategories: 'Поиск категории...',
 	noCategoriesFound: 'Категории не найдены',
