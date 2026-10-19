@@ -8,7 +8,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { useModalStore, ModalType } from '@/stores';
 import { useCurrentUser } from '@/features/users';
-import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
 
@@ -33,9 +33,8 @@ export default function Header() {
 	const brandRest = brandRestWords.join(' ');
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { data: myBookings } = useGetMyBookings();
+	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
-	const myBookingsCount = myBookings ? myBookings.filter((b) => b.status === 'CONFIRMED').length : 0;
 	const isHydrated = useHydrated();
 
 	const handleSubmitSearch = useCallback(() => {

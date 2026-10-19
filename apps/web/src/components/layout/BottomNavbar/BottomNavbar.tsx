@@ -12,7 +12,7 @@ import { useTranslation } from '@/hooks/translation';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { isRouteActive } from '@/utils/route';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 
 export default function BottomNavbar() {
@@ -22,9 +22,8 @@ export default function BottomNavbar() {
 	const { locale } = useLocalizedNavigation();
 	const { openModal } = useModalStore();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { data: myBookings } = useGetMyBookings();
+	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
-	const myBookingsCount = myBookings ? myBookings.filter((b) => b.status === 'CONFIRMED').length : 0;
 	const isHydrated = useHydrated();
 
 	if (isAdminPage) {

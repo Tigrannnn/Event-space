@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { bookingApi } from '../api/bookings.api';
-import { CreateBookingData, UpdateBookingData } from '@event-space/shared';
+import {
+	getBookingDisplayStatus,
+	type BookingWithEstimate,
+	CreateBookingData,
+	UpdateBookingData,
+} from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
 import { useApiError } from '@/hooks/apiError';
@@ -11,6 +16,37 @@ export const useGetMyBookings = () => {
 		queryKey: ['my-bookings'],
 		queryFn: () => bookingApi.getMyBookings(),
 	});
+};
+
+const MINUTE_MS = 60 * 1000;
+
+/**
+ * Bookings still to be attended: paid, not checked in yet, and the tour has not finished.
+ *
+ * The badge in the header used to count every CONFIRMED booking, which also holds the ones
+ * already attended and the ones whose tour is long over — so it never matched the list.
+ */
+export function countActiveBookings(
+	bookings: Pick<BookingWithEstimate, 'status' | 'checkedInAt' | 'occurrence'>[],
+	now: number = Date.now(),
+): number {
+	return bookings.filter((booking) => {
+		if (getBookingDisplayStatus(booking) !== 'CONFIRMED') return false;
+		if (!booking.occurrence) return true;
+
+		const durationMs = (booking.occurrence.event?.duration ?? 0) * MINUTE_MS;
+		return new Date(booking.occurrence.date).getTime() + durationMs > now;
+	}).length;
+}
+
+export const useActiveBookingsCount = () => {
+	const { data } = useQuery({
+		queryKey: ['my-bookings'],
+		queryFn: () => bookingApi.getMyBookings(),
+		select: (bookings) => countActiveBookings(bookings),
+	});
+
+	return data ?? 0;
 };
 
 export const useCreateBooking = () => {
