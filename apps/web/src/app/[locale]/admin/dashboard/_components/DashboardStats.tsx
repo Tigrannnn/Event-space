@@ -90,14 +90,16 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 				))}
 			</div>
 
+			<p className="text-sm text-gray-500">
+				{translate(moneyView === 'tours' ? 'admin.revenueViewToursHint' : 'admin.revenueViewCashHint')}
+			</p>
+
 			{moneyView === 'tours' ? (
 				<>
 					<RevenueKpiCards
 						revenue={revenue}
 						isLoading={isRevenueLoading}
-						bookingsCard={
-							<BookingsCreatedCard flow={flow} cohort={cohort} isLoading={isFlowLoading} />
-						}
+						bookingsCard={<BookingsCreatedCard flow={flow} cohort={cohort} isLoading={isFlowLoading} />}
 					/>
 					<RevenueChart revenue={revenue} isLoading={isRevenueLoading} />
 					<ExpectedTimeline timeline={timeline} isLoading={isTimelineLoading} />

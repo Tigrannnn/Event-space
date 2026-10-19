@@ -17,7 +17,17 @@ function percentChange(current: number, previous: number): number | null {
 	return Math.round(((current - previous) / previous) * 100);
 }
 
-function StatBlock({ label, value, tone }: { label: string; value: string; tone?: 'warning' }) {
+function StatBlock({
+	label,
+	value,
+	hint,
+	tone,
+}: {
+	label: string;
+	value: string;
+	hint?: string;
+	tone?: 'warning';
+}) {
 	return (
 		<div className="min-w-0 rounded-md border border-gray-500 p-3">
 			<p className="text-xs text-gray-500">{label}</p>
@@ -28,6 +38,7 @@ function StatBlock({ label, value, tone }: { label: string; value: string; tone?
 			>
 				{value}
 			</p>
+			{hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
 		</div>
 	);
 }
@@ -98,6 +109,7 @@ export default function RevenueKpiCards({
 						<div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:w-96 lg:shrink-0">
 							<StatBlock
 								label={translate('admin.revenueRefundedDeducted')}
+								hint={translate('admin.revenueRefundedByTourHint')}
 								value={formatCurrency(totals.refunded)}
 							/>
 							<StatBlock

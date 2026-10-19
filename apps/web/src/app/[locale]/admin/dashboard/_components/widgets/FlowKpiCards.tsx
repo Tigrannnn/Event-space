@@ -134,18 +134,27 @@ function MoneySplit({ collected, refunded }: { collected: number; refunded: numb
 	const formatCurrency = useFormatCurrency();
 
 	const rows = [
-		{ label: translate('admin.revenueReceived'), value: collected },
-		{ label: translate('admin.revenueRefunded'), value: refunded },
+		{
+			label: translate('admin.revenueReceived'),
+			hint: translate('admin.revenueReceivedHint'),
+			value: collected,
+		},
+		{
+			label: translate('admin.revenueRefunded'),
+			hint: translate('admin.revenueRefundedByDateHint'),
+			value: refunded,
+		},
 	];
 
 	return (
-		<dl className="mt-4 space-y-1 text-xs text-gray-500">
+		<dl className="mt-4 space-y-2 text-xs text-gray-500">
 			{rows.map((row) => (
-				<div key={row.label} className="flex items-center justify-between gap-4">
-					<dt>{row.label}</dt>
-					<dd className="font-medium text-gray-900 dark:text-gray-100">
-						{formatCurrency(row.value)}
-					</dd>
+				<div key={row.label}>
+					<div className="flex items-center justify-between gap-4">
+						<dt>{row.label}</dt>
+						<dd className="font-medium text-gray-900 dark:text-gray-100">{formatCurrency(row.value)}</dd>
+					</div>
+					<p className="mt-0.5 text-[11px] text-gray-500">{row.hint}</p>
 				</div>
 			))}
 		</dl>
