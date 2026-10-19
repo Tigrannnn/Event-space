@@ -2,12 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
-import type {
-	BookingStatus,
-	BookingWithDetails,
-	PaginatedParams,
-	UpdateBookingData,
-} from '@event-space/shared';
+import type { BookingWithDetails, PaginatedParams, UpdateBookingData } from '@event-space/shared';
 import { bookingInclude } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
 import { toPage } from '../common/query-helpers';
@@ -110,39 +105,6 @@ export class AdminBookingsService {
 			where: { id: bookingId },
 			data: { checkedInAt: new Date() },
 			include: bookingInclude,
-		});
-	}
-
-	updateStatus(id: string, status: BookingStatus) {
-		return this.prisma.$transaction(async (tx) => {
-			const booking = await tx.booking.findUnique({
-				where: { id },
-				include: { occurrence: true },
-			});
-
-			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-
-			if (booking.status === status) {
-				return tx.booking.findUnique({ where: { id }, include: bookingInclude });
-			}
-
-			// Only confirmed bookings hold seats, so the change in held seats is whatever the move
-			// into or out of CONFIRMED adds or takes away.
-			const held = booking.status === 'CONFIRMED' ? booking.quantity : 0;
-			const willHold = status === 'CONFIRMED' ? booking.quantity : 0;
-			const delta = willHold - held;
-
-			if (delta > 0) {
-				await reserveSeats(tx, booking.occurrence, delta);
-			} else if (delta < 0) {
-				await releaseSeats(tx, booking.occurrenceId, -delta);
-			}
-
-			return tx.booking.update({
-				where: { id },
-				data: { status },
-				include: bookingInclude,
-			});
 		});
 	}
 }

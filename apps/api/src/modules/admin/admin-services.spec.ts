@@ -286,65 +286,7 @@ describe('admin: changing a booking', () => {
 	});
 });
 
-describe('admin: status and check-in', () => {
-	const withOccurrence = (over: Record<string, unknown> = {}) =>
-		bookingRow({ occurrence: { id: 'o1', maxParticipants: 10, currentParticipants: 4 }, ...over });
-
-	it('takes seats when a pending booking is confirmed', async () => {
-		const { prisma, argsOf } = fakePrisma({
-			'booking.findUnique': withOccurrence({ status: 'PENDING' }),
-			'booking.update': bookingRow(),
-		});
-		await createAdmin(prisma, fakeStripe().stripe).updateBookingStatus('b1', 'CONFIRMED');
-
-		expect(argsOf('eventOccurrence.updateMany')[0]).toEqual({
-			where: { id: 'o1', currentParticipants: { lte: 8 } },
-			data: { currentParticipants: { increment: 2 } },
-		});
-		expect(argsOf('booking.update')[0]).toMatchObject({ data: { status: 'CONFIRMED' } });
-	});
-
-	it('gives seats back when a confirmed booking is cancelled', async () => {
-		const { prisma, argsOf } = fakePrisma({
-			'booking.findUnique': withOccurrence(),
-			'booking.update': bookingRow({ status: 'CANCELLED' }),
-		});
-		await createAdmin(prisma, fakeStripe().stripe).updateBookingStatus('b1', 'CANCELLED');
-
-		expect(argsOf('eventOccurrence.updateMany')[0]).toEqual({
-			where: { id: 'o1', currentParticipants: { gte: 2 } },
-			data: { currentParticipants: { decrement: 2 } },
-		});
-	});
-
-	it('does not touch seats between pending and cancelled', async () => {
-		const { prisma, calls } = fakePrisma({
-			'booking.findUnique': withOccurrence({ status: 'PENDING' }),
-			'booking.update': bookingRow({ status: 'CANCELLED' }),
-		});
-		await createAdmin(prisma, fakeStripe().stripe).updateBookingStatus('b1', 'CANCELLED');
-
-		expect(calls.some((call) => call.name === 'eventOccurrence.updateMany')).toBe(false);
-	});
-
-	it('does nothing when the status is already that', async () => {
-		const { prisma, calls } = fakePrisma({ 'booking.findUnique': withOccurrence() });
-		await createAdmin(prisma, fakeStripe().stripe).updateBookingStatus('b1', 'CONFIRMED');
-
-		expect(calls.some((call) => call.name === 'booking.update')).toBe(false);
-	});
-
-	it('refuses to confirm without free seats', async () => {
-		const { prisma } = fakePrisma({
-			'booking.findUnique': withOccurrence({ status: 'PENDING' }),
-			'eventOccurrence.updateMany': { count: 0 },
-		});
-
-		await expect(
-			createAdmin(prisma, fakeStripe().stripe).updateBookingStatus('b1', 'CONFIRMED'),
-		).rejects.toBeDefined();
-	});
-
+describe('admin: check-in', () => {
 	it('checks a confirmed guest in once', async () => {
 		const ok = fakePrisma({ 'booking.findUnique': bookingRow(), 'booking.update': bookingRow() });
 		await createAdmin(ok.prisma, fakeStripe().stripe).checkInBooking('b1');
@@ -906,7 +848,9 @@ describe('admin: dashboard stats', () => {
 			const { prisma, argsOf } = fakePrisma();
 			await createAdmin(prisma, fakeStripe().stripe).getDashboardStats();
 
-			const week = argsOf('event.count').find((args) => JSON.stringify(args ?? {}).includes('lte')) as {
+			const week = argsOf('event.count').find((args) =>
+				JSON.stringify(args ?? {}).includes('lte'),
+			) as {
 				where: { occurrences: { some: { date: { gte: Date; lte: Date } } } };
 			};
 

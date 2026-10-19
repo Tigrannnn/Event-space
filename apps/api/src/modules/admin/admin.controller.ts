@@ -62,7 +62,6 @@ import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import { AppErrorCode } from '@event-space/shared';
 import type {
 	BookingDisplayStatus,
-	BookingStatus,
 	EventDifficulty,
 	EventStatus,
 	UserRoleType,
@@ -311,23 +310,6 @@ export class AdminController {
 			tourTo: parseOptionalQueryDate(tourToRaw, 'tourTo'),
 			paymentMethod,
 		});
-	}
-
-	@Patch('bookings/:id/status')
-	@ApiOperation({ summary: 'Update booking status (admin only)' })
-	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	async updateBookingStatus(
-		@GetCurrentUserId() adminId: string,
-		@Param('id') id: string,
-		@Body('status') status: BookingStatus,
-	) {
-		await this.rateLimiter.consumePerUser(
-			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
-			adminId,
-			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
-			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
-		);
-		return this.bookingsAdminService.updateStatus(id, status);
 	}
 
 	@Patch('bookings/:id')

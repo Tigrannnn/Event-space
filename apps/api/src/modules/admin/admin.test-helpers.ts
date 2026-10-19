@@ -124,8 +124,6 @@ export function createAdmin(prisma: never, stripe: never) {
 			bookings.findAll(params),
 		updateBooking: (id: string, data: Parameters<AdminBookingsService['updateQuantity']>[1]) =>
 			bookings.updateQuantity(id, data),
-		updateBookingStatus: (id: string, status: Parameters<AdminBookingsService['updateStatus']>[1]) =>
-			bookings.updateStatus(id, status),
 		checkInBooking: (id: string) => bookings.checkIn(id),
 		adminCancelBooking: (
 			adminId: string,

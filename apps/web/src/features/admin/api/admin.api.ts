@@ -65,8 +65,6 @@ export const adminApi = {
 		clientApi
 			.get<PaginatedResponse<BookingWithDetails>>('/admin/bookings', { params })
 			.then((res) => res.data),
-	updateBookingStatus: (id: string, status: Booking['status']) =>
-		clientApi.patch<Booking>(`/admin/bookings/${id}/status`, { status }).then((res) => res.data),
 	getBookingByReference: (ref: number) =>
 		clientApi.get<BookingWithDetails>(`/admin/bookings/by-reference/${ref}`).then((res) => res.data),
 	checkInBooking: (id: string) =>

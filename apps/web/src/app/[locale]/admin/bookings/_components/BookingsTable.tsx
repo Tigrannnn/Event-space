@@ -24,7 +24,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import { useAdminBookings, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
+import { useAdminBookings } from '@/features/admin/hooks/useAdmin';
 import { useModalStore } from '@/stores/modalStore';
 import type {
 	BookingDisplayStatus,

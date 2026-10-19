@@ -8,7 +8,7 @@ import Select from '@/components/ui/Select/Select';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
-import { useCancelBookingByAdmin, useUpdateBookingStatus } from '@/features/admin/hooks/useAdmin';
+import { useCancelBookingByAdmin } from '@/features/admin/hooks/useAdmin';
 import { getEventTranslation, type AdminCancelBookingData } from '@event-space/shared';
 
 export default function BookingCancelModal() {
