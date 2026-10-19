@@ -2,8 +2,10 @@
 
 import {
 	Area,
-	AreaChart,
+	Bar,
 	CartesianGrid,
+	ComposedChart,
+	Legend,
 	ResponsiveContainer,
 	Tooltip,
 	XAxis,
@@ -94,7 +96,7 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 			{hasAnyMoney ? (
 				<div className="h-64 w-full">
 					<ResponsiveContainer width="100%" height="100%">
-						<AreaChart data={timeline.points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+						<ComposedChart data={timeline.points} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
 							<CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
 							<XAxis
 								dataKey="date"
@@ -117,6 +119,19 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 									/>
 								}
 							/>
+							<Legend />
+							<Bar
+								dataKey="settled"
+								name={translate('admin.expectedSettledLegend')}
+								fill="#10b981"
+								maxBarSize={14}
+							/>
+							<Bar
+								dataKey="cancelled"
+								name={translate('admin.expectedCancelledLegend')}
+								fill="#ef4444"
+								maxBarSize={14}
+							/>
 							<Area
 								type="stepAfter"
 								dataKey="expected"
@@ -126,7 +141,7 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 								fillOpacity={0.2}
 								strokeWidth={2}
 							/>
-						</AreaChart>
+						</ComposedChart>
 					</ResponsiveContainer>
 				</div>
 			) : (
