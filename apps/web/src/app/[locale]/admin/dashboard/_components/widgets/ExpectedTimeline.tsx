@@ -39,11 +39,36 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 		timeline.opening !== 0 || timeline.points.some((point) => point.expected !== 0);
 
 	const steps = [
-		{ label: translate('admin.expectedOpening'), value: timeline.opening, sign: '' },
-		{ label: translate('admin.expectedAdded'), value: timeline.totals.added, sign: '+' },
-		{ label: translate('admin.expectedCancelled'), value: timeline.totals.cancelled, sign: '−' },
-		{ label: translate('admin.expectedSettled'), value: timeline.totals.settled, sign: '−' },
-		{ label: translate('admin.expectedClosing'), value: timeline.closing, sign: '=' },
+		{
+			label: translate('admin.expectedOpening'),
+			hint: translate('admin.expectedOpeningHint'),
+			value: timeline.opening,
+			sign: '',
+		},
+		{
+			label: translate('admin.expectedAdded'),
+			hint: translate('admin.expectedAddedHint'),
+			value: timeline.totals.added,
+			sign: '+',
+		},
+		{
+			label: translate('admin.expectedCancelled'),
+			hint: translate('admin.expectedCancelledHint'),
+			value: timeline.totals.cancelled,
+			sign: '−',
+		},
+		{
+			label: translate('admin.expectedSettled'),
+			hint: translate('admin.expectedSettledHint'),
+			value: timeline.totals.settled,
+			sign: '→ ',
+		},
+		{
+			label: translate('admin.expectedClosing'),
+			hint: translate('admin.expectedClosingHint'),
+			value: timeline.closing,
+			sign: '=',
+		},
 	];
 
 	return (
@@ -61,6 +86,7 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 							{step.sign}
 							{formatCurrency(step.value)}
 						</dd>
+						<dd className="mt-1 text-xs text-gray-500">{step.hint}</dd>
 					</div>
 				))}
 			</dl>
