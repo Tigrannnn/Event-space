@@ -80,11 +80,11 @@ export default function ExpectedTimeline({ timeline, isLoading }: ExpectedTimeli
 			</h2>
 			<p className="mb-4 text-sm text-gray-500">{translate('admin.expectedOverTimeHint')}</p>
 
-			<dl className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
+			<dl className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
 				{steps.map((step) => (
-					<div key={step.label} className="rounded-md border border-gray-500 p-3">
+					<div key={step.label} className="min-w-0 rounded-md border border-gray-500 p-3">
 						<dt className="text-xs text-gray-500">{step.label}</dt>
-						<dd className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+						<dd className="mt-1 text-base font-semibold break-words text-gray-900 sm:text-lg dark:text-gray-100">
 							{step.sign}
 							{formatCurrency(step.value)}
 						</dd>

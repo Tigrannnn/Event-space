@@ -19,10 +19,10 @@ function percentChange(current: number, previous: number): number | null {
 
 function StatBlock({ label, value, tone }: { label: string; value: string; tone?: 'warning' }) {
 	return (
-		<div className="rounded-md border border-gray-500 p-3">
+		<div className="min-w-0 rounded-md border border-gray-500 p-3">
 			<p className="text-xs text-gray-500">{label}</p>
 			<p
-				className={`mt-1 text-lg font-semibold ${
+				className={`mt-1 text-base font-semibold break-words sm:text-lg ${
 					tone === 'warning' ? 'text-amber-600 dark:text-amber-400' : 'text-gray-900 dark:text-gray-100'
 				}`}
 			>
@@ -64,7 +64,7 @@ export default function RevenueKpiCards({
 		<div className="space-y-4">
 			<div className="rounded-lg border border-gray-500 p-4 shadow-sm sm:p-5">
 				<div className="flex items-start justify-between gap-4">
-					<div className="flex min-w-0 flex-1 flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+					<div className="flex min-w-0 flex-1 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
 						<div className="flex min-w-0 items-start gap-4">
 							<div className="min-w-0">
 								<p className="text-sm text-gray-500">{translate('admin.revenueEarned')}</p>
@@ -95,7 +95,7 @@ export default function RevenueKpiCards({
 							</div>
 						</div>
 
-						<div className="grid shrink-0 grid-cols-2 gap-3 md:w-96">
+						<div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:w-96 lg:shrink-0">
 							<StatBlock
 								label={translate('admin.revenueRefundedDeducted')}
 								value={formatCurrency(totals.refunded)}
