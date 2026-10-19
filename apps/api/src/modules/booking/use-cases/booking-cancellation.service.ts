@@ -61,6 +61,10 @@ export class BookingCancellationService {
 					};
 				}
 
+				if (currentBooking.occurrence && currentBooking.occurrence.date.getTime() <= Date.now()) {
+					throw new AppException(AppErrorCode.TOUR_ALREADY_STARTED);
+				}
+
 				if (currentBooking.status === 'CONFIRMED') {
 					await tx.eventOccurrence.updateMany({
 						where: {

@@ -71,6 +71,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Could not release the spots for this booking.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'This booking is not confirmed yet.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'This booking is already checked in.',
+	[AppErrorCode.TOUR_ALREADY_STARTED]: 'The tour has already started, so the booking can no longer be cancelled. Please contact the organiser.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'This booking has no payment to reconcile.',
 

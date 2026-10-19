@@ -350,3 +350,24 @@ describe('money paths: the payment is written down before a refund', () => {
 		expect(types(table)).toEqual(['REFUND']);
 	});
 });
+
+describe('cancelling a booking by the client after the tour started', () => {
+	it('is refused, and nothing is written', async () => {
+		const { service, stripeCalls, table } = createWorld({ tourInHours: -2 });
+
+		await expect(service.cancel('u1', 'b1', 'ru')).rejects.toMatchObject({
+			code: 'TOUR_ALREADY_STARTED',
+		});
+		expect(stripeCalls).toHaveLength(0);
+		expect(table).toHaveLength(0);
+	});
+
+	it('still answers a repeated click on a booking that is already cancelled', async () => {
+		const { service } = createWorld({
+			tourInHours: -2,
+			bookings: [booking({ id: 'b1', status: 'CANCELLED' })],
+		});
+
+		await expect(service.cancel('u1', 'b1', 'ru')).resolves.toBeDefined();
+	});
+});

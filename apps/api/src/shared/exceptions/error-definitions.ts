@@ -168,6 +168,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		message: 'Booking is not confirmed',
 	},
 	[AppErrorCode.ALREADY_CHECKED_IN]: { status: HttpStatus.CONFLICT, message: 'Already checked in' },
+	[AppErrorCode.TOUR_ALREADY_STARTED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'The tour has already started, the booking can no longer be cancelled',
+	},
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Invalid reference number',

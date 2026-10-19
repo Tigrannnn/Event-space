@@ -65,6 +65,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Не удалось освободить места для этой брони.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Эта бронь ещё не подтверждена.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Эта бронь уже отмечена как явка.',
+	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Тур уже начался, бронь больше нельзя отменить. Свяжитесь с организатором.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',
 

@@ -64,6 +64,7 @@ export const admin: Messages['admin'] = {
 	refundStrategyFull: 'Полный возврат',
 	refundStrategyRules: 'По правилам отмены (минус комиссия платёжной системы)',
 	refundStrategyManual: 'Ручной возврат',
+	cancelAfterTourWarning: 'Тур уже начался. Возврат пройдёт как корректировка по этому туру: он уменьшит «Заработано» на дашборде.',
 	reason: 'Причина',
 	reasonPlaceholder: 'Введите причину (необязательно)',
 	searchPlaceholder: 'Поиск пользователя, email, события, места',

@@ -22,6 +22,7 @@ export default function BookingCancelModal() {
 	const cancelBooking = useCancelBookingByAdmin();
 	const [refundType, setRefundType] = useState<AdminCancelBookingData['refundType']>('RULES');
 	const [reason, setReason] = useState('');
+	const [openedAt] = useState(() => Date.now());
 
 	if (!booking || !occurrence || !event) {
 		return null;
@@ -37,6 +38,7 @@ export default function BookingCancelModal() {
 	const isSitePayment = booking.paymentMethod === 'SITE_PAYMENT';
 
 	const eventTranslate = getEventTranslation(event, translate.locale);
+	const tourStarted = new Date(occurrence.date).getTime() <= openedAt;
 
 	const handleCancelBooking = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -64,6 +66,11 @@ export default function BookingCancelModal() {
 							{eventTranslate.title || translate('booking.unknownEvent')}
 						</p>
 					</div>
+					{tourStarted && (
+						<p className="rounded-xl border border-amber-500 bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+							{translate('admin.cancelAfterTourWarning')}
+						</p>
+					)}
 					<form onSubmit={handleCancelBooking} className="space-y-4">
 						<div className="space-y-2">
 							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
