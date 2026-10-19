@@ -20,6 +20,7 @@ import EventDetailsModal from '@/features/admin/events/components/modals/EventDe
 import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
 import CreateManualBookingModal from '@/features/admin/bookings/components/CreateManualBookingModal';
 import BookingCancelModal from '@/features/admin/bookings/components/BookingCancelModal';
+import BookingConfirmModal from '@/features/admin/bookings/components/BookingConfirmModal';
 import UpdateBookingModal from '@/features/admin/bookings/components/UpdateBookingModal';
 
 /**
@@ -47,6 +48,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.BookingDetails && <BookingDetailsModal key="booking-details" />}
 					{activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />}
 					{activeModal === ModalType.BookingCancel && <BookingCancelModal key="booking-cancel" />}
+					{activeModal === ModalType.BookingConfirm && <BookingConfirmModal key="booking-confirm" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}
 					{/* {activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />} */}

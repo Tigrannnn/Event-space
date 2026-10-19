@@ -128,6 +128,15 @@ export const CreateManualBookingSchema = z
 
 export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;
 
+export const ConfirmBookingManuallySchema = z.object({
+	paymentMethod: z
+		.enum(['OFFLINE_PAID', 'PAY_ON_ARRIVAL'])
+		.default('OFFLINE_PAID')
+		.openapi({ description: 'How the client pays: already paid offline, or on arrival' }),
+});
+
+export type ConfirmBookingManuallyData = z.infer<typeof ConfirmBookingManuallySchema>;
+
 export const AdminCancelBookingSchema = z.object({
 	refundType: z.enum(['FULL', 'RULES', 'MANUAL']).default('RULES').openapi({
 		description: 'Refund strategy for admin cancellation',

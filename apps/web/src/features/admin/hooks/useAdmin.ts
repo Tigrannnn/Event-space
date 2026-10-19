@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	type AdminCancelBookingData,
+	type ConfirmBookingManuallyData,
 	type BookingFilters,
 	type CancellationReasons,
 	type CreateManualBookingData,
@@ -117,6 +118,35 @@ export const useCancelBookingByAdmin = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.cancelBookingFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useConfirmBookingManually = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ConfirmBookingManuallyData }) =>
+			adminApi.confirmBookingManually(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.confirmBookingSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.confirmBookingFailed'), ToastType.ERROR);
 		},
 	});
 };

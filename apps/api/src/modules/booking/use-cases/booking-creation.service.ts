@@ -7,11 +7,16 @@ import {
 	BookingWithEstimate,
 	estimateStripeFeeInCents,
 	CreateBookingData,
+	ConfirmBookingManuallyData,
 	CreateManualBookingData,
 } from '@event-space/shared';
 import { AppException } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
-import { StripePaymentIntent } from '@infra/stripe/stripe.types';
+import {
+	CANCELABLE_PAYMENT_INTENT_STATUSES,
+	type CancelablePaymentIntentStatus,
+	StripePaymentIntent,
+} from '@infra/stripe/stripe.types';
 import {
 	calculateRefundPercentage,
 	getNextBookingReference,
@@ -354,6 +359,103 @@ export class BookingCreationService {
 			estimatedStripeFeeInCents: 0,
 			estimatedRefundInCents: 0,
 		} satisfies BookingWithEstimate;
+	}
+
+	async confirmManually(
+		bookingId: string,
+		data: ConfirmBookingManuallyData,
+		locale: Locale = DEFAULT_LOCALE,
+	) {
+		const { paymentMethod } = data;
+
+		const pending = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+		if (!pending) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (pending.status !== 'PENDING') throw new AppException(AppErrorCode.BOOKING_NOT_PENDING);
+
+		if (pending.paymentIntentId) {
+			await this.releaseCardPayment(pending.id, pending.paymentIntentId);
+		}
+
+		const confirmed = await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({
+				where: { id: bookingId },
+				include: { occurrence: true },
+			});
+			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+			if (booking.status !== 'PENDING') throw new AppException(AppErrorCode.BOOKING_NOT_PENDING);
+
+			const occurrence = booking.occurrence;
+			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND);
+			if (occurrence.status !== 'ACTIVE' || new Date(occurrence.date) <= new Date()) {
+				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
+			}
+
+			const reserved = await tx.eventOccurrence.updateMany({
+				where: {
+					id: occurrence.id,
+					currentParticipants: { lte: occurrence.maxParticipants - booking.quantity },
+				},
+				data: { currentParticipants: { increment: booking.quantity } },
+			});
+
+			if (reserved.count === 0) {
+				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+			}
+
+			const referenceNumber = booking.referenceNumber ?? (await getNextBookingReference(tx));
+
+			const updated = await tx.booking.update({
+				where: { id: bookingId },
+				data: { status: 'CONFIRMED', paymentMethod, paymentIntentId: null, referenceNumber },
+			});
+
+			if (paymentMethod === 'OFFLINE_PAID') {
+				await this.ledger.recordOfflinePayment(tx, bookingId, Number(booking.amount));
+			}
+
+			return updated;
+		});
+
+		await this.notifications.sendConfirmation(confirmed.id, locale);
+
+		return { ...confirmed, amount: Number(confirmed.amount) };
+	}
+
+	private async releaseCardPayment(bookingId: string, paymentIntentId: string): Promise<void> {
+		try {
+			const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
+
+			if (paymentIntent.status === 'succeeded') {
+				try {
+					await this.payments.reconcilePayment(paymentIntentId, bookingId);
+				} catch (reconcileError) {
+					this.logger.warn(
+						`Could not reconcile payment intent ${paymentIntentId} for booking ${bookingId}`,
+						reconcileError as Error,
+					);
+				}
+				throw new AppException(AppErrorCode.PAYMENT_ALREADY_RECEIVED);
+			}
+
+			if (
+				CANCELABLE_PAYMENT_INTENT_STATUSES.includes(
+					paymentIntent.status as CancelablePaymentIntentStatus,
+				)
+			) {
+				await this.stripe.cancelPaymentIntent(paymentIntentId, `manual-confirm-${bookingId}`);
+				return;
+			}
+
+			if (paymentIntent.status !== 'canceled') {
+				throw new AppException(AppErrorCode.PAYMENT_ALREADY_RECEIVED);
+			}
+		} catch (error) {
+			if (error instanceof AppException) throw error;
+			this.rethrowStripeError(error);
+		}
 	}
 
 	private async cancelPendingBooking(bookingId: string): Promise<void> {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Eye, Ban, Plus, Pencil } from 'lucide-react';
+import { Eye, Ban, Plus, Pencil, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -359,6 +359,19 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										>
 											<Eye className="h-4 w-4" />
 										</Button>
+
+										{booking.status === 'PENDING' && (
+											<Button
+												type="button"
+												size="xs"
+												variant="primary"
+												title={translate('admin.confirmBooking')}
+												aria-label={translate('admin.confirmBooking')}
+												onClick={() => openModal(ModalType.BookingConfirm, { booking })}
+											>
+												<CheckCircle className="h-4 w-4" />
+											</Button>
+										)}
 
 										<Button
 											type="button"

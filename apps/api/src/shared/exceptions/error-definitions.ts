@@ -167,6 +167,14 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Booking is not confirmed',
 	},
+	[AppErrorCode.BOOKING_NOT_PENDING]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Only a pending booking can be confirmed by hand',
+	},
+	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A card payment for this booking is already in progress or received',
+	},
 	[AppErrorCode.ALREADY_CHECKED_IN]: { status: HttpStatus.CONFLICT, message: 'Already checked in' },
 	[AppErrorCode.TOUR_ALREADY_STARTED]: {
 		status: HttpStatus.CONFLICT,

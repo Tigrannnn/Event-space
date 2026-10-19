@@ -3,6 +3,7 @@ import { type Locale } from '@prisma/client';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	BookingWithEstimate,
+	ConfirmBookingManuallyData,
 	CreateBookingData,
 	CreateManualBookingData,
 } from '@event-space/shared';
@@ -36,6 +37,14 @@ export class BookingService {
 		brandHost?: string,
 	) {
 		return this.creation.createManualBooking(adminId, data, locale, brandHost);
+	}
+
+	confirmManually(
+		bookingId: string,
+		data: ConfirmBookingManuallyData,
+		locale: Locale = DEFAULT_LOCALE,
+	) {
+		return this.creation.confirmManually(bookingId, data, locale);
 	}
 
 	reconcilePayment(

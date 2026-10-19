@@ -52,6 +52,7 @@ import {
 	UserRoleSchema,
 	TimeFilterSchema,
 	SpotsFilterSchema,
+	ConfirmBookingManuallySchema,
 	CreateManualBookingSchema,
 	CreateCategorySchema,
 	UpdateCategorySchema,
@@ -67,6 +68,7 @@ import type {
 	UserRoleType,
 	TimeFilterType,
 	SpotsFilterType,
+	ConfirmBookingManuallyData,
 	CreateManualBookingData,
 	CreateCategoryData,
 	UpdateCategoryData,
@@ -532,6 +534,25 @@ export class AdminController {
 		);
 
 		return this.bookingService.createManualBooking(adminId, data, locale, brandHost);
+	}
+
+	@Post('bookings/:id/confirm')
+	@ApiOperation({ summary: 'Confirm a pending booking by hand: paid offline or pay on arrival' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async confirmBookingManually(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(ConfirmBookingManuallySchema)) data: ConfirmBookingManuallyData,
+		@GetLocale() locale: Locale | undefined,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingService.confirmManually(id, data, locale);
 	}
 
 	@Get('categories/:id')

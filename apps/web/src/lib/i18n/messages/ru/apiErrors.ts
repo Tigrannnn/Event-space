@@ -64,6 +64,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_ALREADY_CANCELLED]: 'Эта бронь уже отменена.',
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Не удалось освободить места для этой брони.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Эта бронь ещё не подтверждена.',
+	[AppErrorCode.BOOKING_NOT_PENDING]: 'Подтвердить вручную можно только бронь в ожидании.',
+	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'По этой брони уже идёт или прошёл платёж картой. Обновите страницу.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Эта бронь уже отмечена как явка.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Тур уже начался, бронь больше нельзя отменить. Свяжитесь с организатором.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',

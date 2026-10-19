@@ -70,6 +70,8 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.BOOKING_ALREADY_CANCELLED]: 'This booking is already cancelled.',
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Could not release the spots for this booking.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'This booking is not confirmed yet.',
+	[AppErrorCode.BOOKING_NOT_PENDING]: 'Only a pending booking can be confirmed by hand.',
+	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'A card payment for this booking is already in progress or received. Please refresh the page.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'This booking is already checked in.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'The tour has already started, so the booking can no longer be cancelled. Please contact the organiser.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',

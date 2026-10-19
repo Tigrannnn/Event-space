@@ -64,6 +64,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_ALREADY_CANCELLED]: 'Այս ամրագրումն արդեն չեղարկված է։',
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Չհաջողվեց ազատել այս ամրագրման տեղերը։',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Այս ամրագրումը դեռ հաստատված չէ։',
+	[AppErrorCode.BOOKING_NOT_PENDING]: 'Ձեռքով հաստատել կարելի է միայն սպասման մեջ գտնվող ամրագրումը։',
+	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'Այս ամրագրման համար քարտով վճարումն արդեն ընթանում է կամ կատարվել է։ Թարմացրեք էջը։',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Այս ամրագրման համար արդեն նշված է ներկայություն։',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Տուրն արդեն սկսվել է, ամրագրումն այլևս հնարավոր չէ չեղարկել։ Կապվեք կազմակերպչի հետ։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
