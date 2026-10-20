@@ -57,7 +57,8 @@ import {
 	CreateCategorySchema,
 	UpdateCategorySchema,
 	AdminCancelBookingSchema,
-	UpdateBookingSchema,
+	ChangeQuantitySchema,
+	QuantityQuoteRequestSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import { AppErrorCode } from '@event-space/shared';
@@ -73,7 +74,8 @@ import type {
 	CreateCategoryData,
 	UpdateCategoryData,
 	AdminCancelBookingData,
-	UpdateBookingData,
+	ChangeQuantityData,
+	QuantityQuoteRequest,
 	PaymentMethod,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
@@ -314,14 +316,26 @@ export class AdminController {
 		});
 	}
 
-	@Patch('bookings/:id')
-	@ApiOperation({ summary: 'Update booking quantity (admin only)' })
+	@Post('bookings/:id/quantity/quote')
+	@ApiOperation({
+		summary: 'Show what changing the number of guests would refund or collect (admin only)',
+	})
+	@ApiBody(getReference('QuantityQuoteRequestSchema'))
+	async quoteBookingQuantity(
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(QuantityQuoteRequestSchema)) data: QuantityQuoteRequest,
+	) {
+		return this.bookingService.quoteQuantity({ kind: 'admin' }, id, data);
+	}
+
+	@Patch('bookings/:id/quantity')
+	@ApiOperation({ summary: 'Change the number of guests, with the money settled (admin only)' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	@ApiBody(getReference('UpdateBookingSchema'))
-	async updateBooking(
+	@ApiBody(getReference('ChangeQuantitySchema'))
+	async changeBookingQuantity(
 		@GetCurrentUserId() adminId: string,
 		@Param('id') id: string,
-		@Body(new ZodValidationPipe(UpdateBookingSchema)) data: UpdateBookingData,
+		@Body(new ZodValidationPipe(ChangeQuantitySchema)) data: ChangeQuantityData,
 	) {
 		await this.rateLimiter.consumePerUser(
 			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
@@ -329,7 +343,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.bookingsAdminService.updateQuantity(id, data);
+		return this.bookingService.changeQuantity({ kind: 'admin' }, id, data);
 	}
 
 	@Post('bookings/:id/checkin')

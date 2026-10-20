@@ -6,6 +6,7 @@ import { BookingNotificationService } from '../use-cases/booking-notification.se
 import { BookingPaymentService } from '../use-cases/booking-payment.service';
 import { BookingCancellationService } from '../use-cases/booking-cancellation.service';
 import { BookingCreationService } from '../use-cases/booking-creation.service';
+import { BookingQuantityService } from '../use-cases/booking-quantity.service';
 
 export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const ledger = new BookingLedgerService(prisma);
@@ -15,9 +16,10 @@ export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications);
 	const cancellations = new BookingCancellationService(prisma, ledger, refunds, notifications);
 	const creation = new BookingCreationService(prisma, stripe, notifications, payments, ledger);
+	const quantities = new BookingQuantityService(prisma, stripe, ledger, refunds);
 
 	return {
-		service: new BookingService(creation, queries, payments, cancellations),
+		service: new BookingService(creation, queries, payments, cancellations, quantities),
 		ledger,
 		refunds,
 	};

@@ -20,6 +20,8 @@ export interface RefundPlan {
 	successReason: string;
 	failureReason: string;
 	failureLogSuffix: string;
+	withholdsFee: boolean;
+	feeWithheldInCents?: number;
 }
 
 export interface RefundOutcome {
@@ -45,9 +47,10 @@ export class BookingRefundService {
 	) {}
 
 	async settle(
-		booking: { id: string; paymentIntentId: string },
+		booking: { id: string; paymentIntentId: string; operationKey?: string },
 		plan: RefundPlan,
 	): Promise<RefundOutcome> {
+		const operationKey = booking.operationKey ?? '';
 		let refunded: { amountInCents: number; id: string } | null = null;
 		let failed = false;
 		let coveredByFee: RefundOutcome['coveredByFee'] = null;
@@ -98,11 +101,17 @@ export class BookingRefundService {
 		}
 
 		if (refunded) {
+			const feeWithheldInCents = plan.withholdsFee
+				? Math.max(0, plan.grossInCents - refunded.amountInCents)
+				: plan.feeWithheldInCents;
+
 			const closed = await this.ledger.completeQueuedRefund({
 				paymentIntentId: booking.paymentIntentId,
 				amountInCents: refunded.amountInCents,
 				stripeRefundId: refunded.id,
 				reason: plan.successReason,
+				operationKey,
+				feeWithheldInCents,
 			});
 
 			if (!closed) {
@@ -112,16 +121,19 @@ export class BookingRefundService {
 					amountInCents: refunded.amountInCents,
 					stripeRefundId: refunded.id,
 					reason: plan.successReason,
+					operationKey,
+					feeWithheldInCents,
 				});
 			}
 		} else if (failed) {
-			const stillQueued = await this.ledger.touchQueuedRefund(booking.paymentIntentId);
+			const stillQueued = await this.ledger.touchQueuedRefund(booking.paymentIntentId, operationKey);
 
 			if (!stillQueued) {
 				await this.ledger.recordFailedRefund({
 					bookingId: booking.id,
 					paymentIntentId: booking.paymentIntentId,
 					reason: plan.failureReason,
+					operationKey,
 				});
 			}
 		} else if (coveredByFee) {
@@ -134,6 +146,7 @@ export class BookingRefundService {
 				amountInCents: 0,
 				stripeRefundId: null,
 				reason,
+				operationKey,
 			});
 
 			if (!closed) {
@@ -142,10 +155,11 @@ export class BookingRefundService {
 					paymentIntentId: booking.paymentIntentId,
 					status: 'SUCCEEDED',
 					reason,
+					operationKey,
 				});
 			}
 		} else {
-			await this.ledger.discardQueuedRefund(booking.paymentIntentId);
+			await this.ledger.discardQueuedRefund(booking.paymentIntentId, operationKey);
 		}
 
 		return { refundedInCents: refunded?.amountInCents ?? null, failed, coveredByFee };
@@ -159,6 +173,7 @@ export class BookingRefundService {
 		successReason: string;
 		failureReason: string;
 		failureLogSuffix: string;
+		feeWithheldInCents?: number;
 	}): RefundPlan {
 		const { paymentIntentId, grossInCents, withholdFee, idempotencyKey } = params;
 
@@ -169,8 +184,9 @@ export class BookingRefundService {
 
 				const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
 				const stripeFeeInCents = (charge.balance_transaction as StripeBalanceTransaction).fee;
+				const alreadyWithheld = await this.ledger.feeWithheldInCents(paymentIntentId);
 
-				return grossInCents - stripeFeeInCents;
+				return grossInCents - Math.max(0, stripeFeeInCents - alreadyWithheld);
 			},
 			refundIdempotencyKey: (amountInCents) =>
 				withholdFee ? `refund-${paymentIntentId}-${amountInCents}` : idempotencyKey,
@@ -178,6 +194,8 @@ export class BookingRefundService {
 			successReason: params.successReason,
 			failureReason: params.failureReason,
 			failureLogSuffix: params.failureLogSuffix,
+			withholdsFee: withholdFee && grossInCents > 0,
+			feeWithheldInCents: params.feeWithheldInCents,
 		};
 	}
 
@@ -207,7 +225,14 @@ export class BookingRefundService {
 					continue;
 				}
 
-				await this.settle({ id: row.bookingId, paymentIntentId: row.stripePaymentIntentId }, plan);
+				await this.settle(
+					{
+						id: row.bookingId,
+						paymentIntentId: row.stripePaymentIntentId,
+						operationKey: row.operationKey,
+					},
+					plan,
+				);
 				handled += 1;
 			} catch (error) {
 				this.logger.error(`Retrying queued refund ${row.id} failed`, error as Error);
@@ -225,7 +250,9 @@ export class BookingRefundService {
 			paymentIntentId: row.stripePaymentIntentId,
 			grossInCents: Math.round(Number(row.amount) * 100),
 			withholdFee: parsed.kind === 'withhold-fee',
-			idempotencyKey: `full-refund-${row.bookingId}`,
+			idempotencyKey: row.operationKey || `full-refund-${row.bookingId}`,
+			feeWithheldInCents:
+				row.feeWithheld === null ? undefined : Math.round(Number(row.feeWithheld) * 100),
 			successReason: parsed.text,
 			failureReason: 'Refund could not be processed at Stripe',
 			failureLogSuffix: ' (queued retry)',

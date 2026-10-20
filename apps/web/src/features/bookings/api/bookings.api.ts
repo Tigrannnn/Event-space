@@ -1,6 +1,7 @@
 import clientApi from '@/lib/client.api';
 import type {
 	Booking,
+	BookingQuantityChange,
 	CreateBookingData,
 	CreateBookingResponse,
 	UpdateBookingData,
@@ -23,5 +24,5 @@ export const bookingApi = {
 		clientApi.post<Booking>(`/bookings/${id}/reconcile-payment`).then((res) => res.data),
 
 	updateBooking: (id: string, data: UpdateBookingData) =>
-		clientApi.patch<Booking>(`/bookings/${id}`, data).then((res) => res.data),
+		clientApi.patch<BookingQuantityChange>(`/bookings/${id}/quantity`, data).then((res) => res.data),
 };

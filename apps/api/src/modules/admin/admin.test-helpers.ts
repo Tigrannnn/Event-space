@@ -122,8 +122,6 @@ export function createAdmin(prisma: never, stripe: never) {
 		findBookingByReference: (reference: number) => bookings.findByReference(reference),
 		findAllBookings: (params?: Parameters<AdminBookingsService['findAll']>[0]) =>
 			bookings.findAll(params),
-		updateBooking: (id: string, data: Parameters<AdminBookingsService['updateQuantity']>[1]) =>
-			bookings.updateQuantity(id, data),
 		checkInBooking: (id: string) => bookings.checkIn(id),
 		adminCancelBooking: (
 			adminId: string,

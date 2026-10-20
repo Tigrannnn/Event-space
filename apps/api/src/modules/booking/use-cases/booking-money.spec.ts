@@ -263,7 +263,11 @@ describe('money paths: payment confirmation', () => {
 		]);
 		expect(ledger).toHaveLength(2);
 		expect(ledger[0].where).toEqual({
-			stripePaymentIntentId_type: { stripePaymentIntentId: 'pi_b1', type: 'CHARGE' },
+			stripePaymentIntentId_type_operationKey: {
+				stripePaymentIntentId: 'pi_b1',
+				type: 'CHARGE',
+				operationKey: '',
+			},
 		});
 		expect(ledger[0].create).toMatchObject({
 			type: 'CHARGE',

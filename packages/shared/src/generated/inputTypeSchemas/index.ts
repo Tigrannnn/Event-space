@@ -286,7 +286,7 @@ export { BookingReferenceSumOrderByAggregateInputSchema } from './BookingReferen
 export { EnumAdjustmentTypeFilterSchema } from './EnumAdjustmentTypeFilterSchema';
 export { DecimalNullableFilterSchema } from './DecimalNullableFilterSchema';
 export { EnumAdjustmentStatusFilterSchema } from './EnumAdjustmentStatusFilterSchema';
-export { BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema } from './BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema';
+export { BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema } from './BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema';
 export { BookingAdjustmentCountOrderByAggregateInputSchema } from './BookingAdjustmentCountOrderByAggregateInputSchema';
 export { BookingAdjustmentAvgOrderByAggregateInputSchema } from './BookingAdjustmentAvgOrderByAggregateInputSchema';
 export { BookingAdjustmentMaxOrderByAggregateInputSchema } from './BookingAdjustmentMaxOrderByAggregateInputSchema';

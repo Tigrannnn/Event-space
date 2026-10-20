@@ -18,6 +18,8 @@ export const BookingAdjustmentSelectSchema: z.ZodType<Prisma.BookingAdjustmentSe
   stripePaymentIntentId: z.boolean().optional(),
   stripeRefundId: z.boolean().optional(),
   feeAmount: z.boolean().optional(),
+  feeWithheld: z.boolean().optional(),
+  operationKey: z.boolean().optional(),
   status: z.boolean().optional(),
   reason: z.boolean().optional(),
   createdAt: z.boolean().optional(),

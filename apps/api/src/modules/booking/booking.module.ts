@@ -12,6 +12,7 @@ import { BookingNotificationService } from './use-cases/booking-notification.ser
 import { BookingPaymentService } from './use-cases/booking-payment.service';
 import { BookingCancellationService } from './use-cases/booking-cancellation.service';
 import { BookingCreationService } from './use-cases/booking-creation.service';
+import { BookingQuantityService } from './use-cases/booking-quantity.service';
 import { StripeModule } from '@infra/stripe/stripe.module';
 
 @Module({
@@ -29,6 +30,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		BookingPaymentService,
 		BookingCancellationService,
 		BookingCreationService,
+		BookingQuantityService,
 	],
 	exports: [BookingService, BookingLedgerService],
 	controllers: [BookingController],

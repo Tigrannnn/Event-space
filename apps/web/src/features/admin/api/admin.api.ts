@@ -1,6 +1,7 @@
 import clientApi from '@/lib/client.api';
 import { EVENT_UPLOAD_TIMEOUTS } from '@event-space/shared';
 import type {
+	BookingQuantityChange,
 	ConfirmBookingManuallyData,
 	AdminCancelBookingData,
 	Booking,
@@ -71,7 +72,7 @@ export const adminApi = {
 	checkInBooking: (id: string) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`).then((res) => res.data),
 	updateBooking: (id: string, data: UpdateBookingData) =>
-		clientApi.patch<BookingWithDetails>(`/admin/bookings/${id}`, data).then((res) => res.data),
+		clientApi.patch<BookingQuantityChange>(`/admin/bookings/${id}/quantity`, data).then((res) => res.data),
 	cancelBookingByAdmin: (id: string, data: AdminCancelBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),
 	confirmBookingManually: (id: string, data: ConfirmBookingManuallyData) =>

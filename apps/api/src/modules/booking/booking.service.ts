@@ -3,14 +3,17 @@ import { type Locale } from '@prisma/client';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	BookingWithEstimate,
+	ChangeQuantityData,
 	ConfirmBookingManuallyData,
 	CreateBookingData,
 	CreateManualBookingData,
+	QuantityQuoteRequest,
 } from '@event-space/shared';
 import { BookingQueryService } from './use-cases/booking-query.service';
 import { BookingPaymentService } from './use-cases/booking-payment.service';
 import { BookingCancellationService } from './use-cases/booking-cancellation.service';
 import { BookingCreationService } from './use-cases/booking-creation.service';
+import { BookingQuantityService, type QuantityActor } from './use-cases/booking-quantity.service';
 
 @Injectable()
 export class BookingService {
@@ -19,6 +22,7 @@ export class BookingService {
 		private readonly queries: BookingQueryService,
 		private readonly payments: BookingPaymentService,
 		private readonly cancellations: BookingCancellationService,
+		private readonly quantities: BookingQuantityService,
 	) {}
 
 	create(
@@ -45,6 +49,14 @@ export class BookingService {
 		locale: Locale = DEFAULT_LOCALE,
 	) {
 		return this.creation.confirmManually(bookingId, data, locale);
+	}
+
+	quoteQuantity(actor: QuantityActor, bookingId: string, request: QuantityQuoteRequest) {
+		return this.quantities.quote(actor, bookingId, request);
+	}
+
+	changeQuantity(actor: QuantityActor, bookingId: string, data: ChangeQuantityData) {
+		return this.quantities.change(actor, bookingId, data);
 	}
 
 	reconcilePayment(

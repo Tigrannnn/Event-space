@@ -45,8 +45,8 @@ const refundUpserts = (source: RefundSource) =>
 		: source.filter((call) => call.name === 'bookingAdjustment.upsert').map((call) => call.args)
 	).filter(
 		(args) =>
-			(args as { where?: { stripePaymentIntentId_type?: { type?: string } } }).where
-				?.stripePaymentIntentId_type?.type === 'REFUND',
+			(args as { where?: { stripePaymentIntentId_type_operationKey?: { type?: string } } }).where
+				?.stripePaymentIntentId_type_operationKey?.type === 'REFUND',
 	);
 
 describe('admin: users', () => {
@@ -223,69 +223,6 @@ describe('admin: reading bookings', () => {
 	});
 });
 
-describe('admin: changing a booking', () => {
-	it('refuses unknown and cancelled bookings', async () => {
-		const missing = fakePrisma({ 'booking.findUnique': null });
-		await expect(
-			createAdmin(missing.prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 3 }),
-		).rejects.toBeDefined();
-
-		const cancelled = fakePrisma({ 'booking.findUnique': bookingRow({ status: 'CANCELLED' }) });
-		await expect(
-			createAdmin(cancelled.prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 3 }),
-		).rejects.toBeDefined();
-	});
-
-	it('changes nothing when the quantity is the same', async () => {
-		const { prisma, calls } = fakePrisma({ 'booking.findUnique': bookingRow() });
-		await createAdmin(prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 2 });
-
-		expect(calls.some((call) => call.name === 'eventOccurrence.updateMany')).toBe(false);
-		expect(calls.some((call) => call.name === 'booking.update')).toBe(false);
-	});
-
-	it('reserves the extra seats and reprices', async () => {
-		const { prisma, argsOf } = fakePrisma({
-			'booking.findUnique': bookingRow(),
-			'booking.update': bookingRow({ quantity: 5, amount: '50000' }),
-		});
-		await createAdmin(prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 5 });
-
-		expect(argsOf('eventOccurrence.updateMany')[0]).toEqual({
-			where: { id: 'o1', currentParticipants: { lte: 7 } },
-			data: { currentParticipants: { increment: 3 } },
-		});
-		expect(argsOf('booking.update')[0]).toMatchObject({
-			where: { id: 'b1' },
-			data: { quantity: 5, amount: 50000 },
-		});
-	});
-
-	it('refuses to grow past the free seats', async () => {
-		const { prisma } = fakePrisma({
-			'booking.findUnique': bookingRow(),
-			'eventOccurrence.updateMany': { count: 0 },
-		});
-
-		await expect(
-			createAdmin(prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 9 }),
-		).rejects.toBeDefined();
-	});
-
-	it('releases seats when the quantity drops', async () => {
-		const { prisma, argsOf } = fakePrisma({
-			'booking.findUnique': bookingRow(),
-			'booking.update': bookingRow({ quantity: 1, amount: '10000' }),
-		});
-		await createAdmin(prisma, fakeStripe().stripe).updateBooking('b1', { quantity: 1 });
-
-		expect(argsOf('eventOccurrence.updateMany')[0]).toEqual({
-			where: { id: 'o1', currentParticipants: { gte: 1 } },
-			data: { currentParticipants: { decrement: 1 } },
-		});
-	});
-});
-
 describe('admin: check-in', () => {
 	it('checks a confirmed guest in once', async () => {
 		const ok = fakePrisma({ 'booking.findUnique': bookingRow(), 'booking.update': bookingRow() });
@@ -370,7 +307,13 @@ describe('admin: cancelling a booking with money', () => {
 			message: 'Booking cancelled. Refund will be handled manually.',
 		});
 		expect(refundUpserts(argsOf)[0]).toMatchObject({
-			where: { stripePaymentIntentId_type: { stripePaymentIntentId: 'pi_1', type: 'REFUND' } },
+			where: {
+				stripePaymentIntentId_type_operationKey: {
+					stripePaymentIntentId: 'pi_1',
+					type: 'REFUND',
+					operationKey: '',
+				},
+			},
 			create: {
 				bookingId: 'b1',
 				type: 'REFUND',
@@ -505,12 +448,12 @@ describe('admin: cancelling a booking with money', () => {
 			.map(
 				(call) =>
 					call.args as {
-						where: { stripePaymentIntentId_type: { type: string } };
+						where: { stripePaymentIntentId_type_operationKey: { type: string } };
 						create: { amount: { toString(): string } };
 					},
 			);
 
-		expect(upserts.map((args) => args.where.stripePaymentIntentId_type.type)).toEqual([
+		expect(upserts.map((args) => args.where.stripePaymentIntentId_type_operationKey.type)).toEqual([
 			'CHARGE',
 			'REFUND',
 		]);

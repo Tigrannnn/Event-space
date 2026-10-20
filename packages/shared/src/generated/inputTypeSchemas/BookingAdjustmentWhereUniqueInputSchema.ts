@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
-import { BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema } from './BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema';
+import { BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema } from './BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema';
 import { BookingAdjustmentWhereInputSchema } from './BookingAdjustmentWhereInputSchema';
 import { StringFilterSchema } from './StringFilterSchema';
 import { EnumAdjustmentTypeFilterSchema } from './EnumAdjustmentTypeFilterSchema';
@@ -21,7 +21,7 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
   z.object({
     id: z.uuid(),
     stripeRefundId: z.string(),
-    stripePaymentIntentId_type: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema),
+    stripePaymentIntentId_type_operationKey: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
@@ -29,26 +29,26 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
   }),
   z.object({
     id: z.uuid(),
-    stripePaymentIntentId_type: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema),
+    stripePaymentIntentId_type_operationKey: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema),
   }),
   z.object({
     id: z.uuid(),
   }),
   z.object({
     stripeRefundId: z.string(),
-    stripePaymentIntentId_type: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema),
+    stripePaymentIntentId_type_operationKey: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema),
   }),
   z.object({
     stripeRefundId: z.string(),
   }),
   z.object({
-    stripePaymentIntentId_type: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema),
+    stripePaymentIntentId_type_operationKey: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema),
   }),
 ])
 .and(z.strictObject({
   id: z.uuid().optional(),
   stripeRefundId: z.string().optional(),
-  stripePaymentIntentId_type: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeCompoundUniqueInputSchema).optional(),
+  stripePaymentIntentId_type_operationKey: z.lazy(() => BookingAdjustmentStripePaymentIntentIdTypeOperationKeyCompoundUniqueInputSchema).optional(),
   AND: z.union([ z.lazy(() => BookingAdjustmentWhereInputSchema), z.lazy(() => BookingAdjustmentWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BookingAdjustmentWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BookingAdjustmentWhereInputSchema), z.lazy(() => BookingAdjustmentWhereInputSchema).array() ]).optional(),
@@ -58,6 +58,8 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
   currency: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   stripePaymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   feeAmount: z.union([ z.lazy(() => DecimalNullableFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
+  feeWithheld: z.union([ z.lazy(() => DecimalNullableFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
+  operationKey: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   status: z.union([ z.lazy(() => EnumAdjustmentStatusFilterSchema), z.lazy(() => AdjustmentStatusSchema) ]).optional(),
   reason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),

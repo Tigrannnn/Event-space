@@ -167,6 +167,26 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Booking is not confirmed',
 	},
+	[AppErrorCode.QUANTITY_UNCHANGED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'The number of guests is the same as before',
+	},
+	[AppErrorCode.QUANTITY_INCREASE_NOT_AVAILABLE]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Adding guests to a booking is not available yet',
+	},
+	[AppErrorCode.QUANTITY_QUOTE_CHANGED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'The refund changed since it was shown',
+	},
+	[AppErrorCode.QUANTITY_SETTLEMENT_INVALID]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This way of settling does not fit the change',
+	},
+	[AppErrorCode.BOOKING_CHANGED_CONCURRENTLY]: {
+		status: HttpStatus.CONFLICT,
+		message: 'The booking was changed at the same time',
+	},
 	[AppErrorCode.BOOKING_NOT_PENDING]: {
 		status: HttpStatus.CONFLICT,
 		message: 'Only a pending booking can be confirmed by hand',

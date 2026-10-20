@@ -16,9 +16,19 @@ import {
 	GetLocale,
 	ZodValidationPipe,
 } from '@shared';
-import { AppErrorCode, CreateBookingSchema } from '@event-space/shared';
+import {
+	AppErrorCode,
+	ChangeQuantitySchema,
+	CreateBookingSchema,
+	QuantityQuoteRequestSchema,
+} from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
-import type { BookingWithEstimate, CreateBookingData } from '@event-space/shared';
+import type {
+	BookingWithEstimate,
+	ChangeQuantityData,
+	CreateBookingData,
+	QuantityQuoteRequest,
+} from '@event-space/shared';
 import type { Locale } from '@prisma/client';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
@@ -102,6 +112,49 @@ export class BookingController {
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
 		return this.bookingService.cancel(userId, id, locale);
+	}
+
+	@Post(':id/quantity/quote')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Show what changing the number of guests would refund' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiBody(getReference('QuantityQuoteRequestSchema'))
+	@ApiResponse({ status: 200, description: 'The refund for the new number of guests' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	async quoteQuantity(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(QuantityQuoteRequestSchema)) data: QuantityQuoteRequest,
+	) {
+		return this.bookingService.quoteQuantity({ kind: 'client', userId }, id, data);
+	}
+
+	@Patch(':id/quantity')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Change the number of guests and get the refund for the removed ones' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiBody(getReference('ChangeQuantitySchema'))
+	@ApiResponse({ status: 200, description: 'Booking changed' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	@ApiResponse({
+		status: 409,
+		description: 'The refund changed or the booking was changed meanwhile',
+	})
+	@ApiResponse({ status: 429, description: 'Too many attempts' })
+	async changeQuantity(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(ChangeQuantitySchema)) data: ChangeQuantityData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${BOOKING_CONFIG.KEY_PREFIX}:quantity`,
+			userId,
+			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
+			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
+		);
+		return this.bookingService.changeQuantity({ kind: 'client', userId }, id, data);
 	}
 
 	@Post(':id/reconcile-payment')

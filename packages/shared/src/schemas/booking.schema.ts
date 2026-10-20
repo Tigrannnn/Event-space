@@ -137,6 +137,72 @@ export const ConfirmBookingManuallySchema = z.object({
 
 export type ConfirmBookingManuallyData = z.infer<typeof ConfirmBookingManuallySchema>;
 
+export const QuantitySettlementSchema = z.enum([
+	'RULES',
+	'FULL',
+	'NONE',
+	'OFFLINE_PAID',
+	'PAY_ON_ARRIVAL',
+]);
+
+export type QuantitySettlement = z.infer<typeof QuantitySettlementSchema>;
+
+export const QuantityQuoteRequestSchema = z.object({
+	quantity: z.number().int().min(1).openapi({ description: 'New number of guests' }),
+	settlement: QuantitySettlementSchema.optional().openapi({
+		description:
+			'Admin only. Fewer guests: RULES, FULL or NONE. More guests: OFFLINE_PAID or PAY_ON_ARRIVAL',
+	}),
+});
+
+export type QuantityQuoteRequest = z.infer<typeof QuantityQuoteRequestSchema>;
+
+export const ChangeQuantitySchema = QuantityQuoteRequestSchema.extend({
+	expectedRefundInCents: z.number().int().min(0).optional().openapi({
+		description: 'The refund shown to the client. The change is refused if it is not the same any more',
+	}),
+});
+
+export type ChangeQuantityData = z.infer<typeof ChangeQuantitySchema>;
+
+export const QuantityQuoteSchema = z.object({
+	bookingId: z.string(),
+	currentQuantity: z.number().int(),
+	newQuantity: z.number().int(),
+	direction: z.enum(['DECREASE', 'INCREASE']),
+	settlement: QuantitySettlementSchema,
+	unitPriceInCents: z.number().int(),
+	currentAmountInCents: z.number().int(),
+	newAmountInCents: z.number().int(),
+	dueInCents: z.number().int(),
+	refund: z
+		.object({
+			percentage: z.number(),
+			grossInCents: z.number().int(),
+			netInCents: z.number().int(),
+			feeWithheldInCents: z.number().int(),
+			parts: z.array(
+				z.object({
+					method: z.enum(['CARD', 'OFFLINE']),
+					grossInCents: z.number().int(),
+					netInCents: z.number().int(),
+				}),
+			),
+		})
+		.nullable(),
+});
+
+export type QuantityQuote = z.infer<typeof QuantityQuoteSchema>;
+
+export const BookingQuantityChangeSchema = z.object({
+	bookingId: z.string(),
+	quantity: z.number().int(),
+	amount: z.number(),
+	quote: QuantityQuoteSchema,
+});
+
+export type BookingQuantityChange = z.infer<typeof BookingQuantityChangeSchema>;
+
 export const AdminCancelBookingSchema = z.object({
 	refundType: z.enum(['FULL', 'RULES', 'MANUAL']).default('RULES').openapi({
 		description: 'Refund strategy for admin cancellation',

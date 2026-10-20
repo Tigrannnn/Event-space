@@ -36,6 +36,8 @@ export interface LedgerRow {
 	stripePaymentIntentId: string | null;
 	stripeRefundId: string | null;
 	feeAmount: number | null;
+	feeWithheld: number | null;
+	operationKey: string;
 	status: string;
 	reason: string | null;
 	createdAt: Date;
@@ -108,7 +110,7 @@ export function createWorld(world: World = {}) {
 
 	const apply = (row: LedgerRow, data: Record<string, unknown>) => {
 		for (const [key, value] of Object.entries(data)) {
-			if (key === 'amount' || key === 'feeAmount') {
+			if (key === 'amount' || key === 'feeAmount' || key === 'feeWithheld') {
 				(row as unknown as Record<string, unknown>)[key] = toNumber(value);
 			} else {
 				(row as unknown as Record<string, unknown>)[key] = value;
@@ -128,6 +130,8 @@ export function createWorld(world: World = {}) {
 			stripePaymentIntentId: (data.stripePaymentIntentId as string | null) ?? null,
 			stripeRefundId: (data.stripeRefundId as string | null) ?? null,
 			feeAmount: null,
+			feeWithheld: data.feeWithheld === undefined ? null : toNumber(data.feeWithheld),
+			operationKey: (data.operationKey as string | undefined) ?? '',
 			status: data.status as string,
 			reason: (data.reason as string | null) ?? null,
 			createdAt: new Date(),
@@ -196,18 +200,27 @@ export function createWorld(world: World = {}) {
 		},
 		bookingAdjustment: {
 			upsert: (args: {
-				where: { stripePaymentIntentId_type: { stripePaymentIntentId: string; type: string } };
+				where: {
+					stripePaymentIntentId_type_operationKey: {
+						stripePaymentIntentId: string;
+						type: string;
+						operationKey: string;
+					};
+				};
 				create: Record<string, unknown>;
 				update: Record<string, unknown>;
 			}) => {
-				const key = args.where.stripePaymentIntentId_type;
+				const key = args.where.stripePaymentIntentId_type_operationKey;
 				const owner = rows.find((row) => row.id === args.create.bookingId);
 				if (key.type === 'CHARGE' && world.chargeRecorded !== false && owner?.status === 'CONFIRMED') {
 					return Promise.resolve({});
 				}
 				ledger.push({ where: args.where, create: args.create, update: args.update });
 				const existing = table.find(
-					(row) => row.stripePaymentIntentId === key.stripePaymentIntentId && row.type === key.type,
+					(row) =>
+						row.stripePaymentIntentId === key.stripePaymentIntentId &&
+						row.type === key.type &&
+						row.operationKey === key.operationKey,
 				);
 				if (existing) apply(existing, args.update);
 				else insert(args.create);
@@ -227,6 +240,11 @@ export function createWorld(world: World = {}) {
 				const matched = table.filter((row) => matches(row, args.where));
 				matched.forEach((row) => apply(row, args.data));
 				return Promise.resolve({ count: matched.length });
+			},
+			aggregate: (args: { where: Record<string, unknown> }) => {
+				const matched = table.filter((row) => matches(row, args.where));
+				const withheld = matched.reduce((sum, row) => sum + (row.feeWithheld ?? 0), 0);
+				return Promise.resolve({ _sum: { feeWithheld: withheld === 0 ? null : withheld } });
 			},
 			deleteMany: (args: { where: Record<string, unknown> }) => {
 				const matched = table.filter((row) => matches(row, args.where));
