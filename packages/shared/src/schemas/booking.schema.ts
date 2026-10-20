@@ -143,6 +143,7 @@ export const QuantitySettlementSchema = z.enum([
 	'NONE',
 	'OFFLINE_PAID',
 	'PAY_ON_ARRIVAL',
+	'CARD',
 ]);
 
 export type QuantitySettlement = z.infer<typeof QuantitySettlementSchema>;
@@ -193,6 +194,31 @@ export const QuantityQuoteSchema = z.object({
 });
 
 export type QuantityQuote = z.infer<typeof QuantityQuoteSchema>;
+
+export const QuantityPaymentStatusSchema = z.enum([
+	'PENDING_PAYMENT',
+	'APPLIED',
+	'CANCELLED',
+	'EXPIRED',
+	'FAILED',
+]);
+
+export type QuantityPaymentStatus = z.infer<typeof QuantityPaymentStatusSchema>;
+
+export const StartQuantityPaymentSchema = z.object({
+	modificationId: z.string(),
+	clientSecret: z.string(),
+	quote: QuantityQuoteSchema,
+});
+
+export type StartQuantityPayment = z.infer<typeof StartQuantityPaymentSchema>;
+
+export const QuantityPaymentResultSchema = z.object({
+	modificationId: z.string(),
+	status: QuantityPaymentStatusSchema,
+});
+
+export type QuantityPaymentResult = z.infer<typeof QuantityPaymentResultSchema>;
 
 export const BookingQuantityChangeSchema = z.object({
 	bookingId: z.string(),

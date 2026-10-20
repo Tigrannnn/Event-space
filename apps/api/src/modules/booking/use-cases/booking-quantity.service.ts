@@ -89,6 +89,10 @@ export class BookingQuantityService {
 			const built = this.build(actor, state, data, new Date());
 			const { quote: current } = built;
 
+			if (actor.kind === 'client' && current.direction === 'INCREASE') {
+				throw new AppException(AppErrorCode.QUANTITY_PAYMENT_REQUIRED);
+			}
+
 			if (
 				actor.kind === 'client' &&
 				current.refund &&
@@ -256,10 +260,6 @@ export class BookingQuantityService {
 
 		const direction = request.quantity < booking.quantity ? 'DECREASE' : 'INCREASE';
 
-		if (direction === 'INCREASE' && actor.kind === 'client') {
-			throw new AppException(AppErrorCode.QUANTITY_INCREASE_NOT_AVAILABLE);
-		}
-
 		const settlement = this.settlementFor(actor, direction, request.settlement);
 
 		const currentAmountInCents = toCents(booking.amount);
@@ -339,10 +339,11 @@ export class BookingQuantityService {
 		requested: QuantitySettlement | undefined,
 	): QuantitySettlement {
 		if (actor.kind === 'client') {
-			if (requested && requested !== 'RULES') {
+			const own: QuantitySettlement = direction === 'DECREASE' ? 'RULES' : 'CARD';
+			if (requested && requested !== own) {
 				throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
 			}
-			return 'RULES';
+			return own;
 		}
 
 		const allowed = direction === 'DECREASE' ? DECREASE_SETTLEMENTS : INCREASE_SETTLEMENTS;

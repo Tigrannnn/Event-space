@@ -429,7 +429,7 @@ export class MailService implements OnModuleInit {
 		byOrganiser: boolean;
 		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
 		cashRefundAmount?: number;
-		extra?: { kind: 'paidOffline' | 'payOnArrival'; amount: number };
+		extra?: { kind: 'paidOffline' | 'paidByCard' | 'payOnArrival'; amount: number };
 		currency: string;
 		brandHost?: string;
 	}): Promise<boolean> {
@@ -454,6 +454,7 @@ export class MailService implements OnModuleInit {
 			params.refund?.kind === 'notRefundable' ? strings.notRefundable : '',
 			params.cashRefundAmount ? strings.cashRefund(money(params.cashRefundAmount)) : '',
 			params.extra?.kind === 'paidOffline' ? strings.paidOffline(money(params.extra.amount)) : '',
+			params.extra?.kind === 'paidByCard' ? strings.paidByCard(money(params.extra.amount)) : '',
 			params.extra?.kind === 'payOnArrival' ? strings.payOnArrival(money(params.extra.amount)) : '',
 		].filter(Boolean);
 
@@ -493,6 +494,65 @@ export class MailService implements OnModuleInit {
 			return true;
 		} catch (error) {
 			this.logSmtpError(`Failed to send booking changed email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendBookingQuantityNotAdded(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		referenceNumber: number;
+		eventTitle: string;
+		occurrenceDate: Date;
+		refundAmount: number;
+		currency: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
+		const body = strings.notAddedBody(
+			params.eventTitle,
+			formatMailDate(params.occurrenceDate, params.locale),
+			referenceLabel,
+		);
+		const refundLine = strings.notAddedRefund(
+			formatMailAmount(params.refundAmount, params.currency, params.locale),
+		);
+
+		try {
+			const html = await this.templateService.render('booking-quantity-changed', {
+				...this.brandVariables(brand),
+				TITLE: strings.notAddedTitle,
+				GREETING: strings.greeting(params.userName),
+				BODY: body,
+				MONEY_BLOCKS:
+					'<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">' +
+					escapeHtml(refundLine) +
+					'</mj-text>',
+				SUPPORT: strings.support,
+				SIGNOFF: strings.signoff,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.notAddedTitle,
+				text: [
+					strings.greeting(params.userName),
+					body,
+					refundLine,
+					strings.support,
+					`${strings.signoff} ${brand.name}`,
+				].join('\n\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send guests not added email to ${params.to}`, error);
 			return false;
 		}
 	}

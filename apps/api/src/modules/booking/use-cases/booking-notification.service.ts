@@ -174,7 +174,7 @@ export class BookingNotificationService {
 		byOrganiser: boolean;
 		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
 		cashRefundAmount?: number;
-		extra?: { kind: 'paidOffline' | 'payOnArrival'; amount: number };
+		extra?: { kind: 'paidOffline' | 'paidByCard' | 'payOnArrival'; amount: number };
 	}): Promise<void> {
 		const { booking, event, occurrence, user } = params;
 
@@ -206,6 +206,40 @@ export class BookingNotificationService {
 			});
 		} catch (error) {
 			this.logger.error('Failed to send booking changed email', error as Error);
+		}
+	}
+
+	async sendQuantityNotAdded(params: {
+		booking: { referenceNumber: number | null; brandHost: string | null };
+		event?: { translations: { locale: Locale; title: string }[] } | null;
+		occurrence?: { date: Date } | null;
+		user: { email: string | null; name: string; locale: Locale | null };
+		refundAmount: number;
+	}): Promise<void> {
+		const { booking, event, occurrence, user } = params;
+
+		if (!user.email || !event || !occurrence) {
+			return;
+		}
+
+		const mailLocale = user.locale ?? DEFAULT_LOCALE;
+		const translation =
+			event.translations.find((t) => t.locale === mailLocale) ?? event.translations[0];
+
+		try {
+			await this.mail.sendBookingQuantityNotAdded({
+				to: user.email,
+				locale: mailLocale,
+				userName: user.name,
+				referenceNumber: booking.referenceNumber ?? 0,
+				eventTitle: translation?.title ?? '',
+				occurrenceDate: occurrence.date,
+				refundAmount: params.refundAmount,
+				currency: 'AMD',
+				brandHost: booking.brandHost ?? undefined,
+			});
+		} catch (error) {
+			this.logger.error('Failed to send guests not added email', error as Error);
 		}
 	}
 }

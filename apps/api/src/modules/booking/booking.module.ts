@@ -13,6 +13,8 @@ import { BookingPaymentService } from './use-cases/booking-payment.service';
 import { BookingCancellationService } from './use-cases/booking-cancellation.service';
 import { BookingCreationService } from './use-cases/booking-creation.service';
 import { BookingQuantityService } from './use-cases/booking-quantity.service';
+import { BookingTopUpService } from './use-cases/booking-top-up.service';
+import { BookingTopUpJobService } from './jobs/booking-top-up.service';
 import { StripeModule } from '@infra/stripe/stripe.module';
 
 @Module({
@@ -31,6 +33,8 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		BookingCancellationService,
 		BookingCreationService,
 		BookingQuantityService,
+		BookingTopUpService,
+		BookingTopUpJobService,
 	],
 	exports: [BookingService, BookingLedgerService, BookingRefundService],
 	controllers: [BookingController],

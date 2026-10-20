@@ -14,6 +14,7 @@ import { BookingPaymentService } from './use-cases/booking-payment.service';
 import { BookingCancellationService } from './use-cases/booking-cancellation.service';
 import { BookingCreationService } from './use-cases/booking-creation.service';
 import { BookingQuantityService, type QuantityActor } from './use-cases/booking-quantity.service';
+import { BookingTopUpService } from './use-cases/booking-top-up.service';
 
 @Injectable()
 export class BookingService {
@@ -23,6 +24,7 @@ export class BookingService {
 		private readonly payments: BookingPaymentService,
 		private readonly cancellations: BookingCancellationService,
 		private readonly quantities: BookingQuantityService,
+		private readonly topUps: BookingTopUpService,
 	) {}
 
 	create(
@@ -59,11 +61,24 @@ export class BookingService {
 		return this.quantities.change(actor, bookingId, data);
 	}
 
-	reconcilePayment(
+	startQuantityPayment(userId: string, bookingId: string, request: QuantityQuoteRequest) {
+		return this.topUps.start(userId, bookingId, request);
+	}
+
+	reconcileQuantityPayment(userId: string, bookingId: string, modificationId: string) {
+		return this.topUps.reconcile(userId, bookingId, modificationId);
+	}
+
+	async reconcilePayment(
 		paymentIntentId: string,
 		bookingIdHint?: string,
 		locale: Locale = DEFAULT_LOCALE,
 	) {
+		if (await this.topUps.handles(paymentIntentId)) {
+			await this.topUps.settle(paymentIntentId);
+			return null;
+		}
+
 		return this.payments.reconcilePayment(paymentIntentId, bookingIdHint, locale);
 	}
 

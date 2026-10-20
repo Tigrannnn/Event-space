@@ -200,6 +200,7 @@ export function createWorld(world: World = {}) {
 	};
 
 	const prisma = {
+		bookingModification: { findUnique: () => Promise.resolve(null) },
 		$transaction: async (fn: (t: unknown) => unknown) => {
 			const snapshot = table.map((row) => ({ ...row }));
 			try {

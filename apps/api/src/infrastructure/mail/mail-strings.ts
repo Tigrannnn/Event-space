@@ -210,7 +210,11 @@ interface BookingQuantityChangedStrings {
 	refundPending: string;
 	cashRefund: (amount: string) => string;
 	paidOffline: (amount: string) => string;
+	paidByCard: (amount: string) => string;
 	payOnArrival: (amount: string) => string;
+	notAddedTitle: string;
+	notAddedBody: (eventTitle: string, eventDate: string, reference: string) => string;
+	notAddedRefund: (amount: string) => string;
 	support: string;
 	signoff: string;
 }
@@ -232,6 +236,12 @@ export const BOOKING_QUANTITY_CHANGED_STRINGS: Record<Locale, BookingQuantityCha
 		cashRefund: (amount) =>
 			`The part of your payment you made in person (${amount}) is refunded by the company — reply to this email and we will arrange it.`,
 		paidOffline: (amount) => `The extra ${amount} for the added guests was received in person.`,
+		paidByCard: (amount) => `The extra ${amount} for the added guests was paid by card.`,
+		notAddedTitle: 'Guests were not added',
+		notAddedBody: (eventTitle, eventDate, reference) =>
+			`We could not add the guests to booking ${reference} for "${eventTitle}" on ${eventDate}: the spots were taken or the booking changed while you were paying.`,
+		notAddedRefund: (amount) =>
+			`Your payment of ${amount} is being refunded to the card you paid with. It usually takes 5–10 business days to appear.`,
 		payOnArrival: (amount) => `Please bring ${amount} for the added guests and pay it on arrival.`,
 		support: 'If something looks wrong, just reply to this email — we will sort it out.',
 		signoff: 'Best regards,',
@@ -250,6 +260,12 @@ export const BOOKING_QUANTITY_CHANGED_STRINGS: Record<Locale, BookingQuantityCha
 		cashRefund: (amount) =>
 			`Часть оплаты, внесённую на месте (${amount}), возвращает компания — ответьте на это письмо, и мы всё оформим.`,
 		paidOffline: (amount) => `Доплату ${amount} за добавленных гостей приняли на месте.`,
+		paidByCard: (amount) => `Доплата ${amount} за добавленных гостей оплачена картой.`,
+		notAddedTitle: 'Гости не добавлены',
+		notAddedBody: (eventTitle, eventDate, reference) =>
+			`Мы не смогли добавить гостей в бронь ${reference} на тур «${eventTitle}» ${eventDate}: места закончились или бронь изменилась, пока вы платили.`,
+		notAddedRefund: (amount) =>
+			`Платёж ${amount} возвращается на карту, с которой была оплата. Обычно деньги приходят за 5–10 рабочих дней.`,
 		payOnArrival: (amount) => `Доплату ${amount} за добавленных гостей нужно внести по приезде.`,
 		support: 'Если что-то не так — просто ответьте на это письмо, мы разберёмся.',
 		signoff: 'С уважением,',
@@ -268,6 +284,12 @@ export const BOOKING_QUANTITY_CHANGED_STRINGS: Record<Locale, BookingQuantityCha
 		cashRefund: (amount) =>
 			`Տեղում կատարված վճարման մասը (${amount}) վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։`,
 		paidOffline: (amount) => `Ավելացված հյուրերի համար ${amount} հավելավճարը ընդունվել է տեղում։`,
+		paidByCard: (amount) => `Ավելացված հյուրերի համար ${amount} հավելավճարը վճարվել է քարտով։`,
+		notAddedTitle: 'Հյուրերը չեն ավելացվել',
+		notAddedBody: (eventTitle, eventDate, reference) =>
+			`Չհաջողվեց հյուրերին ավելացնել ${reference} ամրագրմանը «${eventTitle}» տուրի համար ${eventDate}-ին՝ տեղերը զբաղվել են կամ ամրագրումը փոխվել է վճարման ընթացքում։`,
+		notAddedRefund: (amount) =>
+			`${amount} վճարումը վերադարձվում է այն քարտին, որով վճարել եք։ Սովորաբար դա տևում է 5–10 աշխատանքային օր։`,
 		payOnArrival: (amount) => `Ավելացված հյուրերի համար ${amount} հավելավճարը կվճարվի ժամանելիս։`,
 		support: 'Եթե ինչ-որ բան այն չէ, պարզապես պատասխանեք այս նամակին՝ կպարզենք։',
 		signoff: 'Հարգանքով՝',

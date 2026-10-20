@@ -157,6 +157,43 @@ export class BookingController {
 		return this.bookingService.changeQuantity({ kind: 'client', userId }, id, data);
 	}
 
+	@Post(':id/quantity/payment')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Start paying for more guests in a booking' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiBody(getReference('QuantityQuoteRequestSchema'))
+	@ApiResponse({ status: 201, description: 'The payment to complete for the added guests' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	@ApiResponse({ status: 429, description: 'Too many attempts' })
+	async startQuantityPayment(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(QuantityQuoteRequestSchema)) data: QuantityQuoteRequest,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${BOOKING_CONFIG.KEY_PREFIX}:quantity-payment`,
+			userId,
+			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
+			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
+		);
+		return this.bookingService.startQuantityPayment(userId, id, data);
+	}
+
+	@Post(':id/quantity/payments/:modificationId/reconcile')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Check whether the payment for more guests went through' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiParam({ name: 'modificationId', description: 'Guest payment ID' })
+	async reconcileQuantityPayment(
+		@GetCurrentUserId() userId: string,
+		@Param('id') id: string,
+		@Param('modificationId') modificationId: string,
+	) {
+		return this.bookingService.reconcileQuantityPayment(userId, id, modificationId);
+	}
+
 	@Post(':id/reconcile-payment')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)

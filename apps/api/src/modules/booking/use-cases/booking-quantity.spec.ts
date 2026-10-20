@@ -439,10 +439,21 @@ describe('who may change the number of guests', () => {
 		});
 	});
 
-	it('does not let a client add guests yet', async () => {
-		await expect(build().service.quoteQuantity(client, 'b1', { quantity: 4 })).rejects.toMatchObject({
-			code: 'QUANTITY_INCREASE_NOT_AVAILABLE',
+	it('quotes what a client would have to pay by card for more guests', async () => {
+		const quote = await build().service.quoteQuantity(client, 'b1', { quantity: 4 });
+
+		expect(quote).toMatchObject({
+			direction: 'INCREASE',
+			settlement: 'CARD',
+			dueInCents: 1000000,
+			newAmountInCents: 4000000,
 		});
+	});
+
+	it('does not let an admin pick the card, which only the client pays with', async () => {
+		await expect(
+			build().service.quoteQuantity(admin, 'b1', { quantity: 4, settlement: 'CARD' }),
+		).rejects.toMatchObject({ code: 'QUANTITY_SETTLEMENT_INVALID' });
 	});
 
 	it('does not let a client pick how the money is settled', async () => {

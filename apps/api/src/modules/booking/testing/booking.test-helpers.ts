@@ -7,6 +7,7 @@ import { BookingPaymentService } from '../use-cases/booking-payment.service';
 import { BookingCancellationService } from '../use-cases/booking-cancellation.service';
 import { BookingCreationService } from '../use-cases/booking-creation.service';
 import { BookingQuantityService } from '../use-cases/booking-quantity.service';
+import { BookingTopUpService } from '../use-cases/booking-top-up.service';
 
 export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const ledger = new BookingLedgerService(prisma);
@@ -17,9 +18,10 @@ export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const cancellations = new BookingCancellationService(prisma, ledger, refunds, notifications);
 	const creation = new BookingCreationService(prisma, stripe, notifications, payments, ledger);
 	const quantities = new BookingQuantityService(prisma, ledger, refunds, notifications);
+	const topUps = new BookingTopUpService(prisma, stripe, ledger, refunds, quantities, notifications);
 
 	return {
-		service: new BookingService(creation, queries, payments, cancellations, quantities),
+		service: new BookingService(creation, queries, payments, cancellations, quantities, topUps),
 		ledger,
 		refunds,
 	};

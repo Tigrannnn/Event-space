@@ -167,13 +167,13 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Booking is not confirmed',
 	},
+	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Adding guests has to be paid for first',
+	},
 	[AppErrorCode.QUANTITY_UNCHANGED]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'The number of guests is the same as before',
-	},
-	[AppErrorCode.QUANTITY_INCREASE_NOT_AVAILABLE]: {
-		status: HttpStatus.CONFLICT,
-		message: 'Adding guests to a booking is not available yet',
 	},
 	[AppErrorCode.QUANTITY_QUOTE_CHANGED]: {
 		status: HttpStatus.CONFLICT,
