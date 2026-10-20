@@ -72,6 +72,7 @@ export class BookingQuantityService {
 	}
 
 	async change(actor: QuantityActor, bookingId: string, data: ChangeQuantityData) {
+		await this.assertAllowed(actor, bookingId);
 		await this.fillMissingFees(bookingId);
 
 		const operationKey = `qty:${randomUUID()}`;
@@ -84,7 +85,6 @@ export class BookingQuantityService {
 			if (
 				actor.kind === 'client' &&
 				current.refund &&
-				data.expectedRefundInCents !== undefined &&
 				data.expectedRefundInCents !== current.refund.netInCents
 			) {
 				throw new AppException(AppErrorCode.QUANTITY_QUOTE_CHANGED, {
@@ -115,7 +115,7 @@ export class BookingQuantityService {
 					state.booking.occurrenceId,
 					current.currentQuantity - current.newQuantity,
 				);
-				await this.queueRefunds(tx, state, current, built.allocation, operationKey);
+				await this.queueRefunds(tx, state, current, built.allocation, operationKey, actor);
 			} else {
 				await reserveSeats(tx, state.occurrence, current.newQuantity - current.currentQuantity);
 
@@ -141,6 +141,18 @@ export class BookingQuantityService {
 			amount: quote.newAmountInCents / 100,
 			quote,
 		};
+	}
+
+	private async assertAllowed(actor: QuantityActor, bookingId: string): Promise<void> {
+		const booking = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
+			select: { userId: true },
+		});
+
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (actor.kind === 'client' && booking.userId !== actor.userId) {
+			throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+		}
 	}
 
 	private async load(
@@ -315,6 +327,7 @@ export class BookingQuantityService {
 		quote: QuantityQuote,
 		allocation: RefundAllocation | null,
 		operationKey: string,
+		actor: QuantityActor,
 	): Promise<void> {
 		if (!allocation) return;
 
@@ -339,8 +352,11 @@ export class BookingQuantityService {
 				await this.ledger.recordOfflineRefund(tx, {
 					bookingId: state.booking.id,
 					amount: part.netInCents / 100,
-					status: 'PENDING',
-					reason: `Return in cash: ${reason}`,
+					status: actor.kind === 'admin' ? 'SUCCEEDED' : 'PENDING',
+					reason:
+						actor.kind === 'admin'
+							? `Returned in cash by an admin: ${reason}`
+							: `Return in cash: ${reason}`,
 				});
 			}
 		}

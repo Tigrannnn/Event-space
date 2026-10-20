@@ -98,6 +98,7 @@ export class AdminBookingCancellationService {
 				stripeRefundId: settlement.refund.id,
 				reason: adminReason,
 				overwriteReason: true,
+				feeWithheldInCents: settlement.feeWithheldInCents,
 			});
 		} else if (settlement.failed) {
 			await this.ledger.recordFailedRefund({
@@ -172,6 +173,7 @@ export class AdminBookingCancellationService {
 		failed: boolean;
 		coveredByFee: { grossInCents: number; feeInCents: number } | null;
 		paidInCents: number | null;
+		feeWithheldInCents: number;
 	}> {
 		const { paymentIntentId, refundType } = params;
 		let paidInCents: number | null = null;
@@ -193,7 +195,9 @@ export class AdminBookingCancellationService {
 
 				if (refundType !== 'FULL' && grossInCents > 0) {
 					const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
-					const feeInCents = (charge.balance_transaction as StripeBalanceTransaction).fee;
+					const totalFeeInCents = (charge.balance_transaction as StripeBalanceTransaction).fee;
+					const alreadyWithheld = await this.ledger.feeWithheldInCents(paymentIntentId);
+					const feeInCents = Math.max(0, totalFeeInCents - alreadyWithheld);
 					refundInCents = grossInCents - feeInCents;
 
 					if (refundInCents <= 0) {
@@ -202,6 +206,7 @@ export class AdminBookingCancellationService {
 							failed: false,
 							coveredByFee: { grossInCents, feeInCents },
 							paidInCents,
+							feeWithheldInCents: 0,
 						};
 					}
 				}
@@ -217,6 +222,7 @@ export class AdminBookingCancellationService {
 						failed: false,
 						coveredByFee: null,
 						paidInCents,
+						feeWithheldInCents: Math.max(0, grossInCents - refund.amount),
 					};
 				}
 			} else if (
@@ -227,10 +233,10 @@ export class AdminBookingCancellationService {
 				await this.stripe.cancelPaymentIntent(paymentIntentId, `admin-cancel-${paymentIntentId}`);
 			}
 
-			return { refund: null, failed: false, coveredByFee: null, paidInCents };
+			return { refund: null, failed: false, coveredByFee: null, paidInCents, feeWithheldInCents: 0 };
 		} catch (stripeError) {
 			this.logger.error(`Admin refund failed for booking ${params.bookingId}:`, stripeError);
-			return { refund: null, failed: true, coveredByFee: null, paidInCents };
+			return { refund: null, failed: true, coveredByFee: null, paidInCents, feeWithheldInCents: 0 };
 		}
 	}
 

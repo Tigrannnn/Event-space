@@ -256,11 +256,13 @@ describe('admin: cancelling a booking with money', () => {
 	const setup = (
 		bookingOver: Record<string, unknown> = {},
 		stripeOptions: { intentStatus?: string; fails?: boolean; fee?: number } = {},
+		ledgerResults: Record<string, unknown> = {},
 	) => {
 		const row = cancelTarget(bookingOver);
 		const world = fakePrisma({
 			'booking.findUnique': row,
 			'booking.update': { ...row, status: 'CANCELLED' },
+			...ledgerResults,
 		});
 		const stripe = fakeStripe(stripeOptions);
 		return {
@@ -328,6 +330,25 @@ describe('admin: cancelling a booking with money', () => {
 				reason: 'Manual refund requested by admin a1: просили вернуть наличными',
 			},
 		});
+	});
+
+	it('holds back only the fee that is left after guests were already refunded', async () => {
+		const { admin, stripeCalls, argsOf } = setup(
+			{},
+			{},
+			{ 'bookingAdjustment.aggregate': { _sum: { feeWithheld: 300 } } },
+		);
+		await admin.adminCancelBooking('a1', 'b1', { refundType: 'RULES' });
+
+		expect(stripeCalls.find((call) => call.name === 'refund')?.args).toEqual([
+			'pi_1',
+			'admin-refund-pi_1-1940000',
+			1940000,
+		]);
+		const upsert = refundUpserts(argsOf)[0] as {
+			create: { feeWithheld: { toString(): string } };
+		};
+		expect(upsert.create.feeWithheld.toString()).toBe('600');
 	});
 
 	it('refunds by the cancellation rules, minus the Stripe fee the client bears', async () => {

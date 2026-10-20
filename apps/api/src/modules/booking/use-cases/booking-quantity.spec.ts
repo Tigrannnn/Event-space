@@ -251,7 +251,10 @@ describe('quoting fewer guests', () => {
 describe('removing a guest as the client', () => {
 	it('lowers the booking, frees the seat and refunds the guest through Stripe', async () => {
 		const { service, table, stripeCalls, seatUpdates, bookingUpdates } = build();
-		const result = await service.changeQuantity(client, 'b1', { quantity: 2 });
+		const result = await service.changeQuantity(client, 'b1', {
+			quantity: 2,
+			expectedRefundInCents: 970000,
+		});
 
 		expect(result).toMatchObject({ bookingId: 'b1', quantity: 2, amount: 20000 });
 		expect(bookingUpdates[0]).toMatchObject({
@@ -283,7 +286,7 @@ describe('removing a guest as the client', () => {
 			charges: [{ pi: 'pi_1', amount: 30000, fee: null }],
 			fee: 90000,
 		});
-		await service.changeQuantity(client, 'b1', { quantity: 2 });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
 
 		expect(table.find((row) => row.type === 'CHARGE')?.feeAmount).toBe(900);
 		expect(refundRows(table)[0]).toMatchObject({ amount: 9700, feeWithheld: 300 });
@@ -309,7 +312,7 @@ describe('removing a guest as the client', () => {
 
 	it('keeps the refund queued for a retry when Stripe refuses', async () => {
 		const { service, table } = build({ stripeFails: true });
-		await service.changeQuantity(client, 'b1', { quantity: 2 });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
 
 		expect(refundRows(table)).toHaveLength(1);
 		expect(refundRows(table)[0]).toMatchObject({ status: 'PENDING', amount: 9700 });
@@ -317,11 +320,11 @@ describe('removing a guest as the client', () => {
 
 	it('keeps two partial refunds of the same payment side by side', async () => {
 		const { service, table } = build();
-		await service.changeQuantity(client, 'b1', { quantity: 2 });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
 
 		const second = build({ quantity: 2, amount: 20000 });
 		second.table.splice(0, second.table.length, ...table.map((row) => ({ ...row })));
-		await second.service.changeQuantity(client, 'b1', { quantity: 1 });
+		await second.service.changeQuantity(client, 'b1', { quantity: 1, expectedRefundInCents: 970000 });
 
 		const keys = refundRows(second.table).map((row) => row.operationKey);
 		expect(keys).toHaveLength(2);
@@ -330,7 +333,10 @@ describe('removing a guest as the client', () => {
 
 	it('refunds nothing for a booking that is paid on arrival', async () => {
 		const { service, table, stripeCalls } = build({ charges: [] });
-		const result = await service.changeQuantity(client, 'b1', { quantity: 2 });
+		const result = await service.changeQuantity(client, 'b1', {
+			quantity: 2,
+			expectedRefundInCents: 0,
+		});
 
 		expect(result).toMatchObject({ quantity: 2, amount: 20000 });
 		expect(table).toHaveLength(0);
@@ -340,11 +346,50 @@ describe('removing a guest as the client', () => {
 	it('writes nothing and gives the seat back to nobody when the booking changed at the same time', async () => {
 		const { service, table, stripeCalls } = build({ staleGuard: true });
 
-		await expect(service.changeQuantity(client, 'b1', { quantity: 2 })).rejects.toMatchObject({
+		await expect(
+			service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 }),
+		).rejects.toMatchObject({
 			code: 'BOOKING_CHANGED_CONCURRENTLY',
 		});
 		expect(refundRows(table)).toHaveLength(0);
 		expect(stripeRefunds(stripeCalls)).toHaveLength(0);
+	});
+
+	it('does not change anything unless the client confirms the refund that was shown', async () => {
+		const { service, bookingUpdates, table } = build();
+
+		await expect(service.changeQuantity(client, 'b1', { quantity: 2 })).rejects.toMatchObject({
+			code: 'QUANTITY_QUOTE_CHANGED',
+		});
+		expect(bookingUpdates).toHaveLength(0);
+		expect(refundRows(table)).toHaveLength(0);
+	});
+
+	it('does not look anything up at Stripe for someone else’s booking', async () => {
+		const { service, stripeCalls } = build({
+			userId: 'u2',
+			charges: [{ pi: 'pi_1', amount: 30000, fee: null }],
+		});
+
+		await expect(
+			service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 }),
+		).rejects.toMatchObject({ code: 'NOT_YOUR_BOOKING' });
+		expect(stripeCalls).toHaveLength(0);
+	});
+
+	it('leaves the cash part for an admin to hand back, when the client removes a guest', async () => {
+		const { service, table } = build({
+			quantity: 4,
+			amount: 40000,
+			charges: [
+				{ pi: 'pi_1', amount: 30000, fee: 900, at: 1 },
+				{ pi: null, amount: 10000, at: 3 },
+			],
+		});
+		await service.changeQuantity(client, 'b1', { quantity: 3, expectedRefundInCents: 1000000 });
+
+		const cash = refundRows(table).find((row) => row.stripePaymentIntentId === null);
+		expect(cash).toMatchObject({ status: 'PENDING', amount: 10000 });
 	});
 });
 
@@ -438,7 +483,7 @@ describe('removing a guest as an admin', () => {
 		const refunds = refundRows(table);
 		expect(refunds.map((row) => [row.stripePaymentIntentId, row.status, row.amount])).toEqual(
 			expect.arrayContaining([
-				[null, 'PENDING', 10000],
+				[null, 'SUCCEEDED', 10000],
 				['pi_1', 'SUCCEEDED', 9700],
 			]),
 		);

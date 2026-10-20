@@ -9,5 +9,5 @@ ALTER TABLE "booking_adjustments" ADD COLUMN "operation_key" TEXT NOT NULL DEFAU
 ALTER TABLE "booking_adjustments" ADD COLUMN "fee_withheld" DECIMAL(10,2);
 
 DROP INDEX "booking_adjustments_stripe_payment_intent_id_type_key";
-CREATE UNIQUE INDEX "booking_adjustments_stripe_payment_intent_id_type_operation_key_key"
+CREATE UNIQUE INDEX "booking_adjustments_stripe_payment_intent_id_type_operation_key"
   ON "booking_adjustments"("stripe_payment_intent_id", "type", "operation_key");
