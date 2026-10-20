@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	type AdminCancelBookingData,
+	type ChangeQuantityData,
+	type QuantitySettlement,
 	type ConfirmBookingManuallyData,
 	type BookingFilters,
 	type CancellationReasons,
@@ -10,7 +12,6 @@ import {
 	type UserFilters,
 	type CreateCategoryData,
 	type UpdateCategoryData,
-	type UpdateBookingData,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -151,6 +152,23 @@ export const useConfirmBookingManually = () => {
 	});
 };
 
+export const useAdminQuantityQuote = (
+	bookingId: string | undefined,
+	quantity: number,
+	settlement: QuantitySettlement | undefined,
+	enabled = true,
+) => {
+	return useQuery({
+		queryKey: ['admin', 'quantity-quote', bookingId, quantity, settlement],
+		queryFn: () =>
+			adminApi.quoteBookingQuantity(bookingId as string, { quantity, settlement }),
+		enabled: enabled && Boolean(bookingId),
+		retry: false,
+		staleTime: 0,
+		gcTime: 0,
+	});
+};
+
 export const useUpdateBooking = () => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
@@ -160,7 +178,7 @@ export const useUpdateBooking = () => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
+		mutationFn: ({ id, data }: { id: string; data: ChangeQuantityData }) =>
 			adminApi.updateBooking(id, data),
 		onSuccess: async () => {
 			addToast(translate('admin.updateBookingSuccess'), ToastType.SUCCESS);

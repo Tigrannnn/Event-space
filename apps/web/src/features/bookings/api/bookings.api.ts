@@ -4,7 +4,9 @@ import type {
 	BookingQuantityChange,
 	CreateBookingData,
 	CreateBookingResponse,
-	UpdateBookingData,
+	ChangeQuantityData,
+	QuantityQuote,
+	QuantityQuoteRequest,
 	BookingWithOccurrence,
 	BookingWithEstimate,
 } from '@event-space/shared';
@@ -23,6 +25,9 @@ export const bookingApi = {
 	reconcilePayment: (id: string) =>
 		clientApi.post<Booking>(`/bookings/${id}/reconcile-payment`).then((res) => res.data),
 
-	updateBooking: (id: string, data: UpdateBookingData) =>
+	quoteQuantity: (id: string, data: QuantityQuoteRequest) =>
+		clientApi.post<QuantityQuote>(`/bookings/${id}/quantity/quote`, data).then((res) => res.data),
+
+	changeQuantity: (id: string, data: ChangeQuantityData) =>
 		clientApi.patch<BookingQuantityChange>(`/bookings/${id}/quantity`, data).then((res) => res.data),
 };

@@ -275,6 +275,19 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					)}
 					{occurrenceIsAvailable &&
 						booking.paymentMethod === 'SITE_PAYMENT' &&
+						displayStatus === 'CONFIRMED' &&
+						quantity > 1 && (
+							<Button
+								variant="secondary"
+								size="sm"
+								className="flex-1"
+								onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
+							>
+								{translate('booking.changeQuantity')}
+							</Button>
+						)}
+					{occurrenceIsAvailable &&
+						booking.paymentMethod === 'SITE_PAYMENT' &&
 						displayStatus === 'CONFIRMED' && (
 							<Button
 								variant="danger"

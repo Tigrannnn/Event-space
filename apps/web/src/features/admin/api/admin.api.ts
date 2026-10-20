@@ -2,6 +2,9 @@ import clientApi from '@/lib/client.api';
 import { EVENT_UPLOAD_TIMEOUTS } from '@event-space/shared';
 import type {
 	BookingQuantityChange,
+	ChangeQuantityData,
+	QuantityQuote,
+	QuantityQuoteRequest,
 	ConfirmBookingManuallyData,
 	AdminCancelBookingData,
 	Booking,
@@ -27,7 +30,6 @@ import type {
 	CreateCategoryData,
 	UpdateCategoryData,
 	BookingWithOccurrence,
-	UpdateBookingData,
 } from '@event-space/shared';
 
 export const adminApi = {
@@ -71,7 +73,9 @@ export const adminApi = {
 		clientApi.get<BookingWithDetails>(`/admin/bookings/by-reference/${ref}`).then((res) => res.data),
 	checkInBooking: (id: string) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`).then((res) => res.data),
-	updateBooking: (id: string, data: UpdateBookingData) =>
+	quoteBookingQuantity: (id: string, data: QuantityQuoteRequest) =>
+		clientApi.post<QuantityQuote>(`/admin/bookings/${id}/quantity/quote`, data).then((res) => res.data),
+	updateBooking: (id: string, data: ChangeQuantityData) =>
 		clientApi.patch<BookingQuantityChange>(`/admin/bookings/${id}/quantity`, data).then((res) => res.data),
 	cancelBookingByAdmin: (id: string, data: AdminCancelBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),

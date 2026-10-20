@@ -12,6 +12,7 @@ import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
 import { getBookingDisplayStatus, getEventTranslation, optimizeImageUrl } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { summarizePayments } from '../payments-summary';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 
@@ -41,6 +42,8 @@ export default function BookingDetailsModal() {
 
 	const t = getEventTranslation(event, locale);
 	const adjustments = booking.adjustments ?? [];
+	const payments = summarizePayments(adjustments, Number(booking.amount));
+	const hasPayments = payments.card + payments.cash + payments.refunded + payments.due > 0;
 	const eventImages = event?.images ?? [];
 
 	const handleCopy = (value: string) => {
@@ -193,6 +196,31 @@ export default function BookingDetailsModal() {
 								</div>
 							)}
 						</section>
+
+						{hasPayments && (
+							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
+								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+									{translate('admin.paymentsSummary')}
+								</p>
+								<dl className="mt-4 space-y-2 text-sm">
+									{[
+										{ label: translate('admin.paidByCard'), value: payments.card },
+										{ label: translate('admin.paidInCash'), value: payments.cash },
+										{ label: translate('admin.refundedTotal'), value: payments.refunded },
+										{ label: translate('admin.amountDue'), value: payments.due },
+									]
+										.filter((row) => row.value > 0)
+										.map((row) => (
+											<div key={row.label} className="flex items-center justify-between gap-4">
+												<dt className="text-gray-500 dark:text-gray-400">{row.label}</dt>
+												<dd className="font-medium text-gray-900 dark:text-white">
+													{formatCurrency(row.value)}
+												</dd>
+											</div>
+										))}
+								</dl>
+							</section>
+						)}
 
 						{adjustments.length > 0 && (
 							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">

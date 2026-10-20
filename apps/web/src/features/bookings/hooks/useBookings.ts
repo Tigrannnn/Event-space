@@ -3,8 +3,8 @@ import { bookingApi } from '../api/bookings.api';
 import {
 	getBookingDisplayStatus,
 	type BookingWithEstimate,
+	ChangeQuantityData,
 	CreateBookingData,
-	UpdateBookingData,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -73,7 +73,18 @@ export const useCreateBooking = () => {
 	});
 };
 
-export const useUpdateBooking = () => {
+export const useQuantityQuote = (bookingId: string | undefined, quantity: number, enabled = true) => {
+	return useQuery({
+		queryKey: ['quantity-quote', bookingId, quantity],
+		queryFn: () => bookingApi.quoteQuantity(bookingId as string, { quantity }),
+		enabled: enabled && Boolean(bookingId),
+		retry: false,
+		staleTime: 0,
+		gcTime: 0,
+	});
+};
+
+export const useChangeQuantity = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -81,21 +92,20 @@ export const useUpdateBooking = () => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateBookingData }) =>
-			bookingApi.updateBooking(id, data),
-		onSuccess: async (result) => {
+		mutationFn: ({ id, data }: { id: string; data: ChangeQuantityData }) =>
+			bookingApi.changeQuantity(id, data),
+		onSuccess: async () => {
 			addToast(translate('booking.updateSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
-				// event id may not be present on response; invalidate event queries broadly
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 			]);
 		},
-		onError: (error) => {
-			const message = apiError(error, 'booking.updateFailed');
-			addToast(message, ToastType.ERROR);
+		onError: async (error) => {
+			addToast(apiError(error, 'booking.updateFailed'), ToastType.ERROR);
+			await queryClient.invalidateQueries({ queryKey: ['quantity-quote'] });
 		},
 	});
 };
