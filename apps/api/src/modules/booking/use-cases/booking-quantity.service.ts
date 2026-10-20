@@ -2,8 +2,6 @@ import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { StripeService } from '@infra/stripe/stripe.service';
-import type { StripeBalanceTransaction } from '@infra/stripe/stripe.types';
 import {
 	AppErrorCode,
 	type ChangeQuantityData,
@@ -16,7 +14,11 @@ import { calculateRefundPercentage } from '../booking.utils';
 import { releaseSeats, reserveSeats } from '../occurrence-seats';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingRefundService } from '../money/booking-refund.service';
-import { summarizeBookingMoney, type MoneyAdjustment } from '../money/booking-money';
+import {
+	summarizeBookingMoney,
+	toMoneyAdjustments,
+	type MoneyAdjustment,
+} from '../money/booking-money';
 import { allocatePartialRefund, type RefundAllocation } from '../money/refund-allocation';
 
 export type QuantityActor = { kind: 'client'; userId: string } | { kind: 'admin' };
@@ -57,7 +59,6 @@ export class BookingQuantityService {
 
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly stripe: StripeService,
 		private readonly ledger: BookingLedgerService,
 		private readonly refunds: BookingRefundService,
 	) {}
@@ -73,7 +74,7 @@ export class BookingQuantityService {
 
 	async change(actor: QuantityActor, bookingId: string, data: ChangeQuantityData) {
 		await this.assertAllowed(actor, bookingId);
-		await this.fillMissingFees(bookingId);
+		await this.refunds.fillMissingFees(bookingId);
 
 		const operationKey = `qty:${randomUUID()}`;
 
@@ -115,7 +116,13 @@ export class BookingQuantityService {
 					state.booking.occurrenceId,
 					current.currentQuantity - current.newQuantity,
 				);
-				await this.queueRefunds(tx, state, current, built.allocation, operationKey, actor);
+				if (built.allocation) {
+					await this.refunds.queueAllocation(tx, bookingId, built.allocation, {
+						operationKey,
+						reason: this.reasonFor(current),
+						cashStatus: actor.kind === 'admin' ? 'SUCCEEDED' : 'PENDING',
+					});
+				}
 			} else {
 				await reserveSeats(tx, state.occurrence, current.newQuantity - current.currentQuantity);
 
@@ -132,7 +139,12 @@ export class BookingQuantityService {
 		});
 
 		if (quote.direction === 'DECREASE' && allocation) {
-			await this.settleCardParts(bookingId, quote, allocation, operationKey);
+			await this.refunds.settleAllocation(bookingId, allocation, {
+				operationKey,
+				reason: this.reasonFor(quote),
+				failureReason: 'Refund could not be processed at Stripe (guests removed)',
+				failureLogSuffix: ' (guests removed)',
+			});
 		}
 
 		return {
@@ -188,15 +200,7 @@ export class BookingQuantityService {
 				currentParticipants: booking.occurrence.currentParticipants,
 				rules: booking.occurrence.event?.cancellationRules ?? [],
 			},
-			adjustments: rows.map((row) => ({
-				type: row.type,
-				status: row.status,
-				amount: Number(row.amount),
-				stripePaymentIntentId: row.stripePaymentIntentId,
-				feeAmount: row.feeAmount === null ? null : Number(row.feeAmount),
-				feeWithheld: row.feeWithheld === null ? null : Number(row.feeWithheld),
-				createdAt: row.createdAt,
-			})),
+			adjustments: toMoneyAdjustments(rows),
 		};
 	}
 
@@ -321,106 +325,7 @@ export class BookingQuantityService {
 		return settlement;
 	}
 
-	private async queueRefunds(
-		tx: Prisma.TransactionClient,
-		state: QuantityState,
-		quote: QuantityQuote,
-		allocation: RefundAllocation | null,
-		operationKey: string,
-		actor: QuantityActor,
-	): Promise<void> {
-		if (!allocation) return;
-
-		const reason = this.reasonFor(quote);
-
-		const cardRows = allocation.parts
-			.filter((part) => part.method === 'CARD' && part.paymentIntentId && part.netInCents > 0)
-			.map((part) => ({
-				bookingId: state.booking.id,
-				paymentIntentId: part.paymentIntentId as string,
-				amount: part.netInCents / 100,
-				kind: 'full' as const,
-				reason,
-				operationKey,
-				feeWithheld: part.feeWithheldInCents / 100,
-			}));
-
-		await this.ledger.queueRefunds(tx, cardRows);
-
-		for (const part of allocation.parts) {
-			if (part.method === 'OFFLINE' && part.netInCents > 0) {
-				await this.ledger.recordOfflineRefund(tx, {
-					bookingId: state.booking.id,
-					amount: part.netInCents / 100,
-					status: actor.kind === 'admin' ? 'SUCCEEDED' : 'PENDING',
-					reason:
-						actor.kind === 'admin'
-							? `Returned in cash by an admin: ${reason}`
-							: `Return in cash: ${reason}`,
-				});
-			}
-		}
-	}
-
-	private async settleCardParts(
-		bookingId: string,
-		quote: QuantityQuote,
-		allocation: RefundAllocation,
-		operationKey: string,
-	): Promise<void> {
-		const reason = this.reasonFor(quote);
-
-		for (const part of allocation.parts) {
-			if (part.method !== 'CARD' || !part.paymentIntentId || part.netInCents <= 0) continue;
-
-			await this.refunds.settle(
-				{ id: bookingId, paymentIntentId: part.paymentIntentId, operationKey },
-				this.refunds.refundPlan({
-					paymentIntentId: part.paymentIntentId,
-					grossInCents: part.netInCents,
-					withholdFee: false,
-					idempotencyKey: operationKey,
-					successReason: reason,
-					failureReason: 'Refund could not be processed at Stripe (guests removed)',
-					failureLogSuffix: ' (guests removed)',
-					feeWithheldInCents: part.feeWithheldInCents,
-				}),
-			);
-		}
-	}
-
 	private reasonFor(quote: QuantityQuote): string {
 		return `Booking changed from ${quote.currentQuantity} to ${quote.newQuantity} guests`;
-	}
-
-	private async fillMissingFees(bookingId: string): Promise<void> {
-		try {
-			const charges = await this.prisma.bookingAdjustment.findMany({
-				where: {
-					bookingId,
-					type: 'CHARGE',
-					status: 'SUCCEEDED',
-					feeAmount: null,
-					stripePaymentIntentId: { not: null },
-				},
-				select: { stripePaymentIntentId: true },
-			});
-
-			for (const charge of charges) {
-				const paymentIntentId = charge.stripePaymentIntentId as string;
-				const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
-				if (!paymentIntent.latest_charge) continue;
-
-				const stripeCharge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
-				const balanceTx = stripeCharge.balance_transaction as StripeBalanceTransaction | null;
-				if (!balanceTx || typeof balanceTx !== 'object' || typeof balanceTx.fee !== 'number') {
-					continue;
-				}
-
-				await this.ledger.attachFee(paymentIntentId, balanceTx.fee);
-			}
-		} catch (error) {
-			this.logger.warn(`Could not read the payment fee for booking ${bookingId}`, error as Error);
-		}
 	}
 }

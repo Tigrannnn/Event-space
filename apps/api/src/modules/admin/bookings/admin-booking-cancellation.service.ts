@@ -11,6 +11,7 @@ import { AppErrorCode } from '@event-space/shared';
 import type { AdminCancelBookingData } from '@event-space/shared';
 import { calculateRefundPercentage } from '@modules/booking/booking.utils';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
+import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
 
 type RefundType = NonNullable<AdminCancelBookingData['refundType']>;
 
@@ -22,6 +23,7 @@ export class AdminBookingCancellationService {
 		private readonly prisma: PrismaService,
 		private readonly stripe: StripeService,
 		private readonly ledger: BookingLedgerService,
+		private readonly refunds: BookingRefundService,
 	) {}
 
 	async cancel(adminId: string, bookingId: string, data: AdminCancelBookingData) {
@@ -68,6 +70,50 @@ export class AdminBookingCancellationService {
 			return respond(false, 'Booking cancelled without refund because event data is missing.');
 		}
 
+		const adminReason = `Admin cancellation${reason ? `: ${reason}` : ''}`;
+
+		const percentage =
+			refundType === 'FULL'
+				? 100
+				: calculateRefundPercentage(
+						new Date(),
+						new Date(occurrence?.date ?? new Date()),
+						event.cancellationRules,
+					);
+
+		if (refundType === 'RULES') await this.refunds.fillMissingFees(booking.id);
+
+		const allocation = await this.prisma.$transaction(async (tx) => {
+			const plan = await this.refunds.planCancellation(tx, {
+				bookingId: booking.id,
+				amount: Number(booking.amount),
+				quantity: booking.quantity,
+				percentage,
+				withholdFee: refundType === 'RULES',
+			});
+
+			if (plan) {
+				await this.refunds.queueAllocation(tx, booking.id, plan, {
+					operationKey: `cancel:${booking.id}`,
+					reason: adminReason,
+					cashStatus: 'SUCCEEDED',
+				});
+			}
+
+			return plan;
+		});
+
+		if (allocation) {
+			const outcome = await this.refunds.settleAllocation(booking.id, allocation, {
+				operationKey: `cancel:${booking.id}`,
+				reason: adminReason,
+				failureReason: 'Refund could not be processed at Stripe (admin cancellation)',
+				failureLogSuffix: ' (admin cancellation)',
+			});
+
+			return respond(outcome.refundedInCents !== null || outcome.failed, this.messageFor(refundType));
+		}
+
 		const settlement = await this.settleWithStripe({
 			bookingId,
 			paymentIntentId,
@@ -76,8 +122,6 @@ export class AdminBookingCancellationService {
 			tourDate: occurrence?.date,
 			rules: event.cancellationRules,
 		});
-
-		const adminReason = `Admin cancellation${reason ? `: ${reason}` : ''}`;
 
 		if (settlement.paidInCents !== null) {
 			await this.ledger.recordChargeIfMissing({

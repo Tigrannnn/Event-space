@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
@@ -6,6 +7,8 @@ import {
 	type StripeBalanceTransaction,
 	type StripePaymentIntentRetrieve,
 } from '@infra/stripe/stripe.types';
+import { summarizeBookingMoney, toMoneyAdjustments } from './booking-money';
+import { allocatePartialRefund, type RefundAllocation } from './refund-allocation';
 import {
 	BookingLedgerService,
 	parseQueuedRefundReason,
@@ -197,6 +200,131 @@ export class BookingRefundService {
 			withholdsFee: withholdFee && grossInCents > 0,
 			feeWithheldInCents: params.feeWithheldInCents,
 		};
+	}
+
+	async fillMissingFees(bookingId: string): Promise<void> {
+		try {
+			for (const paymentIntentId of await this.ledger.chargesMissingFee(bookingId)) {
+				const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
+				if (!paymentIntent.latest_charge) continue;
+
+				const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
+				const balanceTx = charge.balance_transaction as StripeBalanceTransaction | null;
+				if (!balanceTx || typeof balanceTx !== 'object' || typeof balanceTx.fee !== 'number') {
+					continue;
+				}
+
+				await this.ledger.attachFee(paymentIntentId, balanceTx.fee);
+			}
+		} catch (error) {
+			this.logger.warn(`Could not read the payment fee for booking ${bookingId}`, error as Error);
+		}
+	}
+
+	async planCancellation(
+		db: Pick<Prisma.TransactionClient, 'bookingAdjustment'>,
+		params: {
+			bookingId: string;
+			amount: number;
+			quantity: number;
+			percentage: number;
+			withholdFee: boolean;
+		},
+	): Promise<RefundAllocation | null> {
+		const rows = await this.ledger.listForBooking(db, params.bookingId);
+		const money = summarizeBookingMoney(toMoneyAdjustments(rows), params.amount);
+
+		const hasCard = money.payments.some((payment) => payment.method === 'CARD');
+		if (!hasCard || money.payments.length < 2) return null;
+
+		const amountInCents = Math.round(params.amount * 100);
+
+		return allocatePartialRefund({
+			payments: money.payments,
+			removedUnits: params.quantity,
+			unitPriceInCents: Math.round(amountInCents / params.quantity),
+			percentage: params.percentage,
+			withholdFee: params.withholdFee,
+		});
+	}
+
+	async queueAllocation(
+		tx: Prisma.TransactionClient,
+		bookingId: string,
+		allocation: RefundAllocation,
+		options: { operationKey: string; reason: string; cashStatus: 'PENDING' | 'SUCCEEDED' },
+	): Promise<void> {
+		await this.ledger.queueRefunds(
+			tx,
+			allocation.parts
+				.filter((part) => part.method === 'CARD' && part.paymentIntentId && part.netInCents > 0)
+				.map((part) => ({
+					bookingId,
+					paymentIntentId: part.paymentIntentId as string,
+					amount: part.netInCents / 100,
+					kind: 'full' as const,
+					reason: options.reason,
+					operationKey: options.operationKey,
+					feeWithheld: part.feeWithheldInCents / 100,
+				})),
+		);
+
+		for (const part of allocation.parts) {
+			if (part.method === 'OFFLINE' && part.netInCents > 0) {
+				await this.ledger.recordOfflineRefund(tx, {
+					bookingId,
+					amount: part.netInCents / 100,
+					status: options.cashStatus,
+					reason:
+						options.cashStatus === 'SUCCEEDED'
+							? `Returned in cash by an admin: ${options.reason}`
+							: `Return in cash: ${options.reason}`,
+				});
+			}
+		}
+	}
+
+	async settleAllocation(
+		bookingId: string,
+		allocation: RefundAllocation,
+		options: {
+			operationKey: string;
+			reason: string;
+			failureReason: string;
+			failureLogSuffix: string;
+		},
+	): Promise<{ refundedInCents: number | null; failed: boolean }> {
+		let refundedInCents: number | null = null;
+		let failed = false;
+
+		for (const part of allocation.parts) {
+			if (part.method !== 'CARD' || !part.paymentIntentId || part.netInCents <= 0) continue;
+
+			const outcome = await this.settle(
+				{
+					id: bookingId,
+					paymentIntentId: part.paymentIntentId,
+					operationKey: options.operationKey,
+				},
+				this.refundPlan({
+					paymentIntentId: part.paymentIntentId,
+					grossInCents: part.netInCents,
+					withholdFee: false,
+					idempotencyKey: options.operationKey,
+					successReason: options.reason,
+					failureReason: options.failureReason,
+					failureLogSuffix: options.failureLogSuffix,
+					feeWithheldInCents: part.feeWithheldInCents,
+				}),
+			);
+
+			if (outcome.refundedInCents !== null) {
+				refundedInCents = (refundedInCents ?? 0) + outcome.refundedInCents;
+			}
+			failed = failed || outcome.failed;
+		}
+
+		return { refundedInCents, failed };
 	}
 
 	async retryQueued(now: Date = new Date()): Promise<number> {

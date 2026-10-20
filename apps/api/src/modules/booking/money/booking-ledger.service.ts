@@ -390,6 +390,21 @@ export class BookingLedgerService {
 		});
 	}
 
+	async chargesMissingFee(bookingId: string): Promise<string[]> {
+		const rows = await this.prisma.bookingAdjustment.findMany({
+			where: {
+				bookingId,
+				type: 'CHARGE',
+				status: 'SUCCEEDED',
+				feeAmount: null,
+				stripePaymentIntentId: { not: null },
+			},
+			select: { stripePaymentIntentId: true },
+		});
+
+		return rows.map((row) => row.stripePaymentIntentId as string);
+	}
+
 	attachFee(paymentIntentId: string, feeInCents: number) {
 		return this.prisma.bookingAdjustment.updateMany({
 			where: { stripePaymentIntentId: paymentIntentId, type: 'CHARGE', feeAmount: null },

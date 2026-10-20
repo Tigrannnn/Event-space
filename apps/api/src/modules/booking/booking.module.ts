@@ -32,7 +32,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		BookingCreationService,
 		BookingQuantityService,
 	],
-	exports: [BookingService, BookingLedgerService],
+	exports: [BookingService, BookingLedgerService, BookingRefundService],
 	controllers: [BookingController],
 })
 export class BookingModule {}

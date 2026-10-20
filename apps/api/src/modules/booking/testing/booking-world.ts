@@ -16,6 +16,7 @@ export interface World {
 	crashOnCompleteTimes?: number;
 	failQueueInsert?: boolean;
 	chargeRecorded?: boolean;
+	payments?: { paymentIntentId: string | null; amount: number; fee?: number; at?: number }[];
 }
 
 export interface BookingRow {
@@ -129,7 +130,7 @@ export function createWorld(world: World = {}) {
 			currency: (data.currency as string) ?? 'AMD',
 			stripePaymentIntentId: (data.stripePaymentIntentId as string | null) ?? null,
 			stripeRefundId: (data.stripeRefundId as string | null) ?? null,
-			feeAmount: null,
+			feeAmount: data.feeAmount === undefined ? null : toNumber(data.feeAmount),
 			feeWithheld: data.feeWithheld === undefined ? null : toNumber(data.feeWithheld),
 			operationKey: (data.operationKey as string | undefined) ?? '',
 			status: data.status as string,
@@ -140,6 +141,18 @@ export function createWorld(world: World = {}) {
 		table.push(row);
 		return row;
 	};
+
+	for (const payment of world.payments ?? []) {
+		const seeded = insert({
+			bookingId: rows[0].id,
+			type: 'CHARGE',
+			status: 'SUCCEEDED',
+			amount: payment.amount,
+			stripePaymentIntentId: payment.paymentIntentId,
+			feeAmount: payment.fee,
+		});
+		seeded.createdAt = new Date(Date.UTC(2026, 9, 1 + (payment.at ?? 1)));
+	}
 
 	const tx = {
 		booking: {
@@ -161,6 +174,8 @@ export function createWorld(world: World = {}) {
 		},
 		bookingAdjustment: {
 			findFirst: () => Promise.resolve(null),
+			findMany: (args: { where: Record<string, unknown> }) =>
+				Promise.resolve(table.filter((row) => matches(row, args.where)).map((row) => ({ ...row }))),
 			create: (args: { data: Record<string, unknown> }) => {
 				ledger.push({ where: 'tx.create', create: args.data, update: null });
 				insert(args.data);

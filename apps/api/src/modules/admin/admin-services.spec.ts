@@ -332,6 +332,88 @@ describe('admin: cancelling a booking with money', () => {
 		});
 	});
 
+	describe('a booking paid by card and in cash', () => {
+		const adjustmentRow = (over: Record<string, unknown>) => ({
+			type: 'CHARGE',
+			status: 'SUCCEEDED',
+			amount: '30000',
+			stripePaymentIntentId: 'pi_1',
+			feeAmount: '900',
+			feeWithheld: null,
+			operationKey: '',
+			createdAt: new Date('2026-10-01T00:00:00Z'),
+			...over,
+		});
+
+		const mixed = {
+			'bookingAdjustment.findMany': [
+				adjustmentRow({}),
+				adjustmentRow({
+					amount: '10000',
+					stripePaymentIntentId: null,
+					feeAmount: null,
+					createdAt: new Date('2026-10-03T00:00:00Z'),
+				}),
+			],
+		};
+		const target = { amount: '40000', quantity: 4 };
+
+		it('refunds the card part minus the fee and records the cash part as returned', async () => {
+			const { admin, stripeCalls, argsOf } = setup(target, {}, mixed);
+			const result = await admin.adminCancelBooking('a1', 'b1', { refundType: 'RULES' });
+
+			expect(result).toMatchObject({ processed: true });
+			expect(stripeCalls.filter((call) => call.name === 'refund').map((call) => call.args)).toEqual([
+				['pi_1', 'cancel:b1', 2910000],
+			]);
+
+			const queued = argsOf('bookingAdjustment.createMany')[0] as {
+				data: { stripePaymentIntentId: string; operationKey: string; amount: { toString(): string } }[];
+			};
+			expect(queued.data).toHaveLength(1);
+			expect(queued.data[0]).toMatchObject({
+				stripePaymentIntentId: 'pi_1',
+				operationKey: 'cancel:b1',
+			});
+			expect(queued.data[0].amount.toString()).toBe('29100');
+
+			const cash = argsOf('bookingAdjustment.create')[0] as {
+				data: {
+					type: string;
+					status: string;
+					stripePaymentIntentId: string | null;
+					amount: { toString(): string };
+				};
+			};
+			expect(cash.data).toMatchObject({
+				type: 'REFUND',
+				status: 'SUCCEEDED',
+				stripePaymentIntentId: null,
+			});
+			expect(cash.data.amount.toString()).toBe('10000');
+		});
+
+		it('refunds the card without holding back the fee when the admin refunds in full', async () => {
+			const { admin, stripeCalls } = setup(target, {}, mixed);
+			await admin.adminCancelBooking('a1', 'b1', { refundType: 'FULL' });
+
+			expect(stripeCalls.find((call) => call.name === 'refund')?.args).toEqual([
+				'pi_1',
+				'cancel:b1',
+				3000000,
+			]);
+		});
+
+		it('leaves a manual refund to the admin, as before', async () => {
+			const { admin, stripeCalls, calls } = setup(target, {}, mixed);
+			const result = await admin.adminCancelBooking('a1', 'b1', { refundType: 'MANUAL' });
+
+			expect(result).toMatchObject({ processed: false });
+			expect(stripeCalls.some((call) => call.name === 'refund')).toBe(false);
+			expect(calls.some((call) => call.name === 'bookingAdjustment.createMany')).toBe(false);
+		});
+	});
+
 	it('holds back only the fee that is left after guests were already refunded', async () => {
 		const { admin, stripeCalls, argsOf } = setup(
 			{},

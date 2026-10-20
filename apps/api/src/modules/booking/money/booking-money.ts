@@ -90,3 +90,25 @@ export function summarizeBookingMoney(
 		keptInCents: Math.max(0, attributableInCents - amountInCents),
 	};
 }
+
+export function toMoneyAdjustments(
+	rows: {
+		type: 'CHARGE' | 'REFUND';
+		status: 'SUCCEEDED' | 'PENDING' | 'FAILED';
+		amount: unknown;
+		stripePaymentIntentId: string | null;
+		feeAmount: unknown;
+		feeWithheld: unknown;
+		createdAt: Date;
+	}[],
+): MoneyAdjustment[] {
+	return rows.map((row) => ({
+		type: row.type,
+		status: row.status,
+		amount: Number(row.amount),
+		stripePaymentIntentId: row.stripePaymentIntentId,
+		feeAmount: row.feeAmount === null ? null : Number(row.feeAmount),
+		feeWithheld: row.feeWithheld === null ? null : Number(row.feeWithheld),
+		createdAt: row.createdAt,
+	}));
+}

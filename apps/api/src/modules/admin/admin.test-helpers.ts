@@ -1,4 +1,5 @@
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
+import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
 import { AdminUsersService } from './users/admin-users.service';
 import { AdminBookingsService } from './bookings/admin-bookings.service';
 import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
@@ -107,6 +108,7 @@ export function createAdmin(prisma: never, stripe: never) {
 		prisma,
 		stripe,
 		new BookingLedgerService(prisma),
+		new BookingRefundService(stripe, new BookingLedgerService(prisma)),
 	);
 	const events = new AdminEventsService(prisma);
 	const categories = new AdminCategoriesService(prisma);

@@ -22,8 +22,9 @@ export function allocatePartialRefund(params: {
 	removedUnits: number;
 	unitPriceInCents: number;
 	percentage: number;
+	withholdFee?: boolean;
 }): RefundAllocation {
-	const { payments, removedUnits, unitPriceInCents, percentage } = params;
+	const { payments, removedUnits, unitPriceInCents, percentage, withholdFee = true } = params;
 
 	let remaining = removedUnits * unitPriceInCents;
 	const parts: RefundPart[] = [];
@@ -48,7 +49,7 @@ export function allocatePartialRefund(params: {
 			continue;
 		}
 
-		const feeLeft = Math.max(0, payment.feeInCents - payment.feeWithheldInCents);
+		const feeLeft = withholdFee ? Math.max(0, payment.feeInCents - payment.feeWithheldInCents) : 0;
 		const share = Math.round((feeLeft * consumed) / payment.capacityInCents);
 		const feeWithheldInCents = Math.min(grossInCents, share);
 

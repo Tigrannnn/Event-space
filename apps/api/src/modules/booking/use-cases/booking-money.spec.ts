@@ -375,3 +375,102 @@ describe('cancelling a booking by the client after the tour started', () => {
 		await expect(service.cancel('u1', 'b1', 'ru')).resolves.toBeDefined();
 	});
 });
+
+describe('money paths: a booking paid by card and in cash', () => {
+	const mixedBooking = booking({ id: 'b1', amount: 40000, quantity: 4 });
+	const payments = [
+		{ paymentIntentId: 'pi_b1', amount: 30000, fee: 900, at: 1 },
+		{ paymentIntentId: null, amount: 10000, at: 3 },
+	];
+	const types = (
+		table: { type: string; stripePaymentIntentId: string | null; status: string; amount: number }[],
+	) =>
+		table
+			.filter((row) => row.type === 'REFUND')
+			.map((row) => [row.stripePaymentIntentId, row.status, row.amount]);
+
+	it('refunds the card part through Stripe, minus the fee, and leaves the cash part to be returned by hand', async () => {
+		const { service, stripeCalls, table } = createWorld({ bookings: [mixedBooking], payments });
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(refundCalls(stripeCalls)).toEqual([
+			{ method: 'refund', args: ['pi_b1', 'cancel:b1', 2910000] },
+		]);
+		expect(types(table)).toEqual(
+			expect.arrayContaining([
+				['pi_b1', 'SUCCEEDED', 29100],
+				[null, 'PENDING', 10000],
+			]),
+		);
+		expect(table.find((row) => row.type === 'REFUND' && row.stripePaymentIntentId)).toMatchObject({
+			feeWithheld: 900,
+			operationKey: 'cancel:b1',
+		});
+	});
+
+	it('never refunds the card more than it was charged', async () => {
+		const { service, stripeCalls } = createWorld({ bookings: [mixedBooking], payments });
+		await service.cancel('u1', 'b1', 'ru');
+
+		const sent = refundCalls(stripeCalls).map((call) => Number(call.args[2]));
+		expect(Math.max(...sent)).toBeLessThanOrEqual(3000000);
+	});
+
+	it('applies the rules to the cash part too, and no fee to it', async () => {
+		const { service, stripeCalls, table } = createWorld({
+			bookings: [mixedBooking],
+			payments,
+			tourInHours: 30,
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(refundCalls(stripeCalls)[0]?.args[2]).toBe(1410000);
+		expect(types(table)).toEqual(
+			expect.arrayContaining([
+				['pi_b1', 'SUCCEEDED', 14100],
+				[null, 'PENDING', 5000],
+			]),
+		);
+	});
+
+	it('refunds a cancelled date in full, without the fee, and the cash part by hand', async () => {
+		const { service, stripeCalls, table } = createWorld({ bookings: [mixedBooking], payments });
+		await service.cancelOccurrenceBookings('o1');
+
+		expect(refundCalls(stripeCalls)).toEqual([
+			{ method: 'refund', args: ['pi_b1', 'cancel:b1', 3000000] },
+		]);
+		expect(types(table)).toEqual(
+			expect.arrayContaining([
+				['pi_b1', 'SUCCEEDED', 30000],
+				[null, 'PENDING', 10000],
+			]),
+		);
+	});
+
+	it('keeps the card refund queued when Stripe refuses, and still writes the cash part down', async () => {
+		const { service, table } = createWorld({
+			bookings: [mixedBooking],
+			payments,
+			stripeFails: true,
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(types(table)).toEqual(
+			expect.arrayContaining([
+				['pi_b1', 'PENDING', 29100],
+				[null, 'PENDING', 10000],
+			]),
+		);
+	});
+
+	it('leaves a booking paid by one card payment on the old path', async () => {
+		const { service, stripeCalls } = createWorld({
+			bookings: [booking({ id: 'b1', amount: 30000, quantity: 3 })],
+			payments: [{ paymentIntentId: 'pi_b1', amount: 30000, fee: 900 }],
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(refundCalls(stripeCalls)[0]?.args[1]).toBe('refund-pi_b1-2910000');
+	});
+});
