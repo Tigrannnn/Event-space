@@ -3,7 +3,6 @@ import Stripe from 'stripe';
 import { Prisma } from '@prisma/client';
 import { AppModule } from '@src/app.module';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { RedisService } from '@infra/redis/redis.service';
 import { MailService } from '@infra/mail/mail.service';
 import { BookingService } from '@modules/booking/booking.service';
 import { resetDatabase } from './helpers/reset-db';
@@ -49,7 +48,6 @@ describe('changing the number of guests against the real database and Stripe tes
 			await resetDatabase(prisma);
 			await prisma.category.deleteMany({ where: { slug: 'live-test' } });
 			await app.close();
-			await moduleRef.get(RedisService).onModuleDestroy?.();
 			await flushTestRedis();
 		};
 
@@ -158,7 +156,9 @@ describe('changing the number of guests against the real database and Stripe tes
 		expect(result).toMatchObject({ quantity: 2, amount: 20000 });
 
 		const booking = await prisma.booking.findUniqueOrThrow({ where: { id: bookingId } });
-		const occurrence = await prisma.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+		const occurrence = await prisma.eventOccurrence.findUniqueOrThrow({
+			where: { id: occurrenceId },
+		});
 		expect(booking.quantity).toBe(2);
 		expect(Number(booking.amount)).toBe(20000);
 		expect(occurrence.currentParticipants).toBe(2);
@@ -182,7 +182,7 @@ describe('changing the number of guests against the real database and Stripe tes
 
 		await bookings.changeQuantity({ kind: 'client', userId }, bookingId, {
 			quantity: 1,
-			expectedRefundInCents: quote.refund?.netInCents as number,
+			expectedRefundInCents: quote.refund?.netInCents,
 		});
 
 		const refunds = (await rows()).filter((row) => row.type === 'REFUND');
