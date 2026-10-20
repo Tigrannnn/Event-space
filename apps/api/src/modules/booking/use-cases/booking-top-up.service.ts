@@ -13,7 +13,7 @@ import {
 import { AppException } from '@shared';
 import { reserveSeats } from '../occurrence-seats';
 import { BookingLedgerService } from '../money/booking-ledger.service';
-import { BookingRefundService } from '../money/booking-refund.service';
+import { BookingRefundService, refundKeyFor } from '../money/booking-refund.service';
 import { BookingNotificationService } from './booking-notification.service';
 import { BookingQuantityService } from './booking-quantity.service';
 
@@ -333,7 +333,7 @@ export class BookingTopUpService {
 					paymentIntentId: intent.id,
 					grossInCents: receivedInCents,
 					withholdFee: false,
-					idempotencyKey: operationKey,
+					idempotencyKey: refundKeyFor(operationKey, intent.id),
 					successReason: `Guests could not be added: ${reason}`,
 					failureReason: 'Refund could not be processed at Stripe (guests not added)',
 					failureLogSuffix: ' (guests not added)',

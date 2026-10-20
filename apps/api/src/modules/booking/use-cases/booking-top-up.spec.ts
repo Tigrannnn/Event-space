@@ -524,7 +524,7 @@ describe('settling the payment for more guests', () => {
 		expect(status).toMatchObject({ status: 'FAILED' });
 		expect(bookingState.quantity).toBe(2);
 		expect(refundCalls(stripeCalls)).toEqual([
-			['pi_new1', `mod-fail:${modifications[0].id}`, 3000000],
+			['pi_new1', `mod-fail:${modifications[0].id}:pi_new1`, 3000000],
 		]);
 
 		const refund = table.find((row) => row.type === 'REFUND');

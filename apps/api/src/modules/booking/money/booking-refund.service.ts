@@ -33,6 +33,10 @@ export interface RefundOutcome {
 	coveredByFee: { grossInCents: number; feeInCents: number } | null;
 }
 
+export function refundKeyFor(operationKey: string, paymentIntentId: string): string {
+	return `${operationKey}:${paymentIntentId}`;
+}
+
 export const QUEUE_IDLE_MS = 2 * 60 * 1000;
 export const QUEUE_GIVE_UP_MS = 24 * 60 * 60 * 1000;
 const QUEUE_BATCH_SIZE = 50;
@@ -310,7 +314,7 @@ export class BookingRefundService {
 					paymentIntentId: part.paymentIntentId,
 					grossInCents: part.netInCents,
 					withholdFee: false,
-					idempotencyKey: options.operationKey,
+					idempotencyKey: refundKeyFor(options.operationKey, part.paymentIntentId),
 					successReason: options.reason,
 					failureReason: options.failureReason,
 					failureLogSuffix: options.failureLogSuffix,
@@ -378,7 +382,9 @@ export class BookingRefundService {
 			paymentIntentId: row.stripePaymentIntentId,
 			grossInCents: Math.round(Number(row.amount) * 100),
 			withholdFee: parsed.kind === 'withhold-fee',
-			idempotencyKey: row.operationKey || `full-refund-${row.bookingId}`,
+			idempotencyKey: row.operationKey
+				? refundKeyFor(row.operationKey, row.stripePaymentIntentId)
+				: `full-refund-${row.bookingId}`,
 			feeWithheldInCents:
 				row.feeWithheld === null ? undefined : Math.round(Number(row.feeWithheld) * 100),
 			successReason: parsed.text,

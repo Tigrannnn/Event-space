@@ -394,7 +394,7 @@ describe('money paths: a booking paid by card and in cash', () => {
 		await service.cancel('u1', 'b1', 'ru');
 
 		expect(refundCalls(stripeCalls)).toEqual([
-			{ method: 'refund', args: ['pi_b1', 'cancel:b1', 2910000] },
+			{ method: 'refund', args: ['pi_b1', 'cancel:b1:pi_b1', 2910000] },
 		]);
 		expect(types(table)).toEqual(
 			expect.arrayContaining([
@@ -438,7 +438,7 @@ describe('money paths: a booking paid by card and in cash', () => {
 		await service.cancelOccurrenceBookings('o1');
 
 		expect(refundCalls(stripeCalls)).toEqual([
-			{ method: 'refund', args: ['pi_b1', 'cancel:b1', 3000000] },
+			{ method: 'refund', args: ['pi_b1', 'cancel:b1:pi_b1', 3000000] },
 		]);
 		expect(types(table)).toEqual(
 			expect.arrayContaining([

@@ -110,3 +110,25 @@ export async function chargeTestCard(stripe: Stripe, amountInAmd: number) {
 
 	throw new Error('Stripe did not report the fee in time');
 }
+
+export async function payIntent(stripe: Stripe, paymentIntentId: string) {
+	const intent = await stripe.paymentIntents.confirm(paymentIntentId, {
+		payment_method: 'pm_card_visa',
+		return_url: 'https://example.com/return',
+	});
+
+	if (intent.status !== 'succeeded') {
+		throw new Error(`The test payment did not succeed: ${intent.status}`);
+	}
+
+	for (let attempt = 0; attempt < 20; attempt += 1) {
+		const charge = await stripe.charges.retrieve(intent.latest_charge as string, {
+			expand: ['balance_transaction'],
+		});
+		const balance = charge.balance_transaction;
+		if (balance && typeof balance === 'object') return balance.fee;
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+	}
+
+	throw new Error('Stripe did not report the fee in time');
+}

@@ -364,7 +364,7 @@ describe('admin: cancelling a booking with money', () => {
 
 			expect(result).toMatchObject({ processed: true });
 			expect(stripeCalls.filter((call) => call.name === 'refund').map((call) => call.args)).toEqual([
-				['pi_1', 'cancel:b1', 2910000],
+				['pi_1', 'cancel:b1:pi_1', 2910000],
 			]);
 
 			const queued = argsOf('bookingAdjustment.createMany')[0] as {
@@ -399,7 +399,7 @@ describe('admin: cancelling a booking with money', () => {
 
 			expect(stripeCalls.find((call) => call.name === 'refund')?.args).toEqual([
 				'pi_1',
-				'cancel:b1',
+				'cancel:b1:pi_1',
 				3000000,
 			]);
 		});
