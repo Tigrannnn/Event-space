@@ -45,6 +45,7 @@ export class MailTemplateService {
 			this.loadTemplate('booking-confirmation', templatePath);
 			this.loadTemplate('booking-reminder', templatePath);
 			this.loadTemplate('booking-cancelled', templatePath);
+			this.loadTemplate('booking-quantity-changed', templatePath);
 			console.log(`Mail templates loaded from: ${templatePath}`);
 		} catch (error) {
 			console.error('Failed to load mail templates:', error);

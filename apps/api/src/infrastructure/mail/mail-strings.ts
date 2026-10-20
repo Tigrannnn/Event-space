@@ -122,6 +122,7 @@ interface BookingCancelledStrings {
 	refundCoveredByFee: (entitled: string, fee: string) => string;
 	nothingPaid: string;
 	offlineRefund: string;
+	cashRefund: (amount: string) => string;
 	refundPending: string;
 	support: string;
 	signoff: string;
@@ -142,6 +143,8 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		nothingPaid: 'Nothing was paid for this booking, so there is nothing to refund.',
 		offlineRefund:
 			'The payment you made in person is refunded by the company — reply to this email and we will arrange it.',
+		cashRefund: (amount) =>
+			`The part of your payment you made in person (${amount}) is refunded by the company — reply to this email and we will arrange it.`,
 		refundPending:
 			'The refund could not be processed automatically. We are looking into it and will get back to you.',
 		support: 'If you cancelled by mistake, just reply to this email — we will sort it out.',
@@ -161,6 +164,8 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		nothingPaid: 'Оплата по этой брони не проходила, возвращать нечего.',
 		offlineRefund:
 			'Оплату, внесённую на месте, возвращает компания — ответьте на это письмо, и мы всё оформим.',
+		cashRefund: (amount) =>
+			`Часть оплаты, внесённую на месте (${amount}), возвращает компания — ответьте на это письмо, и мы всё оформим.`,
 		refundPending: 'Возврат не удалось провести автоматически. Мы разбираемся и свяжемся с вами.',
 		support: 'Если отменили случайно — просто ответьте на это письмо, всё вернём.',
 		signoff: 'С уважением,',
@@ -179,8 +184,92 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 		nothingPaid: 'Այս ամրագրման համար վճարում չի կատարվել, վերադարձնելու բան չկա։',
 		offlineRefund:
 			'Տեղում կատարված վճարումը վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։',
+		cashRefund: (amount) =>
+			`Տեղում կատարված վճարման մասը (${amount}) վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։`,
 		refundPending: 'Վերադարձը չհաջողվեց կատարել ավտոմատ։ Մենք ճշտում ենք և կկապվենք Ձեզ հետ։',
 		support: 'Եթե չեղարկել եք սխալմամբ, պարզապես պատասխանեք այս նամակին՝ կվերականգնենք։',
+		signoff: 'Հարգանքով՝',
+	},
+};
+
+interface BookingQuantityChangedStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	body: (
+		eventTitle: string,
+		eventDate: string,
+		reference: string,
+		from: number,
+		to: number,
+		byOrganiser: boolean,
+	) => string;
+	newTotal: (amount: string) => string;
+	refund: (amount: string) => string;
+	notRefundable: string;
+	refundPending: string;
+	cashRefund: (amount: string) => string;
+	paidOffline: (amount: string) => string;
+	payOnArrival: (amount: string) => string;
+	support: string;
+	signoff: string;
+}
+
+export const BOOKING_QUANTITY_CHANGED_STRINGS: Record<Locale, BookingQuantityChangedStrings> = {
+	en: {
+		subject: (eventTitle) => `Booking updated: ${eventTitle}`,
+		title: 'Booking updated',
+		greeting: (userName) => `Dear ${userName},`,
+		body: (eventTitle, eventDate, reference, from, to, byOrganiser) =>
+			`Booking ${reference} for "${eventTitle}" on ${eventDate} was changed${byOrganiser ? ' by the organiser' : ' at your request'}: ${from} → ${to} guests.`,
+		newTotal: (amount) => `The new total for the booking is ${amount}.`,
+		refund: (amount) =>
+			`A refund of ${amount} is on its way back to the card you paid with. It usually takes 5–10 business days to appear.`,
+		notRefundable:
+			'Under the cancellation terms for this tour, the removed guests are not refundable.',
+		refundPending:
+			'The refund could not be processed automatically. We are looking into it and will get back to you.',
+		cashRefund: (amount) =>
+			`The part of your payment you made in person (${amount}) is refunded by the company — reply to this email and we will arrange it.`,
+		paidOffline: (amount) => `The extra ${amount} for the added guests was received in person.`,
+		payOnArrival: (amount) => `Please bring ${amount} for the added guests and pay it on arrival.`,
+		support: 'If something looks wrong, just reply to this email — we will sort it out.',
+		signoff: 'Best regards,',
+	},
+	ru: {
+		subject: (eventTitle) => `Бронь изменена: ${eventTitle}`,
+		title: 'Бронь изменена',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		body: (eventTitle, eventDate, reference, from, to, byOrganiser) =>
+			`Бронь ${reference} на тур «${eventTitle}» ${eventDate} изменена${byOrganiser ? ' организатором' : ' по вашей просьбе'}: было ${from}, стало ${to} гостей.`,
+		newTotal: (amount) => `Новая сумма брони: ${amount}.`,
+		refund: (amount) =>
+			`Возврат ${amount} отправлен на карту, с которой была оплата. Обычно деньги приходят за 5–10 рабочих дней.`,
+		notRefundable: 'По условиям отмены этого тура за убранных гостей возврат не предусмотрен.',
+		refundPending: 'Возврат не удалось провести автоматически. Мы разбираемся и свяжемся с вами.',
+		cashRefund: (amount) =>
+			`Часть оплаты, внесённую на месте (${amount}), возвращает компания — ответьте на это письмо, и мы всё оформим.`,
+		paidOffline: (amount) => `Доплату ${amount} за добавленных гостей приняли на месте.`,
+		payOnArrival: (amount) => `Доплату ${amount} за добавленных гостей нужно внести по приезде.`,
+		support: 'Если что-то не так — просто ответьте на это письмо, мы разберёмся.',
+		signoff: 'С уважением,',
+	},
+	hy: {
+		subject: (eventTitle) => `Ամրագրումը փոփոխված է՝ ${eventTitle}`,
+		title: 'Ամրագրումը փոփոխված է',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		body: (eventTitle, eventDate, reference, from, to, byOrganiser) =>
+			`${reference} ամրագրումը «${eventTitle}» տուրի համար ${eventDate}-ին փոփոխվել է${byOrganiser ? ' կազմակերպչի կողմից' : ' Ձեր խնդրանքով'}՝ եղել է ${from}, դարձել է ${to} հյուր։`,
+		newTotal: (amount) => `Ամրագրման նոր գումարը ${amount} է։`,
+		refund: (amount) =>
+			`${amount} գումարը վերադարձվում է այն քարտին, որով վճարել եք։ Սովորաբար դա տևում է 5–10 աշխատանքային օր։`,
+		notRefundable: 'Այս տուրի չեղարկման պայմաններով հեռացված հյուրերի համար գումարը չի վերադարձվում։',
+		refundPending: 'Վերադարձը չհաջողվեց կատարել ավտոմատ։ Մենք ճշտում ենք և կկապվենք Ձեզ հետ։',
+		cashRefund: (amount) =>
+			`Տեղում կատարված վճարման մասը (${amount}) վերադարձնում է ընկերությունը՝ պատասխանեք այս նամակին, և մենք կձևակերպենք։`,
+		paidOffline: (amount) => `Ավելացված հյուրերի համար ${amount} հավելավճարը ընդունվել է տեղում։`,
+		payOnArrival: (amount) => `Ավելացված հյուրերի համար ${amount} հավելավճարը կվճարվի ժամանելիս։`,
+		support: 'Եթե ինչ-որ բան այն չէ, պարզապես պատասխանեք այս նամակին՝ կպարզենք։',
 		signoff: 'Հարգանքով՝',
 	},
 };

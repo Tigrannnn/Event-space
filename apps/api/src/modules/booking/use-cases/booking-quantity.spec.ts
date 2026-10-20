@@ -28,6 +28,7 @@ interface World {
 	spotsFree?: number;
 	seatsRelease?: boolean;
 	staleGuard?: boolean;
+	noEmail?: boolean;
 	stripeFails?: boolean;
 	fee?: number;
 	charges?: {
@@ -89,12 +90,16 @@ function build(world: World = {}) {
 		amount: world.amount ?? 30000,
 		occurrenceId: 'o1',
 		checkedInAt: world.checkedInAt ?? null,
+		referenceNumber: 42,
+		brandHost: null,
+		user: { email: world.noEmail ? null : 'a@x.am', name: 'Ани', locale: 'ru' },
 		occurrence: {
 			id: 'o1',
 			date: occurrenceDate,
 			maxParticipants: 10,
 			currentParticipants: 10 - (world.spotsFree ?? 5),
 			event: {
+				translations: [{ locale: 'ru', title: 'Татев' }],
 				cancellationRules: [
 					{ id: 'r1', eventId: 'e1', hoursBeforeEvent: 72, refundPercentage: 100 },
 					{ id: 'r2', eventId: 'e1', hoursBeforeEvent: 24, refundPercentage: 50 },
@@ -203,8 +208,16 @@ function build(world: World = {}) {
 		cancelPaymentIntent: () => Promise.resolve({}),
 	};
 
-	const service = createBookingService(prisma as never, stripe as never, {} as never);
-	return { service, table, stripeCalls, seatUpdates, bookingUpdates };
+	const emails: Record<string, unknown>[] = [];
+	const mail = {
+		sendBookingQuantityChanged: (payload: Record<string, unknown>) => {
+			emails.push(payload);
+			return Promise.resolve(true);
+		},
+	};
+
+	const service = createBookingService(prisma as never, stripe as never, mail as never);
+	return { service, table, stripeCalls, seatUpdates, bookingUpdates, emails };
 }
 
 const client = { kind: 'client', userId: 'u1' } as const;
@@ -537,5 +550,84 @@ describe('adding guests as an admin', () => {
 		await expect(
 			build().service.quoteQuantity(admin, 'b1', { quantity: 4, settlement: 'RULES' }),
 		).rejects.toMatchObject({ code: 'QUANTITY_SETTLEMENT_INVALID' });
+	});
+});
+
+describe('telling the client about the change', () => {
+	it('writes to the client with the refund after the client removes a guest', async () => {
+		const { service, emails } = build();
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
+
+		expect(emails).toHaveLength(1);
+		expect(emails[0]).toMatchObject({
+			to: 'a@x.am',
+			locale: 'ru',
+			userName: 'Ани',
+			referenceNumber: 42,
+			eventTitle: 'Татев',
+			oldQuantity: 3,
+			newQuantity: 2,
+			newAmount: 20000,
+			byOrganiser: false,
+			refund: { kind: 'refunded', amount: 9700 },
+			currency: 'AMD',
+		});
+	});
+
+	it('says who made the change when an admin did', async () => {
+		const { service, emails } = build();
+		await service.changeQuantity(admin, 'b1', { quantity: 2, settlement: 'FULL' });
+
+		expect(emails[0]).toMatchObject({ byOrganiser: true, refund: { kind: 'refunded' } });
+	});
+
+	it('says the refund is on hold when Stripe refuses it', async () => {
+		const { service, emails } = build({ stripeFails: true });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
+
+		expect(emails[0]).toMatchObject({ refund: { kind: 'pending' } });
+	});
+
+	it('says nothing is refundable when the rules give nothing back', async () => {
+		const { service, emails } = build({ tourInHours: 5 });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 0 });
+
+		expect(emails[0]).toMatchObject({ refund: { kind: 'notRefundable' } });
+	});
+
+	it('names the cash that the company still has to return', async () => {
+		const { service, emails } = build({
+			quantity: 4,
+			amount: 40000,
+			charges: [
+				{ pi: 'pi_1', amount: 30000, fee: 900, at: 1 },
+				{ pi: null, amount: 10000, at: 3 },
+			],
+		});
+		await service.changeQuantity(client, 'b1', { quantity: 3, expectedRefundInCents: 1000000 });
+
+		expect(emails[0]).toMatchObject({ cashRefundAmount: 10000 });
+		expect(emails[0].refund).toBeUndefined();
+	});
+
+	it('tells the client what to pay when an admin adds a guest', async () => {
+		const offline = build();
+		await offline.service.changeQuantity(admin, 'b1', { quantity: 4, settlement: 'OFFLINE_PAID' });
+		expect(offline.emails[0]).toMatchObject({
+			newQuantity: 4,
+			newAmount: 40000,
+			extra: { kind: 'paidOffline', amount: 10000 },
+		});
+
+		const arrival = build();
+		await arrival.service.changeQuantity(admin, 'b1', { quantity: 4 });
+		expect(arrival.emails[0]).toMatchObject({ extra: { kind: 'payOnArrival', amount: 10000 } });
+	});
+
+	it('does not write to a guest without an email', async () => {
+		const { service, emails } = build({ noEmail: true });
+		await service.changeQuantity(client, 'b1', { quantity: 2, expectedRefundInCents: 970000 });
+
+		expect(emails).toHaveLength(0);
 	});
 });

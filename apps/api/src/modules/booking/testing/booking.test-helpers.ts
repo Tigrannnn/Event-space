@@ -16,7 +16,7 @@ export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications);
 	const cancellations = new BookingCancellationService(prisma, ledger, refunds, notifications);
 	const creation = new BookingCreationService(prisma, stripe, notifications, payments, ledger);
-	const quantities = new BookingQuantityService(prisma, ledger, refunds);
+	const quantities = new BookingQuantityService(prisma, ledger, refunds, notifications);
 
 	return {
 		service: new BookingService(creation, queries, payments, cancellations, quantities),

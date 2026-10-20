@@ -126,6 +126,7 @@ export class BookingNotificationService {
 		refundAmount?: number;
 		refundFailed?: boolean;
 		refundCoveredByFee?: { entitled: number; fee: number };
+		cashRefundAmount?: number;
 		nothingPaid?: boolean;
 		offlinePaid?: boolean;
 	}): Promise<void> {
@@ -150,6 +151,7 @@ export class BookingNotificationService {
 				refundAmount: params.refundAmount,
 				refundFailed: params.refundFailed,
 				refundCoveredByFee: params.refundCoveredByFee,
+				cashRefundAmount: params.cashRefundAmount,
 				nothingPaid: params.nothingPaid,
 				offlinePaid: params.offlinePaid,
 				currency: 'AMD',
@@ -157,6 +159,53 @@ export class BookingNotificationService {
 			});
 		} catch (error) {
 			this.logger.error('Failed to send booking cancelled email', error as Error);
+		}
+	}
+
+	async sendQuantityChanged(params: {
+		booking: { referenceNumber: number | null; brandHost: string | null };
+		event?: { translations: { locale: Locale; title: string }[] } | null;
+		occurrence?: { date: Date } | null;
+		user: { email: string | null; name: string; locale: Locale | null };
+		locale?: Locale;
+		oldQuantity: number;
+		newQuantity: number;
+		newAmount: number;
+		byOrganiser: boolean;
+		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
+		cashRefundAmount?: number;
+		extra?: { kind: 'paidOffline' | 'payOnArrival'; amount: number };
+	}): Promise<void> {
+		const { booking, event, occurrence, user } = params;
+
+		if (!user.email || !event || !occurrence) {
+			return;
+		}
+
+		const mailLocale = user.locale ?? params.locale ?? DEFAULT_LOCALE;
+		const translation =
+			event.translations.find((t) => t.locale === mailLocale) ?? event.translations[0];
+
+		try {
+			await this.mail.sendBookingQuantityChanged({
+				to: user.email,
+				locale: mailLocale,
+				userName: user.name,
+				referenceNumber: booking.referenceNumber ?? 0,
+				eventTitle: translation?.title ?? '',
+				occurrenceDate: occurrence.date,
+				oldQuantity: params.oldQuantity,
+				newQuantity: params.newQuantity,
+				newAmount: params.newAmount,
+				byOrganiser: params.byOrganiser,
+				refund: params.refund,
+				cashRefundAmount: params.cashRefundAmount,
+				extra: params.extra,
+				currency: 'AMD',
+				brandHost: booking.brandHost ?? undefined,
+			});
+		} catch (error) {
+			this.logger.error('Failed to send booking changed email', error as Error);
 		}
 	}
 }

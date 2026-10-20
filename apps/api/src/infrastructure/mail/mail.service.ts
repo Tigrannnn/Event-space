@@ -14,6 +14,7 @@ import {
 } from './mail-brand';
 import {
 	BOOKING_CANCELLED_STRINGS,
+	BOOKING_QUANTITY_CHANGED_STRINGS,
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
 	escapeHtml,
@@ -345,6 +346,7 @@ export class MailService implements OnModuleInit {
 		refundAmount?: number;
 		refundFailed?: boolean;
 		refundCoveredByFee?: { entitled: number; fee: number };
+		cashRefundAmount?: number;
 		nothingPaid?: boolean;
 		offlinePaid?: boolean;
 		currency: string;
@@ -374,13 +376,17 @@ export class MailService implements OnModuleInit {
 							? strings.nothingPaid
 							: strings.noRefund;
 
+		const cashLine = params.cashRefundAmount
+			? strings.cashRefund(formatMailAmount(params.cashRefundAmount, params.currency, params.locale))
+			: '';
+
 		try {
 			const html = await this.templateService.render('booking-cancelled', {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				GREETING: strings.greeting(params.userName),
 				BODY: body,
-				REFUND: refundLine,
+				REFUND: cashLine ? `${refundLine}<br /><br />${cashLine}` : refundLine,
 				SUPPORT: strings.support,
 				SIGNOFF: strings.signoff,
 				SIGNATURE: brand.name,
@@ -393,6 +399,90 @@ export class MailService implements OnModuleInit {
 					strings.greeting(params.userName),
 					body,
 					refundLine,
+					cashLine,
+					strings.support,
+					`${strings.signoff} ${brand.name}`,
+				]
+					.filter(Boolean)
+					.join('\n\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send booking cancelled email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendBookingQuantityChanged(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		referenceNumber: number;
+		eventTitle: string;
+		occurrenceDate: Date;
+		oldQuantity: number;
+		newQuantity: number;
+		newAmount: number;
+		byOrganiser: boolean;
+		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
+		cashRefundAmount?: number;
+		extra?: { kind: 'paidOffline' | 'payOnArrival'; amount: number };
+		currency: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
+		const money = (amount: number) => formatMailAmount(amount, params.currency, params.locale);
+
+		const body = strings.body(
+			params.eventTitle,
+			formatMailDate(params.occurrenceDate, params.locale),
+			referenceLabel,
+			params.oldQuantity,
+			params.newQuantity,
+			params.byOrganiser,
+		);
+
+		const moneyLines = [
+			strings.newTotal(money(params.newAmount)),
+			params.refund?.kind === 'refunded' ? strings.refund(money(params.refund.amount)) : '',
+			params.refund?.kind === 'pending' ? strings.refundPending : '',
+			params.refund?.kind === 'notRefundable' ? strings.notRefundable : '',
+			params.cashRefundAmount ? strings.cashRefund(money(params.cashRefundAmount)) : '',
+			params.extra?.kind === 'paidOffline' ? strings.paidOffline(money(params.extra.amount)) : '',
+			params.extra?.kind === 'payOnArrival' ? strings.payOnArrival(money(params.extra.amount)) : '',
+		].filter(Boolean);
+
+		try {
+			const html = await this.templateService.render('booking-quantity-changed', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				BODY: body,
+				MONEY_BLOCKS: moneyLines
+					.map(
+						(line) =>
+							'<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">' +
+							escapeHtml(line) +
+							'</mj-text>',
+					)
+					.join(''),
+				SUPPORT: strings.support,
+				SIGNOFF: strings.signoff,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					strings.greeting(params.userName),
+					body,
+					...moneyLines,
 					strings.support,
 					`${strings.signoff} ${brand.name}`,
 				].join('\n\n'),
@@ -402,7 +492,7 @@ export class MailService implements OnModuleInit {
 
 			return true;
 		} catch (error) {
-			this.logSmtpError(`Failed to send booking cancelled email to ${params.to}`, error);
+			this.logSmtpError(`Failed to send booking changed email to ${params.to}`, error);
 			return false;
 		}
 	}

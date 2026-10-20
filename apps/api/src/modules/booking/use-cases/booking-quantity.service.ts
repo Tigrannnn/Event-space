@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
@@ -14,6 +14,7 @@ import { calculateRefundPercentage } from '../booking.utils';
 import { releaseSeats, reserveSeats } from '../occurrence-seats';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingRefundService } from '../money/booking-refund.service';
+import { BookingNotificationService } from './booking-notification.service';
 import {
 	summarizeBookingMoney,
 	toMoneyAdjustments,
@@ -32,7 +33,11 @@ interface QuantityState {
 		amount: Prisma.Decimal;
 		occurrenceId: string;
 		checkedInAt: Date | null;
+		referenceNumber: number | null;
+		brandHost: string | null;
 	};
+	user: { email: string | null; name: string; locale: Locale | null };
+	translations: { locale: Locale; title: string }[];
 	occurrence: {
 		id: string;
 		date: Date;
@@ -61,6 +66,7 @@ export class BookingQuantityService {
 		private readonly prisma: PrismaService,
 		private readonly ledger: BookingLedgerService,
 		private readonly refunds: BookingRefundService,
+		private readonly notifications: BookingNotificationService,
 	) {}
 
 	async quote(
@@ -78,7 +84,7 @@ export class BookingQuantityService {
 
 		const operationKey = `qty:${randomUUID()}`;
 
-		const { quote, allocation } = await this.prisma.$transaction(async (tx) => {
+		const { quote, allocation, state } = await this.prisma.$transaction(async (tx) => {
 			const state = await this.load(tx, bookingId);
 			const built = this.build(actor, state, data, new Date());
 			const { quote: current } = built;
@@ -135,17 +141,31 @@ export class BookingQuantityService {
 				}
 			}
 
-			return built;
+			return { ...built, state };
 		});
 
+		let refundOutcome: { refundedInCents: number | null; failed: boolean } | null = null;
+
 		if (quote.direction === 'DECREASE' && allocation) {
-			await this.refunds.settleAllocation(bookingId, allocation, {
+			refundOutcome = await this.refunds.settleAllocation(bookingId, allocation, {
 				operationKey,
 				reason: this.reasonFor(quote),
 				failureReason: 'Refund could not be processed at Stripe (guests removed)',
 				failureLogSuffix: ' (guests removed)',
 			});
 		}
+
+		await this.notifications.sendQuantityChanged({
+			booking: state.booking,
+			event: { translations: state.translations },
+			occurrence: { date: state.occurrence.date },
+			user: state.user,
+			oldQuantity: quote.currentQuantity,
+			newQuantity: quote.newQuantity,
+			newAmount: quote.newAmountInCents / 100,
+			byOrganiser: actor.kind === 'admin',
+			...this.emailMoney(quote, allocation, refundOutcome),
+		});
 
 		return {
 			bookingId,
@@ -174,7 +194,10 @@ export class BookingQuantityService {
 		const booking = await db.booking.findUnique({
 			where: { id: bookingId },
 			include: {
-				occurrence: { include: { event: { include: { cancellationRules: true } } } },
+				user: true,
+				occurrence: {
+					include: { event: { include: { cancellationRules: true, translations: true } } },
+				},
 			},
 		});
 
@@ -192,7 +215,14 @@ export class BookingQuantityService {
 				amount: booking.amount,
 				occurrenceId: booking.occurrenceId,
 				checkedInAt: booking.checkedInAt,
+				referenceNumber: booking.referenceNumber,
+				brandHost: booking.brandHost,
 			},
+			user: { email: booking.user.email, name: booking.user.name, locale: booking.user.locale },
+			translations: (booking.occurrence.event?.translations ?? []).map((row) => ({
+				locale: row.locale,
+				title: row.title,
+			})),
 			occurrence: {
 				id: booking.occurrence.id,
 				date: booking.occurrence.date,
@@ -323,6 +353,38 @@ export class BookingQuantityService {
 		}
 
 		return settlement;
+	}
+
+	private emailMoney(
+		quote: QuantityQuote,
+		allocation: RefundAllocation | null,
+		outcome: { refundedInCents: number | null; failed: boolean } | null,
+	) {
+		if (quote.direction === 'INCREASE') {
+			return {
+				extra: {
+					kind:
+						quote.settlement === 'OFFLINE_PAID' ? ('paidOffline' as const) : ('payOnArrival' as const),
+					amount: quote.dueInCents / 100,
+				},
+			};
+		}
+
+		const cashInCents = (allocation?.parts ?? [])
+			.filter((part) => part.method === 'OFFLINE')
+			.reduce((sum, part) => sum + part.netInCents, 0);
+		const cashRefundAmount = cashInCents > 0 ? cashInCents / 100 : undefined;
+
+		if (outcome?.failed) return { refund: { kind: 'pending' as const }, cashRefundAmount };
+		if (outcome?.refundedInCents) {
+			return {
+				refund: { kind: 'refunded' as const, amount: outcome.refundedInCents / 100 },
+				cashRefundAmount,
+			};
+		}
+		if (cashRefundAmount) return { cashRefundAmount };
+
+		return { refund: { kind: 'notRefundable' as const } };
 	}
 
 	private reasonFor(quote: QuantityQuote): string {

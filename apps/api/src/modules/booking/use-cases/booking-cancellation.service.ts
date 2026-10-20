@@ -9,6 +9,14 @@ import { BookingRefundService } from '../money/booking-refund.service';
 import type { RefundAllocation } from '../money/refund-allocation';
 import { BookingNotificationService } from './booking-notification.service';
 
+const cashRefundAmountOf = (allocation: RefundAllocation | null): number | undefined => {
+	const cash = (allocation?.parts ?? [])
+		.filter((part) => part.method === 'OFFLINE')
+		.reduce((sum, part) => sum + part.netInCents, 0);
+
+	return cash > 0 ? cash / 100 : undefined;
+};
+
 @Injectable()
 export class BookingCancellationService {
 	private readonly logger = new Logger(BookingCancellationService.name);
@@ -189,6 +197,7 @@ export class BookingCancellationService {
 			locale,
 			refundAmount: outcome.refundedInCents !== null ? outcome.refundedInCents / 100 : undefined,
 			refundFailed: outcome.failed,
+			cashRefundAmount: cashRefundAmountOf(allocation),
 			refundCoveredByFee: outcome.coveredByFee
 				? {
 						entitled: outcome.coveredByFee.grossInCents / 100,
