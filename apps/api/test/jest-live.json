@@ -1,0 +1,20 @@
+{
+	"moduleFileExtensions": ["js", "json", "ts"],
+	"rootDir": ".",
+	"testEnvironment": "node",
+	"globalSetup": "<rootDir>/global-setup.ts",
+	"setupFilesAfterEnv": ["<rootDir>/setup-e2e.ts"],
+	"testRegex": ".live-spec.ts$",
+	"transform": {
+		"^.+\\.(t|j)s$": ["ts-jest", { "isolatedModules": true, "diagnostics": false }]
+	},
+	"moduleNameMapper": {
+		"@event-space/shared": "<rootDir>/../../../packages/shared/dist",
+		"^@modules/(.*)$": "<rootDir>/../src/modules/$1",
+		"^@infra/(.*)$": "<rootDir>/../src/infrastructure/$1",
+		"^@core/(.*)$": "<rootDir>/../src/core/$1",
+		"^@shared$": "<rootDir>/../src/shared",
+		"^@src/(.*)$": "<rootDir>/../src/$1",
+		"^src/(.*)$": "<rootDir>/../src/$1"
+	}
+}

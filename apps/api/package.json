@@ -18,6 +18,7 @@
 		"test:cov": "dotenv -e ../../.env -- jest --coverage",
 		"test:debug": "dotenv -e ../../.env -- node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e": "dotenv -e ../../.env.test -- jest --config ./test/jest-e2e.json --runInBand",
+		"test:live": "dotenv -e ../../.env.test -- jest --config ./test/jest-live.json --runInBand --forceExit",
 		"test:e2e:prepare": "dotenv -e ../../.env.test -- npx prisma migrate deploy",
 		"prisma:push": "dotenv -e ../../.env -- npx prisma db push",
 		"prisma:migrate": "dotenv -e ../../.env -- npx prisma migrate dev",
