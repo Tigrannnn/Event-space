@@ -275,8 +275,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					)}
 					{occurrenceIsAvailable &&
 						booking.paymentMethod === 'SITE_PAYMENT' &&
-						displayStatus === 'CONFIRMED' &&
-						quantity > 1 && (
+						displayStatus === 'CONFIRMED' && (
 							<Button
 								variant="secondary"
 								size="sm"

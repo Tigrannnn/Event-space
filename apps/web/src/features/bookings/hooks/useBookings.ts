@@ -84,6 +84,19 @@ export const useQuantityQuote = (bookingId: string | undefined, quantity: number
 	});
 };
 
+export const useStartQuantityPayment = () => {
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
+			bookingApi.startQuantityPayment(id, { quantity }),
+		onError: (error) => {
+			addToast(apiError(error, 'booking.updateFailed'), ToastType.ERROR);
+		},
+	});
+};
+
 export const useChangeQuantity = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();

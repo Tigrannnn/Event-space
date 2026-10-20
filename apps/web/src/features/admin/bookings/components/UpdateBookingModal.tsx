@@ -55,7 +55,7 @@ export default function UpdateBookingModal() {
 	const title = getEventTranslation(booking.occurrence.event, translate.locale).title;
 	const tourStarted = new Date(booking.occurrence.date).getTime() <= openedAt;
 
-	const labels: Record<QuantitySettlement, string> = {
+	const labels: Partial<Record<QuantitySettlement, string>> = {
 		RULES: translate('admin.settlementRules'),
 		FULL: translate('admin.settlementFull'),
 		NONE: translate('admin.settlementNone'),
@@ -64,7 +64,7 @@ export default function UpdateBookingModal() {
 	};
 	const options = (increasing ? INCREASE_OPTIONS : DECREASE_OPTIONS).map((value) => ({
 		value,
-		label: labels[value],
+		label: labels[value] ?? value,
 	}));
 
 	const ready = changed && quote.isSuccess && !quote.isFetching;
