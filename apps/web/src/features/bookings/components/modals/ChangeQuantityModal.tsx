@@ -29,7 +29,7 @@ export default function ChangeQuantityModal() {
 		: 0;
 	const maxQuantity = current + spotsLeft;
 	const [quantity, setQuantity] = useState(
-		current > 1 ? current - 1 : Math.min(current + 1, maxQuantity),
+		current > 1 ? current : Math.min(current + 1, maxQuantity),
 	);
 	const [payment, setPayment] = useState<StartQuantityPayment | null>(null);
 
