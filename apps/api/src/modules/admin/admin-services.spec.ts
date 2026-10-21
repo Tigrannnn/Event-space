@@ -247,6 +247,27 @@ describe('admin: check-in', () => {
 			createAdmin(missing.prisma, fakeStripe().stripe).checkInBooking('b1'),
 		).rejects.toBeDefined();
 	});
+
+	it('undoes a check-in made by mistake, so the guest is confirmed again', async () => {
+		const world = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInAt: new Date() }),
+			'booking.update': bookingRow(),
+		});
+		await createAdmin(world.prisma, fakeStripe().stripe).undoBookingCheckIn('b1');
+
+		expect(world.argsOf('booking.update')[0]).toMatchObject({
+			where: { id: 'b1' },
+			data: { checkedInAt: null },
+		});
+	});
+
+	it('refuses to undo a check-in that was never made', async () => {
+		const world = fakePrisma({ 'booking.findUnique': bookingRow() });
+		await expect(
+			createAdmin(world.prisma, fakeStripe().stripe).undoBookingCheckIn('b1'),
+		).rejects.toMatchObject({ code: 'NOT_CHECKED_IN' });
+		expect(world.argsOf('booking.update')).toHaveLength(0);
+	});
 });
 
 describe('admin: cancelling a booking with money', () => {

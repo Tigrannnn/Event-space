@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Eye, Ban, Plus, Pencil, CheckCircle } from 'lucide-react';
+import { Eye, Ban, Plus, Pencil, CheckCircle, Undo2 } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -24,7 +24,8 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import { useAdminBookings } from '@/features/admin/hooks/useAdmin';
+import { useAdminBookings, useUndoBookingCheckIn } from '@/features/admin/hooks/useAdmin';
+import { useConfirm } from '@/hooks/confirmModal';
 import { useModalStore } from '@/stores/modalStore';
 import type {
 	BookingDisplayStatus,
@@ -78,6 +79,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	}, [filters.search]);
 
 	const { data, isFetching } = useAdminBookings(filters);
+	const { mutate: undoCheckIn, isPending: isUndoingCheckIn } = useUndoBookingCheckIn();
+	const confirm = useConfirm();
 	const bookingsResponse = data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
 	const pageEnd = Math.min(
@@ -128,6 +131,16 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
 		openModal(ModalType.BookingDetails, { booking });
+	};
+
+	const handleUndoCheckIn = async (bookingId: string) => {
+		const confirmed = await confirm({
+			variant: 'danger',
+			title: translate('admin.undoCheckIn'),
+			message: translate('admin.undoCheckInMessage'),
+		});
+
+		if (confirmed) undoCheckIn(bookingId);
 	};
 
 	const handleOpenBookingAction = (booking: BookingWithDetails) => {
@@ -359,6 +372,20 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										>
 											<Eye className="h-4 w-4" />
 										</Button>
+
+										{booking.checkedInAt && (
+											<Button
+												type="button"
+												size="xs"
+												variant="secondary"
+												title={translate('admin.undoCheckIn')}
+												aria-label={translate('admin.undoCheckIn')}
+												disabled={isUndoingCheckIn}
+												onClick={() => handleUndoCheckIn(booking.id)}
+											>
+												<Undo2 className="h-4 w-4" />
+											</Button>
+										)}
 
 										{booking.status === 'PENDING' && (
 											<Button

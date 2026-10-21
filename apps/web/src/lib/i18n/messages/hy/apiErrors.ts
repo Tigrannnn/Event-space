@@ -73,6 +73,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_CHANGED_CONCURRENTLY]: 'Ամրագրումը հենց նոր փոխվեց։ Թարմացրեք էջը։',
 	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'Այս ամրագրման համար քարտով վճարումն արդեն ընթանում է կամ կատարվել է։ Թարմացրեք էջը։',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Այս ամրագրման համար արդեն նշված է ներկայություն։',
+	[AppErrorCode.NOT_CHECKED_IN]: 'Այս ամրագրումը գրանցված չէ։',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Տուրն արդեն սկսվել է, ամրագրումն այլևս հնարավոր չէ չեղարկել։ Կապվեք կազմակերպչի հետ։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'Այս ամրագրումը վճարում չունի ստուգելու համար։',

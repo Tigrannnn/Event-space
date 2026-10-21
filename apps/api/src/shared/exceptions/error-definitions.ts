@@ -203,6 +203,7 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		message: 'A card payment for this booking is already in progress or received',
 	},
 	[AppErrorCode.ALREADY_CHECKED_IN]: { status: HttpStatus.CONFLICT, message: 'Already checked in' },
+	[AppErrorCode.NOT_CHECKED_IN]: { status: HttpStatus.CONFLICT, message: 'Not checked in' },
 	[AppErrorCode.TOUR_ALREADY_STARTED]: {
 		status: HttpStatus.CONFLICT,
 		message: 'The tour has already started, the booking can no longer be cancelled',

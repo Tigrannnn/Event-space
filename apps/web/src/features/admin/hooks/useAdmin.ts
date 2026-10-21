@@ -153,6 +153,30 @@ export const useConfirmBookingManually = () => {
 	});
 };
 
+export const useUndoBookingCheckIn = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.undoBookingCheckIn(id),
+		onSuccess: async () => {
+			addToast(translate('admin.checkInUndone'), ToastType.SUCCESS);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.failedToUndoCheckIn'), ToastType.ERROR);
+		},
+	});
+};
+
 export const useAdminQuantityQuote = (
 	bookingId: string | undefined,
 	quantity: number,

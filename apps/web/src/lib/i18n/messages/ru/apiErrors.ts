@@ -73,6 +73,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_CHANGED_CONCURRENTLY]: 'Бронь только что изменили. Обновите страницу.',
 	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'По этой брони уже идёт или прошёл платёж картой. Обновите страницу.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Эта бронь уже отмечена как явка.',
+	[AppErrorCode.NOT_CHECKED_IN]: 'Эта бронь не отмечена как явка.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Тур уже начался, бронь больше нельзя отменить. Свяжитесь с организатором.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',

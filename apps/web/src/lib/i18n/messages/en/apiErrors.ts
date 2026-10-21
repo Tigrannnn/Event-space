@@ -79,6 +79,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.BOOKING_CHANGED_CONCURRENTLY]: 'The booking was just changed. Please refresh the page.',
 	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: 'A card payment for this booking is already in progress or received. Please refresh the page.',
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'This booking is already checked in.',
+	[AppErrorCode.NOT_CHECKED_IN]: 'This booking is not checked in.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'The tour has already started, so the booking can no longer be cancelled. Please contact the organiser.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'This booking has no payment to reconcile.',

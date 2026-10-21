@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
@@ -12,6 +12,8 @@ type FindAllBookingsParams = PaginatedParams & BookingFilters;
 
 @Injectable()
 export class AdminBookingsService {
+	private readonly logger = new Logger(AdminBookingsService.name);
+
 	constructor(private readonly prisma: PrismaService) {}
 
 	async findAll({ skip = 0, limit = 20, ...filters }: FindAllBookingsParams = {}) {
@@ -52,16 +54,40 @@ export class AdminBookingsService {
 		return booking;
 	}
 
-	async checkIn(bookingId: string) {
+	async checkIn(bookingId: string, adminId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
 		if (booking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
-		return this.prisma.booking.update({
+		const checkedIn = await this.prisma.booking.update({
 			where: { id: bookingId },
 			data: { checkedInAt: new Date() },
 			include: bookingInclude,
 		});
+
+		this.logger.log(
+			`Admin ${adminId} checked in booking ${bookingId} at ${checkedIn.checkedInAt?.toISOString()}`,
+		);
+
+		return checkedIn;
+	}
+
+	async undoCheckIn(bookingId: string, adminId: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (!booking.checkedInAt) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
+
+		const reverted = await this.prisma.booking.update({
+			where: { id: bookingId },
+			data: { checkedInAt: null },
+			include: bookingInclude,
+		});
+
+		this.logger.log(
+			`Admin ${adminId} undid the check-in of booking ${bookingId}, made at ${booking.checkedInAt.toISOString()}`,
+		);
+
+		return reverted;
 	}
 }

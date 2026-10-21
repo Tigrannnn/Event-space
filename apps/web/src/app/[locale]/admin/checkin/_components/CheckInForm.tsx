@@ -45,6 +45,17 @@ export default function CheckInForm() {
 		},
 	});
 
+	const { mutate: undoCheckIn, isPending: isUndoingCheckIn } = useMutation({
+		mutationFn: (id: string) => adminApi.undoBookingCheckIn(id),
+		onSuccess: () => {
+			addToast(translate('admin.checkInUndone'), ToastType.SUCCESS);
+			queryClient.invalidateQueries({ queryKey: ['checkin-booking', ref] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.failedToUndoCheckIn'), ToastType.ERROR);
+		},
+	});
+
 	const confirm = useConfirm();
 
 	const handleCheckIn = async () => {
@@ -56,6 +67,18 @@ export default function CheckInForm() {
 
 		if (confirmed && booking) {
 			checkIn(booking.id);
+		}
+	};
+
+	const handleUndoCheckIn = async () => {
+		const confirmed = await confirm({
+			variant: 'danger',
+			title: translate('admin.undoCheckIn'),
+			message: translate('admin.undoCheckInMessage'),
+		});
+
+		if (confirmed && booking) {
+			undoCheckIn(booking.id);
 		}
 	};
 
@@ -203,9 +226,19 @@ export default function CheckInForm() {
 						)}
 
 						{isCheckedIn && (
-							<div className="rounded-lg bg-amber-50 p-3 text-center text-xs font-semibold text-amber-700 dark:bg-amber-950/20 dark:text-amber-400">
-								{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!, localeIntl[locale])}
-							</div>
+							<>
+								<div className="rounded-lg bg-blue-50 p-3 text-center text-xs font-semibold text-blue-700 dark:bg-blue-950/20 dark:text-blue-400">
+									{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!, localeIntl[locale])}
+								</div>
+								<Button
+									variant="secondary"
+									className="h-11 w-full text-sm font-bold"
+									onClick={handleUndoCheckIn}
+									isLoading={isUndoingCheckIn}
+								>
+									{translate('admin.undoCheckIn')}
+								</Button>
+							</>
 						)}
 
 						{!isCancelled && !isCheckedIn && (

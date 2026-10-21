@@ -356,7 +356,20 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.bookingsAdminService.checkIn(id);
+		return this.bookingsAdminService.checkIn(id, adminId);
+	}
+
+	@Delete('bookings/:id/checkin')
+	@ApiOperation({ summary: 'Undo a check-in made by mistake' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async undoBookingCheckIn(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.bookingsAdminService.undoCheckIn(id, adminId);
 	}
 
 	@Get('events/:id')
