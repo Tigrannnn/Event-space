@@ -379,7 +379,7 @@ export class BookingCreationService {
 		const confirmed = await this.prisma.$transaction(async (tx) => {
 			const booking = await tx.booking.findUnique({
 				where: { id: bookingId },
-				include: { occurrence: true },
+				include: { occurrence: { include: { event: { select: { price: true } } } } },
 			});
 			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 			if (booking.status !== 'PENDING') throw new AppException(AppErrorCode.BOOKING_NOT_PENDING);
@@ -390,12 +390,15 @@ export class BookingCreationService {
 				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
 			}
 
+			const quantity = data.quantity ?? booking.quantity;
+			const amount = parseFloat((Number(occurrence.event.price) * quantity).toFixed(2));
+
 			const reserved = await tx.eventOccurrence.updateMany({
 				where: {
 					id: occurrence.id,
-					currentParticipants: { lte: occurrence.maxParticipants - booking.quantity },
+					currentParticipants: { lte: occurrence.maxParticipants - quantity },
 				},
-				data: { currentParticipants: { increment: booking.quantity } },
+				data: { currentParticipants: { increment: quantity } },
 			});
 
 			if (reserved.count === 0) {
@@ -409,11 +412,18 @@ export class BookingCreationService {
 
 			const updated = await tx.booking.update({
 				where: { id: bookingId },
-				data: { status: 'CONFIRMED', paymentMethod, paymentIntentId: null, referenceNumber },
+				data: {
+					status: 'CONFIRMED',
+					paymentMethod,
+					paymentIntentId: null,
+					referenceNumber,
+					quantity,
+					amount,
+				},
 			});
 
 			if (paymentMethod === 'OFFLINE_PAID') {
-				await this.ledger.recordOfflinePayment(tx, bookingId, Number(booking.amount));
+				await this.ledger.recordOfflinePayment(tx, bookingId, amount);
 			}
 
 			return updated;

@@ -21,12 +21,8 @@ export default function CreateBookingModal() {
 	const event = modalData?.event;
 	const defaultOccurrence = modalData?.selectedOccurrence || null;
 
-	const [clientSecret, setClientSecret] = useState<string | null>(
-		modalData?.payment?.clientSecret ?? null,
-	);
-	const [booking, setBooking] = useState<BookingWithEstimate | null>(
-		modalData?.payment?.booking ?? null,
-	);
+	const [clientSecret, setClientSecret] = useState<string | null>(null);
+	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);
 	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(
 		defaultOccurrence,
 	);
@@ -89,7 +85,7 @@ export default function CreateBookingModal() {
 			) : (
 				<BookingForm
 					event={event}
-					initialQuantity={1}
+					initialQuantity={modalData?.initialQuantity ?? 1}
 					maxQuantity={spotsLeft}
 					onSubmit={handleConfirm}
 					onOccurrenceSelect={setSelectedOccurrence}

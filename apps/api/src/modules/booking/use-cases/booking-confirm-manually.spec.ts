@@ -11,6 +11,7 @@ interface World {
 	occurrenceStatus?: string;
 	referenceNumber?: number | null;
 	cancelFails?: boolean;
+	price?: number;
 }
 
 function build(world: World = {}) {
@@ -26,6 +27,7 @@ function build(world: World = {}) {
 		date: new Date(Date.now() + (world.pastDate ? -5 : 240) * HOUR),
 		maxParticipants: 10,
 		currentParticipants: 10 - (world.spotsFree ?? 5),
+		event: { price: world.price ?? 10000 },
 	};
 
 	const pending = {
@@ -49,9 +51,10 @@ function build(world: World = {}) {
 			},
 		},
 		eventOccurrence: {
-			updateMany: (args: unknown) => {
+			updateMany: (args: { where: { currentParticipants: { lte: number } } }) => {
 				seatUpdates.push(args);
-				return Promise.resolve({ count: (world.spotsFree ?? 5) >= 2 ? 1 : 0 });
+				const fits = occurrence.currentParticipants <= args.where.currentParticipants.lte;
+				return Promise.resolve({ count: fits ? 1 : 0 });
 			},
 		},
 		bookingReference: { create: () => Promise.resolve({ id: 7 }) },
@@ -222,6 +225,37 @@ describe('confirming a pending booking by hand', () => {
 
 		await expect(service.confirmManually('b1', offline)).rejects.toBeDefined();
 		expect(bookingUpdates).toHaveLength(0);
+	});
+
+	it('confirms a different number of guests, taking their seats and charging for them', async () => {
+		const { service, bookingUpdates, ledger, seatUpdates } = build();
+		const result = await service.confirmManually('b1', { ...offline, quantity: 3 });
+
+		expect(result).toMatchObject({ status: 'CONFIRMED', quantity: 3, amount: 30000 });
+		expect(bookingUpdates[0]).toMatchObject({ quantity: 3, amount: 30000 });
+		expect(seatUpdates[0]).toEqual({
+			where: { id: 'o1', currentParticipants: { lte: 7 } },
+			data: { currentParticipants: { increment: 3 } },
+		});
+		expect(Number(ledger[0].data.amount)).toBe(30000);
+	});
+
+	it('prices the unpaid booking at the tour price of the moment it is confirmed', async () => {
+		const { service, bookingUpdates, ledger } = build({ price: 12000 });
+		await service.confirmManually('b1', offline);
+
+		expect(bookingUpdates[0]).toMatchObject({ quantity: 2, amount: 24000 });
+		expect(Number(ledger[0].data.amount)).toBe(24000);
+	});
+
+	it('refuses a larger group when there are not enough seats for it', async () => {
+		const { service, bookingUpdates, ledger } = build({ spotsFree: 2 });
+
+		await expect(service.confirmManually('b1', { ...offline, quantity: 3 })).rejects.toMatchObject({
+			code: 'NOT_ENOUGH_SPOTS',
+		});
+		expect(bookingUpdates).toHaveLength(0);
+		expect(ledger).toHaveLength(0);
 	});
 
 	it('refuses once the tour has started or its date was cancelled', async () => {

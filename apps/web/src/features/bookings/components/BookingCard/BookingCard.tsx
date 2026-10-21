@@ -13,9 +13,7 @@ import {
 } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
-import { useCancelBooking, useCreateBooking } from '../../hooks/useBookings';
-import { useCurrentUser } from '@/features/users';
-import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
 import type { BookingWithEstimate } from '@event-space/shared';
 import { localizePath, localeIntl } from '@/lib/i18n/config';
@@ -40,9 +38,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
-	const { mutate: createBooking, isPending: isPreparingPayment } = useCreateBooking();
-	const { data: user } = useCurrentUser();
-	const { addToast } = useToastStore();
 	const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
 	const confirm = useConfirm();
@@ -66,30 +61,12 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const canPay =
 		occurrenceIsAvailable && booking.paymentMethod === 'SITE_PAYMENT' && status === 'PENDING';
 
-	// Booking the same date again reuses this pending row and hands back a payment for it,
-	// so paying later goes through the same checks (spots left, date still open) as booking.
 	const handlePay = () => {
-		if (!user?.phone) {
-			openModal(ModalType.CreateBooking, { event, selectedOccurrence: occurrence });
-			return;
-		}
-
-		createBooking(
-			{ occurrenceId: occurrence.id, quantity, phone: user.phone, paymentMethod: 'STRIPE' },
-			{
-				onSuccess: (data) => {
-					if (!data.clientSecret) {
-						addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
-						return;
-					}
-					openModal(ModalType.CreateBooking, {
-						event,
-						selectedOccurrence: occurrence,
-						payment: { booking: data.booking as BookingWithEstimate, clientSecret: data.clientSecret },
-					});
-				},
-			},
-		);
+		openModal(ModalType.CreateBooking, {
+			event,
+			selectedOccurrence: occurrence,
+			initialQuantity: quantity,
+		});
 	};
 
 	const handleCancel = async () => {
@@ -281,7 +258,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								size="sm"
 								className="flex-1"
 								onClick={handlePay}
-								isLoading={isPreparingPayment}
 							>
 								{translate('booking.payNow')}
 							</Button>

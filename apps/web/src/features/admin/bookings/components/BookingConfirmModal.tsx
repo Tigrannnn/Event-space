@@ -9,6 +9,8 @@ import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useConfirmBookingManually } from '@/features/admin/hooks/useAdmin';
+import QuantitySelector from '@/features/bookings/components/QuantitySelector';
+import { useFormatCurrency } from '@/hooks/format';
 import { getEventTranslation, type ConfirmBookingManuallyData } from '@event-space/shared';
 
 type ManualPaymentMethod = ConfirmBookingManuallyData['paymentMethod'];
@@ -18,14 +20,19 @@ export default function BookingConfirmModal() {
 	const { closeModal } = useModalStore();
 	const modalData = useModalData(ModalType.BookingConfirm);
 	const booking = modalData?.booking;
-	const event = booking?.occurrence?.event;
+	const occurrence = booking?.occurrence;
+	const event = occurrence?.event;
 
 	const confirmBooking = useConfirmBookingManually();
+	const formatCurrency = useFormatCurrency();
 	const [paymentMethod, setPaymentMethod] = useState<ManualPaymentMethod>('OFFLINE_PAID');
+	const [quantity, setQuantity] = useState(booking?.quantity ?? 1);
 
-	if (!booking || !event) {
+	if (!booking || !occurrence || !event) {
 		return null;
 	}
+
+	const maxQuantity = Math.max(1, occurrence.maxParticipants - occurrence.currentParticipants);
 
 	const eventTranslate = getEventTranslation(event, translate.locale);
 
@@ -41,7 +48,7 @@ export default function BookingConfirmModal() {
 
 	const handleSubmit = (submitEvent: FormEvent<HTMLFormElement>) => {
 		submitEvent.preventDefault();
-		confirmBooking.mutate({ id: booking.id, data: { paymentMethod } });
+		confirmBooking.mutate({ id: booking.id, data: { paymentMethod, quantity } });
 	};
 
 	return (
@@ -64,6 +71,20 @@ export default function BookingConfirmModal() {
 					</p>
 
 					<form onSubmit={handleSubmit} className="space-y-4">
+						<div className="space-y-2">
+							<QuantitySelector
+								quantity={quantity}
+								maxQuantity={maxQuantity}
+								onIncrement={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
+								onDecrement={() => setQuantity((current) => Math.max(1, current - 1))}
+								label={translate('admin.numberOfSpots')}
+							/>
+							<p className="text-sm text-gray-700 dark:text-gray-200">
+								{translate('booking.total')}:{' '}
+								<span className="font-semibold">{formatCurrency(event.price, { quantity })}</span>
+							</p>
+						</div>
+
 						<div className="space-y-2">
 							<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
 								{translate('admin.confirmBookingMethod')}

@@ -75,8 +75,7 @@ export interface ConfirmModalData {
 export interface CreateBookingModalData {
 	event: Event;
 	selectedOccurrence?: EventOccurrence;
-	/** Resumes payment of an existing pending booking, skipping the booking form. */
-	payment?: { booking: BookingWithEstimate; clientSecret: string };
+	initialQuantity?: number;
 }
 
 export interface BookingSuccessModalData {

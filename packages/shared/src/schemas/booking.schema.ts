@@ -133,6 +133,10 @@ export const ConfirmBookingManuallySchema = z.object({
 		.enum(['OFFLINE_PAID', 'PAY_ON_ARRIVAL'])
 		.default('OFFLINE_PAID')
 		.openapi({ description: 'How the client pays: already paid offline, or on arrival' }),
+	quantity: z.number().int().min(1).optional().openapi({
+		description: 'Number of spots to confirm; defaults to the booked quantity',
+		example: 3,
+	}),
 });
 
 export type ConfirmBookingManuallyData = z.infer<typeof ConfirmBookingManuallySchema>;
