@@ -255,61 +255,63 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				</div>
 
 				{/* Actions */}
-				<div className="flex gap-2">
-					{/* Link so the event page is prefetched before the click. */}
-					<Link href={localizePath(`/events/${event.id}`, locale)} className="flex-1">
-						<Button variant={canPay ? 'secondary' : 'primary'} size="sm" className="w-full">
-							{translate('booking.viewEvent')}
-						</Button>
-					</Link>
-					{canPay && (
-						<Button
-							variant="primary"
-							size="sm"
-							className="flex-1"
-							onClick={handlePay}
-							isLoading={isPreparingPayment}
-						>
-							{translate('booking.payNow')}
-						</Button>
-					)}
+				<div className="flex flex-col gap-2">
 					{occurrenceIsAvailable &&
 						booking.paymentMethod === 'SITE_PAYMENT' &&
 						displayStatus === 'CONFIRMED' && (
 							<Button
 								variant="secondary"
 								size="sm"
-								className="flex-1"
+								className="w-full"
 								onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
 							>
 								{translate('booking.changeQuantity')}
 							</Button>
 						)}
-					{occurrenceIsAvailable &&
-						booking.paymentMethod === 'SITE_PAYMENT' &&
-						displayStatus === 'CONFIRMED' && (
+					<div className="flex gap-2">
+						{/* Link so the event page is prefetched before the click. */}
+						<Link href={localizePath(`/events/${event.id}`, locale)} className="flex-1">
+							<Button variant={canPay ? 'secondary' : 'primary'} size="sm" className="w-full">
+								{translate('booking.viewEvent')}
+							</Button>
+						</Link>
+						{canPay && (
 							<Button
-								variant="danger"
+								variant="primary"
 								size="sm"
 								className="flex-1"
-								onClick={handleCancel}
-								isLoading={isCancelling}
+								onClick={handlePay}
+								isLoading={isPreparingPayment}
 							>
-								{translate('booking.cancel')}
+								{translate('booking.payNow')}
 							</Button>
 						)}
-					{canBookAnotherDate && (
-						<Button
-							variant="primary"
-							size="sm"
-							className="w-10 shrink-0 px-0"
-							onClick={handleBookAnotherDate}
-							aria-label={translate('event.bookAnotherSpot')}
-							title={translate('event.bookAnotherSpot')}
-						>
-							<Plus className="h-4 w-4" strokeWidth={2.5} />
-						</Button>
-					)}
+						{occurrenceIsAvailable &&
+							booking.paymentMethod === 'SITE_PAYMENT' &&
+							displayStatus === 'CONFIRMED' && (
+								<Button
+									variant="danger"
+									size="sm"
+									className="flex-1"
+									onClick={handleCancel}
+									isLoading={isCancelling}
+								>
+									{translate('booking.cancel')}
+								</Button>
+							)}
+						{canBookAnotherDate && (
+							<Button
+								variant="primary"
+								size="sm"
+								className="w-10 shrink-0 px-0"
+								onClick={handleBookAnotherDate}
+								aria-label={translate('event.bookAnotherSpot')}
+								title={translate('event.bookAnotherSpot')}
+							>
+								<Plus className="h-4 w-4" strokeWidth={2.5} />
+							</Button>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>
