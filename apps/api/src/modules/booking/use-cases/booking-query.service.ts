@@ -47,7 +47,7 @@ export class BookingQueryService {
 					},
 				},
 			},
-			orderBy: { createdAt: 'desc' },
+			orderBy: { updatedAt: 'desc' },
 		});
 
 		const now = new Date();
