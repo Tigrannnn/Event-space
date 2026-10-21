@@ -1,6 +1,11 @@
 import type { Prisma } from '@prisma/client';
 import { isUuid } from '@event-space/shared';
-import type { BookingDisplayStatus, PaymentMethod, TimeFilterType } from '@event-space/shared';
+import type {
+	BookingAuthor,
+	BookingDisplayStatus,
+	PaymentMethod,
+	TimeFilterType,
+} from '@event-space/shared';
 import { buildDayRangeFilter } from '../common/query-helpers';
 
 export interface BookingFilters {
@@ -15,6 +20,7 @@ export interface BookingFilters {
 	tourFrom?: string;
 	tourTo?: string;
 	paymentMethod?: PaymentMethod;
+	createdBy?: BookingAuthor;
 }
 
 /** The columns a display status stands for — see BookingDisplayStatusEnum. */
@@ -33,7 +39,7 @@ export function bookingDisplayStatusWhere(status?: BookingDisplayStatus): Prisma
 
 export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 	const { search, status, time, eventId, occurrenceId, createdFrom, createdTo } = filters;
-	const { tourFrom, tourTo, paymentMethod } = filters;
+	const { tourFrom, tourTo, paymentMethod, createdBy } = filters;
 
 	const createdAt = buildDayRangeFilter(createdFrom, createdTo);
 	const tourDate = buildDayRangeFilter(tourFrom, tourTo);
@@ -79,5 +85,6 @@ export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 		...(Object.keys(occurrence).length > 0 ? { occurrence } : {}),
 		...(paymentMethod ? { paymentMethod } : {}),
 		...(createdAt ? { createdAt } : {}),
+		...(createdBy ? { createdByAdminId: createdBy === 'admin' ? { not: null } : null } : {}),
 	};
 }

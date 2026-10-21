@@ -1,5 +1,15 @@
-import { BookingDisplayStatusEnum, PaymentMethodEnum, TimeFilterSchema } from '@event-space/shared';
-import type { BookingDisplayStatus, PaymentMethod, TimeFilterType } from '@event-space/shared';
+import {
+	BookingAuthorSchema,
+	BookingDisplayStatusEnum,
+	PaymentMethodEnum,
+	TimeFilterSchema,
+} from '@event-space/shared';
+import type {
+	BookingAuthor,
+	BookingDisplayStatus,
+	PaymentMethod,
+	TimeFilterType,
+} from '@event-space/shared';
 import { readEnum, readNumber, readString, writeParam } from '@/hooks/urlFilters';
 
 export const DEFAULT_PAGE_SIZE = 20;
@@ -20,6 +30,8 @@ export interface AdminBookingsFilters {
 	tourFrom?: string;
 	tourTo?: string;
 	paymentMethod?: PaymentMethod;
+	/** Who made the booking: the guest on the site, or an admin by hand. */
+	createdBy?: BookingAuthor;
 }
 
 export function emptyBookingsFilters(): AdminBookingsFilters {
@@ -40,6 +52,7 @@ export function parseBookingsFilters(params: URLSearchParams): AdminBookingsFilt
 		tourFrom: readString(params, 'tourFrom'),
 		tourTo: readString(params, 'tourTo'),
 		paymentMethod: readEnum(params, 'paymentMethod', PaymentMethodEnum.options),
+		createdBy: readEnum(params, 'createdBy', BookingAuthorSchema.options),
 	};
 }
 
@@ -59,6 +72,7 @@ export function serializeBookingsFilters(
 	writeParam(params, 'tourFrom', filters.tourFrom);
 	writeParam(params, 'tourTo', filters.tourTo);
 	writeParam(params, 'paymentMethod', filters.paymentMethod);
+	writeParam(params, 'createdBy', filters.createdBy);
 	return params;
 }
 
@@ -74,6 +88,7 @@ export function countActiveBookingsFilters(filters: AdminBookingsFilters): numbe
 			filters.eventId,
 			filters.occurrenceId,
 			filters.paymentMethod,
+			filters.createdBy,
 		].filter(
 			(value) => value !== undefined,
 		).length +

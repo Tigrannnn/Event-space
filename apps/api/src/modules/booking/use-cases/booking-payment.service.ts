@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LEDGER_REASON } from '@event-space/shared';
 import { Prisma, type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
@@ -80,7 +81,7 @@ export class BookingPaymentService {
 						bookingId: booking.id,
 						paymentIntentId,
 						amountReceived,
-						reason: 'Payment captured after booking was cancelled.',
+						reason: LEDGER_REASON.PAYMENT_CAPTURED_AFTER_CANCEL,
 						idempotencyKey: `auto-refund-${booking.id}`,
 					};
 				}
@@ -119,7 +120,7 @@ export class BookingPaymentService {
 						bookingId: booking.id,
 						paymentIntentId,
 						amountReceived,
-						reason: 'NO_SPOTS_LEFT',
+						reason: LEDGER_REASON.NO_SPOTS_LEFT,
 						idempotencyKey: `auto-refund-no-spots-${booking.id}`,
 					};
 				}
@@ -134,7 +135,7 @@ export class BookingPaymentService {
 					bookingId: booking.id,
 					paymentIntentId,
 					amount: new Prisma.Decimal(booking.amount.toString()),
-					reason: 'Payment captured',
+					reason: LEDGER_REASON.PAYMENT_CAPTURED,
 				});
 
 				return { action: 'confirmed' as const, booking: confirmedBooking };
@@ -170,7 +171,7 @@ export class BookingPaymentService {
 					bookingId: result.bookingId,
 					paymentIntentId: result.paymentIntentId,
 					amountInCents: result.amountReceived,
-					reason: 'Payment captured, then refunded automatically',
+					reason: LEDGER_REASON.PAYMENT_CAPTURED_THEN_REFUNDED,
 				});
 
 				const stripeRefund = await this.stripe.refund(

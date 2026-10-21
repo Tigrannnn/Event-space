@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { quantityChangeReason } from '@event-space/shared';
 import { Injectable } from '@nestjs/common';
 import { Prisma, type Locale, type PaymentMethod } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
@@ -327,6 +328,6 @@ export class BookingQuantityService {
 	}
 
 	private reasonFor(quote: QuantityQuote): string {
-		return `Booking changed from ${quote.currentQuantity} to ${quote.newQuantity} guests`;
+		return quantityChangeReason(quote.currentQuantity, quote.newQuantity);
 	}
 }

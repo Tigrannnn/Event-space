@@ -1,5 +1,5 @@
 import { z } from './openapi';
-import { BookingWithDetailsSchema } from './booking.schema';
+import { BookingWithDetailsSchema, PaymentMethodEnum } from './booking.schema';
 import { SafeUserSchema } from './user.schema';
 import { EventSchema } from './event.schema';
 import { BookingStatusCountsSchema } from './event-occurrence.schema';
@@ -145,9 +145,30 @@ export const DashboardRevenueTotalsSchema = z.object({
 	toursUpcoming: z.number(),
 });
 
+export const DashboardPaymentMethodStatSchema = z.object({
+	method: PaymentMethodEnum,
+	bookings: z.number().int(),
+	guests: z.number().int(),
+	earned: z.number(),
+	finishedBookings: z.number().int(),
+	finishedGuests: z.number().int(),
+	noShowBookings: z.number().int(),
+	noShowGuests: z.number().int(),
+	noShowAmount: z.number(),
+});
+
+export const DashboardPaymentMixSchema = z.object({
+	methods: z.array(DashboardPaymentMethodStatSchema),
+	cancelled: z.object({ bookings: z.number().int(), earned: z.number() }),
+});
+
+export type DashboardPaymentMethodStat = z.infer<typeof DashboardPaymentMethodStatSchema>;
+export type DashboardPaymentMix = z.infer<typeof DashboardPaymentMixSchema>;
+
 export const DashboardRevenueSchema = z.object({
 	points: z.array(DashboardRevenuePointSchema),
 	totals: DashboardRevenueTotalsSchema,
+	paymentMix: DashboardPaymentMixSchema,
 	previousTotals: z.object({
 		earned: z.number(),
 	}),

@@ -43,7 +43,7 @@ export default function UserDetailsModal() {
 									<p className="text-lg font-semibold text-gray-900 dark:text-white">{user.name}</p>
 									{user.isShadow && (
 										<span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
-											{translate('admin.shadowUser')}
+											{translate('admin.shadowAccount')}
 										</span>
 									)}
 								</div>

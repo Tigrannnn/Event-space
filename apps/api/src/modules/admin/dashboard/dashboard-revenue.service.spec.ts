@@ -31,8 +31,20 @@ function confirmed(
 		status,
 		paymentMethod: 'SITE_PAYMENT' as const,
 		amount,
+		quantity: 1,
 		checkedInAt: null,
 		adjustments,
+	};
+}
+
+function onArrival(amount: number, checkedInAt: Date | null, quantity = 1) {
+	return {
+		status: 'CONFIRMED' as const,
+		paymentMethod: 'PAY_ON_ARRIVAL' as const,
+		amount,
+		quantity,
+		checkedInAt,
+		adjustments: [] as Tour['bookings'][number]['adjustments'],
 	};
 }
 
@@ -160,5 +172,87 @@ describe('DashboardRevenueService', () => {
 
 		const service = new DashboardRevenueService(prisma);
 		await expect(service.getUpcomingExpected(now)).resolves.toBe(35000);
+	});
+});
+
+describe('summarizeTours, payment mix', () => {
+	const start = startOfDay('2026-10-08');
+	const end = endOfDay('2026-10-14');
+
+	const mixOf = (tours: Tour[]) => summarizeTours(tours, start, end, now).paymentMix;
+	const statOf = (tours: Tour[], method: string) =>
+		mixOf(tours).methods.find((row) => row.method === method)!;
+
+	it('splits confirmed bookings and their money by payment method', () => {
+		const tours = [
+			tour('2026-10-09T06:00:00Z', [confirmed(10000), onArrival(8000, now, 2)]),
+			tour('2026-10-10T06:00:00Z', [
+				{ ...confirmed(20000), paymentMethod: 'OFFLINE_PAID' as const, quantity: 3 },
+			]),
+		];
+
+		expect(statOf(tours, 'SITE_PAYMENT')).toMatchObject({ bookings: 1, guests: 1, earned: 10000 });
+		expect(statOf(tours, 'OFFLINE_PAID')).toMatchObject({ bookings: 1, guests: 3, earned: 20000 });
+		expect(statOf(tours, 'PAY_ON_ARRIVAL')).toMatchObject({ bookings: 1, guests: 2, earned: 8000 });
+	});
+
+	it('counts a no-show on a finished pay-on-arrival booking as money never collected', () => {
+		const tours = [tour('2026-10-09T06:00:00Z', [onArrival(8000, null, 2), onArrival(5000, now)])];
+		const stat = statOf(tours, 'PAY_ON_ARRIVAL');
+
+		expect(stat).toMatchObject({
+			finishedBookings: 2,
+			finishedGuests: 3,
+			noShowBookings: 1,
+			noShowGuests: 2,
+			noShowAmount: 8000,
+			earned: 5000,
+		});
+	});
+
+	it('loses no money when a guest who paid by card does not turn up', () => {
+		const tours = [tour('2026-10-09T06:00:00Z', [confirmed(10000)])];
+
+		expect(statOf(tours, 'SITE_PAYMENT')).toMatchObject({
+			noShowBookings: 1,
+			noShowGuests: 1,
+			noShowAmount: 0,
+			earned: 10000,
+		});
+	});
+
+	it('leaves an upcoming tour out of the attendance figures', () => {
+		const tours = [tour('2026-10-13T06:00:00Z', [onArrival(8000, null)])];
+
+		expect(statOf(tours, 'PAY_ON_ARRIVAL')).toMatchObject({
+			bookings: 1,
+			finishedBookings: 0,
+			noShowBookings: 0,
+			noShowAmount: 0,
+		});
+	});
+
+	it('keeps money retained from cancellations out of the method rows', () => {
+		const tours = [
+			tour('2026-10-13T06:00:00Z', [confirmed(25000, 25000, 5000, 'CANCELLED')]),
+			tour('2026-10-09T06:00:00Z', [confirmed(10000)]),
+		];
+		const mix = mixOf(tours);
+
+		expect(mix.cancelled).toEqual({ bookings: 1, earned: 20000 });
+		expect(statOf(tours, 'SITE_PAYMENT').bookings).toBe(1);
+	});
+
+	it('adds up to the earned total on the card', () => {
+		const tours = [
+			tour('2026-10-09T06:00:00Z', [confirmed(10000), onArrival(8000, now)]),
+			tour('2026-10-10T06:00:00Z', [confirmed(25000, 25000, 5000, 'CANCELLED')]),
+		];
+		const summary = summarizeTours(tours, start, end, now);
+		const fromRows =
+			summary.paymentMix.methods.reduce((sum, row) => sum + row.earned, 0) +
+			summary.paymentMix.cancelled.earned;
+
+		expect(fromRows).toBe(summary.totals.earned);
 	});
 });

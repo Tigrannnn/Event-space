@@ -15,6 +15,7 @@ import FlowKpiCards, { BookingsCreatedCard } from './widgets/FlowKpiCards';
 import FlowChart from './widgets/FlowChart';
 import RevenueKpiCards from './widgets/RevenueKpiCards';
 import RevenueChart from './widgets/RevenueChart';
+import PaymentMixWidget from './widgets/PaymentMixWidget';
 import ExpectedTimeline from './widgets/ExpectedTimeline';
 import { useTranslation } from '@/hooks/translation';
 import BookingStateWidget from './widgets/BookingStateWidget';
@@ -102,6 +103,7 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 						bookingsCard={<BookingsCreatedCard flow={flow} cohort={cohort} isLoading={isFlowLoading} />}
 					/>
 					<RevenueChart revenue={revenue} isLoading={isRevenueLoading} />
+					<PaymentMixWidget revenue={revenue} isLoading={isRevenueLoading} />
 					<ExpectedTimeline timeline={timeline} isLoading={isTimelineLoading} />
 				</>
 			) : (

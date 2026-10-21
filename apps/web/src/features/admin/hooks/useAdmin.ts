@@ -153,6 +153,30 @@ export const useConfirmBookingManually = () => {
 	});
 };
 
+export const useCheckInBooking = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.checkInBooking(id),
+		onSuccess: async () => {
+			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.failedToCheckIn'), ToastType.ERROR);
+		},
+	});
+};
+
 export const useUndoBookingCheckIn = () => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();

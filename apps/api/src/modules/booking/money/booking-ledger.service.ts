@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { LEDGER_REASON } from '@event-space/shared';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
@@ -85,10 +86,7 @@ export class BookingLedgerService {
 				currency: CURRENCY,
 				stripePaymentIntentId: null,
 				status: 'SUCCEEDED',
-				reason:
-					delta > 0
-						? 'Paid offline, entered by an admin'
-						: 'Offline booking reduced by an admin, difference returned',
+				reason: delta > 0 ? LEDGER_REASON.OFFLINE_PAID : LEDGER_REASON.OFFLINE_REDUCED,
 			},
 		});
 	}

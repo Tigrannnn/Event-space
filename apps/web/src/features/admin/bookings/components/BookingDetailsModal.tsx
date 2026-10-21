@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { describeLedgerReason } from '../ledger-reason';
 import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button/Button';
@@ -147,16 +148,26 @@ export default function BookingDetailsModal() {
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{PAYMENT_METHOD_LABELS[booking.paymentMethod]}</p>
 								</div>
-								{booking.createdByAdminId && (
-									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.createdByAdmin')}
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.bookingAuthor')}
+									</p>
+									{booking.createdByAdminId ? (
+										<>
+											<p className="mt-1 font-medium text-gray-900 dark:text-white">
+												{translate('admin.createdByAdminName')}:{' '}
+												{booking.createdByAdmin?.name || translate('admin.unknownAdmin')}
+											</p>
+											<p className="mt-1 font-mono text-xs break-all text-gray-500 dark:text-gray-400">
+												{booking.createdByAdminId}
+											</p>
+										</>
+									) : (
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{translate('admin.createdByClientFilter')}
 										</p>
-										<p className="mt-1 font-mono text-xs break-all text-gray-900 dark:text-white">
-											{booking.createdByAdminId}
-										</p>
-									</div>
-								)}
+									)}
+								</div>
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.createdAt')}
@@ -246,8 +257,10 @@ export default function BookingDetailsModal() {
 												</span>
 											</div>
 
-											{adjustment.reason && (
-												<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{adjustment.reason}</p>
+											{describeLedgerReason(adjustment.reason, translate) && (
+												<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+													{describeLedgerReason(adjustment.reason, translate)}
+												</p>
 											)}
 
 											<div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">

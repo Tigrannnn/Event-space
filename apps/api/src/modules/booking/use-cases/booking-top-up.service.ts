@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LEDGER_REASON } from '@event-space/shared';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '@infra/stripe/stripe.service';
@@ -225,7 +226,7 @@ export class BookingTopUpService {
 					bookingId: booking.id,
 					paymentIntentId: intent.id,
 					amount: new Prisma.Decimal((payment.amountInCents / 100).toFixed(2)),
-					reason: 'Paid for added guests',
+					reason: LEDGER_REASON.PAID_FOR_ADDED_GUESTS,
 				});
 			});
 		} catch (error) {
@@ -257,7 +258,7 @@ export class BookingTopUpService {
 					bookingId: payment.bookingId,
 					paymentIntentId: intent.id,
 					amount: new Prisma.Decimal((receivedInCents / 100).toFixed(2)),
-					reason: 'Payment captured for added guests, then refunded',
+					reason: LEDGER_REASON.ADDED_GUESTS_REFUNDED,
 				});
 
 				await this.ledger.queueRefunds(tx, [

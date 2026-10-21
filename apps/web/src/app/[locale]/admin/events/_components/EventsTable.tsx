@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { localizePath } from '@/lib/i18n/config';
 import { addDays, endOfMonth, startOfMonth, startOfToday } from 'date-fns';
 import { Pencil, Plus, Trash2, Users, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -388,7 +390,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 										<div className="max-w-md min-w-0">
 											<button
 												type="button"
-												onClick={() => router.push(`/events/${event.id}`)}
+												onClick={() => router.push(localizePath(`/events/${event.id}`, locale))}
 												className="text-primary cursor-pointer truncate text-left font-medium transition hover:underline"
 											>
 												{eventTranslation.title}
@@ -400,28 +402,30 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 									</TableCell>
 									<TableCell>
 										<div className="max-w-md min-w-0">
-											<button
-												type="button"
-												onClick={() => {
-													router.push(`/admin/categories?search=${event.category?.id}`);
-												}}
-												className="text-primary mt-1 block text-left font-medium hover:underline"
-											>
-												{categoryTranslation.name || '-'}
-											</button>
+											{event.category?.id ? (
+												<Link
+													href={localizePath(`/admin/categories?search=${event.category.id}`, locale)}
+													className="text-primary mt-1 block text-left font-medium hover:underline"
+												>
+													{categoryTranslation.name || '-'}
+												</Link>
+											) : (
+												<p className="mt-1 font-medium text-gray-900 dark:text-gray-100">-</p>
+											)}
 										</div>
 									</TableCell>
 									<TableCell>
 										<div className="max-w-md min-w-0">
-											<button
-												type="button"
-												onClick={() => {
-													router.push(`/admin/users?search=${event.organizer?.id}`);
-												}}
-												className="text-primary mt-1 block text-left font-medium hover:underline"
-											>
-												{event.organizer?.name ?? '—'}
-											</button>
+											{event.organizer?.id ? (
+												<Link
+													href={localizePath(`/admin/users?search=${event.organizer.id}`, locale)}
+													className="text-primary mt-1 block text-left font-medium hover:underline"
+												>
+													{event.organizer.name ?? '—'}
+												</Link>
+											) : (
+												<p className="mt-1 font-medium text-gray-900 dark:text-gray-100">—</p>
+											)}
 											<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 												{event.organizer?.email}
 											</p>
@@ -458,7 +462,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												type="button"
 												size="xs"
 												variant="secondary"
-												onClick={() => router.push(`/admin/bookings?eventId=${event.id}`)}
+												onClick={() => router.push(localizePath(`/admin/bookings?eventId=${event.id}`, locale))}
 												aria-label={`${translate('admin.viewBookings')}: ${eventTranslation.title}`}
 											>
 												<Users className="h-4 w-4" />

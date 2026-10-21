@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type {
 	DashboardExpectedTimeline,
+	DashboardPaymentMix,
 	DashboardRevenue,
 	DashboardRevenuePoint,
+	PaymentMethod,
 } from '@event-space/shared';
 import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.util';
 import {
@@ -25,8 +27,9 @@ interface TourRow {
 	event: { duration: number };
 	bookings: {
 		status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-		paymentMethod: 'SITE_PAYMENT' | 'OFFLINE_PAID' | 'PAY_ON_ARRIVAL';
+		paymentMethod: PaymentMethod;
 		amount: unknown;
+		quantity: number;
 		checkedInAt: Date | null;
 		adjustments: { type: string; amount: unknown; feeAmount: unknown; createdAt: Date }[];
 	}[];
@@ -35,6 +38,7 @@ interface TourRow {
 interface RevenueSummary {
 	points: DashboardRevenuePoint[];
 	totals: BookingRevenue & { toursFinished: number; toursUpcoming: number };
+	paymentMix: DashboardPaymentMix;
 }
 
 @Injectable()
@@ -61,6 +65,7 @@ export class DashboardRevenueService {
 		return {
 			points: summary.points,
 			totals: summary.totals,
+			paymentMix: summary.paymentMix,
 			previousTotals: { earned: previousSummary.totals.earned },
 			upcoming,
 		};
@@ -148,6 +153,7 @@ const TOUR_SELECT = {
 			status: true,
 			paymentMethod: true,
 			amount: true,
+			quantity: true,
 			checkedInAt: true,
 			adjustments: {
 				where: { status: 'SUCCEEDED' as const },
@@ -177,29 +183,90 @@ const TIMELINE_SELECT = {
 	},
 };
 
+type TourBooking = TourRow['bookings'][number];
+
+function toRevenueBooking(booking: TourBooking) {
+	return {
+		status: booking.status,
+		paymentMethod: booking.paymentMethod,
+		amount: Number(booking.amount),
+		checkedInAt: booking.checkedInAt,
+		adjustments: booking.adjustments.map((row) => ({
+			type: row.type as 'CHARGE' | 'REFUND',
+			amount: Number(row.amount),
+			feeAmount: row.feeAmount === null ? null : Number(row.feeAmount),
+			createdAt: row.createdAt,
+		})),
+	};
+}
+
 function revenueOfTour(tour: TourRow, now: Date): BookingRevenue {
 	const runtime = { date: tour.date, durationMinutes: tour.event.duration };
 
-	return tour.bookings.reduce((sum, booking) => {
-		const revenue = classifyBookingRevenue(
-			{
-				status: booking.status,
-				paymentMethod: booking.paymentMethod,
-				amount: Number(booking.amount),
-				checkedInAt: booking.checkedInAt,
-				adjustments: booking.adjustments.map((row) => ({
-					type: row.type as 'CHARGE' | 'REFUND',
-					amount: Number(row.amount),
-					feeAmount: row.feeAmount === null ? null : Number(row.feeAmount),
-					createdAt: row.createdAt,
-				})),
-			},
-			runtime,
-			now,
-		);
+	return tour.bookings.reduce(
+		(sum, booking) =>
+			addBookingRevenue(sum, classifyBookingRevenue(toRevenueBooking(booking), runtime, now)),
+		EMPTY_BOOKING_REVENUE,
+	);
+}
 
-		return addBookingRevenue(sum, revenue);
-	}, EMPTY_BOOKING_REVENUE);
+const PAYMENT_METHODS: PaymentMethod[] = ['SITE_PAYMENT', 'OFFLINE_PAID', 'PAY_ON_ARRIVAL'];
+
+export function emptyPaymentMix(): DashboardPaymentMix {
+	return {
+		methods: PAYMENT_METHODS.map((method) => ({
+			method,
+			bookings: 0,
+			guests: 0,
+			earned: 0,
+			finishedBookings: 0,
+			finishedGuests: 0,
+			noShowBookings: 0,
+			noShowGuests: 0,
+			noShowAmount: 0,
+		})),
+		cancelled: { bookings: 0, earned: 0 },
+	};
+}
+
+function addToPaymentMix(
+	mix: DashboardPaymentMix,
+	tour: TourRow,
+	booking: TourBooking,
+	now: Date,
+): void {
+	const runtime = { date: tour.date, durationMinutes: tour.event.duration };
+	const revenue = classifyBookingRevenue(toRevenueBooking(booking), runtime, now);
+
+	if (booking.status === 'CANCELLED') {
+		if (revenue.earned > 0) {
+			mix.cancelled.bookings += 1;
+			mix.cancelled.earned = round2(mix.cancelled.earned + revenue.earned);
+		}
+		return;
+	}
+
+	if (booking.status !== 'CONFIRMED') return;
+
+	const stat = mix.methods.find((row) => row.method === booking.paymentMethod);
+	if (!stat) return;
+
+	stat.bookings += 1;
+	stat.guests += booking.quantity;
+	stat.earned = round2(stat.earned + revenue.earned);
+
+	if (tourEndsAt(runtime).getTime() > now.getTime()) return;
+
+	stat.finishedBookings += 1;
+	stat.finishedGuests += booking.quantity;
+
+	if (booking.checkedInAt) return;
+
+	stat.noShowBookings += 1;
+	stat.noShowGuests += booking.quantity;
+	stat.noShowAmount = round2(
+		stat.noShowAmount + Math.max(0, Number(booking.amount) - revenue.earned),
+	);
 }
 
 export function summarizeTours(
@@ -218,9 +285,14 @@ export function summarizeTours(
 	let total: BookingRevenue = { ...EMPTY_BOOKING_REVENUE };
 	let toursFinished = 0;
 	let toursUpcoming = 0;
+	const paymentMix = emptyPaymentMix();
 
 	for (const tour of tours) {
 		const revenue = revenueOfTour(tour, now);
+
+		for (const booking of tour.bookings) {
+			addToPaymentMix(paymentMix, tour, booking, now);
+		}
 		total = addBookingRevenue(total, revenue);
 
 		const point = buckets.get(toDateKey(tour.date));
@@ -241,5 +313,6 @@ export function summarizeTours(
 	return {
 		points: [...buckets.values()],
 		totals: { ...total, toursFinished, toursUpcoming },
+		paymentMix,
 	};
 }

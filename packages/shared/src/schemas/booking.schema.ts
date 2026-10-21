@@ -63,6 +63,8 @@ export const BookingWithDetailsSchema = BookingWithOccurrenceSchema.extend({
 	}).optional(),
 	user: SafeUserSchema.optional(),
 	adjustments: z.array(BookingAdjustmentSchema).optional(),
+	/** The admin who entered the booking by hand, when there was one. */
+	createdByAdmin: z.object({ id: z.string(), name: z.string().nullable() }).nullable().optional(),
 });
 
 export type BookingWithDetails = z.infer<typeof BookingWithDetailsSchema>;
@@ -237,6 +239,10 @@ export const AdminCancelBookingSchema = z.object({
 
 export type AdminCancelBookingData = z.input<typeof AdminCancelBookingSchema>;
 
+export const BookingAuthorSchema = z.enum(['client', 'admin']);
+
+export type BookingAuthor = z.infer<typeof BookingAuthorSchema>;
+
 export const BookingFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),
 	limit: z.coerce.number().optional(),
@@ -254,6 +260,8 @@ export const BookingFiltersSchema = z.object({
 	tourFrom: DateOnlySchema.optional(),
 	tourTo: DateOnlySchema.optional(),
 	paymentMethod: PaymentMethodSchema.optional(),
+	/** Who made the booking: the guest on the site, or an admin by hand. */
+	createdBy: BookingAuthorSchema.optional(),
 });
 
 export type BookingFilters = z.infer<typeof BookingFiltersSchema>;

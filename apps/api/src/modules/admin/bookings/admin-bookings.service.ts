@@ -31,8 +31,14 @@ export class AdminBookingsService {
 		]);
 
 		const page = toPage(bookings, total, skip, limit);
+		const admins = await this.loadAdmins(page.data);
 
-		return { ...page, data: page.data.map((booking) => normalizeBookingResponse(booking)) };
+		return {
+			...page,
+			data: page.data.map((booking) =>
+				normalizeBookingResponse({ ...booking, createdByAdmin: admins.get(booking.createdByAdminId) }),
+			),
+		};
 	}
 
 	async findOne(id: string): Promise<BookingWithDetails | null> {
@@ -40,8 +46,28 @@ export class AdminBookingsService {
 			where: { id },
 			include: bookingInclude,
 		});
+		if (!booking) return null;
 
-		return booking ? normalizeBookingResponse(booking) : null;
+		const admins = await this.loadAdmins([booking]);
+
+		return normalizeBookingResponse({
+			...booking,
+			createdByAdmin: admins.get(booking.createdByAdminId),
+		});
+	}
+
+	private async loadAdmins(bookings: { createdByAdminId: string | null }[]) {
+		const ids = [...new Set(bookings.map((row) => row.createdByAdminId).filter(Boolean))] as string[];
+		if (ids.length === 0) return new Map<string | null, { id: string; name: string | null }>();
+
+		const admins = await this.prisma.user.findMany({
+			where: { id: { in: ids } },
+			select: { id: true, name: true },
+		});
+
+		return new Map<string | null, { id: string; name: string | null }>(
+			admins.map((admin) => [admin.id, admin]),
+		);
 	}
 
 	async findByReference(referenceNumber: number) {

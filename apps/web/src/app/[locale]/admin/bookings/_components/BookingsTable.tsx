@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Eye, Ban, Plus, Pencil, CheckCircle, Undo2 } from 'lucide-react';
+import Link from 'next/link';
+import { localizePath } from '@/lib/i18n/config';
+import { Eye, Ban, Plus, Pencil, CheckCircle, Undo2, UserCheck } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -24,16 +26,22 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/Table';
-import { useAdminBookings, useUndoBookingCheckIn } from '@/features/admin/hooks/useAdmin';
+import {
+	useAdminBookings,
+	useCheckInBooking,
+	useUndoBookingCheckIn,
+} from '@/features/admin/hooks/useAdmin';
 import { useConfirm } from '@/hooks/confirmModal';
 import { useModalStore } from '@/stores/modalStore';
 import type {
+	BookingAuthor,
 	BookingDisplayStatus,
 	BookingWithDetails,
 	PaginatedResponse,
 	TimeFilterType,
 } from '@event-space/shared';
 import {
+	BookingAuthorSchema,
 	BookingDisplayStatusEnum,
 	getBookingDisplayStatus,
 	PaymentMethodEnum,
@@ -70,7 +78,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		empty: emptyBookingsFilters,
 		countActive: countActiveBookingsFilters,
 	});
-	const { skip, limit, status, time, eventId, createdFrom, createdTo, tourFrom, tourTo, paymentMethod } =
+	const { skip, limit, status, time, eventId, createdFrom, createdTo, tourFrom, tourTo, paymentMethod, createdBy } =
 		filters;
 
 	const [searchInput, setSearchInput] = useState(filters.search ?? '');
@@ -80,6 +88,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 	const { data, isFetching } = useAdminBookings(filters);
 	const { mutate: undoCheckIn, isPending: isUndoingCheckIn } = useUndoBookingCheckIn();
+	const { mutate: checkIn, isPending: isCheckingIn } = useCheckInBooking();
 	const confirm = useConfirm();
 	const bookingsResponse = data ?? initialBookings;
 	const pageStart = bookingsResponse.total === 0 ? 0 : bookingsResponse.skip + 1;
@@ -131,6 +140,16 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 	const handleOpenBookingDetails = (booking: BookingWithDetails) => {
 		openModal(ModalType.BookingDetails, { booking });
+	};
+
+	const handleCheckIn = async (bookingId: string) => {
+		const confirmed = await confirm({
+			variant: 'primary',
+			title: translate('admin.confirmCheckIn'),
+			message: translate('admin.confirmCheckInMessage'),
+		});
+
+		if (confirmed) checkIn(bookingId);
 	};
 
 	const handleUndoCheckIn = async (bookingId: string) => {
@@ -220,6 +239,26 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								...TimeFilterSchema.options.map((t) => ({
 									value: t,
 									label: t === 'upcoming' ? translate('admin.upcoming') : translate('admin.completed'),
+								})),
+							]}
+						/>
+
+					<Select
+						variant="filter"
+						size="sm"
+						isActive={createdBy !== undefined}
+						value={createdBy ?? ''}
+							onValueChange={(value) =>
+								applyFilter({ createdBy: (value as BookingAuthor) || undefined })
+							}
+							options={[
+								{ value: '', label: translate('admin.anyAuthor') },
+								...BookingAuthorSchema.options.map((author) => ({
+									value: author,
+									label:
+										author === 'admin'
+											? translate('admin.createdByAdminFilter')
+											: translate('admin.createdByClientFilter'),
 								})),
 							]}
 						/>
@@ -329,9 +368,18 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 							<TableRow key={booking.id}>
 								<TableCell className="px-3 sm:px-5">
 									<div className="min-w-0">
-										<p className="font-medium text-gray-900 dark:text-gray-100">
-											{booking.user?.name || translate('booking.unknownCustomer')}
-										</p>
+										{booking.user?.id ? (
+											<Link
+												href={localizePath(`/admin/users?search=${booking.user.id}`, locale)}
+												className="text-primary font-medium hover:underline"
+											>
+												{booking.user.name || translate('booking.unknownCustomer')}
+											</Link>
+										) : (
+											<p className="font-medium text-gray-900 dark:text-gray-100">
+												{translate('booking.unknownCustomer')}
+											</p>
+										)}
 										<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user?.email || '—'}</p>
 										{booking.user?.phone && (
 											<p className="text-sm text-gray-500 dark:text-gray-400">{booking.user.phone}</p>
@@ -340,19 +388,35 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</TableCell>
 								<TableCell>
 									<div className="max-w-md min-w-0">
-										<p className="truncate font-medium text-gray-900 dark:text-gray-100">
-											{eventTranslation?.title || translate('booking.unknownEvent')}
-										</p>
+										{booking.occurrence?.event?.id ? (
+											<Link
+												href={localizePath(`/admin/events?search=${booking.occurrence.event.id}`, locale)}
+												className="text-primary block truncate font-medium hover:underline"
+											>
+												{eventTranslation?.title || translate('booking.unknownEvent')}
+											</Link>
+										) : (
+											<p className="truncate font-medium text-gray-900 dark:text-gray-100">
+												{translate('booking.unknownEvent')}
+											</p>
+										)}
 										<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">
 											{eventTranslation?.location || '—'}
 										</p>
 									</div>
 								</TableCell>
 								<TableCell>
-									<Badge
-										label={BOOKING_STATUS_LABELS[getBookingDisplayStatus(booking)]}
-										variant={getBookingStatusBadgeVariant(getBookingDisplayStatus(booking))}
-									/>
+									<div className="flex flex-col items-start gap-1">
+										<Badge
+											label={BOOKING_STATUS_LABELS[getBookingDisplayStatus(booking)]}
+											variant={getBookingStatusBadgeVariant(getBookingDisplayStatus(booking))}
+										/>
+										{booking.createdByAdminId && (
+											<span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+												{translate('admin.manualBooking')}
+											</span>
+										)}
+									</div>
 								</TableCell>
 								<TableCell>{booking.quantity}</TableCell>
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
@@ -372,6 +436,20 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 										>
 											<Eye className="h-4 w-4" />
 										</Button>
+
+										{getBookingDisplayStatus(booking) === 'CONFIRMED' && (
+											<Button
+												type="button"
+												size="xs"
+												variant="secondary"
+												title={translate('admin.checkInBooking')}
+												aria-label={translate('admin.checkInBooking')}
+												disabled={isCheckingIn}
+												onClick={() => handleCheckIn(booking.id)}
+											>
+												<UserCheck className="h-4 w-4" />
+											</Button>
+										)}
 
 										{booking.checkedInAt && (
 											<Button

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LEDGER_REASON } from '@event-space/shared';
 import { type BookingStatus, type Locale, type Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppErrorCode } from '@event-space/shared';
@@ -95,7 +96,7 @@ export class BookingCancellationService {
 								cancelledEvent.cancellationRules,
 							),
 							withholdFee: true,
-							reason: 'Booking cancelled. Stripe fee withheld.',
+							reason: LEDGER_REASON.BOOKING_CANCELLED_FEE_WITHHELD,
 							method: 'STRIPE',
 						})
 					: null;
@@ -161,7 +162,7 @@ export class BookingCancellationService {
 			{ occurrence: { eventId } },
 			(tx) => tx.eventOccurrence.updateMany({ where: { eventId }, data: { currentParticipants: 0 } }),
 			{
-				reason: 'Event cancelled. Full refund.',
+				reason: LEDGER_REASON.EVENT_CANCELLED_FULL_REFUND,
 				failureReason: 'Refund could not be processed at Stripe (event cancelled)',
 				failureLogSuffix: ' (event cancellation)',
 			},
@@ -174,7 +175,7 @@ export class BookingCancellationService {
 			(tx) =>
 				tx.eventOccurrence.update({ where: { id: occurrenceId }, data: { currentParticipants: 0 } }),
 			{
-				reason: 'Occurrence cancelled. Full refund.',
+				reason: LEDGER_REASON.OCCURRENCE_CANCELLED_FULL_REFUND,
 				failureReason: 'Refund could not be processed at Stripe (occurrence cancelled)',
 				failureLogSuffix: ' (occurrence cancellation)',
 			},

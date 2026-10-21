@@ -244,7 +244,14 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 						<TableRow key={user.id}>
 							<TableCell className="px-3 sm:px-5">
 								<div className="max-w-md min-w-0">
-									<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
+									<div className="flex items-center gap-2">
+										<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
+										{user.isShadow && (
+											<span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+												{translate('admin.shadowAccount')}
+											</span>
+										)}
+									</div>
 									<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">{user.email}</p>
 								</div>
 							</TableCell>

@@ -45,6 +45,7 @@ import type { Locale } from '@prisma/client';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import {
+	BookingAuthorSchema,
 	BookingDisplayStatusEnum,
 	PaymentMethodEnum,
 	EventStatusEnum,
@@ -63,6 +64,7 @@ import {
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import { AppErrorCode } from '@event-space/shared';
 import type {
+	BookingAuthor,
 	BookingDisplayStatus,
 	EventDifficulty,
 	EventStatus,
@@ -285,6 +287,7 @@ export class AdminController {
 	@ApiQuery({ name: 'tourFrom', required: false, description: 'Tour date on or after (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'tourTo', required: false, description: 'Tour date on or before (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
+	@ApiQuery({ name: 'createdBy', required: false, enum: BookingAuthorSchema.options })
 	async getAllBookings(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -298,6 +301,7 @@ export class AdminController {
 		@Query('tourFrom') tourFromRaw?: string,
 		@Query('tourTo') tourToRaw?: string,
 		@Query('paymentMethod') paymentMethod?: PaymentMethod,
+		@Query('createdBy') createdBy?: BookingAuthor,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		return this.bookingsAdminService.findAll({
@@ -313,6 +317,7 @@ export class AdminController {
 			tourFrom: parseOptionalQueryDate(tourFromRaw, 'tourFrom'),
 			tourTo: parseOptionalQueryDate(tourToRaw, 'tourTo'),
 			paymentMethod,
+			createdBy,
 		});
 	}
 

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { LEDGER_REASON, manualRefundReason } from '@event-space/shared';
 import type { Prisma } from '@prisma/client';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
@@ -112,7 +113,7 @@ export class BookingRefundService {
 				bookingId: booking.id,
 				paymentIntentId: booking.paymentIntentId,
 				amountInCents: paidInCents,
-				reason: 'Payment captured, recorded when the booking was cancelled',
+				reason: LEDGER_REASON.PAYMENT_CAPTURED_RECORDED_ON_CANCEL,
 			});
 		}
 
@@ -234,7 +235,7 @@ export class BookingRefundService {
 						bookingId,
 						paymentIntentId,
 						amountInCents: intent.amount_received ?? intent.amount,
-						reason: 'Payment captured, recorded before a refund',
+						reason: LEDGER_REASON.PAYMENT_CAPTURED_RECORDED_BEFORE_REFUND,
 					});
 				}
 			} catch (error) {
@@ -296,7 +297,7 @@ export class BookingRefundService {
 				bookingId,
 				paymentIntentId: part.paymentIntentId,
 				amountInCents: part.amountInCents,
-				reason: `Refunded by an admin outside Stripe: ${options.reason}`,
+				reason: manualRefundReason(options.reason),
 				operationKey: options.operationKey,
 			});
 		}

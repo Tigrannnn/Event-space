@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { adminCancelReason } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
@@ -25,7 +26,7 @@ export class AdminBookingCancellationService {
 		if (!owner) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		await this.refunds.prepare(bookingId, owner.paymentIntentId);
 
-		const adminReason = `Admin ${adminId} cancelled the booking${reason ? `: ${reason}` : ''}`;
+		const adminReason = adminCancelReason(adminId, reason);
 
 		const { booking, alreadyCancelled, queued } = await this.prisma.$transaction(async (tx) => {
 			const current = await tx.booking.findUnique({
