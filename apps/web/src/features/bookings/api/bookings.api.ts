@@ -33,9 +33,9 @@ export const bookingApi = {
 	startQuantityPayment: (id: string, data: QuantityQuoteRequest) =>
 		clientApi.post<StartQuantityPayment>(`/bookings/${id}/quantity/payment`, data).then((res) => res.data),
 
-	reconcileQuantityPayment: (id: string, modificationId: string) =>
+	reconcileQuantityPayment: (id: string, paymentIntentId: string) =>
 		clientApi
-			.post<QuantityPaymentResult>(`/bookings/${id}/quantity/payments/${modificationId}/reconcile`)
+			.post<QuantityPaymentResult>(`/bookings/${id}/quantity/payments/${paymentIntentId}/reconcile`)
 			.then((res) => res.data),
 
 	changeQuantity: (id: string, data: ChangeQuantityData) =>

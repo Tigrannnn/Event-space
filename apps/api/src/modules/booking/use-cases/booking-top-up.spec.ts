@@ -1,41 +1,14 @@
-import { createBookingService } from '../testing/booking.test-helpers';
+import { createBookingKit } from '../testing/booking.test-helpers';
 
 const HOUR = 60 * 60 * 1000;
 
 interface World {
-	status?: string;
 	userId?: string;
-	quantity?: number;
-	amount?: number;
-	checkedInAt?: Date | null;
 	tourInHours?: number;
 	spotsFree?: number;
 	seatsTaken?: boolean;
-	intentStatus?: string;
-	intentAmount?: number;
 	refundFails?: boolean;
-	existing?: {
-		id: string;
-		to: number;
-		amountInCents: number;
-		pi: string;
-		status?: string;
-		ageHours?: number;
-	}[];
 	createFails?: boolean;
-}
-
-interface Modification {
-	id: string;
-	bookingId: string;
-	fromQuantity: number;
-	toQuantity: number;
-	amount: number;
-	paymentIntentId: string | null;
-	status: string;
-	failureReason: string | null;
-	createdAt: Date;
-	appliedAt: Date | null;
 }
 
 interface Row {
@@ -47,11 +20,16 @@ interface Row {
 	stripePaymentIntentId: string | null;
 	stripeRefundId: string | null;
 	feeAmount: number | null;
-	feeWithheld: number | null;
 	operationKey: string;
 	reason: string | null;
 	createdAt: Date;
 	updatedAt: Date;
+}
+
+interface Intent {
+	status: string;
+	amount: number;
+	metadata: Record<string, string>;
 }
 
 function build(world: World = {}) {
@@ -59,14 +37,8 @@ function build(world: World = {}) {
 	const stripeCalls: { method: string; args: unknown[] }[] = [];
 	const emails: { kind: string; payload: Record<string, unknown> }[] = [];
 	const table: Row[] = [];
-	const modifications: Modification[] = [];
-	const bookingState = {
-		status: world.status ?? 'CONFIRMED',
-		quantity: world.quantity ?? 2,
-		amount: world.amount ?? 20000,
-	};
-	const seat = { free: world.spotsFree ?? 5 };
-	const intents = new Map<string, { status: string; amount: number }>();
+	const booking = { status: 'CONFIRMED', quantity: 2, amount: 20000 };
+	const intents = new Map<string, Intent>();
 
 	const insert = (data: Record<string, unknown>): Row => {
 		sequence += 1;
@@ -79,7 +51,6 @@ function build(world: World = {}) {
 			stripePaymentIntentId: (data.stripePaymentIntentId as string | null) ?? null,
 			stripeRefundId: (data.stripeRefundId as string | null) ?? null,
 			feeAmount: data.feeAmount === undefined ? null : Number(data.feeAmount),
-			feeWithheld: data.feeWithheld === undefined ? null : Number(data.feeWithheld),
 			operationKey: (data.operationKey as string | undefined) ?? '',
 			reason: (data.reason as string | null) ?? null,
 			createdAt: new Date(Date.UTC(2026, 9, 1, sequence)),
@@ -97,56 +68,39 @@ function build(world: World = {}) {
 		stripePaymentIntentId: 'pi_orig',
 		feeAmount: 600,
 	});
-	intents.set('pi_orig', { status: 'succeeded', amount: 2000000 });
-
-	for (const item of world.existing ?? []) {
-		modifications.push({
-			id: item.id,
-			bookingId: 'b1',
-			fromQuantity: 2,
-			toQuantity: item.to,
-			amount: item.amountInCents / 100,
-			paymentIntentId: item.pi,
-			status: item.status ?? 'PENDING_PAYMENT',
-			failureReason: null,
-			createdAt: new Date(Date.now() - (item.ageHours ?? 0) * HOUR),
-			appliedAt: null,
-		});
-		intents.set(item.pi, { status: 'requires_payment_method', amount: item.amountInCents });
-	}
-
-	const occurrenceDate = new Date(Date.now() + (world.tourInHours ?? 240) * HOUR);
 
 	const bookingRow = () => ({
 		id: 'b1',
-		userId: world.userId ?? 'u1',
-		status: bookingState.status,
-		quantity: bookingState.quantity,
-		amount: bookingState.amount,
+		userId: 'u1',
+		status: booking.status,
+		quantity: booking.quantity,
+		amount: booking.amount,
+		paymentMethod: 'SITE_PAYMENT',
+		paymentIntentId: 'pi_orig',
 		occurrenceId: 'o1',
-		checkedInAt: world.checkedInAt ?? null,
+		checkedInAt: null,
 		referenceNumber: 42,
 		brandHost: null,
 		user: { email: 'a@x.am', name: 'Ани', locale: 'ru' },
 		occurrence: {
 			id: 'o1',
-			date: occurrenceDate,
+			date: new Date(Date.now() + (world.tourInHours ?? 240) * HOUR),
 			status: 'ACTIVE',
 			maxParticipants: 10,
-			currentParticipants: 10 - seat.free,
+			currentParticipants: 10 - (world.spotsFree ?? 5),
 			event: {
 				translations: [{ locale: 'ru', title: 'Татев' }],
-				cancellationRules: [{ id: 'r1', eventId: 'e1', hoursBeforeEvent: 72, refundPercentage: 100 }],
+				cancellationRules: [{ hoursBeforeEvent: 72, refundPercentage: 100 }],
 			},
 		},
 	});
 
 	const matches = (row: Row, where: Record<string, unknown>): boolean =>
 		Object.entries(where).every(([key, value]) => {
-			if (key === 'amount' && value && typeof value === 'object' && 'gt' in value) {
+			if (key === 'updatedAt') return true;
+			if (key === 'amount' && value && typeof value === 'object') {
 				return row.amount > Number((value as { gt: number }).gt);
 			}
-			if (key === 'updatedAt') return true;
 			if (key === 'stripePaymentIntentId' && value && typeof value === 'object') {
 				return row.stripePaymentIntentId !== null;
 			}
@@ -154,117 +108,45 @@ function build(world: World = {}) {
 			return (row as unknown as Record<string, unknown>)[key] === value;
 		});
 
+	const sameKey = (row: Row, data: Record<string, unknown>) =>
+		row.stripePaymentIntentId === data.stripePaymentIntentId &&
+		row.type === data.type &&
+		row.operationKey === ((data.operationKey as string | undefined) ?? '');
+
 	const adjustments = {
 		findMany: (args: { where: Record<string, unknown> }) =>
 			Promise.resolve(table.filter((row) => matches(row, args.where)).map((row) => ({ ...row }))),
 		createMany: (args: { data: Record<string, unknown>[] }) => {
-			let count = 0;
-			for (const data of args.data) {
-				const exists = table.some(
-					(row) =>
-						row.stripePaymentIntentId === data.stripePaymentIntentId &&
-						row.type === data.type &&
-						row.operationKey === ((data.operationKey as string | undefined) ?? ''),
-				);
-				if (exists) continue;
-				insert(data);
-				count += 1;
-			}
-			return Promise.resolve({ count });
+			const fresh = args.data.filter((data) => !table.some((row) => sameKey(row, data)));
+			fresh.forEach(insert);
+			return Promise.resolve({ count: fresh.length });
 		},
-		create: (args: { data: Record<string, unknown> }) => Promise.resolve(insert(args.data)),
+		create: (args: { data: Record<string, unknown> }) => {
+			if (table.some((row) => sameKey(row, args.data))) {
+				return Promise.reject(Object.assign(new Error('unique'), { code: 'P2002' }));
+			}
+			return Promise.resolve(insert(args.data));
+		},
 		updateMany: (args: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
 			const matched = table.filter((row) => matches(row, args.where));
 			for (const row of matched) {
 				for (const [key, value] of Object.entries(args.data)) {
-					const numeric = key === 'amount' || key === 'feeAmount' || key === 'feeWithheld';
+					const numeric = key === 'amount' || key === 'feeAmount';
 					(row as unknown as Record<string, unknown>)[key] = numeric ? Number(value) : value;
 				}
 			}
 			return Promise.resolve({ count: matched.length });
 		},
 		upsert: (args: {
-			where: {
-				stripePaymentIntentId_type_operationKey: {
-					stripePaymentIntentId: string;
-					type: string;
-					operationKey: string;
-				};
-			};
+			where: { stripePaymentIntentId_type_operationKey: Record<string, unknown> };
 			create: Record<string, unknown>;
+			update: Record<string, unknown>;
 		}) => {
-			const key = args.where.stripePaymentIntentId_type_operationKey;
-			const found = table.find(
-				(row) =>
-					row.stripePaymentIntentId === key.stripePaymentIntentId &&
-					row.type === key.type &&
-					row.operationKey === key.operationKey,
+			const found = table.find((row) =>
+				sameKey(row, args.where.stripePaymentIntentId_type_operationKey),
 			);
+			if (found) Object.assign(found, args.update);
 			return Promise.resolve(found ?? insert(args.create));
-		},
-		aggregate: () => Promise.resolve({ _sum: { feeWithheld: null } }),
-	};
-
-	const modelModification = {
-		findMany: (args: { where: { bookingId?: string; status?: string; createdAt?: unknown } }) =>
-			Promise.resolve(
-				modifications.filter(
-					(row) =>
-						(!args.where.bookingId || row.bookingId === args.where.bookingId) &&
-						(!args.where.status || row.status === args.where.status),
-				),
-			),
-		findUnique: (args: { where: { id?: string; paymentIntentId?: string }; select?: unknown }) =>
-			Promise.resolve(
-				modifications.find(
-					(row) =>
-						(args.where.id !== undefined && row.id === args.where.id) ||
-						(args.where.paymentIntentId !== undefined &&
-							row.paymentIntentId === args.where.paymentIntentId),
-				) ?? null,
-			),
-		findFirst: (args: { where: { id: string; bookingId: string; booking: { userId: string } } }) =>
-			Promise.resolve(
-				modifications.find(
-					(row) =>
-						row.id === args.where.id &&
-						row.bookingId === args.where.bookingId &&
-						args.where.booking.userId === (world.userId ?? 'u1'),
-				) ?? null,
-			),
-		create: (args: { data: Record<string, unknown> }) => {
-			const row: Modification = {
-				id: args.data.id as string,
-				bookingId: args.data.bookingId as string,
-				fromQuantity: args.data.fromQuantity as number,
-				toQuantity: args.data.toQuantity as number,
-				amount: Number(args.data.amount),
-				paymentIntentId: null,
-				status: 'PENDING_PAYMENT',
-				failureReason: null,
-				createdAt: new Date(),
-				appliedAt: null,
-			};
-			modifications.push(row);
-			return Promise.resolve(row);
-		},
-		update: (args: { where: { id: string }; data: Partial<Modification> }) => {
-			const row = modifications.find((item) => item.id === args.where.id) as Modification;
-			Object.assign(row, args.data);
-			return Promise.resolve(row);
-		},
-		delete: (args: { where: { id: string } }) => {
-			const index = modifications.findIndex((item) => item.id === args.where.id);
-			if (index >= 0) modifications.splice(index, 1);
-			return Promise.resolve({});
-		},
-		updateMany: (args: { where: { id: string; status: string }; data: Partial<Modification> }) => {
-			const row = modifications.find(
-				(item) => item.id === args.where.id && item.status === args.where.status,
-			);
-			if (!row) return Promise.resolve({ count: 0 });
-			Object.assign(row, args.data);
-			return Promise.resolve({ count: 1 });
 		},
 	};
 
@@ -274,46 +156,48 @@ function build(world: World = {}) {
 			where: { quantity: number };
 			data: { quantity: number; amount: unknown };
 		}) => {
-			if (args.where.quantity !== bookingState.quantity || bookingState.status !== 'CONFIRMED') {
+			if (args.where.quantity !== booking.quantity || booking.status !== 'CONFIRMED') {
 				return Promise.resolve({ count: 0 });
 			}
-			bookingState.quantity = args.data.quantity;
-			bookingState.amount = Number(args.data.amount);
+			booking.quantity = args.data.quantity;
+			booking.amount = Number(args.data.amount);
 			return Promise.resolve({ count: 1 });
 		},
 	};
 
 	const tx = {
 		booking: bookingModel,
-		bookingModification: modelModification,
 		eventOccurrence: {
-			updateMany: () => {
-				if (world.seatsTaken) return Promise.resolve({ count: 0 });
-				return Promise.resolve({ count: 1 });
-			},
+			updateMany: () => Promise.resolve({ count: world.seatsTaken ? 0 : 1 }),
 		},
 		bookingAdjustment: adjustments,
 	};
 
 	const prisma = {
 		$transaction: async (fn: (t: unknown) => unknown) => {
-			const snapshot = {
-				table: table.map((row) => ({ ...row })),
-				modifications: modifications.map((row) => ({ ...row })),
-				booking: { ...bookingState },
-			};
+			const snapshot = { table: table.map((row) => ({ ...row })), booking: { ...booking } };
 			try {
 				return await fn(tx);
 			} catch (error) {
 				table.splice(0, table.length, ...snapshot.table);
-				modifications.splice(0, modifications.length, ...snapshot.modifications);
-				Object.assign(bookingState, snapshot.booking);
+				Object.assign(booking, snapshot.booking);
 				throw error;
 			}
 		},
 		booking: bookingModel,
-		bookingModification: modelModification,
 		bookingAdjustment: adjustments,
+	};
+
+	const intentView = (id: string) => {
+		const intent = intents.get(id) as Intent;
+		return {
+			id,
+			status: intent.status,
+			amount: intent.amount,
+			amount_received: intent.status === 'succeeded' ? intent.amount : 0,
+			metadata: intent.metadata,
+			latest_charge: 'ch_1',
+		};
 	};
 
 	const stripe = {
@@ -322,37 +206,31 @@ function build(world: World = {}) {
 			if (world.createFails) {
 				return Promise.reject(Object.assign(new Error('network'), { type: 'StripeConnectionError' }));
 			}
-			const id = `pi_new${stripeCalls.length}`;
-			intents.set(id, { status: 'requires_payment_method', amount: Math.round(amount * 100) });
+			const id = `pi_guests${intents.size + 1}`;
+			intents.set(id, {
+				status: 'requires_payment_method',
+				amount: Math.round(amount * 100),
+				metadata,
+			});
 			return Promise.resolve({ id, client_secret: `${id}_secret` });
 		},
 		retrievePaymentIntent: (id: string) => {
 			stripeCalls.push({ method: 'retrievePaymentIntent', args: [id] });
-			const known = intents.get(id) ?? { status: 'requires_payment_method', amount: 0 };
-			const status = world.intentStatus && id !== 'pi_orig' ? world.intentStatus : known.status;
-			const amount =
-				world.intentAmount !== undefined && id !== 'pi_orig' ? world.intentAmount : known.amount;
-			return Promise.resolve({
-				id,
-				status,
-				amount,
-				amount_received: status === 'succeeded' ? amount : 0,
-				client_secret: `${id}_secret`,
-				latest_charge: 'ch_1',
-			});
+			return Promise.resolve(intentView(id));
 		},
-		cancelPaymentIntent: (id: string, key: string) => {
-			stripeCalls.push({ method: 'cancelPaymentIntent', args: [id, key] });
-			const known = intents.get(id);
-			if (known) known.status = 'canceled';
-			return Promise.resolve({});
+		searchPaymentIntents: (query: string) => {
+			stripeCalls.push({ method: 'searchPaymentIntents', args: [query] });
+			return Promise.resolve(
+				[...intents.keys()].filter((id) => intents.get(id)?.status === 'succeeded').map(intentView),
+			);
 		},
-		getCharge: () => Promise.resolve({ balance_transaction: { fee: 30000 } }),
+		getCharge: () => Promise.resolve({ balance_transaction: { fee: 600 } }),
 		refund: (pi: string, key: string, amount: number) => {
 			stripeCalls.push({ method: 'refund', args: [pi, key, amount] });
 			if (world.refundFails) return Promise.reject(new Error('stripe down'));
-			return Promise.resolve({ id: `re_${key}`, amount });
+			return Promise.resolve({ id: `re_${pi}`, amount });
 		},
+		cancelPaymentIntent: () => Promise.resolve({}),
 	};
 
 	const mail = {
@@ -366,251 +244,192 @@ function build(world: World = {}) {
 		},
 	};
 
-	const service = createBookingService(prisma as never, stripe as never, mail as never);
-	return { service, stripeCalls, emails, table, modifications, bookingState, intents };
+	const kit = createBookingKit(prisma as never, stripe as never, mail as never);
+
+	const pay = (id: string, amountInCents?: number) => {
+		const intent = intents.get(id) as Intent;
+		intent.status = 'succeeded';
+		if (amountInCents !== undefined) intent.amount = amountInCents;
+	};
+
+	return { ...kit, booking, table, stripeCalls, emails, intents, pay };
 }
 
-const refundCalls = (calls: { method: string; args: unknown[] }[]) =>
+const refunds = (calls: { method: string; args: unknown[] }[]) =>
 	calls.filter((call) => call.method === 'refund').map((call) => call.args);
 
-describe('paying for more guests', () => {
-	it('opens a card payment for exactly what the added guests cost', async () => {
-		const { service, stripeCalls, modifications } = build();
-		const result = await service.startQuantityPayment('u1', 'b1', { quantity: 5 });
+describe('client pays for added guests', () => {
+	it('opens a card payment for the extra amount and changes nothing yet', async () => {
+		const { service, booking, stripeCalls } = build();
+		const payment = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
 
-		expect(result.quote).toMatchObject({
-			direction: 'INCREASE',
-			settlement: 'CARD',
-			dueInCents: 3000000,
+		expect(payment).toMatchObject({
+			paymentIntentId: 'pi_guests1',
+			clientSecret: 'pi_guests1_secret',
 		});
-		expect(result.clientSecret).toMatch(/_secret$/);
-		expect(stripeCalls.find((call) => call.method === 'createPaymentIntent')?.args).toEqual([
-			30000,
+		expect(payment.quote).toMatchObject({ newQuantity: 4, dueInCents: 2_000_000 });
+		expect(stripeCalls[0].args).toEqual([
+			20000,
 			'AMD',
-			{ bookingId: 'b1', userId: 'u1', modificationId: result.modificationId, kind: 'guests' },
+			{
+				kind: 'guests',
+				bookingId: 'b1',
+				userId: 'u1',
+				fromQuantity: '2',
+				toQuantity: '4',
+				amountInCents: '2000000',
+			},
 		]);
-		expect(modifications).toHaveLength(1);
-		expect(modifications[0]).toMatchObject({
-			fromQuantity: 2,
-			toQuantity: 5,
-			amount: 30000,
-			status: 'PENDING_PAYMENT',
-			paymentIntentId: 'pi_new1',
-		});
+		expect(booking).toMatchObject({ quantity: 2, amount: 20000 });
 	});
 
-	it('does not touch the booking before the money has arrived', async () => {
-		const { service, bookingState, table } = build();
-		await service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-
-		expect(bookingState).toMatchObject({ quantity: 2, amount: 20000 });
-		expect(table).toHaveLength(1);
-	});
-
-	it('reuses a payment that is still open for the same change', async () => {
-		const { service, stripeCalls } = build({
-			existing: [{ id: 'm1', to: 5, amountInCents: 3000000, pi: 'pi_open' }],
-		});
-		const result = await service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-
-		expect(result).toMatchObject({ modificationId: 'm1', clientSecret: 'pi_open_secret' });
-		expect(stripeCalls.some((call) => call.method === 'createPaymentIntent')).toBe(false);
-	});
-
-	it('closes an open payment for a different change before opening a new one', async () => {
-		const { service, stripeCalls, modifications } = build({
-			existing: [{ id: 'm1', to: 4, amountInCents: 2000000, pi: 'pi_old' }],
-		});
-		await service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-
-		expect(stripeCalls.find((call) => call.method === 'cancelPaymentIntent')?.args[0]).toBe('pi_old');
-		expect(modifications.find((row) => row.id === 'm1')?.status).toBe('CANCELLED');
-		expect(modifications.filter((row) => row.status === 'PENDING_PAYMENT')).toHaveLength(1);
-	});
-
-	it('refuses someone else’s booking, a smaller number and too many guests', async () => {
-		await expect(
-			build({ userId: 'u2' }).service.startQuantityPayment('u1', 'b1', { quantity: 5 }),
-		).rejects.toMatchObject({ code: 'NOT_YOUR_BOOKING' });
+	it('refuses to open a payment for fewer guests or when spots are missing', async () => {
 		await expect(
 			build().service.startQuantityPayment('u1', 'b1', { quantity: 1 }),
-		).rejects.toMatchObject({ code: 'QUANTITY_SETTLEMENT_INVALID' });
+		).rejects.toMatchObject({
+			code: 'QUANTITY_SETTLEMENT_INVALID',
+		});
 		await expect(
-			build({ spotsFree: 1 }).service.startQuantityPayment('u1', 'b1', { quantity: 5 }),
+			build({ spotsFree: 1 }).service.startQuantityPayment('u1', 'b1', { quantity: 4 }),
 		).rejects.toMatchObject({ code: 'NOT_ENOUGH_SPOTS' });
 	});
 
-	it('leaves nothing behind when Stripe is unreachable', async () => {
-		const { service, modifications } = build({ createFails: true });
-
-		await expect(service.startQuantityPayment('u1', 'b1', { quantity: 5 })).rejects.toMatchObject({
+	it('says so when Stripe cannot be reached', async () => {
+		const { service } = build({ createFails: true });
+		await expect(service.startQuantityPayment('u1', 'b1', { quantity: 4 })).rejects.toMatchObject({
 			code: 'PAYMENT_SERVICE_UNAVAILABLE',
 		});
-		expect(modifications).toHaveLength(0);
 	});
 
-	it('does not let the client skip the payment', async () => {
-		await expect(
-			build().service.changeQuantity({ kind: 'client', userId: 'u1' }, 'b1', { quantity: 5 }),
-		).rejects.toMatchObject({ code: 'QUANTITY_PAYMENT_REQUIRED' });
-	});
-});
+	it('waits while the card is not paid', async () => {
+		const { service, booking } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
 
-describe('settling the payment for more guests', () => {
-	const paid = async (world: World = {}) => {
-		const kit = build({ ...world, intentStatus: 'succeeded' });
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		kit.intents.set('pi_new1', { status: 'succeeded', amount: 3000000 });
-		return { ...kit, started };
-	};
-
-	it('adds the guests, takes the seats and records the payment next to the first one', async () => {
-		const { service, bookingState, table, modifications } = await paid();
-		const status = await service.reconcileQuantityPayment('u1', 'b1', modifications[0].id);
-
-		expect(status).toMatchObject({ status: 'APPLIED' });
-		expect(bookingState).toMatchObject({ quantity: 5, amount: 50000 });
-		expect(modifications[0]).toMatchObject({ status: 'APPLIED' });
-
-		const charges = table.filter((row) => row.type === 'CHARGE');
-		expect(charges).toHaveLength(2);
-		expect(charges[1]).toMatchObject({
-			stripePaymentIntentId: 'pi_new1',
-			amount: 30000,
-			status: 'SUCCEEDED',
+		expect(await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).toEqual({
+			paymentIntentId,
+			status: 'PENDING',
 		});
+		expect(booking.quantity).toBe(2);
 	});
 
-	it('tells the client that the extra was paid by card', async () => {
-		const { service, emails, modifications } = await paid();
-		await service.reconcileQuantityPayment('u1', 'b1', modifications[0].id);
+	it('adds the guests once the money arrives, exactly once', async () => {
+		const { service, booking, table, emails, pay } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		pay(paymentIntentId);
 
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'APPLIED',
+		);
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'APPLIED',
+		);
+
+		expect(booking).toMatchObject({ quantity: 4, amount: 40000 });
+		expect(table.filter((row) => row.stripePaymentIntentId === paymentIntentId)).toMatchObject([
+			{ type: 'CHARGE', status: 'SUCCEEDED', amount: 20000 },
+		]);
 		expect(emails).toHaveLength(1);
 		expect(emails[0].payload).toMatchObject({
-			to: 'a@x.am',
-			oldQuantity: 2,
-			newQuantity: 5,
-			newAmount: 50000,
-			byOrganiser: false,
-			extra: { kind: 'paidByCard', amount: 30000 },
+			newQuantity: 4,
+			extra: { kind: 'paidByCard', amount: 20000 },
 		});
 	});
 
-	it('applies the change once, however many times Stripe and the check ask', async () => {
-		const { service, bookingState, table, emails, modifications } = await paid();
-		await service.reconcilePayment('pi_new1');
-		await service.reconcilePayment('pi_new1');
-		await service.reconcileQuantityPayment('u1', 'b1', modifications[0].id);
+	it('is applied by the Stripe webhook path as well', async () => {
+		const { service, booking, pay } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 3 });
+		pay(paymentIntentId);
 
-		expect(bookingState.quantity).toBe(5);
-		expect(table.filter((row) => row.type === 'CHARGE')).toHaveLength(2);
-		expect(emails).toHaveLength(1);
+		expect(await service.reconcilePayment(paymentIntentId)).toBeNull();
+		expect(booking.quantity).toBe(3);
 	});
 
-	it('is the webhook path that applies it, and not the booking reconcile', async () => {
-		const { service, bookingState } = await paid();
-		const result = await service.reconcilePayment('pi_new1', 'b1');
+	it('is applied by the background sweep when nobody came back', async () => {
+		const { service, topUps, booking, pay } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 3 });
+		pay(paymentIntentId);
 
-		expect(result).toBeNull();
-		expect(bookingState.quantity).toBe(5);
+		expect(await topUps.sweep(new Date(Date.now() - 24 * HOUR))).toBe(1);
+		expect(booking.quantity).toBe(3);
 	});
 
-	it('refunds the whole payment when the spots were taken while the client paid', async () => {
-		const { service, bookingState, stripeCalls, table, modifications, emails } = await paid({
-			seatsTaken: true,
-		});
-		const status = await service.reconcileQuantityPayment('u1', 'b1', modifications[0].id);
+	it('refunds the whole payment when the booking changed while the client paid', async () => {
+		const { service, booking, stripeCalls, emails, pay } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		booking.quantity = 3;
+		pay(paymentIntentId);
 
-		expect(status).toMatchObject({ status: 'FAILED' });
-		expect(bookingState.quantity).toBe(2);
-		expect(refundCalls(stripeCalls)).toEqual([
-			['pi_new1', `mod-fail:${modifications[0].id}:pi_new1`, 3000000],
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'FAILED',
+		);
+		expect(refunds(stripeCalls)).toEqual([
+			[paymentIntentId, `guests-fail:${paymentIntentId}`, 2_000_000],
 		]);
-
-		const refund = table.find((row) => row.type === 'REFUND');
-		expect(refund).toMatchObject({ status: 'SUCCEEDED', amount: 30000, feeWithheld: null });
-		expect(
-			table.find((row) => row.stripePaymentIntentId === 'pi_new1' && row.type === 'CHARGE'),
-		).toBeDefined();
-		expect(emails.map((email) => email.kind)).toEqual(['notAdded']);
-		expect(emails[0].payload).toMatchObject({ refundAmount: 30000 });
+		expect(booking.amount).toBe(20000);
+		expect(emails[0]).toMatchObject({ kind: 'notAdded', payload: { refundAmount: 20000 } });
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'FAILED',
+		);
+		expect(refunds(stripeCalls)).toHaveLength(1);
 	});
 
-	it('refunds the payment when the booking was cancelled meanwhile', async () => {
-		const kit = build({ intentStatus: 'succeeded' });
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		kit.bookingState.status = 'CANCELLED';
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', started.modificationId);
+	it('refunds the whole payment when the spots were taken meanwhile', async () => {
+		const { service, booking, stripeCalls, pay } = build({ seatsTaken: true });
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		pay(paymentIntentId);
 
-		expect(status.status).toBe('FAILED');
-		expect(refundCalls(kit.stripeCalls)).toHaveLength(1);
-		expect(kit.bookingState.quantity).toBe(2);
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'FAILED',
+		);
+		expect(refunds(stripeCalls)).toHaveLength(1);
+		expect(booking.quantity).toBe(2);
 	});
 
-	it('refunds the payment when the number of guests changed meanwhile', async () => {
-		const kit = build({ intentStatus: 'succeeded' });
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		kit.bookingState.quantity = 3;
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', started.modificationId);
+	it('refunds a payment whose amount does not match the extra amount', async () => {
+		const { service, stripeCalls, pay } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		pay(paymentIntentId, 500_000);
 
-		expect(status.status).toBe('FAILED');
-		expect(kit.bookingState.quantity).toBe(3);
-		expect(refundCalls(kit.stripeCalls)).toHaveLength(1);
-	});
-
-	it('refunds a payment that is not for the amount that was asked', async () => {
-		const kit = build({ intentStatus: 'succeeded', intentAmount: 1000000 });
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', started.modificationId);
-
-		expect(status.status).toBe('FAILED');
-		expect(kit.bookingState.quantity).toBe(2);
-		expect(refundCalls(kit.stripeCalls)[0]?.[2]).toBe(1000000);
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'FAILED',
+		);
+		expect(refunds(stripeCalls)[0][2]).toBe(500_000);
 	});
 
 	it('keeps the refund queued when Stripe refuses it', async () => {
-		const { service, table, modifications } = await paid({ seatsTaken: true, refundFails: true });
-		await service.reconcileQuantityPayment('u1', 'b1', modifications[0].id);
+		const { service, table, pay } = build({ refundFails: true });
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		const second = (await service.startQuantityPayment('u1', 'b1', { quantity: 3 })).paymentIntentId;
+		pay(paymentIntentId);
+		pay(second);
 
-		expect(table.find((row) => row.type === 'REFUND')).toMatchObject({
+		await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId);
+		expect((await service.reconcileQuantityPayment('u1', 'b1', second)).status).toBe('FAILED');
+		expect(
+			table.find((row) => row.stripePaymentIntentId === second && row.type === 'REFUND'),
+		).toMatchObject({
 			status: 'PENDING',
-			amount: 30000,
 		});
 	});
 
-	it('waits while the client has not paid yet', async () => {
-		const kit = build();
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', started.modificationId);
+	it('reports a payment the client abandoned', async () => {
+		const { service, intents } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+		(intents.get(paymentIntentId) as Intent).status = 'canceled';
 
-		expect(status.status).toBe('PENDING_PAYMENT');
-		expect(kit.bookingState.quantity).toBe(2);
-	});
-
-	it('closes a payment that was cancelled at Stripe', async () => {
-		const kit = build({ intentStatus: 'canceled' });
-		const started = await kit.service.startQuantityPayment('u1', 'b1', { quantity: 5 });
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', started.modificationId);
-
-		expect(status.status).toBe('CANCELLED');
-	});
-
-	it('closes a payment nobody completed in time and cancels it at Stripe', async () => {
-		const kit = build({
-			existing: [{ id: 'm1', to: 5, amountInCents: 3000000, pi: 'pi_late', ageHours: 3 }],
-		});
-		const status = await kit.service.reconcileQuantityPayment('u1', 'b1', 'm1');
-
-		expect(status.status).toBe('EXPIRED');
-		expect(kit.stripeCalls.find((call) => call.method === 'cancelPaymentIntent')?.args[0]).toBe(
-			'pi_late',
+		expect((await service.reconcileQuantityPayment('u1', 'b1', paymentIntentId)).status).toBe(
+			'CANCELLED',
 		);
 	});
 
-	it('only lets the owner ask about a payment', async () => {
-		const { service, modifications } = await paid();
-		await expect(
-			service.reconcileQuantityPayment('u2', 'b1', modifications[0].id),
-		).rejects.toMatchObject({ code: 'BOOKING_NOT_FOUND' });
+	it('does not show one client the payment of another', async () => {
+		const { service } = build();
+		const { paymentIntentId } = await service.startQuantityPayment('u1', 'b1', { quantity: 4 });
+
+		await expect(service.reconcileQuantityPayment('u2', 'b1', paymentIntentId)).rejects.toMatchObject(
+			{
+				code: 'BOOKING_NOT_FOUND',
+			},
+		);
 	});
 });

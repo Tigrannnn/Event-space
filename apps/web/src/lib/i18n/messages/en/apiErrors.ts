@@ -72,6 +72,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'This booking is not confirmed yet.',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Only a pending booking can be confirmed by hand.',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Adding guests has to be paid for first.',
+	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'An admin cannot add guests to a booking. Make a new booking instead.',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'The number of guests has not changed.',
 	[AppErrorCode.QUANTITY_QUOTE_CHANGED]: 'The refund amount changed since you saw it. Please check the new amount.',
 	[AppErrorCode.QUANTITY_SETTLEMENT_INVALID]: 'This way of settling does not fit the change.',

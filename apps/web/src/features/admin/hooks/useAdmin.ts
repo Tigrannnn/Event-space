@@ -3,6 +3,7 @@ import {
 	type AdminCancelBookingData,
 	type ChangeQuantityData,
 	type QuantitySettlement,
+	type RefundMethod,
 	type ConfirmBookingManuallyData,
 	type BookingFilters,
 	type CancellationReasons,
@@ -155,13 +156,14 @@ export const useConfirmBookingManually = () => {
 export const useAdminQuantityQuote = (
 	bookingId: string | undefined,
 	quantity: number,
-	settlement: QuantitySettlement | undefined,
+	settlement: QuantitySettlement,
+	refundMethod: RefundMethod,
 	enabled = true,
 ) => {
 	return useQuery({
-		queryKey: ['admin', 'quantity-quote', bookingId, quantity, settlement],
+		queryKey: ['admin', 'quantity-quote', bookingId, quantity, settlement, refundMethod],
 		queryFn: () =>
-			adminApi.quoteBookingQuantity(bookingId as string, { quantity, settlement }),
+			adminApi.quoteBookingQuantity(bookingId as string, { quantity, settlement, refundMethod }),
 		enabled: enabled && Boolean(bookingId),
 		retry: false,
 		staleTime: 0,

@@ -6,7 +6,6 @@ import { SortOrderSchema } from './SortOrderSchema';
 export const BookingAdjustmentSumOrderByAggregateInputSchema: z.ZodType<Prisma.BookingAdjustmentSumOrderByAggregateInput> = z.strictObject({
   amount: z.lazy(() => SortOrderSchema).optional(),
   feeAmount: z.lazy(() => SortOrderSchema).optional(),
-  feeWithheld: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default BookingAdjustmentSumOrderByAggregateInputSchema;

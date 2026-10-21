@@ -38,9 +38,9 @@ describe('queued refunds', () => {
 			['b2', 'SUCCEEDED', 20000],
 		]);
 		expect(refundCalls(stripeCalls).map((call) => call.args[1])).toEqual([
-			'full-refund-b1',
-			'full-refund-b1',
-			'full-refund-b2',
+			'cancel:b1:pi_b1',
+			'cancel:b1:pi_b1',
+			'cancel:b2:pi_b2',
 		]);
 		expect(moneyMoved()).toBe(2);
 	});
@@ -184,6 +184,7 @@ describe('queued refunds', () => {
 			stripePaymentIntentId: 'pi_b1',
 			stripeRefundId: null,
 			feeAmount: null,
+			operationKey: '',
 			status: 'PENDING',
 			reason: 'Manual refund requested by admin a1',
 			createdAt: new Date(Date.now() - 30 * HOUR),

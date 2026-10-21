@@ -9,7 +9,6 @@ export * from './FavoriteSchema';
 export * from './BookingSchema';
 export * from './BookingStatusHistorySchema';
 export * from './BookingReferenceSchema';
-export * from './BookingModificationSchema';
 export * from './BookingAdjustmentSchema';
 export * from './UserSchema';
 export * from './RefreshTokenSchema';

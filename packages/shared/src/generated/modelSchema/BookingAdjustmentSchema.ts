@@ -17,7 +17,6 @@ export const BookingAdjustmentSchema = z.object({
   stripePaymentIntentId: z.string().nullable(),
   stripeRefundId: z.string().nullable(),
   feeAmount: z.instanceof(Prisma.Decimal, { message: "Field 'feeAmount' must be a Decimal. Location: ['Models', 'BookingAdjustment']"}).nullable(),
-  feeWithheld: z.instanceof(Prisma.Decimal, { message: "Field 'feeWithheld' must be a Decimal. Location: ['Models', 'BookingAdjustment']"}).nullable(),
   operationKey: z.string(),
   reason: z.string().nullable(),
   createdAt: z.coerce.date(),

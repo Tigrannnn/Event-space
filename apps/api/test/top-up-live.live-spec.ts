@@ -59,16 +59,17 @@ describe('paying for more guests, against the real database and Stripe test mode
 			},
 		});
 
-		return { bookingId: booking.id, guestId: guest.id, firstIntent: card.paymentIntentId };
+		return {
+			bookingId: booking.id,
+			guestId: guest.id,
+			firstIntent: card.paymentIntentId,
+			firstFee: card.feeInCents,
+		};
 	}
 
 	async function startPayment(guestId: string, bookingId: string, quantity: number) {
 		const started = await live.bookings.startQuantityPayment(guestId, bookingId, { quantity });
-		const modification = await live.prisma.bookingModification.findUniqueOrThrow({
-			where: { id: started.modificationId },
-		});
-
-		return { started, intentId: modification.paymentIntentId as string };
+		return { started, intentId: started.paymentIntentId };
 	}
 
 	it('adds the guests once the card payment for the difference goes through', async () => {
@@ -82,11 +83,7 @@ describe('paying for more guests, against the real database and Stripe test mode
 		expect(before.quantity).toBe(2);
 
 		await payIntent(live.stripe, intentId);
-		const result = await live.bookings.reconcileQuantityPayment(
-			guestId,
-			bookingId,
-			started.modificationId,
-		);
+		const result = await live.bookings.reconcileQuantityPayment(guestId, bookingId, intentId);
 		expect(result.status).toBe('APPLIED');
 
 		const after = await live.prisma.booking.findUniqueOrThrow({ where: { id: bookingId } });
@@ -101,22 +98,18 @@ describe('paying for more guests, against the real database and Stripe test mode
 		expect(charges[1]).toMatchObject({ stripePaymentIntentId: intentId, status: 'SUCCEEDED' });
 		expect(cents(charges[1].amount)).toBe(3_000_000);
 
-		const again = await live.bookings.reconcileQuantityPayment(
-			guestId,
-			bookingId,
-			started.modificationId,
-		);
+		const again = await live.bookings.reconcileQuantityPayment(guestId, bookingId, intentId);
 		expect(again.status).toBe('APPLIED');
 		expect(await live.prisma.bookingAdjustment.count({ where: { bookingId, type: 'CHARGE' } })).toBe(
 			2,
 		);
 	}, 90_000);
 
-	it('cancelling a booking paid in two card payments refunds both, holding back each fee once', async () => {
-		const { bookingId, guestId, firstIntent } = await bookTwoGuests(21);
-		const { started, intentId } = await startPayment(guestId, bookingId, 4);
+	it('cancelling a booking paid in two card payments refunds both, minus one fee share per guest', async () => {
+		const { bookingId, guestId, firstIntent, firstFee } = await bookTwoGuests(21);
+		const { intentId } = await startPayment(guestId, bookingId, 4);
 		const secondFee = await payIntent(live.stripe, intentId);
-		await live.bookings.reconcileQuantityPayment(guestId, bookingId, started.modificationId);
+		await live.bookings.reconcileQuantityPayment(guestId, bookingId, intentId);
 
 		await live.bookings.cancel(guestId, bookingId);
 
@@ -125,26 +118,26 @@ describe('paying for more guests, against the real database and Stripe test mode
 		});
 		expect(refunds.every((row) => row.status === 'SUCCEEDED')).toBe(true);
 
-		const sum = (intent: string, field: 'amount' | 'feeWithheld') =>
+		const refundedOn = (intent: string) =>
 			refunds
 				.filter((row) => row.stripePaymentIntentId === intent)
-				.reduce((total, row) => total + cents(row[field]), 0);
+				.reduce((total, row) => total + cents(row.amount), 0);
 
-		expect(sum(firstIntent, 'amount') + sum(firstIntent, 'feeWithheld')).toBe(2_000_000);
-		expect(sum(intentId, 'amount') + sum(intentId, 'feeWithheld')).toBe(2_000_000);
-		expect(sum(intentId, 'feeWithheld')).toBe(secondFee);
+		const feePerGuest = Math.round(((firstFee + secondFee) * 1_000_000) / 4_000_000);
+		expect(refundedOn(firstIntent) + refundedOn(intentId)).toBe(4 * (1_000_000 - feePerGuest));
+		expect(refundedOn(intentId)).toBe(2_000_000);
 
 		for (const intent of [firstIntent, intentId]) {
 			const stripeRefunds = await live.stripe.refunds.list({ payment_intent: intent });
 			expect(stripeRefunds.data.reduce((total, refund) => total + refund.amount, 0)).toBe(
-				sum(intent, 'amount'),
+				refundedOn(intent),
 			);
 		}
 	}, 120_000);
 
 	it('refunds the whole payment when the spots were taken while the client paid', async () => {
 		const { bookingId, guestId } = await bookTwoGuests(22);
-		const { started, intentId } = await startPayment(guestId, bookingId, 4);
+		const { intentId } = await startPayment(guestId, bookingId, 4);
 
 		await live.prisma.eventOccurrence.update({
 			where: { id: occurrenceId },
@@ -152,11 +145,7 @@ describe('paying for more guests, against the real database and Stripe test mode
 		});
 
 		await payIntent(live.stripe, intentId);
-		const result = await live.bookings.reconcileQuantityPayment(
-			guestId,
-			bookingId,
-			started.modificationId,
-		);
+		const result = await live.bookings.reconcileQuantityPayment(guestId, bookingId, intentId);
 		expect(result.status).toBe('FAILED');
 
 		const booking = await live.prisma.booking.findUniqueOrThrow({ where: { id: bookingId } });

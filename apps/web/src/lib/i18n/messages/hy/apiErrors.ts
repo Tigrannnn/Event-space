@@ -66,6 +66,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Այս ամրագրումը դեռ հաստատված չէ։',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Ձեռքով հաստատել կարելի է միայն սպասման մեջ գտնվող ամրագրումը։',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Հյուրեր ավելացնելու համար նախ պետք է վճարել հավելավճարը։',
+	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'Ադմինը չի կարող հյուրեր ավելացնել ամրագրմանը։ Ստեղծեք նոր ամրագրում։',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'Հյուրերի քանակը չի փոխվել։',
 	[AppErrorCode.QUANTITY_QUOTE_CHANGED]: 'Վերադարձի գումարը փոխվել է այն պահից, երբ տեսաք այն։ Ստուգեք նոր գումարը։',
 	[AppErrorCode.QUANTITY_SETTLEMENT_INVALID]: 'Հաշվարկի այս եղանակը չի համապատասխանում փոփոխությանը։',

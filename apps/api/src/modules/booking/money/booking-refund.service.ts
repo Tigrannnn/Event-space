@@ -7,8 +7,8 @@ import {
 	type StripeBalanceTransaction,
 	type StripePaymentIntentRetrieve,
 } from '@infra/stripe/stripe.types';
-import { summarizeBookingMoney, toMoneyAdjustments } from './booking-money';
-import { allocatePartialRefund, type RefundAllocation } from './refund-allocation';
+import { readPayments, toLedgerRows } from './booking-money';
+import { planGuestRefund, type GuestRefund } from './refund-allocation';
 import {
 	BookingLedgerService,
 	parseQueuedRefundReason,
@@ -24,13 +24,22 @@ export interface RefundPlan {
 	failureReason: string;
 	failureLogSuffix: string;
 	withholdsFee: boolean;
-	feeWithheldInCents?: number;
 }
 
 export interface RefundOutcome {
 	refundedInCents: number | null;
 	failed: boolean;
 	coveredByFee: { grossInCents: number; feeInCents: number } | null;
+}
+
+export interface QueuedCancellation {
+	bookingId: string;
+	paymentIntentId: string | null;
+	operationKey: string;
+	plan: GuestRefund;
+	withholdFee: boolean;
+	reason: string;
+	method: 'STRIPE' | 'MANUAL';
 }
 
 export function refundKeyFor(operationKey: string, paymentIntentId: string): string {
@@ -108,17 +117,12 @@ export class BookingRefundService {
 		}
 
 		if (refunded) {
-			const feeWithheldInCents = plan.withholdsFee
-				? Math.max(0, plan.grossInCents - refunded.amountInCents)
-				: plan.feeWithheldInCents;
-
 			const closed = await this.ledger.completeQueuedRefund({
 				paymentIntentId: booking.paymentIntentId,
 				amountInCents: refunded.amountInCents,
 				stripeRefundId: refunded.id,
 				reason: plan.successReason,
 				operationKey,
-				feeWithheldInCents,
 			});
 
 			if (!closed) {
@@ -129,7 +133,6 @@ export class BookingRefundService {
 					stripeRefundId: refunded.id,
 					reason: plan.successReason,
 					operationKey,
-					feeWithheldInCents,
 				});
 			}
 		} else if (failed) {
@@ -180,7 +183,6 @@ export class BookingRefundService {
 		successReason: string;
 		failureReason: string;
 		failureLogSuffix: string;
-		feeWithheldInCents?: number;
 	}): RefundPlan {
 		const { paymentIntentId, grossInCents, withholdFee, idempotencyKey } = params;
 
@@ -191,9 +193,8 @@ export class BookingRefundService {
 
 				const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
 				const stripeFeeInCents = (charge.balance_transaction as StripeBalanceTransaction).fee;
-				const alreadyWithheld = await this.ledger.feeWithheldInCents(paymentIntentId);
 
-				return grossInCents - Math.max(0, stripeFeeInCents - alreadyWithheld);
+				return grossInCents - stripeFeeInCents;
 			},
 			refundIdempotencyKey: (amountInCents) =>
 				withholdFee ? `refund-${paymentIntentId}-${amountInCents}` : idempotencyKey,
@@ -202,7 +203,6 @@ export class BookingRefundService {
 			failureReason: params.failureReason,
 			failureLogSuffix: params.failureLogSuffix,
 			withholdsFee: withholdFee && grossInCents > 0,
-			feeWithheldInCents: params.feeWithheldInCents,
 		};
 	}
 
@@ -225,72 +225,86 @@ export class BookingRefundService {
 		}
 	}
 
-	async planCancellation(
+	async prepare(bookingId: string, paymentIntentId: string | null): Promise<void> {
+		if (paymentIntentId) {
+			try {
+				const intent = await this.stripe.retrievePaymentIntent(paymentIntentId);
+				if (intent.status === 'succeeded') {
+					await this.ledger.recordChargeIfMissing({
+						bookingId,
+						paymentIntentId,
+						amountInCents: intent.amount_received ?? intent.amount,
+						reason: 'Payment captured, recorded before a refund',
+					});
+				}
+			} catch (error) {
+				this.logger.warn(`Could not check payment ${paymentIntentId} before a refund`, error as Error);
+			}
+		}
+
+		await this.fillMissingFees(bookingId);
+	}
+
+	async planForBooking(
 		db: Pick<Prisma.TransactionClient, 'bookingAdjustment'>,
 		params: {
 			bookingId: string;
 			amount: number;
 			quantity: number;
+			guests: number;
 			percentage: number;
 			withholdFee: boolean;
 		},
-	): Promise<RefundAllocation | null> {
+	): Promise<GuestRefund> {
 		const rows = await this.ledger.listForBooking(db, params.bookingId);
-		const money = summarizeBookingMoney(toMoneyAdjustments(rows), params.amount);
-
-		const hasCard = money.payments.some((payment) => payment.method === 'CARD');
-		if (!hasCard || money.payments.length < 2) return null;
-
 		const amountInCents = Math.round(params.amount * 100);
 
-		return allocatePartialRefund({
-			payments: money.payments,
-			removedUnits: params.quantity,
+		return planGuestRefund({
+			payments: readPayments(toLedgerRows(rows)),
+			guests: params.guests,
 			unitPriceInCents: Math.round(amountInCents / params.quantity),
 			percentage: params.percentage,
 			withholdFee: params.withholdFee,
 		});
 	}
 
-	async queueAllocation(
+	async queuePlan(
 		tx: Prisma.TransactionClient,
 		bookingId: string,
-		allocation: RefundAllocation,
-		options: { operationKey: string; reason: string; cashStatus: 'PENDING' | 'SUCCEEDED' },
+		plan: GuestRefund,
+		options: { operationKey: string; reason: string; method: 'STRIPE' | 'MANUAL' },
 	): Promise<void> {
+		const viaStripe = plan.parts.filter(
+			(part) => options.method === 'STRIPE' && part.paymentIntentId !== null,
+		);
+		const byHand = plan.parts.filter((part) => !viaStripe.includes(part));
+
 		await this.ledger.queueRefunds(
 			tx,
-			allocation.parts
-				.filter((part) => part.method === 'CARD' && part.paymentIntentId && part.netInCents > 0)
-				.map((part) => ({
-					bookingId,
-					paymentIntentId: part.paymentIntentId as string,
-					amount: part.netInCents / 100,
-					kind: 'full' as const,
-					reason: options.reason,
-					operationKey: options.operationKey,
-					feeWithheld: part.feeWithheldInCents / 100,
-				})),
+			viaStripe.map((part) => ({
+				bookingId,
+				paymentIntentId: part.paymentIntentId as string,
+				amount: part.amountInCents / 100,
+				kind: 'full' as const,
+				reason: options.reason,
+				operationKey: options.operationKey,
+			})),
 		);
 
-		for (const part of allocation.parts) {
-			if (part.method === 'OFFLINE' && part.netInCents > 0) {
-				await this.ledger.recordOfflineRefund(tx, {
-					bookingId,
-					amount: part.netInCents / 100,
-					status: options.cashStatus,
-					reason:
-						options.cashStatus === 'SUCCEEDED'
-							? `Returned in cash by an admin: ${options.reason}`
-							: `Return in cash: ${options.reason}`,
-				});
-			}
+		for (const part of byHand) {
+			await this.ledger.recordManualRefund(tx, {
+				bookingId,
+				paymentIntentId: part.paymentIntentId,
+				amountInCents: part.amountInCents,
+				reason: `Refunded by an admin outside Stripe: ${options.reason}`,
+				operationKey: options.operationKey,
+			});
 		}
 	}
 
-	async settleAllocation(
+	async settlePlan(
 		bookingId: string,
-		allocation: RefundAllocation,
+		plan: GuestRefund,
 		options: {
 			operationKey: string;
 			reason: string;
@@ -301,24 +315,19 @@ export class BookingRefundService {
 		let refundedInCents: number | null = null;
 		let failed = false;
 
-		for (const part of allocation.parts) {
-			if (part.method !== 'CARD' || !part.paymentIntentId || part.netInCents <= 0) continue;
+		for (const part of plan.parts) {
+			if (!part.paymentIntentId || part.amountInCents <= 0) continue;
 
 			const outcome = await this.settle(
-				{
-					id: bookingId,
-					paymentIntentId: part.paymentIntentId,
-					operationKey: options.operationKey,
-				},
+				{ id: bookingId, paymentIntentId: part.paymentIntentId, operationKey: options.operationKey },
 				this.refundPlan({
 					paymentIntentId: part.paymentIntentId,
-					grossInCents: part.netInCents,
+					grossInCents: part.amountInCents,
 					withholdFee: false,
 					idempotencyKey: refundKeyFor(options.operationKey, part.paymentIntentId),
 					successReason: options.reason,
 					failureReason: options.failureReason,
 					failureLogSuffix: options.failureLogSuffix,
-					feeWithheldInCents: part.feeWithheldInCents,
 				}),
 			);
 
@@ -329,6 +338,104 @@ export class BookingRefundService {
 		}
 
 		return { refundedInCents, failed };
+	}
+
+	async queueCancellation(
+		tx: Prisma.TransactionClient,
+		booking: { id: string; amount: Prisma.Decimal; quantity: number; paymentIntentId: string | null },
+		options: {
+			percentage: number;
+			withholdFee: boolean;
+			reason: string;
+			method: 'STRIPE' | 'MANUAL';
+		},
+	): Promise<QueuedCancellation | null> {
+		if (Number(booking.amount) <= 0) return null;
+		if (!booking.paymentIntentId && options.method === 'STRIPE') return null;
+
+		const operationKey = `cancel:${booking.id}`;
+		const plan = await this.planForBooking(tx, {
+			bookingId: booking.id,
+			amount: Number(booking.amount),
+			quantity: booking.quantity,
+			guests: booking.quantity,
+			percentage: options.percentage,
+			withholdFee: options.withholdFee,
+		});
+		if (!booking.paymentIntentId && plan.parts.length === 0) return null;
+
+		const queued: QueuedCancellation = {
+			bookingId: booking.id,
+			paymentIntentId: booking.paymentIntentId,
+			operationKey,
+			plan,
+			withholdFee: options.withholdFee,
+			reason: options.reason,
+			method: options.method,
+		};
+
+		if (plan.paidByCard || options.method === 'MANUAL') {
+			await this.queuePlan(tx, booking.id, plan, {
+				operationKey,
+				reason: options.reason,
+				method: options.method,
+			});
+		} else if (booking.paymentIntentId && plan.grossInCents > 0) {
+			await this.ledger.queueRefunds(tx, [
+				{
+					bookingId: booking.id,
+					paymentIntentId: booking.paymentIntentId,
+					amount: plan.grossInCents / 100,
+					kind: options.withholdFee ? 'withhold-fee' : 'full',
+					reason: options.reason,
+					operationKey,
+				},
+			]);
+		}
+
+		return queued;
+	}
+
+	async settleCancellation(
+		queued: QueuedCancellation,
+		failureReason: string,
+		failureLogSuffix: string,
+	): Promise<RefundOutcome> {
+		const { plan, operationKey, paymentIntentId } = queued;
+		const coveredByFee =
+			plan.grossInCents > 0 && plan.netInCents === 0 && plan.feeInCents > 0
+				? { grossInCents: plan.grossInCents, feeInCents: plan.feeInCents }
+				: null;
+
+		if (queued.method === 'MANUAL') {
+			return { refundedInCents: null, failed: false, coveredByFee };
+		}
+
+		if (plan.paidByCard) {
+			const outcome = await this.settlePlan(queued.bookingId, plan, {
+				operationKey,
+				reason: queued.reason,
+				failureReason,
+				failureLogSuffix,
+			});
+
+			return { ...outcome, coveredByFee };
+		}
+
+		if (!paymentIntentId) return { refundedInCents: null, failed: false, coveredByFee: null };
+
+		return this.settle(
+			{ id: queued.bookingId, paymentIntentId, operationKey },
+			this.refundPlan({
+				paymentIntentId,
+				grossInCents: plan.grossInCents,
+				withholdFee: queued.withholdFee,
+				idempotencyKey: refundKeyFor(operationKey, paymentIntentId),
+				successReason: queued.reason,
+				failureReason,
+				failureLogSuffix,
+			}),
+		);
 	}
 
 	async retryQueued(now: Date = new Date()): Promise<number> {
@@ -385,8 +492,6 @@ export class BookingRefundService {
 			idempotencyKey: row.operationKey
 				? refundKeyFor(row.operationKey, row.stripePaymentIntentId)
 				: `full-refund-${row.bookingId}`,
-			feeWithheldInCents:
-				row.feeWithheld === null ? undefined : Math.round(Number(row.feeWithheld) * 100),
 			successReason: parsed.text,
 			failureReason: 'Refund could not be processed at Stripe',
 			failureLogSuffix: ' (queued retry)',

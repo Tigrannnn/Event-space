@@ -7,6 +7,7 @@ import { StripeBalanceTransaction, StripePaymentIntentRetrieve } from '@infra/st
 import { getNextBookingReference } from '../booking.utils';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingNotificationService } from './booking-notification.service';
+import { BookingTopUpService } from './booking-top-up.service';
 
 @Injectable()
 export class BookingPaymentService {
@@ -17,6 +18,7 @@ export class BookingPaymentService {
 		private readonly stripe: StripeService,
 		private readonly ledger: BookingLedgerService,
 		private readonly notifications: BookingNotificationService,
+		private readonly topUps: BookingTopUpService,
 	) {}
 
 	async reconcilePayment(
@@ -25,6 +27,12 @@ export class BookingPaymentService {
 		locale: Locale = DEFAULT_LOCALE,
 	) {
 		const paymentIntent = await this.stripe.retrievePaymentIntent(paymentIntentId);
+
+		if (this.topUps.isGuestPayment(paymentIntent)) {
+			await this.topUps.settle(paymentIntent);
+			return null;
+		}
+
 		const amountReceived = paymentIntent.amount_received ?? paymentIntent.amount;
 
 		const result = await this.prisma.$transaction(async (tx) => {

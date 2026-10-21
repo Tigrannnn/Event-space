@@ -1,21 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { type Locale, type Prisma } from '@prisma/client';
+import { type BookingStatus, type Locale, type Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppErrorCode } from '@event-space/shared';
 import { AppException } from '@shared';
 import { calculateRefundPercentage } from '../booking.utils';
-import { BookingLedgerService } from '../money/booking-ledger.service';
-import { BookingRefundService } from '../money/booking-refund.service';
-import type { RefundAllocation } from '../money/refund-allocation';
+import { BookingRefundService, type QueuedCancellation } from '../money/booking-refund.service';
 import { BookingNotificationService } from './booking-notification.service';
-
-const cashRefundAmountOf = (allocation: RefundAllocation | null): number | undefined => {
-	const cash = (allocation?.parts ?? [])
-		.filter((part) => part.method === 'OFFLINE')
-		.reduce((sum, part) => sum + part.netInCents, 0);
-
-	return cash > 0 ? cash / 100 : undefined;
-};
 
 @Injectable()
 export class BookingCancellationService {
@@ -23,15 +13,20 @@ export class BookingCancellationService {
 
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly ledger: BookingLedgerService,
 		private readonly refunds: BookingRefundService,
 		private readonly notifications: BookingNotificationService,
 	) {}
 
 	async cancel(userId: string, bookingId: string, locale?: Locale) {
-		await this.refunds.fillMissingFees(bookingId);
+		const owner = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
+			select: { paymentIntentId: true, status: true, occurrence: { select: { date: true } } },
+		});
+		const refundable =
+			owner && owner.status !== 'CANCELLED' && (owner.occurrence?.date.getTime() ?? 0) > Date.now();
+		if (refundable) await this.refunds.prepare(bookingId, owner.paymentIntentId);
 
-		const { booking, occurrence, event, user, alreadyCancelled, refundGrossInCents, allocation } =
+		const { booking, occurrence, event, user, alreadyCancelled, queued } =
 			await this.prisma.$transaction(async (tx) => {
 				const currentBooking = await tx.booking.findUnique({
 					where: { id: bookingId },
@@ -68,8 +63,7 @@ export class BookingCancellationService {
 						event: currentBooking.occurrence?.event,
 						user: currentBooking.user,
 						alreadyCancelled: true,
-						refundGrossInCents: 0,
-						allocation: null as RefundAllocation | null,
+						queued: null as QueuedCancellation | null,
 					};
 				}
 
@@ -93,44 +87,18 @@ export class BookingCancellationService {
 				});
 
 				const cancelledEvent = currentBooking.occurrence?.event;
-				let grossInCents = 0;
-				let allocation: RefundAllocation | null = null;
-
-				if (currentBooking.paymentIntentId && Number(currentBooking.amount) > 0 && cancelledEvent) {
-					const refundPercentage = calculateRefundPercentage(
-						new Date(),
-						new Date(currentBooking.occurrence?.date ?? new Date()),
-						cancelledEvent.cancellationRules,
-					);
-					const baseAmountInCents = Math.round(Number(currentBooking.amount) * 100);
-					grossInCents = Math.round((baseAmountInCents * refundPercentage) / 100);
-
-					allocation = await this.refunds.planCancellation(tx, {
-						bookingId: currentBooking.id,
-						amount: Number(currentBooking.amount),
-						quantity: currentBooking.quantity,
-						percentage: refundPercentage,
-						withholdFee: true,
-					});
-
-					if (allocation) {
-						await this.refunds.queueAllocation(tx, currentBooking.id, allocation, {
-							operationKey: `cancel:${currentBooking.id}`,
+				const queued = cancelledEvent
+					? await this.refunds.queueCancellation(tx, currentBooking, {
+							percentage: calculateRefundPercentage(
+								new Date(),
+								new Date(currentBooking.occurrence?.date ?? new Date()),
+								cancelledEvent.cancellationRules,
+							),
+							withholdFee: true,
 							reason: 'Booking cancelled. Stripe fee withheld.',
-							cashStatus: 'PENDING',
-						});
-					} else if (grossInCents > 0) {
-						await this.ledger.queueRefunds(tx, [
-							{
-								bookingId: currentBooking.id,
-								paymentIntentId: currentBooking.paymentIntentId,
-								amount: grossInCents / 100,
-								kind: 'withhold-fee',
-								reason: 'Booking cancelled. Stripe fee withheld.',
-							},
-						]);
-					}
-				}
+							method: 'STRIPE',
+						})
+					: null;
 
 				return {
 					booking: updatedBooking,
@@ -138,8 +106,7 @@ export class BookingCancellationService {
 					event: cancelledEvent,
 					user: currentBooking.user,
 					alreadyCancelled: false,
-					refundGrossInCents: grossInCents,
-					allocation,
+					queued,
 				};
 			});
 
@@ -166,28 +133,9 @@ export class BookingCancellationService {
 			return booking;
 		}
 
-		const outcome = allocation
-			? {
-					...(await this.refunds.settleAllocation(booking.id, allocation, {
-						operationKey: `cancel:${booking.id}`,
-						reason: 'Booking cancelled. Stripe fee withheld.',
-						failureReason: 'Refund could not be processed at Stripe',
-						failureLogSuffix: '',
-					})),
-					coveredByFee: null,
-				}
-			: await this.refunds.settle(
-					{ id: booking.id, paymentIntentId: booking.paymentIntentId },
-					this.refunds.refundPlan({
-						paymentIntentId: booking.paymentIntentId,
-						grossInCents: refundGrossInCents,
-						withholdFee: true,
-						idempotencyKey: `cancel-${booking.paymentIntentId}`,
-						successReason: 'Booking cancelled. Stripe fee withheld.',
-						failureReason: 'Refund could not be processed at Stripe',
-						failureLogSuffix: '',
-					}),
-				);
+		const outcome = queued
+			? await this.refunds.settleCancellation(queued, 'Refund could not be processed at Stripe', '')
+			: { refundedInCents: null, failed: false, coveredByFee: null };
 
 		await this.notifications.sendCancellation({
 			booking,
@@ -197,7 +145,6 @@ export class BookingCancellationService {
 			locale,
 			refundAmount: outcome.refundedInCents !== null ? outcome.refundedInCents / 100 : undefined,
 			refundFailed: outcome.failed,
-			cashRefundAmount: cashRefundAmountOf(allocation),
 			refundCoveredByFee: outcome.coveredByFee
 				? {
 						entitled: outcome.coveredByFee.grossInCents / 100,
@@ -210,179 +157,67 @@ export class BookingCancellationService {
 	}
 
 	async cancelEventBookings(eventId: string): Promise<void> {
-		const { bookings, allocations } = await this.prisma.$transaction(async (tx) => {
-			// Get all confirmed and pending bookings for the event through occurrences
-			const bookings = await tx.booking.findMany({
-				where: {
-					occurrence: { eventId },
-					status: { in: ['PENDING', 'CONFIRMED'] },
-				},
-				include: { user: true },
-			});
-
-			// Update all bookings to CANCELLED
-			await tx.booking.updateMany({
-				where: {
-					occurrence: { eventId },
-					status: { in: ['PENDING', 'CONFIRMED'] },
-				},
-				data: { status: 'CANCELLED' },
-			});
-
-			await tx.eventOccurrence.updateMany({
-				where: { eventId },
-				data: { currentParticipants: 0 },
-			});
-
-			const allocations = await this.queueCancellationRefunds(
-				tx,
-				bookings,
-				'Event cancelled. Full refund.',
-			);
-
-			return { bookings, allocations };
-		});
-
-		// Process refunds for each booking
-		for (const booking of bookings) {
-			if (!booking.paymentIntentId || Number(booking.amount) === 0) {
-				continue;
-			}
-
-			const allocation = allocations.get(booking.id);
-			if (allocation) {
-				await this.refunds.settleAllocation(booking.id, allocation, {
-					operationKey: `cancel:${booking.id}`,
-					reason: 'Event cancelled. Full refund.',
-					failureReason: 'Refund could not be processed at Stripe (event cancelled)',
-					failureLogSuffix: ' (event cancellation)',
-				});
-				continue;
-			}
-
-			await this.refunds.settle(
-				{ id: booking.id, paymentIntentId: booking.paymentIntentId },
-				this.refunds.refundPlan({
-					paymentIntentId: booking.paymentIntentId,
-					grossInCents: Math.round(Number(booking.amount) * 100),
-					withholdFee: false,
-					idempotencyKey: `full-refund-${booking.id}`,
-					successReason: 'Event cancelled. Full refund.',
-					failureReason: 'Refund could not be processed at Stripe (event cancelled)',
-					failureLogSuffix: ' (event cancellation)',
-				}),
-			);
-		}
+		await this.cancelMany(
+			{ occurrence: { eventId } },
+			(tx) => tx.eventOccurrence.updateMany({ where: { eventId }, data: { currentParticipants: 0 } }),
+			{
+				reason: 'Event cancelled. Full refund.',
+				failureReason: 'Refund could not be processed at Stripe (event cancelled)',
+				failureLogSuffix: ' (event cancellation)',
+			},
+		);
 	}
 
 	async cancelOccurrenceBookings(occurrenceId: string): Promise<void> {
-		const { bookings, allocations } = await this.prisma.$transaction(async (tx) => {
-			const bookings = await tx.booking.findMany({
-				where: {
-					occurrenceId,
-					status: { in: ['PENDING', 'CONFIRMED'] },
-				},
-				include: { user: true },
-			});
-
-			await tx.booking.updateMany({
-				where: {
-					occurrenceId,
-					status: { in: ['PENDING', 'CONFIRMED'] },
-				},
-				data: { status: 'CANCELLED' },
-			});
-
-			await tx.eventOccurrence.update({
-				where: { id: occurrenceId },
-				data: { currentParticipants: 0 },
-			});
-
-			const allocations = await this.queueCancellationRefunds(
-				tx,
-				bookings,
-				'Occurrence cancelled. Full refund.',
-			);
-
-			return { bookings, allocations };
-		});
-
-		for (const booking of bookings) {
-			if (!booking.paymentIntentId || Number(booking.amount) === 0) {
-				continue;
-			}
-
-			const allocation = allocations.get(booking.id);
-			if (allocation) {
-				await this.refunds.settleAllocation(booking.id, allocation, {
-					operationKey: `cancel:${booking.id}`,
-					reason: 'Occurrence cancelled. Full refund.',
-					failureReason: 'Refund could not be processed at Stripe (occurrence cancelled)',
-					failureLogSuffix: ' (occurrence cancellation)',
-				});
-				continue;
-			}
-
-			await this.refunds.settle(
-				{ id: booking.id, paymentIntentId: booking.paymentIntentId },
-				this.refunds.refundPlan({
-					paymentIntentId: booking.paymentIntentId,
-					grossInCents: Math.round(Number(booking.amount) * 100),
-					withholdFee: false,
-					idempotencyKey: `full-refund-${booking.id}`,
-					successReason: 'Occurrence cancelled. Full refund.',
-					failureReason: 'Refund could not be processed at Stripe (occurrence cancelled)',
-					failureLogSuffix: ' (occurrence cancellation)',
-				}),
-			);
-		}
+		await this.cancelMany(
+			{ occurrenceId },
+			(tx) =>
+				tx.eventOccurrence.update({ where: { id: occurrenceId }, data: { currentParticipants: 0 } }),
+			{
+				reason: 'Occurrence cancelled. Full refund.',
+				failureReason: 'Refund could not be processed at Stripe (occurrence cancelled)',
+				failureLogSuffix: ' (occurrence cancellation)',
+			},
+		);
 	}
 
-	private async queueCancellationRefunds(
-		tx: Prisma.TransactionClient,
-		bookings: {
-			id: string;
-			amount: unknown;
-			quantity: number;
-			paymentIntentId: string | null;
-		}[],
-		reason: string,
-	): Promise<Map<string, RefundAllocation>> {
-		const allocations = new Map<string, RefundAllocation>();
-		const rows: Parameters<BookingLedgerService['queueRefunds']>[1] = [];
+	private async cancelMany(
+		where: Prisma.BookingWhereInput,
+		resetSeats: (tx: Prisma.TransactionClient) => Promise<unknown>,
+		texts: { reason: string; failureReason: string; failureLogSuffix: string },
+	): Promise<void> {
+		const open = { ...where, status: { in: ['PENDING', 'CONFIRMED'] as BookingStatus[] } };
 
-		for (const booking of bookings) {
-			if (!booking.paymentIntentId || Number(booking.amount) <= 0) continue;
-
-			const allocation = await this.refunds.planCancellation(tx, {
-				bookingId: booking.id,
-				amount: Number(booking.amount),
-				quantity: booking.quantity,
-				percentage: 100,
-				withholdFee: false,
-			});
-
-			if (allocation) {
-				allocations.set(booking.id, allocation);
-				await this.refunds.queueAllocation(tx, booking.id, allocation, {
-					operationKey: `cancel:${booking.id}`,
-					reason,
-					cashStatus: 'PENDING',
-				});
-				continue;
-			}
-
-			rows.push({
-				bookingId: booking.id,
-				paymentIntentId: booking.paymentIntentId,
-				amount: Number(booking.amount),
-				kind: 'full' as const,
-				reason,
-			});
+		const toPrepare = await this.prisma.booking.findMany({
+			where: open,
+			select: { id: true, paymentIntentId: true },
+		});
+		for (const booking of toPrepare) {
+			await this.refunds.prepare(booking.id, booking.paymentIntentId);
 		}
 
-		await this.ledger.queueRefunds(tx, rows);
+		const queued = await this.prisma.$transaction(async (tx) => {
+			const bookings = await tx.booking.findMany({ where: open });
 
-		return allocations;
+			await tx.booking.updateMany({ where: open, data: { status: 'CANCELLED' } });
+			await resetSeats(tx);
+
+			const queued: QueuedCancellation[] = [];
+			for (const booking of bookings) {
+				const refund = await this.refunds.queueCancellation(tx, booking, {
+					percentage: 100,
+					withholdFee: false,
+					reason: texts.reason,
+					method: 'STRIPE',
+				});
+				if (refund) queued.push(refund);
+			}
+
+			return queued;
+		});
+
+		for (const refund of queued) {
+			await this.refunds.settleCancellation(refund, texts.failureReason, texts.failureLogSuffix);
+		}
 	}
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQueryClient } from '@tanstack/react-query';
@@ -38,6 +38,14 @@ function QuantityPaymentFormContent({
 	const apiError = useApiError();
 	const formatCurrency = useFormatCurrency();
 	const [isProcessing, setIsProcessing] = useState(false);
+	const mounted = useRef(true);
+
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+		};
+	}, []);
 
 	const { quote } = payment;
 	const added = quote.newQuantity - quote.currentQuantity;
@@ -50,17 +58,17 @@ function QuantityPaymentFormContent({
 		]);
 
 	const waitForResult = async () => {
-		for (let attempt = 0; attempt < POLL_ATTEMPTS; attempt += 1) {
+		for (let attempt = 0; attempt < POLL_ATTEMPTS && mounted.current; attempt += 1) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			const result = await bookingApi
-				.reconcileQuantityPayment(bookingId, payment.modificationId)
+				.reconcileQuantityPayment(bookingId, payment.paymentIntentId)
 				.catch(() => null);
 
-			if (result && result.status !== 'PENDING_PAYMENT') return result.status;
+			if (result && result.status !== 'PENDING') return result.status;
 		}
 
-		return 'PENDING_PAYMENT' as const;
+		return 'PENDING' as const;
 	};
 
 	const handleSubmit = async (formEvent: FormEvent) => {
@@ -86,14 +94,15 @@ function QuantityPaymentFormContent({
 		addToast(translate('booking.paymentSubmitted'), ToastType.INFO);
 
 		const status = await waitForResult();
-		setIsProcessing(false);
 		await refresh();
+		if (!mounted.current) return;
+		setIsProcessing(false);
 
 		if (status === 'APPLIED') {
 			addToast(translate('booking.quantityPayApplied'), ToastType.SUCCESS);
 		} else if (status === 'FAILED') {
 			addToast(translate('booking.quantityPayFailed'), ToastType.ERROR);
-		} else if (status === 'PENDING_PAYMENT') {
+		} else if (status === 'PENDING') {
 			addToast(translate('booking.quantityPayTimeout'), ToastType.INFO);
 		} else {
 			addToast(translate('booking.quantityPayCancelled'), ToastType.ERROR);

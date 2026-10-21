@@ -219,7 +219,6 @@ model Booking {
 
   occurrence  EventOccurrence     @relation("occurrence_bookings", fields: [occurrenceId], references: [id], onDelete: Cascade)
   adjustments BookingAdjustment[] @relation("booking_adjustments")
-  modifications BookingModification[] @relation("booking_modifications")
 
   statusHistory BookingStatusHistory[] @relation("booking_status_history")
 
@@ -257,34 +256,6 @@ enum AdjustmentType {
   REFUND
 }
 
-enum ModificationStatus {
-  PENDING_PAYMENT
-  APPLIED
-  CANCELLED
-  EXPIRED
-  FAILED
-}
-
-model BookingModification {
-  id              String             @id @default(uuid())
-  bookingId       String             @map("booking_id")
-  fromQuantity    Int                @map("from_quantity")
-  toQuantity      Int                @map("to_quantity")
-  amount          Decimal            @db.Decimal(10, 2)
-  paymentIntentId String?            @unique @map("payment_intent_id")
-  status          ModificationStatus @default(PENDING_PAYMENT)
-  failureReason   String?            @map("failure_reason")
-  createdAt       DateTime           @default(now()) @map("created_at")
-  updatedAt       DateTime           @updatedAt @map("updated_at")
-  appliedAt       DateTime?          @map("applied_at")
-
-  booking Booking @relation("booking_modifications", fields: [bookingId], references: [id], onDelete: Cascade)
-
-  @@index([bookingId])
-  @@index([status, createdAt])
-  @@map("booking_modifications")
-}
-
 enum AdjustmentStatus {
   PENDING
   SUCCEEDED
@@ -300,7 +271,6 @@ model BookingAdjustment {
   stripePaymentIntentId String?          @map("stripe_payment_intent_id")
   stripeRefundId        String?          @unique @map("stripe_refund_id")
   feeAmount             Decimal?         @map("fee_amount") @db.Decimal(10, 2)
-  feeWithheld           Decimal?         @map("fee_withheld") @db.Decimal(10, 2)
   operationKey          String           @default("") @map("operation_key")
   status                AdjustmentStatus
   reason                String?

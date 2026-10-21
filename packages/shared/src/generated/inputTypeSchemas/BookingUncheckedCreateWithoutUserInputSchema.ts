@@ -6,7 +6,6 @@ import { isValidDecimalInput } from './isValidDecimalInput';
 import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema } from './BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema';
-import { BookingModificationUncheckedCreateNestedManyWithoutBookingInputSchema } from './BookingModificationUncheckedCreateNestedManyWithoutBookingInputSchema';
 import { BookingStatusHistoryUncheckedCreateNestedManyWithoutBookingInputSchema } from './BookingStatusHistoryUncheckedCreateNestedManyWithoutBookingInputSchema';
 
 export const BookingUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.BookingUncheckedCreateWithoutUserInput> = z.strictObject({
@@ -26,7 +25,6 @@ export const BookingUncheckedCreateWithoutUserInputSchema: z.ZodType<Prisma.Book
   confirmationSentAt: z.coerce.date().optional().nullable(),
   reminderSentAt: z.coerce.date().optional().nullable(),
   adjustments: z.lazy(() => BookingAdjustmentUncheckedCreateNestedManyWithoutBookingInputSchema).optional(),
-  modifications: z.lazy(() => BookingModificationUncheckedCreateNestedManyWithoutBookingInputSchema).optional(),
   statusHistory: z.lazy(() => BookingStatusHistoryUncheckedCreateNestedManyWithoutBookingInputSchema).optional(),
 });
 

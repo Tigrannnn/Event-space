@@ -1,114 +1,90 @@
-export interface MoneyAdjustment {
+import { estimateStripeFeeInCents } from '@event-space/shared';
+
+export interface LedgerRow {
 	type: 'CHARGE' | 'REFUND';
 	status: 'SUCCEEDED' | 'PENDING' | 'FAILED';
 	amount: number;
 	stripePaymentIntentId: string | null;
 	feeAmount: number | null;
-	feeWithheld: number | null;
 	createdAt: Date;
 }
 
-export interface PaymentPart {
-	paymentIntentId: string | null;
-	method: 'CARD' | 'OFFLINE';
+export interface CardPayment {
+	paymentIntentId: string;
 	chargedInCents: number;
 	refundedInCents: number;
 	feeInCents: number;
-	feeWithheldInCents: number;
-	capacityInCents: number;
 	paidAt: Date;
 }
 
-export interface BookingMoney {
-	payments: PaymentPart[];
-	chargedInCents: number;
-	refundedInCents: number;
-	attributableInCents: number;
-	dueInCents: number;
-	keptInCents: number;
+export interface BookingPayments {
+	cards: CardPayment[];
+	cashInCents: number;
+	cashRefundedInCents: number;
 }
 
 const toCents = (value: number): number => Math.round(value * 100);
 
-export function summarizeBookingMoney(
-	adjustments: MoneyAdjustment[],
-	amount: number,
-): BookingMoney {
-	const parts = new Map<string, PaymentPart>();
+const movesMoney = (row: LedgerRow): boolean =>
+	row.type === 'CHARGE' ? row.status === 'SUCCEEDED' : row.status !== 'FAILED' && row.amount > 0;
 
-	for (const row of adjustments) {
-		const holdsMoney =
-			row.type === 'CHARGE' ? row.status === 'SUCCEEDED' : row.status !== 'FAILED' && row.amount > 0;
-		if (!holdsMoney) continue;
+export function readPayments(rows: LedgerRow[]): BookingPayments {
+	const cards = new Map<string, CardPayment>();
+	let cashInCents = 0;
+	let cashRefundedInCents = 0;
 
-		const key = row.stripePaymentIntentId ?? 'offline';
-		const part = parts.get(key) ?? {
+	for (const row of rows) {
+		if (!movesMoney(row)) continue;
+
+		if (!row.stripePaymentIntentId) {
+			if (row.type === 'CHARGE') cashInCents += toCents(row.amount);
+			else cashRefundedInCents += toCents(row.amount);
+			continue;
+		}
+
+		const card = cards.get(row.stripePaymentIntentId) ?? {
 			paymentIntentId: row.stripePaymentIntentId,
-			method: row.stripePaymentIntentId ? ('CARD' as const) : ('OFFLINE' as const),
 			chargedInCents: 0,
 			refundedInCents: 0,
 			feeInCents: 0,
-			feeWithheldInCents: 0,
-			capacityInCents: 0,
 			paidAt: row.createdAt,
 		};
 
 		if (row.type === 'CHARGE') {
-			part.chargedInCents += toCents(row.amount);
-			part.feeInCents += toCents(row.feeAmount ?? 0);
-			if (row.createdAt < part.paidAt) part.paidAt = row.createdAt;
+			card.chargedInCents += toCents(row.amount);
+			card.feeInCents +=
+				row.feeAmount === null ? estimateStripeFeeInCents(row.amount) : toCents(row.feeAmount);
+			if (row.createdAt < card.paidAt) card.paidAt = row.createdAt;
 		} else {
-			part.refundedInCents += toCents(row.amount);
-			part.feeWithheldInCents += toCents(row.feeWithheld ?? 0);
+			card.refundedInCents += toCents(row.amount);
 		}
 
-		parts.set(key, part);
+		cards.set(row.stripePaymentIntentId, card);
 	}
 
-	const payments = [...parts.values()]
-		.map((part) => ({
-			...part,
-			capacityInCents: Math.max(
-				0,
-				part.chargedInCents - part.refundedInCents - part.feeWithheldInCents,
-			),
-		}))
-		.sort((a, b) => a.paidAt.getTime() - b.paidAt.getTime());
-
-	const chargedInCents = payments.reduce((sum, part) => sum + part.chargedInCents, 0);
-	const refundedInCents = payments.reduce((sum, part) => sum + part.refundedInCents, 0);
-	const feeWithheldInCents = payments.reduce((sum, part) => sum + part.feeWithheldInCents, 0);
-	const attributableInCents = chargedInCents - refundedInCents - feeWithheldInCents;
-	const amountInCents = toCents(amount);
-
 	return {
-		payments,
-		chargedInCents,
-		refundedInCents,
-		attributableInCents,
-		dueInCents: Math.max(0, amountInCents - attributableInCents),
-		keptInCents: Math.max(0, attributableInCents - amountInCents),
+		cards: [...cards.values()].sort((a, b) => a.paidAt.getTime() - b.paidAt.getTime()),
+		cashInCents,
+		cashRefundedInCents,
 	};
 }
 
-export function toMoneyAdjustments(
+export function toLedgerRows(
 	rows: {
 		type: 'CHARGE' | 'REFUND';
 		status: 'SUCCEEDED' | 'PENDING' | 'FAILED';
 		amount: unknown;
 		stripePaymentIntentId: string | null;
 		feeAmount: unknown;
-		feeWithheld: unknown;
 		createdAt: Date;
 	}[],
-): MoneyAdjustment[] {
+): LedgerRow[] {
 	return rows.map((row) => ({
 		type: row.type,
 		status: row.status,
 		amount: Number(row.amount),
 		stripePaymentIntentId: row.stripePaymentIntentId,
 		feeAmount: row.feeAmount === null ? null : Number(row.feeAmount),
-		feeWithheld: row.feeWithheld === null ? null : Number(row.feeWithheld),
 		createdAt: row.createdAt,
 	}));
 }

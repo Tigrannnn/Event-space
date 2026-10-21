@@ -59,6 +59,11 @@ export class StripeService {
 		await this.stripe.paymentIntents.cancel(paymentIntentId, undefined, { idempotencyKey });
 	}
 
+	async searchPaymentIntents(query: string): Promise<StripePaymentIntentRetrieve[]> {
+		const result = await this.stripe.paymentIntents.search({ query, limit: 100 });
+		return result.data as StripePaymentIntentRetrieve[];
+	}
+
 	async retrievePaymentIntent(paymentIntentId: string): Promise<StripePaymentIntentRetrieve> {
 		return this.stripe.paymentIntents.retrieve(paymentIntentId);
 	}

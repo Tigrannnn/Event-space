@@ -13,11 +13,9 @@ import {
 	getEventTranslation,
 	type BookingWithDetails,
 	type QuantitySettlement,
+	type RefundMethod,
 } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-
-const DECREASE_OPTIONS: QuantitySettlement[] = ['RULES', 'FULL', 'NONE'];
-const INCREASE_OPTIONS: QuantitySettlement[] = ['OFFLINE_PAID', 'PAY_ON_ARRIVAL'];
 
 export default function UpdateBookingModal() {
 	const translate = useTranslation();
@@ -25,26 +23,23 @@ export default function UpdateBookingModal() {
 	const modalData = useModalData(ModalType.UpdateBooking);
 	const booking = modalData?.booking as BookingWithDetails | null;
 
-	const spotsLeft = booking?.occurrence
-		? booking.occurrence.maxParticipants - booking.occurrence.currentParticipants
-		: 0;
-	const maxQuantity = Math.max(1, (booking?.quantity ?? 1) + spotsLeft);
+	const current = booking?.quantity ?? 1;
+	const paidByCard = booking?.paymentMethod === 'SITE_PAYMENT';
 
-	const [quantity, setQuantity] = useState(booking?.quantity ?? 1);
-	const [decreaseSettlement, setDecreaseSettlement] = useState<QuantitySettlement>('RULES');
-	const [increaseSettlement, setIncreaseSettlement] = useState<QuantitySettlement>('PAY_ON_ARRIVAL');
+	const [quantity, setQuantity] = useState(Math.max(1, current - 1));
+	const [settlement, setSettlement] = useState<QuantitySettlement>('RULES');
+	const [chosenMethod, setChosenMethod] = useState<RefundMethod>('STRIPE');
 	const [openedAt] = useState(() => Date.now());
 	const updateBooking = useUpdateBooking();
 
-	const current = booking?.quantity ?? 1;
+	const refundMethod: RefundMethod = paidByCard ? chosenMethod : 'MANUAL';
 	const changed = quantity !== current;
-	const increasing = quantity > current;
-	const settlement = increasing ? increaseSettlement : decreaseSettlement;
 
 	const quote = useAdminQuantityQuote(
 		booking?.id,
 		quantity,
 		settlement,
+		refundMethod,
 		Boolean(booking) && changed,
 	);
 
@@ -54,23 +49,19 @@ export default function UpdateBookingModal() {
 
 	const title = getEventTranslation(booking.occurrence.event, translate.locale).title;
 	const tourStarted = new Date(booking.occurrence.date).getTime() <= openedAt;
-
-	const labels: Partial<Record<QuantitySettlement, string>> = {
-		RULES: translate('admin.settlementRules'),
-		FULL: translate('admin.settlementFull'),
-		NONE: translate('admin.settlementNone'),
-		OFFLINE_PAID: translate('admin.settlementOfflinePaid'),
-		PAY_ON_ARRIVAL: translate('admin.settlementPayOnArrival'),
-	};
-	const options = (increasing ? INCREASE_OPTIONS : DECREASE_OPTIONS).map((value) => ({
-		value,
-		label: labels[value] ?? value,
-	}));
-
 	const ready = changed && quote.isSuccess && !quote.isFetching;
 
+	const settlementOptions = [
+		{ value: 'RULES', label: translate('admin.settlementRules') },
+		{ value: 'FULL', label: translate('admin.settlementFull') },
+	];
+	const methodOptions = [
+		{ value: 'STRIPE', label: translate('admin.refundMethodStripe') },
+		{ value: 'MANUAL', label: translate('admin.refundMethodManual') },
+	];
+
 	const handleSave = () => {
-		updateBooking.mutate({ id: booking.id, data: { quantity, settlement } });
+		updateBooking.mutate({ id: booking.id, data: { quantity, settlement, refundMethod } });
 	};
 
 	return (
@@ -79,6 +70,9 @@ export default function UpdateBookingModal() {
 				<ModalHeader title={translate('admin.updateBooking')} onClose={closeModal} />
 
 				<p className="text-sm font-medium text-gray-900 dark:text-white">{title}</p>
+				<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+					{translate('admin.quantityDecreaseOnly')}
+				</p>
 
 				{tourStarted && (
 					<p className="mt-3 rounded-xl border border-amber-500 bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
@@ -88,16 +82,12 @@ export default function UpdateBookingModal() {
 
 				<QuantitySelector
 					quantity={quantity}
-					maxQuantity={maxQuantity}
-					onIncrement={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
+					maxQuantity={current}
+					onIncrement={() => setQuantity((value) => Math.min(current, value + 1))}
 					onDecrement={() => setQuantity((value) => Math.max(1, value - 1))}
 					label={translate('admin.selectQuantity')}
 					disabled={updateBooking.isPending}
 				/>
-
-				<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-					{translate('admin.availableSpots').replace('{count}', String(spotsLeft))}
-				</p>
 
 				{changed ? (
 					<div className="mt-5 space-y-4">
@@ -107,13 +97,26 @@ export default function UpdateBookingModal() {
 							</label>
 							<Select
 								value={settlement}
-								onValueChange={(value) =>
-									increasing
-										? setIncreaseSettlement(value as QuantitySettlement)
-										: setDecreaseSettlement(value as QuantitySettlement)
-								}
-								options={options}
+								onValueChange={(value) => setSettlement(value as QuantitySettlement)}
+								options={settlementOptions}
 							/>
+						</div>
+
+						<div className="space-y-2">
+							<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+								{translate('admin.refundMethodLabel')}
+							</label>
+							{paidByCard ? (
+								<Select
+									value={chosenMethod}
+									onValueChange={(value) => setChosenMethod(value as RefundMethod)}
+									options={methodOptions}
+								/>
+							) : (
+								<p className="text-sm text-gray-600 dark:text-gray-300">
+									{translate('admin.refundManualOnly')}
+								</p>
+							)}
 						</div>
 
 						<QuantityQuotePreview

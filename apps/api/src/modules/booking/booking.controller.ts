@@ -180,18 +180,18 @@ export class BookingController {
 		return this.bookingService.startQuantityPayment(userId, id, data);
 	}
 
-	@Post(':id/quantity/payments/:modificationId/reconcile')
+	@Post(':id/quantity/payments/:paymentIntentId/reconcile')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)
 	@ApiOperation({ summary: 'Check whether the payment for more guests went through' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
-	@ApiParam({ name: 'modificationId', description: 'Guest payment ID' })
+	@ApiParam({ name: 'paymentIntentId', description: 'Stripe payment for the added guests' })
 	async reconcileQuantityPayment(
 		@GetCurrentUserId() userId: string,
 		@Param('id') id: string,
-		@Param('modificationId') modificationId: string,
+		@Param('paymentIntentId') paymentIntentId: string,
 	) {
-		return this.bookingService.reconcileQuantityPayment(userId, id, modificationId);
+		return this.bookingService.reconcileQuantityPayment(userId, id, paymentIntentId);
 	}
 
 	@Post(':id/reconcile-payment')

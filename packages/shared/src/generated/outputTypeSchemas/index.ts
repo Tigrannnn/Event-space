@@ -8,7 +8,6 @@ export { CancellationPolicyRuleArgsSchema } from './CancellationPolicyRuleArgsSc
 export { FavoriteArgsSchema } from './FavoriteArgsSchema';
 export { BookingArgsSchema } from './BookingArgsSchema';
 export { BookingStatusHistoryArgsSchema } from './BookingStatusHistoryArgsSchema';
-export { BookingModificationArgsSchema } from './BookingModificationArgsSchema';
 export { BookingAdjustmentArgsSchema } from './BookingAdjustmentArgsSchema';
 export { UserArgsSchema } from './UserArgsSchema';
 export { RefreshTokenArgsSchema } from './RefreshTokenArgsSchema';
@@ -89,13 +88,6 @@ export { BookingReferenceAggregateArgsSchema } from './BookingReferenceAggregate
 export { BookingReferenceGroupByArgsSchema } from './BookingReferenceGroupByArgsSchema';
 export { BookingReferenceFindUniqueArgsSchema } from './BookingReferenceFindUniqueArgsSchema';
 export { BookingReferenceFindUniqueOrThrowArgsSchema } from './BookingReferenceFindUniqueOrThrowArgsSchema';
-export { BookingModificationFindFirstArgsSchema } from './BookingModificationFindFirstArgsSchema';
-export { BookingModificationFindFirstOrThrowArgsSchema } from './BookingModificationFindFirstOrThrowArgsSchema';
-export { BookingModificationFindManyArgsSchema } from './BookingModificationFindManyArgsSchema';
-export { BookingModificationAggregateArgsSchema } from './BookingModificationAggregateArgsSchema';
-export { BookingModificationGroupByArgsSchema } from './BookingModificationGroupByArgsSchema';
-export { BookingModificationFindUniqueArgsSchema } from './BookingModificationFindUniqueArgsSchema';
-export { BookingModificationFindUniqueOrThrowArgsSchema } from './BookingModificationFindUniqueOrThrowArgsSchema';
 export { BookingAdjustmentFindFirstArgsSchema } from './BookingAdjustmentFindFirstArgsSchema';
 export { BookingAdjustmentFindFirstOrThrowArgsSchema } from './BookingAdjustmentFindFirstOrThrowArgsSchema';
 export { BookingAdjustmentFindManyArgsSchema } from './BookingAdjustmentFindManyArgsSchema';
@@ -223,15 +215,6 @@ export { BookingReferenceUpdateArgsSchema } from './BookingReferenceUpdateArgsSc
 export { BookingReferenceUpdateManyArgsSchema } from './BookingReferenceUpdateManyArgsSchema';
 export { BookingReferenceUpdateManyAndReturnArgsSchema } from './BookingReferenceUpdateManyAndReturnArgsSchema';
 export { BookingReferenceDeleteManyArgsSchema } from './BookingReferenceDeleteManyArgsSchema';
-export { BookingModificationCreateArgsSchema } from './BookingModificationCreateArgsSchema';
-export { BookingModificationUpsertArgsSchema } from './BookingModificationUpsertArgsSchema';
-export { BookingModificationCreateManyArgsSchema } from './BookingModificationCreateManyArgsSchema';
-export { BookingModificationCreateManyAndReturnArgsSchema } from './BookingModificationCreateManyAndReturnArgsSchema';
-export { BookingModificationDeleteArgsSchema } from './BookingModificationDeleteArgsSchema';
-export { BookingModificationUpdateArgsSchema } from './BookingModificationUpdateArgsSchema';
-export { BookingModificationUpdateManyArgsSchema } from './BookingModificationUpdateManyArgsSchema';
-export { BookingModificationUpdateManyAndReturnArgsSchema } from './BookingModificationUpdateManyAndReturnArgsSchema';
-export { BookingModificationDeleteManyArgsSchema } from './BookingModificationDeleteManyArgsSchema';
 export { BookingAdjustmentCreateArgsSchema } from './BookingAdjustmentCreateArgsSchema';
 export { BookingAdjustmentUpsertArgsSchema } from './BookingAdjustmentUpsertArgsSchema';
 export { BookingAdjustmentCreateManyArgsSchema } from './BookingAdjustmentCreateManyArgsSchema';

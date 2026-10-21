@@ -24,7 +24,13 @@ export default function ChangeQuantityModal() {
 	const booking = useModalData(ModalType.ChangeQuantity)?.booking;
 
 	const current = booking?.quantity ?? 1;
-	const [quantity, setQuantity] = useState(current > 1 ? current - 1 : current + 1);
+	const spotsLeft = booking?.occurrence
+		? Math.max(0, booking.occurrence.maxParticipants - booking.occurrence.currentParticipants)
+		: 0;
+	const maxQuantity = current + spotsLeft;
+	const [quantity, setQuantity] = useState(
+		current > 1 ? current - 1 : Math.min(current + 1, maxQuantity),
+	);
 	const [payment, setPayment] = useState<StartQuantityPayment | null>(null);
 
 	const changeQuantity = useChangeQuantity();
@@ -34,11 +40,6 @@ export default function ChangeQuantityModal() {
 
 	if (!booking?.occurrence?.event) return null;
 
-	const spotsLeft = Math.max(
-		0,
-		booking.occurrence.maxParticipants - booking.occurrence.currentParticipants,
-	);
-	const maxQuantity = current + spotsLeft;
 	const increasing = quantity > current;
 	const title = getEventTranslation(booking.occurrence.event, translate.locale).title;
 	const ready = changed && quote.isSuccess && !quote.isFetching;

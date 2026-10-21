@@ -9,12 +9,11 @@ export interface PaymentsSummary {
 	card: number;
 	cash: number;
 	refunded: number;
-	due: number;
 }
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
-export function summarizePayments(rows: PaymentRow[], bookingAmount: number): PaymentsSummary {
+export function summarizePayments(rows: PaymentRow[]): PaymentsSummary {
 	let card = 0;
 	let cash = 0;
 	let refunded = 0;
@@ -34,6 +33,5 @@ export function summarizePayments(rows: PaymentRow[], bookingAmount: number): Pa
 		card: round2(card),
 		cash: round2(cash),
 		refunded: round2(refunded),
-		due: Math.max(0, round2(bookingAmount - (card + cash - refunded))),
 	};
 }

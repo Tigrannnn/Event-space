@@ -126,7 +126,6 @@ export class BookingNotificationService {
 		refundAmount?: number;
 		refundFailed?: boolean;
 		refundCoveredByFee?: { entitled: number; fee: number };
-		cashRefundAmount?: number;
 		nothingPaid?: boolean;
 		offlinePaid?: boolean;
 	}): Promise<void> {
@@ -151,7 +150,6 @@ export class BookingNotificationService {
 				refundAmount: params.refundAmount,
 				refundFailed: params.refundFailed,
 				refundCoveredByFee: params.refundCoveredByFee,
-				cashRefundAmount: params.cashRefundAmount,
 				nothingPaid: params.nothingPaid,
 				offlinePaid: params.offlinePaid,
 				currency: 'AMD',
@@ -172,9 +170,12 @@ export class BookingNotificationService {
 		newQuantity: number;
 		newAmount: number;
 		byOrganiser: boolean;
-		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
-		cashRefundAmount?: number;
-		extra?: { kind: 'paidOffline' | 'paidByCard' | 'payOnArrival'; amount: number };
+		refund?:
+			| { kind: 'refunded'; amount: number }
+			| { kind: 'manual'; amount: number }
+			| { kind: 'pending' }
+			| { kind: 'notRefundable' };
+		extra?: { kind: 'paidByCard'; amount: number };
 	}): Promise<void> {
 		const { booking, event, occurrence, user } = params;
 
@@ -199,7 +200,6 @@ export class BookingNotificationService {
 				newAmount: params.newAmount,
 				byOrganiser: params.byOrganiser,
 				refund: params.refund,
-				cashRefundAmount: params.cashRefundAmount,
 				extra: params.extra,
 				currency: 'AMD',
 				brandHost: booking.brandHost ?? undefined,

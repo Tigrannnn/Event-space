@@ -1,73 +1,66 @@
-import type { PaymentPart } from './booking-money';
+import type { BookingPayments } from './booking-money';
 
 export interface RefundPart {
-	method: 'CARD' | 'OFFLINE';
 	paymentIntentId: string | null;
-	grossInCents: number;
-	netInCents: number;
-	feeWithheldInCents: number;
+	amountInCents: number;
 }
 
-export interface RefundAllocation {
+export interface GuestRefund {
 	percentage: number;
-	consumedInCents: number;
 	grossInCents: number;
+	feeInCents: number;
 	netInCents: number;
-	feeWithheldInCents: number;
+	paidByCard: boolean;
 	parts: RefundPart[];
 }
 
-export function allocatePartialRefund(params: {
-	payments: PaymentPart[];
-	removedUnits: number;
+export function planGuestRefund(params: {
+	payments: BookingPayments;
+	guests: number;
 	unitPriceInCents: number;
 	percentage: number;
-	withholdFee?: boolean;
-}): RefundAllocation {
-	const { payments, removedUnits, unitPriceInCents, percentage, withholdFee = true } = params;
+	withholdFee: boolean;
+}): GuestRefund {
+	const { payments, guests, unitPriceInCents, percentage, withholdFee } = params;
 
-	let remaining = removedUnits * unitPriceInCents;
+	const chargedInCents = payments.cards.reduce((sum, card) => sum + card.chargedInCents, 0);
+	const feeTotalInCents = payments.cards.reduce((sum, card) => sum + card.feeInCents, 0);
+
+	const grossPerGuest = Math.round((unitPriceInCents * percentage) / 100);
+	const feePerGuest =
+		withholdFee && chargedInCents > 0
+			? Math.round((feeTotalInCents * unitPriceInCents) / chargedInCents)
+			: 0;
+	const netPerGuest = Math.max(0, grossPerGuest - feePerGuest);
+
 	const parts: RefundPart[] = [];
+	let left = guests * netPerGuest;
 
-	for (const payment of [...payments].reverse()) {
-		if (remaining <= 0) break;
-
-		const consumed = Math.min(remaining, payment.capacityInCents);
-		if (consumed <= 0) continue;
-		remaining -= consumed;
-
-		const grossInCents = Math.round((consumed * percentage) / 100);
-
-		if (payment.method === 'OFFLINE') {
-			parts.push({
-				method: 'OFFLINE',
-				paymentIntentId: null,
-				grossInCents,
-				netInCents: grossInCents,
-				feeWithheldInCents: 0,
-			});
-			continue;
+	if (payments.cards.length > 0) {
+		for (const card of [...payments.cards].reverse()) {
+			if (left <= 0) break;
+			const amount = Math.min(left, card.chargedInCents - card.refundedInCents);
+			if (amount <= 0) continue;
+			parts.push({ paymentIntentId: card.paymentIntentId, amountInCents: amount });
+			left -= amount;
 		}
-
-		const feeLeft = withholdFee ? Math.max(0, payment.feeInCents - payment.feeWithheldInCents) : 0;
-		const share = Math.round((feeLeft * consumed) / payment.capacityInCents);
-		const feeWithheldInCents = Math.min(grossInCents, share);
-
-		parts.push({
-			method: 'CARD',
-			paymentIntentId: payment.paymentIntentId,
-			grossInCents,
-			netInCents: grossInCents - feeWithheldInCents,
-			feeWithheldInCents,
-		});
+	} else {
+		const amount = Math.min(left, payments.cashInCents - payments.cashRefundedInCents);
+		if (amount > 0) {
+			parts.push({ paymentIntentId: null, amountInCents: amount });
+			left -= amount;
+		}
 	}
+
+	const grossInCents = guests * grossPerGuest;
+	const netInCents = parts.reduce((sum, part) => sum + part.amountInCents, 0);
 
 	return {
 		percentage,
-		consumedInCents: removedUnits * unitPriceInCents - remaining,
-		grossInCents: parts.reduce((sum, part) => sum + part.grossInCents, 0),
-		netInCents: parts.reduce((sum, part) => sum + part.netInCents, 0),
-		feeWithheldInCents: parts.reduce((sum, part) => sum + part.feeWithheldInCents, 0),
+		grossInCents,
+		feeInCents: Math.min(grossInCents, guests * feePerGuest),
+		netInCents,
+		paidByCard: payments.cards.length > 0,
 		parts,
 	};
 }

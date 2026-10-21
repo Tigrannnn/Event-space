@@ -378,7 +378,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											size="xs"
 											variant="secondary"
 											onClick={() => openModal(ModalType.UpdateBooking, { booking })}
-											disabled={booking.status === 'CANCELLED'}
+											disabled={booking.status !== 'CONFIRMED' || booking.quantity < 2}
 										>
 											<Pencil className="h-4 w-4" />
 										</Button>

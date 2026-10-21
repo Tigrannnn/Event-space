@@ -137,22 +137,21 @@ export const ConfirmBookingManuallySchema = z.object({
 
 export type ConfirmBookingManuallyData = z.infer<typeof ConfirmBookingManuallySchema>;
 
-export const QuantitySettlementSchema = z.enum([
-	'RULES',
-	'FULL',
-	'NONE',
-	'OFFLINE_PAID',
-	'PAY_ON_ARRIVAL',
-	'CARD',
-]);
+export const QuantitySettlementSchema = z.enum(['RULES', 'FULL', 'CARD']);
 
 export type QuantitySettlement = z.infer<typeof QuantitySettlementSchema>;
+
+export const RefundMethodSchema = z.enum(['STRIPE', 'MANUAL']);
+
+export type RefundMethod = z.infer<typeof RefundMethodSchema>;
 
 export const QuantityQuoteRequestSchema = z.object({
 	quantity: z.number().int().min(1).openapi({ description: 'New number of guests' }),
 	settlement: QuantitySettlementSchema.optional().openapi({
-		description:
-			'Admin only. Fewer guests: RULES, FULL or NONE. More guests: OFFLINE_PAID or PAY_ON_ARRIVAL',
+		description: 'Admin only, when removing guests: refund by the cancellation rules or in full',
+	}),
+	refundMethod: RefundMethodSchema.optional().openapi({
+		description: 'Admin only: refund through Stripe, or record a refund the admin made by hand',
 	}),
 });
 
@@ -178,35 +177,23 @@ export const QuantityQuoteSchema = z.object({
 	dueInCents: z.number().int(),
 	refund: z
 		.object({
+			method: RefundMethodSchema,
 			percentage: z.number(),
 			grossInCents: z.number().int(),
+			feeInCents: z.number().int(),
 			netInCents: z.number().int(),
-			feeWithheldInCents: z.number().int(),
-			parts: z.array(
-				z.object({
-					method: z.enum(['CARD', 'OFFLINE']),
-					grossInCents: z.number().int(),
-					netInCents: z.number().int(),
-				}),
-			),
 		})
 		.nullable(),
 });
 
 export type QuantityQuote = z.infer<typeof QuantityQuoteSchema>;
 
-export const QuantityPaymentStatusSchema = z.enum([
-	'PENDING_PAYMENT',
-	'APPLIED',
-	'CANCELLED',
-	'EXPIRED',
-	'FAILED',
-]);
+export const QuantityPaymentStatusSchema = z.enum(['PENDING', 'APPLIED', 'FAILED', 'CANCELLED']);
 
 export type QuantityPaymentStatus = z.infer<typeof QuantityPaymentStatusSchema>;
 
 export const StartQuantityPaymentSchema = z.object({
-	modificationId: z.string(),
+	paymentIntentId: z.string(),
 	clientSecret: z.string(),
 	quote: QuantityQuoteSchema,
 });
@@ -214,7 +201,7 @@ export const StartQuantityPaymentSchema = z.object({
 export type StartQuantityPayment = z.infer<typeof StartQuantityPaymentSchema>;
 
 export const QuantityPaymentResultSchema = z.object({
-	modificationId: z.string(),
+	paymentIntentId: z.string(),
 	status: QuantityPaymentStatusSchema,
 });
 
@@ -230,9 +217,13 @@ export const BookingQuantityChangeSchema = z.object({
 export type BookingQuantityChange = z.infer<typeof BookingQuantityChangeSchema>;
 
 export const AdminCancelBookingSchema = z.object({
-	refundType: z.enum(['FULL', 'RULES', 'MANUAL']).default('RULES').openapi({
-		description: 'Refund strategy for admin cancellation',
+	refundType: z.enum(['FULL', 'RULES']).default('RULES').openapi({
+		description: 'Refund by the cancellation rules or in full',
 		example: 'RULES',
+	}),
+	refundMethod: RefundMethodSchema.default('STRIPE').openapi({
+		description: 'Refund through Stripe, or record a refund the admin made by hand',
+		example: 'STRIPE',
 	}),
 	reason: z.string().optional().openapi({
 		description: 'Optional admin note for the cancellation',
@@ -240,7 +231,7 @@ export const AdminCancelBookingSchema = z.object({
 	}),
 });
 
-export type AdminCancelBookingData = z.infer<typeof AdminCancelBookingSchema>;
+export type AdminCancelBookingData = z.input<typeof AdminCancelBookingSchema>;
 
 export const BookingFiltersSchema = z.object({
 	skip: z.coerce.number().optional(),

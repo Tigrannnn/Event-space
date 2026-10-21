@@ -65,20 +65,15 @@ export class BookingService {
 		return this.topUps.start(userId, bookingId, request);
 	}
 
-	reconcileQuantityPayment(userId: string, bookingId: string, modificationId: string) {
-		return this.topUps.reconcile(userId, bookingId, modificationId);
+	reconcileQuantityPayment(userId: string, bookingId: string, paymentIntentId: string) {
+		return this.topUps.reconcile(userId, bookingId, paymentIntentId);
 	}
 
-	async reconcilePayment(
+	reconcilePayment(
 		paymentIntentId: string,
 		bookingIdHint?: string,
 		locale: Locale = DEFAULT_LOCALE,
 	) {
-		if (await this.topUps.handles(paymentIntentId)) {
-			await this.topUps.settle(paymentIntentId);
-			return null;
-		}
-
 		return this.payments.reconcilePayment(paymentIntentId, bookingIdHint, locale);
 	}
 

@@ -24,7 +24,6 @@ export interface QueuedRefundRow {
 	bookingId: string;
 	stripePaymentIntentId: string;
 	operationKey: string;
-	feeWithheld: Prisma.Decimal | null;
 	amount: Prisma.Decimal;
 	reason: string | null;
 	createdAt: Date;
@@ -129,11 +128,8 @@ export class BookingLedgerService {
 		reason: string;
 		overwriteReason?: boolean;
 		operationKey?: string;
-		feeWithheldInCents?: number;
 	}) {
 		const operationKey = params.operationKey ?? '';
-		const feeWithheld =
-			params.feeWithheldInCents === undefined ? undefined : toAmount(params.feeWithheldInCents);
 
 		return this.prisma.bookingAdjustment.upsert({
 			where: {
@@ -153,13 +149,11 @@ export class BookingLedgerService {
 				status: 'SUCCEEDED',
 				reason: params.reason,
 				operationKey,
-				...(feeWithheld ? { feeWithheld } : {}),
 			},
 			update: {
 				stripeRefundId: params.stripeRefundId,
 				status: 'SUCCEEDED',
 				...(params.overwriteReason ? { reason: params.reason } : {}),
-				...(feeWithheld ? { feeWithheld } : {}),
 			},
 		});
 	}
@@ -217,7 +211,6 @@ export class BookingLedgerService {
 			kind: QueuedRefundKind;
 			reason: string;
 			operationKey?: string;
-			feeWithheld?: number;
 		}[],
 	) {
 		if (rows.length === 0) return Promise.resolve({ count: 0 });
@@ -232,7 +225,6 @@ export class BookingLedgerService {
 				status: 'PENDING' as const,
 				reason: queuedRefundReason(row.kind, row.reason),
 				operationKey: row.operationKey ?? '',
-				...(row.feeWithheld ? { feeWithheld: new Prisma.Decimal(row.feeWithheld.toFixed(2)) } : {}),
 			})),
 			skipDuplicates: true,
 		});
@@ -244,7 +236,6 @@ export class BookingLedgerService {
 		stripeRefundId: string | null;
 		reason: string;
 		operationKey?: string;
-		feeWithheldInCents?: number;
 	}): Promise<boolean> {
 		const result = await this.prisma.bookingAdjustment.updateMany({
 			where: {
@@ -257,9 +248,6 @@ export class BookingLedgerService {
 				amount: toAmount(params.amountInCents),
 				stripeRefundId: params.stripeRefundId,
 				reason: params.reason,
-				...(params.feeWithheldInCents === undefined
-					? {}
-					: { feeWithheld: toAmount(params.feeWithheldInCents) }),
 			},
 		});
 
@@ -295,7 +283,6 @@ export class BookingLedgerService {
 				bookingId: true,
 				stripePaymentIntentId: true,
 				operationKey: true,
-				feeWithheld: true,
 				amount: true,
 				reason: true,
 				createdAt: true,
@@ -320,22 +307,18 @@ export class BookingLedgerService {
 		});
 	}
 
-	async hasActiveRefund(bookingId: string): Promise<boolean> {
+	async hasCancellationRefund(bookingId: string): Promise<boolean> {
 		const row = await this.prisma.bookingAdjustment.findFirst({
-			where: { bookingId, type: 'REFUND', status: { in: ['SUCCEEDED', 'PENDING'] } },
+			where: {
+				bookingId,
+				type: 'REFUND',
+				operationKey: { in: ['', `cancel:${bookingId}`] },
+				status: { in: ['SUCCEEDED', 'PENDING'] },
+			},
 			select: { id: true },
 		});
 
 		return row !== null;
-	}
-
-	async feeWithheldInCents(paymentIntentId: string): Promise<number> {
-		const total = await this.prisma.bookingAdjustment.aggregate({
-			where: { stripePaymentIntentId: paymentIntentId, type: 'REFUND', status: 'SUCCEEDED' },
-			_sum: { feeWithheld: true },
-		});
-
-		return Math.round(Number(total._sum.feeWithheld ?? 0) * 100);
 	}
 
 	listForBooking(db: Pick<Prisma.TransactionClient, 'bookingAdjustment'>, bookingId: string) {
@@ -349,44 +332,45 @@ export class BookingLedgerService {
 				amount: true,
 				stripePaymentIntentId: true,
 				feeAmount: true,
-				feeWithheld: true,
 				operationKey: true,
 				createdAt: true,
 			},
 		});
 	}
 
-	recordOfflineCharge(
+	recordManualRefund(
 		tx: Prisma.TransactionClient,
-		params: { bookingId: string; amount: number; reason: string },
+		params: {
+			bookingId: string;
+			paymentIntentId: string | null;
+			amountInCents: number;
+			reason: string;
+			operationKey: string;
+		},
 	) {
-		return tx.bookingAdjustment.create({
-			data: {
-				bookingId: params.bookingId,
-				type: 'CHARGE',
-				amount: new Prisma.Decimal(params.amount.toFixed(2)),
-				currency: CURRENCY,
-				stripePaymentIntentId: null,
-				status: 'SUCCEEDED',
-				reason: params.reason,
-			},
-		});
-	}
+		const data = {
+			bookingId: params.bookingId,
+			type: 'REFUND' as const,
+			amount: toAmount(params.amountInCents),
+			currency: CURRENCY,
+			stripePaymentIntentId: params.paymentIntentId,
+			status: 'SUCCEEDED' as const,
+			reason: params.reason,
+			operationKey: params.operationKey,
+		};
 
-	recordOfflineRefund(
-		tx: Prisma.TransactionClient,
-		params: { bookingId: string; amount: number; status: 'PENDING' | 'SUCCEEDED'; reason: string },
-	) {
-		return tx.bookingAdjustment.create({
-			data: {
-				bookingId: params.bookingId,
-				type: 'REFUND',
-				amount: new Prisma.Decimal(params.amount.toFixed(2)),
-				currency: CURRENCY,
-				stripePaymentIntentId: null,
-				status: params.status,
-				reason: params.reason,
+		if (!params.paymentIntentId) return tx.bookingAdjustment.create({ data });
+
+		return tx.bookingAdjustment.upsert({
+			where: {
+				stripePaymentIntentId_type_operationKey: {
+					stripePaymentIntentId: params.paymentIntentId,
+					type: 'REFUND',
+					operationKey: params.operationKey,
+				},
 			},
+			create: data,
+			update: { status: 'SUCCEEDED', amount: data.amount, reason: data.reason },
 		});
 	}
 

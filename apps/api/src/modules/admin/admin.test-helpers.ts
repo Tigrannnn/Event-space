@@ -106,7 +106,6 @@ export function createAdmin(prisma: never, stripe: never) {
 	const bookings = new AdminBookingsService(prisma);
 	const cancellation = new AdminBookingCancellationService(
 		prisma,
-		stripe,
 		new BookingLedgerService(prisma),
 		new BookingRefundService(stripe, new BookingLedgerService(prisma)),
 	);

@@ -1,26 +1,20 @@
 import { randomUUID } from 'node:crypto';
-import { Injectable, Logger } from '@nestjs/common';
-import { Prisma, type Locale } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { Prisma, type Locale, type PaymentMethod } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
 	type ChangeQuantityData,
 	type QuantityQuote,
 	type QuantityQuoteRequest,
-	type QuantitySettlement,
+	type RefundMethod,
 } from '@event-space/shared';
 import { AppException } from '@shared';
 import { calculateRefundPercentage } from '../booking.utils';
-import { releaseSeats, reserveSeats } from '../occurrence-seats';
-import { BookingLedgerService } from '../money/booking-ledger.service';
+import { releaseSeats } from '../occurrence-seats';
 import { BookingRefundService } from '../money/booking-refund.service';
+import type { GuestRefund } from '../money/refund-allocation';
 import { BookingNotificationService } from './booking-notification.service';
-import {
-	summarizeBookingMoney,
-	toMoneyAdjustments,
-	type MoneyAdjustment,
-} from '../money/booking-money';
-import { allocatePartialRefund, type RefundAllocation } from '../money/refund-allocation';
 
 export type QuantityActor = { kind: 'client'; userId: string } | { kind: 'admin' };
 
@@ -35,6 +29,7 @@ interface QuantityState {
 		checkedInAt: Date | null;
 		referenceNumber: number | null;
 		brandHost: string | null;
+		paymentMethod: PaymentMethod;
 	};
 	user: { email: string | null; name: string; locale: Locale | null };
 	translations: { locale: Locale; title: string }[];
@@ -45,26 +40,16 @@ interface QuantityState {
 		currentParticipants: number;
 		rules: Parameters<typeof calculateRefundPercentage>[2];
 	};
-	adjustments: MoneyAdjustment[];
 }
 
-interface BuiltQuote {
-	quote: QuantityQuote;
-	allocation: RefundAllocation | null;
-}
-
-const DECREASE_SETTLEMENTS: QuantitySettlement[] = ['RULES', 'FULL', 'NONE'];
-const INCREASE_SETTLEMENTS: QuantitySettlement[] = ['OFFLINE_PAID', 'PAY_ON_ARRIVAL'];
+type Db = Pick<Prisma.TransactionClient, 'booking' | 'bookingAdjustment'>;
 
 const toCents = (value: Prisma.Decimal | number): number => Math.round(Number(value) * 100);
 
 @Injectable()
 export class BookingQuantityService {
-	private readonly logger = new Logger(BookingQuantityService.name);
-
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly ledger: BookingLedgerService,
 		private readonly refunds: BookingRefundService,
 		private readonly notifications: BookingNotificationService,
 	) {}
@@ -75,31 +60,31 @@ export class BookingQuantityService {
 		request: QuantityQuoteRequest,
 	): Promise<QuantityQuote> {
 		const state = await this.load(this.prisma, bookingId);
-		return this.build(actor, state, request, new Date()).quote;
+		const { quote } = await this.build(actor, state, request, this.prisma);
+		return quote;
 	}
 
 	async change(actor: QuantityActor, bookingId: string, data: ChangeQuantityData) {
-		await this.assertAllowed(actor, bookingId);
-		await this.refunds.fillMissingFees(bookingId);
+		const owner = await this.assertAllowed(actor, bookingId);
+		await this.refunds.prepare(bookingId, owner.paymentIntentId);
 
 		const operationKey = `qty:${randomUUID()}`;
 
-		const { quote, allocation, state } = await this.prisma.$transaction(async (tx) => {
+		const { quote, plan, state } = await this.prisma.$transaction(async (tx) => {
 			const state = await this.load(tx, bookingId);
-			const built = this.build(actor, state, data, new Date());
-			const { quote: current } = built;
+			const { quote, plan } = await this.build(actor, state, data, tx);
 
-			if (actor.kind === 'client' && current.direction === 'INCREASE') {
+			if (actor.kind === 'client' && quote.direction === 'INCREASE') {
 				throw new AppException(AppErrorCode.QUANTITY_PAYMENT_REQUIRED);
 			}
 
 			if (
 				actor.kind === 'client' &&
-				current.refund &&
-				data.expectedRefundInCents !== current.refund.netInCents
+				quote.refund &&
+				data.expectedRefundInCents !== quote.refund.netInCents
 			) {
 				throw new AppException(AppErrorCode.QUANTITY_QUOTE_CHANGED, {
-					refundInCents: current.refund.netInCents,
+					refundInCents: quote.refund.netInCents,
 				});
 			}
 
@@ -107,12 +92,12 @@ export class BookingQuantityService {
 				where: {
 					id: bookingId,
 					status: 'CONFIRMED',
-					quantity: current.currentQuantity,
+					quantity: quote.currentQuantity,
 					checkedInAt: null,
 				},
 				data: {
-					quantity: current.newQuantity,
-					amount: new Prisma.Decimal((current.newAmountInCents / 100).toFixed(2)),
+					quantity: quote.newQuantity,
+					amount: new Prisma.Decimal((quote.newAmountInCents / 100).toFixed(2)),
 				},
 			});
 
@@ -120,44 +105,28 @@ export class BookingQuantityService {
 				throw new AppException(AppErrorCode.BOOKING_CHANGED_CONCURRENTLY);
 			}
 
-			if (current.direction === 'DECREASE') {
-				await releaseSeats(
-					tx,
-					state.booking.occurrenceId,
-					current.currentQuantity - current.newQuantity,
-				);
-				if (built.allocation) {
-					await this.refunds.queueAllocation(tx, bookingId, built.allocation, {
-						operationKey,
-						reason: this.reasonFor(current),
-						cashStatus: actor.kind === 'admin' ? 'SUCCEEDED' : 'PENDING',
-					});
-				}
-			} else {
-				await reserveSeats(tx, state.occurrence, current.newQuantity - current.currentQuantity);
+			await releaseSeats(tx, state.booking.occurrenceId, quote.currentQuantity - quote.newQuantity);
 
-				if (current.settlement === 'OFFLINE_PAID') {
-					await this.ledger.recordOfflineCharge(tx, {
-						bookingId,
-						amount: current.dueInCents / 100,
-						reason: `Paid offline for ${current.newQuantity - current.currentQuantity} more guests, entered by an admin`,
-					});
-				}
+			if (plan && quote.refund) {
+				await this.refunds.queuePlan(tx, bookingId, plan, {
+					operationKey,
+					reason: this.reasonFor(quote),
+					method: quote.refund.method,
+				});
 			}
 
-			return { ...built, state };
+			return { quote, plan, state };
 		});
 
-		let refundOutcome: { refundedInCents: number | null; failed: boolean } | null = null;
-
-		if (quote.direction === 'DECREASE' && allocation) {
-			refundOutcome = await this.refunds.settleAllocation(bookingId, allocation, {
-				operationKey,
-				reason: this.reasonFor(quote),
-				failureReason: 'Refund could not be processed at Stripe (guests removed)',
-				failureLogSuffix: ' (guests removed)',
-			});
-		}
+		const outcome =
+			plan && quote.refund?.method === 'STRIPE'
+				? await this.refunds.settlePlan(bookingId, plan, {
+						operationKey,
+						reason: this.reasonFor(quote),
+						failureReason: 'Refund could not be processed at Stripe (guests removed)',
+						failureLogSuffix: ' (guests removed)',
+					})
+				: null;
 
 		await this.notifications.sendQuantityChanged({
 			booking: state.booking,
@@ -168,7 +137,7 @@ export class BookingQuantityService {
 			newQuantity: quote.newQuantity,
 			newAmount: quote.newAmountInCents / 100,
 			byOrganiser: actor.kind === 'admin',
-			...this.emailMoney(quote, allocation, refundOutcome),
+			refund: this.emailRefund(quote, state, outcome),
 		});
 
 		return {
@@ -179,22 +148,21 @@ export class BookingQuantityService {
 		};
 	}
 
-	private async assertAllowed(actor: QuantityActor, bookingId: string): Promise<void> {
+	private async assertAllowed(actor: QuantityActor, bookingId: string) {
 		const booking = await this.prisma.booking.findUnique({
 			where: { id: bookingId },
-			select: { userId: true },
+			select: { userId: true, paymentIntentId: true },
 		});
 
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (actor.kind === 'client' && booking.userId !== actor.userId) {
 			throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
 		}
+
+		return booking;
 	}
 
-	private async load(
-		db: Pick<Prisma.TransactionClient, 'booking' | 'bookingAdjustment'>,
-		bookingId: string,
-	): Promise<QuantityState> {
+	private async load(db: Db, bookingId: string): Promise<QuantityState> {
 		const booking = await db.booking.findUnique({
 			where: { id: bookingId },
 			include: {
@@ -208,8 +176,6 @@ export class BookingQuantityService {
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (!booking.occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND);
 
-		const rows = await this.ledger.listForBooking(db, bookingId);
-
 		return {
 			booking: {
 				id: booking.id,
@@ -221,6 +187,7 @@ export class BookingQuantityService {
 				checkedInAt: booking.checkedInAt,
 				referenceNumber: booking.referenceNumber,
 				brandHost: booking.brandHost,
+				paymentMethod: booking.paymentMethod,
 			},
 			user: { email: booking.user.email, name: booking.user.name, locale: booking.user.locale },
 			translations: (booking.occurrence.event?.translations ?? []).map((row) => ({
@@ -234,17 +201,17 @@ export class BookingQuantityService {
 				currentParticipants: booking.occurrence.currentParticipants,
 				rules: booking.occurrence.event?.cancellationRules ?? [],
 			},
-			adjustments: toMoneyAdjustments(rows),
 		};
 	}
 
-	private build(
+	private async build(
 		actor: QuantityActor,
 		state: QuantityState,
 		request: QuantityQuoteRequest,
-		now: Date,
-	): BuiltQuote {
+		db: Db,
+	): Promise<{ quote: QuantityQuote; plan: GuestRefund | null }> {
 		const { booking, occurrence } = state;
+		const now = new Date();
 
 		if (actor.kind === 'client' && booking.userId !== actor.userId) {
 			throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
@@ -257,10 +224,9 @@ export class BookingQuantityService {
 		if (request.quantity === booking.quantity) {
 			throw new AppException(AppErrorCode.QUANTITY_UNCHANGED);
 		}
-
-		const direction = request.quantity < booking.quantity ? 'DECREASE' : 'INCREASE';
-
-		const settlement = this.settlementFor(actor, direction, request.settlement);
+		if (actor.kind === 'client' && booking.paymentMethod !== 'SITE_PAYMENT') {
+			throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
+		}
 
 		const currentAmountInCents = toCents(booking.amount);
 		const unitPriceInCents = Math.round(currentAmountInCents / booking.quantity);
@@ -270,19 +236,19 @@ export class BookingQuantityService {
 			bookingId: booking.id,
 			currentQuantity: booking.quantity,
 			newQuantity: request.quantity,
-			direction,
-			settlement,
 			unitPriceInCents,
 			currentAmountInCents,
 			newAmountInCents,
-		} as const;
+		};
 
-		if (direction === 'INCREASE') {
-			if (
-				request.quantity - booking.quantity >
-				occurrence.maxParticipants - occurrence.currentParticipants
-			) {
-				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+		if (request.quantity > booking.quantity) {
+			if (actor.kind === 'admin') throw new AppException(AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED);
+			if ((request.settlement && request.settlement !== 'CARD') || request.refundMethod) {
+				throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
+			}
+
+			const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+			if (request.quantity - booking.quantity > spotsLeft) {
 				throw spotsLeft === 0
 					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
 					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
@@ -291,101 +257,73 @@ export class BookingQuantityService {
 			return {
 				quote: {
 					...base,
+					direction: 'INCREASE',
+					settlement: 'CARD',
 					dueInCents: newAmountInCents - currentAmountInCents,
 					refund: null,
 				},
-				allocation: null,
+				plan: null,
 			};
 		}
 
-		if (settlement === 'NONE') {
-			return { quote: { ...base, dueInCents: 0, refund: null }, allocation: null };
+		const settlement = request.settlement ?? 'RULES';
+		const requestedMethod: RefundMethod = request.refundMethod ?? 'STRIPE';
+
+		if (settlement === 'CARD') throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
+		if (actor.kind === 'client' && (settlement !== 'RULES' || requestedMethod !== 'STRIPE')) {
+			throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
 		}
 
 		const percentage =
 			settlement === 'FULL' ? 100 : calculateRefundPercentage(now, occurrence.date, occurrence.rules);
 
-		const money = summarizeBookingMoney(state.adjustments, Number(booking.amount));
-		const allocation = allocatePartialRefund({
-			payments: money.payments,
-			removedUnits: booking.quantity - request.quantity,
-			unitPriceInCents,
+		const plan = await this.refunds.planForBooking(db, {
+			bookingId: booking.id,
+			amount: Number(booking.amount),
+			quantity: booking.quantity,
+			guests: booking.quantity - request.quantity,
 			percentage,
+			withholdFee: settlement === 'RULES',
 		});
+
+		if (booking.paymentMethod === 'SITE_PAYMENT' && !plan.paidByCard) {
+			throw new AppException(AppErrorCode.PAYMENT_SERVICE_UNAVAILABLE);
+		}
 
 		return {
 			quote: {
 				...base,
+				direction: 'DECREASE',
+				settlement,
 				dueInCents: 0,
 				refund: {
+					method: plan.paidByCard ? requestedMethod : 'MANUAL',
 					percentage,
-					grossInCents: allocation.grossInCents,
-					netInCents: allocation.netInCents,
-					feeWithheldInCents: allocation.feeWithheldInCents,
-					parts: allocation.parts.map((part) => ({
-						method: part.method,
-						grossInCents: part.grossInCents,
-						netInCents: part.netInCents,
-					})),
+					grossInCents: plan.grossInCents,
+					feeInCents: plan.feeInCents,
+					netInCents: plan.netInCents,
 				},
 			},
-			allocation,
+			plan,
 		};
 	}
 
-	private settlementFor(
-		actor: QuantityActor,
-		direction: 'DECREASE' | 'INCREASE',
-		requested: QuantitySettlement | undefined,
-	): QuantitySettlement {
-		if (actor.kind === 'client') {
-			const own: QuantitySettlement = direction === 'DECREASE' ? 'RULES' : 'CARD';
-			if (requested && requested !== own) {
-				throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
-			}
-			return own;
-		}
-
-		const allowed = direction === 'DECREASE' ? DECREASE_SETTLEMENTS : INCREASE_SETTLEMENTS;
-		const settlement = requested ?? allowed[direction === 'DECREASE' ? 0 : 1];
-
-		if (!allowed.includes(settlement)) {
-			throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
-		}
-
-		return settlement;
-	}
-
-	private emailMoney(
+	private emailRefund(
 		quote: QuantityQuote,
-		allocation: RefundAllocation | null,
+		state: QuantityState,
 		outcome: { refundedInCents: number | null; failed: boolean } | null,
 	) {
-		if (quote.direction === 'INCREASE') {
-			return {
-				extra: {
-					kind:
-						quote.settlement === 'OFFLINE_PAID' ? ('paidOffline' as const) : ('payOnArrival' as const),
-					amount: quote.dueInCents / 100,
-				},
-			};
+		if (!quote.refund || state.booking.paymentMethod === 'PAY_ON_ARRIVAL') return undefined;
+		if (quote.refund.netInCents === 0) return { kind: 'notRefundable' as const };
+		if (quote.refund.method === 'MANUAL') {
+			return { kind: 'manual' as const, amount: quote.refund.netInCents / 100 };
 		}
-
-		const cashInCents = (allocation?.parts ?? [])
-			.filter((part) => part.method === 'OFFLINE')
-			.reduce((sum, part) => sum + part.netInCents, 0);
-		const cashRefundAmount = cashInCents > 0 ? cashInCents / 100 : undefined;
-
-		if (outcome?.failed) return { refund: { kind: 'pending' as const }, cashRefundAmount };
+		if (outcome?.failed) return { kind: 'pending' as const };
 		if (outcome?.refundedInCents) {
-			return {
-				refund: { kind: 'refunded' as const, amount: outcome.refundedInCents / 100 },
-				cashRefundAmount,
-			};
+			return { kind: 'refunded' as const, amount: outcome.refundedInCents / 100 };
 		}
-		if (cashRefundAmount) return { cashRefundAmount };
 
-		return { refund: { kind: 'notRefundable' as const } };
+		return { kind: 'pending' as const };
 	}
 
 	private reasonFor(quote: QuantityQuote): string {

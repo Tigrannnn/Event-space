@@ -66,6 +66,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Эта бронь ещё не подтверждена.',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Подтвердить вручную можно только бронь в ожидании.',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Чтобы добавить гостей, сначала нужно оплатить доплату.',
+	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'Админ не может добавлять гостей в бронь. Создайте новую бронь.',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'Количество гостей не изменилось.',
 	[AppErrorCode.QUANTITY_QUOTE_CHANGED]: 'Сумма возврата изменилась с момента, когда вы её увидели. Проверьте новую сумму.',
 	[AppErrorCode.QUANTITY_SETTLEMENT_INVALID]: 'Этот способ расчёта не подходит для такого изменения.',

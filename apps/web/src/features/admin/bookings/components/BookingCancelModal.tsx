@@ -9,7 +9,11 @@ import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCancelBookingByAdmin } from '@/features/admin/hooks/useAdmin';
-import { getEventTranslation, type AdminCancelBookingData } from '@event-space/shared';
+import {
+	getEventTranslation,
+	type AdminCancelBookingData,
+	type RefundMethod,
+} from '@event-space/shared';
 
 export default function BookingCancelModal() {
 	const translate = useTranslation();
@@ -21,6 +25,7 @@ export default function BookingCancelModal() {
 
 	const cancelBooking = useCancelBookingByAdmin();
 	const [refundType, setRefundType] = useState<AdminCancelBookingData['refundType']>('RULES');
+	const [refundMethod, setRefundMethod] = useState<RefundMethod>('STRIPE');
 	const [reason, setReason] = useState('');
 	const [openedAt] = useState(() => Date.now());
 
@@ -31,10 +36,12 @@ export default function BookingCancelModal() {
 	const refundOptions = [
 		{ value: 'FULL', label: translate('admin.refundStrategyFull') },
 		{ value: 'RULES', label: translate('admin.refundStrategyRules') },
-		{ value: 'MANUAL', label: translate('admin.refundStrategyManual') },
-	] as const;
+	];
+	const methodOptions = [
+		{ value: 'STRIPE', label: translate('admin.refundMethodStripe') },
+		{ value: 'MANUAL', label: translate('admin.refundMethodManual') },
+	];
 
-	// Only a site payment went through Stripe; anything else can only be refunded by hand.
 	const isSitePayment = booking.paymentMethod === 'SITE_PAYMENT';
 
 	const eventTranslate = getEventTranslation(event, translate.locale);
@@ -46,7 +53,8 @@ export default function BookingCancelModal() {
 		cancelBooking.mutate({
 			id: booking.id,
 			data: {
-				refundType: isSitePayment ? refundType : 'MANUAL',
+				refundType,
+				refundMethod: isSitePayment ? refundMethod : 'MANUAL',
 				reason: reason.trim() || undefined,
 			},
 		});
@@ -76,15 +84,26 @@ export default function BookingCancelModal() {
 							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
 								{translate('admin.refundStrategy')}
 							</label>
+							<Select
+								value={refundType}
+								onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
+								options={refundOptions}
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<label className="mr-4 text-sm font-medium text-gray-700 dark:text-gray-200">
+								{translate('admin.refundMethodLabel')}
+							</label>
 							{isSitePayment ? (
 								<Select
-									value={refundType}
-									onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
-									options={refundOptions.map((option) => ({ value: option.value, label: option.label }))}
+									value={refundMethod}
+									onValueChange={(value) => setRefundMethod(value as RefundMethod)}
+									options={methodOptions}
 								/>
 							) : (
 								<p className="text-sm text-gray-700 dark:text-gray-200">
-									{translate('admin.refundStrategyManual')}
+									{translate('admin.refundManualOnly')}
 								</p>
 							)}
 						</div>

@@ -1,5 +1,5 @@
 import { MailTemplateService } from './mail-template.service';
-import { BOOKING_CANCELLED_STRINGS, BOOKING_QUANTITY_CHANGED_STRINGS } from './mail-strings';
+import { BOOKING_QUANTITY_CHANGED_STRINGS } from './mail-strings';
 
 describe.each(['en', 'ru', 'hy'] as const)('booking changed email in %s', (locale) => {
 	const strings = BOOKING_QUANTITY_CHANGED_STRINGS[locale];
@@ -23,13 +23,9 @@ describe.each(['en', 'ru', 'hy'] as const)('booking changed email in %s', (local
 	it('states every amount it is given', () => {
 		expect(strings.newTotal('20 000 AMD')).toContain('20 000 AMD');
 		expect(strings.refund('9 700 AMD')).toContain('9 700 AMD');
-		expect(strings.cashRefund('10 000 AMD')).toContain('10 000 AMD');
-		expect(strings.paidOffline('10 000 AMD')).toContain('10 000 AMD');
-		expect(strings.payOnArrival('10 000 AMD')).toContain('10 000 AMD');
-	});
-
-	it('says what stays with the company when the cancellation email has a cash part', () => {
-		expect(BOOKING_CANCELLED_STRINGS[locale].cashRefund('10 000 AMD')).toContain('10 000 AMD');
+		expect(strings.manualRefund('10 000 AMD')).toContain('10 000 AMD');
+		expect(strings.paidByCard('10 000 AMD')).toContain('10 000 AMD');
+		expect(strings.notAddedRefund('10 000 AMD')).toContain('10 000 AMD');
 	});
 });
 

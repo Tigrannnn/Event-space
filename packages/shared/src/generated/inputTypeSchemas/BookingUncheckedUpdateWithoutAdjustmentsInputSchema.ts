@@ -14,7 +14,6 @@ import { EnumPaymentMethodFieldUpdateOperationsInputSchema } from './EnumPayment
 import { NullableStringFieldUpdateOperationsInputSchema } from './NullableStringFieldUpdateOperationsInputSchema';
 import { NullableIntFieldUpdateOperationsInputSchema } from './NullableIntFieldUpdateOperationsInputSchema';
 import { NullableDateTimeFieldUpdateOperationsInputSchema } from './NullableDateTimeFieldUpdateOperationsInputSchema';
-import { BookingModificationUncheckedUpdateManyWithoutBookingNestedInputSchema } from './BookingModificationUncheckedUpdateManyWithoutBookingNestedInputSchema';
 import { BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema } from './BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema';
 
 export const BookingUncheckedUpdateWithoutAdjustmentsInputSchema: z.ZodType<Prisma.BookingUncheckedUpdateWithoutAdjustmentsInput> = z.strictObject({
@@ -34,7 +33,6 @@ export const BookingUncheckedUpdateWithoutAdjustmentsInputSchema: z.ZodType<Pris
   checkedInAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   confirmationSentAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   reminderSentAt: z.union([ z.coerce.date(),z.lazy(() => NullableDateTimeFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  modifications: z.lazy(() => BookingModificationUncheckedUpdateManyWithoutBookingNestedInputSchema).optional(),
   statusHistory: z.lazy(() => BookingStatusHistoryUncheckedUpdateManyWithoutBookingNestedInputSchema).optional(),
 });
 

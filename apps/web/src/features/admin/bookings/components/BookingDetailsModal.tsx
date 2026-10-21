@@ -42,8 +42,8 @@ export default function BookingDetailsModal() {
 
 	const t = getEventTranslation(event, locale);
 	const adjustments = booking.adjustments ?? [];
-	const payments = summarizePayments(adjustments, Number(booking.amount));
-	const hasPayments = payments.card + payments.cash + payments.refunded + payments.due > 0;
+	const payments = summarizePayments(adjustments);
+	const hasPayments = payments.card + payments.cash + payments.refunded > 0;
 	const eventImages = event?.images ?? [];
 
 	const handleCopy = (value: string) => {
@@ -207,7 +207,6 @@ export default function BookingDetailsModal() {
 										{ label: translate('admin.paidByCard'), value: payments.card },
 										{ label: translate('admin.paidInCash'), value: payments.cash },
 										{ label: translate('admin.refundedTotal'), value: payments.refunded },
-										{ label: translate('admin.amountDue'), value: payments.due },
 									]
 										.filter((row) => row.value > 0)
 										.map((row) => (

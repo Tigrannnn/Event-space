@@ -108,18 +108,16 @@ describe('changing the number of guests against the real database and Stripe tes
 		expect(stripeRefunds.data).toHaveLength(2);
 	}, 60_000);
 
-	it('cancels the last guest: the rest is refunded and the fee is held back exactly once in total', async () => {
+	it('cancels the last guest: every guest got back the unit price minus the same fee share', async () => {
 		await live.bookings.cancel(live.userId, bookingId);
 
 		const refunds = (await rows()).filter((row) => row.type === 'REFUND');
 		expect(refunds).toHaveLength(3);
 		expect(refunds.every((row) => row.status === 'SUCCEEDED')).toBe(true);
 
+		const feePerGuest = Math.round((feeInCents * 1_000_000) / 3_000_000);
 		const refundedInCents = refunds.reduce((sum, row) => sum + cents(row.amount), 0);
-		const withheldInCents = refunds.reduce((sum, row) => sum + cents(row.feeWithheld), 0);
-
-		expect(refundedInCents + withheldInCents).toBe(3_000_000);
-		expect(withheldInCents).toBe(feeInCents);
+		expect(refundedInCents).toBe(3 * (1_000_000 - feePerGuest));
 
 		const stripeRefunds = await live.stripe.refunds.list({
 			payment_intent: paymentIntentId,

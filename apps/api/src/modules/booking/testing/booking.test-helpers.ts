@@ -14,16 +14,17 @@ export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const refunds = new BookingRefundService(stripe, ledger);
 	const queries = new BookingQueryService(prisma, stripe);
 	const notifications = new BookingNotificationService(prisma, mail);
-	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications);
-	const cancellations = new BookingCancellationService(prisma, ledger, refunds, notifications);
-	const creation = new BookingCreationService(prisma, stripe, notifications, payments, ledger);
-	const quantities = new BookingQuantityService(prisma, ledger, refunds, notifications);
+	const cancellations = new BookingCancellationService(prisma, refunds, notifications);
+	const quantities = new BookingQuantityService(prisma, refunds, notifications);
 	const topUps = new BookingTopUpService(prisma, stripe, ledger, refunds, quantities, notifications);
+	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications, topUps);
+	const creation = new BookingCreationService(prisma, stripe, notifications, payments, ledger);
 
 	return {
 		service: new BookingService(creation, queries, payments, cancellations, quantities, topUps),
 		ledger,
 		refunds,
+		topUps,
 	};
 }
 

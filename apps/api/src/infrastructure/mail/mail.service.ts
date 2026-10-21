@@ -346,7 +346,6 @@ export class MailService implements OnModuleInit {
 		refundAmount?: number;
 		refundFailed?: boolean;
 		refundCoveredByFee?: { entitled: number; fee: number };
-		cashRefundAmount?: number;
 		nothingPaid?: boolean;
 		offlinePaid?: boolean;
 		currency: string;
@@ -376,17 +375,13 @@ export class MailService implements OnModuleInit {
 							? strings.nothingPaid
 							: strings.noRefund;
 
-		const cashLine = params.cashRefundAmount
-			? strings.cashRefund(formatMailAmount(params.cashRefundAmount, params.currency, params.locale))
-			: '';
-
 		try {
 			const html = await this.templateService.render('booking-cancelled', {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				GREETING: strings.greeting(params.userName),
 				BODY: body,
-				REFUND: cashLine ? `${refundLine}<br /><br />${cashLine}` : refundLine,
+				REFUND: refundLine,
 				SUPPORT: strings.support,
 				SIGNOFF: strings.signoff,
 				SIGNATURE: brand.name,
@@ -399,7 +394,6 @@ export class MailService implements OnModuleInit {
 					strings.greeting(params.userName),
 					body,
 					refundLine,
-					cashLine,
 					strings.support,
 					`${strings.signoff} ${brand.name}`,
 				]
@@ -427,9 +421,12 @@ export class MailService implements OnModuleInit {
 		newQuantity: number;
 		newAmount: number;
 		byOrganiser: boolean;
-		refund?: { kind: 'refunded'; amount: number } | { kind: 'pending' } | { kind: 'notRefundable' };
-		cashRefundAmount?: number;
-		extra?: { kind: 'paidOffline' | 'paidByCard' | 'payOnArrival'; amount: number };
+		refund?:
+			| { kind: 'refunded'; amount: number }
+			| { kind: 'manual'; amount: number }
+			| { kind: 'pending' }
+			| { kind: 'notRefundable' };
+		extra?: { kind: 'paidByCard'; amount: number };
 		currency: string;
 		brandHost?: string;
 	}): Promise<boolean> {
@@ -452,10 +449,8 @@ export class MailService implements OnModuleInit {
 			params.refund?.kind === 'refunded' ? strings.refund(money(params.refund.amount)) : '',
 			params.refund?.kind === 'pending' ? strings.refundPending : '',
 			params.refund?.kind === 'notRefundable' ? strings.notRefundable : '',
-			params.cashRefundAmount ? strings.cashRefund(money(params.cashRefundAmount)) : '',
-			params.extra?.kind === 'paidOffline' ? strings.paidOffline(money(params.extra.amount)) : '',
+			params.refund?.kind === 'manual' ? strings.manualRefund(money(params.refund.amount)) : '',
 			params.extra?.kind === 'paidByCard' ? strings.paidByCard(money(params.extra.amount)) : '',
-			params.extra?.kind === 'payOnArrival' ? strings.payOnArrival(money(params.extra.amount)) : '',
 		].filter(Boolean);
 
 		try {

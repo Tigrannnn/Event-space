@@ -58,7 +58,6 @@ export const BookingAdjustmentWhereUniqueInputSchema: z.ZodType<Prisma.BookingAd
   currency: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   stripePaymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   feeAmount: z.union([ z.lazy(() => DecimalNullableFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
-  feeWithheld: z.union([ z.lazy(() => DecimalNullableFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional().nullable(),
   operationKey: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   status: z.union([ z.lazy(() => EnumAdjustmentStatusFilterSchema), z.lazy(() => AdjustmentStatusSchema) ]).optional(),
   reason: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),

@@ -126,7 +126,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		message: 'This account is under global protection. Try again later.',
 	},
 
-	[AppErrorCode.OCCURRENCE_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Occurrence not found' },
+	[AppErrorCode.OCCURRENCE_NOT_FOUND]: {
+		status: HttpStatus.NOT_FOUND,
+		message: 'Occurrence not found',
+	},
 	[AppErrorCode.EVENT_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Event not found' },
 	[AppErrorCode.BOOKING_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Booking not found' },
 	[AppErrorCode.CATEGORY_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Category not found' },
@@ -170,6 +173,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: {
 		status: HttpStatus.CONFLICT,
 		message: 'Adding guests has to be paid for first',
+	},
+	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'An admin cannot add guests to a booking, make a new booking instead',
 	},
 	[AppErrorCode.QUANTITY_UNCHANGED]: {
 		status: HttpStatus.BAD_REQUEST,
