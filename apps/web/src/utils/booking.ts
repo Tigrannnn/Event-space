@@ -23,12 +23,6 @@ export function getBookingStatusBadgeVariant(status: BookingDisplayStatus) {
 	return BOOKING_STATUS_BADGE_VARIANT[status];
 }
 
-/**
- * The date this booking was made for, when the tour was moved afterwards.
- *
- * Someone who booked after the move chose the current date themselves and must not be told
- * anything changed, so the move only counts when it happened after the booking was made.
- */
 export function movedFromDate(booking: {
 	createdAt: string | Date;
 	occurrence?: { previousDate?: string | Date | null; rescheduledAt?: string | Date | null } | null;

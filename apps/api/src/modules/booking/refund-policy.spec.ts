@@ -40,8 +40,6 @@ describe('resolveRefundPolicy', () => {
 	});
 
 	it('is back to the ladder once the client confirmed the new date', () => {
-		// Confirming clears the deadline, so the policy sees a booking like any other. Keeping
-		// the right afterwards would make the answer worthless to the company counting heads.
 		expect(
 			resolveRefundPolicy({
 				now: new Date('2026-12-18T09:00:00.000Z'),

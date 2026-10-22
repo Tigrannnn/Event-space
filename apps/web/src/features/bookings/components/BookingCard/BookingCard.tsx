@@ -53,12 +53,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const displayStatus = getBookingDisplayStatus(booking);
 	const occurrenceDate = occurrence.date;
 	const movedFrom = status !== 'CANCELLED' ? movedFromDate(booking) : null;
-	// Set only while the client may still walk away from a date the company moved.
 	const walkAwayUntil =
 		booking.refundReason === 'RESCHEDULE' && booking.rescheduleRefundUntil
 			? new Date(booking.rescheduleRefundUntil)
 			: null;
-	// Saying the date suits them takes the question away, not the right behind it.
 	const awaitingAnswer = Boolean(walkAwayUntil) && !booking.rescheduleAcceptedAt;
 	const canChangeQuantity =
 		occurrenceIsAvailable &&
@@ -109,8 +107,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			message: (
 				<div className="space-y-3">
 					<p>{`${translate('booking.areYouSure')} ${refundMessage}`}</p>
-					{/* The ladder is measured from the tour date, which says nothing while the
-					    client is owed everything back for a move they did not ask for. */}
 					{!walkAwayUntil && (
 						<CancellationPolicyInfo
 							eventDate={occurrenceDate ?? ''}

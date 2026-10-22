@@ -195,7 +195,6 @@ export class MailService implements OnModuleInit {
 		const previousDate = formatMailDate(params.previousDate, params.locale);
 		const newDate = formatMailDate(params.newDate, params.locale);
 		const reasonLine = params.reason ? strings.reason(params.reason) : undefined;
-		// Nothing to offer a client who has not paid: they decide by paying or not.
 		const cantMakeLine = params.refundUntil
 			? strings.cantMake(formatMailDate(params.refundUntil, params.locale))
 			: undefined;

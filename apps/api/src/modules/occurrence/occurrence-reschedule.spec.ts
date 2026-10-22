@@ -38,8 +38,6 @@ function build(options: WorldOptions = {}) {
 	const letters: Record<string, unknown>[] = [];
 
 	const eventOccurrence = {
-		// Prisma hands back a fresh object every read; sharing one would let a later write
-		// rewrite what the service already read.
 		findUnique: () => Promise.resolve({ ...row }),
 		findFirst: () => Promise.resolve(takenBy ? { id: takenBy } : null),
 		findUniqueOrThrow: () => Promise.resolve({ ...row }),

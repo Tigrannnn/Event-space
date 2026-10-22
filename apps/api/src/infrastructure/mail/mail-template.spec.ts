@@ -18,7 +18,6 @@ describe('MailTemplateService', () => {
 			SIGNATURE: 'Event Space',
 		});
 
-		// A template missing from the loader list would quietly fall back to bare text.
 		expect(html).toContain('<html');
 		expect(html).toContain('Поход на Арагац');
 		expect(html).toContain('Перевал закрыт');

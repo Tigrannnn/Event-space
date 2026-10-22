@@ -51,8 +51,6 @@ export class AdminBookingCancellationService {
 				await tx.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
 			}
 
-			// "By the rules" still honours a move the company made: the client should not pay for it
-			// just because an admin pressed cancel instead of them.
 			const byRules = resolveRefundPolicy({
 				now: new Date(),
 				occurrenceDate: new Date(current.occurrence?.date ?? new Date()),

@@ -42,8 +42,6 @@ export default function CancellationPolicyInfo({
 		? Math.round(Number(booking.amount) * 100)
 		: Math.round(Number(price) * 100);
 
-	// The server knows the fee Stripe actually took; recomputing it here would show one number
-	// next to the booking's own estimate and a different one in these terms.
 	const stripeFeeInCents =
 		booking && booking.estimatedStripeFeeInCents > 0
 			? booking.estimatedStripeFeeInCents

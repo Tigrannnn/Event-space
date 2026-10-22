@@ -12,7 +12,6 @@ import { zonedLocalInputToDate, type CancellationReasons } from '@event-space/sh
 
 interface RescheduleOccurrenceDialogProps {
 	occurrenceId: string;
-	/** Current date as the form keeps it: `YYYY-MM-DDTHH:mm`. */
 	currentDate: string;
 	eventTitle?: string;
 	activeBookingsCount: number;
@@ -21,10 +20,6 @@ interface RescheduleOccurrenceDialogProps {
 	onRescheduled: (date: string) => void;
 }
 
-/**
- * Lives inside the event form rather than in ModalRoot: the store keeps one modal at a time,
- * so going through it would close the event form and lose everything typed into it.
- */
 export default function RescheduleOccurrenceDialog({
 	occurrenceId,
 	currentDate,
@@ -52,8 +47,6 @@ export default function RescheduleOccurrenceDialog({
 			reasons: noReason ? undefined : reasons,
 		});
 
-		// The form still holds the old date; saving the event afterwards would send it back
-		// through the path that refuses to move booked dates at all.
 		onRescheduled(date);
 		onClose();
 	};

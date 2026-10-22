@@ -15,7 +15,6 @@ interface CancellationReasonFieldProps {
 	reasons: CancellationReasons;
 	noReason: boolean;
 	disabled?: boolean;
-	/** What the clients miss without a reason; the wording differs per action. */
 	noReasonHint?: string;
 	onReasonsChange: (reasons: CancellationReasons) => void;
 	onNoReasonChange: (noReason: boolean) => void;

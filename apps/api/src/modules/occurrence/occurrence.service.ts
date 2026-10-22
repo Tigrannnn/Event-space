@@ -15,7 +15,6 @@ import { AppException } from '@shared';
 
 const MAIL_BATCH_SIZE = 5;
 
-/** Сколько у оплатившего клиента есть времени передумать после переноса. */
 const RESCHEDULE_REFUND_DAYS = 5;
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -109,10 +108,6 @@ export class OccurrenceService {
 		return updated;
 	}
 
-	/**
-	 * Moves a date that already has bookings, which `syncForEvent` refuses to do. The previous
-	 * date is kept on the row so the client can be shown what changed.
-	 */
 	async reschedule(occurrenceId: string, data: RescheduleOccurrenceData) {
 		const date = new Date(data.date);
 		const reasons = compactCancellationReasons(data.reasons);
@@ -165,14 +160,11 @@ export class OccurrenceService {
 				throw new AppException(AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY, { id: occurrenceId });
 			}
 
-			// The reminder for the old date may already be out, and the job only ever sends one.
 			await tx.booking.updateMany({
 				where: { occurrenceId, status: { in: ['PENDING', 'CONFIRMED'] } },
 				data: { reminderSentAt: null },
 			});
 
-			// Only those who already paid get the right to walk away: an unpaid booking sees the
-			// new date on the page before deciding to pay, so paying is the decision itself.
 			const refundUntil = new Date(
 				Math.min(Date.now() + RESCHEDULE_REFUND_DAYS * DAY, date.getTime()),
 			);
@@ -198,10 +190,6 @@ export class OccurrenceService {
 			return { moved, notify };
 		});
 
-		// Outside the transaction: a slow mail server must not hold the row locked, and a
-		// bounced email must not undo a move that already happened. In small parallel batches
-		// because a full date can hold a hundred guests, and one send at a time would keep the
-		// admin waiting minutes for a move that already went through.
 		const recipients = result.notify.filter((booking) => booking.user?.email);
 
 		for (let from = 0; from < recipients.length; from += MAIL_BATCH_SIZE) {
