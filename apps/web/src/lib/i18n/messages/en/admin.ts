@@ -139,6 +139,7 @@ export const admin = {
 	cancelledAt: 'Cancelled at',
 	acrossOccurrences: 'Across occurrences',
 	copyId: 'Copy ID',
+	customerId: 'Customer ID',
 	find: 'Find',
 	invalidReference: 'Invalid reference number',
 	checkedInSuccessfully: 'Checked in successfully',

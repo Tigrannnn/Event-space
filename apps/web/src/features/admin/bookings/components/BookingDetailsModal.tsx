@@ -1,11 +1,8 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
 import { describeLedgerReason } from '../ledger-reason';
 import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
-import Button from '@/components/ui/Buttons/Button/Button';
-import Select from '@/components/ui/Select/Select';
 import { useModalStore, useModalData } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
@@ -16,6 +13,39 @@ import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { summarizePayments } from '../payments-summary';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
+
+function CopyRow({
+	label,
+	value,
+	onCopy,
+	title,
+}: {
+	label?: string;
+	value: string;
+	onCopy: () => void;
+	title: string;
+}) {
+	return (
+		<div className="flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
+			{label && (
+				<span className="shrink-0 text-[0.65rem] font-medium text-gray-500 uppercase dark:text-gray-400">
+					{label}
+				</span>
+			)}
+			<code className="flex-1 font-mono text-[0.7rem] break-all text-gray-700 dark:text-gray-300">
+				{value}
+			</code>
+			<button
+				type="button"
+				onClick={onCopy}
+				className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+				title={title}
+			>
+				<Copy className="h-3 w-3" />
+			</button>
+		</div>
+	);
+}
 
 export default function BookingDetailsModal() {
 	const translate = useTranslation();
@@ -34,8 +64,6 @@ export default function BookingDetailsModal() {
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.occurrence?.event;
-	const [refundType, setRefundType] = useState<'FULL' | 'RULES' | 'MANUAL'>('RULES');
-	const [reason, setReason] = useState('');
 
 	if (!booking || !event) {
 		return null;
@@ -77,6 +105,16 @@ export default function BookingDetailsModal() {
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{translate('admin.booked')} {formatDateTime(booking.createdAt)}
 								</p>
+								{booking.user?.id && (
+									<div className="pt-2">
+										<CopyRow
+											label={translate('admin.customerId')}
+											value={booking.user.id}
+											onCopy={() => handleCopy(booking.user!.id)}
+											title={translate('admin.copyId')}
+										/>
+									</div>
+								)}
 							</div>
 						</section>
 
@@ -158,9 +196,13 @@ export default function BookingDetailsModal() {
 												{translate('admin.createdByAdminName')}:{' '}
 												{booking.createdByAdmin?.name || translate('admin.unknownAdmin')}
 											</p>
-											<p className="mt-1 font-mono text-xs break-all text-gray-500 dark:text-gray-400">
-												{booking.createdByAdminId}
-											</p>
+											<div className="mt-2">
+												<CopyRow
+													value={booking.createdByAdminId}
+													onCopy={() => handleCopy(booking.createdByAdminId!)}
+													title={translate('admin.copyId')}
+												/>
+											</div>
 										</>
 									) : (
 										<p className="mt-1 font-medium text-gray-900 dark:text-white">
@@ -208,30 +250,6 @@ export default function BookingDetailsModal() {
 							)}
 						</section>
 
-						{hasPayments && (
-							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
-								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-									{translate('admin.paymentsSummary')}
-								</p>
-								<dl className="mt-4 space-y-2 text-sm">
-									{[
-										{ label: translate('admin.paidByCard'), value: payments.card },
-										{ label: translate('admin.paidInCash'), value: payments.cash },
-										{ label: translate('admin.refundedTotal'), value: payments.refunded },
-									]
-										.filter((row) => row.value > 0)
-										.map((row) => (
-											<div key={row.label} className="flex items-center justify-between gap-4">
-												<dt className="text-gray-500 dark:text-gray-400">{row.label}</dt>
-												<dd className="font-medium text-gray-900 dark:text-white">
-													{formatCurrency(row.value)}
-												</dd>
-											</div>
-										))}
-								</dl>
-							</section>
-						)}
-
 						{adjustments.length > 0 && (
 							<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -253,7 +271,7 @@ export default function BookingDetailsModal() {
 													</p>
 												</div>
 												<span className="text-sm font-medium text-gray-900 dark:text-white">
-													{adjustment.currency.toUpperCase()} {formatCurrency(Number(adjustment.amount))}
+													{formatCurrency(Number(adjustment.amount))}
 												</span>
 											</div>
 
@@ -315,6 +333,24 @@ export default function BookingDetailsModal() {
 										</div>
 									))}
 								</div>
+								{hasPayments && (
+									<dl className="mt-4 space-y-2 border-t border-gray-200 pt-4 text-sm dark:border-gray-700">
+										{[
+											{ label: translate('admin.paidByCard'), value: payments.card },
+											{ label: translate('admin.paidInCash'), value: payments.cash },
+											{ label: translate('admin.refundedTotal'), value: payments.refunded },
+										]
+											.filter((row) => row.value > 0)
+											.map((row) => (
+												<div key={row.label} className="flex items-center justify-between gap-4">
+													<dt className="text-gray-500 dark:text-gray-400">{row.label}</dt>
+													<dd className="font-medium text-gray-900 dark:text-white">
+														{formatCurrency(row.value)}
+													</dd>
+												</div>
+											))}
+									</dl>
+								)}
 							</section>
 						)}
 					</div>

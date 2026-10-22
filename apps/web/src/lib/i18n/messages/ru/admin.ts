@@ -141,6 +141,7 @@ export const admin: Messages['admin'] = {
 	cancelledAt: 'Отменено',
 	acrossOccurrences: 'По всем датам',
 	copyId: 'Скопировать ID',
+	customerId: 'ID клиента',
 	find: 'Найти',
 	invalidReference: 'Неверный код',
 	checkedInSuccessfully: 'Успешно зарегистрирован',

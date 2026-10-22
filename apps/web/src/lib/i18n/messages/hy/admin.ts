@@ -141,6 +141,7 @@ export const admin: Messages['admin'] = {
 	cancelledAt: 'Չեղարկվել է',
 	acrossOccurrences: 'Բոլոր ժամանակահատվածներով',
 	copyId: 'Պատճենել ID',
+	customerId: 'Հաճախորդի ID',
 	find: 'Գտնել',
 	invalidReference: 'Անվավեր ծանուցում',
 	checkedInSuccessfully: 'Հաջողությամբ ստուգվել է',
