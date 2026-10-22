@@ -81,12 +81,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const handleAcceptDate = async () => {
 		const isConfirmed = await confirm({
 			title: translate('booking.dateSuitsMe'),
-			message: (
-				<p>
-					{translate('booking.dateSuitsConfirm')}{' '}
-					{walkAwayUntil ? formatDateTimeZone(walkAwayUntil, localeIntl[locale]) : ''}
-				</p>
-			),
+			message: <p>{translate('booking.dateSuitsConfirm')}</p>,
 			size: 'sm',
 			confirmText: translate('booking.dateSuitsMe'),
 			cancelText: translate('booking.close'),
@@ -196,6 +191,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 										{translate('booking.dateMovedFullRefund')}{' '}
 										{formatDateTimeZone(walkAwayUntil, localeIntl[locale])}
 									</p>
+								)}
+								{booking.rescheduleAcceptedAt && (
+									<p className="opacity-80">{translate('booking.dateAccepted')}</p>
 								)}
 								{awaitingAnswer && (
 									<div className="flex flex-wrap gap-2">

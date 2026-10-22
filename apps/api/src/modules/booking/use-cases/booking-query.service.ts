@@ -112,9 +112,12 @@ export class BookingQueryService {
 	}
 
 	/**
-	 * The client says the moved date suits them. That only takes the question off the card —
-	 * the refund window keeps running, because agreeing in the morning and changing your mind
-	 * in the evening is an ordinary thing to do, and the move was still not their doing.
+	 * The client says the moved date suits them, and from then on cancelling goes by the usual
+	 * rules again. Keeping the extra right afterwards would make the answer worthless: the
+	 * company would count on a guest who could still walk away whole on the last evening.
+	 *
+	 * The answer itself stays recorded, so "confirmed" can be told apart from "said nothing
+	 * and the window simply ran out".
 	 */
 	async acceptReschedule(userId: string, bookingId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
@@ -124,7 +127,7 @@ export class BookingQueryService {
 
 		await this.prisma.booking.updateMany({
 			where: { id: bookingId, userId },
-			data: { rescheduleAcceptedAt: new Date() },
+			data: { rescheduleAcceptedAt: new Date(), rescheduleRefundUntil: null },
 		});
 
 		return { accepted: true };
