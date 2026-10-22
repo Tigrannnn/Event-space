@@ -44,7 +44,7 @@ export const admin: Messages['admin'] = {
 	occurrenceRescheduled: 'Дата перенесена',
 	occurrenceRescheduleFailed: 'Не удалось перенести дату',
 	reactivateOccurrence: 'Вернуть в активное состояние',
-	occurrenceDateLocked: 'Дату с бронями менять нельзя — отмените её или брони',
+	occurrenceDateLocked: 'У даты есть брони — здесь её не изменить. Нажмите «Перенести дату».',
 	occurrenceWillBeCancelled: 'Будет отменена при сохранении',
 	occurrenceWillBeDeleted: 'Будет удалена при сохранении',
 	occurrenceCancelFailed: 'Не удалось отменить дату. Попробуйте ещё раз.',

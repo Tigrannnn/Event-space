@@ -42,7 +42,7 @@ export const admin = {
 	occurrenceRescheduled: 'The date has been moved',
 	occurrenceRescheduleFailed: 'Could not move the date',
 	reactivateOccurrence: 'Restore to Active',
-	occurrenceDateLocked: 'A date with bookings cannot be moved — cancel it or the bookings',
+	occurrenceDateLocked: 'This date has bookings and cannot be edited here. Use «Move date».',
 	occurrenceWillBeCancelled: 'Will be cancelled on save',
 	occurrenceWillBeDeleted: 'Will be deleted on save',
 	occurrenceCancelFailed: 'Could not cancel the date. Try again.',

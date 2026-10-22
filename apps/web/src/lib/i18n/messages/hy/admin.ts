@@ -44,7 +44,7 @@ export const admin: Messages['admin'] = {
 	occurrenceRescheduled: 'Ամսաթիվը տեղափոխվեց',
 	occurrenceRescheduleFailed: 'Չհաջողվեց տեղափոխել ամսաթիվը',
 	reactivateOccurrence: 'Վերականգնել որպես ակտիվ',
-	occurrenceDateLocked: 'Ամրագրումներով ամսաթիվը չի տեղափոխվում՝ չեղարկեք այն կամ ամրագրումները',
+	occurrenceDateLocked: 'Ամսաթիվն ունի ամրագրումներ՝ այստեղ այն չի փոխվում։ Սեղմեք «Տեղափոխել ամսաթիվը»։',
 	occurrenceWillBeCancelled: 'Կչեղարկվի պահպանելիս',
 	occurrenceWillBeDeleted: 'Կջնջվի պահպանելիս',
 	occurrenceCancelFailed: 'Չհաջողվեց չեղարկել ամսաթիվը։ Փորձեք նորից։',
