@@ -186,7 +186,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 									{translate('booking.dateMoved')}{' '}
 									{formatDateTimeZone(movedFrom, localeIntl[locale])}
 								</p>
-								{walkAwayUntil && (
+								{awaitingAnswer && walkAwayUntil && (
 									<p>
 										{translate('booking.dateMovedFullRefund')}{' '}
 										{formatDateTimeZone(walkAwayUntil, localeIntl[locale])}
