@@ -34,6 +34,12 @@ export const admin = {
 	createManualBooking: 'Create manual booking',
 	bookingDetails: 'Booking details',
 	cancelOccurrence: 'Cancel occurrence',
+	rescheduleOccurrence: 'Move date',
+	rescheduleNewDate: 'New date and time',
+	rescheduleWarning:
+		'Bookings, seats and payments stay with this date and move along with it. Nothing is sent to the customers yet.',
+	occurrenceRescheduled: 'The date has been moved',
+	occurrenceRescheduleFailed: 'Could not move the date',
 	reactivateOccurrence: 'Restore to Active',
 	occurrenceDateLocked: 'A date with bookings cannot be moved — cancel it or the bookings',
 	occurrenceWillBeCancelled: 'Will be cancelled on save',

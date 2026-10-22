@@ -1,6 +1,7 @@
 import clientApi from '@/lib/client.api';
 import { EVENT_UPLOAD_TIMEOUTS } from '@event-space/shared';
 import type {
+	EventOccurrence,
 	BookingQuantityChange,
 	ChangeQuantityData,
 	QuantityQuote,
@@ -101,6 +102,10 @@ export const adminApi = {
 	cancelOccurrence: (occurrenceId: string, reasons?: CancellationReasons) =>
 		clientApi
 			.patch(`/admin/occurrences/${occurrenceId}/cancel`, { reasons })
+			.then((res) => res.data),
+	rescheduleOccurrence: (occurrenceId: string, date: string) =>
+		clientApi
+			.patch<EventOccurrence>(`/admin/occurrences/${occurrenceId}/reschedule`, { date })
 			.then((res) => res.data),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`).then((res) => res.data),
 	getUsers: (params?: UserFilters) =>

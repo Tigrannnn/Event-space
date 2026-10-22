@@ -41,6 +41,7 @@ export enum ModalType {
 	CreateCategory = 'create-category',
 	UpdateCategory = 'update-category',
 	CategoryDetails = 'category-details',
+	RescheduleOccurrence = 'reschedule-occurrence',
 }
 
 export interface ContactInfoModalData {
@@ -70,6 +71,15 @@ export interface ConfirmModalData {
 	variant?: 'danger' | 'primary';
 	onConfirm: () => void;
 	onCancel?: () => void;
+}
+
+export interface RescheduleOccurrenceModalData {
+	occurrenceId: string;
+	/** Current date as the form keeps it: `YYYY-MM-DDTHH:mm`. */
+	date: string;
+	eventTitle?: string;
+	activeBookingsCount: number;
+	onRescheduled: (date: string) => void;
 }
 
 export interface CreateBookingModalData {
@@ -140,6 +150,7 @@ export interface ModalDataMap {
 	[ModalType.CreateCategory]: null;
 	[ModalType.UpdateCategory]: UpdateCategoryModalData;
 	[ModalType.CategoryDetails]: CategoryDetailsModalData;
+	[ModalType.RescheduleOccurrence]: RescheduleOccurrenceModalData;
 }
 
 export interface ModalState {

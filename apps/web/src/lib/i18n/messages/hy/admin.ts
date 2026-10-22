@@ -36,6 +36,12 @@ export const admin: Messages['admin'] = {
 	createManualBooking: 'Ստեղծել ձեռքով ամրագրում',
 	bookingDetails: 'Ամրագրման մանրամասներ',
 	cancelOccurrence: 'Չեղարկել շրջանը',
+	rescheduleOccurrence: 'Տեղափոխել ամսաթիվը',
+	rescheduleNewDate: 'Նոր ամսաթիվ և ժամ',
+	rescheduleWarning:
+		'Ամրագրումները, տեղերը և վճարումները մնում են այս ամսաթվին և տեղափոխվում են դրա հետ։ Հաճախորդներին առայժմ ոչինչ չի ուղարկվում։',
+	occurrenceRescheduled: 'Ամսաթիվը տեղափոխվեց',
+	occurrenceRescheduleFailed: 'Չհաջողվեց տեղափոխել ամսաթիվը',
 	reactivateOccurrence: 'Վերականգնել որպես ակտիվ',
 	occurrenceDateLocked: 'Ամրագրումներով ամսաթիվը չի տեղափոխվում՝ չեղարկեք այն կամ ամրագրումները',
 	occurrenceWillBeCancelled: 'Կչեղարկվի պահպանելիս',

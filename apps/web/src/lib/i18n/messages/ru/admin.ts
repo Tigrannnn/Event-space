@@ -36,6 +36,12 @@ export const admin: Messages['admin'] = {
 	createManualBooking: 'Создать бронь вручную',
 	bookingDetails: 'Детали брони',
 	cancelOccurrence: 'Отменить дату',
+	rescheduleOccurrence: 'Перенести дату',
+	rescheduleNewDate: 'Новая дата и время',
+	rescheduleWarning:
+		'Брони, места и оплаты останутся на этой дате — переедут вместе с ней. Клиентам пока ничего не отправляется.',
+	occurrenceRescheduled: 'Дата перенесена',
+	occurrenceRescheduleFailed: 'Не удалось перенести дату',
 	reactivateOccurrence: 'Вернуть в активное состояние',
 	occurrenceDateLocked: 'Дату с бронями менять нельзя — отмените её или брони',
 	occurrenceWillBeCancelled: 'Будет отменена при сохранении',

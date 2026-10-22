@@ -331,6 +331,32 @@ export function useCancelOccurrence() {
 	});
 }
 
+export function useRescheduleOccurrence() {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ occurrenceId, date }: { occurrenceId: string; date: string }) =>
+			adminApi.rescheduleOccurrence(occurrenceId, date),
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+			addToast(translate('admin.occurrenceRescheduled'), ToastType.SUCCESS);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.occurrenceRescheduleFailed'), ToastType.ERROR);
+		},
+	});
+}
+
 export const useDeleteEvent = () => {
 	const queryClient = useQueryClient();
 

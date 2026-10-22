@@ -30,6 +30,8 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { useFormatDate } from '@/hooks/format';
 import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
+import { useModalStore } from '@/stores/modalStore';
+import { ModalType } from '@/stores';
 import { XIcon } from 'lucide-react';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { ToastType, useToastStore } from '@/stores/toastStore';
@@ -122,6 +124,7 @@ export default function EventForm({
 		register,
 		control,
 		handleSubmit,
+		setValue,
 		formState: { errors },
 	} = useForm<EventFormValues>({
 		resolver: zodResolver(EventFormSchema),
@@ -195,6 +198,7 @@ export default function EventForm({
 	const [noCancelReason, setNoCancelReason] = useState(false);
 	const [showReasonError, setShowReasonError] = useState(false);
 	const { addToast } = useToastStore();
+	const { openModal } = useModalStore();
 	const router = useRouter();
 
 	const deletedIndexes = occurrenceFields
@@ -671,6 +675,29 @@ export default function EventForm({
 													{translate('admin.activeBookings')} {activeBookingsCount}
 												</span>
 											))}
+
+										{hasBookings && !isCancelled && !finished && !isCancelPending && field.id && (
+											<Button
+												type="button"
+												variant="secondary"
+												className="h-10 px-3 md:mt-[22px]"
+												disabled={isPending}
+												onClick={() =>
+													openModal(ModalType.RescheduleOccurrence, {
+														occurrenceId: field.id as string,
+														date: watchedOccurrences[index]?.date ?? field.date ?? '',
+														eventTitle: watchedTranslations[activeTabIndex]?.title,
+														activeBookingsCount,
+														onRescheduled: (moved) =>
+															setValue(`occurrences.${index}.date`, moved, {
+																shouldDirty: false,
+															}),
+													})
+												}
+											>
+												{translate('admin.rescheduleOccurrence')}
+											</Button>
+										)}
 
 										{isCancelPending ? (
 											<Button
