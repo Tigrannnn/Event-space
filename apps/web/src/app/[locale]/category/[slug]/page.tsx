@@ -85,15 +85,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
 	return (
 		<div className="min-h-full px-4 sm:px-6 lg:px-8">
-			<div className="pt-6">
-				<h1 className="text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
-					{translation.name}
-				</h1>
-				{translation.description && (
-					<p className="mt-2 max-w-3xl text-sm whitespace-pre-line text-gray-600 sm:text-base dark:text-gray-300">
-						{translation.description}
-					</p>
-				)}
+			<div className="sr-only">
+				<h1>{translation.name}</h1>
+				{translation.description && <p>{translation.description}</p>}
 			</div>
 
 			<EventsList

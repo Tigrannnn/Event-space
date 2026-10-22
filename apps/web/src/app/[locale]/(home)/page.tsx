@@ -79,9 +79,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: serializeJsonLd([siteJsonLd]) }}
 			/>
-			<h1 className="pt-6 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
-				{translate(locale, 'common.homeHeading')}
-			</h1>
+			<h1 className="sr-only">{translate(locale, 'common.homeHeading')}</h1>
 
 			<EventsList
 				initialEvents={initialData.data}
