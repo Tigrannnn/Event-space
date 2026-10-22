@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 	const locale = await getRequestLocale();
 	const brand = getBrandForHost((await headers()).get('host'));
 
-	const title = `${translate(locale, 'common.homeTitle')} | ${brand.name}`;
+	const title = `${brand.name} | ${translate(locale, 'common.homeTitle')}`;
 	const description = translate(locale, 'common.homeDescription');
 
 	return {

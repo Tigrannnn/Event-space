@@ -1,9 +1,9 @@
 export const common = {
 	appTitle: 'Local Events & Adventures',
 	appDescription: 'Premium platform for local events and unique adventures',
-	homeTitle: 'Day tours from Yerevan — hiking, sightseeing, wine tours',
-	homeDescription: 'Guided day tours across Armenia with transfer from Yerevan. Aragats, Tatev, Sevan, Tsaghkadzor. Book online and pay by card.',
-	homeHeading: 'Day tours around Armenia from Yerevan',
+	homeTitle: 'Tours around Armenia from Yerevan',
+	homeDescription: 'Guided tours across Armenia with transfer from Yerevan. Aragats, Tatev, Sevan, Tsaghkadzor. Book online and pay by card.',
+	homeHeading: 'Tours around Armenia from Yerevan — hiking, sightseeing and wine tours',
 	eventNotFound: 'Event Not Found',
 	notFoundTitle: 'Page Not Found',
 	notFoundDescription: "Oops! The page you're looking for doesn't exist.",
