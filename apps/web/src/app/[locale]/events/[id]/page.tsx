@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { translate } from '@/lib/i18n/messages';
-import { getRequestLocale, localeAlternates, requestLocaleUrl } from '@/lib/seo';
+import { getRequestLocale, localeAlternates, requestLocaleUrl, snippetDescription } from '@/lib/seo';
 import { buildEventJsonLd, serializeJsonLd } from '@/lib/structured-data';
 import { getBrandForHost } from '@/config/brands';
 
@@ -55,14 +55,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 	const t = getEventTranslation(event, locale);
 	const coverImageUrl = getEventCoverImageUrl(event);
+	const description = snippetDescription(t.description, translate(locale, 'common.appDescription'));
 
 	return {
 		title: `${t.title} | ${brand.name}`,
-		description: t.description,
+		description,
 		alternates: await localeAlternates(locale, `/events/${id}`),
 		openGraph: {
 			title: `${t.title} | ${brand.name}`,
-			description: t.description,
+			description,
 			...(coverImageUrl
 				? {
 						images: [
@@ -81,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 		twitter: {
 			card: 'summary_large_image',
 			title: `${t.title} | ${brand.name}`,
-			description: t.description,
+			description,
 			...(coverImageUrl ? { images: [coverImageUrl] } : {}),
 		},
 	};

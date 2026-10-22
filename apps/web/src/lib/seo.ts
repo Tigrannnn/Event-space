@@ -52,6 +52,27 @@ export async function localeAlternates(locale: Locale, path = ''): Promise<Metad
 	};
 }
 
+/** Google shows about this much of a description; the rest is cut off mid-word. */
+const SNIPPET_LENGTH = 160;
+
+/**
+ * A description short enough to survive into the search result.
+ *
+ * A page's own copy is written for a reader and runs for paragraphs. Handed to a search engine
+ * whole, it is cut wherever the limit falls — usually mid-word. Cutting it here, at the last word
+ * that fits, is the difference between a sentence that ends and one that stops.
+ */
+export function snippetDescription(text: string | null | undefined, fallback: string): string {
+	const trimmed = text?.trim();
+	if (!trimmed) return fallback;
+	if (trimmed.length <= SNIPPET_LENGTH) return trimmed;
+
+	const cut = trimmed.slice(0, SNIPPET_LENGTH);
+	const lastSpace = cut.lastIndexOf(' ');
+
+	return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
 /**
  * Keeps a page out of search results.
  *

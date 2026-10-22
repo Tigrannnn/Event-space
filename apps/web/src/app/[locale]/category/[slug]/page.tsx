@@ -9,11 +9,9 @@ import {
 } from '../../(home)/_components/filters';
 import type { PaginatedEventsResponse } from '@/features/events/api/events.api';
 import { serverFetch } from '@/lib/server.api';
-import { getRequestLocale, localeAlternates } from '@/lib/seo';
+import { getRequestLocale, localeAlternates, snippetDescription } from '@/lib/seo';
 import { getBrandForHost } from '@/config/brands';
 import { translate } from '@/lib/i18n/messages';
-
-const META_DESCRIPTION_LENGTH = 160;
 
 interface CategoryPageProps {
 	params: Promise<{ slug: string }>;
@@ -24,17 +22,6 @@ async function findCategory(slug: string): Promise<Category | null> {
 	const categories = await serverFetch<Category[]>('/categories').catch(() => null);
 
 	return categories?.find((category) => category.slug === slug) ?? null;
-}
-
-function metaDescription(description: string | null | undefined, fallback: string): string {
-	const text = description?.trim();
-	if (!text) return fallback;
-	if (text.length <= META_DESCRIPTION_LENGTH) return text;
-
-	const cut = text.slice(0, META_DESCRIPTION_LENGTH);
-	const lastSpace = cut.lastIndexOf(' ');
-
-	return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
@@ -49,7 +36,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 	const translation = getCategoryTranslation(category, locale);
 	const title = `${translation.name} | ${brand.name}`;
-	const description = metaDescription(
+	const description = snippetDescription(
 		translation.description,
 		translate(locale, 'common.appDescription'),
 	);
