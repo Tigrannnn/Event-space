@@ -12,6 +12,8 @@ export const booking = {
 	dateSuitsConfirm:
 		'After this, cancelling follows the usual tour rules and the right to a full refund with no deductions goes away. You can still cancel the booking.',
 	dateAccepted: 'You confirmed that the new date works',
+	handledByOrganiser:
+		'This booking is handled by the organiser: to change the number of guests or cancel it, write or call us.',
 	dateDoesNotSuit: 'Does not work',
 	dateAcceptedToast: 'Thank you, see you on the new date',
 	dateAcceptFailed: 'Could not confirm the new date',

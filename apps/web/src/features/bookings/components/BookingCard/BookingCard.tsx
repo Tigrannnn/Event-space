@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTimeZone } from '@/utils/date';
 import { formatBookingReference, getBookingStatusBadgeVariant, movedFromDate } from '@/utils/booking';
-import { Calendar, CalendarClock, MapPin, Navigation, Plus, Users } from 'lucide-react';
+import { Calendar, CalendarClock, Info, MapPin, Navigation, Plus, Users } from 'lucide-react';
 import {
 	getBookingDisplayStatus,
 	getEventCoverImageUrl,
@@ -58,6 +58,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			? new Date(booking.rescheduleRefundUntil)
 			: null;
 	const awaitingAnswer = Boolean(walkAwayUntil) && !booking.rescheduleAcceptedAt;
+	const handledByOrganiser =
+		occurrenceIsAvailable &&
+		booking.paymentMethod !== 'SITE_PAYMENT' &&
+		getBookingDisplayStatus(booking) === 'CONFIRMED';
 	const canChangeQuantity =
 		occurrenceIsAvailable &&
 		booking.paymentMethod === 'SITE_PAYMENT' &&
@@ -278,6 +282,13 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						})()}
 					</div>
 				</div>
+
+				{handledByOrganiser && (
+					<div className="mb-3 flex items-start gap-2 rounded-xl bg-gray-100 p-2.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+						<Info className="mt-0.5 h-4 w-4 shrink-0" />
+						<span>{translate('booking.handledByOrganiser')}</span>
+					</div>
+				)}
 
 				{/* Actions */}
 				<div className="flex flex-col gap-2">
