@@ -67,7 +67,7 @@ interface OccurrenceRescheduledStrings {
 	body: (eventTitle: string, oldDate: string, newDate: string) => string;
 	reason: (reason: string) => string;
 	keepsBooking: string;
-	cantMake: string;
+	cantMake: (until: string) => string;
 	support: string;
 	signoff: string;
 	signature: string;
@@ -83,8 +83,8 @@ export const OCCURRENCE_RESCHEDULED_STRINGS: Record<Locale, OccurrenceReschedule
 		reason: (reason) => `Reason: ${reason}`,
 		keepsBooking:
 			'Your booking stays as it is — same seats, same payment. There is nothing you need to do.',
-		cantMake:
-			'If the new date does not work for you, reply to this email and we will sort out a refund.',
+		cantMake: (until) =>
+			`If the new date does not work for you, say so in your bookings until ${until} and we will refund the whole amount, fees included.`,
 		support: 'If you have any questions, just reply to this email.',
 		signoff: 'Best regards,',
 		signature: 'The Event Space Team',
@@ -97,7 +97,8 @@ export const OCCURRENCE_RESCHEDULED_STRINGS: Record<Locale, OccurrenceReschedule
 			`Тур «${eventTitle}» перенесён с ${oldDate} на ${newDate}.`,
 		reason: (reason) => `Причина: ${reason}`,
 		keepsBooking: 'Бронь остаётся в силе — те же места, та же оплата. Делать ничего не нужно.',
-		cantMake: 'Если новая дата вам не подходит, ответьте на это письмо — вернём деньги.',
+		cantMake: (until) =>
+			`Если новая дата вам не подходит, скажите об этом в «Моих бронях» до ${until} — вернём всю сумму без удержаний.`,
 		support: 'Если остались вопросы — просто ответьте на это письмо.',
 		signoff: 'С уважением,',
 		signature: 'Команда Event Space',
@@ -111,7 +112,8 @@ export const OCCURRENCE_RESCHEDULED_STRINGS: Record<Locale, OccurrenceReschedule
 		reason: (reason) => `Պատճառը՝ ${reason}`,
 		keepsBooking:
 			'Ձեր ամրագրումը մնում է ուժի մեջ՝ նույն տեղերը, նույն վճարումը։ Ոչինչ անել պետք չէ։',
-		cantMake: 'Եթե նոր ամսաթիվը Ձեզ չի հարմարում, պատասխանեք այս նամակին՝ գումարը կվերադարձնենք։',
+		cantMake: (until) =>
+			`Եթե նոր ամսաթիվը Ձեզ չի հարմարում, նշեք դա «Իմ ամրագրումներում» մինչև ${until}՝ ամբողջ գումարը կվերադարձնենք։`,
 		support: 'Եթե հարցեր ունեք, պարզապես պատասխանեք այս նամակին։',
 		signoff: 'Հարգանքով՝',
 		signature: 'Event Space-ի թիմ',

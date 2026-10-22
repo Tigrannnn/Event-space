@@ -123,6 +123,24 @@ export const useChangeQuantity = () => {
 	});
 };
 
+export const useAcceptReschedule = () => {
+	const { addToast } = useToastStore();
+	const queryClient = useQueryClient();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (id: string) => bookingApi.acceptReschedule(id),
+		onSuccess: async () => {
+			addToast(translate('booking.dateAcceptedToast'), ToastType.SUCCESS);
+			await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'booking.dateAcceptFailed'), ToastType.ERROR);
+		},
+	});
+};
+
 export const useCancelBooking = () => {
 	const { addToast } = useToastStore();
 	const queryClient = useQueryClient();

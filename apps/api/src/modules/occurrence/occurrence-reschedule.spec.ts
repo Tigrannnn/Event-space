@@ -7,7 +7,12 @@ interface WorldOptions {
 	status?: 'ACTIVE' | 'CANCELLED';
 	takenBy?: string | null;
 	movedUnderUs?: boolean;
-	guests?: { email: string | null; name: string; locale: 'ru' | 'en' | 'hy' | null }[];
+	guests?: {
+		email: string | null;
+		name: string;
+		locale: 'ru' | 'en' | 'hy' | null;
+		status?: 'PENDING' | 'CONFIRMED';
+	}[];
 }
 
 function build(options: WorldOptions = {}) {
@@ -51,7 +56,20 @@ function build(options: WorldOptions = {}) {
 			bookingUpdates.push({ ...args.where, ...args.data });
 			return Promise.resolve({ count: guests.length });
 		},
-		findMany: () => Promise.resolve(guests.map((user) => ({ brandHost: 'tours.example.com', user }))),
+		findMany: (args: { where: Record<string, unknown> }) =>
+			Promise.resolve(
+				guests
+					.filter((guest) =>
+						typeof args.where.status === 'string'
+							? (guest.status ?? 'CONFIRMED') === args.where.status
+							: true,
+					)
+					.map((guest) => ({
+						status: guest.status ?? 'CONFIRMED',
+						brandHost: 'tours.example.com',
+						user: guest,
+					})),
+			),
 	};
 
 	const prisma = {
@@ -82,12 +100,13 @@ describe('OccurrenceService.reschedule', () => {
 		expect(occurrenceUpdates[0]).toMatchObject({ date: MOVED_TO, previousDate: BOOKED_FOR });
 		expect(occurrenceUpdates[0].rescheduledAt).toBeInstanceOf(Date);
 
-		expect(bookingUpdates).toHaveLength(1);
-		expect(bookingUpdates[0]).toMatchObject({
-			occurrenceId: 'o1',
-			status: { in: ['PENDING', 'CONFIRMED'] },
-			reminderSentAt: null,
-		});
+		expect(bookingUpdates).toContainEqual(
+			expect.objectContaining({
+				occurrenceId: 'o1',
+				status: { in: ['PENDING', 'CONFIRMED'] },
+				reminderSentAt: null,
+			}),
+		);
 	});
 
 	it('writes to everyone still holding a seat, in their own language', async () => {
@@ -114,6 +133,36 @@ describe('OccurrenceService.reschedule', () => {
 			reason: 'Перевал закрыт',
 		});
 		expect(letters[1]).toMatchObject({ email: 'anna@example.com' });
+	});
+
+	it('opens the refund window for paid bookings only, and says so in their letter', async () => {
+		const { service, bookingUpdates, letters } = build({
+			guests: [
+				{ email: 'paid@example.com', name: 'Ара', locale: 'ru', status: 'CONFIRMED' },
+				{ email: 'unpaid@example.com', name: 'Нина', locale: 'ru', status: 'PENDING' },
+			],
+		});
+
+		await service.reschedule('o1', { date: MOVED_TO });
+
+		const windowUpdate = bookingUpdates.find((update) => 'rescheduleRefundUntil' in update);
+		expect(windowUpdate).toMatchObject({ status: 'CONFIRMED' });
+		expect(windowUpdate?.rescheduleRefundUntil).toBeInstanceOf(Date);
+
+		expect(letters.find((letter) => letter.email === 'paid@example.com')?.refundUntil).toBeInstanceOf(
+			Date,
+		);
+		expect(letters.find((letter) => letter.email === 'unpaid@example.com')?.refundUntil).toBeNull();
+	});
+
+	it('never lets the window outlive the new date itself', async () => {
+		const soon = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+		const { service, bookingUpdates } = build();
+
+		await service.reschedule('o1', { date: soon });
+
+		const windowUpdate = bookingUpdates.find((update) => 'rescheduleRefundUntil' in update);
+		expect((windowUpdate?.rescheduleRefundUntil as Date).getTime()).toBe(soon.getTime());
 	});
 
 	it('sends no reason when the admin gave none', async () => {

@@ -19,6 +19,10 @@ export const BookingSchema = z.object({
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}),
   createdByAdminId: z.string().nullable(),
   /**
+   * Пока не прошло, отмена возвращает всё без удержания: дату тура сдвинули не по вине клиента.
+   */
+  rescheduleRefundUntil: z.coerce.date().nullable(),
+  /**
    * Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.
    */
   brandHost: z.string().nullable(),

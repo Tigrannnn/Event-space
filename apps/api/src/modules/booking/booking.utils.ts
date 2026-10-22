@@ -66,6 +66,39 @@ export function calculateRefundPercentage(
 	return rules.length > 0 ? 0 : 100;
 }
 
+export interface RefundPolicy {
+	percentage: number;
+	/** The company eats the Stripe fee when it was the company that moved the date. */
+	withholdStripeFee: boolean;
+	reason: 'RULES' | 'RESCHEDULE';
+}
+
+/**
+ * The one place that decides what a cancellation gives back.
+ *
+ * The cancellation ladder is measured from the tour date, which is fair while the client picked
+ * that date. After the company moves it, the ladder would punish them for a decision that was
+ * not theirs, so for a while the booking is refunded whole, fee included.
+ */
+export function resolveRefundPolicy(params: {
+	now: Date;
+	occurrenceDate: Date;
+	rules: CancellationPolicyRule[];
+	rescheduleRefundUntil?: Date | null;
+}): RefundPolicy {
+	const { now, occurrenceDate, rules, rescheduleRefundUntil } = params;
+
+	if (rescheduleRefundUntil && now.getTime() <= new Date(rescheduleRefundUntil).getTime()) {
+		return { percentage: 100, withholdStripeFee: false, reason: 'RESCHEDULE' };
+	}
+
+	return {
+		percentage: calculateRefundPercentage(now, occurrenceDate, rules),
+		withholdStripeFee: true,
+		reason: 'RULES',
+	};
+}
+
 /**
  * Generates a new booking reference number using a dedicated database counter table.
  * This avoids raw sequence SQL in business logic and keeps the value sequential.

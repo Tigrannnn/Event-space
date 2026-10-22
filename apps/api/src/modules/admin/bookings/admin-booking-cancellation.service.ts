@@ -4,7 +4,7 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
 import type { AdminCancelBookingData } from '@event-space/shared';
-import { calculateRefundPercentage } from '@modules/booking/booking.utils';
+import { resolveRefundPolicy } from '@modules/booking/booking.utils';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
 import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
 
@@ -51,18 +51,19 @@ export class AdminBookingCancellationService {
 				await tx.booking.update({ where: { id: bookingId }, data: { status: 'CANCELLED' } });
 			}
 
-			const percentage =
-				refundType === 'FULL'
-					? 100
-					: calculateRefundPercentage(
-							new Date(),
-							new Date(current.occurrence?.date ?? new Date()),
-							current.occurrence?.event?.cancellationRules ?? [],
-						);
+			// "By the rules" still honours a move the company made: the client should not pay for it
+			// just because an admin pressed cancel instead of them.
+			const byRules = resolveRefundPolicy({
+				now: new Date(),
+				occurrenceDate: new Date(current.occurrence?.date ?? new Date()),
+				rules: current.occurrence?.event?.cancellationRules ?? [],
+				rescheduleRefundUntil: current.rescheduleRefundUntil,
+			});
+			const percentage = refundType === 'FULL' ? 100 : byRules.percentage;
 
 			const queued = await this.refunds.queueCancellation(tx, current, {
 				percentage,
-				withholdFee: refundType === 'RULES',
+				withholdFee: refundType === 'RULES' && byRules.withholdStripeFee,
 				reason: adminReason,
 				method: current.paymentIntentId ? refundMethod : 'MANUAL',
 			});

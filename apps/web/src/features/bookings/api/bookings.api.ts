@@ -24,6 +24,11 @@ export const bookingApi = {
 	cancelBooking: (id: string) =>
 		clientApi.patch<Booking>(`/bookings/${id}/cancel`).then((res) => res.data),
 
+	acceptReschedule: (id: string) =>
+		clientApi
+			.patch<{ accepted: boolean }>(`/bookings/${id}/accept-reschedule`)
+			.then((res) => res.data),
+
 	reconcilePayment: (id: string) =>
 		clientApi.post<Booking>(`/bookings/${id}/reconcile-payment`).then((res) => res.data),
 

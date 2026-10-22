@@ -11,6 +11,7 @@ export const LEDGER_REASON = {
 	BOOKING_CANCELLED_FEE_WITHHELD: 'Booking cancelled. Stripe fee withheld.',
 	EVENT_CANCELLED_FULL_REFUND: 'Event cancelled. Full refund.',
 	OCCURRENCE_CANCELLED_FULL_REFUND: 'Occurrence cancelled. Full refund.',
+	CANCELLED_AFTER_RESCHEDULE: 'Booking cancelled after the tour date was moved. Refunded in full.',
 	NO_SPOTS_LEFT: 'NO_SPOTS_LEFT',
 } as const;
 

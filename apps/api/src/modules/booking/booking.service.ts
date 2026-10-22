@@ -85,6 +85,10 @@ export class BookingService {
 		return this.queries.findOneForUser(userId, bookingId);
 	}
 
+	acceptReschedule(userId: string, bookingId: string) {
+		return this.queries.acceptReschedule(userId, bookingId);
+	}
+
 	cancel(userId: string, bookingId: string, locale?: Locale) {
 		return this.cancellations.cancel(userId, bookingId, locale);
 	}

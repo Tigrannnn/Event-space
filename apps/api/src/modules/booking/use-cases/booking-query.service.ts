@@ -4,7 +4,7 @@ import { AppErrorCode, BookingWithEstimate, estimateStripeFeeInCents } from '@ev
 import { AppException } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { StripeBalanceTransaction } from '@infra/stripe/stripe.types';
-import { calculateRefundPercentage, mapOccurrenceForBookingResponse } from '../booking.utils';
+import { resolveRefundPolicy, mapOccurrenceForBookingResponse } from '../booking.utils';
 
 @Injectable()
 export class BookingQueryService {
@@ -61,6 +61,7 @@ export class BookingQueryService {
 						amount: Number(booking.amount),
 						occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
 						refundPercentage: 0,
+						refundReason: 'RULES' as const,
 						estimatedStripeFeeInCents: 0,
 						estimatedRefundInCents: 0,
 					};
@@ -80,24 +81,27 @@ export class BookingQueryService {
 					this.logger.warn(`Failed to get Stripe fee for booking ${booking.id}, using estimate`, error);
 				}
 
-				const refundPercentage = calculateRefundPercentage(
+				const policy = resolveRefundPolicy({
 					now,
-					new Date(occurrence.date),
-					event.cancellationRules,
-				);
+					occurrenceDate: new Date(occurrence.date),
+					rules: event.cancellationRules,
+					rescheduleRefundUntil: booking.rescheduleRefundUntil,
+				});
 				const baseAmountInCents = Math.round(Number(booking.amount) * 100);
-				const calculatedRefundInCents = Math.round((baseAmountInCents * refundPercentage) / 100);
+				const calculatedRefundInCents = Math.round((baseAmountInCents * policy.percentage) / 100);
 
 				const estimatedStripeFeeInCents =
 					stripeFeeInCents > 0 ? stripeFeeInCents : estimateStripeFeeInCents(Number(booking.amount));
 
-				const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - estimatedStripeFeeInCents);
+				const withheldInCents = policy.withholdStripeFee ? estimatedStripeFeeInCents : 0;
+				const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - withheldInCents);
 
 				return {
 					...booking,
 					amount: Number(booking.amount),
 					occurrence: mapOccurrenceForBookingResponse(occurrence),
-					refundPercentage,
+					refundPercentage: policy.percentage,
+					refundReason: policy.reason,
 					estimatedStripeFeeInCents,
 					estimatedRefundInCents,
 				};
@@ -105,6 +109,24 @@ export class BookingQueryService {
 		);
 
 		return enrichedBookings;
+	}
+
+	/**
+	 * The client says the moved date suits them, so the extra right to a full refund goes away.
+	 * Letting it simply expire would leave the notice nagging for days after they already decided.
+	 */
+	async acceptReschedule(userId: string, bookingId: string) {
+		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (booking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+
+		await this.prisma.booking.updateMany({
+			where: { id: bookingId, userId },
+			data: { rescheduleRefundUntil: null },
+		});
+
+		return { accepted: true };
 	}
 
 	async findOneForUser(userId: string, bookingId: string) {

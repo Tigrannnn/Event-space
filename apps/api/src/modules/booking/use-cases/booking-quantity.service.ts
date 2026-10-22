@@ -11,7 +11,7 @@ import {
 	type RefundMethod,
 } from '@event-space/shared';
 import { AppException } from '@shared';
-import { calculateRefundPercentage } from '../booking.utils';
+import { resolveRefundPolicy } from '../booking.utils';
 import { releaseSeats } from '../occurrence-seats';
 import { BookingRefundService } from '../money/booking-refund.service';
 import type { GuestRefund } from '../money/refund-allocation';
@@ -31,6 +31,7 @@ interface QuantityState {
 		referenceNumber: number | null;
 		brandHost: string | null;
 		paymentMethod: PaymentMethod;
+		rescheduleRefundUntil: Date | null;
 	};
 	user: { email: string | null; name: string; locale: Locale | null };
 	translations: { locale: Locale; title: string }[];
@@ -39,7 +40,7 @@ interface QuantityState {
 		date: Date;
 		maxParticipants: number;
 		currentParticipants: number;
-		rules: Parameters<typeof calculateRefundPercentage>[2];
+		rules: Parameters<typeof resolveRefundPolicy>[0]['rules'];
 	};
 }
 
@@ -189,6 +190,7 @@ export class BookingQuantityService {
 				referenceNumber: booking.referenceNumber,
 				brandHost: booking.brandHost,
 				paymentMethod: booking.paymentMethod,
+				rescheduleRefundUntil: booking.rescheduleRefundUntil,
 			},
 			user: { email: booking.user.email, name: booking.user.name, locale: booking.user.locale },
 			translations: (booking.occurrence.event?.translations ?? []).map((row) => ({
@@ -275,8 +277,13 @@ export class BookingQuantityService {
 			throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
 		}
 
-		const percentage =
-			settlement === 'FULL' ? 100 : calculateRefundPercentage(now, occurrence.date, occurrence.rules);
+		const byRules = resolveRefundPolicy({
+			now,
+			occurrenceDate: occurrence.date,
+			rules: occurrence.rules,
+			rescheduleRefundUntil: booking.rescheduleRefundUntil,
+		});
+		const percentage = settlement === 'FULL' ? 100 : byRules.percentage;
 
 		const plan = await this.refunds.planForBooking(db, {
 			bookingId: booking.id,
@@ -284,7 +291,7 @@ export class BookingQuantityService {
 			quantity: booking.quantity,
 			guests: booking.quantity - request.quantity,
 			percentage,
-			withholdFee: settlement === 'RULES',
+			withholdFee: settlement === 'RULES' && byRules.withholdStripeFee,
 		});
 
 		if (booking.paymentMethod === 'SITE_PAYMENT' && !plan.paidByCard) {

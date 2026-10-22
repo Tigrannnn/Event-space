@@ -114,6 +114,17 @@ export class BookingController {
 		return this.bookingService.cancel(userId, id, locale);
 	}
 
+	@Patch(':id/accept-reschedule')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Confirm the moved tour date suits the client' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiResponse({ status: 200, description: 'The extra refund right is given up' })
+	@ApiResponse({ status: 403, description: 'Not your booking' })
+	acceptReschedule(@GetCurrentUserId() userId: string, @Param('id') id: string) {
+		return this.bookingService.acceptReschedule(userId, id);
+	}
+
 	@Post(':id/quantity/quote')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)

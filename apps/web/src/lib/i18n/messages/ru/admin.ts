@@ -109,6 +109,7 @@ export const admin: Messages['admin'] = {
 	reasonCancelledFeeWithheld: 'Бронь отменена, комиссия Stripe удержана',
 	reasonEventCancelled: 'Событие отменено, полный возврат',
 	reasonOccurrenceCancelled: 'Дата отменена, полный возврат',
+	reasonCancelledAfterReschedule: 'Отмена после переноса даты, полный возврат',
 	reasonNoSpotsLeft: 'Мест не осталось',
 	reasonQuantityChanged: 'Количество гостей изменено с {from} на {to}',
 	reasonAdminCancelled: 'Отменено админом',

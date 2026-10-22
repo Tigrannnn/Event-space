@@ -274,6 +274,10 @@ export type CreateBookingResponse = {
 
 export const BookingWithEstimateSchema = BookingWithDetailsSchema.extend({
 	refundPercentage: z.number().openapi({ example: 80 }),
+	refundReason: z.enum(['RULES', 'RESCHEDULE']).openapi({
+		description: 'RESCHEDULE while the client may still walk away from a date the company moved',
+		example: 'RULES',
+	}),
 	estimatedStripeFeeInCents: z.number().openapi({ example: 350 }),
 	estimatedRefundInCents: z.number().openapi({ example: 8650 }),
 });

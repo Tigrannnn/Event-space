@@ -107,6 +107,7 @@ export const admin = {
 	reasonCancelledFeeWithheld: 'Booking cancelled, Stripe fee withheld',
 	reasonEventCancelled: 'Event cancelled, full refund',
 	reasonOccurrenceCancelled: 'Tour date cancelled, full refund',
+	reasonCancelledAfterReschedule: 'Cancelled after the date was moved, full refund',
 	reasonNoSpotsLeft: 'No spots left',
 	reasonQuantityChanged: 'Guests changed from {from} to {to}',
 	reasonAdminCancelled: 'Cancelled by an admin',

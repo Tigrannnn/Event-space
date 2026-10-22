@@ -15,6 +15,10 @@ import { AppException } from '@shared';
 
 const MAIL_BATCH_SIZE = 5;
 
+/** Сколько у оплатившего клиента есть времени передумать после переноса. */
+const RESCHEDULE_REFUND_DAYS = 5;
+const DAY = 24 * 60 * 60 * 1000;
+
 interface OccurrenceInput {
 	id?: string;
 	date: Date;
@@ -149,6 +153,8 @@ export class OccurrenceService {
 			throw new AppException(AppErrorCode.OCCURRENCE_DATE_TAKEN);
 		}
 
+		let refundDeadline: Date | null = null;
+
 		const result = await this.prisma.$transaction(async (tx) => {
 			const movedRows = await tx.eventOccurrence.updateMany({
 				where: { id: occurrenceId, date: occurrence.date, status: 'ACTIVE' },
@@ -165,9 +171,26 @@ export class OccurrenceService {
 				data: { reminderSentAt: null },
 			});
 
+			// Only those who already paid get the right to walk away: an unpaid booking sees the
+			// new date on the page before deciding to pay, so paying is the decision itself.
+			const refundUntil = new Date(
+				Math.min(Date.now() + RESCHEDULE_REFUND_DAYS * DAY, date.getTime()),
+			);
+
+			await tx.booking.updateMany({
+				where: { occurrenceId, status: 'CONFIRMED' },
+				data: { rescheduleRefundUntil: refundUntil },
+			});
+
+			refundDeadline = refundUntil;
+
 			const notify = await tx.booking.findMany({
 				where: { occurrenceId, status: { in: ['PENDING', 'CONFIRMED'] } },
-				select: { brandHost: true, user: { select: { email: true, name: true, locale: true } } },
+				select: {
+					status: true,
+					brandHost: true,
+					user: { select: { email: true, name: true, locale: true } },
+				},
 			});
 
 			const moved = await tx.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
@@ -186,8 +209,7 @@ export class OccurrenceService {
 				recipients.slice(from, from + MAIL_BATCH_SIZE).map((booking) => {
 					const locale = booking.user?.locale ?? DEFAULT_LOCALE;
 					const eventTitle =
-						occurrence.event?.translations.find((translation) => translation.locale === locale)
-							?.title ??
+						occurrence.event?.translations.find((translation) => translation.locale === locale)?.title ??
 						occurrence.event?.translations[0]?.title ??
 						'Event';
 
@@ -199,6 +221,7 @@ export class OccurrenceService {
 						newDate: date,
 						locale,
 						reason: pickCancellationReason(reasons, locale),
+						refundUntil: booking.status === 'CONFIRMED' ? refundDeadline : null,
 						brandHost: booking.brandHost ?? undefined,
 					});
 				}),

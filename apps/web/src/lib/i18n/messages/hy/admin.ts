@@ -109,6 +109,7 @@ export const admin: Messages['admin'] = {
 	reasonCancelledFeeWithheld: 'Ամրագրումը չեղարկվել է, Stripe-ի միջնորդավճարը պահվել է',
 	reasonEventCancelled: 'Միջոցառումը չեղարկվել է, ամբողջական վերադարձ',
 	reasonOccurrenceCancelled: 'Ամսաթիվը չեղարկվել է, ամբողջական վերադարձ',
+	reasonCancelledAfterReschedule: 'Չեղարկում ամսաթվի տեղափոխումից հետո, ամբողջական վերադարձ',
 	reasonNoSpotsLeft: 'Տեղեր չեն մնացել',
 	reasonQuantityChanged: 'Հյուրերի թիվը փոխվել է {from}-ից {to}',
 	reasonAdminCancelled: 'Չեղարկել է ադմինը',

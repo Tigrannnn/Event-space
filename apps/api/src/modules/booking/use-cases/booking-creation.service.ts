@@ -192,6 +192,7 @@ export class BookingCreationService {
 				amount: Number(updatedBooking.amount),
 				occurrence: mapOccurrenceForBookingResponse(occurrence),
 				refundPercentage,
+				refundReason: 'RULES' as const,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
 			} satisfies BookingWithEstimate;
@@ -356,6 +357,7 @@ export class BookingCreationService {
 			amount: Number(result.booking.amount),
 			occurrence: mapOccurrenceForBookingResponse(result.occurrence),
 			refundPercentage: 0,
+			refundReason: 'RULES' as const,
 			estimatedStripeFeeInCents: 0,
 			estimatedRefundInCents: 0,
 		} satisfies BookingWithEstimate;

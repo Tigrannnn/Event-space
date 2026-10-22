@@ -187,6 +187,7 @@ export class MailService implements OnModuleInit {
 		newDate: Date;
 		locale: Locale;
 		reason?: string;
+		refundUntil?: Date | null;
 		brandHost?: string;
 	}): Promise<void> {
 		const strings = pickLocale(OCCURRENCE_RESCHEDULED_STRINGS, params.locale);
@@ -194,6 +195,10 @@ export class MailService implements OnModuleInit {
 		const previousDate = formatMailDate(params.previousDate, params.locale);
 		const newDate = formatMailDate(params.newDate, params.locale);
 		const reasonLine = params.reason ? strings.reason(params.reason) : undefined;
+		// Nothing to offer a client who has not paid: they decide by paying or not.
+		const cantMakeLine = params.refundUntil
+			? strings.cantMake(formatMailDate(params.refundUntil, params.locale))
+			: undefined;
 
 		const html = await this.templateService.render('occurrence-rescheduled', {
 			...this.brandVariables(brand),
@@ -204,7 +209,7 @@ export class MailService implements OnModuleInit {
 				? `<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${reasonLine}</mj-text>`
 				: '',
 			KEEPS_BOOKING: strings.keepsBooking,
-			CANT_MAKE: strings.cantMake,
+			CANT_MAKE: cantMakeLine ?? '',
 			SUPPORT: strings.support,
 			SIGNOFF: strings.signoff,
 			SIGNATURE: brand.name,
@@ -220,7 +225,7 @@ export class MailService implements OnModuleInit {
 					strings.body(params.eventTitle, previousDate, newDate),
 					reasonLine,
 					strings.keepsBooking,
-					strings.cantMake,
+					cantMakeLine,
 					strings.support,
 					`${strings.signoff} ${brand.name}`,
 				]

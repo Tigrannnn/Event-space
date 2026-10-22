@@ -4,7 +4,7 @@ import { type BookingStatus, type Locale, type Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppErrorCode } from '@event-space/shared';
 import { AppException } from '@shared';
-import { calculateRefundPercentage } from '../booking.utils';
+import { resolveRefundPolicy } from '../booking.utils';
 import { BookingRefundService, type QueuedCancellation } from '../money/booking-refund.service';
 import { BookingNotificationService } from './booking-notification.service';
 
@@ -88,18 +88,26 @@ export class BookingCancellationService {
 				});
 
 				const cancelledEvent = currentBooking.occurrence?.event;
-				const queued = cancelledEvent
-					? await this.refunds.queueCancellation(tx, currentBooking, {
-							percentage: calculateRefundPercentage(
-								new Date(),
-								new Date(currentBooking.occurrence?.date ?? new Date()),
-								cancelledEvent.cancellationRules,
-							),
-							withholdFee: true,
-							reason: LEDGER_REASON.BOOKING_CANCELLED_FEE_WITHHELD,
-							method: 'STRIPE',
+				const policy = cancelledEvent
+					? resolveRefundPolicy({
+							now: new Date(),
+							occurrenceDate: new Date(currentBooking.occurrence?.date ?? new Date()),
+							rules: cancelledEvent.cancellationRules,
+							rescheduleRefundUntil: currentBooking.rescheduleRefundUntil,
 						})
 					: null;
+				const queued =
+					cancelledEvent && policy
+						? await this.refunds.queueCancellation(tx, currentBooking, {
+								percentage: policy.percentage,
+								withholdFee: policy.withholdStripeFee,
+								reason:
+									policy.reason === 'RESCHEDULE'
+										? LEDGER_REASON.CANCELLED_AFTER_RESCHEDULE
+										: LEDGER_REASON.BOOKING_CANCELLED_FEE_WITHHELD,
+								method: 'STRIPE',
+							})
+						: null;
 
 				return {
 					booking: updatedBooking,

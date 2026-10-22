@@ -17,6 +17,7 @@ const REASON_KEYS: Record<LedgerReasonCode, TranslationKey> = {
 	BOOKING_CANCELLED_FEE_WITHHELD: 'admin.reasonCancelledFeeWithheld',
 	EVENT_CANCELLED_FULL_REFUND: 'admin.reasonEventCancelled',
 	OCCURRENCE_CANCELLED_FULL_REFUND: 'admin.reasonOccurrenceCancelled',
+	CANCELLED_AFTER_RESCHEDULE: 'admin.reasonCancelledAfterReschedule',
 	NO_SPOTS_LEFT: 'admin.reasonNoSpotsLeft',
 };
 

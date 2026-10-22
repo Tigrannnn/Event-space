@@ -13,7 +13,7 @@ import {
 } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
-import { useCancelBooking } from '../../hooks/useBookings';
+import { useAcceptReschedule, useCancelBooking } from '../../hooks/useBookings';
 import { EventImageWithFallback } from '@/features/events';
 import type { BookingWithEstimate } from '@event-space/shared';
 import { localizePath, localeIntl } from '@/lib/i18n/config';
@@ -38,6 +38,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
+	const acceptReschedule = useAcceptReschedule();
 	const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
 	const confirm = useConfirm();
@@ -52,6 +53,11 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const displayStatus = getBookingDisplayStatus(booking);
 	const occurrenceDate = occurrence.date;
 	const movedFrom = status !== 'CANCELLED' ? movedFromDate(booking) : null;
+	// Set only while the client may still walk away from a date the company moved.
+	const walkAwayUntil =
+		booking.refundReason === 'RESCHEDULE' && booking.rescheduleRefundUntil
+			? new Date(booking.rescheduleRefundUntil)
+			: null;
 	// This booking covers one date; the event may still have others left to book.
 	const canBookAnotherDate = isEventAvailable(event);
 
@@ -83,12 +89,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			message: (
 				<div className="space-y-3">
 					<p>{`${translate('booking.areYouSure')} ${refundMessage}`}</p>
-					<CancellationPolicyInfo
-						eventDate={occurrenceDate ?? ''}
-						price={event.price}
-						cancellationRules={event.cancellationRules ?? []}
-						booking={booking}
-					/>
+					{/* The ladder is measured from the tour date, which says nothing while the
+					    client is owed everything back for a move they did not ask for. */}
+					{!walkAwayUntil && (
+						<CancellationPolicyInfo
+							eventDate={occurrenceDate ?? ''}
+							price={event.price}
+							cancellationRules={event.cancellationRules ?? []}
+							booking={booking}
+						/>
+					)}
 				</div>
 			),
 			size: 'md',
@@ -153,12 +163,34 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					</div>
 
 					{movedFrom && (
-						<div className="flex items-start gap-2 rounded-xl border border-amber-500 bg-amber-50 p-2.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+						<div className="relative z-20 flex items-start gap-2 rounded-xl border border-amber-500 bg-amber-50 p-2.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
 							<CalendarClock className="mt-0.5 h-4 w-4 shrink-0" />
-							<span>
-								{translate('booking.dateMoved')}{' '}
-								{formatDateTimeZone(movedFrom, localeIntl[locale])}
-							</span>
+							<div className="space-y-2">
+								<p>
+									{translate('booking.dateMoved')}{' '}
+									{formatDateTimeZone(movedFrom, localeIntl[locale])}
+								</p>
+								{walkAwayUntil && (
+									<>
+										<p>
+											{translate('booking.dateMovedFullRefund')}{' '}
+											{formatDateTimeZone(walkAwayUntil, localeIntl[locale])}
+										</p>
+										<div className="flex flex-wrap gap-2">
+											<Button
+												size="sm"
+												onClick={() => acceptReschedule.mutate(booking.id)}
+												disabled={acceptReschedule.isPending}
+											>
+												{translate('booking.dateSuitsMe')}
+											</Button>
+											<Button size="sm" variant="danger" onClick={handleCancel}>
+												{translate('booking.dateDoesNotSuit')}
+											</Button>
+										</div>
+									</>
+								)}
+							</div>
 						</div>
 					)}
 					<div className="flex items-center gap-2">

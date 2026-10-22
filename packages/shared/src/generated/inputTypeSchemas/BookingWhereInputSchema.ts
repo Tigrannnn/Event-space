@@ -12,8 +12,8 @@ import { DecimalJsLikeSchema } from './DecimalJsLikeSchema';
 import { EnumPaymentMethodFilterSchema } from './EnumPaymentMethodFilterSchema';
 import { PaymentMethodSchema } from './PaymentMethodSchema';
 import { StringNullableFilterSchema } from './StringNullableFilterSchema';
-import { IntNullableFilterSchema } from './IntNullableFilterSchema';
 import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
+import { IntNullableFilterSchema } from './IntNullableFilterSchema';
 import { UserScalarRelationFilterSchema } from './UserScalarRelationFilterSchema';
 import { UserWhereInputSchema } from './UserWhereInputSchema';
 import { EventOccurrenceScalarRelationFilterSchema } from './EventOccurrenceScalarRelationFilterSchema';
@@ -35,6 +35,7 @@ export const BookingWhereInputSchema: z.ZodType<Prisma.BookingWhereInput> = z.st
   amount: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   paymentMethod: z.union([ z.lazy(() => EnumPaymentMethodFilterSchema), z.lazy(() => PaymentMethodSchema) ]).optional(),
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
+  rescheduleRefundUntil: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   brandHost: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   paymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   referenceNumber: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),

@@ -210,6 +210,9 @@ model Booking {
 
   createdByAdminId String? @map("created_by_admin_id")
 
+  /// Пока не прошло, отмена возвращает всё без удержания: дату тура сдвинули не по вине клиента.
+  rescheduleRefundUntil DateTime? @map("reschedule_refund_until")
+
   /// Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.
   brandHost String? @map("brand_host")
 
