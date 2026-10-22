@@ -12,6 +12,7 @@ export function getCategoryTranslation(
 			categoryId: '',
 			locale: locale,
 			name: '',
+			description: null,
 		};
 	}
 	let translation = translations.find((t) => t.locale === locale);

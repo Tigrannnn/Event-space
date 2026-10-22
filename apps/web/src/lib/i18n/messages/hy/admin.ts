@@ -24,6 +24,8 @@ export const admin: Messages['admin'] = {
 	noCategoriesFound: 'Կատեգորիաներ չեն գտնվել',
 	categoryIdCopied: 'Կատեգորիայի ID-ն պատճենվեց',
 	slug: 'Slug',
+	categoryDescription: 'Կատեգորիայի նկարագրություն',
+	categoryDescriptionHint: 'Տեքստ կատեգորիայի էջում։ Այն կարդում են և այցելուները, և որոնողականները․ առանց դրա էջը դասակարգվելու բան չունի։',
 	slugDescription:
 		'Slug-ը URL-ում օգտագործվում է։ Այն պետք է լինի անգլերեն, փոքրատառերով և բացառապես տառեր, թվեր և գծանիշներով։',
 	minPrice: 'Մինիմալ գին',
@@ -269,6 +271,7 @@ export const admin: Messages['admin'] = {
 	validation: {
 		titleRequired: 'Մուտքագրեք անվանումը',
 		descriptionRequired: 'Մուտքագրեք նկարագրությունը',
+		descriptionTooLong: 'Նկարագրությունը չափազանց երկար է, առավելագույնը 2000 նիշ',
 		locationRequired: 'Մուտքագրեք վայրը',
 		meetingLocationRequired: 'Մուտքագրեք հանդիպման վայրը',
 		categoryRequired: 'Ընտրեք կատեգորիան',

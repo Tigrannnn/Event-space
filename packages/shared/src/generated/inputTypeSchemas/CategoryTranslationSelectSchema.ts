@@ -7,6 +7,7 @@ export const CategoryTranslationSelectSchema: z.ZodType<Prisma.CategoryTranslati
   categoryId: z.boolean().optional(),
   locale: z.boolean().optional(),
   name: z.boolean().optional(),
+  description: z.boolean().optional(),
   category: z.union([z.boolean(),z.lazy(() => CategoryArgsSchema)]).optional(),
 }).strict()
 

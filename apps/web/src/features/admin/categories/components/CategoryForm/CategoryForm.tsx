@@ -98,6 +98,7 @@ export default function CategoryForm({
 										appendTranslation({
 											locale: locale.value,
 											name: '',
+											description: '',
 										})
 									}
 								>
@@ -169,6 +170,24 @@ export default function CategoryForm({
 									{errors.translations?.[activeTabIndex]?.name && (
 										<p className="text-xs text-red-500">
 											{errorText(errors.translations[activeTabIndex]?.name?.message)}
+										</p>
+									)}
+								</label>
+
+								<label className="space-y-1.5">
+									<span className="text-sm font-semibold">{translate('admin.categoryDescription')}</span>
+									<span className="block text-xs text-gray-500">
+										{translate('admin.categoryDescriptionHint')}
+									</span>
+									<textarea
+										{...register(`translations.${activeTabIndex}.description`)}
+										rows={6}
+										className={fieldClassName}
+										disabled={isPending}
+									/>
+									{errors.translations?.[activeTabIndex]?.description && (
+										<p className="text-xs text-red-500">
+											{errorText(errors.translations[activeTabIndex]?.description?.message)}
 										</p>
 									)}
 								</label>

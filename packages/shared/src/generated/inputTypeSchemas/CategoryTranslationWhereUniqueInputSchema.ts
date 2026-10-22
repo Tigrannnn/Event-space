@@ -6,6 +6,7 @@ import { CategoryTranslationWhereInputSchema } from './CategoryTranslationWhereI
 import { StringFilterSchema } from './StringFilterSchema';
 import { EnumLocaleFilterSchema } from './EnumLocaleFilterSchema';
 import { LocaleSchema } from './LocaleSchema';
+import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { CategoryScalarRelationFilterSchema } from './CategoryScalarRelationFilterSchema';
 import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 
@@ -30,6 +31,7 @@ export const CategoryTranslationWhereUniqueInputSchema: z.ZodType<Prisma.Categor
   categoryId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   locale: z.union([ z.lazy(() => EnumLocaleFilterSchema), z.lazy(() => LocaleSchema) ]).optional(),
   name: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   category: z.union([ z.lazy(() => CategoryScalarRelationFilterSchema), z.lazy(() => CategoryWhereInputSchema) ]).optional(),
 }));
 

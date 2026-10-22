@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useEffect, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
 import { useEvents } from '@/features/events';
@@ -16,17 +16,19 @@ import {
 	EventsFiltersBar,
 	computePriceBounds,
 	filterEventsByCategories,
-	filtersToSearchParams,
 	formatDateParam,
 	getApiCategoryFilter,
 	parseFiltersFromSearchParams,
 } from './filters';
+import { buildCatalogueHref } from './filters/catalogue-url';
 
 interface EventsListProps {
 	initialEvents: Event[];
 	initialNextCursor?: string | null;
 	initialHasMore?: boolean;
 	searchQuery?: string;
+	/** Set on a category page: the category lives in the path, not in the query string. */
+	categorySlug?: string;
 }
 
 export default function EventsList({
@@ -34,28 +36,26 @@ export default function EventsList({
 	initialNextCursor = null,
 	initialHasMore = false,
 	searchQuery = '',
+	categorySlug,
 }: EventsListProps) {
 	const translate = useTranslation();
 	const router = useRouter();
-	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const locale = translate.locale;
 
-	const filters = useMemo(
-		() => parseFiltersFromSearchParams(searchParams),
-		[searchParams],
-	);
+	const filters = useMemo(() => {
+		const parsed = parseFiltersFromSearchParams(searchParams);
+
+		return categorySlug ? { ...parsed, categories: [categorySlug] } : parsed;
+	}, [searchParams, categorySlug]);
 
 	const { data: categories = [], isLoading: isLoadingCategories } = useCategories();
 
 	const handleFiltersChange = useCallback(
 		(nextFilters: typeof filters) => {
-			const params = filtersToSearchParams(searchParams, nextFilters);
-			router.replace(`${pathname}${params.toString() ? `?${params.toString()}` : ''}`, {
-				scroll: false,
-			});
+			router.replace(buildCatalogueHref(locale, nextFilters, searchParams), { scroll: false });
 		},
-		[pathname, router, searchParams],
+		[locale, router, searchParams],
 	);
 
 	const initialData = useMemo(() => {

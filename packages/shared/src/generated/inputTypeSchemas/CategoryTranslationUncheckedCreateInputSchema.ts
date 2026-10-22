@@ -8,6 +8,7 @@ export const CategoryTranslationUncheckedCreateInputSchema: z.ZodType<Prisma.Cat
   categoryId: z.string(),
   locale: z.lazy(() => LocaleSchema),
   name: z.string(),
+  description: z.string().optional().nullable(),
 });
 
 export default CategoryTranslationUncheckedCreateInputSchema;

@@ -22,6 +22,8 @@ export const admin = {
 	noCategoriesFound: 'No categories found',
 	categoryIdCopied: 'Category ID copied to clipboard',
 	slug: 'Slug',
+	categoryDescription: 'Category description',
+	categoryDescriptionHint: 'The text on the category page. Visitors and search engines both read it — without it the page has nothing to rank with.',
 	slugDescription:
 		'Slug is used in URLs. It should be in English, lowercase, and only contain letters, numbers, and hyphens.',
 	minPrice: 'Minimum price',
@@ -267,6 +269,7 @@ export const admin = {
 	validation: {
 		titleRequired: 'Enter a title',
 		descriptionRequired: 'Enter a description',
+		descriptionTooLong: 'The description is too long, 2000 characters at most',
 		locationRequired: 'Enter a location',
 		meetingLocationRequired: 'Enter a meeting point',
 		categoryRequired: 'Choose a category',

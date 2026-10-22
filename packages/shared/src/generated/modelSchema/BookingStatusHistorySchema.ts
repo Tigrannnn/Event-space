@@ -5,10 +5,6 @@ import { BookingStatusSchema } from '../inputTypeSchemas/BookingStatusSchema'
 // BOOKING STATUS HISTORY SCHEMA
 /////////////////////////////////////////
 
-/**
- * Ведётся триггером Postgres (см. миграцию add_booking_status_history), не кодом приложения.
- * SCD Type 2: одна строка на период жизни брони в статусе, valid_to = NULL — текущий статус.
- */
 export const BookingStatusHistorySchema = z.object({
   status: BookingStatusSchema,
   id: z.number().int(),

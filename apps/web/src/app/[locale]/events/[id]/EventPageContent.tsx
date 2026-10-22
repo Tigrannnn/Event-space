@@ -1,6 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { localizePath } from '@/lib/i18n/config';
+import Link from 'next/link';
 import { Key, useState } from 'react';
 import Button from '@/components/ui/Buttons/Button';
 import { useModalStore } from '@/stores/modalStore/modalStore';
@@ -141,9 +143,18 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								)}
 							</div>
 
-							<span className="bg-primary/10 text-primary inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase sm:px-5 sm:py-2.5 sm:text-sm">
-								{categoryTranslation?.name || ''}
-							</span>
+							{event.category?.slug ? (
+								<Link
+									href={localizePath(`/category/${event.category.slug}`, locale)}
+									className="bg-primary/10 text-primary hover:bg-primary/20 inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase transition-colors sm:px-5 sm:py-2.5 sm:text-sm"
+								>
+									{categoryTranslation?.name || ''}
+								</Link>
+							) : (
+								<span className="bg-primary/10 text-primary inline-block rounded-full px-4 py-2 text-[13px] font-bold tracking-wide uppercase sm:px-5 sm:py-2.5 sm:text-sm">
+									{categoryTranslation?.name || ''}
+								</span>
+							)}
 						</div>
 
 						{/* Info Icons Grid */}

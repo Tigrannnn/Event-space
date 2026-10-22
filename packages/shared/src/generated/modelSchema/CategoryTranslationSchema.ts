@@ -10,6 +10,10 @@ export const CategoryTranslationSchema = z.object({
   id: z.uuid(),
   categoryId: z.string(),
   name: z.string(),
+  /**
+   * Текст на странице категории: без него странице нечем ранжироваться в поиске.
+   */
+  description: z.string().nullable(),
 })
 
 export type CategoryTranslation = z.infer<typeof CategoryTranslationSchema>

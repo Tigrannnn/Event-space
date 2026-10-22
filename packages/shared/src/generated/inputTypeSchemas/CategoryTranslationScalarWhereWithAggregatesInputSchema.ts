@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
 import { EnumLocaleWithAggregatesFilterSchema } from './EnumLocaleWithAggregatesFilterSchema';
 import { LocaleSchema } from './LocaleSchema';
+import { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAggregatesFilterSchema';
 
 export const CategoryTranslationScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.CategoryTranslationScalarWhereWithAggregatesInput> = z.strictObject({
   AND: z.union([ z.lazy(() => CategoryTranslationScalarWhereWithAggregatesInputSchema), z.lazy(() => CategoryTranslationScalarWhereWithAggregatesInputSchema).array() ]).optional(),
@@ -13,6 +14,7 @@ export const CategoryTranslationScalarWhereWithAggregatesInputSchema: z.ZodType<
   categoryId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   locale: z.union([ z.lazy(() => EnumLocaleWithAggregatesFilterSchema), z.lazy(() => LocaleSchema) ]).optional(),
   name: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
+  description: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
 });
 
 export default CategoryTranslationScalarWhereWithAggregatesInputSchema;

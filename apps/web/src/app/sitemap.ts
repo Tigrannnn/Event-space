@@ -32,6 +32,7 @@ const MAX_PAGES = 20;
 export const dynamic = 'force-dynamic';
 
 type EventSummary = { id: string; updatedAt?: string };
+type CategorySummary = { slug: string; updatedAt?: string };
 
 /**
  * Served at /sitemap.xml.
@@ -46,6 +47,7 @@ type EventSummary = { id: string; updatedAt?: string };
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const events = await fetchPublishedEvents();
+	const categories = await fetchCategories();
 	// Each company's demo subdomain is its own site, so its sitemap lists its own URLs.
 	const origin = await getRequestSiteUrl();
 
@@ -66,7 +68,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		}),
 	);
 
-	return [...staticEntries, ...eventEntries];
+	const categoryEntries = categories.flatMap((category) =>
+		entriesForPath(`/category/${category.slug}`, {
+			origin,
+			changeFrequency: 'weekly',
+			priority: 0.7,
+			lastModified: category.updatedAt ? new Date(category.updatedAt) : undefined,
+		}),
+	);
+
+	return [...staticEntries, ...categoryEntries, ...eventEntries];
+}
+
+/**
+ * Category landing pages. A failure returns nothing rather than throwing, for the same reason the
+ * events walk does: a partial sitemap beats a 500.
+ */
+async function fetchCategories(): Promise<CategorySummary[]> {
+	try {
+		const response = await fetch(`${API_URL}/categories`, {
+			headers: { 'Content-Type': 'application/json' },
+		});
+		if (!response.ok) return [];
+
+		const payload = (await response.json()) as CategorySummary[];
+
+		return Array.isArray(payload) ? payload.filter((category) => Boolean(category.slug)) : [];
+	} catch {
+		return [];
+	}
 }
 
 function entriesForPath(

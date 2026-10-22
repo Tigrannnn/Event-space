@@ -24,6 +24,8 @@ export const admin: Messages['admin'] = {
 	noCategoriesFound: 'Категории не найдены',
 	categoryIdCopied: 'ID категории скопирован',
 	slug: 'Slug',
+	categoryDescription: 'Описание категории',
+	categoryDescriptionHint: 'Текст на странице категории. Его видят посетители и поисковые системы — без него странице нечем ранжироваться.',
 	slugDescription:
 		'Slug используется в URL. Он должен быть на английском языке, в нижнем регистре и содержать только буквы, цифры и дефисы.',
 	minPrice: 'Минимальная цена',
@@ -269,6 +271,7 @@ export const admin: Messages['admin'] = {
 	validation: {
 		titleRequired: 'Введите название',
 		descriptionRequired: 'Введите описание',
+		descriptionTooLong: 'Описание слишком длинное, максимум 2000 символов',
 		locationRequired: 'Введите локацию',
 		meetingLocationRequired: 'Введите место встречи',
 		categoryRequired: 'Выберите категорию',

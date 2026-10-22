@@ -8,6 +8,7 @@ export const CategoryTranslationCreateManyInputSchema: z.ZodType<Prisma.Category
   categoryId: z.string(),
   locale: z.lazy(() => LocaleSchema),
   name: z.string(),
+  description: z.string().optional().nullable(),
 });
 
 export default CategoryTranslationCreateManyInputSchema;

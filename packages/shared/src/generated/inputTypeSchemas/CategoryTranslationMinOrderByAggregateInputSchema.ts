@@ -8,6 +8,7 @@ export const CategoryTranslationMinOrderByAggregateInputSchema: z.ZodType<Prisma
   categoryId: z.lazy(() => SortOrderSchema).optional(),
   locale: z.lazy(() => SortOrderSchema).optional(),
   name: z.lazy(() => SortOrderSchema).optional(),
+  description: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default CategoryTranslationMinOrderByAggregateInputSchema;

@@ -8,6 +8,7 @@ export const CategoryTranslationCreateInputSchema: z.ZodType<Prisma.CategoryTran
   id: z.uuid().optional(),
   locale: z.lazy(() => LocaleSchema),
   name: z.string(),
+  description: z.string().optional().nullable(),
   category: z.lazy(() => CategoryCreateNestedOneWithoutTranslationsInputSchema),
 });
 

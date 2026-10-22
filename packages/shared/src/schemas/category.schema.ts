@@ -15,6 +15,8 @@ export type Category = z.infer<typeof CategorySchema>;
 export const CreateCategoryTranslationSchema = CategoryTranslationSchema.omit({
     id: true,
     categoryId: true,
+}).extend({
+    description: z.string().max(2000).nullish(),
 });
 
 export type CreateCategoryTranslation = z.infer<typeof CreateCategoryTranslationSchema>;

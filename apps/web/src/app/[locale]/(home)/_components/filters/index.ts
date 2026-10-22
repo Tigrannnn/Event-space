@@ -12,3 +12,4 @@ export {
 	countActiveFilters,
 	formatDateParam,
 } from './filter-utils';
+export { buildCatalogueHref, buildEventsApiUrl, CATEGORY_PATH } from './catalogue-url';

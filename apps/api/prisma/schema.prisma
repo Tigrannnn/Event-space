@@ -58,10 +58,12 @@ model Category {
 }
 
 model CategoryTranslation {
-  id         String @id @default(uuid())
-  categoryId String @map("category_id")
-  locale     Locale
-  name       String @db.VarChar(100)
+  id          String  @id @default(uuid())
+  categoryId  String  @map("category_id")
+  locale      Locale
+  name        String  @db.VarChar(100)
+  /// Текст на странице категории: без него странице нечем ранжироваться в поиске.
+  description String? @db.VarChar(2000)
 
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 

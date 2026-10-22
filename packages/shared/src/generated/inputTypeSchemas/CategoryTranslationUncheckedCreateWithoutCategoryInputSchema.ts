@@ -7,6 +7,7 @@ export const CategoryTranslationUncheckedCreateWithoutCategoryInputSchema: z.Zod
   id: z.uuid().optional(),
   locale: z.lazy(() => LocaleSchema),
   name: z.string(),
+  description: z.string().optional().nullable(),
 });
 
 export default CategoryTranslationUncheckedCreateWithoutCategoryInputSchema;

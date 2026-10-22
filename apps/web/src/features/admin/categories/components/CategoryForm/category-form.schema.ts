@@ -4,6 +4,7 @@ import z from 'zod';
 export const CategoryFormTranslationSchema = z.object({
     locale: LocaleEnum,
     name: z.string().min(1, 'admin.validation.nameRequired'),
+    description: z.string().max(2000, 'admin.validation.descriptionTooLong').optional(),
 });
 
 export type CategoryFormTranslationValues = z.infer<typeof CategoryFormTranslationSchema>;

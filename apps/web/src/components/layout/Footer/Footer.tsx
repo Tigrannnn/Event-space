@@ -5,17 +5,34 @@ import { usePathname } from 'next/navigation';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
+import { useCategories } from '@/features/categories/hooks/useCategories';
+import { getCategoryTranslation } from '@event-space/shared';
 
 export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const locale = translate.locale;
 	const pathname = usePathname();
+	const { data: categories } = useCategories();
 
 	if (pathname.includes('/admin')) return null;
 
 	return (
 		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900">
+			{categories && categories.length > 0 && (
+				<nav className="mx-auto mb-5 flex max-w-7xl flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
+					{categories.map((category) => (
+						<Link
+							key={category.id}
+							href={localizePath(`/category/${category.slug}`, locale)}
+							className="hover:text-primary"
+						>
+							{getCategoryTranslation(category, locale).name}
+						</Link>
+					))}
+				</nav>
+			)}
+
 			<div className="mx-auto flex max-w-7xl flex-col gap-3 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between dark:text-gray-400">
 				<p>
 					© {new Date().getFullYear()} {brand.name}

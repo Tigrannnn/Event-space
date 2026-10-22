@@ -7,6 +7,7 @@ export const CategoryTranslationCreateWithoutCategoryInputSchema: z.ZodType<Pris
   id: z.uuid().optional(),
   locale: z.lazy(() => LocaleSchema),
   name: z.string(),
+  description: z.string().optional().nullable(),
 });
 
 export default CategoryTranslationCreateWithoutCategoryInputSchema;
