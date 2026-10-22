@@ -311,6 +311,22 @@ const brands: Record<string, Brand> = {
 	},
 };
 
+/** The domain the demo subdomains hang off. */
+const MAIN_HOST = 'event-space.space';
+
+/**
+ * Demo subdomains show prospects what their own site would look like, and every one of them
+ * serves the same catalogue as the main domain. Left open to search engines they are a dozen
+ * copies of one site under one domain, which is what a search engine treats as a duplicate farm.
+ */
+export function isDemoHost(host: string | null | undefined): boolean {
+	if (!host) return false;
+
+	const hostname = host.split(':')[0].toLowerCase();
+
+	return hostname.endsWith(`.${MAIN_HOST}`) && hostname !== `www.${MAIN_HOST}`;
+}
+
 export function getBrandForHost(host: string | null): Brand {
 	if (!host) return defaultBrand;
 

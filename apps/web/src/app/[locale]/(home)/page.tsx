@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { getBrandForHost } from '@/config/brands';
+import { translate } from '@/lib/i18n/messages';
 import EventsList from './_components/EventsList';
 import { getRequestLocale, localeAlternates } from '@/lib/seo';
 import { serverFetch } from '@/lib/server.api';
@@ -15,8 +18,17 @@ import { buildEventsApiUrl } from './_components/filters/catalogue-url';
  */
 export async function generateMetadata(): Promise<Metadata> {
 	const locale = await getRequestLocale();
+	const brand = getBrandForHost((await headers()).get('host'));
 
-	return { alternates: await localeAlternates(locale) };
+	const title = `${translate(locale, 'common.homeTitle')} | ${brand.name}`;
+	const description = translate(locale, 'common.homeDescription');
+
+	return {
+		title,
+		description,
+		alternates: await localeAlternates(locale),
+		openGraph: { title, description, type: 'website' },
+	};
 }
 
 interface HomePageProps {
@@ -34,6 +46,7 @@ interface HomePageProps {
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
+	const locale = await getRequestLocale();
 	const params = await searchParams;
 	const searchQuery = params.search || '';
 
@@ -53,6 +66,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 	return (
 		<div className="min-h-full px-4 sm:px-6 lg:px-8">
+			<h1 className="pt-6 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+				{translate(locale, 'common.homeHeading')}
+			</h1>
+
 			<EventsList
 				initialEvents={initialData.data}
 				initialNextCursor={initialData.nextCursor}

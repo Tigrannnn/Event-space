@@ -3,6 +3,8 @@ import { EnvKey } from '@event-space/shared';
 import { defaultLocale, locales } from '@/lib/i18n/config';
 import { localeUrl } from '@/lib/seo';
 import { getRequestSiteUrl } from '@/lib/site-url';
+import { isDemoHost } from '@event-space/shared';
+import { headers } from 'next/headers';
 
 /**
  * Public pages that live at a fixed path.
@@ -46,6 +48,10 @@ type CategorySummary = { slug: string; updatedAt?: string };
  * would land anyway.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+	// A demo subdomain is the main catalogue under another name, and its pages carry a noindex.
+	// Listing them would be asking a crawler to spend its budget on pages it is told to drop.
+	if (isDemoHost((await headers()).get('host'))) return [];
+
 	const events = await fetchPublishedEvents();
 	const categories = await fetchCategories();
 	// Each company's demo subdomain is its own site, so its sitemap lists its own URLs.

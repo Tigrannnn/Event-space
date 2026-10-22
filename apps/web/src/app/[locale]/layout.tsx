@@ -7,7 +7,8 @@ import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
 import GoogleProvider from '@/providers/GoogleProvider';
 import { BrandProvider } from '@/providers/BrandProvider';
-import { getBrandForHost } from '@/config/brands';
+import { getBrandForHost, isDemoHost } from '@/config/brands';
+import { PRIVATE_PAGE_ROBOTS } from '@/lib/seo';
 import { EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
@@ -58,7 +59,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { locale } = await params;
 	const currentLocale = isLocale(locale) ? locale : defaultLocale;
-	const brand = getBrandForHost((await headers()).get('host'));
+	const host = (await headers()).get('host');
+	const brand = getBrandForHost(host);
 
 	const title = `${brand.name} | ${translate(currentLocale, 'common.appTitle')}`;
 	const description = translate(currentLocale, 'common.appDescription');
@@ -67,6 +69,7 @@ export async function generateMetadata({
 		// The request's own origin, so a company's demo subdomain serves its own logo rather than
 		// pointing every preview at the main domain.
 		metadataBase: new URL(await getRequestSiteUrl()),
+		...(isDemoHost(host) ? { robots: PRIVATE_PAGE_ROBOTS } : {}),
 		title,
 		description,
 		icons: {
