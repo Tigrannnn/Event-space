@@ -17,7 +17,6 @@ import {
 } from '@/features/admin/categories';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EventDetailsModal from '@/features/admin/events/components/modals/EventDetailsModal';
-import RescheduleOccurrenceModal from '@/features/admin/events/components/modals/RescheduleOccurrenceModal';
 import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
 import CreateManualBookingModal from '@/features/admin/bookings/components/CreateManualBookingModal';
 import BookingCancelModal from '@/features/admin/bookings/components/BookingCancelModal';
@@ -50,9 +49,6 @@ export default function ModalRoot() {
 					{activeModal === ModalType.BookingDetails && <BookingDetailsModal key="booking-details" />}
 					{activeModal === ModalType.UpdateBooking && <UpdateBookingModal key="update-booking" />}
 					{activeModal === ModalType.BookingCancel && <BookingCancelModal key="booking-cancel" />}
-					{activeModal === ModalType.RescheduleOccurrence && (
-						<RescheduleOccurrenceModal key="reschedule-occurrence" />
-					)}
 					{activeModal === ModalType.BookingConfirm && <BookingConfirmModal key="booking-confirm" />}
 					{activeModal === ModalType.ChangeQuantity && <ChangeQuantityModal key="change-quantity" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}

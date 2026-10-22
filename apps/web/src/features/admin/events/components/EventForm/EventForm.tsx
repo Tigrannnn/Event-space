@@ -30,8 +30,7 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { useFormatDate } from '@/hooks/format';
 import { adminApi } from '@/features/admin/api/admin.api';
 import { useCancelOccurrence } from '@/features/admin/hooks/useAdmin';
-import { useModalStore } from '@/stores/modalStore';
-import { ModalType } from '@/stores';
+import RescheduleOccurrenceDialog from './RescheduleOccurrenceDialog';
 import { XIcon } from 'lucide-react';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { ToastType, useToastStore } from '@/stores/toastStore';
@@ -198,7 +197,7 @@ export default function EventForm({
 	const [noCancelReason, setNoCancelReason] = useState(false);
 	const [showReasonError, setShowReasonError] = useState(false);
 	const { addToast } = useToastStore();
-	const { openModal } = useModalStore();
+	const [reschedulingIndex, setReschedulingIndex] = useState<number | null>(null);
 	const router = useRouter();
 
 	const deletedIndexes = occurrenceFields
@@ -290,6 +289,24 @@ export default function EventForm({
 	return (
 		<form
 			onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
+			{reschedulingIndex !== null && (
+				<RescheduleOccurrenceDialog
+					occurrenceId={occurrenceFields[reschedulingIndex]?.id ?? ''}
+					currentDate={
+						watchedOccurrences[reschedulingIndex]?.date ??
+						occurrenceFields[reschedulingIndex]?.date ??
+						''
+					}
+					eventTitle={watchedTranslations[activeTabIndex]?.title}
+					activeBookingsCount={occurrenceFields[reschedulingIndex]?.activeBookingsCount ?? 0}
+					inputClassName={dateTimeInputClassName}
+					onClose={() => setReschedulingIndex(null)}
+					onRescheduled={(moved) =>
+						setValue(`occurrences.${reschedulingIndex}.date`, moved, { shouldDirty: false })
+					}
+				/>
+			)}
+
 			{showCancelConfirm && (
 				<Modal
 					onClose={handleRejectCancel}
@@ -682,18 +699,7 @@ export default function EventForm({
 												variant="secondary"
 												className="h-10 px-3 md:mt-[22px]"
 												disabled={isPending}
-												onClick={() =>
-													openModal(ModalType.RescheduleOccurrence, {
-														occurrenceId: field.id as string,
-														date: watchedOccurrences[index]?.date ?? field.date ?? '',
-														eventTitle: watchedTranslations[activeTabIndex]?.title,
-														activeBookingsCount,
-														onRescheduled: (moved) =>
-															setValue(`occurrences.${index}.date`, moved, {
-																shouldDirty: false,
-															}),
-													})
-												}
+												onClick={() => setReschedulingIndex(index)}
 											>
 												{translate('admin.rescheduleOccurrence')}
 											</Button>
