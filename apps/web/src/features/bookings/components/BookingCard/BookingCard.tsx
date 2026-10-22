@@ -293,35 +293,37 @@ export default function BookingCard({ booking }: BookingCardProps) {
 				{/* Actions */}
 				<div className="flex flex-col gap-2">
 					{awaitingAnswer ? (
-						<div className="flex flex-wrap gap-2">
-							<Button
-								variant="danger"
-								size="sm"
-								className="min-w-28 flex-1"
-								onClick={handleCancel}
-								isLoading={isCancelling}
-							>
-								{translate('booking.dateDoesNotSuit')}
-							</Button>
+						<>
 							{canChangeQuantity && (
 								<Button
 									variant="secondary"
 									size="sm"
-									className="min-w-28 flex-1"
+									className="w-full"
 									onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
 								>
 									{translate('booking.changeQuantity')}
 								</Button>
 							)}
-							<Button
-								size="sm"
-								className="min-w-28 flex-1"
-								onClick={handleAcceptDate}
-								disabled={acceptReschedule.isPending}
-							>
-								{translate('booking.dateSuitsMe')}
-							</Button>
-						</div>
+							<div className="flex gap-2">
+								<Button
+									size="sm"
+									className="flex-1"
+									onClick={handleAcceptDate}
+									disabled={acceptReschedule.isPending}
+								>
+									{translate('booking.dateSuitsMe')}
+								</Button>
+								<Button
+									variant="danger"
+									size="sm"
+									className="flex-1"
+									onClick={handleCancel}
+									isLoading={isCancelling}
+								>
+									{translate('booking.dateDoesNotSuit')}
+								</Button>
+							</div>
+						</>
 					) : (
 						<>
 						{occurrenceIsAvailable &&
