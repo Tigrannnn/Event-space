@@ -13,6 +13,8 @@ import {
 } from '@event-space/shared';
 import { AppException } from '@shared';
 
+const MAIL_BATCH_SIZE = 5;
+
 interface OccurrenceInput {
 	id?: string;
 	date: Date;
@@ -174,26 +176,33 @@ export class OccurrenceService {
 		});
 
 		// Outside the transaction: a slow mail server must not hold the row locked, and a
-		// bounced email must not undo a move that already happened.
-		for (const booking of result.notify) {
-			if (!booking.user?.email) continue;
+		// bounced email must not undo a move that already happened. In small parallel batches
+		// because a full date can hold a hundred guests, and one send at a time would keep the
+		// admin waiting minutes for a move that already went through.
+		const recipients = result.notify.filter((booking) => booking.user?.email);
 
-			const locale = booking.user.locale ?? DEFAULT_LOCALE;
-			const eventTitle =
-				occurrence.event?.translations.find((translation) => translation.locale === locale)?.title ??
-				occurrence.event?.translations[0]?.title ??
-				'Event';
+		for (let from = 0; from < recipients.length; from += MAIL_BATCH_SIZE) {
+			await Promise.all(
+				recipients.slice(from, from + MAIL_BATCH_SIZE).map((booking) => {
+					const locale = booking.user?.locale ?? DEFAULT_LOCALE;
+					const eventTitle =
+						occurrence.event?.translations.find((translation) => translation.locale === locale)
+							?.title ??
+						occurrence.event?.translations[0]?.title ??
+						'Event';
 
-			await this.mailService.sendOccurrenceRescheduledEmail({
-				email: booking.user.email,
-				userName: booking.user.name || 'User',
-				eventTitle,
-				previousDate: occurrence.date,
-				newDate: date,
-				locale,
-				reason: pickCancellationReason(reasons, locale),
-				brandHost: booking.brandHost ?? undefined,
-			});
+					return this.mailService.sendOccurrenceRescheduledEmail({
+						email: booking.user?.email as string,
+						userName: booking.user?.name || 'User',
+						eventTitle,
+						previousDate: occurrence.date,
+						newDate: date,
+						locale,
+						reason: pickCancellationReason(reasons, locale),
+						brandHost: booking.brandHost ?? undefined,
+					});
+				}),
+			);
 		}
 
 		return result.moved;
