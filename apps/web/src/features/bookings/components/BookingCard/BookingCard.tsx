@@ -60,6 +60,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			: null;
 	// Saying the date suits them takes the question away, not the right behind it.
 	const awaitingAnswer = Boolean(walkAwayUntil) && !booking.rescheduleAcceptedAt;
+	const canChangeQuantity =
+		occurrenceIsAvailable &&
+		booking.paymentMethod === 'SITE_PAYMENT' &&
+		getBookingDisplayStatus(booking) === 'CONFIRMED';
 	// This booking covers one date; the event may still have others left to book.
 	const canBookAnotherDate = isEventAvailable(event);
 
@@ -195,20 +199,6 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								{booking.rescheduleAcceptedAt && (
 									<p className="opacity-80">{translate('booking.dateAccepted')}</p>
 								)}
-								{awaitingAnswer && (
-									<div className="flex flex-wrap gap-2">
-										<Button
-											size="sm"
-											onClick={handleAcceptDate}
-											disabled={acceptReschedule.isPending}
-										>
-											{translate('booking.dateSuitsMe')}
-										</Button>
-										<Button size="sm" variant="danger" onClick={handleCancel}>
-											{translate('booking.dateDoesNotSuit')}
-										</Button>
-									</div>
-								)}
 							</div>
 						</div>
 					)}
@@ -295,61 +285,95 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex flex-col gap-2">
-					{occurrenceIsAvailable &&
-						booking.paymentMethod === 'SITE_PAYMENT' &&
-						displayStatus === 'CONFIRMED' && (
+					{awaitingAnswer ? (
+						<div className="flex flex-wrap gap-2">
 							<Button
-								variant="secondary"
+								variant="danger"
 								size="sm"
-								className="w-full"
-								onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
+								className="min-w-28 flex-1"
+								onClick={handleCancel}
+								isLoading={isCancelling}
 							>
-								{translate('booking.changeQuantity')}
+								{translate('booking.dateDoesNotSuit')}
 							</Button>
-						)}
-					<div className="flex gap-2">
-						{/* Link so the event page is prefetched before the click. */}
-						<Link href={localizePath(`/events/${event.id}`, locale)} className="flex-1">
-							<Button variant={canPay ? 'secondary' : 'primary'} size="sm" className="w-full">
-								{translate('booking.viewEvent')}
-							</Button>
-						</Link>
-						{canPay && (
+							{canChangeQuantity && (
+								<Button
+									variant="secondary"
+									size="sm"
+									className="min-w-28 flex-1"
+									onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
+								>
+									{translate('booking.changeQuantity')}
+								</Button>
+							)}
 							<Button
-								variant="primary"
 								size="sm"
-								className="flex-1"
-								onClick={handlePay}
+								className="min-w-28 flex-1"
+								onClick={handleAcceptDate}
+								disabled={acceptReschedule.isPending}
 							>
-								{translate('booking.payNow')}
+								{translate('booking.dateSuitsMe')}
 							</Button>
-						)}
+						</div>
+					) : (
+						<>
 						{occurrenceIsAvailable &&
 							booking.paymentMethod === 'SITE_PAYMENT' &&
 							displayStatus === 'CONFIRMED' && (
 								<Button
-									variant="danger"
+									variant="secondary"
 									size="sm"
-									className="flex-1"
-									onClick={handleCancel}
-									isLoading={isCancelling}
+									className="w-full"
+									onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
 								>
-									{translate('booking.cancel')}
+									{translate('booking.changeQuantity')}
 								</Button>
 							)}
-						{canBookAnotherDate && (
-							<Button
-								variant="primary"
-								size="sm"
-								className="w-10 shrink-0 px-0"
-								onClick={handleBookAnotherDate}
-								aria-label={translate('event.bookAnotherSpot')}
-								title={translate('event.bookAnotherSpot')}
-							>
-								<Plus className="h-4 w-4" strokeWidth={2.5} />
-							</Button>
-						)}
-					</div>
+						<div className="flex gap-2">
+							{/* Link so the event page is prefetched before the click. */}
+							<Link href={localizePath(`/events/${event.id}`, locale)} className="flex-1">
+								<Button variant={canPay ? 'secondary' : 'primary'} size="sm" className="w-full">
+									{translate('booking.viewEvent')}
+								</Button>
+							</Link>
+							{canPay && (
+								<Button
+									variant="primary"
+									size="sm"
+									className="flex-1"
+									onClick={handlePay}
+								>
+									{translate('booking.payNow')}
+								</Button>
+							)}
+							{occurrenceIsAvailable &&
+								booking.paymentMethod === 'SITE_PAYMENT' &&
+								displayStatus === 'CONFIRMED' && (
+									<Button
+										variant="danger"
+										size="sm"
+										className="flex-1"
+										onClick={handleCancel}
+										isLoading={isCancelling}
+									>
+										{translate('booking.cancel')}
+									</Button>
+								)}
+							{canBookAnotherDate && (
+								<Button
+									variant="primary"
+									size="sm"
+									className="w-10 shrink-0 px-0"
+									onClick={handleBookAnotherDate}
+									aria-label={translate('event.bookAnotherSpot')}
+									title={translate('event.bookAnotherSpot')}
+								>
+									<Plus className="h-4 w-4" strokeWidth={2.5} />
+								</Button>
+							)}
+						</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
