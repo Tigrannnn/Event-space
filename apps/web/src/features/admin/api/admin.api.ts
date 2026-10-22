@@ -103,9 +103,9 @@ export const adminApi = {
 		clientApi
 			.patch(`/admin/occurrences/${occurrenceId}/cancel`, { reasons })
 			.then((res) => res.data),
-	rescheduleOccurrence: (occurrenceId: string, date: string) =>
+	rescheduleOccurrence: (occurrenceId: string, date: string, reasons?: CancellationReasons) =>
 		clientApi
-			.patch<EventOccurrence>(`/admin/occurrences/${occurrenceId}/reschedule`, { date })
+			.patch<EventOccurrence>(`/admin/occurrences/${occurrenceId}/reschedule`, { date, reasons })
 			.then((res) => res.data),
 	deleteEvent: (id: string) => clientApi.delete<Event>(`/events/${id}`).then((res) => res.data),
 	getUsers: (params?: UserFilters) =>

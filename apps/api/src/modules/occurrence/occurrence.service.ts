@@ -109,10 +109,17 @@ export class OccurrenceService {
 	 */
 	async reschedule(occurrenceId: string, data: RescheduleOccurrenceData) {
 		const date = new Date(data.date);
+		const reasons = compactCancellationReasons(data.reasons);
 
 		const occurrence = await this.prisma.eventOccurrence.findUnique({
 			where: { id: occurrenceId },
-			select: { id: true, eventId: true, date: true, status: true },
+			select: {
+				id: true,
+				eventId: true,
+				date: true,
+				status: true,
+				event: { select: { translations: true } },
+			},
 		});
 
 		if (!occurrence) {
@@ -124,7 +131,7 @@ export class OccurrenceService {
 		}
 
 		if (occurrence.date.getTime() === date.getTime()) {
-			return occurrence;
+			return this.prisma.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
 		}
 
 		if (date.getTime() <= Date.now()) {
@@ -140,13 +147,13 @@ export class OccurrenceService {
 			throw new AppException(AppErrorCode.OCCURRENCE_DATE_TAKEN);
 		}
 
-		return this.prisma.$transaction(async (tx) => {
-			const moved = await tx.eventOccurrence.updateMany({
+		const result = await this.prisma.$transaction(async (tx) => {
+			const movedRows = await tx.eventOccurrence.updateMany({
 				where: { id: occurrenceId, date: occurrence.date, status: 'ACTIVE' },
 				data: { date, previousDate: occurrence.date, rescheduledAt: new Date() },
 			});
 
-			if (moved.count === 0) {
+			if (movedRows.count === 0) {
 				throw new AppException(AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY, { id: occurrenceId });
 			}
 
@@ -156,8 +163,40 @@ export class OccurrenceService {
 				data: { reminderSentAt: null },
 			});
 
-			return tx.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+			const notify = await tx.booking.findMany({
+				where: { occurrenceId, status: { in: ['PENDING', 'CONFIRMED'] } },
+				select: { brandHost: true, user: { select: { email: true, name: true, locale: true } } },
+			});
+
+			const moved = await tx.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+
+			return { moved, notify };
 		});
+
+		// Outside the transaction: a slow mail server must not hold the row locked, and a
+		// bounced email must not undo a move that already happened.
+		for (const booking of result.notify) {
+			if (!booking.user?.email) continue;
+
+			const locale = booking.user.locale ?? DEFAULT_LOCALE;
+			const eventTitle =
+				occurrence.event?.translations.find((translation) => translation.locale === locale)?.title ??
+				occurrence.event?.translations[0]?.title ??
+				'Event';
+
+			await this.mailService.sendOccurrenceRescheduledEmail({
+				email: booking.user.email,
+				userName: booking.user.name || 'User',
+				eventTitle,
+				previousDate: occurrence.date,
+				newDate: date,
+				locale,
+				reason: pickCancellationReason(reasons, locale),
+				brandHost: booking.brandHost ?? undefined,
+			});
+		}
+
+		return result.moved;
 	}
 
 	async syncForEvent(

@@ -42,6 +42,7 @@ export class MailTemplateService {
 			this.baseTemplate = readFileSync(resolve(templatePath, 'base.mjml'), 'utf-8');
 			this.loadTemplate('verification', templatePath);
 			this.loadTemplate('event-cancelled', templatePath);
+			this.loadTemplate('occurrence-rescheduled', templatePath);
 			this.loadTemplate('booking-confirmation', templatePath);
 			this.loadTemplate('booking-reminder', templatePath);
 			this.loadTemplate('booking-cancelled', templatePath);

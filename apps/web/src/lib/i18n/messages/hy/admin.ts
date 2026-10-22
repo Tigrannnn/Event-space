@@ -38,6 +38,7 @@ export const admin: Messages['admin'] = {
 	cancelOccurrence: 'Չեղարկել շրջանը',
 	rescheduleOccurrence: 'Տեղափոխել ամսաթիվը',
 	rescheduleNewDate: 'Նոր ամսաթիվ և ժամ',
+	rescheduleReasonNoneHint: 'Հաճախորդները կիմանան միայն, որ ամսաթիվը փոխվել է՝ սպասեք զանգերի և հարցերի։',
 	rescheduleWarning:
 		'Ամրագրումները, տեղերը և վճարումները մնում են այս ամսաթվին և տեղափոխվում են դրա հետ։ Հաճախորդներին առայժմ ոչինչ չի ուղարկվում։',
 	occurrenceRescheduled: 'Ամսաթիվը տեղափոխվեց',

@@ -36,6 +36,7 @@ export const admin = {
 	cancelOccurrence: 'Cancel occurrence',
 	rescheduleOccurrence: 'Move date',
 	rescheduleNewDate: 'New date and time',
+	rescheduleReasonNoneHint: 'Customers will only learn that the date moved — expect calls and questions.',
 	rescheduleWarning:
 		'Bookings, seats and payments stay with this date and move along with it. Nothing is sent to the customers yet.',
 	occurrenceRescheduled: 'The date has been moved',

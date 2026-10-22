@@ -5,9 +5,10 @@ import { CalendarClock } from 'lucide-react';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button/Button';
 import DateTimeField from './DateTimeField';
+import CancellationReasonField from './CancellationReasonField';
 import { useTranslation } from '@/hooks/translation';
 import { useRescheduleOccurrence } from '@/features/admin/hooks/useAdmin';
-import { zonedLocalInputToDate } from '@event-space/shared';
+import { zonedLocalInputToDate, type CancellationReasons } from '@event-space/shared';
 
 interface RescheduleOccurrenceDialogProps {
 	occurrenceId: string;
@@ -36,6 +37,8 @@ export default function RescheduleOccurrenceDialog({
 	const translate = useTranslation();
 	const reschedule = useRescheduleOccurrence();
 	const [date, setDate] = useState(currentDate);
+	const [reasons, setReasons] = useState<CancellationReasons>({});
+	const [noReason, setNoReason] = useState(false);
 
 	const changed = Boolean(date) && date !== currentDate;
 
@@ -43,7 +46,11 @@ export default function RescheduleOccurrenceDialog({
 		const moment = zonedLocalInputToDate(date);
 		if (!moment) return;
 
-		await reschedule.mutateAsync({ occurrenceId, date: moment.toISOString() });
+		await reschedule.mutateAsync({
+			occurrenceId,
+			date: moment.toISOString(),
+			reasons: noReason ? undefined : reasons,
+		});
 
 		// The form still holds the old date; saving the event afterwards would send it back
 		// through the path that refuses to move booked dates at all.
@@ -87,6 +94,15 @@ export default function RescheduleOccurrenceDialog({
 						inputClassName={inputClassName}
 					/>
 				</div>
+
+				<CancellationReasonField
+					reasons={reasons}
+					noReason={noReason}
+					disabled={reschedule.isPending}
+					noReasonHint={translate('admin.rescheduleReasonNoneHint')}
+					onReasonsChange={setReasons}
+					onNoReasonChange={setNoReason}
+				/>
 			</div>
 
 			<div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">

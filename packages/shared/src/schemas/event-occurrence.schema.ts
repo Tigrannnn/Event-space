@@ -66,6 +66,7 @@ export type CancelOccurrenceData = z.infer<typeof CancelOccurrenceData>;
 
 export const RescheduleOccurrenceSchema = z.object({
 	date: z.coerce.date(),
+	reasons: CancellationReasonsSchema.optional(),
 });
 
 export type RescheduleOccurrenceData = z.infer<typeof RescheduleOccurrenceSchema>;

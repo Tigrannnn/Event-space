@@ -15,6 +15,8 @@ interface CancellationReasonFieldProps {
 	reasons: CancellationReasons;
 	noReason: boolean;
 	disabled?: boolean;
+	/** What the clients miss without a reason; the wording differs per action. */
+	noReasonHint?: string;
 	onReasonsChange: (reasons: CancellationReasons) => void;
 	onNoReasonChange: (noReason: boolean) => void;
 }
@@ -28,6 +30,7 @@ export default function CancellationReasonField({
 	reasons,
 	noReason,
 	disabled,
+	noReasonHint,
 	onReasonsChange,
 	onNoReasonChange,
 }: CancellationReasonFieldProps) {
@@ -63,7 +66,7 @@ export default function CancellationReasonField({
 
 			{noReason ? (
 				<p className="text-xs text-amber-600 dark:text-amber-400">
-					{translate('admin.cancelReasonNoneHint')}
+					{noReasonHint ?? translate('admin.cancelReasonNoneHint')}
 				</p>
 			) : (
 				<>

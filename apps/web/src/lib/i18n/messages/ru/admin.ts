@@ -38,6 +38,7 @@ export const admin: Messages['admin'] = {
 	cancelOccurrence: 'Отменить дату',
 	rescheduleOccurrence: 'Перенести дату',
 	rescheduleNewDate: 'Новая дата и время',
+	rescheduleReasonNoneHint: 'Клиенты узнают только, что дата сдвинулась, — готовьтесь к звонкам и вопросам.',
 	rescheduleWarning:
 		'Брони, места и оплаты останутся на этой дате — переедут вместе с ней. Клиентам пока ничего не отправляется.',
 	occurrenceRescheduled: 'Дата перенесена',

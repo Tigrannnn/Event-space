@@ -26,6 +26,7 @@ import {
 	formatMailDate,
 	formatMailZoneLabel,
 	pickLocale,
+	OCCURRENCE_RESCHEDULED_STRINGS,
 } from './mail-strings';
 
 @Injectable()
@@ -175,6 +176,66 @@ export class MailService implements OnModuleInit {
 			}
 
 			throw new AppException(AppErrorCode.EMAIL_SEND_FAILED);
+		}
+	}
+
+	async sendOccurrenceRescheduledEmail(params: {
+		email: string;
+		userName: string;
+		eventTitle: string;
+		previousDate: Date;
+		newDate: Date;
+		locale: Locale;
+		reason?: string;
+		brandHost?: string;
+	}): Promise<void> {
+		const strings = pickLocale(OCCURRENCE_RESCHEDULED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const previousDate = formatMailDate(params.previousDate, params.locale);
+		const newDate = formatMailDate(params.newDate, params.locale);
+		const reasonLine = params.reason ? strings.reason(params.reason) : undefined;
+
+		const html = await this.templateService.render('occurrence-rescheduled', {
+			...this.brandVariables(brand),
+			TITLE: strings.title,
+			GREETING: strings.greeting(params.userName),
+			BODY: strings.body(params.eventTitle, previousDate, newDate),
+			REASON_BLOCK: reasonLine
+				? `<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${reasonLine}</mj-text>`
+				: '',
+			KEEPS_BOOKING: strings.keepsBooking,
+			CANT_MAKE: strings.cantMake,
+			SUPPORT: strings.support,
+			SIGNOFF: strings.signoff,
+			SIGNATURE: brand.name,
+		});
+
+		try {
+			await this.deliver({
+				to: params.email,
+				subject: strings.subject(params.eventTitle),
+				brand,
+				text: [
+					strings.greeting(params.userName),
+					strings.body(params.eventTitle, previousDate, newDate),
+					reasonLine,
+					strings.keepsBooking,
+					strings.cantMake,
+					strings.support,
+					`${strings.signoff} ${brand.name}`,
+				]
+					.filter(Boolean)
+					.join('\n\n'),
+				html,
+			});
+		} catch (error) {
+			this.logSmtpError(`Failed to send occurrence rescheduled email to ${params.email}`, error);
+
+			if (this.isDevOrTest()) {
+				this.logger.warn(
+					`[DEV] Occurrence rescheduled email for ${params.email}: ${params.eventTitle}, ${previousDate} -> ${newDate}`,
+				);
+			}
 		}
 	}
 

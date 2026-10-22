@@ -60,6 +60,64 @@ export const VERIFICATION_STRINGS: Record<Locale, VerificationStrings> = {
 	},
 };
 
+interface OccurrenceRescheduledStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	body: (eventTitle: string, oldDate: string, newDate: string) => string;
+	reason: (reason: string) => string;
+	keepsBooking: string;
+	cantMake: string;
+	support: string;
+	signoff: string;
+	signature: string;
+}
+
+export const OCCURRENCE_RESCHEDULED_STRINGS: Record<Locale, OccurrenceRescheduledStrings> = {
+	en: {
+		subject: (eventTitle) => `New date: ${eventTitle}`,
+		title: 'The tour date has changed',
+		greeting: (userName) => `Dear ${userName},`,
+		body: (eventTitle, oldDate, newDate) =>
+			`"${eventTitle}" has been moved from ${oldDate} to ${newDate}.`,
+		reason: (reason) => `Reason: ${reason}`,
+		keepsBooking:
+			'Your booking stays as it is — same seats, same payment. There is nothing you need to do.',
+		cantMake:
+			'If the new date does not work for you, reply to this email and we will sort out a refund.',
+		support: 'If you have any questions, just reply to this email.',
+		signoff: 'Best regards,',
+		signature: 'The Event Space Team',
+	},
+	ru: {
+		subject: (eventTitle) => `Новая дата: ${eventTitle}`,
+		title: 'Дата тура изменилась',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		body: (eventTitle, oldDate, newDate) =>
+			`Тур «${eventTitle}» перенесён с ${oldDate} на ${newDate}.`,
+		reason: (reason) => `Причина: ${reason}`,
+		keepsBooking: 'Бронь остаётся в силе — те же места, та же оплата. Делать ничего не нужно.',
+		cantMake: 'Если новая дата вам не подходит, ответьте на это письмо — вернём деньги.',
+		support: 'Если остались вопросы — просто ответьте на это письмо.',
+		signoff: 'С уважением,',
+		signature: 'Команда Event Space',
+	},
+	hy: {
+		subject: (eventTitle) => `Նոր ամսաթիվ՝ ${eventTitle}`,
+		title: 'Տուրի ամսաթիվը փոխվել է',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		body: (eventTitle, oldDate, newDate) =>
+			`«${eventTitle}» տուրը տեղափոխվել է ${oldDate}-ից ${newDate}:`,
+		reason: (reason) => `Պատճառը՝ ${reason}`,
+		keepsBooking:
+			'Ձեր ամրագրումը մնում է ուժի մեջ՝ նույն տեղերը, նույն վճարումը։ Ոչինչ անել պետք չէ։',
+		cantMake: 'Եթե նոր ամսաթիվը Ձեզ չի հարմարում, պատասխանեք այս նամակին՝ գումարը կվերադարձնենք։',
+		support: 'Եթե հարցեր ունեք, պարզապես պատասխանեք այս նամակին։',
+		signoff: 'Հարգանքով՝',
+		signature: 'Event Space-ի թիմ',
+	},
+};
+
 interface EventCancelledStrings {
 	subject: (eventTitle: string) => string;
 	title: string;

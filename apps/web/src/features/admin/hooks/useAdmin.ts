@@ -339,8 +339,15 @@ export function useRescheduleOccurrence() {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ occurrenceId, date }: { occurrenceId: string; date: string }) =>
-			adminApi.rescheduleOccurrence(occurrenceId, date),
+		mutationFn: ({
+			occurrenceId,
+			date,
+			reasons,
+		}: {
+			occurrenceId: string;
+			date: string;
+			reasons?: CancellationReasons;
+		}) => adminApi.rescheduleOccurrence(occurrenceId, date, reasons),
 		onSuccess: async () => {
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['admin', 'events'] }),
