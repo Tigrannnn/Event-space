@@ -45,7 +45,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 		title,
 		description,
 		alternates: await localeAlternates(locale, `/category/${slug}`),
-		openGraph: { title, description, type: 'website' },
+		openGraph: {
+			title,
+			description,
+			siteName: brand.name,
+			images: [{ url: brand.ogImage, alt: `${brand.name} Logo` }],
+			type: 'website',
+		},
 	};
 }
 

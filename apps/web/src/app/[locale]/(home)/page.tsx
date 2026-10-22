@@ -3,7 +3,8 @@ import { headers } from 'next/headers';
 import { getBrandForHost } from '@/config/brands';
 import { translate } from '@/lib/i18n/messages';
 import EventsList from './_components/EventsList';
-import { getRequestLocale, localeAlternates } from '@/lib/seo';
+import { getRequestLocale, localeAlternates, requestLocaleUrl } from '@/lib/seo';
+import { buildWebSiteJsonLd, serializeJsonLd } from '@/lib/structured-data';
 import { serverFetch } from '@/lib/server.api';
 import { PaginatedEventsResponse } from '@/features/events/api/events.api';
 import { parseFiltersFromSearchParams } from './_components/filters/filter-utils';
@@ -27,7 +28,13 @@ export async function generateMetadata(): Promise<Metadata> {
 		title,
 		description,
 		alternates: await localeAlternates(locale),
-		openGraph: { title, description, type: 'website' },
+		openGraph: {
+			title,
+			description,
+			siteName: brand.name,
+			images: [{ url: brand.ogImage, alt: `${brand.name} Logo` }],
+			type: 'website',
+		},
 	};
 }
 
@@ -47,6 +54,8 @@ interface HomePageProps {
 
 export default async function Home({ searchParams }: HomePageProps) {
 	const locale = await getRequestLocale();
+	const brand = getBrandForHost((await headers()).get('host'));
+	const siteJsonLd = buildWebSiteJsonLd(brand.name, await requestLocaleUrl(locale));
 	const params = await searchParams;
 	const searchQuery = params.search || '';
 
@@ -66,6 +75,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 	return (
 		<div className="min-h-full px-4 sm:px-6 lg:px-8">
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: serializeJsonLd([siteJsonLd]) }}
+			/>
 			<h1 className="pt-6 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
 				{translate(locale, 'common.homeHeading')}
 			</h1>

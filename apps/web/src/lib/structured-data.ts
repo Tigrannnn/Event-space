@@ -4,6 +4,24 @@ import { getEventTranslation, optimizeImageUrl, type Event, type Locale } from '
 const MAX_DATES = 20;
 
 /**
+ * Names the site for the line above the link in a search result.
+ *
+ * Left to guess, Google prints the bare domain there — `event-space.space` where a reader expects
+ * `Event Space`. It reads this first and falls back to og:site_name, the home page title and
+ * finally the domain, so this is the one signal that states the name outright.
+ *
+ * It belongs on the home page: the name is taken for the whole site from there.
+ */
+export function buildWebSiteJsonLd(name: string, url: string): object {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'WebSite',
+		name,
+		url,
+	};
+}
+
+/**
  * Describes an event to a search engine in schema.org's vocabulary.
  *
  * The page already says everything in prose, but only to a human — a crawler cannot tell a price
