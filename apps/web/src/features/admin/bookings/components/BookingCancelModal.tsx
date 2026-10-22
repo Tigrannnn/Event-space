@@ -88,6 +88,7 @@ export default function BookingCancelModal() {
 								value={refundType}
 								onValueChange={(value) => setRefundType(value as AdminCancelBookingData['refundType'])}
 								options={refundOptions}
+								className="w-full"
 							/>
 						</div>
 
@@ -100,6 +101,7 @@ export default function BookingCancelModal() {
 									value={refundMethod}
 									onValueChange={(value) => setRefundMethod(value as RefundMethod)}
 									options={methodOptions}
+									className="w-full"
 								/>
 							) : (
 								<p className="text-sm text-gray-700 dark:text-gray-200">

@@ -64,7 +64,7 @@ export const admin: Messages['admin'] = {
 	cancelBooking: 'Отменить бронь',
 	refundStrategy: 'Стратегия возврата',
 	refundStrategyFull: 'Полный возврат',
-	refundStrategyRules: 'По правилам отмены (минус комиссия платёжной системы)',
+	refundStrategyRules: 'По правилам отмены',
 	cancelAfterTourWarning: 'Тур уже начался. Возврат пройдёт как корректировка по этому туру: он уменьшит «Заработано» на дашборде.',
 	reason: 'Причина',
 	reasonPlaceholder: 'Введите причину (необязательно)',

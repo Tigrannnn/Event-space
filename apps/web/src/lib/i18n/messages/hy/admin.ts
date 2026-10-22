@@ -64,7 +64,7 @@ export const admin: Messages['admin'] = {
 	cancelBooking: 'Չեղարկել ամրագրումը',
 	refundStrategy: 'Վերադարձի ռազմավարություն',
 	refundStrategyFull: 'Ամբողջական վերադարձ',
-	refundStrategyRules: 'Ըստ չեղարկման կանոնների (առանց վճարային համակարգի միջնորդավճարի)',
+	refundStrategyRules: 'Ըստ չեղարկման կանոնների',
 	cancelAfterTourWarning: 'Տուրն արդեն սկսվել է։ Վերադարձը կգրանցվի որպես ճշգրտում այս տուրի համար և կնվազեցնի վահանակի «Վաստակած» գումարը։',
 	reason: 'Պատճառ',
 	reasonPlaceholder: 'Նշեք պատճառը (պարտադիր չէ)',

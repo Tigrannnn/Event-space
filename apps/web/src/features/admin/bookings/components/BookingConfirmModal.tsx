@@ -93,6 +93,7 @@ export default function BookingConfirmModal() {
 								value={paymentMethod}
 								onValueChange={(value) => setPaymentMethod(value as ManualPaymentMethod)}
 								options={methodOptions}
+								className="w-full"
 							/>
 							<p className="text-xs text-gray-500">{methodHint}</p>
 						</div>

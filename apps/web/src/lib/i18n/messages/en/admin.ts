@@ -62,7 +62,7 @@ export const admin = {
 	cancelBooking: 'Cancel booking',
 	refundStrategy: 'Refund strategy',
 	refundStrategyFull: 'Full refund',
-	refundStrategyRules: 'According to cancellation rules (minus the payment provider fee)',
+	refundStrategyRules: 'According to cancellation rules',
 	cancelAfterTourWarning: 'The tour has already started. A refund will be recorded as a correction to this tour and will reduce "Earned" on the dashboard.',
 	reason: 'Reason',
 	reasonPlaceholder: 'Enter a reason (optional)',

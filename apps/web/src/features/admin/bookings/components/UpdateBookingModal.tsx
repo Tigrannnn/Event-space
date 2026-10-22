@@ -99,6 +99,7 @@ export default function UpdateBookingModal() {
 								value={settlement}
 								onValueChange={(value) => setSettlement(value as QuantitySettlement)}
 								options={settlementOptions}
+								className="w-full"
 							/>
 						</div>
 
@@ -111,6 +112,7 @@ export default function UpdateBookingModal() {
 									value={chosenMethod}
 									onValueChange={(value) => setChosenMethod(value as RefundMethod)}
 									options={methodOptions}
+									className="w-full"
 								/>
 							) : (
 								<p className="text-sm text-gray-600 dark:text-gray-300">
