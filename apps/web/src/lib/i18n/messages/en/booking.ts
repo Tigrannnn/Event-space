@@ -9,6 +9,7 @@ export const booking = {
 	dateMoved: 'The tour date has changed. It used to be:',
 	dateMovedFullRefund: 'If the new date does not suit you, we refund everything in full — until',
 	dateSuitsMe: 'The date works',
+	dateSuitsConfirm: 'We will take this question off the card. Your right to a full refund stays until',
 	dateDoesNotSuit: 'Does not work, refund me',
 	dateAcceptedToast: 'Thank you, see you on the new date',
 	dateAcceptFailed: 'Could not confirm the new date',

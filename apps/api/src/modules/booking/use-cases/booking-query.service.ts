@@ -112,8 +112,9 @@ export class BookingQueryService {
 	}
 
 	/**
-	 * The client says the moved date suits them, so the extra right to a full refund goes away.
-	 * Letting it simply expire would leave the notice nagging for days after they already decided.
+	 * The client says the moved date suits them. That only takes the question off the card —
+	 * the refund window keeps running, because agreeing in the morning and changing your mind
+	 * in the evening is an ordinary thing to do, and the move was still not their doing.
 	 */
 	async acceptReschedule(userId: string, bookingId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
@@ -123,7 +124,7 @@ export class BookingQueryService {
 
 		await this.prisma.booking.updateMany({
 			where: { id: bookingId, userId },
-			data: { rescheduleRefundUntil: null },
+			data: { rescheduleAcceptedAt: new Date() },
 		});
 
 		return { accepted: true };

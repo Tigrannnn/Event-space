@@ -39,6 +39,19 @@ describe('resolveRefundPolicy', () => {
 		).toEqual({ percentage: 50, withholdStripeFee: true, reason: 'RULES' });
 	});
 
+	it('keeps the right after the client said the date suits them', () => {
+		// Acceptance only takes the question off the card; changing your mind inside the window
+		// is ordinary, and the move still was not the client's doing.
+		expect(
+			resolveRefundPolicy({
+				now: new Date('2026-12-18T09:00:00.000Z'),
+				occurrenceDate: TOUR,
+				rules: RULES,
+				rescheduleRefundUntil: new Date('2026-12-19T09:00:00.000Z'),
+			}).reason,
+		).toBe('RESCHEDULE');
+	});
+
 	it('still covers the last moment of the window', () => {
 		const edge = new Date('2026-12-18T09:00:00.000Z');
 		expect(

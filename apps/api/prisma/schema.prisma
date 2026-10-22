@@ -213,6 +213,10 @@ model Booking {
   /// Пока не прошло, отмена возвращает всё без удержания: дату тура сдвинули не по вине клиента.
   rescheduleRefundUntil DateTime? @map("reschedule_refund_until")
 
+  /// Клиент сказал, что новая дата подходит. Это убирает вопрос из карточки, но не срок выше:
+  /// передумать внутри срока он вправе.
+  rescheduleAcceptedAt DateTime? @map("reschedule_accepted_at")
+
   /// Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.
   brandHost String? @map("brand_host")
 

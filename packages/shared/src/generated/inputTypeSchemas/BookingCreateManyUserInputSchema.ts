@@ -17,6 +17,7 @@ export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateMan
   paymentMethod: z.lazy(() => PaymentMethodSchema).optional(),
   createdByAdminId: z.string().optional().nullable(),
   rescheduleRefundUntil: z.coerce.date().optional().nullable(),
+  rescheduleAcceptedAt: z.coerce.date().optional().nullable(),
   brandHost: z.string().optional().nullable(),
   paymentIntentId: z.string().optional().nullable(),
   referenceNumber: z.number().int().optional().nullable(),

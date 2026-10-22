@@ -104,6 +104,7 @@ export const BookingWhereUniqueInputSchema: z.ZodType<Prisma.BookingWhereUniqueI
   paymentMethod: z.union([ z.lazy(() => EnumPaymentMethodFilterSchema), z.lazy(() => PaymentMethodSchema) ]).optional(),
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   rescheduleRefundUntil: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  rescheduleAcceptedAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   brandHost: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   confirmationSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),

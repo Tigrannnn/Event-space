@@ -11,6 +11,7 @@ export const booking: Messages['booking'] = {
 	dateMoved: 'Дата тура изменена. Раньше было:',
 	dateMovedFullRefund: 'Если новая дата не подходит, вернём всю сумму без удержаний — до',
 	dateSuitsMe: 'Дата подходит',
+	dateSuitsConfirm: 'Уберём этот вопрос из карточки. Право вернуть всю сумму у вас остаётся до',
 	dateDoesNotSuit: 'Не подходит, вернуть деньги',
 	dateAcceptedToast: 'Спасибо, ждём вас в новую дату',
 	dateAcceptFailed: 'Не удалось подтвердить новую дату',

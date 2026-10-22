@@ -23,6 +23,11 @@ export const BookingSchema = z.object({
    */
   rescheduleRefundUntil: z.coerce.date().nullable(),
   /**
+   * Клиент сказал, что новая дата подходит. Это убирает вопрос из карточки, но не срок выше:
+   * передумать внутри срока он вправе.
+   */
+  rescheduleAcceptedAt: z.coerce.date().nullable(),
+  /**
    * Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.
    */
   brandHost: z.string().nullable(),

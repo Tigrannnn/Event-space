@@ -30,6 +30,7 @@ export const BookingScalarWhereInputSchema: z.ZodType<Prisma.BookingScalarWhereI
   paymentMethod: z.union([ z.lazy(() => EnumPaymentMethodFilterSchema), z.lazy(() => PaymentMethodSchema) ]).optional(),
   createdByAdminId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   rescheduleRefundUntil: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  rescheduleAcceptedAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   brandHost: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   paymentIntentId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   referenceNumber: z.union([ z.lazy(() => IntNullableFilterSchema), z.number() ]).optional().nullable(),

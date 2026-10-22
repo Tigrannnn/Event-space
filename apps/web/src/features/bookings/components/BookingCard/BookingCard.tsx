@@ -58,6 +58,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		booking.refundReason === 'RESCHEDULE' && booking.rescheduleRefundUntil
 			? new Date(booking.rescheduleRefundUntil)
 			: null;
+	// Saying the date suits them takes the question away, not the right behind it.
+	const awaitingAnswer = Boolean(walkAwayUntil) && !booking.rescheduleAcceptedAt;
 	// This booking covers one date; the event may still have others left to book.
 	const canBookAnotherDate = isEventAvailable(event);
 
@@ -74,6 +76,25 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			selectedOccurrence: occurrence,
 			initialQuantity: quantity,
 		});
+	};
+
+	const handleAcceptDate = async () => {
+		const isConfirmed = await confirm({
+			title: translate('booking.dateSuitsMe'),
+			message: (
+				<p>
+					{translate('booking.dateSuitsConfirm')}{' '}
+					{walkAwayUntil ? formatDateTimeZone(walkAwayUntil, localeIntl[locale]) : ''}
+				</p>
+			),
+			size: 'sm',
+			confirmText: translate('booking.dateSuitsMe'),
+			cancelText: translate('booking.close'),
+		});
+
+		if (isConfirmed) {
+			acceptReschedule.mutate(booking.id);
+		}
 	};
 
 	const handleCancel = async () => {
@@ -171,24 +192,24 @@ export default function BookingCard({ booking }: BookingCardProps) {
 									{formatDateTimeZone(movedFrom, localeIntl[locale])}
 								</p>
 								{walkAwayUntil && (
-									<>
-										<p>
-											{translate('booking.dateMovedFullRefund')}{' '}
-											{formatDateTimeZone(walkAwayUntil, localeIntl[locale])}
-										</p>
-										<div className="flex flex-wrap gap-2">
-											<Button
-												size="sm"
-												onClick={() => acceptReschedule.mutate(booking.id)}
-												disabled={acceptReschedule.isPending}
-											>
-												{translate('booking.dateSuitsMe')}
-											</Button>
-											<Button size="sm" variant="danger" onClick={handleCancel}>
-												{translate('booking.dateDoesNotSuit')}
-											</Button>
-										</div>
-									</>
+									<p>
+										{translate('booking.dateMovedFullRefund')}{' '}
+										{formatDateTimeZone(walkAwayUntil, localeIntl[locale])}
+									</p>
+								)}
+								{awaitingAnswer && (
+									<div className="flex flex-wrap gap-2">
+										<Button
+											size="sm"
+											onClick={handleAcceptDate}
+											disabled={acceptReschedule.isPending}
+										>
+											{translate('booking.dateSuitsMe')}
+										</Button>
+										<Button size="sm" variant="danger" onClick={handleCancel}>
+											{translate('booking.dateDoesNotSuit')}
+										</Button>
+									</div>
 								)}
 							</div>
 						</div>
