@@ -8,6 +8,7 @@ export const booking: Messages['booking'] = {
 	paymentSuccess: 'Վճարումը հաջող է։ Ձեր ամրագրումը շուտով կհաստատվի։',
 	bookingRef: 'Ամրագրման կոդ',
 	bookingRefTip: 'Պահպանեք կոդը՝ նրանով կարող եք գտնել ձեր ամրագրումը',
+	dateMoved: 'Տուրի ամսաթիվը փոխվել է։ Նախկինում էր՝',
 	spot: 'տեղ',
 	spots: 'տեղ',
 	total: 'ընդամենը',

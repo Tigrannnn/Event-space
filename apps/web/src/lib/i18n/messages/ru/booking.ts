@@ -8,6 +8,7 @@ export const booking: Messages['booking'] = {
 	paymentSuccess: 'Платеж прошел успешно. Ваша бронь скоро будет подтверждена.',
 	bookingRef: 'Код брони',
 	bookingRefTip: 'Сохраните код — с его помощью вы сможете найти вашу бронь',
+	dateMoved: 'Дата тура изменена. Раньше было:',
 	spot: 'место',
 	spots: 'места',
 	total: 'всего',

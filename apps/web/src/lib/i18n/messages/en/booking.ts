@@ -6,6 +6,7 @@ export const booking = {
 	paymentSuccess: 'Payment successful! Your booking will be confirmed shortly.',
 	bookingRef: 'Booking ref',
 	bookingRefTip: 'Save this code — you will need it to find your booking',
+	dateMoved: 'The tour date has changed. It used to be:',
 	spot: 'spot',
 	spots: 'spots',
 	total: 'total',

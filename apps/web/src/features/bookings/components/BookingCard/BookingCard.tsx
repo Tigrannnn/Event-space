@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTimeZone } from '@/utils/date';
-import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
-import { Calendar, MapPin, Navigation, Plus, Users } from 'lucide-react';
+import { formatBookingReference, getBookingStatusBadgeVariant, movedFromDate } from '@/utils/booking';
+import { Calendar, CalendarClock, MapPin, Navigation, Plus, Users } from 'lucide-react';
 import {
 	getBookingDisplayStatus,
 	getEventCoverImageUrl,
@@ -51,6 +51,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	// Checked-in bookings read as their own status: attended, so neither cancellable nor refundable.
 	const displayStatus = getBookingDisplayStatus(booking);
 	const occurrenceDate = occurrence.date;
+	const movedFrom = status !== 'CANCELLED' ? movedFromDate(booking) : null;
 	// This booking covers one date; the event may still have others left to book.
 	const canBookAnotherDate = isEventAvailable(event);
 
@@ -150,6 +151,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						<Calendar className="h-4 w-4" />
 						<span>{formatDateTimeZone(occurrenceDate ?? new Date(), localeIntl[locale])}</span>
 					</div>
+
+					{movedFrom && (
+						<div className="flex items-start gap-2 rounded-xl border border-amber-500 bg-amber-50 p-2.5 text-xs font-medium text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+							<CalendarClock className="mt-0.5 h-4 w-4 shrink-0" />
+							<span>
+								{translate('booking.dateMoved')}{' '}
+								{formatDateTimeZone(movedFrom, localeIntl[locale])}
+							</span>
+						</div>
+					)}
 					<div className="flex items-center gap-2">
 						<MapPin className="h-4 w-4" />
 						{event.locationUrl ? (
