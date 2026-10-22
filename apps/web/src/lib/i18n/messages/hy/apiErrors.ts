@@ -34,7 +34,11 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'Այս ամսաթվին կան ակտիվ ամրագրումներ։ Չեղարկեք այն, այլ ոչ թե ջնջեք։',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
-		'Այս ամսաթվին կան ակտիվ ամրագրումներ՝ այն հնարավոր չէ տեղափոխել։ Չեղարկեք ամսաթիվը կամ ամրագրումները։',
+		'Այս ամսաթվին կան ակտիվ ամրագրումներ՝ միջոցառման ձևից այն փոխել հնարավոր չէ։ Օգտվեք ամսաթվի տեղափոխումից։',
+	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'Այս միջոցառումն արդեն ունի այլ ամսաթիվ այդ ժամին։',
+	[AppErrorCode.OCCURRENCE_CANCELLED]: 'Չեղարկված ամսաթիվը հնարավոր չէ տեղափոխել։',
+	[AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY]:
+		'Ամսաթիվը փոխվել է, մինչ դուք տեղափոխում էիք։ Թարմացրեք էջը և փորձեք նորից։',
 	[AppErrorCode.OCCURRENCES_HAVE_BOOKINGS]:
 		'Ջնջվող ամսաթվերից մի քանիսին կան ակտիվ ամրագրումներ։ Նախ չեղարկեք դրանք։',
 	[AppErrorCode.EVENT_HAS_BOOKINGS]:

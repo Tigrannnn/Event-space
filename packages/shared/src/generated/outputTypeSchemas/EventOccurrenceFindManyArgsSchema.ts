@@ -21,6 +21,8 @@ export const EventOccurrenceSelectSchema: z.ZodType<Prisma.EventOccurrenceSelect
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   cancelledAt: z.boolean().optional(),
+  previousDate: z.boolean().optional(),
+  rescheduledAt: z.boolean().optional(),
   cancelReasonRu: z.boolean().optional(),
   cancelReasonEn: z.boolean().optional(),
   cancelReasonHy: z.boolean().optional(),

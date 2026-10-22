@@ -103,6 +103,18 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, its date cannot be moved',
 	},
+	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: {
+		status: HttpStatus.CONFLICT,
+		message: 'This event already has another date at that time',
+	},
+	[AppErrorCode.OCCURRENCE_CANCELLED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A cancelled date cannot be moved',
+	},
+	[AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY]: {
+		status: HttpStatus.CONFLICT,
+		message: 'The date changed while the move was being made, try again',
+	},
 	[AppErrorCode.OCCURRENCES_HAVE_BOOKINGS]: {
 		status: HttpStatus.CONFLICT,
 		message:

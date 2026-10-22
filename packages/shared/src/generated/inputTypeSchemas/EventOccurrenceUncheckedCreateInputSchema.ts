@@ -14,6 +14,8 @@ export const EventOccurrenceUncheckedCreateInputSchema: z.ZodType<Prisma.EventOc
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   cancelledAt: z.coerce.date().optional().nullable(),
+  previousDate: z.coerce.date().optional().nullable(),
+  rescheduledAt: z.coerce.date().optional().nullable(),
   cancelReasonRu: z.string().optional().nullable(),
   cancelReasonEn: z.string().optional().nullable(),
   cancelReasonHy: z.string().optional().nullable(),

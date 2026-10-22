@@ -15,6 +15,8 @@ export const EventOccurrenceSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   cancelledAt: z.coerce.date().nullable(),
+  previousDate: z.coerce.date().nullable(),
+  rescheduledAt: z.coerce.date().nullable(),
   cancelReasonRu: z.string().nullable(),
   cancelReasonEn: z.string().nullable(),
   cancelReasonHy: z.string().nullable(),

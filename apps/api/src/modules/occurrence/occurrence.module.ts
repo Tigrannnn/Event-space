@@ -5,9 +5,9 @@ import { BookingModule } from '@modules/booking/booking.module';
 import { MailModule } from '@infra/mail/mail.module';
 
 @Module({
-  imports: [BookingModule, MailModule],
-  providers: [OccurrenceService],
-  controllers: [OccurrenceController],
-  exports: [OccurrenceService],
+	imports: [BookingModule, MailModule],
+	providers: [OccurrenceService],
+	controllers: [OccurrenceController],
+	exports: [OccurrenceService],
 })
 export class OccurrenceModule {}

@@ -34,7 +34,11 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'На эту дату есть активные брони. Отмените её, а не удаляйте.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
-		'На эту дату есть активные брони — её нельзя перенести. Отмените дату или брони.',
+		'На эту дату есть активные брони — через форму события её не изменить. Воспользуйтесь переносом даты.',
+	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'У этого события уже есть другая дата на это время.',
+	[AppErrorCode.OCCURRENCE_CANCELLED]: 'Отменённую дату перенести нельзя.',
+	[AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY]:
+		'Дату успели изменить, пока вы переносили. Обновите страницу и попробуйте снова.',
 	[AppErrorCode.OCCURRENCES_HAVE_BOOKINGS]:
 		'На некоторые из удаляемых дат есть активные брони. Сначала отмените эти брони.',
 	[AppErrorCode.EVENT_HAS_BOOKINGS]:

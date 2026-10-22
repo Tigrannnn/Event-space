@@ -7,6 +7,7 @@ import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	AppErrorCode,
 	CancelOccurrenceData,
+	RescheduleOccurrenceData,
 	compactCancellationReasons,
 	pickCancellationReason,
 } from '@event-space/shared';
@@ -102,6 +103,63 @@ export class OccurrenceService {
 		return updated;
 	}
 
+	/**
+	 * Moves a date that already has bookings, which `syncForEvent` refuses to do. The previous
+	 * date is kept on the row so the client can be shown what changed.
+	 */
+	async reschedule(occurrenceId: string, data: RescheduleOccurrenceData) {
+		const date = new Date(data.date);
+
+		const occurrence = await this.prisma.eventOccurrence.findUnique({
+			where: { id: occurrenceId },
+			select: { id: true, eventId: true, date: true, status: true },
+		});
+
+		if (!occurrence) {
+			throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
+		}
+
+		if (occurrence.status === 'CANCELLED') {
+			throw new AppException(AppErrorCode.OCCURRENCE_CANCELLED, { id: occurrenceId });
+		}
+
+		if (occurrence.date.getTime() === date.getTime()) {
+			return occurrence;
+		}
+
+		if (date.getTime() <= Date.now()) {
+			throw new AppException(AppErrorCode.OCCURRENCE_IN_PAST);
+		}
+
+		const taken = await this.prisma.eventOccurrence.findFirst({
+			where: { eventId: occurrence.eventId, date, id: { not: occurrenceId } },
+			select: { id: true },
+		});
+
+		if (taken) {
+			throw new AppException(AppErrorCode.OCCURRENCE_DATE_TAKEN);
+		}
+
+		return this.prisma.$transaction(async (tx) => {
+			const moved = await tx.eventOccurrence.updateMany({
+				where: { id: occurrenceId, date: occurrence.date, status: 'ACTIVE' },
+				data: { date, previousDate: occurrence.date, rescheduledAt: new Date() },
+			});
+
+			if (moved.count === 0) {
+				throw new AppException(AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY, { id: occurrenceId });
+			}
+
+			// The reminder for the old date may already be out, and the job only ever sends one.
+			await tx.booking.updateMany({
+				where: { occurrenceId, status: { in: ['PENDING', 'CONFIRMED'] } },
+				data: { reminderSentAt: null },
+			});
+
+			return tx.eventOccurrence.findUniqueOrThrow({ where: { id: occurrenceId } });
+		});
+	}
+
 	async syncForEvent(
 		eventId: string,
 		existing: { id: string; status: string; date: Date }[],
@@ -136,9 +194,7 @@ export class OccurrenceService {
 			})),
 		];
 
-		const toCreate = incomingWithoutId.filter(
-			(o) => !existingByDate.has(new Date(o.date).getTime()),
-		);
+		const toCreate = incomingWithoutId.filter((o) => !existingByDate.has(new Date(o.date).getTime()));
 
 		// Remove only those existing occurrences that are neither referenced by id
 		// in the incoming payload nor matched by date with an incoming item.

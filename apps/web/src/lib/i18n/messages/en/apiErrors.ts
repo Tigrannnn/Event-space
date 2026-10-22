@@ -40,7 +40,11 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'This date has active bookings. Cancel it instead of deleting it.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
-		'This date has active bookings and cannot be moved. Cancel the date or the bookings.',
+		'This date has active bookings, so the event form cannot change it. Use the reschedule action instead.',
+	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'This event already has another date at that time.',
+	[AppErrorCode.OCCURRENCE_CANCELLED]: 'A cancelled date cannot be moved.',
+	[AppErrorCode.OCCURRENCE_CHANGED_CONCURRENTLY]:
+		'The date changed while you were moving it. Refresh the page and try again.',
 	[AppErrorCode.OCCURRENCES_HAVE_BOOKINGS]:
 		'Some of the dates you are removing have active bookings. Cancel those bookings first.',
 	[AppErrorCode.EVENT_HAS_BOOKINGS]:
