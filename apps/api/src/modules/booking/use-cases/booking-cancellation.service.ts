@@ -8,6 +8,8 @@ import { resolveRefundPolicy } from '../booking.utils';
 import { BookingRefundService, type QueuedCancellation } from '../money/booking-refund.service';
 import { BookingNotificationService } from './booking-notification.service';
 
+const STRIPE_BATCH_SIZE = 5;
+
 @Injectable()
 export class BookingCancellationService {
 	private readonly logger = new Logger(BookingCancellationService.name);
@@ -169,11 +171,7 @@ export class BookingCancellationService {
 		await this.cancelMany(
 			{ occurrence: { eventId } },
 			(tx) => tx.eventOccurrence.updateMany({ where: { eventId }, data: { currentParticipants: 0 } }),
-			{
-				reason: LEDGER_REASON.EVENT_CANCELLED_FULL_REFUND,
-				failureReason: 'Refund could not be processed at Stripe (event cancelled)',
-				failureLogSuffix: ' (event cancellation)',
-			},
+			{ reason: LEDGER_REASON.EVENT_CANCELLED_FULL_REFUND },
 		);
 	}
 
@@ -182,18 +180,14 @@ export class BookingCancellationService {
 			{ occurrenceId },
 			(tx) =>
 				tx.eventOccurrence.update({ where: { id: occurrenceId }, data: { currentParticipants: 0 } }),
-			{
-				reason: LEDGER_REASON.OCCURRENCE_CANCELLED_FULL_REFUND,
-				failureReason: 'Refund could not be processed at Stripe (occurrence cancelled)',
-				failureLogSuffix: ' (occurrence cancellation)',
-			},
+			{ reason: LEDGER_REASON.OCCURRENCE_CANCELLED_FULL_REFUND },
 		);
 	}
 
 	private async cancelMany(
 		where: Prisma.BookingWhereInput,
 		resetSeats: (tx: Prisma.TransactionClient) => Promise<unknown>,
-		texts: { reason: string; failureReason: string; failureLogSuffix: string },
+		texts: { reason: string },
 	): Promise<void> {
 		const open = { ...where, status: { in: ['PENDING', 'CONFIRMED'] as BookingStatus[] } };
 
@@ -201,32 +195,29 @@ export class BookingCancellationService {
 			where: open,
 			select: { id: true, paymentIntentId: true },
 		});
-		for (const booking of toPrepare) {
-			await this.refunds.prepare(booking.id, booking.paymentIntentId);
+
+		for (let from = 0; from < toPrepare.length; from += STRIPE_BATCH_SIZE) {
+			await Promise.all(
+				toPrepare
+					.slice(from, from + STRIPE_BATCH_SIZE)
+					.map((booking) => this.refunds.prepare(booking.id, booking.paymentIntentId)),
+			);
 		}
 
-		const queued = await this.prisma.$transaction(async (tx) => {
+		await this.prisma.$transaction(async (tx) => {
 			const bookings = await tx.booking.findMany({ where: open });
 
 			await tx.booking.updateMany({ where: open, data: { status: 'CANCELLED' } });
 			await resetSeats(tx);
 
-			const queued: QueuedCancellation[] = [];
 			for (const booking of bookings) {
-				const refund = await this.refunds.queueCancellation(tx, booking, {
+				await this.refunds.queueCancellation(tx, booking, {
 					percentage: 100,
 					withholdFee: false,
 					reason: texts.reason,
 					method: 'STRIPE',
 				});
-				if (refund) queued.push(refund);
 			}
-
-			return queued;
 		});
-
-		for (const refund of queued) {
-			await this.refunds.settleCancellation(refund, texts.failureReason, texts.failureLogSuffix);
-		}
 	}
 }

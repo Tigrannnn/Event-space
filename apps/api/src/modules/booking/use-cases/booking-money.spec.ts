@@ -1,4 +1,14 @@
 import { booking, cancelCalls, createWorld, refundCalls } from '../testing/booking-world';
+import type { LedgerRow } from '../testing/booking-world';
+
+const MINUTE = 60 * 1000;
+
+function ageRows(table: LedgerRow[], by: number) {
+	for (const row of table) {
+		row.updatedAt = new Date(Date.now() - by);
+		row.createdAt = new Date(Date.now() - by);
+	}
+}
 
 const queuedRefund = (reason: string, kind: 'full' | 'withhold-fee') =>
 	`[queued:${kind}] ${reason}`;
@@ -146,9 +156,14 @@ describe('money paths: cancel by the organiser', () => {
 		booking({ id: 'b3', paymentIntentId: null, paymentMethod: 'PAY_ON_ARRIVAL' }),
 	];
 
-	it('refunds a cancelled date in full, without the fee, and closes each queued row', async () => {
-		const { service, stripeCalls, table } = createWorld({ bookings: mixed });
+	it('refunds a cancelled date in full, without the fee, once the queue gets to it', async () => {
+		const { service, refunds, stripeCalls, table } = createWorld({ bookings: mixed });
 		await service.cancelOccurrenceBookings('o1');
+
+		expect(refundCalls(stripeCalls)).toHaveLength(0);
+
+		ageRows(table, 5 * MINUTE);
+		await refunds.retryQueued();
 
 		expect(refundCalls(stripeCalls)).toEqual([
 			{ method: 'refund', args: ['pi_b1', 'cancel:b1:pi_b1', 2000000] },
@@ -178,11 +193,14 @@ describe('money paths: cancel by the organiser', () => {
 	});
 
 	it('cancels the unpaid payment intents of a cancelled date and leaves no refund behind', async () => {
-		const { service, stripeCalls, table } = createWorld({
+		const { service, refunds, stripeCalls, table } = createWorld({
 			bookings: mixed,
 			intentStatus: 'requires_payment_method',
 		});
 		await service.cancelOccurrenceBookings('o1');
+
+		ageRows(table, 5 * MINUTE);
+		await refunds.retryQueued();
 
 		expect(cancelCalls(stripeCalls)).toEqual([
 			{ method: 'cancelPaymentIntent', args: ['pi_b1', 'cancel:b1:pi_b1'] },
@@ -193,8 +211,11 @@ describe('money paths: cancel by the organiser', () => {
 	});
 
 	it('refunds a cancelled event in full and closes each queued row', async () => {
-		const { service, stripeCalls, table } = createWorld({ bookings: mixed });
+		const { service, refunds, stripeCalls, table } = createWorld({ bookings: mixed });
 		await service.cancelEventBookings('e1');
+
+		ageRows(table, 5 * MINUTE);
+		await refunds.retryQueued();
 
 		expect(refundCalls(stripeCalls)).toEqual([
 			{ method: 'refund', args: ['pi_b1', 'cancel:b1:pi_b1', 2000000] },

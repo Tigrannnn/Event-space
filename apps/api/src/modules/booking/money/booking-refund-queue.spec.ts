@@ -18,29 +18,26 @@ function ageRows(table: LedgerRow[], by: number) {
 }
 
 describe('queued refunds', () => {
-	it('finishes every refund after the process died in the middle of the loop', async () => {
-		const world: World = { bookings: paid, crashOnCompleteTimes: 1 };
-		const { service, refunds, table, stripeCalls, moneyMoved } = createWorld(world);
+	it('writes down every refund and leaves the money to the queue', async () => {
+		const { service, refunds, table, stripeCalls, moneyMoved } = createWorld({ bookings: paid });
 
-		await expect(service.cancelEventBookings('e1')).rejects.toThrow('process died');
+		await service.cancelEventBookings('e1');
 
+		// Cancelling a whole event must not wait on Stripe once per booking: the promise to
+		// refund is the PENDING row, and the retry job is what carries it out.
 		expect(table.map((row) => [row.bookingId, row.status])).toEqual([
 			['b1', 'PENDING'],
 			['b2', 'PENDING'],
 		]);
+		expect(refundCalls(stripeCalls)).toHaveLength(0);
+		expect(moneyMoved()).toBe(0);
 
 		ageRows(table, 5 * MINUTE);
-		const handled = await refunds.retryQueued();
+		expect(await refunds.retryQueued()).toBe(2);
 
-		expect(handled).toBe(2);
 		expect(table.map((row) => [row.bookingId, row.status, row.amount])).toEqual([
 			['b1', 'SUCCEEDED', 20000],
 			['b2', 'SUCCEEDED', 20000],
-		]);
-		expect(refundCalls(stripeCalls).map((call) => call.args[1])).toEqual([
-			'cancel:b1:pi_b1',
-			'cancel:b1:pi_b1',
-			'cancel:b2:pi_b2',
 		]);
 		expect(moneyMoved()).toBe(2);
 	});
@@ -122,17 +119,16 @@ describe('queued refunds', () => {
 	});
 
 	it('drops a queued refund whose payment turns out never to have been paid', async () => {
-		const world: World = { bookings: paid.slice(0, 1), stripeFails: true };
+		const world: World = { bookings: paid.slice(0, 1) };
 		const { service, refunds, table, stripeCalls } = createWorld(world);
 		await service.cancelEventBookings('e1');
 
-		world.stripeFails = false;
 		world.intentStatus = 'requires_payment_method';
 		ageRows(table, 5 * MINUTE);
 		await refunds.retryQueued();
 
 		expect(table).toHaveLength(0);
-		expect(refundCalls(stripeCalls)).toHaveLength(1);
+		expect(refundCalls(stripeCalls)).toHaveLength(0);
 	});
 
 	it('withholds the Stripe fee on a retried cancellation by the client', async () => {

@@ -83,26 +83,31 @@ export class OccurrenceService {
 			},
 		});
 
-		for (const booking of bookingsSnapshot) {
-			if (booking.user?.email) {
-				const locale = booking.user.locale ?? DEFAULT_LOCALE;
-				const eventTitle =
-					occurrence.event.translations.find((t) => t.locale === locale)?.title ??
-					occurrence.event.translations[0]?.title ??
-					'Event';
-				// TODO: remove AMD hardcoding
-				const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
-				await this.mailService.sendEventCancelledEmail({
-					email: booking.user.email,
-					userName: booking.user.name || 'User',
-					eventTitle,
-					eventDate: occurrence.date,
-					refundAmount,
-					locale,
-					cancellationReason: pickCancellationReason(reasons, locale),
-					brandHost: booking.brandHost ?? undefined,
-				});
-			}
+		const recipients = bookingsSnapshot.filter((booking) => booking.user?.email);
+
+		for (let from = 0; from < recipients.length; from += MAIL_BATCH_SIZE) {
+			await Promise.all(
+				recipients.slice(from, from + MAIL_BATCH_SIZE).map((booking) => {
+					const locale = booking.user?.locale ?? DEFAULT_LOCALE;
+					const eventTitle =
+						occurrence.event.translations.find((t) => t.locale === locale)?.title ??
+						occurrence.event.translations[0]?.title ??
+						'Event';
+					// TODO: remove AMD hardcoding
+					const refundAmount = `${Number(booking.amount).toFixed(2)} AMD`;
+
+					return this.mailService.sendEventCancelledEmail({
+						email: booking.user?.email as string,
+						userName: booking.user?.name || 'User',
+						eventTitle,
+						eventDate: occurrence.date,
+						refundAmount,
+						locale,
+						cancellationReason: pickCancellationReason(reasons, locale),
+						brandHost: booking.brandHost ?? undefined,
+					});
+				}),
+			);
 		}
 
 		return updated;
