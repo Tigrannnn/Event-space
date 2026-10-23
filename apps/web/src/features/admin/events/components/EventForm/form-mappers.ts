@@ -131,6 +131,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		maxParticipants: String(occurrence.maxParticipants ?? ''),
 		status: occurrence.status,
 		activeBookingsCount: countsActiveBookings(occurrence.bookingStats),
+		previousDate: occurrence.previousDate ? toZonedLocalInput(occurrence.previousDate) : undefined,
 	}));
 
 	return {

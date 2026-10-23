@@ -49,6 +49,7 @@ export const EventOccurrenceFormSchema = z.object({
 	 * refuse deleting an occurrence, so the form and the server agree on what is removable.
 	 */
 	activeBookingsCount: z.number().optional(),
+	previousDate: z.string().optional(),
 });
 
 export const EventFormSchema = z.object({

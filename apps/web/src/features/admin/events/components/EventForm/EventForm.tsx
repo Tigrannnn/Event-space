@@ -141,7 +141,7 @@ export default function EventForm({
 	const watchedTranslations = useWatch({ control, name: 'translations' }) ?? [];
 	const watchedStatus = useWatch({ control, name: 'status' });
 	const watchedDuration = Number(useWatch({ control, name: 'duration' }));
-	const { formatDuration } = useFormatDate();
+	const { formatDateTime, formatDuration } = useFormatDate();
 
 	const {
 		fields: translationFields,
@@ -632,6 +632,12 @@ export default function EventForm({
 												)}
 												{finished && (
 													<span className="ml-2 text-gray-400">({translate('admin.finished')})</span>
+												)}
+												{field.previousDate && !isCancelled && (
+													<span className="ml-2 text-amber-600 dark:text-amber-400">
+														({translate('admin.occurrenceMovedFrom')}{' '}
+														{formatDateTime(zonedLocalInputToDate(field.previousDate) ?? new Date())})
+													</span>
 												)}
 												{isCancelPending && (
 													<span className="ml-2 font-semibold text-amber-600 dark:text-amber-400">

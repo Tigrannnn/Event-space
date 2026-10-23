@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { describeLedgerReason } from '../ledger-reason';
 import Image from 'next/image';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
@@ -11,6 +13,7 @@ import { useCopyToClipboard } from '@/hooks/clipboard';
 import { getBookingDisplayStatus, getEventTranslation, optimizeImageUrl } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { summarizePayments } from '../payments-summary';
+import { movedFromDate } from '@/utils/booking';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 
@@ -61,6 +64,7 @@ export default function BookingDetailsModal() {
 	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
+	const [openedAt] = useState(() => Date.now());
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.occurrence?.event;
@@ -70,6 +74,11 @@ export default function BookingDetailsModal() {
 	}
 
 	const t = getEventTranslation(event, locale);
+	const movedFrom = movedFromDate(booking);
+	const acceptedAt = booking.rescheduleAcceptedAt ? new Date(booking.rescheduleAcceptedAt) : null;
+	const refundUntil = booking.rescheduleRefundUntil ? new Date(booking.rescheduleRefundUntil) : null;
+	const owesFullRefund = Boolean(refundUntil && refundUntil.getTime() > openedAt && !acceptedAt);
+
 	const adjustments = booking.adjustments ?? [];
 	const payments = summarizePayments(adjustments);
 	const hasPayments = payments.card + payments.cash + payments.refunded > 0;
@@ -117,6 +126,24 @@ export default function BookingDetailsModal() {
 								)}
 							</div>
 						</section>
+
+						{movedFrom && (
+							<section className="rounded-3xl border border-amber-500 bg-amber-50 p-5 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+								<p className="font-semibold tracking-[0.18em] uppercase">
+									{translate('admin.dateMovedTitle')}
+								</p>
+								<p className="mt-3">
+									{translate('admin.dateMovedFrom')} {formatDateTime(movedFrom)}
+								</p>
+								<p className="mt-2">
+									{acceptedAt
+										? `${translate('admin.dateMovedAccepted')} ${formatDateTime(acceptedAt)}`
+										: owesFullRefund
+											? `${translate('admin.dateMovedWaiting')} ${formatDateTime(refundUntil as Date)}`
+											: translate('admin.dateMovedExpired')}
+								</p>
+							</section>
+						)}
 
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
