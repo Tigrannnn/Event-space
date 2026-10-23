@@ -38,7 +38,7 @@ export const admin = {
 	rescheduleNewDate: 'New date and time',
 	rescheduleReasonNoneHint: 'Customers will only learn that the date moved — expect calls and questions.',
 	rescheduleWarning:
-		'Bookings, seats and payments stay with this date and move along with it. Nothing is sent to the customers yet.',
+		'Bookings, seats and payments move along with the date. Every guest gets an email about the move, and those who already paid can walk away with the whole amount refunded.',
 	occurrenceRescheduled: 'The date has been moved',
 	occurrenceRescheduleFailed: 'Could not move the date',
 	reactivateOccurrence: 'Restore to Active',
