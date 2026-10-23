@@ -589,7 +589,9 @@ export default function EventForm({
 							variant="secondary"
 							className="h-8 shrink-0 px-3 text-xs whitespace-nowrap"
 							disabled={isPending}
-							onClick={() => appendOccurrence(nextOccurrenceDraft(watchedOccurrences))}
+							onClick={() =>
+								appendOccurrence(nextOccurrenceDraft(watchedOccurrences), { shouldFocus: false })
+							}
 						>
 							+ {translate('admin.addOccurrence')}
 						</Button>
