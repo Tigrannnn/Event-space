@@ -66,13 +66,15 @@ export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 						{ user: { name: { contains: search, mode: 'insensitive' as const } } },
 						{ user: { email: { contains: search, mode: 'insensitive' as const } } },
 						{
-							event: {
-								translations: {
-									some: {
-										OR: [
-											{ title: { contains: search, mode: 'insensitive' as const } },
-											{ location: { contains: search, mode: 'insensitive' as const } },
-										],
+							occurrence: {
+								event: {
+									translations: {
+										some: {
+											OR: [
+												{ title: { contains: search, mode: 'insensitive' as const } },
+												{ location: { contains: search, mode: 'insensitive' as const } },
+											],
+										},
 									},
 								},
 							},
