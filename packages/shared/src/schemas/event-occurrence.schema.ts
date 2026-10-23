@@ -44,10 +44,19 @@ export function countsActiveBookings(stats?: BookingStatusCounts): number {
 	return stats.pending + stats.confirmed;
 }
 
+/** How many of those asked about a moved date have answered. */
+export const RescheduleAnswersSchema = z.object({
+	asked: z.number().int(),
+	accepted: z.number().int(),
+});
+
+export type RescheduleAnswers = z.infer<typeof RescheduleAnswersSchema>;
+
 export const EventOccurrenceSchema = GeneratedEventOccurrenceSchema.extend({
 	maxParticipants: z.number().int(),
 	currentParticipants: z.number().int(),
 	bookingStats: BookingStatusCountsSchema.optional(),
+	rescheduleAnswers: RescheduleAnswersSchema.optional(),
 });
 
 export type EventOccurrence = z.infer<typeof EventOccurrenceSchema>;

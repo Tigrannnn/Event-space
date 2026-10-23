@@ -40,6 +40,8 @@ export const admin = {
 	dateMovedWaiting: 'The client has not answered. Full refund with no deductions until:',
 	dateMovedExpired: 'The client never answered and the window closed. Cancelling follows the usual rules.',
 	occurrenceMovedFrom: 'moved from',
+	rescheduleAccepted: 'confirmed by',
+	rescheduleOutOf: 'of',
 	rescheduleOccurrence: 'Move date',
 	rescheduleNewDate: 'New date and time',
 	rescheduleReasonNoneHint: 'Customers will only learn that the date moved — expect calls and questions.',

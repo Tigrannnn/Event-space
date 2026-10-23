@@ -1,4 +1,4 @@
-import type { BookingStatus, BookingStatusCounts } from '@event-space/shared';
+import type { BookingStatus, BookingStatusCounts, RescheduleAnswers } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 
 const emptyStats = (): BookingStatusCounts => ({
@@ -37,7 +37,7 @@ export async function attachBookingStats<T extends { id: string; occurrences: { 
 	if (events.length === 0) return [];
 
 	const eventIds = events.map((event) => event.id);
-	const [grouped, checkedIn] = await Promise.all([
+	const [grouped, checkedIn, accepted, awaiting] = await Promise.all([
 		prisma.booking.groupBy({
 			by: ['occurrenceId', 'status'],
 			where: { occurrence: { eventId: { in: eventIds } } },
@@ -52,7 +52,46 @@ export async function attachBookingStats<T extends { id: string; occurrences: { 
 			},
 			_count: { _all: true },
 		}),
+		prisma.booking.groupBy({
+			by: ['occurrenceId'],
+			where: {
+				occurrence: { eventId: { in: eventIds } },
+				status: { not: 'CANCELLED' },
+				rescheduleAcceptedAt: { not: null },
+			},
+			_count: { _all: true },
+		}),
+		prisma.booking.groupBy({
+			by: ['occurrenceId'],
+			where: {
+				occurrence: { eventId: { in: eventIds } },
+				status: { not: 'CANCELLED' },
+				rescheduleAcceptedAt: null,
+				rescheduleRefundUntil: { not: null },
+			},
+			_count: { _all: true },
+		}),
 	]);
+
+	const answersByOccurrence = new Map<string, RescheduleAnswers>();
+	const answersFor = (occurrenceId: string): RescheduleAnswers => {
+		let answers = answersByOccurrence.get(occurrenceId);
+		if (!answers) {
+			answers = { asked: 0, accepted: 0 };
+			answersByOccurrence.set(occurrenceId, answers);
+		}
+		return answers;
+	};
+
+	for (const row of accepted) {
+		const answers = answersFor(row.occurrenceId);
+		answers.accepted += row._count._all;
+		answers.asked += row._count._all;
+	}
+
+	for (const row of awaiting) {
+		answersFor(row.occurrenceId).asked += row._count._all;
+	}
 
 	const statsByOccurrence = new Map<string, BookingStatusCounts>();
 	for (const row of grouped) {
@@ -78,7 +117,12 @@ export async function attachBookingStats<T extends { id: string; occurrences: { 
 		const occurrences = event.occurrences.map((occurrence) => {
 			const stats = statsByOccurrence.get(occurrence.id) ?? emptyStats();
 			addStats(eventStats, stats);
-			return { ...occurrence, bookingStats: stats };
+			const answers = answersByOccurrence.get(occurrence.id);
+			return {
+				...occurrence,
+				bookingStats: stats,
+				...(answers ? { rescheduleAnswers: answers } : {}),
+			};
 		});
 
 		return { ...event, occurrences, bookingStats: eventStats };

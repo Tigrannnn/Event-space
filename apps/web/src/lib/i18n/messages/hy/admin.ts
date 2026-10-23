@@ -42,6 +42,8 @@ export const admin: Messages['admin'] = {
 	dateMovedWaiting: 'Հաճախորդը չի պատասխանել։ Ամբողջական վերադարձ առանց պահումների՝ մինչև',
 	dateMovedExpired: 'Հաճախորդը չպատասխանեց, ժամկետն անցել է։ Չեղարկումը՝ սովորական կանոններով։',
 	occurrenceMovedFrom: 'տեղափոխվել է',
+	rescheduleAccepted: 'հաստատել են',
+	rescheduleOutOf: '-ից',
 	rescheduleOccurrence: 'Տեղափոխել ամսաթիվը',
 	rescheduleNewDate: 'Նոր ամսաթիվ և ժամ',
 	rescheduleReasonNoneHint: 'Հաճախորդները կիմանան միայն, որ ամսաթիվը փոխվել է՝ սպասեք զանգերի և հարցերի։',

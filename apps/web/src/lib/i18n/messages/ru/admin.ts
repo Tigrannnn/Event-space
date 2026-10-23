@@ -42,6 +42,8 @@ export const admin: Messages['admin'] = {
 	dateMovedWaiting: 'Клиент не ответил. Полный возврат без удержаний, если откажется до:',
 	dateMovedExpired: 'Клиент не ответил, срок истёк. Отмена — по обычным правилам тура.',
 	occurrenceMovedFrom: 'перенесена с',
+	rescheduleAccepted: 'подтвердили',
+	rescheduleOutOf: 'из',
 	rescheduleOccurrence: 'Перенести дату',
 	rescheduleNewDate: 'Новая дата и время',
 	rescheduleReasonNoneHint: 'Клиенты узнают только, что дата сдвинулась, — готовьтесь к звонкам и вопросам.',

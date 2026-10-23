@@ -147,6 +147,14 @@ export default function EventDetailsModal() {
 						className="mt-1"
 					/>
 				)}
+				{occurrence.previousDate && (
+					<p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+						{translate('admin.occurrenceMovedFrom')} {formatDateTimeZone(occurrence.previousDate)}
+						{occurrence.rescheduleAnswers && occurrence.rescheduleAnswers.asked > 0
+							? ` — ${translate('admin.rescheduleAccepted')} ${occurrence.rescheduleAnswers.accepted} ${translate('admin.rescheduleOutOf')} ${occurrence.rescheduleAnswers.asked}`
+							: ''}
+					</p>
+				)}
 				{occurrence.cancelledAt && (
 					<p className="mt-1 text-xs text-red-500">
 						{translate('admin.cancelledAt')}: {formatDateTime(occurrence.cancelledAt)}
