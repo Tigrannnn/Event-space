@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, Ticket } from 'lucide-react';
 import { startOfToday, subDays } from 'date-fns';
 import { APP_TIME_ZONE } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
@@ -19,7 +19,9 @@ import {
 import { useAdminUsers, useUpdateUserRole } from '@/features/admin/hooks/useAdmin';
 import { useModalStore, ModalType } from '@/stores';
 import { PaginatedResponse, SafeUserData, UserRoleSchema, UserRoleType } from '@event-space/shared';
+import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/translation';
+import { useConfirm } from '@/hooks/confirmModal';
 import { useUrlFilters } from '@/hooks/urlFilters';
 import AdminFilterBar from '../../_components/AdminFilterBar';
 import {
@@ -56,6 +58,8 @@ function formatDate(value: SafeUserData['createdAt']) {
 
 export default function UsersTable({ initialUsers }: UsersTableProps) {
 	const translate = useTranslation();
+	const confirm = useConfirm();
+	const router = useRouter();
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseUsersFilters,
 		serialize: serializeUsersFilters,
@@ -103,8 +107,31 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 		resetFilters();
 	};
 
-	const handleRoleChange = (userId: string, nextRole: UserRoleType) => {
-		updateUserRole.mutate({ id: userId, role: nextRole });
+	const handleRoleChange = async (user: SafeUserData, nextRole: UserRoleType) => {
+		if (nextRole === user.role) return;
+
+		const isConfirmed = await confirm({
+			title: translate('admin.changeRoleTitle'),
+			message: (
+				<p>
+					{translate(
+						nextRole === UserRoleSchema.enum.ADMIN
+							? 'admin.changeRoleToAdmin'
+							: 'admin.changeRoleToUser',
+					)}{' '}
+					<span className="font-medium">{user.name}</span>
+					{user.email ? ` (${user.email})` : ''}
+				</p>
+			),
+			size: 'sm',
+			confirmText: translate('admin.changeRoleConfirm'),
+			cancelText: translate('booking.close'),
+			variant: nextRole === UserRoleSchema.enum.ADMIN ? 'danger' : 'primary',
+		});
+
+		if (isConfirmed) {
+			updateUserRole.mutate({ id: user.id, role: nextRole });
+		}
 	};
 
 	const handlePreviousPage = () => {
@@ -244,14 +271,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 						<TableRow key={user.id}>
 							<TableCell className="px-3 sm:px-5">
 								<div className="max-w-md min-w-0">
-									<div className="flex items-center gap-2">
-										<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
-										{user.isShadow && (
-											<span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-												{translate('admin.shadowAccount')}
-											</span>
-										)}
-									</div>
+									<p className="truncate font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
 									<p className="truncate text-xs text-gray-500 sm:text-sm dark:text-gray-400">{user.email}</p>
 								</div>
 							</TableCell>
@@ -261,7 +281,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 							<TableCell>
 								<Select
 									value={user.role}
-									onValueChange={(value) => handleRoleChange(user.id, value as UserRoleType)}
+									onValueChange={(value) => void handleRoleChange(user, value as UserRoleType)}
 									disabled={updateUserRole.isPending}
 									size="sm"
 									aria-label={`${translate('admin.role')}: ${user.name}`}
@@ -270,8 +290,14 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 							</TableCell>
 							<TableCell>
 								<Badge
-									variant={user.emailVerified ? 'success' : 'warning'}
-									label={user.emailVerified ? translate('admin.verified') : translate('admin.pending')}
+									variant={user.isShadow ? 'info' : user.emailVerified ? 'success' : 'warning'}
+									label={
+										user.isShadow
+											? translate('admin.guestAccount')
+											: user.emailVerified
+												? translate('admin.verified')
+												: translate('admin.pending')
+									}
 								/>
 							</TableCell>
 							<TableCell>{formatDate(user.createdAt)}</TableCell>
@@ -285,6 +311,20 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 										aria-label={`${translate('admin.viewDetails')}: ${user.name}`}
 									>
 										<Eye className="h-4 w-4" />
+									</Button>
+									<Button
+										type="button"
+										size="xs"
+										variant="secondary"
+										onClick={() =>
+											router.push(
+												`/admin/bookings?search=${encodeURIComponent(user.email ?? user.name)}`,
+											)
+										}
+										aria-label={`${translate('admin.userBookings')}: ${user.name}`}
+										title={translate('admin.userBookings')}
+									>
+										<Ticket className="h-4 w-4" />
 									</Button>
 								</div>
 							</TableCell>
