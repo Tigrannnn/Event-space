@@ -117,8 +117,11 @@ export function createAdmin(prisma: never, stripe: never) {
 		getDashboardStats: () => stats.getStats(),
 		findAllUsers: (params?: Parameters<AdminUsersService['findAll']>[0]) => users.findAll(params),
 		findOneUser: (id: string) => users.findOne(id),
-		updateUserRole: (id: string, role: Parameters<AdminUsersService['updateRole']>[1]) =>
-			users.updateRole(id, role),
+		updateUserRole: (
+			id: string,
+			role: Parameters<AdminUsersService['updateRole']>[2],
+			adminId = 'admin-1',
+		) => users.updateRole(adminId, id, role),
 		findOneBooking: (id: string) => bookings.findOne(id),
 		findBookingByReference: (reference: number) => bookings.findByReference(reference),
 		findAllBookings: (params?: Parameters<AdminBookingsService['findAll']>[0]) =>

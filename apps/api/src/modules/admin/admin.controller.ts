@@ -524,7 +524,7 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.usersService.updateRole(id, role);
+		return this.usersService.updateRole(adminId, id, role);
 	}
 
 	@Post('bookings/:id/cancel')

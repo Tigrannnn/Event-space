@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { isUuid } from '@event-space/shared';
+import { AppErrorCode, isUuid } from '@event-space/shared';
+import { AppException } from '@shared';
 import type { PaginatedParams, SafeUserData, UserRoleType } from '@event-space/shared';
 import { safeUserSelect } from '../common/admin-selects';
 import { buildDayRangeFilter, toPage } from '../common/query-helpers';
@@ -64,7 +65,22 @@ export class AdminUsersService {
 		return this.prisma.user.findUnique({ where: { id }, select: safeUserSelect });
 	}
 
-	updateRole(id: string, role: UserRoleType): Promise<SafeUserData> {
+	async updateRole(adminId: string, id: string, role: UserRoleType): Promise<SafeUserData> {
+		if (adminId === id) {
+			throw new AppException(AppErrorCode.CANNOT_CHANGE_OWN_ROLE);
+		}
+
+		const user = await this.prisma.user.findUnique({
+			where: { id },
+			select: { emailVerified: true, isShadow: true },
+		});
+
+		if (!user) throw new AppException(AppErrorCode.USER_NOT_FOUND, { id });
+
+		if (role === 'ADMIN' && (!user.emailVerified || user.isShadow)) {
+			throw new AppException(AppErrorCode.CANNOT_PROMOTE_UNVERIFIED, { id });
+		}
+
 		return this.prisma.user.update({
 			where: { id },
 			data: { role },

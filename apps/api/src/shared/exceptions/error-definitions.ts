@@ -99,6 +99,14 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, cancel it instead of deleting',
 	},
+	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: {
+		status: HttpStatus.CONFLICT,
+		message: 'An admin cannot change their own role',
+	},
+	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Only an account with a confirmed email can be made an admin',
+	},
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]: {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, its date cannot be moved',

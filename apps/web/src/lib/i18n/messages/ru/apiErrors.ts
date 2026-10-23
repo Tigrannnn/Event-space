@@ -33,6 +33,9 @@ export const apiErrors: Messages['apiErrors'] = {
 
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'На эту дату есть активные брони. Отмените её, а не удаляйте.',
+	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Свою роль изменить нельзя — попросите другого администратора.',
+	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
+		'Администратором можно сделать только аккаунт с подтверждённой почтой.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
 		'На эту дату есть активные брони — через форму события её не изменить. Воспользуйтесь переносом даты.',
 	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'У этого события уже есть другая дата на это время.',

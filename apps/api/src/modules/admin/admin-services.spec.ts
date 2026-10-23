@@ -123,12 +123,54 @@ describe('admin: users', () => {
 	});
 
 	it('changes a role and never selects secrets', async () => {
-		const { prisma, argsOf } = fakePrisma({ 'user.update': { id: 'u1', role: 'ADMIN' } });
+		const { prisma, argsOf } = fakePrisma({
+			'user.findUnique': { emailVerified: true, isShadow: false },
+			'user.update': { id: 'u1', role: 'ADMIN' },
+		});
 		await createAdmin(prisma, fakeStripe().stripe).updateUserRole('u1', 'ADMIN');
 
 		const args = argsOf('user.update')[0];
 		expect(args).toMatchObject({ where: { id: 'u1' }, data: { role: 'ADMIN' } });
 		expect(JSON.stringify(args)).not.toContain('password');
+	});
+
+	it('refuses to change the role of the admin doing it', async () => {
+		const { prisma, argsOf } = fakePrisma({
+			'user.findUnique': { emailVerified: true, isShadow: false },
+			'user.update': { id: 'admin-1', role: 'USER' },
+		});
+
+		await expect(
+			createAdmin(prisma, fakeStripe().stripe).updateUserRole('admin-1', 'USER'),
+		).rejects.toMatchObject({ code: 'CANNOT_CHANGE_OWN_ROLE' });
+		expect(argsOf('user.update')).toHaveLength(0);
+	});
+
+	it('refuses to make an admin out of an account nobody confirmed', async () => {
+		for (const user of [
+			{ emailVerified: false, isShadow: false },
+			{ emailVerified: true, isShadow: true },
+		]) {
+			const { prisma, argsOf } = fakePrisma({
+				'user.findUnique': user,
+				'user.update': { id: 'u1', role: 'ADMIN' },
+			});
+
+			await expect(
+				createAdmin(prisma, fakeStripe().stripe).updateUserRole('u1', 'ADMIN'),
+			).rejects.toMatchObject({ code: 'CANNOT_PROMOTE_UNVERIFIED' });
+			expect(argsOf('user.update')).toHaveLength(0);
+		}
+	});
+
+	it('still lets an unconfirmed admin be demoted', async () => {
+		const { prisma, argsOf } = fakePrisma({
+			'user.findUnique': { emailVerified: false, isShadow: true },
+			'user.update': { id: 'u1', role: 'USER' },
+		});
+
+		await createAdmin(prisma, fakeStripe().stripe).updateUserRole('u1', 'USER');
+		expect(argsOf('user.update')[0]).toMatchObject({ data: { role: 'USER' } });
 	});
 });
 

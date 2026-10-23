@@ -39,6 +39,9 @@ export const apiErrors: Record<AppErrorCode, string> = {
 
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'This date has active bookings. Cancel it instead of deleting it.',
+	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'You cannot change your own role — ask another admin.',
+	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
+		'Only an account with a confirmed email can be made an admin.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
 		'This date has active bookings, so the event form cannot change it. Use the reschedule action instead.',
 	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'This event already has another date at that time.',
