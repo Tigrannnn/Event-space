@@ -14,6 +14,7 @@ import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 import { useGetMyBookings } from '../../hooks/useBookings';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
+import { VerticalScroll } from '@/components/ui/VerticalScroll';
 
 export default function BookingForm({
 	event,
@@ -100,7 +101,10 @@ export default function BookingForm({
 				</p>
 				<TimeZoneNote />
 				{futureOccurrences.length > 0 ? (
-					<div className="space-y-2">
+					<VerticalScroll
+						className="max-h-[min(22rem,40vh)] pr-1"
+						contentClassName="space-y-2 py-1"
+					>
 						{futureOccurrences.map((occurrence) => {
 							const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;
 							const isSoldOut = spotsLeft <= 0;
@@ -143,7 +147,7 @@ export default function BookingForm({
 								</button>
 							);
 						})}
-					</div>
+					</VerticalScroll>
 				) : (
 					<p className="text-sm text-gray-500 dark:text-gray-400">
 						{translate('event.noUpcomingEvents')}
