@@ -33,6 +33,8 @@ export const apiErrors: Messages['apiErrors'] = {
 
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'Այս ամսաթվին կան ակտիվ ամրագրումներ։ Չեղարկեք այն, այլ ոչ թե ջնջեք։',
+	[AppErrorCode.ACCOUNT_NEEDS_REGISTRATION]:
+		'Այս փոստին արդեն կան ամրագրումներ, բայց հաշիվ դեռ չկա։ Գրանցվեք՝ ամրագրումները կհայտնվեն այնտեղ։',
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Ձեր դերը փոխել հնարավոր չէ՝ խնդրեք մեկ այլ ադմինի։',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Ադմին կարող է դառնալ միայն հաստատված էլ. փոստով հաշիվը։',

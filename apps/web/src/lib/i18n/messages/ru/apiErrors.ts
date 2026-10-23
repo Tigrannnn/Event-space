@@ -33,6 +33,8 @@ export const apiErrors: Messages['apiErrors'] = {
 
 	[AppErrorCode.OCCURRENCE_HAS_BOOKINGS]:
 		'На эту дату есть активные брони. Отмените её, а не удаляйте.',
+	[AppErrorCode.ACCOUNT_NEEDS_REGISTRATION]:
+		'На эту почту уже есть брони, но аккаунта ещё нет. Зарегистрируйтесь — брони окажутся в нём.',
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Свою роль изменить нельзя — попросите другого администратора.',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Администратором можно сделать только аккаунт с подтверждённой почтой.',

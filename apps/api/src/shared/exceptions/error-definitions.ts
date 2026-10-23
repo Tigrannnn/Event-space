@@ -99,6 +99,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, cancel it instead of deleting',
 	},
+	[AppErrorCode.ACCOUNT_NEEDS_REGISTRATION]: {
+		status: HttpStatus.CONFLICT,
+		message: 'This email has bookings but no account yet — sign up to reach them',
+	},
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: {
 		status: HttpStatus.CONFLICT,
 		message: 'An admin cannot change their own role',

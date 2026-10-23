@@ -244,7 +244,11 @@ export class AuthService {
 		}
 
 		if (!user.passwordHash) {
-			throw new AppException(AppErrorCode.SOCIAL_LOGIN_REQUIRED);
+			throw new AppException(
+				user.googleId
+					? AppErrorCode.SOCIAL_LOGIN_REQUIRED
+					: AppErrorCode.ACCOUNT_NEEDS_REGISTRATION,
+			);
 		}
 
 		if (!isPasswordValid) {
