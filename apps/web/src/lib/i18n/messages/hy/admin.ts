@@ -297,6 +297,7 @@ export const admin: Messages['admin'] = {
 		durationRequired: 'Մուտքագրեք տևողությունը',
 		occurrenceRequired: 'Ավելացրեք առնվազն մեկ ամսաթիվ',
 		dateRequired: 'Ընտրեք ամսաթիվը և ժամը',
+		occurrenceDuplicate: 'Այս ամսաթիվը և ժամը արդեն կան ցանկում',
 		mustBeNumber: 'Մուտքագրեք թիվ',
 		hoursMin: 'Առնվազն 1 ժամ',
 		percentageMin: 'Տոկոսը չի կարող բացասական լինել',

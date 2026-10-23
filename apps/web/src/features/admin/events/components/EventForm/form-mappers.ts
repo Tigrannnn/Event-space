@@ -191,3 +191,26 @@ export function buildUpdateEventFormData(values: EventFormValues): FormData {
 	}
 	return formData;
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function nextOccurrenceDraft(
+	existing: { date?: string; maxParticipants?: string }[],
+): { date: string; maxParticipants: string } {
+	const latest = existing
+		.filter((occurrence) => occurrence.date)
+		.sort((a, b) => (a.date as string).localeCompare(b.date as string))
+		.at(-1);
+
+	if (!latest?.date) return { date: '', maxParticipants: '' };
+
+	const [day, time] = latest.date.split('T');
+	const nextDay = new Date(`${day}T00:00:00.000Z`).getTime() + DAY_MS;
+
+	if (Number.isNaN(nextDay)) return { date: '', maxParticipants: latest.maxParticipants ?? '' };
+
+	return {
+		date: `${new Date(nextDay).toISOString().slice(0, 10)}T${time ?? '00:00'}`,
+		maxParticipants: latest.maxParticipants ?? '',
+	};
+}

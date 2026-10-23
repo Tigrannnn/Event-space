@@ -66,7 +66,27 @@ export const EventFormSchema = z.object({
 	maxParticipants: z.string().optional(),
 	duration: z.string().min(1, 'admin.validation.durationRequired'),
 	status: EventStatusEnum,
-	occurrences: z.array(EventOccurrenceFormSchema).min(1, 'admin.validation.occurrenceRequired'),
+	occurrences: z
+		.array(EventOccurrenceFormSchema)
+		.min(1, 'admin.validation.occurrenceRequired')
+		.superRefine((occurrences, ctx) => {
+			const seen = new Map<string, number>();
+
+			occurrences.forEach((occurrence, index) => {
+				if (!occurrence.date) return;
+
+				if (seen.has(occurrence.date)) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'admin.validation.occurrenceDuplicate',
+						path: [index, 'date'],
+					});
+					return;
+				}
+
+				seen.set(occurrence.date, index);
+			});
+		}),
 	cancellationRules: z
 		.array(
 			z.object({

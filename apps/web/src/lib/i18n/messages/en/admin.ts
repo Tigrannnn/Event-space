@@ -295,6 +295,7 @@ export const admin = {
 		durationRequired: 'Enter a duration',
 		occurrenceRequired: 'Add at least one date',
 		dateRequired: 'Choose a date and time',
+		occurrenceDuplicate: 'This date and time is already in the list',
 		mustBeNumber: 'Enter a number',
 		hoursMin: 'At least 1 hour',
 		percentageMin: 'The percentage can\'t be negative',

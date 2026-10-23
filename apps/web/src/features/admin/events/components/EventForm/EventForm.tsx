@@ -15,7 +15,7 @@ import {
 	zonedLocalInputToDate,
 } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
-import { mapEventToFormValues } from './form-mappers';
+import { mapEventToFormValues, nextOccurrenceDraft } from './form-mappers';
 import DateTimeField from './DateTimeField';
 import CancellationReasonField from './CancellationReasonField';
 import Button from '@/components/ui/Buttons/Button';
@@ -179,7 +179,9 @@ export default function EventForm({
 		const moment = date ? zonedLocalInputToDate(date) : null;
 		return !!moment && moment.getTime() <= nowMs;
 	};
-	const indexedOccurrences = occurrenceFields.map((field, index) => ({ field, index }));
+	const indexedOccurrences = occurrenceFields
+		.map((field, index) => ({ field, index }))
+		.sort((a, b) => (a.field.date ?? '').localeCompare(b.field.date ?? ''));
 	const pastOccurrencesCount = indexedOccurrences.filter(({ field }) =>
 		isPastOccurrence(field.date),
 	).length;
@@ -587,7 +589,7 @@ export default function EventForm({
 							variant="secondary"
 							className="h-8 shrink-0 px-3 text-xs whitespace-nowrap"
 							disabled={isPending}
-							onClick={() => appendOccurrence({ date: '', maxParticipants: '' })}
+							onClick={() => appendOccurrence(nextOccurrenceDraft(watchedOccurrences))}
 						>
 							+ {translate('admin.addOccurrence')}
 						</Button>

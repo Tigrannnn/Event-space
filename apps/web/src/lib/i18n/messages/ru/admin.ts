@@ -297,6 +297,7 @@ export const admin: Messages['admin'] = {
 		durationRequired: 'Введите длительность',
 		occurrenceRequired: 'Добавьте хотя бы одну дату',
 		dateRequired: 'Выберите дату и время',
+		occurrenceDuplicate: 'Такая дата и время уже есть в списке',
 		mustBeNumber: 'Введите число',
 		hoursMin: 'Минимум 1 час',
 		percentageMin: 'Процент не может быть отрицательным',
