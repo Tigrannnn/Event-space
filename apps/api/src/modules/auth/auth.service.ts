@@ -189,7 +189,7 @@ export class AuthService {
 		return await this.prisma.$transaction(async (tx) => {
 			const user = await tx.user.update({
 				where: { email },
-				data: { emailVerified: true },
+				data: { emailVerified: true, isShadow: false },
 			});
 
 			const tokens = await this.generateAndSaveTokens(user.id, user.email, user.role, tx);
@@ -302,7 +302,12 @@ export class AuthService {
 					if (user) {
 						user = await tx.user.update({
 							where: { id: user.id },
-							data: { googleId, emailVerified: true, image: user.image || image },
+							data: {
+								googleId,
+								emailVerified: true,
+								isShadow: false,
+								image: user.image || image,
+							},
 						});
 					} else {
 						user = await tx.user.create({
