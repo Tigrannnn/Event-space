@@ -221,7 +221,16 @@ export class BookingCreationService {
 		locale: Locale = DEFAULT_LOCALE,
 		brandHost?: string,
 	) {
-		const { occurrenceId, quantity = 1, userId, name, paymentMethod, email, phone } = data;
+		const {
+			occurrenceId,
+			quantity = 1,
+			userId,
+			name,
+			paymentMethod,
+			email,
+			phone,
+			locale: mailLocale,
+		} = data;
 
 		const result = await this.prisma.$transaction(async (tx) => {
 			const occurrence = await tx.eventOccurrence.findUnique({
@@ -268,6 +277,7 @@ export class BookingCreationService {
 						phone,
 						isShadow: true,
 						emailVerified: false,
+						locale: mailLocale ?? null,
 					},
 				});
 				targetUserId = shadowUser.id;
@@ -350,7 +360,7 @@ export class BookingCreationService {
 			}
 		}
 
-		await this.notifications.sendConfirmation(result.booking.id, locale);
+		await this.notifications.sendConfirmation(result.booking.id, mailLocale ?? locale);
 
 		return {
 			...result.booking,

@@ -14,6 +14,7 @@ export interface ManualBookingDraft {
 	phone?: string;
 	email?: string;
 	paymentMethod: CreateManualBookingData['paymentMethod'];
+	locale?: CreateManualBookingData['locale'];
 }
 
 /**
@@ -65,6 +66,7 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		occurrenceId: draft.occurrenceId,
 		quantity: draft.quantity,
 		paymentMethod: draft.paymentMethod,
+		locale: draft.locale,
 	};
 
 	if (draft.userId) {

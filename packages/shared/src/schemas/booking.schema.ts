@@ -3,6 +3,7 @@ import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchem
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 import { EventSchema } from './event.schema';
 import { EventOccurrenceSchema } from './event-occurrence.schema';
+import { LocaleEnum } from './locale.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
 import { PhoneSchema, EmailSchema } from './atoms';
@@ -119,6 +120,9 @@ export const CreateManualBookingSchema = z
 			.enum(['OFFLINE_PAID', 'PAY_ON_ARRIVAL'])
 			.default('OFFLINE_PAID')
 			.openapi({ description: 'Payment channel for the booking (admin selection excludes site payments)' }),
+		locale: LocaleEnum.optional().openapi({
+			description: 'Language for the emails of this booking; a client who already has one keeps it',
+		}),
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',

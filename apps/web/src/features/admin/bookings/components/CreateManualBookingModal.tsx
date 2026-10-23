@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { locales, localeNames } from '@/lib/i18n/config';
+import type { Locale } from '@event-space/shared';
 import { Modal } from '@/components/ui/Modal';
 import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
@@ -36,8 +38,12 @@ export default function CreateManualBookingModal() {
 		phone: undefined,
 		email: undefined,
 		paymentMethod: 'OFFLINE_PAID',
+		locale: undefined,
 	});
+	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
 	const [errors, setErrors] = useState<ManualBookingErrors>({});
+
+	const mailLocale = clientLocale ?? formState.locale ?? translate.locale;
 
 	const clearErrors = (...fields: ManualBookingField[]) => {
 		setErrors((current) => {
@@ -86,6 +92,10 @@ export default function CreateManualBookingModal() {
 		clearErrors('occurrence');
 	};
 
+	const spotsLeft = selectedOccurrence
+		? Math.max(0, selectedOccurrence.maxParticipants - selectedOccurrence.currentParticipants)
+		: 0;
+
 	const handleSubmit = () => {
 		const draft = {
 			eventId: selectedEvent?.id,
@@ -97,6 +107,7 @@ export default function CreateManualBookingModal() {
 			phone: formState.phone,
 			email: formState.email,
 			paymentMethod: formState.paymentMethod,
+			locale: clientLocale ?? formState.locale,
 		};
 
 		const nextErrors = validateManualBooking(draft);
@@ -161,6 +172,7 @@ export default function CreateManualBookingModal() {
 						newUserName={formState.name ?? ''}
 						onExistingUserSelect={(user) => {
 							// Only the id is kept for an existing user — see buildManualBookingData.
+							setClientLocale(user?.locale ?? null);
 							setFormState((state) => ({
 								...state,
 								userId: user?.id || undefined,
@@ -215,18 +227,39 @@ export default function CreateManualBookingModal() {
 						<option value="PAY_ON_ARRIVAL">{translate('admin.payment.onArrival')}</option>
 					</Select>
 
-					{selectedOccurrence && (
+					<div className="space-y-1.5">
+						<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+							{translate('admin.mailLanguage')}
+						</label>
+						<Select
+							value={mailLocale}
+							onValueChange={(value) => handleChange('locale', value)}
+							className="w-full font-medium"
+							disabled={Boolean(clientLocale)}
+							options={locales.map((code) => ({ value: code, label: localeNames[code] }))}
+						/>
+						<p className="text-xs text-gray-500 dark:text-gray-400">
+							{clientLocale
+								? translate('admin.mailLanguageOfClient')
+								: translate('admin.mailLanguageHint')}
+						</p>
+					</div>
+
+					<div className="space-y-1.5">
 						<QuantitySelector
 							quantity={Number(formState.quantity)}
-							maxQuantity={Math.max(
-								1,
-								selectedOccurrence.maxParticipants - selectedOccurrence.currentParticipants,
-							)}
+							maxQuantity={spotsLeft}
+							disabled={!selectedOccurrence}
 							onIncrement={() => handleChange('quantity', Number(formState.quantity) + 1)}
 							onDecrement={() => handleChange('quantity', Math.max(1, Number(formState.quantity) - 1))}
 							label={translate('admin.numberOfSpots')}
 						/>
-					)}
+						<p className="text-xs text-gray-500 dark:text-gray-400">
+							{selectedOccurrence
+								? `${translate('admin.spotsLeft')}: ${spotsLeft}`
+								: translate('admin.pickDateForSpots')}
+						</p>
+					</div>
 				</div>
 
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row">
