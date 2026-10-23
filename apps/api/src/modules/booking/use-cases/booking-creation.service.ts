@@ -263,13 +263,30 @@ export class BookingCreationService {
 			let cancelledPaymentIntentId: string | null = null;
 
 			if (email) {
-				const existingUser = await tx.user.findUnique({ where: { email } });
-				if (existingUser) {
+				const existingUser = await tx.user.findUnique({
+					where: { email },
+					select: { id: true, emailVerified: true },
+				});
+
+				if (existingUser?.emailVerified) {
 					throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS, { email });
+				}
+
+				if (existingUser) {
+					targetUserId = existingUser.id;
+
+					await tx.user.update({
+						where: { id: existingUser.id },
+						data: {
+							...(name ? { name } : {}),
+							...(phone ? { phone } : {}),
+							...(mailLocale ? { locale: mailLocale } : {}),
+						},
+					});
 				}
 			}
 
-			if (name) {
+			if (name && !targetUserId) {
 				const shadowUser = await tx.user.create({
 					data: {
 						email,

@@ -13,12 +13,14 @@ interface World {
 	createIntentFails?: boolean;
 	published?: boolean;
 	pastDate?: boolean;
+	userByEmail?: { id: string; emailVerified: boolean } | null;
 }
 
 function build(world: World = {}) {
 	const stripeCalls: { method: string; args: unknown[] }[] = [];
 	const upserts: { update: Record<string, unknown>; create: Record<string, unknown> }[] = [];
 	const userUpdates: unknown[] = [];
+	const createdUsers: Record<string, unknown>[] = [];
 	const bookingUpdates: Record<string, unknown>[] = [];
 	const ledger: unknown[] = [];
 	const emails: unknown[] = [];
@@ -62,6 +64,11 @@ function build(world: World = {}) {
 			},
 		},
 		user: {
+			findUnique: () => Promise.resolve(world.userByEmail ?? null),
+			create: (args: { data: Record<string, unknown> }) => {
+				createdUsers.push(args.data);
+				return Promise.resolve({ id: 'shadow-1' });
+			},
 			update: (args: unknown) => {
 				userUpdates.push(args);
 				return Promise.resolve({});
@@ -152,7 +159,16 @@ function build(world: World = {}) {
 	};
 
 	const service = createBookingService(prisma as never, stripe as never, mail as never);
-	return { service, stripeCalls, upserts, userUpdates, bookingUpdates, ledger, emails };
+	return {
+		service,
+		stripeCalls,
+		upserts,
+		userUpdates,
+		createdUsers,
+		bookingUpdates,
+		ledger,
+		emails,
+	};
 }
 
 const create = { occurrenceId: 'o1', quantity: 2 };
@@ -277,6 +293,48 @@ describe('creating a booking by an admin', () => {
 		expect(Number((ledger[0] as { data: { amount: unknown } }).data.amount)).toBe(20000);
 		expect(result).toMatchObject({ refundPercentage: 0, estimatedRefundInCents: 0 });
 		expect(emails).toHaveLength(1);
+	});
+
+	it('books a returning guest onto the record the admin already made for them', async () => {
+		const { service, upserts, createdUsers, userUpdates } = build({
+			userByEmail: { id: 'guest-1', emailVerified: false },
+		});
+
+		await service.createManualBooking(
+			'admin1',
+			manual({ userId: undefined, name: 'Карен', phone: '+37491000000', email: 'k@x.am' }) as never,
+		);
+
+		expect(createdUsers).toHaveLength(0);
+		expect(upserts[0].create).toMatchObject({ userId: 'guest-1' });
+		expect(userUpdates[0]).toMatchObject({
+			where: { id: 'guest-1' },
+			data: { name: 'Карен', phone: '+37491000000' },
+		});
+	});
+
+	it('still refuses an email that belongs to a confirmed account', async () => {
+		const { service, upserts } = build({ userByEmail: { id: 'u9', emailVerified: true } });
+
+		await expect(
+			service.createManualBooking(
+				'admin1',
+				manual({ userId: undefined, name: 'Карен', email: 'k@x.am' }) as never,
+			),
+		).rejects.toMatchObject({ code: 'EMAIL_ALREADY_EXISTS' });
+		expect(upserts).toHaveLength(0);
+	});
+
+	it('creates a guest record when the email is new', async () => {
+		const { service, createdUsers, upserts } = build({ userByEmail: null });
+
+		await service.createManualBooking(
+			'admin1',
+			manual({ userId: undefined, name: 'Нина', email: 'n@x.am' }) as never,
+		);
+
+		expect(createdUsers[0]).toMatchObject({ name: 'Нина', email: 'n@x.am', isShadow: true });
+		expect(upserts[0].create).toMatchObject({ userId: 'shadow-1' });
 	});
 
 	it('does not record money for a pay-on-arrival booking', async () => {
