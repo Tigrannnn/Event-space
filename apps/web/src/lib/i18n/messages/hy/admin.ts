@@ -167,6 +167,8 @@ export const admin: Messages['admin'] = {
 	organizer: 'Կազմակերպիչ',
 	userDetails: 'Օգտատերի մանրամասներ',
 	accountInformation: 'Հաշվի տեղեկատվություն',
+	mailLanguage: 'Նամակների լեզուն',
+	mailLanguageDefault: 'Ընտրված չէ',
 	emailStatus: 'Էլ. փոստի վիճակ',
 	verified: 'Հաստատված',
 	pending: 'Սպասում',

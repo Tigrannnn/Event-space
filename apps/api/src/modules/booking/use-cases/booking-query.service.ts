@@ -42,6 +42,7 @@ export class BookingQueryService {
 						role: true,
 						emailVerified: true,
 						isShadow: true,
+						locale: true,
 						createdAt: true,
 						updatedAt: true,
 					},

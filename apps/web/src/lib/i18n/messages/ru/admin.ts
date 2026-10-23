@@ -167,6 +167,8 @@ export const admin: Messages['admin'] = {
 	organizer: 'Организатор',
 	userDetails: 'Детали пользователя',
 	accountInformation: 'Информация об аккаунте',
+	mailLanguage: 'Язык писем',
+	mailLanguageDefault: 'Не выбран',
 	emailStatus: 'Статус электронной почты',
 	verified: 'Подтверждено',
 	pending: 'В ожидании',

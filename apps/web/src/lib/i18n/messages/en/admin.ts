@@ -165,6 +165,8 @@ export const admin = {
 	organizer: 'Organizer',
 	userDetails: 'User details',
 	accountInformation: 'Account information',
+	mailLanguage: 'Email language',
+	mailLanguageDefault: 'Not chosen',
 	emailStatus: 'Email status',
 	verified: 'Verified',
 	pending: 'Pending',

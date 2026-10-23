@@ -1,6 +1,7 @@
 'use client';
 
 import { Modal, ModalHeader } from '@/components/ui/Modal';
+import { localeNames } from '@/lib/i18n/config';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
 import { Copy } from 'lucide-react';
@@ -83,6 +84,14 @@ export default function UserDetailsModal() {
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">
 										{user.emailVerified ? translate('admin.verified') : translate('admin.pending')}
+									</p>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.mailLanguage')}
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">
+										{user.locale ? localeNames[user.locale] : translate('admin.mailLanguageDefault')}
 									</p>
 								</div>
 							</div>
