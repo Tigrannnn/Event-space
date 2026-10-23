@@ -194,23 +194,32 @@ export function buildUpdateEventFormData(values: EventFormValues): FormData {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+const MAX_GUESSED_STEP_DAYS = 31;
+
+const startOfDay = (value: string): number =>
+	new Date(`${value.split('T')[0]}T00:00:00.000Z`).getTime();
+
 export function nextOccurrenceDraft(
 	existing: { date?: string; maxParticipants?: string }[],
 ): { date: string; maxParticipants: string } {
-	const latest = existing
+	const dated = existing
 		.filter((occurrence) => occurrence.date)
-		.sort((a, b) => (a.date as string).localeCompare(b.date as string))
-		.at(-1);
+		.sort((a, b) => (a.date as string).localeCompare(b.date as string));
 
+	const latest = dated.at(-1);
 	if (!latest?.date) return { date: '', maxParticipants: '' };
 
-	const [day, time] = latest.date.split('T');
-	const nextDay = new Date(`${day}T00:00:00.000Z`).getTime() + DAY_MS;
+	const from = startOfDay(latest.date);
+	if (Number.isNaN(from)) return { date: '', maxParticipants: latest.maxParticipants ?? '' };
 
-	if (Number.isNaN(nextDay)) return { date: '', maxParticipants: latest.maxParticipants ?? '' };
+	const previous = dated.at(-2)?.date;
+	const gap = previous ? Math.round((from - startOfDay(previous)) / DAY_MS) : 1;
+	const step = gap >= 1 && gap <= MAX_GUESSED_STEP_DAYS ? gap : 1;
+
+	const time = latest.date.split('T')[1] ?? '00:00';
 
 	return {
-		date: `${new Date(nextDay).toISOString().slice(0, 10)}T${time ?? '00:00'}`,
+		date: `${new Date(from + step * DAY_MS).toISOString().slice(0, 10)}T${time}`,
 		maxParticipants: latest.maxParticipants ?? '',
 	};
 }
