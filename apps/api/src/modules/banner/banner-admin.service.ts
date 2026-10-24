@@ -19,7 +19,6 @@ function toTranslationRow(translation: CreateBannerTranslation) {
 		locale: translation.locale,
 		title: translation.title,
 		subtitle: translation.subtitle ?? null,
-		ctaLabel: translation.ctaLabel ?? null,
 	};
 }
 

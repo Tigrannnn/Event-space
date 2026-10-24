@@ -312,8 +312,6 @@ export const admin: Messages['admin'] = {
 	bannerRemoveImage: 'Убрать картинку',
 	bannerTitle: 'Заголовок',
 	bannerSubtitle: 'Подзаголовок',
-	bannerCtaLabel: 'Текст кнопки',
-	bannerCtaPlaceholder: 'Забронировать',
 	bannerTarget: 'Куда ведёт',
 	bannerTargetEvent: 'Событие',
 	bannerTargetCategory: 'Категория',

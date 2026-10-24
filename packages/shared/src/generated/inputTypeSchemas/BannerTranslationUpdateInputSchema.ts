@@ -12,7 +12,6 @@ export const BannerTranslationUpdateInputSchema: z.ZodType<Prisma.BannerTranslat
   locale: z.union([ z.lazy(() => LocaleSchema), z.lazy(() => EnumLocaleFieldUpdateOperationsInputSchema) ]).optional(),
   title: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
   subtitle: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
-  ctaLabel: z.union([ z.string(),z.lazy(() => NullableStringFieldUpdateOperationsInputSchema) ]).optional().nullable(),
   banner: z.lazy(() => BannerUpdateOneRequiredWithoutTranslationsNestedInputSchema).optional(),
 });
 

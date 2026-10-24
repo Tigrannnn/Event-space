@@ -11,7 +11,6 @@ export const BannerTranslationSchema = z.object({
   bannerId: z.string(),
   title: z.string(),
   subtitle: z.string().nullable(),
-  ctaLabel: z.string().nullable(),
 })
 
 export type BannerTranslation = z.infer<typeof BannerTranslationSchema>

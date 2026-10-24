@@ -16,7 +16,7 @@ import {
 } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues, nextOccurrenceDraft } from './form-mappers';
-import DateTimeField from './DateTimeField';
+import DateTimeField from '@/components/ui/DateTimeField';
 import CancellationReasonField from './CancellationReasonField';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';

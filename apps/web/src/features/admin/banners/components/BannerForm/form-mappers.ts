@@ -19,7 +19,6 @@ export function mapBannerToFormValues(banner?: Banner): BannerFormValues {
 			locale: translation.locale,
 			title: translation.title,
 			subtitle: translation.subtitle ?? '',
-			ctaLabel: translation.ctaLabel ?? '',
 		})),
 	};
 }
@@ -45,7 +44,6 @@ function buildPayload(values: BannerFormValues) {
 			locale: translation.locale,
 			title: translation.title.trim(),
 			subtitle: translation.subtitle?.trim() || null,
-			ctaLabel: translation.ctaLabel?.trim() || null,
 		})),
 	};
 }

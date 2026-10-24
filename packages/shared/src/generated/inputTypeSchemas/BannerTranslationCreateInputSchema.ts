@@ -9,7 +9,6 @@ export const BannerTranslationCreateInputSchema: z.ZodType<Prisma.BannerTranslat
   locale: z.lazy(() => LocaleSchema),
   title: z.string(),
   subtitle: z.string().optional().nullable(),
-  ctaLabel: z.string().optional().nullable(),
   banner: z.lazy(() => BannerCreateNestedOneWithoutTranslationsInputSchema),
 });
 

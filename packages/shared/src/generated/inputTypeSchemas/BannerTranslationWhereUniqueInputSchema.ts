@@ -32,7 +32,6 @@ export const BannerTranslationWhereUniqueInputSchema: z.ZodType<Prisma.BannerTra
   locale: z.union([ z.lazy(() => EnumLocaleFilterSchema), z.lazy(() => LocaleSchema) ]).optional(),
   title: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   subtitle: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
-  ctaLabel: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   banner: z.union([ z.lazy(() => BannerScalarRelationFilterSchema), z.lazy(() => BannerWhereInputSchema) ]).optional(),
 }));
 

@@ -15,7 +15,6 @@ export const BannerTranslationScalarWhereWithAggregatesInputSchema: z.ZodType<Pr
   locale: z.union([ z.lazy(() => EnumLocaleWithAggregatesFilterSchema), z.lazy(() => LocaleSchema) ]).optional(),
   title: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   subtitle: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
-  ctaLabel: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
 });
 
 export default BannerTranslationScalarWhereWithAggregatesInputSchema;

@@ -10,7 +10,6 @@ export const MAX_BANNER_MULTIPART_PAYLOAD_OVERHEAD_BYTES = 512 * 1024;
 export const BANNER_LIMITS = {
 	TITLE_MAX: 80,
 	SUBTITLE_MAX: 160,
-	CTA_LABEL_MAX: 40,
 	URL_MAX: 1000,
 	/** Nobody scrolls past the sixth slide; the cap also keeps the home payload small. */
 	MAX_ACTIVE: 10,

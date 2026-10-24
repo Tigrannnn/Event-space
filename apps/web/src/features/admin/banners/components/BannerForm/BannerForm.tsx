@@ -7,6 +7,7 @@ import { XIcon } from 'lucide-react';
 import { getCategoryTranslation, type Banner } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
+import DateTimeField from '@/components/ui/DateTimeField';
 import { ModalHeader } from '@/components/ui/Modal';
 import { useTranslation } from '@/hooks/translation';
 import { useCategories } from '@/features/categories/hooks/useCategories';
@@ -126,7 +127,7 @@ export default function BannerForm({
 								disabled={isPending}
 								onClick={() =>
 									appendTranslation(
-										{ locale: locale.value, title: '', subtitle: '', ctaLabel: '' },
+										{ locale: locale.value, title: '', subtitle: '' },
 										{ shouldFocus: false },
 									)
 								}
@@ -208,16 +209,6 @@ export default function BannerForm({
 								{...register(`translations.${activeTabIndex}.subtitle`)}
 								className={fieldClassName}
 								disabled={isPending}
-							/>
-						</label>
-
-						<label className="space-y-1.5">
-							<span className="text-sm font-semibold">{translate('admin.bannerCtaLabel')}</span>
-							<input
-								{...register(`translations.${activeTabIndex}.ctaLabel`)}
-								className={fieldClassName}
-								disabled={isPending}
-								placeholder={translate('admin.bannerCtaPlaceholder')}
 							/>
 						</label>
 					</div>
@@ -302,28 +293,40 @@ export default function BannerForm({
 			</div>
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-				<label className="space-y-1.5">
+				<div className="space-y-1.5">
 					<span className="text-sm font-semibold">{translate('admin.bannerStartsAt')}</span>
-					<input
-						type="datetime-local"
-						{...register('startsAt')}
-						className={fieldClassName}
-						disabled={isPending}
+					<Controller
+						control={control}
+						name="startsAt"
+						render={({ field }) => (
+							<DateTimeField
+								value={field.value ?? ''}
+								onChange={field.onChange}
+								disabled={isPending}
+								inputClassName={fieldClassName}
+							/>
+						)}
 					/>
-				</label>
+				</div>
 
-				<label className="space-y-1.5">
+				<div className="space-y-1.5">
 					<span className="text-sm font-semibold">{translate('admin.bannerEndsAt')}</span>
-					<input
-						type="datetime-local"
-						{...register('endsAt')}
-						className={fieldClassName}
-						disabled={isPending}
+					<Controller
+						control={control}
+						name="endsAt"
+						render={({ field }) => (
+							<DateTimeField
+								value={field.value ?? ''}
+								onChange={field.onChange}
+								disabled={isPending}
+								inputClassName={fieldClassName}
+							/>
+						)}
 					/>
 					{errors.endsAt && (
 						<p className="text-xs text-red-500">{errorText(errors.endsAt.message)}</p>
 					)}
-				</label>
+				</div>
 			</div>
 
 			<p className="text-xs text-gray-500">{translate('admin.bannerScheduleHint')}</p>

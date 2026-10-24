@@ -8,7 +8,6 @@ export const BannerTranslationUncheckedCreateWithoutBannerInputSchema: z.ZodType
   locale: z.lazy(() => LocaleSchema),
   title: z.string(),
   subtitle: z.string().optional().nullable(),
-  ctaLabel: z.string().optional().nullable(),
 });
 
 export default BannerTranslationUncheckedCreateWithoutBannerInputSchema;

@@ -94,17 +94,6 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 						{text.subtitle}
 					</p>
 				)}
-
-				{text.ctaLabel && (
-					<span
-						className={cn(
-							'mt-1 inline-flex items-center rounded-full px-4 py-2 text-xs font-bold uppercase sm:text-sm',
-							isDark ? 'bg-white text-gray-900' : 'bg-gray-900 text-white',
-						)}
-					>
-						{text.ctaLabel}
-					</span>
-				)}
 			</div>
 		</>
 	);

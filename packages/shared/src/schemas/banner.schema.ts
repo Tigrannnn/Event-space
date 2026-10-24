@@ -49,7 +49,6 @@ export const CreateBannerTranslationSchema = z.object({
 	locale: BannerTranslationSchema.shape.locale,
 	title: z.string().trim().min(1).max(BANNER_LIMITS.TITLE_MAX),
 	subtitle: z.string().trim().max(BANNER_LIMITS.SUBTITLE_MAX).nullish(),
-	ctaLabel: z.string().trim().max(BANNER_LIMITS.CTA_LABEL_MAX).nullish(),
 });
 
 export type CreateBannerTranslation = z.infer<typeof CreateBannerTranslationSchema>;

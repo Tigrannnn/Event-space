@@ -9,7 +9,6 @@ export const BannerTranslationCreateManyInputSchema: z.ZodType<Prisma.BannerTran
   locale: z.lazy(() => LocaleSchema),
   title: z.string(),
   subtitle: z.string().optional().nullable(),
-  ctaLabel: z.string().optional().nullable(),
 });
 
 export default BannerTranslationCreateManyInputSchema;

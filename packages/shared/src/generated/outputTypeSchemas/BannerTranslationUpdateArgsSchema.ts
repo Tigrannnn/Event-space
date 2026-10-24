@@ -14,7 +14,6 @@ export const BannerTranslationSelectSchema: z.ZodType<Prisma.BannerTranslationSe
   locale: z.boolean().optional(),
   title: z.boolean().optional(),
   subtitle: z.boolean().optional(),
-  ctaLabel: z.boolean().optional(),
   banner: z.union([z.boolean(),z.lazy(() => BannerArgsSchema)]).optional(),
 }).strict()
 

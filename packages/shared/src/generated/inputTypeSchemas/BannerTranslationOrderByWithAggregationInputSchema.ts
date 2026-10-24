@@ -13,7 +13,6 @@ export const BannerTranslationOrderByWithAggregationInputSchema: z.ZodType<Prism
   locale: z.lazy(() => SortOrderSchema).optional(),
   title: z.lazy(() => SortOrderSchema).optional(),
   subtitle: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
-  ctaLabel: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   _count: z.lazy(() => BannerTranslationCountOrderByAggregateInputSchema).optional(),
   _max: z.lazy(() => BannerTranslationMaxOrderByAggregateInputSchema).optional(),
   _min: z.lazy(() => BannerTranslationMinOrderByAggregateInputSchema).optional(),

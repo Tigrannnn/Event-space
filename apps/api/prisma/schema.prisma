@@ -430,7 +430,6 @@ model BannerTranslation {
 
   title    String  @db.VarChar(80)
   subtitle String? @db.VarChar(160)
-  ctaLabel String? @map("cta_label") @db.VarChar(40)
 
   banner Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
 

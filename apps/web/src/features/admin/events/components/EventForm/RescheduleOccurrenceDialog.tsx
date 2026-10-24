@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { CalendarClock } from 'lucide-react';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button/Button';
-import DateTimeField from './DateTimeField';
+import DateTimeField from '@/components/ui/DateTimeField';
 import CancellationReasonField from './CancellationReasonField';
 import { useTranslation } from '@/hooks/translation';
 import { useRescheduleOccurrence } from '@/features/admin/hooks/useAdmin';

@@ -19,7 +19,6 @@ export const BannerFormTranslationSchema = z.object({
 	locale: LocaleEnum,
 	title: z.string().min(1, 'admin.validation.titleRequired').max(BANNER_LIMITS.TITLE_MAX),
 	subtitle: z.string().max(BANNER_LIMITS.SUBTITLE_MAX).optional(),
-	ctaLabel: z.string().max(BANNER_LIMITS.CTA_LABEL_MAX).optional(),
 });
 
 export type BannerFormTranslationValues = z.infer<typeof BannerFormTranslationSchema>;

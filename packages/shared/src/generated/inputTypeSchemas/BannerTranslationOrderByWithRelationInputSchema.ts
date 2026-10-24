@@ -11,7 +11,6 @@ export const BannerTranslationOrderByWithRelationInputSchema: z.ZodType<Prisma.B
   locale: z.lazy(() => SortOrderSchema).optional(),
   title: z.lazy(() => SortOrderSchema).optional(),
   subtitle: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
-  ctaLabel: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   banner: z.lazy(() => BannerOrderByWithRelationInputSchema).optional(),
 });
 

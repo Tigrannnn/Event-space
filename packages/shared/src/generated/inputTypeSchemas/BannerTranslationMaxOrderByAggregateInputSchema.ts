@@ -9,7 +9,6 @@ export const BannerTranslationMaxOrderByAggregateInputSchema: z.ZodType<Prisma.B
   locale: z.lazy(() => SortOrderSchema).optional(),
   title: z.lazy(() => SortOrderSchema).optional(),
   subtitle: z.lazy(() => SortOrderSchema).optional(),
-  ctaLabel: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default BannerTranslationMaxOrderByAggregateInputSchema;

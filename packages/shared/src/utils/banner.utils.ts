@@ -6,7 +6,6 @@ const EMPTY_TRANSLATION = {
 	bannerId: '',
 	title: '',
 	subtitle: null,
-	ctaLabel: null,
 } as const;
 
 export function getBannerTranslation(

@@ -312,8 +312,6 @@ export const admin: Messages['admin'] = {
 	bannerRemoveImage: 'Հեռացնել նկարը',
 	bannerTitle: 'Վերնագիր',
 	bannerSubtitle: 'Ենթավերնագիր',
-	bannerCtaLabel: 'Կոճակի տեքստ',
-	bannerCtaPlaceholder: 'Ամրագրել',
 	bannerTarget: 'Ուր է տանում',
 	bannerTargetEvent: 'Իրադարձություն',
 	bannerTargetCategory: 'Կատեգորիա',

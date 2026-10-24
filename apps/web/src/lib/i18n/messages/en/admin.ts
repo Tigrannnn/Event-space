@@ -310,8 +310,6 @@ export const admin = {
 	bannerRemoveImage: 'Remove picture',
 	bannerTitle: 'Headline',
 	bannerSubtitle: 'Subtitle',
-	bannerCtaLabel: 'Button text',
-	bannerCtaPlaceholder: 'Book now',
 	bannerTarget: 'Where it leads',
 	bannerTargetEvent: 'Event',
 	bannerTargetCategory: 'Category',
