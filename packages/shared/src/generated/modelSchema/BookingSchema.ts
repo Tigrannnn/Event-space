@@ -18,14 +18,7 @@ export const BookingSchema = z.object({
   updatedAt: z.coerce.date(),
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}),
   createdByAdminId: z.string().nullable(),
-  /**
-   * Пока не прошло, отмена возвращает всё без удержания: дату тура сдвинули не по вине клиента.
-   */
   rescheduleRefundUntil: z.coerce.date().nullable(),
-  /**
-   * Клиент сказал, что новая дата подходит. Это убирает вопрос из карточки, но не срок выше:
-   * передумать внутри срока он вправе.
-   */
   rescheduleAcceptedAt: z.coerce.date().nullable(),
   /**
    * Хост сайта, на котором сделана бронь: по нему письма берут бренд компании.

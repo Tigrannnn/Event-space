@@ -45,6 +45,28 @@ enum Locale {
   hy
 }
 
+enum BannerStatus {
+  DRAFT
+  ACTIVE
+}
+
+enum BannerTargetType {
+  EVENT
+  CATEGORY
+  URL
+}
+
+enum BannerTextAlign {
+  LEFT
+  CENTER
+  RIGHT
+}
+
+enum BannerTheme {
+  LIGHT
+  DARK
+}
+
 model Category {
   id        String   @id @default(uuid())
   slug      String   @unique
@@ -53,6 +75,7 @@ model Category {
 
   translations CategoryTranslation[]
   events       Event[]
+  banners      Banner[]             @relation("category_banners")
 
   @@map("categories")
 }
@@ -89,6 +112,7 @@ model Event {
   occurrences EventOccurrence[] @relation("event_occurrences")
   images      EventImage[]      @relation("event_images")
   favorites   Favorite[]        @relation("event_favorites")
+  banners     Banner[]          @relation("event_banners")
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
   translations      EventTranslation[]
@@ -362,4 +386,54 @@ model DashboardSnapshot {
 
   @@id([date])
   @@map("dashboard_snapshots")
+}
+
+model Banner {
+  id String @id @default(uuid())
+
+  imageUrl            String  @map("image_url") @db.VarChar(1000)
+  imagePublicId       String  @unique @map("image_public_id") @db.VarChar(500)
+  imageMobileUrl      String? @map("image_mobile_url") @db.VarChar(1000)
+  imageMobilePublicId String? @unique @map("image_mobile_public_id") @db.VarChar(500)
+
+  status    BannerStatus @default(DRAFT)
+  sortOrder Int          @default(0) @map("sort_order")
+  startsAt  DateTime?    @map("starts_at")
+  endsAt    DateTime?    @map("ends_at")
+
+  targetType BannerTargetType @map("target_type")
+  eventId    String?          @map("event_id")
+  categoryId String?          @map("category_id")
+  url        String?          @db.VarChar(1000)
+
+  textAlign BannerTextAlign @default(LEFT) @map("text_align")
+  theme     BannerTheme     @default(DARK)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  event        Event?              @relation("event_banners", fields: [eventId], references: [id], onDelete: Cascade)
+  category     Category?           @relation("category_banners", fields: [categoryId], references: [id], onDelete: Cascade)
+  translations BannerTranslation[]
+
+  @@index([status, sortOrder])
+  @@index([eventId])
+  @@index([categoryId])
+  @@map("banners")
+}
+
+model BannerTranslation {
+  id       String @id @default(uuid())
+  bannerId String @map("banner_id")
+
+  locale Locale
+
+  title    String  @db.VarChar(80)
+  subtitle String? @db.VarChar(160)
+  ctaLabel String? @map("cta_label") @db.VarChar(40)
+
+  banner Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  @@unique([bannerId, locale])
+  @@map("banner_translations")
 }

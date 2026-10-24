@@ -19,6 +19,7 @@ import { CategoryWhereInputSchema } from './CategoryWhereInputSchema';
 import { EventOccurrenceListRelationFilterSchema } from './EventOccurrenceListRelationFilterSchema';
 import { EventImageListRelationFilterSchema } from './EventImageListRelationFilterSchema';
 import { FavoriteListRelationFilterSchema } from './FavoriteListRelationFilterSchema';
+import { BannerListRelationFilterSchema } from './BannerListRelationFilterSchema';
 import { CancellationPolicyRuleListRelationFilterSchema } from './CancellationPolicyRuleListRelationFilterSchema';
 import { EventTranslationListRelationFilterSchema } from './EventTranslationListRelationFilterSchema';
 
@@ -45,6 +46,7 @@ export const EventWhereUniqueInputSchema: z.ZodType<Prisma.EventWhereUniqueInput
   occurrences: z.lazy(() => EventOccurrenceListRelationFilterSchema).optional(),
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
   favorites: z.lazy(() => FavoriteListRelationFilterSchema).optional(),
+  banners: z.lazy(() => BannerListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),
   translations: z.lazy(() => EventTranslationListRelationFilterSchema).optional(),
 }));

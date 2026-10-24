@@ -14,6 +14,7 @@ import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateO
 import { EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { EventImageUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventImageUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema } from './FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema';
+import { BannerUncheckedUpdateManyWithoutEventNestedInputSchema } from './BannerUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema';
 
 export const EventUncheckedUpdateWithoutTranslationsInputSchema: z.ZodType<Prisma.EventUncheckedUpdateWithoutTranslationsInput> = z.strictObject({
@@ -31,6 +32,7 @@ export const EventUncheckedUpdateWithoutTranslationsInputSchema: z.ZodType<Prism
   occurrences: z.lazy(() => EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   images: z.lazy(() => EventImageUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
+  banners: z.lazy(() => BannerUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
 });
 

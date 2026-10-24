@@ -10,6 +10,7 @@ import { CategoryCreateNestedOneWithoutEventsInputSchema } from './CategoryCreat
 import { EventOccurrenceCreateNestedManyWithoutEventInputSchema } from './EventOccurrenceCreateNestedManyWithoutEventInputSchema';
 import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageCreateNestedManyWithoutEventInputSchema';
 import { FavoriteCreateNestedManyWithoutEventInputSchema } from './FavoriteCreateNestedManyWithoutEventInputSchema';
+import { BannerCreateNestedManyWithoutEventInputSchema } from './BannerCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationCreateNestedManyWithoutEventInputSchema } from './EventTranslationCreateNestedManyWithoutEventInputSchema';
 
 export const EventCreateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.EventCreateWithoutCancellationRulesInput> = z.strictObject({
@@ -27,6 +28,7 @@ export const EventCreateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.Ev
   occurrences: z.lazy(() => EventOccurrenceCreateNestedManyWithoutEventInputSchema).optional(),
   images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
   favorites: z.lazy(() => FavoriteCreateNestedManyWithoutEventInputSchema).optional(),
+  banners: z.lazy(() => BannerCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationCreateNestedManyWithoutEventInputSchema).optional(),
 });
 

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOperationsInputSchema';
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema } from './CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema';
+import { BannerUpdateManyWithoutCategoryNestedInputSchema } from './BannerUpdateManyWithoutCategoryNestedInputSchema';
 
 export const CategoryUpdateWithoutEventsInputSchema: z.ZodType<Prisma.CategoryUpdateWithoutEventsInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -11,6 +12,7 @@ export const CategoryUpdateWithoutEventsInputSchema: z.ZodType<Prisma.CategoryUp
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   translations: z.lazy(() => CategoryTranslationUpdateManyWithoutCategoryNestedInputSchema).optional(),
+  banners: z.lazy(() => BannerUpdateManyWithoutCategoryNestedInputSchema).optional(),
 });
 
 export default CategoryUpdateWithoutEventsInputSchema;

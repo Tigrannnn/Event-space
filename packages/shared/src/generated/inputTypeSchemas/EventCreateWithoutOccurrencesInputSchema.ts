@@ -9,6 +9,7 @@ import { UserCreateNestedOneWithoutEventsInputSchema } from './UserCreateNestedO
 import { CategoryCreateNestedOneWithoutEventsInputSchema } from './CategoryCreateNestedOneWithoutEventsInputSchema';
 import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageCreateNestedManyWithoutEventInputSchema';
 import { FavoriteCreateNestedManyWithoutEventInputSchema } from './FavoriteCreateNestedManyWithoutEventInputSchema';
+import { BannerCreateNestedManyWithoutEventInputSchema } from './BannerCreateNestedManyWithoutEventInputSchema';
 import { CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationCreateNestedManyWithoutEventInputSchema } from './EventTranslationCreateNestedManyWithoutEventInputSchema';
 
@@ -26,6 +27,7 @@ export const EventCreateWithoutOccurrencesInputSchema: z.ZodType<Prisma.EventCre
   category: z.lazy(() => CategoryCreateNestedOneWithoutEventsInputSchema),
   images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
   favorites: z.lazy(() => FavoriteCreateNestedManyWithoutEventInputSchema).optional(),
+  banners: z.lazy(() => BannerCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationCreateNestedManyWithoutEventInputSchema).optional(),
 });

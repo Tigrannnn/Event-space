@@ -8,6 +8,7 @@ import { CategoryUpdateInputSchema } from '../inputTypeSchemas/CategoryUpdateInp
 import { CategoryUncheckedUpdateInputSchema } from '../inputTypeSchemas/CategoryUncheckedUpdateInputSchema'
 import { CategoryTranslationFindManyArgsSchema } from "../outputTypeSchemas/CategoryTranslationFindManyArgsSchema"
 import { EventFindManyArgsSchema } from "../outputTypeSchemas/EventFindManyArgsSchema"
+import { BannerFindManyArgsSchema } from "../outputTypeSchemas/BannerFindManyArgsSchema"
 import { CategoryCountOutputTypeArgsSchema } from "../outputTypeSchemas/CategoryCountOutputTypeArgsSchema"
 // Select schema needs to be in file to prevent circular imports
 //------------------------------------------------------
@@ -19,6 +20,7 @@ export const CategorySelectSchema: z.ZodType<Prisma.CategorySelect> = z.object({
   updatedAt: z.boolean().optional(),
   translations: z.union([z.boolean(),z.lazy(() => CategoryTranslationFindManyArgsSchema)]).optional(),
   events: z.union([z.boolean(),z.lazy(() => EventFindManyArgsSchema)]).optional(),
+  banners: z.union([z.boolean(),z.lazy(() => BannerFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => CategoryCountOutputTypeArgsSchema)]).optional(),
 }).strict()
 

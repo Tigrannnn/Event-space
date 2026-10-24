@@ -1,0 +1,31 @@
+import type { Prisma } from '@prisma/client';
+
+import { z } from 'zod';
+import { BannerStatusSchema } from './BannerStatusSchema';
+import { BannerTargetTypeSchema } from './BannerTargetTypeSchema';
+import { BannerTextAlignSchema } from './BannerTextAlignSchema';
+import { BannerThemeSchema } from './BannerThemeSchema';
+import { BannerTranslationUncheckedCreateNestedManyWithoutBannerInputSchema } from './BannerTranslationUncheckedCreateNestedManyWithoutBannerInputSchema';
+
+export const BannerUncheckedCreateInputSchema: z.ZodType<Prisma.BannerUncheckedCreateInput> = z.strictObject({
+  id: z.uuid().optional(),
+  imageUrl: z.string(),
+  imagePublicId: z.string(),
+  imageMobileUrl: z.string().optional().nullable(),
+  imageMobilePublicId: z.string().optional().nullable(),
+  status: z.lazy(() => BannerStatusSchema).optional(),
+  sortOrder: z.number().int().optional(),
+  startsAt: z.coerce.date().optional().nullable(),
+  endsAt: z.coerce.date().optional().nullable(),
+  targetType: z.lazy(() => BannerTargetTypeSchema),
+  eventId: z.string().optional().nullable(),
+  categoryId: z.string().optional().nullable(),
+  url: z.string().optional().nullable(),
+  textAlign: z.lazy(() => BannerTextAlignSchema).optional(),
+  theme: z.lazy(() => BannerThemeSchema).optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  translations: z.lazy(() => BannerTranslationUncheckedCreateNestedManyWithoutBannerInputSchema).optional(),
+});
+
+export default BannerUncheckedCreateInputSchema;

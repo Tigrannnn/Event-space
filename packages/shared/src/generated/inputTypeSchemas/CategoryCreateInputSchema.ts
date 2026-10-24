@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { CategoryTranslationCreateNestedManyWithoutCategoryInputSchema } from './CategoryTranslationCreateNestedManyWithoutCategoryInputSchema';
 import { EventCreateNestedManyWithoutCategoryInputSchema } from './EventCreateNestedManyWithoutCategoryInputSchema';
+import { BannerCreateNestedManyWithoutCategoryInputSchema } from './BannerCreateNestedManyWithoutCategoryInputSchema';
 
 export const CategoryCreateInputSchema: z.ZodType<Prisma.CategoryCreateInput> = z.strictObject({
   id: z.uuid().optional(),
@@ -11,6 +12,7 @@ export const CategoryCreateInputSchema: z.ZodType<Prisma.CategoryCreateInput> = 
   updatedAt: z.coerce.date().optional(),
   translations: z.lazy(() => CategoryTranslationCreateNestedManyWithoutCategoryInputSchema).optional(),
   events: z.lazy(() => EventCreateNestedManyWithoutCategoryInputSchema).optional(),
+  banners: z.lazy(() => BannerCreateNestedManyWithoutCategoryInputSchema).optional(),
 });
 
 export default CategoryCreateInputSchema;

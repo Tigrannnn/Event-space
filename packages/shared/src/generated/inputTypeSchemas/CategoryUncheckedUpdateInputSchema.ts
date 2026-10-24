@@ -5,6 +5,7 @@ import { StringFieldUpdateOperationsInputSchema } from './StringFieldUpdateOpera
 import { DateTimeFieldUpdateOperationsInputSchema } from './DateTimeFieldUpdateOperationsInputSchema';
 import { CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInputSchema } from './CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInputSchema';
 import { EventUncheckedUpdateManyWithoutCategoryNestedInputSchema } from './EventUncheckedUpdateManyWithoutCategoryNestedInputSchema';
+import { BannerUncheckedUpdateManyWithoutCategoryNestedInputSchema } from './BannerUncheckedUpdateManyWithoutCategoryNestedInputSchema';
 
 export const CategoryUncheckedUpdateInputSchema: z.ZodType<Prisma.CategoryUncheckedUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -13,6 +14,7 @@ export const CategoryUncheckedUpdateInputSchema: z.ZodType<Prisma.CategoryUnchec
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   translations: z.lazy(() => CategoryTranslationUncheckedUpdateManyWithoutCategoryNestedInputSchema).optional(),
   events: z.lazy(() => EventUncheckedUpdateManyWithoutCategoryNestedInputSchema).optional(),
+  banners: z.lazy(() => BannerUncheckedUpdateManyWithoutCategoryNestedInputSchema).optional(),
 });
 
 export default CategoryUncheckedUpdateInputSchema;

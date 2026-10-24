@@ -16,6 +16,7 @@ import { CategoryUpdateOneRequiredWithoutEventsNestedInputSchema } from './Categ
 import { EventOccurrenceUpdateManyWithoutEventNestedInputSchema } from './EventOccurrenceUpdateManyWithoutEventNestedInputSchema';
 import { EventImageUpdateManyWithoutEventNestedInputSchema } from './EventImageUpdateManyWithoutEventNestedInputSchema';
 import { FavoriteUpdateManyWithoutEventNestedInputSchema } from './FavoriteUpdateManyWithoutEventNestedInputSchema';
+import { BannerUpdateManyWithoutEventNestedInputSchema } from './BannerUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUpdateManyWithoutEventNestedInputSchema';
 
 export const EventUpdateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.EventUpdateWithoutCancellationRulesInput> = z.strictObject({
@@ -33,6 +34,7 @@ export const EventUpdateWithoutCancellationRulesInputSchema: z.ZodType<Prisma.Ev
   occurrences: z.lazy(() => EventOccurrenceUpdateManyWithoutEventNestedInputSchema).optional(),
   images: z.lazy(() => EventImageUpdateManyWithoutEventNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUpdateManyWithoutEventNestedInputSchema).optional(),
+  banners: z.lazy(() => BannerUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUpdateManyWithoutEventNestedInputSchema).optional(),
 });
 
