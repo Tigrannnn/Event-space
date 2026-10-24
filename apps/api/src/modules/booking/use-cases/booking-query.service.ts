@@ -29,6 +29,7 @@ export class BookingQueryService {
 			where: myBookingsWhere({ userId, status: params.status, cursor: params.cursor }),
 			include: {
 				adjustments: true,
+				review: true,
 				occurrence: {
 					include: {
 						event: {

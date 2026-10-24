@@ -1,4 +1,4 @@
-import { getEventTranslation, optimizeImageUrl, type Event, type Locale } from '@event-space/shared';
+import { averageRating, getEventTranslation, optimizeImageUrl, type Event, type Locale } from '@event-space/shared';
 
 /** Enough dates to cover a season; a schedule longer than this is noise in a search result. */
 const MAX_DATES = 20;
@@ -34,6 +34,7 @@ export function buildWebSiteJsonLd(name: string, url: string): object {
  */
 export function buildEventJsonLd(event: Event, locale: Locale, url: string): object[] {
 	const translation = getEventTranslation(event, locale);
+	const average = averageRating(event);
 	const now = Date.now();
 
 	const upcoming = (event.occurrences ?? [])
@@ -80,6 +81,19 @@ export function buildEventJsonLd(event: Event, locale: Locale, url: string): obj
 			},
 			...(event.organizer?.name
 				? { organizer: { '@type': 'Organization', name: event.organizer.name } }
+				: {}),
+			// Only with real reviews behind it: Google drops a rating it cannot see on the page,
+			// and inventing one is the kind of thing that costs a site its rich results.
+			...(average !== null && (event.ratingCount ?? 0) > 0
+				? {
+						aggregateRating: {
+							'@type': 'AggregateRating',
+							ratingValue: average,
+							reviewCount: event.ratingCount,
+							bestRating: 5,
+							worstRating: 1,
+						},
+					}
 				: {}),
 		};
 	});

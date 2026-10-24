@@ -21,6 +21,7 @@ import {
 } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
+import { EventReviews } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
@@ -190,6 +191,8 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 								))}
 							</div>
 						</div>
+
+						<EventReviews event={event} />
 					</div>
 
 					{/* Right Column - Booking Sidebar */}

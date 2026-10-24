@@ -10,6 +10,7 @@ import { ModalType, useModalStore } from '@/stores';
 import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
 import {
+	averageRating,
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
@@ -25,6 +26,7 @@ export interface EventCardProps {
 import { useCurrentUser } from '@/features/users';
 import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
+import { StarRating } from '@/features/reviews';
 import { BookOpen, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { localizePath } from '@/lib/i18n/config';
@@ -41,6 +43,7 @@ export default function EventCard({ event }: EventCardProps) {
 		useHasBookingForOccurrence();
 
 	const eventIsAvailable = isEventAvailable(event);
+	const average = averageRating(event);
 	const eventTranslation = getEventTranslation(event, locale);
 	const occurrenceDate = getPrimaryEventOccurrence(event);
 	const upcomingOccurrences = getUpcomingEventOccurrences(event);
@@ -93,6 +96,16 @@ export default function EventCard({ event }: EventCardProps) {
 				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
 					{eventTranslation.title}
 				</h3>
+
+				{average !== null && (
+					<div className="mb-2 flex items-center gap-2">
+						<StarRating value={average} />
+						<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{average}</span>
+						<span className="text-xs text-gray-500">
+							{translate('review.count', { count: event.ratingCount ?? 0 })}
+						</span>
+					</div>
+				)}
 
 				<div className="mb-1 flex items-center gap-2 text-gray-600 dark:text-gray-400">
 					<MapPin className="text-primary h-4 w-4 shrink-0 sm:h-5 sm:w-5" />

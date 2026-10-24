@@ -17,7 +17,11 @@ import { applyRatingDelta } from './review-rating';
 
 const BOOKING_FOR_REVIEW = {
 	occurrence: {
-		select: { date: true, status: true, event: { select: { id: true, duration: true } } },
+		select: {
+			date: true,
+			status: true,
+			event: { select: { id: true, duration: true, translations: true } },
+		},
 	},
 	review: true,
 } satisfies Prisma.BookingInclude;
@@ -60,6 +64,8 @@ export class ReviewService {
 				: null,
 			canEdit: booking.review ? canEditReview(booking.review.createdAt, now) : false,
 			review: booking.review,
+			event: booking.occurrence?.event ?? null,
+			occurrenceDate: booking.occurrence?.date ?? null,
 		};
 	}
 

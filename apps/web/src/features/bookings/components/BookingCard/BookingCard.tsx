@@ -22,6 +22,7 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
+import { BookingReviewAction } from '@/features/reviews';
 import { useModalStore } from '@/stores';
 import { ModalType } from '@/stores/modalStore';
 
@@ -292,6 +293,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex flex-col gap-2">
+					<BookingReviewAction booking={booking} />
 					{awaitingAnswer ? (
 						<>
 							{canChangeQuantity && (

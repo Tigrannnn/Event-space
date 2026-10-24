@@ -2,6 +2,7 @@ import { z } from './openapi';
 import { ReviewSchema as GeneratedReviewSchema } from '../generated/modelSchema/ReviewSchema';
 import { ReviewStatusSchema } from '../generated/inputTypeSchemas/ReviewStatusSchema';
 import { REVIEW_CONFIG } from '../constants/review.constant';
+import { EventTranslationSchema } from './event-translation.schema';
 
 export const ReviewStatusEnum = ReviewStatusSchema;
 export type ReviewStatus = z.infer<typeof ReviewStatusEnum>;
@@ -48,6 +49,11 @@ export const MyReviewSchema = z.object({
 	opensAt: z.coerce.date().nullable(),
 	canEdit: z.boolean(),
 	review: ReviewSchema.nullable(),
+	/** Enough to title the page without a second request for the whole event. */
+	event: z
+		.object({ id: z.string(), translations: z.array(EventTranslationSchema).default([]) })
+		.nullable(),
+	occurrenceDate: z.coerce.date().nullable(),
 });
 
 export type MyReview = z.infer<typeof MyReviewSchema>;

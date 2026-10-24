@@ -1,4 +1,5 @@
 import { z } from './openapi';
+import { ReviewSchema } from './review.schema';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 import { EventSchema } from './event.schema';
@@ -277,6 +278,13 @@ export type CreateBookingResponse = {
 };
 
 export const BookingWithEstimateSchema = BookingWithDetailsSchema.extend({
+	/**
+	 * The review of this booking, if there is one.
+	 *
+	 * Travels with the list rather than being fetched per card: the booking page shows a dozen
+	 * at a time, and a request each would be a dozen requests to draw one button.
+	 */
+	review: ReviewSchema.nullish(),
 	refundPercentage: z.number().openapi({ example: 80 }),
 	refundReason: z.enum(['RULES', 'RESCHEDULE']).openapi({
 		description: 'RESCHEDULE while the client may still walk away from a date the company moved',

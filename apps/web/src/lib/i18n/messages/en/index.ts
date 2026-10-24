@@ -6,6 +6,7 @@ import { auth } from './auth';
 import { profile } from './profile';
 import { event } from './event';
 import { booking } from './booking';
+import { review } from './review';
 import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
@@ -22,6 +23,7 @@ export const en = {
 	profile,
 	event,
 	booking,
+	review,
 	cancellation,
 	admin,
 	error,
