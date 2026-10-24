@@ -1,8 +1,4 @@
-import {
-	decodeBookingCursor,
-	encodeBookingCursor,
-	myBookingsWhere,
-} from './my-bookings-filters';
+import { decodeBookingCursor, encodeBookingCursor, myBookingsWhere } from './my-bookings-filters';
 
 const CREATED_AT = new Date('2026-10-20T09:30:00.000Z');
 const ID = '550e8400-e29b-41d4-a716-446655440001';

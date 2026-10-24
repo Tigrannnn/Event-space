@@ -12,7 +12,7 @@ import { BookingTopUpService } from '../use-cases/booking-top-up.service';
 export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const ledger = new BookingLedgerService(prisma);
 	const refunds = new BookingRefundService(stripe, ledger);
-	const queries = new BookingQueryService(prisma, stripe);
+	const queries = new BookingQueryService(prisma);
 	const notifications = new BookingNotificationService(prisma, mail);
 	const cancellations = new BookingCancellationService(prisma, refunds, notifications);
 	const quantities = new BookingQuantityService(prisma, refunds, notifications);

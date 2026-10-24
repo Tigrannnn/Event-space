@@ -9,13 +9,18 @@ interface Row {
 	paymentIntentId: string | null;
 	amount: number;
 	hoursAhead?: number;
+	/** Ledger rows for this booking; omitted means no CHARGE was ever recorded. */
+	adjustments?: {
+		type?: 'CHARGE' | 'REFUND';
+		status?: 'SUCCEEDED' | 'PENDING' | 'FAILED';
+		amount: number;
+		feeAmount: number | null;
+		stripePaymentIntentId?: string | null;
+	}[];
 }
 
 function build(options: {
 	rows: Row[];
-	intentStatus?: string;
-	fee?: number | null;
-	stripeFails?: boolean;
 	rules?: { hoursBeforeEvent: number; refundPercentage: number }[];
 }) {
 	const rules = options.rules ?? [
@@ -32,6 +37,17 @@ function build(options: {
 		amount: row.amount,
 		paymentIntentId: row.paymentIntentId,
 		createdAt: new Date(),
+		adjustments: (row.adjustments ?? []).map((adjustment) => ({
+			type: adjustment.type ?? 'CHARGE',
+			status: adjustment.status ?? 'SUCCEEDED',
+			amount: adjustment.amount,
+			feeAmount: adjustment.feeAmount,
+			stripePaymentIntentId:
+				adjustment.stripePaymentIntentId === undefined
+					? row.paymentIntentId
+					: adjustment.stripePaymentIntentId,
+			createdAt: new Date(),
+		})),
 		occurrence: {
 			id: 'o1',
 			date: new Date(Date.now() + (row.hoursAhead ?? 240) * HOUR),
@@ -56,28 +72,17 @@ function build(options: {
 		},
 	};
 
-	const stripe = {
-		retrievePaymentIntent: () => {
-			if (options.stripeFails) return Promise.reject(new Error('stripe down'));
-			return Promise.resolve({
-				id: 'pi',
-				status: options.intentStatus ?? 'succeeded',
-				latest_charge: 'ch_1',
-			});
-		},
-		getCharge: () =>
-			Promise.resolve({
-				balance_transaction: options.fee === null ? null : { fee: options.fee ?? 90000 },
-			}),
-	};
-
-	const service = createBookingService(prisma as never, stripe as never, {} as never);
+	const service = createBookingService(prisma as never, {} as never, {} as never);
 	return { service };
 }
 
 describe('reading a client’s bookings', () => {
-	it('estimates the refund from the rules and the real Stripe fee', async () => {
-		const { service } = build({ rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000 }] });
+	const charged = (amount: number, feeAmount: number | null) => [{ amount, feeAmount }];
+
+	it('withholds the fee Stripe really charged, taken from our own ledger', async () => {
+		const { service } = build({
+			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, adjustments: charged(20000, 900) }],
+		});
 		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking).toMatchObject({
@@ -90,17 +95,24 @@ describe('reading a client’s bookings', () => {
 
 	it('applies the partial refund percentage of the rule that matches', async () => {
 		const { service } = build({
-			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, hoursAhead: 30 }],
+			rows: [
+				{
+					id: 'b1',
+					paymentIntentId: 'pi_1',
+					amount: 20000,
+					hoursAhead: 30,
+					adjustments: charged(20000, 900),
+				},
+			],
 		});
 		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking).toMatchObject({ refundPercentage: 50, estimatedRefundInCents: 910000 });
 	});
 
-	it('falls back to an estimated fee when Stripe cannot be asked', async () => {
+	it('falls back to an estimate while the real fee has not been recorded yet', async () => {
 		const { service } = build({
-			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000 }],
-			stripeFails: true,
+			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, adjustments: charged(20000, null) }],
 		});
 		const [booking] = (await service.findByUser('u1')).data;
 		const estimated = estimateStripeFeeInCents(20000);
@@ -109,10 +121,59 @@ describe('reading a client’s bookings', () => {
 		expect(booking.estimatedRefundInCents).toBe(Math.max(0, 2000000 - estimated));
 	});
 
+	it('falls back to an estimate for a booking with no ledger at all', async () => {
+		const { service } = build({ rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000 }] });
+		const [booking] = (await service.findByUser('u1')).data;
+
+		expect(booking.estimatedStripeFeeInCents).toBe(estimateStripeFeeInCents(20000));
+	});
+
+	it('counts the fee of a top-up too, since the whole booking is being refunded', async () => {
+		const { service } = build({
+			rows: [
+				{
+					id: 'b1',
+					paymentIntentId: 'pi_1',
+					amount: 30000,
+					adjustments: [
+						{ amount: 20000, feeAmount: 900 },
+						{ amount: 10000, feeAmount: 450, stripePaymentIntentId: 'pi_2' },
+					],
+				},
+			],
+		});
+		const [booking] = (await service.findByUser('u1')).data;
+
+		expect(booking.estimatedStripeFeeInCents).toBe(135000);
+	});
+
+	it('ignores a charge that never went through', async () => {
+		const { service } = build({
+			rows: [
+				{
+					id: 'b1',
+					paymentIntentId: 'pi_1',
+					amount: 20000,
+					adjustments: [{ amount: 20000, feeAmount: 900, status: 'FAILED' }],
+				},
+			],
+		});
+		const [booking] = (await service.findByUser('u1')).data;
+
+		expect(booking.estimatedStripeFeeInCents).toBe(estimateStripeFeeInCents(20000));
+	});
+
 	it('never lets the estimated refund go below zero', async () => {
 		const { service } = build({
-			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, hoursAhead: 30 }],
-			fee: 5000000,
+			rows: [
+				{
+					id: 'b1',
+					paymentIntentId: 'pi_1',
+					amount: 20000,
+					hoursAhead: 30,
+					adjustments: charged(20000, 50000),
+				},
+			],
 		});
 		const [booking] = (await service.findByUser('u1')).data;
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
@@ -11,23 +11,13 @@ import {
 	type PaginatedCursorResponse,
 } from '@event-space/shared';
 import { AppException } from '@shared';
-import { StripeService } from '@infra/stripe/stripe.service';
-import { StripeBalanceTransaction } from '@infra/stripe/stripe.types';
 import { resolveRefundPolicy, mapOccurrenceForBookingResponse } from '../booking.utils';
-import {
-	encodeBookingCursor,
-	myBookingsWhere,
-	MY_BOOKINGS_ORDER,
-} from '../my-bookings-filters';
+import { readPayments, toLedgerRows } from '../money/booking-money';
+import { encodeBookingCursor, myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
 
 @Injectable()
 export class BookingQueryService {
-	private readonly logger = new Logger(BookingQueryService.name);
-
-	constructor(
-		private readonly prisma: PrismaService,
-		private readonly stripe: StripeService,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
 	async findByUser(
 		userId: string,
@@ -38,6 +28,7 @@ export class BookingQueryService {
 		const rows = await this.prisma.booking.findMany({
 			where: myBookingsWhere({ userId, status: params.status, cursor: params.cursor }),
 			include: {
+				adjustments: true,
 				occurrence: {
 					include: {
 						event: {
@@ -76,62 +67,59 @@ export class BookingQueryService {
 		const last = bookings[bookings.length - 1];
 
 		const now = new Date();
-		const enrichedBookings = await Promise.all(
-			bookings.map(async (booking) => {
-				const occurrence = booking.occurrence;
-				const event = occurrence?.event;
-				if (!event || !booking.paymentIntentId || Number(booking.amount) === 0) {
-					return {
-						...booking,
-						amount: Number(booking.amount),
-						occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
-						refundPercentage: 0,
-						refundReason: 'RULES' as const,
-						estimatedStripeFeeInCents: 0,
-						estimatedRefundInCents: 0,
-					};
-				}
-
-				let stripeFeeInCents = 0;
-				try {
-					const paymentIntent = await this.stripe.retrievePaymentIntent(booking.paymentIntentId);
-					if (paymentIntent.status === 'succeeded' && paymentIntent.latest_charge) {
-						const charge = await this.stripe.getCharge(paymentIntent.latest_charge as string);
-						const balanceTx = charge.balance_transaction as StripeBalanceTransaction;
-						if (balanceTx && typeof balanceTx === 'object' && 'fee' in balanceTx) {
-							stripeFeeInCents = balanceTx.fee;
-						}
-					}
-				} catch (error) {
-					this.logger.warn(`Failed to get Stripe fee for booking ${booking.id}, using estimate`, error);
-				}
-
-				const policy = resolveRefundPolicy({
-					now,
-					occurrenceDate: new Date(occurrence.date),
-					rules: event.cancellationRules,
-					rescheduleRefundUntil: booking.rescheduleRefundUntil,
-				});
-				const baseAmountInCents = Math.round(Number(booking.amount) * 100);
-				const calculatedRefundInCents = Math.round((baseAmountInCents * policy.percentage) / 100);
-
-				const estimatedStripeFeeInCents =
-					stripeFeeInCents > 0 ? stripeFeeInCents : estimateStripeFeeInCents(Number(booking.amount));
-
-				const withheldInCents = policy.withholdStripeFee ? estimatedStripeFeeInCents : 0;
-				const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - withheldInCents);
-
+		const enrichedBookings = bookings.map((row) => {
+			// The ledger is read for the fee and then dropped: it is the company's accounting,
+			// not something the client's own booking list should carry.
+			const { adjustments, ...booking } = row;
+			const occurrence = booking.occurrence;
+			const event = occurrence?.event;
+			if (!event || !booking.paymentIntentId || Number(booking.amount) === 0) {
 				return {
 					...booking,
 					amount: Number(booking.amount),
-					occurrence: mapOccurrenceForBookingResponse(occurrence),
-					refundPercentage: policy.percentage,
-					refundReason: policy.reason,
-					estimatedStripeFeeInCents,
-					estimatedRefundInCents,
+					occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
+					refundPercentage: 0,
+					refundReason: 'RULES' as const,
+					estimatedStripeFeeInCents: 0,
+					estimatedRefundInCents: 0,
 				};
-			}),
-		);
+			}
+
+			// The fee Stripe actually charged is already in our own ledger: `recordChargeFee`
+			// writes it onto the CHARGE row the moment the payment settles. Asking Stripe
+			// again here cost two API calls per booking on every read of this list.
+			const payments = readPayments(toLedgerRows(adjustments ?? []));
+			const feeFromLedgerInCents = payments.cards.reduce((total, card) => total + card.feeInCents, 0);
+
+			const policy = resolveRefundPolicy({
+				now,
+				occurrenceDate: new Date(occurrence.date),
+				rules: event.cancellationRules,
+				rescheduleRefundUntil: booking.rescheduleRefundUntil,
+			});
+			const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+			const calculatedRefundInCents = Math.round((baseAmountInCents * policy.percentage) / 100);
+
+			// Every card charge counts, top-ups included: the amount being refunded is the
+			// whole booking, so the fee withheld has to cover the whole booking too.
+			const estimatedStripeFeeInCents =
+				feeFromLedgerInCents > 0
+					? feeFromLedgerInCents
+					: estimateStripeFeeInCents(Number(booking.amount));
+
+			const withheldInCents = policy.withholdStripeFee ? estimatedStripeFeeInCents : 0;
+			const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - withheldInCents);
+
+			return {
+				...booking,
+				amount: Number(booking.amount),
+				occurrence: mapOccurrenceForBookingResponse(occurrence),
+				refundPercentage: policy.percentage,
+				refundReason: policy.reason,
+				estimatedStripeFeeInCents,
+				estimatedRefundInCents,
+			};
+		});
 
 		return {
 			data: enrichedBookings,
