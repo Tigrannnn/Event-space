@@ -13,7 +13,7 @@ import {
 	type UpdateReviewData,
 } from '@event-space/shared';
 import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
-import { isNoChange, ratingDelta, type RatedReview } from './review-rating';
+import { applyRatingDelta } from './review-rating';
 
 const BOOKING_FOR_REVIEW = {
 	occurrence: {
@@ -86,7 +86,7 @@ export class ReviewService {
 				include: { user: { select: { id: true, name: true, image: true } } },
 			});
 
-			await this.applyRatingDelta(tx, eventId, null, review);
+			await applyRatingDelta(tx, eventId, null, review);
 
 			return review;
 		});
@@ -122,34 +122,9 @@ export class ReviewService {
 				include: { user: { select: { id: true, name: true, image: true } } },
 			});
 
-			await this.applyRatingDelta(tx, existing.eventId, existing, review);
+			await applyRatingDelta(tx, existing.eventId, existing, review);
 
 			return review;
-		});
-	}
-
-	/**
-	 * Moves the event's rating by the difference one review makes.
-	 *
-	 * `increment` rather than a recount, and always inside the same transaction as the change
-	 * itself: two moderators working at once must not overwrite each other's arithmetic.
-	 */
-	private async applyRatingDelta(
-		tx: Prisma.TransactionClient,
-		eventId: string,
-		before: RatedReview | null,
-		after: RatedReview | null,
-	): Promise<void> {
-		const delta = ratingDelta(before, after);
-
-		if (isNoChange(delta)) return;
-
-		await tx.event.update({
-			where: { id: eventId },
-			data: {
-				ratingSum: { increment: delta.sum },
-				ratingCount: { increment: delta.count },
-			},
 		});
 	}
 

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	type AdminCancelBookingData,
 	type ChangeQuantityData,
@@ -13,6 +13,9 @@ import {
 	type UserFilters,
 	type CreateCategoryData,
 	type UpdateCategoryData,
+	type ModerateReviewData,
+	type ReplyToReviewData,
+	type ReviewStatus,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -577,5 +580,92 @@ export const useDeleteBanner = () => {
 		onError: (error) => {
 			addToast(apiError(error, 'admin.deleteBannerFailed'), ToastType.ERROR);
 		},
+	});
+};
+
+export const useAdminReviews = (status?: ReviewStatus) => {
+	return useInfiniteQuery({
+		queryKey: ['admin', 'reviews', status ?? 'ALL'],
+		queryFn: ({ pageParam }) => adminApi.getReviews({ status, cursor: pageParam }),
+		initialPageParam: undefined as string | undefined,
+		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+	});
+};
+
+/** The number on the sidebar tab: how many reviews are waiting to be read. */
+export const usePendingReviewsCount = () => {
+	const { data } = useQuery({
+		queryKey: ['admin', 'reviews', 'pending-count'],
+		queryFn: () => adminApi.getPendingReviewsCount(),
+		staleTime: 60 * 1000,
+	});
+
+	return data?.count ?? 0;
+};
+
+const useReviewMutationCallbacks = (failureKey: 'admin.reviewActionFailed') => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return {
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'reviews'] }),
+				// The event's average changes with the verdict, so the catalogue is stale too.
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+				queryClient.invalidateQueries({ queryKey: ['reviews'] }),
+			]);
+		},
+		onError: (error: unknown) => {
+			addToast(apiError(error, failureKey), ToastType.ERROR);
+		},
+	};
+};
+
+export const useModerateReview = () => {
+	const { addToast } = useToastStore();
+	const translate = useTranslation();
+	const callbacks = useReviewMutationCallbacks('admin.reviewActionFailed');
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ModerateReviewData }) =>
+			adminApi.moderateReview(id, data),
+		...callbacks,
+		onSuccess: async (review) => {
+			addToast(
+				translate(
+					review.status === 'PUBLISHED' ? 'admin.reviewPublished' : 'admin.reviewRejected',
+				),
+				ToastType.SUCCESS,
+			);
+			await callbacks.onSuccess();
+		},
+	});
+};
+
+export const useReplyToReview = () => {
+	const { addToast } = useToastStore();
+	const translate = useTranslation();
+	const callbacks = useReviewMutationCallbacks('admin.reviewActionFailed');
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: ReplyToReviewData }) =>
+			adminApi.replyToReview(id, data),
+		...callbacks,
+		onSuccess: async () => {
+			addToast(translate('admin.reviewReplySaved'), ToastType.SUCCESS);
+			await callbacks.onSuccess();
+		},
+	});
+};
+
+export const useDeleteReview = () => {
+	const callbacks = useReviewMutationCallbacks('admin.reviewActionFailed');
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.deleteReview(id),
+		...callbacks,
 	});
 };

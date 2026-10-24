@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import type { ReviewStatus } from '@event-space/shared';
 
 export interface RatingContribution {
@@ -36,4 +37,30 @@ export function ratingDelta(
 
 export function isNoChange(delta: RatingContribution): boolean {
 	return delta.sum === 0 && delta.count === 0;
+}
+
+/**
+ * Moves an event's rating by the difference one review makes.
+ *
+ * The only place `ratingSum` and `ratingCount` ever change, and always inside the transaction
+ * that changes the review itself: `increment` rather than a recount, so two moderators working
+ * at the same moment cannot overwrite each other's arithmetic.
+ */
+export async function applyRatingDelta(
+	tx: Prisma.TransactionClient,
+	eventId: string,
+	before: RatedReview | null,
+	after: RatedReview | null,
+): Promise<void> {
+	const delta = ratingDelta(before, after);
+
+	if (isNoChange(delta)) return;
+
+	await tx.event.update({
+		where: { id: eventId },
+		data: {
+			ratingSum: { increment: delta.sum },
+			ratingCount: { increment: delta.count },
+		},
+	});
 }

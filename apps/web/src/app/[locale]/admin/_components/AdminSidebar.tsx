@@ -13,10 +13,12 @@ import {
 	X,
 	Tag,
 	Image as ImageIcon,
+	Star,
 } from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
+import { usePendingReviewsCount } from '@/features/admin/hooks/useAdmin';
 
 interface AdminSidebarProps {
 	mobileOpen?: boolean;
@@ -25,6 +27,7 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSidebarProps) {
 	const pathname = usePathname();
+	const pendingReviews = usePendingReviewsCount();
 	const translate = useTranslation();
 	const locale = translate.locale
 	const internalPathname = stripLocaleFromPathname(pathname);
@@ -34,6 +37,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
 		{ href: '/admin/categories', label: translate('admin.categories'), icon: Tag },
 		{ href: '/admin/banners', label: translate('admin.banners'), icon: ImageIcon },
+		{ href: '/admin/reviews', label: translate('admin.reviews'), icon: Star, badge: pendingReviews },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
 		{ href: '/admin/checkin', label: translate('admin.checkIn'), icon: CheckCircle },
 		{ href: '/admin/users', label: translate('admin.users'), icon: Users },
@@ -77,7 +81,12 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 							)}
 						>
 							<Icon className="h-5 w-5 shrink-0" />
-							{item.label}
+							<span className="flex-1">{item.label}</span>
+							{item.badge ? (
+								<span className="bg-primary rounded-full px-2 py-0.5 text-xs font-bold text-white">
+									{item.badge}
+								</span>
+							) : null}
 						</Link>
 					);
 				})}

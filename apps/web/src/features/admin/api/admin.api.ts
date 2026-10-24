@@ -29,10 +29,22 @@ import type {
 	BookingWithDetails,
 	Banner,
 	Category,
+	ModerateReviewData,
+	PaginatedCursorResponse,
+	ReplyToReviewData,
+	Review,
+	ReviewStatus,
 	CreateCategoryData,
 	UpdateCategoryData,
 	BookingWithOccurrence,
 } from '@event-space/shared';
+
+/** A review as the moderation queue needs it: who wrote it, about what, and for which booking. */
+export type AdminReview = Review & {
+	user?: { id: string; name: string; email: string | null; image: string | null } | null;
+	event?: { id: string; translations: Event['translations'] } | null;
+	booking?: { id: string; referenceNumber: number | null; occurrence?: { date: string } | null } | null;
+};
 
 export const adminApi = {
 	getStats: () => clientApi.get<DashboardStats>('/admin/stats').then((res) => res.data),
@@ -148,4 +160,17 @@ export const adminApi = {
 		clientApi.patch<Banner[]>('/banners/reorder', { ids }).then((res) => res.data),
 	deleteBanner: (id: string) =>
 		clientApi.delete<{ message: string }>(`/banners/${id}`).then((res) => res.data),
+
+	getReviews: (params?: { status?: ReviewStatus; cursor?: string; limit?: number }) =>
+		clientApi
+			.get<PaginatedCursorResponse<AdminReview>>('/admin/reviews', { params })
+			.then((res) => res.data),
+	getPendingReviewsCount: () =>
+		clientApi.get<{ count: number }>('/admin/reviews/pending-count').then((res) => res.data),
+	moderateReview: (id: string, data: ModerateReviewData) =>
+		clientApi.patch<AdminReview>(`/admin/reviews/${id}/moderate`, data).then((res) => res.data),
+	replyToReview: (id: string, data: ReplyToReviewData) =>
+		clientApi.patch<AdminReview>(`/admin/reviews/${id}/reply`, data).then((res) => res.data),
+	deleteReview: (id: string) =>
+		clientApi.delete<{ message: string }>(`/admin/reviews/${id}`).then((res) => res.data),
 };
