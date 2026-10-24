@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { AppErrorCode } from '@event-space/shared';
-import { AppException } from '@shared';
+import { AppErrorCode, FAVORITES_PAGE_SIZE } from '@event-space/shared';
+import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
 
 @Injectable()
 export class FavoritesService {
@@ -39,9 +39,11 @@ export class FavoritesService {
 		return { favorited: false };
 	}
 
-	async findAllForUser(userId: string) {
-		const favorites = await this.prisma.favorite.findMany({
-			where: { userId },
+	async findAllForUser(userId: string, params: { cursor?: string; limit?: number } = {}) {
+		const limit = Math.min(Math.max(params.limit ?? FAVORITES_PAGE_SIZE, 1), 50);
+
+		const rows = await this.prisma.favorite.findMany({
+			where: { userId, ...(keysetAfter(params.cursor) ?? {}) },
 			include: {
 				event: {
 					include: {
@@ -52,10 +54,38 @@ export class FavoritesService {
 					},
 				},
 			},
-			orderBy: { createdAt: 'desc' },
+			take: limit + 1,
+			orderBy: KEYSET_ORDER,
 		});
 
-		return favorites.map((favorite) => favorite.event);
+		const hasMore = rows.length > limit;
+		const page = hasMore ? rows.slice(0, limit) : rows;
+		const last = page[page.length - 1];
+
+		return {
+			// The cursor walks the favourite rows, not the events: it is the moment of
+			// favouriting that orders this list, and an event can be favourited at any time.
+			data: page.map((favorite) => favorite.event),
+			nextCursor: hasMore && last ? encodeKeysetCursor(last) : null,
+			hasMore,
+		};
+	}
+
+	/**
+	 * Every event id this visitor has favourited.
+	 *
+	 * The heart on each card and the counter in the header both ask the same question, and
+	 * neither needs the events themselves — before this they pulled the whole list, pictures,
+	 * translations and dates included, on every page of the site.
+	 */
+	async findIdsForUser(userId: string): Promise<string[]> {
+		const favorites = await this.prisma.favorite.findMany({
+			where: { userId },
+			select: { eventId: true },
+			orderBy: KEYSET_ORDER,
+		});
+
+		return favorites.map((favorite) => favorite.eventId);
 	}
 
 	async isFavorited(userId: string | undefined, eventId: string): Promise<boolean> {

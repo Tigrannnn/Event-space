@@ -1,7 +1,7 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { useToggleFavorite, useIsFavorite, useGetFavorites } from '../hooks/useFavorites';
+import { useToggleFavorite, useIsFavorite, useFavoriteIds } from '../hooks/useFavorites';
 import { useCurrentUser } from '@/features/users';
 import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/lib/utils';
@@ -16,7 +16,7 @@ interface FavoriteButtonProps {
 export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 	const translate = useTranslation();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { isLoading: isFavoritesLoading } = useGetFavorites();
+	const { isLoading: isFavoritesLoading } = useFavoriteIds();
 	const isFavorite = useIsFavorite(eventId);
 	const toggleFavorite = useToggleFavorite();
 	const { openModal } = useModalStore();

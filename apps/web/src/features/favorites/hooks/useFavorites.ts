@@ -1,18 +1,47 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToastStore, ToastType } from '@/stores/toastStore';
-import { type Event } from '@event-space/shared';
 import { favoritesApi } from '../api/favorites.api';
 import { useTranslation } from '@/hooks/translation';
 import { useApiError } from '@/hooks/apiError';
 
-const FAVORITES_QUERY_KEY = ['favorites'];
-const getFavoriteStatusQueryKey = (eventId: string) => ['favorite-status', eventId] as const;
+const FAVORITES_KEY = ['favorites'];
+const FAVORITES_LIST_KEY = ['favorites', 'list'];
+const FAVORITE_IDS_KEY = ['favorites', 'ids'];
 
+/** The saved events themselves, a page at a time — only the favourites page needs these. */
 export const useGetFavorites = () => {
-	return useQuery({
-		queryKey: FAVORITES_QUERY_KEY,
-		queryFn: () => favoritesApi.getFavorites(),
+	return useInfiniteQuery({
+		queryKey: FAVORITES_LIST_KEY,
+		queryFn: ({ pageParam }) => favoritesApi.getFavorites({ cursor: pageParam }),
+		initialPageParam: undefined as string | undefined,
+		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
 	});
+};
+
+/**
+ * Just the ids, which is all the heart on a card and the counter in the header ever needed.
+ *
+ * They live on every page of the site, so this is the query that must stay cheap; the list
+ * above drags in each event with its pictures, translations and dates.
+ */
+export const useFavoriteIds = () => {
+	return useQuery({
+		queryKey: FAVORITE_IDS_KEY,
+		queryFn: () => favoritesApi.getFavoriteIds(),
+		staleTime: 60 * 1000,
+	});
+};
+
+export const useFavoritesCount = () => {
+	const { data } = useFavoriteIds();
+
+	return data?.length ?? 0;
+};
+
+export const useIsFavorite = (eventId?: string) => {
+	const { data } = useFavoriteIds();
+
+	return Boolean(eventId && data?.includes(eventId));
 };
 
 export const useToggleFavorite = () => {
@@ -25,72 +54,36 @@ export const useToggleFavorite = () => {
 		mutationFn: ({ eventId, isFavorite }: { eventId: string; isFavorite: boolean }) =>
 			isFavorite ? favoritesApi.removeFavorite(eventId) : favoritesApi.addFavorite(eventId),
 		onMutate: async ({ eventId, isFavorite }) => {
-			await Promise.all([
-				queryClient.cancelQueries({ queryKey: FAVORITES_QUERY_KEY }),
-				queryClient.cancelQueries({ queryKey: getFavoriteStatusQueryKey(eventId) }),
-			]);
+			await queryClient.cancelQueries({ queryKey: FAVORITE_IDS_KEY });
 
-			const previousFavorites = queryClient.getQueryData<Event[]>(FAVORITES_QUERY_KEY) ?? [];
-			const previousFavoriteStatus = queryClient.getQueryData<boolean>(
-				getFavoriteStatusQueryKey(eventId),
+			const previousIds = queryClient.getQueryData<string[]>(FAVORITE_IDS_KEY);
+
+			// The ids drive the heart and the counter, so they flip at once; the list of events
+			// is refetched after the server answers, which only the favourites page is watching.
+			queryClient.setQueryData<string[]>(FAVORITE_IDS_KEY, (current = []) =>
+				isFavorite ? current.filter((id) => id !== eventId) : [eventId, ...current],
 			);
-
-			queryClient.setQueryData<boolean>(getFavoriteStatusQueryKey(eventId), !isFavorite);
-
-			queryClient.setQueryData<Event[]>(FAVORITES_QUERY_KEY, (current = []) => {
-				if (isFavorite) {
-					return current.filter((event) => event.id !== eventId);
-				}
-
-				return current;
-			});
 
 			addToast(
 				isFavorite ? translate('favorites.removed') : translate('favorites.added'),
 				ToastType.SUCCESS,
 			);
 
-			return { previousFavorites, previousFavoriteStatus };
+			return { previousIds };
 		},
-		onSuccess: async (_data) => {
+		onSuccess: async () => {
 			await Promise.all([
-				queryClient.invalidateQueries({ queryKey: FAVORITES_QUERY_KEY }),
+				queryClient.invalidateQueries({ queryKey: FAVORITES_KEY }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 			]);
 		},
-		onError: (error, vars, context) => {
-			if (context?.previousFavorites) {
-				queryClient.setQueryData(FAVORITES_QUERY_KEY, context.previousFavorites);
-			}
-			if (context?.previousFavoriteStatus !== undefined) {
-				queryClient.setQueryData(
-					getFavoriteStatusQueryKey(vars.eventId),
-					context.previousFavoriteStatus,
-				);
+		onError: (error, _vars, context) => {
+			if (context?.previousIds) {
+				queryClient.setQueryData(FAVORITE_IDS_KEY, context.previousIds);
 			}
 
-			const message = apiError(error, 'favorites.failed');
-			addToast(message, ToastType.ERROR);
+			addToast(apiError(error, 'favorites.failed'), ToastType.ERROR);
 		},
 	});
-};
-
-export const useFavoritesCount = () => {
-	const { data } = useGetFavorites();
-	return (data ?? []).length;
-};
-
-export const useIsFavorite = (eventId?: string) => {
-	const queryClient = useQueryClient();
-	const { data } = useGetFavorites();
-	const optimisticStatus = eventId
-		? queryClient.getQueryData<boolean>(getFavoriteStatusQueryKey(eventId))
-		: undefined;
-
-	if (optimisticStatus !== undefined) {
-		return optimisticStatus;
-	}
-
-	return Boolean(eventId && (data ?? []).some((event: Event) => event.id === eventId));
 };

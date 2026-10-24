@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useMemo } from 'react';
 import { Heart } from 'lucide-react';
 import { useGetFavorites } from '@/features/favorites/hooks/useFavorites';
 import Button from '@/components/ui/Buttons/Button';
@@ -7,17 +8,30 @@ import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import EventCard from '@/features/events/components/EventCard';
 import FavoritesSkeleton from './FavoritesSkeleton';
+import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
+import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
 
 export default function FavoritesPageContent() {
 	const translate = useTranslation();
 	const navigation = useLocalizedNavigation();
-	const { data: favorites, isLoading } = useGetFavorites();
+	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
+
+	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+	const loadMoreRef = useIntersectionObserver(
+		useCallback(() => {
+			if (hasNextPage && !isFetchingNextPage) {
+				void fetchNextPage();
+			}
+		}, [hasNextPage, isFetchingNextPage, fetchNextPage]),
+		{ enabled: hasNextPage && !isFetchingNextPage, rootMargin: '200px' },
+	);
 
 	if (isLoading) {
 		return <FavoritesSkeleton />;
 	}
 
-	if (!favorites?.length) {
+	if (!favorites.length) {
 		return (
 			<div className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
 				<div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
@@ -49,8 +63,14 @@ export default function FavoritesPageContent() {
 
 			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 				{favorites.map((event) => (
-					<EventCard event={event} />
+					<EventCard key={event.id} event={event} />
 				))}
+
+				<LoadMoreTrigger
+					isLoading={isFetchingNextPage}
+					isEnabled={hasNextPage}
+					loadMoreRef={loadMoreRef}
+				/>
 			</div>
 		</div>
 	);

@@ -10,10 +10,10 @@ import {
 	type MyBookingsSummary,
 	type PaginatedCursorResponse,
 } from '@event-space/shared';
-import { AppException } from '@shared';
+import { AppException, encodeKeysetCursor } from '@shared';
 import { resolveRefundPolicy, mapOccurrenceForBookingResponse } from '../booking.utils';
 import { readPayments, toLedgerRows } from '../money/booking-money';
-import { encodeBookingCursor, myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
+import { myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
 
 @Injectable()
 export class BookingQueryService {
@@ -123,7 +123,7 @@ export class BookingQueryService {
 
 		return {
 			data: enrichedBookings,
-			nextCursor: hasMore && last ? encodeBookingCursor(last) : null,
+			nextCursor: hasMore && last ? encodeKeysetCursor(last) : null,
 			hasMore,
 		};
 	}
