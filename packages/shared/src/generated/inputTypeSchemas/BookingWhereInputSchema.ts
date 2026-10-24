@@ -20,6 +20,8 @@ import { EventOccurrenceScalarRelationFilterSchema } from './EventOccurrenceScal
 import { EventOccurrenceWhereInputSchema } from './EventOccurrenceWhereInputSchema';
 import { BookingAdjustmentListRelationFilterSchema } from './BookingAdjustmentListRelationFilterSchema';
 import { BookingStatusHistoryListRelationFilterSchema } from './BookingStatusHistoryListRelationFilterSchema';
+import { ReviewNullableScalarRelationFilterSchema } from './ReviewNullableScalarRelationFilterSchema';
+import { ReviewWhereInputSchema } from './ReviewWhereInputSchema';
 
 export const BookingWhereInputSchema: z.ZodType<Prisma.BookingWhereInput> = z.strictObject({
   AND: z.union([ z.lazy(() => BookingWhereInputSchema), z.lazy(() => BookingWhereInputSchema).array() ]).optional(),
@@ -43,10 +45,12 @@ export const BookingWhereInputSchema: z.ZodType<Prisma.BookingWhereInput> = z.st
   checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   confirmationSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   reminderSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  reviewInviteSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   user: z.union([ z.lazy(() => UserScalarRelationFilterSchema), z.lazy(() => UserWhereInputSchema) ]).optional(),
   occurrence: z.union([ z.lazy(() => EventOccurrenceScalarRelationFilterSchema), z.lazy(() => EventOccurrenceWhereInputSchema) ]).optional(),
   adjustments: z.lazy(() => BookingAdjustmentListRelationFilterSchema).optional(),
   statusHistory: z.lazy(() => BookingStatusHistoryListRelationFilterSchema).optional(),
+  review: z.union([ z.lazy(() => ReviewNullableScalarRelationFilterSchema), z.lazy(() => ReviewWhereInputSchema) ]).optional().nullable(),
 });
 
 export default BookingWhereInputSchema;

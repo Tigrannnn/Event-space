@@ -8,6 +8,7 @@ import { EventOccurrenceOrderByRelationAggregateInputSchema } from './EventOccur
 import { EventImageOrderByRelationAggregateInputSchema } from './EventImageOrderByRelationAggregateInputSchema';
 import { FavoriteOrderByRelationAggregateInputSchema } from './FavoriteOrderByRelationAggregateInputSchema';
 import { BannerOrderByRelationAggregateInputSchema } from './BannerOrderByRelationAggregateInputSchema';
+import { ReviewOrderByRelationAggregateInputSchema } from './ReviewOrderByRelationAggregateInputSchema';
 import { CancellationPolicyRuleOrderByRelationAggregateInputSchema } from './CancellationPolicyRuleOrderByRelationAggregateInputSchema';
 import { EventTranslationOrderByRelationAggregateInputSchema } from './EventTranslationOrderByRelationAggregateInputSchema';
 
@@ -19,6 +20,8 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   price: z.lazy(() => SortOrderSchema).optional(),
   duration: z.lazy(() => SortOrderSchema).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
+  ratingSum: z.lazy(() => SortOrderSchema).optional(),
+  ratingCount: z.lazy(() => SortOrderSchema).optional(),
   createdAt: z.lazy(() => SortOrderSchema).optional(),
   updatedAt: z.lazy(() => SortOrderSchema).optional(),
   userId: z.lazy(() => SortOrderSchema).optional(),
@@ -29,6 +32,7 @@ export const EventOrderByWithRelationInputSchema: z.ZodType<Prisma.EventOrderByW
   images: z.lazy(() => EventImageOrderByRelationAggregateInputSchema).optional(),
   favorites: z.lazy(() => FavoriteOrderByRelationAggregateInputSchema).optional(),
   banners: z.lazy(() => BannerOrderByRelationAggregateInputSchema).optional(),
+  reviews: z.lazy(() => ReviewOrderByRelationAggregateInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleOrderByRelationAggregateInputSchema).optional(),
   translations: z.lazy(() => EventTranslationOrderByRelationAggregateInputSchema).optional(),
 });

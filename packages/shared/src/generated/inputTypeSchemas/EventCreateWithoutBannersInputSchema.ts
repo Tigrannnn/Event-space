@@ -10,6 +10,7 @@ import { CategoryCreateNestedOneWithoutEventsInputSchema } from './CategoryCreat
 import { EventOccurrenceCreateNestedManyWithoutEventInputSchema } from './EventOccurrenceCreateNestedManyWithoutEventInputSchema';
 import { EventImageCreateNestedManyWithoutEventInputSchema } from './EventImageCreateNestedManyWithoutEventInputSchema';
 import { FavoriteCreateNestedManyWithoutEventInputSchema } from './FavoriteCreateNestedManyWithoutEventInputSchema';
+import { ReviewCreateNestedManyWithoutEventInputSchema } from './ReviewCreateNestedManyWithoutEventInputSchema';
 import { CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationCreateNestedManyWithoutEventInputSchema } from './EventTranslationCreateNestedManyWithoutEventInputSchema';
 
@@ -21,6 +22,8 @@ export const EventCreateWithoutBannersInputSchema: z.ZodType<Prisma.EventCreateW
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   duration: z.number().int(),
   status: z.lazy(() => EventStatusSchema).optional(),
+  ratingSum: z.number().int().optional(),
+  ratingCount: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   organizer: z.lazy(() => UserCreateNestedOneWithoutEventsInputSchema),
@@ -28,6 +31,7 @@ export const EventCreateWithoutBannersInputSchema: z.ZodType<Prisma.EventCreateW
   occurrences: z.lazy(() => EventOccurrenceCreateNestedManyWithoutEventInputSchema).optional(),
   images: z.lazy(() => EventImageCreateNestedManyWithoutEventInputSchema).optional(),
   favorites: z.lazy(() => FavoriteCreateNestedManyWithoutEventInputSchema).optional(),
+  reviews: z.lazy(() => ReviewCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationCreateNestedManyWithoutEventInputSchema).optional(),
 });

@@ -6,6 +6,7 @@ export const UserCountOutputTypeSelectSchema: z.ZodType<Prisma.UserCountOutputTy
   refreshTokens: z.boolean().optional(),
   bookings: z.boolean().optional(),
   favorites: z.boolean().optional(),
+  reviews: z.boolean().optional(),
 }).strict();
 
 export default UserCountOutputTypeSelectSchema;

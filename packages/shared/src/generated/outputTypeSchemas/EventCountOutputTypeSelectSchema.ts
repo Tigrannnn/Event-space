@@ -6,6 +6,7 @@ export const EventCountOutputTypeSelectSchema: z.ZodType<Prisma.EventCountOutput
   images: z.boolean().optional(),
   favorites: z.boolean().optional(),
   banners: z.boolean().optional(),
+  reviews: z.boolean().optional(),
   cancellationRules: z.boolean().optional(),
   translations: z.boolean().optional(),
 }).strict();

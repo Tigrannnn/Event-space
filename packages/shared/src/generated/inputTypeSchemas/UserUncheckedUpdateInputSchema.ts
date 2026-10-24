@@ -13,6 +13,7 @@ import { EventUncheckedUpdateManyWithoutOrganizerNestedInputSchema } from './Eve
 import { RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema } from './RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema';
 import { BookingUncheckedUpdateManyWithoutUserNestedInputSchema } from './BookingUncheckedUpdateManyWithoutUserNestedInputSchema';
 import { FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema } from './FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema';
+import { ReviewUncheckedUpdateManyWithoutUserNestedInputSchema } from './ReviewUncheckedUpdateManyWithoutUserNestedInputSchema';
 
 export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdateInput> = z.strictObject({
   id: z.union([ z.uuid(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -32,6 +33,7 @@ export const UserUncheckedUpdateInputSchema: z.ZodType<Prisma.UserUncheckedUpdat
   refreshTokens: z.lazy(() => RefreshTokenUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   bookings: z.lazy(() => BookingUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
+  reviews: z.lazy(() => ReviewUncheckedUpdateManyWithoutUserNestedInputSchema).optional(),
 });
 
 export default UserUncheckedUpdateInputSchema;

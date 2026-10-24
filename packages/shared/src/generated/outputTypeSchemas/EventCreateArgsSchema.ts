@@ -9,6 +9,7 @@ import { EventOccurrenceFindManyArgsSchema } from "../outputTypeSchemas/EventOcc
 import { EventImageFindManyArgsSchema } from "../outputTypeSchemas/EventImageFindManyArgsSchema"
 import { FavoriteFindManyArgsSchema } from "../outputTypeSchemas/FavoriteFindManyArgsSchema"
 import { BannerFindManyArgsSchema } from "../outputTypeSchemas/BannerFindManyArgsSchema"
+import { ReviewFindManyArgsSchema } from "../outputTypeSchemas/ReviewFindManyArgsSchema"
 import { CancellationPolicyRuleFindManyArgsSchema } from "../outputTypeSchemas/CancellationPolicyRuleFindManyArgsSchema"
 import { EventTranslationFindManyArgsSchema } from "../outputTypeSchemas/EventTranslationFindManyArgsSchema"
 import { EventCountOutputTypeArgsSchema } from "../outputTypeSchemas/EventCountOutputTypeArgsSchema"
@@ -23,6 +24,8 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   price: z.boolean().optional(),
   duration: z.boolean().optional(),
   status: z.boolean().optional(),
+  ratingSum: z.boolean().optional(),
+  ratingCount: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   userId: z.boolean().optional(),
@@ -33,6 +36,7 @@ export const EventSelectSchema: z.ZodType<Prisma.EventSelect> = z.object({
   images: z.union([z.boolean(),z.lazy(() => EventImageFindManyArgsSchema)]).optional(),
   favorites: z.union([z.boolean(),z.lazy(() => FavoriteFindManyArgsSchema)]).optional(),
   banners: z.union([z.boolean(),z.lazy(() => BannerFindManyArgsSchema)]).optional(),
+  reviews: z.union([z.boolean(),z.lazy(() => ReviewFindManyArgsSchema)]).optional(),
   cancellationRules: z.union([z.boolean(),z.lazy(() => CancellationPolicyRuleFindManyArgsSchema)]).optional(),
   translations: z.union([z.boolean(),z.lazy(() => EventTranslationFindManyArgsSchema)]).optional(),
   _count: z.union([z.boolean(),z.lazy(() => EventCountOutputTypeArgsSchema)]).optional(),

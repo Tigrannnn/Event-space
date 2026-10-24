@@ -45,6 +45,12 @@ enum Locale {
   hy
 }
 
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
 enum BannerStatus {
   DRAFT
   ACTIVE
@@ -102,6 +108,9 @@ model Event {
   price              Decimal          @db.Decimal(10, 2)
   duration           Int // Minutes
   status             EventStatus      @default(DRAFT)
+  /// Сумма оценок и их число: среднее нельзя складывать атомарно, суммы можно.
+  ratingSum          Int              @default(0) @map("rating_sum")
+  ratingCount        Int              @default(0) @map("rating_count")
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
 
@@ -113,6 +122,7 @@ model Event {
   images      EventImage[]      @relation("event_images")
   favorites   Favorite[]        @relation("event_favorites")
   banners     Banner[]          @relation("event_banners")
+  reviews     Review[]          @relation("event_reviews")
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
   translations      EventTranslation[]
@@ -246,6 +256,7 @@ model Booking {
   checkedInAt        DateTime? @map("checked_in_at")
   confirmationSentAt DateTime? @map("receipt_sent_at")
   reminderSentAt     DateTime? @map("reminder_sent_at")
+  reviewInviteSentAt DateTime? @map("review_invite_sent_at")
 
   user User @relation("user_bookings", fields: [userId], references: [id])
 
@@ -253,6 +264,7 @@ model Booking {
   adjustments BookingAdjustment[] @relation("booking_adjustments")
 
   statusHistory BookingStatusHistory[] @relation("booking_status_history")
+  review        Review?                @relation("booking_review")
 
   @@unique([userId, occurrenceId])
   @@index([userId])
@@ -341,6 +353,7 @@ model User {
 
   bookings  Booking[]  @relation("user_bookings")
   favorites Favorite[] @relation("user_favorites")
+  reviews   Review[]   @relation("user_reviews")
 
   @@map("users")
 }
@@ -433,4 +446,37 @@ model BannerTranslation {
 
   @@unique([bannerId, locale])
   @@map("banner_translations")
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  /// Одна бронь — один отзыв. Здесь вся защита от накрутки: чтобы написать,
+  /// надо было купить и съездить.
+  bookingId String @unique @map("booking_id")
+  eventId   String @map("event_id")
+  userId    String @map("user_id")
+
+  rating Int
+  text   String? @db.VarChar(1000)
+
+  status ReviewStatus @default(PENDING)
+
+  moderatedAt        DateTime? @map("moderated_at")
+  moderatedByAdminId String?   @map("moderated_by_admin_id")
+  rejectReason       String?   @map("reject_reason") @db.VarChar(500)
+
+  adminReply   String?   @map("admin_reply") @db.VarChar(1000)
+  adminReplyAt DateTime? @map("admin_reply_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  booking Booking @relation("booking_review", fields: [bookingId], references: [id], onDelete: Cascade)
+  event   Event   @relation("event_reviews", fields: [eventId], references: [id], onDelete: Cascade)
+  user    User    @relation("user_reviews", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([eventId, status, createdAt])
+  @@index([status, createdAt])
+  @@map("reviews")
 }

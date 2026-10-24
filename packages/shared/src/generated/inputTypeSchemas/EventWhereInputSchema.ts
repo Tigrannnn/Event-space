@@ -19,6 +19,7 @@ import { EventOccurrenceListRelationFilterSchema } from './EventOccurrenceListRe
 import { EventImageListRelationFilterSchema } from './EventImageListRelationFilterSchema';
 import { FavoriteListRelationFilterSchema } from './FavoriteListRelationFilterSchema';
 import { BannerListRelationFilterSchema } from './BannerListRelationFilterSchema';
+import { ReviewListRelationFilterSchema } from './ReviewListRelationFilterSchema';
 import { CancellationPolicyRuleListRelationFilterSchema } from './CancellationPolicyRuleListRelationFilterSchema';
 import { EventTranslationListRelationFilterSchema } from './EventTranslationListRelationFilterSchema';
 
@@ -33,6 +34,8 @@ export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.strict
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   duration: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   status: z.union([ z.lazy(() => EnumEventStatusFilterSchema), z.lazy(() => EventStatusSchema) ]).optional(),
+  ratingSum: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
+  ratingCount: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
@@ -43,6 +46,7 @@ export const EventWhereInputSchema: z.ZodType<Prisma.EventWhereInput> = z.strict
   images: z.lazy(() => EventImageListRelationFilterSchema).optional(),
   favorites: z.lazy(() => FavoriteListRelationFilterSchema).optional(),
   banners: z.lazy(() => BannerListRelationFilterSchema).optional(),
+  reviews: z.lazy(() => ReviewListRelationFilterSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleListRelationFilterSchema).optional(),
   translations: z.lazy(() => EventTranslationListRelationFilterSchema).optional(),
 });

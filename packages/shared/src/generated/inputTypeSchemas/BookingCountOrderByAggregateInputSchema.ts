@@ -22,6 +22,7 @@ export const BookingCountOrderByAggregateInputSchema: z.ZodType<Prisma.BookingCo
   checkedInAt: z.lazy(() => SortOrderSchema).optional(),
   confirmationSentAt: z.lazy(() => SortOrderSchema).optional(),
   reminderSentAt: z.lazy(() => SortOrderSchema).optional(),
+  reviewInviteSentAt: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default BookingCountOrderByAggregateInputSchema;

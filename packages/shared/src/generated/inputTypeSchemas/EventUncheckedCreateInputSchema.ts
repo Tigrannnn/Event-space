@@ -9,6 +9,7 @@ import { EventOccurrenceUncheckedCreateNestedManyWithoutEventInputSchema } from 
 import { EventImageUncheckedCreateNestedManyWithoutEventInputSchema } from './EventImageUncheckedCreateNestedManyWithoutEventInputSchema';
 import { FavoriteUncheckedCreateNestedManyWithoutEventInputSchema } from './FavoriteUncheckedCreateNestedManyWithoutEventInputSchema';
 import { BannerUncheckedCreateNestedManyWithoutEventInputSchema } from './BannerUncheckedCreateNestedManyWithoutEventInputSchema';
+import { ReviewUncheckedCreateNestedManyWithoutEventInputSchema } from './ReviewUncheckedCreateNestedManyWithoutEventInputSchema';
 import { CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema } from './EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema';
 
@@ -20,6 +21,8 @@ export const EventUncheckedCreateInputSchema: z.ZodType<Prisma.EventUncheckedCre
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   duration: z.number().int(),
   status: z.lazy(() => EventStatusSchema).optional(),
+  ratingSum: z.number().int().optional(),
+  ratingCount: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   userId: z.string(),
@@ -28,6 +31,7 @@ export const EventUncheckedCreateInputSchema: z.ZodType<Prisma.EventUncheckedCre
   images: z.lazy(() => EventImageUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   banners: z.lazy(() => BannerUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
+  reviews: z.lazy(() => ReviewUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedCreateNestedManyWithoutEventInputSchema).optional(),
 });

@@ -7,6 +7,7 @@ import { EventOrderByRelationAggregateInputSchema } from './EventOrderByRelation
 import { RefreshTokenOrderByRelationAggregateInputSchema } from './RefreshTokenOrderByRelationAggregateInputSchema';
 import { BookingOrderByRelationAggregateInputSchema } from './BookingOrderByRelationAggregateInputSchema';
 import { FavoriteOrderByRelationAggregateInputSchema } from './FavoriteOrderByRelationAggregateInputSchema';
+import { ReviewOrderByRelationAggregateInputSchema } from './ReviewOrderByRelationAggregateInputSchema';
 
 export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWithRelationInput> = z.strictObject({
   id: z.lazy(() => SortOrderSchema).optional(),
@@ -26,6 +27,7 @@ export const UserOrderByWithRelationInputSchema: z.ZodType<Prisma.UserOrderByWit
   refreshTokens: z.lazy(() => RefreshTokenOrderByRelationAggregateInputSchema).optional(),
   bookings: z.lazy(() => BookingOrderByRelationAggregateInputSchema).optional(),
   favorites: z.lazy(() => FavoriteOrderByRelationAggregateInputSchema).optional(),
+  reviews: z.lazy(() => ReviewOrderByRelationAggregateInputSchema).optional(),
 });
 
 export default UserOrderByWithRelationInputSchema;

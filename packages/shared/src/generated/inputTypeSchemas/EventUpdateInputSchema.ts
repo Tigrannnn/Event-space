@@ -17,6 +17,7 @@ import { EventOccurrenceUpdateManyWithoutEventNestedInputSchema } from './EventO
 import { EventImageUpdateManyWithoutEventNestedInputSchema } from './EventImageUpdateManyWithoutEventNestedInputSchema';
 import { FavoriteUpdateManyWithoutEventNestedInputSchema } from './FavoriteUpdateManyWithoutEventNestedInputSchema';
 import { BannerUpdateManyWithoutEventNestedInputSchema } from './BannerUpdateManyWithoutEventNestedInputSchema';
+import { ReviewUpdateManyWithoutEventNestedInputSchema } from './ReviewUpdateManyWithoutEventNestedInputSchema';
 import { CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUpdateManyWithoutEventNestedInputSchema';
 
@@ -28,6 +29,8 @@ export const EventUpdateInputSchema: z.ZodType<Prisma.EventUpdateInput> = z.stri
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   duration: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => EventStatusSchema), z.lazy(() => EnumEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  ratingSum: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  ratingCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   organizer: z.lazy(() => UserUpdateOneRequiredWithoutEventsNestedInputSchema).optional(),
@@ -36,6 +39,7 @@ export const EventUpdateInputSchema: z.ZodType<Prisma.EventUpdateInput> = z.stri
   images: z.lazy(() => EventImageUpdateManyWithoutEventNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUpdateManyWithoutEventNestedInputSchema).optional(),
   banners: z.lazy(() => BannerUpdateManyWithoutEventNestedInputSchema).optional(),
+  reviews: z.lazy(() => ReviewUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUpdateManyWithoutEventNestedInputSchema).optional(),
 });

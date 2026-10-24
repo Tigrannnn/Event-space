@@ -19,6 +19,7 @@ import { CategoryModule } from '@modules/category/category.module';
 import { OccurrenceModule } from './modules/occurrence/occurrence.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { BannerModule } from '@modules/banner/banner.module';
+import { ReviewModule } from '@modules/review/review.module';
 
 @Module({
 	imports: [
@@ -44,6 +45,7 @@ import { BannerModule } from '@modules/banner/banner.module';
 		OccurrenceModule,
 		FavoritesModule,
 		BannerModule,
+		ReviewModule,
 	],
 	controllers: [AppController],
 })

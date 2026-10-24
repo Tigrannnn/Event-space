@@ -23,6 +23,8 @@ export const EventScalarWhereInputSchema: z.ZodType<Prisma.EventScalarWhereInput
   price: z.union([ z.lazy(() => DecimalFilterSchema), z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }) ]).optional(),
   duration: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   status: z.union([ z.lazy(() => EnumEventStatusFilterSchema), z.lazy(() => EventStatusSchema) ]).optional(),
+  ratingSum: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
+  ratingCount: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   createdAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   updatedAt: z.union([ z.lazy(() => DateTimeFilterSchema), z.coerce.date() ]).optional(),
   userId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),

@@ -15,6 +15,11 @@ export const EventSchema = z.object({
   meetingLocationUrl: z.string(),
   price: z.instanceof(Prisma.Decimal, { message: "Field 'price' must be a Decimal. Location: ['Models', 'Event']"}),
   duration: z.number().int(),
+  /**
+   * Сумма оценок и их число: среднее нельзя складывать атомарно, суммы можно.
+   */
+  ratingSum: z.number().int(),
+  ratingCount: z.number().int(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   userId: z.string(),

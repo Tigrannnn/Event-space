@@ -15,6 +15,7 @@ import { EventOccurrenceUncheckedUpdateManyWithoutEventNestedInputSchema } from 
 import { EventImageUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventImageUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema } from './FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { BannerUncheckedUpdateManyWithoutEventNestedInputSchema } from './BannerUncheckedUpdateManyWithoutEventNestedInputSchema';
+import { ReviewUncheckedUpdateManyWithoutEventNestedInputSchema } from './ReviewUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema } from './CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema';
 import { EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema } from './EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema';
 
@@ -26,6 +27,8 @@ export const EventUncheckedUpdateInputSchema: z.ZodType<Prisma.EventUncheckedUpd
   price: z.union([ z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),z.lazy(() => DecimalFieldUpdateOperationsInputSchema) ]).optional(),
   duration: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   status: z.union([ z.lazy(() => EventStatusSchema), z.lazy(() => EnumEventStatusFieldUpdateOperationsInputSchema) ]).optional(),
+  ratingSum: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
+  ratingCount: z.union([ z.number().int(),z.lazy(() => IntFieldUpdateOperationsInputSchema) ]).optional(),
   createdAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   updatedAt: z.union([ z.coerce.date(),z.lazy(() => DateTimeFieldUpdateOperationsInputSchema) ]).optional(),
   userId: z.union([ z.string(),z.lazy(() => StringFieldUpdateOperationsInputSchema) ]).optional(),
@@ -34,6 +37,7 @@ export const EventUncheckedUpdateInputSchema: z.ZodType<Prisma.EventUncheckedUpd
   images: z.lazy(() => EventImageUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   favorites: z.lazy(() => FavoriteUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   banners: z.lazy(() => BannerUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
+  reviews: z.lazy(() => ReviewUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
   translations: z.lazy(() => EventTranslationUncheckedUpdateManyWithoutEventNestedInputSchema).optional(),
 });

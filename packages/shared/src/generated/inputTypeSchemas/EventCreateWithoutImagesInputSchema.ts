@@ -10,6 +10,7 @@ import { CategoryCreateNestedOneWithoutEventsInputSchema } from './CategoryCreat
 import { EventOccurrenceCreateNestedManyWithoutEventInputSchema } from './EventOccurrenceCreateNestedManyWithoutEventInputSchema';
 import { FavoriteCreateNestedManyWithoutEventInputSchema } from './FavoriteCreateNestedManyWithoutEventInputSchema';
 import { BannerCreateNestedManyWithoutEventInputSchema } from './BannerCreateNestedManyWithoutEventInputSchema';
+import { ReviewCreateNestedManyWithoutEventInputSchema } from './ReviewCreateNestedManyWithoutEventInputSchema';
 import { CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema } from './CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema';
 import { EventTranslationCreateNestedManyWithoutEventInputSchema } from './EventTranslationCreateNestedManyWithoutEventInputSchema';
 
@@ -21,6 +22,8 @@ export const EventCreateWithoutImagesInputSchema: z.ZodType<Prisma.EventCreateWi
   price: z.union([z.number(),z.string(),z.instanceof(Prisma.Decimal),DecimalJsLikeSchema,]).refine((v) => isValidDecimalInput(v), { message: 'Must be a Decimal' }),
   duration: z.number().int(),
   status: z.lazy(() => EventStatusSchema).optional(),
+  ratingSum: z.number().int().optional(),
+  ratingCount: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   organizer: z.lazy(() => UserCreateNestedOneWithoutEventsInputSchema),
@@ -28,6 +31,7 @@ export const EventCreateWithoutImagesInputSchema: z.ZodType<Prisma.EventCreateWi
   occurrences: z.lazy(() => EventOccurrenceCreateNestedManyWithoutEventInputSchema).optional(),
   favorites: z.lazy(() => FavoriteCreateNestedManyWithoutEventInputSchema).optional(),
   banners: z.lazy(() => BannerCreateNestedManyWithoutEventInputSchema).optional(),
+  reviews: z.lazy(() => ReviewCreateNestedManyWithoutEventInputSchema).optional(),
   cancellationRules: z.lazy(() => CancellationPolicyRuleCreateNestedManyWithoutEventInputSchema).optional(),
   translations: z.lazy(() => EventTranslationCreateNestedManyWithoutEventInputSchema).optional(),
 });

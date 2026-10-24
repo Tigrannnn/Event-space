@@ -37,6 +37,7 @@ export const BookingScalarWhereInputSchema: z.ZodType<Prisma.BookingScalarWhereI
   checkedInAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   confirmationSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
   reminderSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
+  reviewInviteSentAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),
 });
 
 export default BookingScalarWhereInputSchema;

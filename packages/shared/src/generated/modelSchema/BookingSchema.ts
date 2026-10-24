@@ -29,6 +29,7 @@ export const BookingSchema = z.object({
   checkedInAt: z.coerce.date().nullable(),
   confirmationSentAt: z.coerce.date().nullable(),
   reminderSentAt: z.coerce.date().nullable(),
+  reviewInviteSentAt: z.coerce.date().nullable(),
 })
 
 export type Booking = z.infer<typeof BookingSchema>

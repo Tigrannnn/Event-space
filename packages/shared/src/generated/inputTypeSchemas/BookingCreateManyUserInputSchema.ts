@@ -24,6 +24,7 @@ export const BookingCreateManyUserInputSchema: z.ZodType<Prisma.BookingCreateMan
   checkedInAt: z.coerce.date().optional().nullable(),
   confirmationSentAt: z.coerce.date().optional().nullable(),
   reminderSentAt: z.coerce.date().optional().nullable(),
+  reviewInviteSentAt: z.coerce.date().optional().nullable(),
 });
 
 export default BookingCreateManyUserInputSchema;

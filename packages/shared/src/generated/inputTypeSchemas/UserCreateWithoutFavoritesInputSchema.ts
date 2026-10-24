@@ -6,6 +6,7 @@ import { LocaleSchema } from './LocaleSchema';
 import { EventCreateNestedManyWithoutOrganizerInputSchema } from './EventCreateNestedManyWithoutOrganizerInputSchema';
 import { RefreshTokenCreateNestedManyWithoutUserInputSchema } from './RefreshTokenCreateNestedManyWithoutUserInputSchema';
 import { BookingCreateNestedManyWithoutUserInputSchema } from './BookingCreateNestedManyWithoutUserInputSchema';
+import { ReviewCreateNestedManyWithoutUserInputSchema } from './ReviewCreateNestedManyWithoutUserInputSchema';
 
 export const UserCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.UserCreateWithoutFavoritesInput> = z.strictObject({
   id: z.uuid().optional(),
@@ -24,6 +25,7 @@ export const UserCreateWithoutFavoritesInputSchema: z.ZodType<Prisma.UserCreateW
   events: z.lazy(() => EventCreateNestedManyWithoutOrganizerInputSchema).optional(),
   refreshTokens: z.lazy(() => RefreshTokenCreateNestedManyWithoutUserInputSchema).optional(),
   bookings: z.lazy(() => BookingCreateNestedManyWithoutUserInputSchema).optional(),
+  reviews: z.lazy(() => ReviewCreateNestedManyWithoutUserInputSchema).optional(),
 });
 
 export default UserCreateWithoutFavoritesInputSchema;

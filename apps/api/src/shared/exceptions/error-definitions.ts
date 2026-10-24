@@ -158,6 +158,27 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 	[AppErrorCode.BOOKING_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Booking not found' },
 	[AppErrorCode.CATEGORY_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Category not found' },
 	[AppErrorCode.BANNER_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Banner not found' },
+	[AppErrorCode.REVIEW_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Review not found' },
+	[AppErrorCode.REVIEW_TOO_EARLY]: {
+		status: HttpStatus.FORBIDDEN,
+		message: 'The tour has not finished yet',
+	},
+	[AppErrorCode.REVIEW_WINDOW_CLOSED]: {
+		status: HttpStatus.FORBIDDEN,
+		message: 'Too late to review this tour',
+	},
+	[AppErrorCode.REVIEW_NOT_ELIGIBLE]: {
+		status: HttpStatus.FORBIDDEN,
+		message: 'This booking cannot be reviewed',
+	},
+	[AppErrorCode.REVIEW_ALREADY_EXISTS]: {
+		status: HttpStatus.CONFLICT,
+		message: 'This booking already has a review',
+	},
+	[AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED]: {
+		status: HttpStatus.FORBIDDEN,
+		message: 'Too late to change this review',
+	},
 	[AppErrorCode.BANNER_IMAGE_REQUIRED]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'A banner needs a picture',

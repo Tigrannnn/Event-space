@@ -14,6 +14,7 @@ import { EventListRelationFilterSchema } from './EventListRelationFilterSchema';
 import { RefreshTokenListRelationFilterSchema } from './RefreshTokenListRelationFilterSchema';
 import { BookingListRelationFilterSchema } from './BookingListRelationFilterSchema';
 import { FavoriteListRelationFilterSchema } from './FavoriteListRelationFilterSchema';
+import { ReviewListRelationFilterSchema } from './ReviewListRelationFilterSchema';
 
 export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> = z.union([
   z.object({
@@ -64,6 +65,7 @@ export const UserWhereUniqueInputSchema: z.ZodType<Prisma.UserWhereUniqueInput> 
   refreshTokens: z.lazy(() => RefreshTokenListRelationFilterSchema).optional(),
   bookings: z.lazy(() => BookingListRelationFilterSchema).optional(),
   favorites: z.lazy(() => FavoriteListRelationFilterSchema).optional(),
+  reviews: z.lazy(() => ReviewListRelationFilterSchema).optional(),
 }));
 
 export default UserWhereUniqueInputSchema;

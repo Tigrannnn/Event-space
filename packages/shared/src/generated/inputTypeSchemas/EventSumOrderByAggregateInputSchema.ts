@@ -6,6 +6,8 @@ import { SortOrderSchema } from './SortOrderSchema';
 export const EventSumOrderByAggregateInputSchema: z.ZodType<Prisma.EventSumOrderByAggregateInput> = z.strictObject({
   price: z.lazy(() => SortOrderSchema).optional(),
   duration: z.lazy(() => SortOrderSchema).optional(),
+  ratingSum: z.lazy(() => SortOrderSchema).optional(),
+  ratingCount: z.lazy(() => SortOrderSchema).optional(),
 });
 
 export default EventSumOrderByAggregateInputSchema;

@@ -15,3 +15,4 @@ export * from './RefreshTokenSchema';
 export * from './DashboardSnapshotSchema';
 export * from './BannerSchema';
 export * from './BannerTranslationSchema';
+export * from './ReviewSchema';
