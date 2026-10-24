@@ -157,6 +157,23 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 	[AppErrorCode.EVENT_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Event not found' },
 	[AppErrorCode.BOOKING_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Booking not found' },
 	[AppErrorCode.CATEGORY_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Category not found' },
+	[AppErrorCode.BANNER_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Banner not found' },
+	[AppErrorCode.BANNER_IMAGE_REQUIRED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'A banner needs a picture',
+	},
+	[AppErrorCode.BANNER_TARGET_REQUIRED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'A banner needs a target',
+	},
+	[AppErrorCode.BANNER_INVALID_SCHEDULE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'End date must not precede the start date',
+	},
+	[AppErrorCode.TOO_MANY_ACTIVE_BANNERS]: {
+		status: HttpStatus.CONFLICT,
+		message: 'At most {max} banners can be active at once',
+	},
 	[AppErrorCode.USER_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'User not found' },
 	[AppErrorCode.CURRENT_USER_NOT_FOUND]: {
 		status: HttpStatus.UNAUTHORIZED,

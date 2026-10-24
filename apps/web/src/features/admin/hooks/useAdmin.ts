@@ -493,3 +493,89 @@ export const useDeleteCategory = () => {
 		},
 	});
 };
+
+export const useAdminBanners = () => {
+	return useQuery({
+		queryKey: ['admin', 'banners'],
+		queryFn: () => adminApi.getBanners(),
+	});
+};
+
+const useBannerMutationCallbacks = (
+	successKey: 'admin.createBannerSuccess' | 'admin.updateBannerSuccess',
+	failureKey: 'admin.createBannerFailed' | 'admin.updateBannerFailed',
+) => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return {
+		onSuccess: async () => {
+			addToast(translate(successKey), ToastType.SUCCESS);
+			closeModal();
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'banners'] });
+		},
+		onError: (error: unknown) => {
+			addToast(apiError(error, failureKey), ToastType.ERROR);
+		},
+	};
+};
+
+export const useCreateBanner = () => {
+	const callbacks = useBannerMutationCallbacks(
+		'admin.createBannerSuccess',
+		'admin.createBannerFailed',
+	);
+
+	return useMutation({
+		mutationFn: (formData: FormData) => adminApi.createBanner(formData),
+		...callbacks,
+	});
+};
+
+export const useUpdateBanner = () => {
+	const callbacks = useBannerMutationCallbacks(
+		'admin.updateBannerSuccess',
+		'admin.updateBannerFailed',
+	);
+
+	return useMutation({
+		mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+			adminApi.updateBanner(id, formData),
+		...callbacks,
+	});
+};
+
+export const useReorderBanners = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: (ids: string[]) => adminApi.reorderBanners(ids),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'banners'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.updateBannerFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useDeleteBanner = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.deleteBanner(id),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'banners'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.deleteBannerFailed'), ToastType.ERROR);
+		},
+	});
+};

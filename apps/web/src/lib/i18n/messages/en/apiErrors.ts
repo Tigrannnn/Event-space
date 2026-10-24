@@ -65,6 +65,11 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.EVENT_NOT_FOUND]: 'This event could not be found.',
 	[AppErrorCode.BOOKING_NOT_FOUND]: 'This booking could not be found.',
 	[AppErrorCode.CATEGORY_NOT_FOUND]: 'This category could not be found.',
+	[AppErrorCode.BANNER_NOT_FOUND]: 'This banner could not be found.',
+	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Add a picture for the banner.',
+	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Choose where the banner should lead.',
+	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'The end date cannot be earlier than the start date.',
+	[AppErrorCode.TOO_MANY_ACTIVE_BANNERS]: 'At most {max} banners can be shown at once.',
 	[AppErrorCode.USER_NOT_FOUND]: 'This user could not be found.',
 	[AppErrorCode.CURRENT_USER_NOT_FOUND]: 'Your account could not be found. Please sign in again.',
 

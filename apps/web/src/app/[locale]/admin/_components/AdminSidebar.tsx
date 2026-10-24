@@ -3,7 +3,17 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/utils/cn';
-import { LayoutDashboard, Calendar, Users, LogOut, Ticket, CheckCircle, X, Tag } from 'lucide-react';
+import {
+	LayoutDashboard,
+	Calendar,
+	Users,
+	LogOut,
+	Ticket,
+	CheckCircle,
+	X,
+	Tag,
+	Image as ImageIcon,
+} from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
@@ -23,6 +33,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		{ href: '/admin/dashboard', label: translate('admin.dashboard'), icon: LayoutDashboard },
 		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
 		{ href: '/admin/categories', label: translate('admin.categories'), icon: Tag },
+		{ href: '/admin/banners', label: translate('admin.banners'), icon: ImageIcon },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
 		{ href: '/admin/checkin', label: translate('admin.checkIn'), icon: CheckCircle },
 		{ href: '/admin/users', label: translate('admin.users'), icon: Users },

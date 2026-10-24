@@ -59,6 +59,11 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.EVENT_NOT_FOUND]: 'Это событие не найдено.',
 	[AppErrorCode.BOOKING_NOT_FOUND]: 'Эта бронь не найдена.',
 	[AppErrorCode.CATEGORY_NOT_FOUND]: 'Эта категория не найдена.',
+	[AppErrorCode.BANNER_NOT_FOUND]: 'Этот баннер не найден.',
+	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Добавьте картинку для баннера.',
+	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Выберите, куда ведёт баннер.',
+	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'Дата окончания не может быть раньше даты начала.',
+	[AppErrorCode.TOO_MANY_ACTIVE_BANNERS]: 'Одновременно можно показывать не больше {max} баннеров.',
 	[AppErrorCode.USER_NOT_FOUND]: 'Этот пользователь не найден.',
 	[AppErrorCode.CURRENT_USER_NOT_FOUND]: 'Ваш аккаунт не найден. Войдите снова.',
 

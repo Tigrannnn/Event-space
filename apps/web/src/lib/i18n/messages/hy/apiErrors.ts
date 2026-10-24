@@ -59,6 +59,11 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.EVENT_NOT_FOUND]: 'Այս միջոցառումը չի գտնվել։',
 	[AppErrorCode.BOOKING_NOT_FOUND]: 'Այս ամրագրումը չի գտնվել։',
 	[AppErrorCode.CATEGORY_NOT_FOUND]: 'Այս կատեգորիան չի գտնվել։',
+	[AppErrorCode.BANNER_NOT_FOUND]: 'Այս բանները չի գտնվել։',
+	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Ավելացրեք նկար բանների համար։',
+	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Ընտրեք, թե ուր է տանում բաները։',
+	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'Ավարտի ամսաթիվը չի կարող սկզբից շուտ լինել։',
+	[AppErrorCode.TOO_MANY_ACTIVE_BANNERS]: 'Միաժամանակ կարող է ցուցադրվել առավելագույնը {max} բաններ։',
 	[AppErrorCode.USER_NOT_FOUND]: 'Այս օգտատերը չի գտնվել։',
 	[AppErrorCode.CURRENT_USER_NOT_FOUND]: 'Ձեր հաշիվը չի գտնվել։ Մուտք գործեք նորից։',
 

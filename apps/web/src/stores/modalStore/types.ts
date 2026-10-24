@@ -1,4 +1,5 @@
 import {
+	Banner,
 	Event,
 	Booking,
 	BookingWithDetails,
@@ -41,6 +42,8 @@ export enum ModalType {
 	CreateCategory = 'create-category',
 	UpdateCategory = 'update-category',
 	CategoryDetails = 'category-details',
+	CreateBanner = 'create-banner',
+	UpdateBanner = 'update-banner',
 }
 
 export interface ContactInfoModalData {
@@ -116,6 +119,10 @@ export interface CategoryDetailsModalData {
 	category: Category;
 }
 
+export interface UpdateBannerModalData {
+	banner: Banner;
+}
+
 export interface ModalDataMap {
 	[ModalType.Register]: null;
 	[ModalType.Login]: null;
@@ -140,6 +147,8 @@ export interface ModalDataMap {
 	[ModalType.CreateCategory]: null;
 	[ModalType.UpdateCategory]: UpdateCategoryModalData;
 	[ModalType.CategoryDetails]: CategoryDetailsModalData;
+	[ModalType.CreateBanner]: null;
+	[ModalType.UpdateBanner]: UpdateBannerModalData;
 }
 
 export interface ModalState {

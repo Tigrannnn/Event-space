@@ -15,6 +15,7 @@ import {
 	UpdateCategoryModal,
 	CategoryDetailsModal,
 } from '@/features/admin/categories';
+import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EventDetailsModal from '@/features/admin/events/components/modals/EventDetailsModal';
 import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
@@ -59,6 +60,8 @@ export default function ModalRoot() {
 					{activeModal === ModalType.CreateCategory && <CreateCategoryModal key="create-category" />}
 					{activeModal === ModalType.UpdateCategory && <UpdateCategoryModal key="update-category" />}
 					{activeModal === ModalType.CategoryDetails && <CategoryDetailsModal key="category-details" />}
+					{activeModal === ModalType.CreateBanner && <CreateBannerModal key="create-banner" />}
+					{activeModal === ModalType.UpdateBanner && <UpdateBannerModal key="update-banner" />}
 				</>
 			)}
 		</AnimatePresence>

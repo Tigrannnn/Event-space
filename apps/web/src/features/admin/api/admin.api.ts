@@ -27,6 +27,7 @@ import type {
 	CancellationReasons,
 	BookingCohort,
 	BookingWithDetails,
+	Banner,
 	Category,
 	CreateCategoryData,
 	UpdateCategoryData,
@@ -132,4 +133,19 @@ export const adminApi = {
 		clientApi.patch<Category>(`/admin/categories/${id}`, data).then((res) => res.data),
 	deleteCategory: (id: string) =>
 		clientApi.delete<{ message: string }>(`/admin/categories/${id}`).then((res) => res.data),
+	getBanners: () => clientApi.get<Banner[]>('/banners/admin').then((res) => res.data),
+	createBanner: (formData: FormData) =>
+		clientApi
+			.post<Banner>('/banners', formData, { timeout: EVENT_UPLOAD_TIMEOUTS.CLIENT_MUTATION_MS })
+			.then((res) => res.data),
+	updateBanner: (id: string, formData: FormData) =>
+		clientApi
+			.put<Banner>(`/banners/${id}`, formData, {
+				timeout: EVENT_UPLOAD_TIMEOUTS.CLIENT_MUTATION_MS,
+			})
+			.then((res) => res.data),
+	reorderBanners: (ids: string[]) =>
+		clientApi.patch<Banner[]>('/banners/reorder', { ids }).then((res) => res.data),
+	deleteBanner: (id: string) =>
+		clientApi.delete<{ message: string }>(`/banners/${id}`).then((res) => res.data),
 };
