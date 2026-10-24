@@ -78,7 +78,7 @@ function build(options: {
 describe('reading a client’s bookings', () => {
 	it('estimates the refund from the rules and the real Stripe fee', async () => {
 		const { service } = build({ rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000 }] });
-		const [booking] = await service.findByUser('u1');
+		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking).toMatchObject({
 			amount: 20000,
@@ -92,7 +92,7 @@ describe('reading a client’s bookings', () => {
 		const { service } = build({
 			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, hoursAhead: 30 }],
 		});
-		const [booking] = await service.findByUser('u1');
+		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking).toMatchObject({ refundPercentage: 50, estimatedRefundInCents: 910000 });
 	});
@@ -102,7 +102,7 @@ describe('reading a client’s bookings', () => {
 			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000 }],
 			stripeFails: true,
 		});
-		const [booking] = await service.findByUser('u1');
+		const [booking] = (await service.findByUser('u1')).data;
 		const estimated = estimateStripeFeeInCents(20000);
 
 		expect(booking.estimatedStripeFeeInCents).toBe(estimated);
@@ -114,14 +114,14 @@ describe('reading a client’s bookings', () => {
 			rows: [{ id: 'b1', paymentIntentId: 'pi_1', amount: 20000, hoursAhead: 30 }],
 			fee: 5000000,
 		});
-		const [booking] = await service.findByUser('u1');
+		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking.estimatedRefundInCents).toBe(0);
 	});
 
 	it('shows zeros for a booking nobody paid for', async () => {
 		const { service } = build({ rows: [{ id: 'b1', paymentIntentId: null, amount: 20000 }] });
-		const [booking] = await service.findByUser('u1');
+		const [booking] = (await service.findByUser('u1')).data;
 
 		expect(booking).toMatchObject({
 			refundPercentage: 0,

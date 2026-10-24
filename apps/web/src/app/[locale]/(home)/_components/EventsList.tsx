@@ -6,7 +6,7 @@ import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
 import { useEvents } from '@/features/events';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
-import LoadMoreTrigger from './LoadMoreTrigger';
+import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import type { Event } from '@event-space/shared';
 import HomeError from '../error';
 import PageState from '@/components/ui/PageState';

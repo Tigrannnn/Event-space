@@ -15,7 +15,7 @@ import {
 	getUpcomingEventOccurrences,
 } from '@event-space/shared';
 import { useCurrentUser } from '@/features/users';
-import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
@@ -55,19 +55,10 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const isSoldOut = maxParticipants > 0 && currentParticipants >= maxParticipants;
 
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
+	const { hasBooking: isOccurrenceBooked, isLoading: isMyBookingsLoading } =
+		useHasBookingForOccurrence();
 
-	const hasBooking = useMemo(() => {
-		if (!selectedOccurrence?.id || !myBookings?.length) return false;
-
-		return myBookings.some((booking) => {
-			const status = booking.status?.toUpperCase();
-			if (status !== 'CONFIRMED') return false;
-
-			const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
-			return bookingOccurrenceId === selectedOccurrence.id;
-		});
-	}, [myBookings, selectedOccurrence?.id]);
+	const hasBooking = isOccurrenceBooked(selectedOccurrence?.id);
 
 	useEffect(() => {
 		if (!upcomingOccurrences.length) {

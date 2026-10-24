@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
 	ApiTags,
@@ -7,6 +7,7 @@ import {
 	ApiParam,
 	ApiResponse,
 	ApiBody,
+	ApiQuery,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import {
@@ -15,16 +16,18 @@ import {
 	GetCurrentUserId,
 	GetLocale,
 	ZodValidationPipe,
+	parseOptionalQueryInt,
 } from '@shared';
 import {
 	AppErrorCode,
+	BookingDisplayStatusEnum,
 	ChangeQuantitySchema,
 	CreateBookingSchema,
 	QuantityQuoteRequestSchema,
 } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type {
-	BookingWithEstimate,
+	BookingDisplayStatus,
 	ChangeQuantityData,
 	CreateBookingData,
 	QuantityQuoteRequest,
@@ -32,6 +35,13 @@ import type {
 import type { Locale } from '@prisma/client';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
+
+/** An unknown status is dropped rather than refused: the list simply comes back unfiltered. */
+function parseBookingDisplayStatus(value?: string): BookingDisplayStatus | undefined {
+	return value && BookingDisplayStatusEnum.options.includes(value as BookingDisplayStatus)
+		? (value as BookingDisplayStatus)
+		: undefined;
+}
 
 @ApiTags('bookings')
 @Controller('bookings')
@@ -72,10 +82,30 @@ export class BookingController {
 	@Get('my')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)
-	@ApiOperation({ summary: 'Get my bookings' })
-	@ApiResponse({ status: 200, description: 'List of user bookings with refund estimates' })
-	async findMy(@GetCurrentUserId() userId: string): Promise<BookingWithEstimate[]> {
-		return this.bookingService.findByUser(userId);
+	@ApiOperation({ summary: 'Get a page of my bookings, newest first' })
+	@ApiQuery({ name: 'cursor', required: false, description: 'nextCursor of the previous page' })
+	@ApiQuery({ name: 'limit', required: false, type: Number })
+	@ApiQuery({ name: 'status', required: false, enum: BookingDisplayStatusEnum.options })
+	async findMy(
+		@GetCurrentUserId() userId: string,
+		@Query('cursor') cursor?: string,
+		@Query('limit') limit?: string,
+		@Query('status') status?: string,
+	) {
+		return this.bookingService.findByUser(userId, {
+			cursor,
+			limit: parseOptionalQueryInt(limit, 'limit'),
+			status: parseBookingDisplayStatus(status),
+		});
+	}
+
+	@Get('my/summary')
+	@ApiBearerAuth()
+	@UseGuards(AccessTokenGuard)
+	@ApiOperation({ summary: 'Counters the site needs on every page' })
+	@ApiResponse({ status: 200, description: 'Active booking count and the dates already held' })
+	async myBookingsSummary(@GetCurrentUserId() userId: string) {
+		return this.bookingService.summaryForUser(userId);
 	}
 
 	@Get(':id')

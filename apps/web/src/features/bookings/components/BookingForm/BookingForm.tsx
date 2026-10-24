@@ -12,7 +12,7 @@ import { useTranslation } from '@/hooks/translation';
 import { getEventTranslation, PhoneSchema, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
-import { useGetMyBookings } from '../../hooks/useBookings';
+import { useHasBookingForOccurrence } from '../../hooks/useBookings';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 import { VerticalScroll } from '@/components/ui/VerticalScroll';
 
@@ -36,7 +36,7 @@ export default function BookingForm({
 	const [phoneError, setPhoneError] = useState('');
 	const formatCurrency = useFormatCurrency();
 	const { formatDateTime } = useFormatDate();
-	const { data: myBookings } = useGetMyBookings();
+	const { hasBooking: isOccurrenceBooked } = useHasBookingForOccurrence();
 
 	// Filter and sort future occurrences
 	const now = new Date();
@@ -109,13 +109,7 @@ export default function BookingForm({
 							const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;
 							const isSoldOut = spotsLeft <= 0;
 							const isSelected = selectedOccurrence?.id === occurrence.id;
-							const hasBooking = myBookings?.some((booking) => {
-								const status = booking.status?.toUpperCase();
-								if (status !== 'CONFIRMED') return false;
-
-								const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
-								return Boolean(bookingOccurrenceId && bookingOccurrenceId === occurrence.id);
-							});
+							const hasBooking = isOccurrenceBooked(occurrence.id);
 
 							return (
 								<button

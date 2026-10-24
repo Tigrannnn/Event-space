@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { useGetMyBookings } from '../../../features/bookings/hooks/useBookings';
+import { useMyBookings } from '../../../features/bookings/hooks/useBookings';
 import BookingCard from '../../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import Button from '@/components/ui/Buttons/Button';
@@ -11,7 +11,9 @@ import { CalendarX, Filter } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { getBookingDisplayStatus, type BookingDisplayStatus } from '@event-space/shared';
+import { type BookingDisplayStatus } from '@event-space/shared';
+import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
+import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
 
 type StatusFilter = 'ALL' | BookingDisplayStatus;
 
@@ -22,14 +24,25 @@ export default function BookingsPageContent() {
 	const { addToast } = useToastStore();
 	const { locale } = useTranslation();
 	const navigation = useLocalizedNavigation();
-	const { data: bookings, isLoading } = useGetMyBookings();
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('CONFIRMED');
+	const {
+		data,
+		isLoading,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useMyBookings(statusFilter === 'ALL' ? undefined : statusFilter);
 
-	const filteredBookings = useMemo(() => {
-		if (!bookings?.length) return [];
-		if (statusFilter === 'ALL') return bookings;
-		return bookings.filter((booking) => getBookingDisplayStatus(booking) === statusFilter);
-	}, [bookings, statusFilter]);
+	const bookings = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+	const loadMoreRef = useIntersectionObserver(
+		useCallback(() => {
+			if (hasNextPage && !isFetchingNextPage) {
+				void fetchNextPage();
+			}
+		}, [hasNextPage, isFetchingNextPage, fetchNextPage]),
+		{ enabled: hasNextPage && !isFetchingNextPage, rootMargin: '200px' },
+	);
 
 	useEffect(() => {
 		const paymentStatus = searchParams.get('payment');
@@ -47,7 +60,10 @@ export default function BookingsPageContent() {
 		return <BookingsSkeleton />;
 	}
 
-	if (!bookings || bookings.length === 0) {
+	// The empty state speaks for the whole account, so it may only replace the page when nothing
+	// is filtered out — otherwise "you have no bookings" would greet someone whose bookings are
+	// simply all cancelled.
+	if (bookings.length === 0 && statusFilter === 'ALL') {
 		return (
 			<div className="flex flex-1 flex-col items-center justify-center px-4">
 				<div className="bg-primary/10 dark:bg-primary/20 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
@@ -88,15 +104,21 @@ export default function BookingsPageContent() {
 				</div>
 			</div>
 
-			{filteredBookings.length === 0 ? (
+			{bookings.length === 0 ? (
 				<div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/70 dark:text-gray-400">
 					{translate('booking.noBookingsMatchFilter')}
 				</div>
 			) : (
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{filteredBookings.map((booking) => (
+					{bookings.map((booking) => (
 						<BookingCard key={booking.id} booking={booking} />
 					))}
+
+					<LoadMoreTrigger
+						isLoading={isFetchingNextPage}
+						isEnabled={hasNextPage}
+						loadMoreRef={loadMoreRef}
+					/>
 				</div>
 			)}
 		</div>

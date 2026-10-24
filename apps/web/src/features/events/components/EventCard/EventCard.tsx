@@ -23,7 +23,7 @@ export interface EventCardProps {
 }
 
 import { useCurrentUser } from '@/features/users';
-import { useGetMyBookings } from '@/features/bookings/hooks/useBookings';
+import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { BookOpen, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -37,7 +37,8 @@ export default function EventCard({ event }: EventCardProps) {
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { data: myBookings, isLoading: isMyBookingsLoading } = useGetMyBookings();
+	const { hasBooking: isOccurrenceBooked, isLoading: isMyBookingsLoading } =
+		useHasBookingForOccurrence();
 
 	const eventIsAvailable = isEventAvailable(event);
 	const eventTranslation = getEventTranslation(event, locale);
@@ -49,19 +50,9 @@ export default function EventCard({ event }: EventCardProps) {
 		? `${formatDateTime(firstOccurrenceDate ?? '')}${additionalOccurrencesCount > 0 ? ` ${translate('event.moreDates').replace('{count}', String(additionalOccurrencesCount))}` : ''}`
 		: '';
 
-	const hasBooking = React.useMemo(() => {
-		if (!myBookings?.length) return false;
-
-		const occurrenceIds = new Set((event.occurrences ?? []).map((occurrence) => occurrence.id));
-
-		return myBookings.some((booking) => {
-			const status = booking.status?.toUpperCase();
-			if (status !== 'CONFIRMED') return false;
-
-			const bookingOccurrenceId = booking.occurrenceId ?? booking.occurrence?.id;
-			return Boolean(bookingOccurrenceId && occurrenceIds.has(bookingOccurrenceId));
-		});
-	}, [event.occurrences, myBookings]);
+	const hasBooking = (event.occurrences ?? []).some((occurrence) =>
+		isOccurrenceBooked(occurrence.id),
+	);
 
 	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();

@@ -7,6 +7,7 @@ import type {
 	TimeFilterType,
 } from '@event-space/shared';
 import { buildDayRangeFilter } from '../common/query-helpers';
+import { bookingDisplayStatusWhere } from '@modules/booking/my-bookings-filters';
 
 export interface BookingFilters {
 	search?: string;
@@ -21,20 +22,6 @@ export interface BookingFilters {
 	tourTo?: string;
 	paymentMethod?: PaymentMethod;
 	createdBy?: BookingAuthor;
-}
-
-/** The columns a display status stands for — see BookingDisplayStatusEnum. */
-export function bookingDisplayStatusWhere(status?: BookingDisplayStatus): Prisma.BookingWhereInput {
-	switch (status) {
-		case undefined:
-			return {};
-		case 'CHECKED_IN':
-			return { status: 'CONFIRMED', checkedInAt: { not: null } };
-		case 'CONFIRMED':
-			return { status: 'CONFIRMED', checkedInAt: null };
-		default:
-			return { status };
-	}
 }
 
 export function buildBookingsWhere(filters: BookingFilters, now: Date) {

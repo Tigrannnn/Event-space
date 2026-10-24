@@ -14,3 +14,6 @@ export const BOOKING_CONFIG = {
 		CANCEL_WINDOW_SEC: 3600,
 	},
 } as const;
+
+/** Page size for the visitor's own booking list (infinite scroll). */
+export const MY_BOOKINGS_PAGE_SIZE = 12;

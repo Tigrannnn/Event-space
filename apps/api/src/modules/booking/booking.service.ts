@@ -3,6 +3,9 @@ import { type Locale } from '@prisma/client';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	BookingWithEstimate,
+	type BookingDisplayStatus,
+	type MyBookingsSummary,
+	type PaginatedCursorResponse,
 	ChangeQuantityData,
 	ConfirmBookingManuallyData,
 	CreateBookingData,
@@ -77,8 +80,15 @@ export class BookingService {
 		return this.payments.reconcilePayment(paymentIntentId, bookingIdHint, locale);
 	}
 
-	findByUser(userId: string): Promise<BookingWithEstimate[]> {
-		return this.queries.findByUser(userId);
+	findByUser(
+		userId: string,
+		params?: { cursor?: string; limit?: number; status?: BookingDisplayStatus },
+	): Promise<PaginatedCursorResponse<BookingWithEstimate>> {
+		return this.queries.findByUser(userId, params);
+	}
+
+	summaryForUser(userId: string): Promise<MyBookingsSummary> {
+		return this.queries.summaryForUser(userId);
 	}
 
 	findOneForUser(userId: string, bookingId: string) {

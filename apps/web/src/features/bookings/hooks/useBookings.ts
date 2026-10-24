@@ -1,8 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { bookingApi } from '../api/bookings.api';
 import {
-	getBookingDisplayStatus,
-	type BookingWithEstimate,
+	type BookingDisplayStatus,
 	ChangeQuantityData,
 	CreateBookingData,
 } from '@event-space/shared';
@@ -11,42 +10,52 @@ import { useModalStore } from '@/stores';
 import { useApiError } from '@/hooks/apiError';
 import { useTranslation } from '@/hooks/translation';
 
-export const useGetMyBookings = () => {
-	return useQuery({
-		queryKey: ['my-bookings'],
-		queryFn: () => bookingApi.getMyBookings(),
+/**
+ * The visitor's bookings, a page at a time.
+ *
+ * The status filter is a query parameter rather than a `.filter()` over what arrived: filtering
+ * a loaded page would leave the list empty whenever the first page happens to hold none of the
+ * chosen status, while later pages still have plenty.
+ */
+export const useMyBookings = (status?: BookingDisplayStatus) => {
+	return useInfiniteQuery({
+		queryKey: ['my-bookings', 'list', status ?? 'ALL'],
+		queryFn: ({ pageParam }) => bookingApi.getMyBookings({ cursor: pageParam, status }),
+		initialPageParam: undefined as string | undefined,
+		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
 	});
 };
 
-const MINUTE_MS = 60 * 1000;
-
 /**
- * Bookings still to be attended: paid, not checked in yet, and the tour has not finished.
+ * The cheap counters every page needs: the header badge and the dates already booked.
  *
- * The badge in the header used to count every CONFIRMED booking, which also holds the ones
- * already attended and the ones whose tour is long over — so it never matched the list.
+ * Kept apart from the list because the list pays two Stripe calls per booking to work out a
+ * refund estimate, and nothing outside the bookings page has any use for that.
  */
-export function countActiveBookings(
-	bookings: Pick<BookingWithEstimate, 'status' | 'checkedInAt' | 'occurrence'>[],
-	now: number = Date.now(),
-): number {
-	return bookings.filter((booking) => {
-		if (getBookingDisplayStatus(booking) !== 'CONFIRMED') return false;
-		if (!booking.occurrence) return true;
-
-		const durationMs = (booking.occurrence.event?.duration ?? 0) * MINUTE_MS;
-		return new Date(booking.occurrence.date).getTime() + durationMs > now;
-	}).length;
-}
+export const useMyBookingsSummary = () => {
+	return useQuery({
+		queryKey: ['my-bookings', 'summary'],
+		queryFn: () => bookingApi.getMyBookingsSummary(),
+		staleTime: 60 * 1000,
+	});
+};
 
 export const useActiveBookingsCount = () => {
-	const { data } = useQuery({
-		queryKey: ['my-bookings'],
-		queryFn: () => bookingApi.getMyBookings(),
-		select: (bookings) => countActiveBookings(bookings),
-	});
+	const { data } = useMyBookingsSummary();
 
-	return data ?? 0;
+	return data?.activeCount ?? 0;
+};
+
+/** Whether the visitor already holds a confirmed booking for this date. */
+export const useHasBookingForOccurrence = () => {
+	const { data, isLoading } = useMyBookingsSummary();
+	const booked = data?.confirmedOccurrenceIds;
+
+	return {
+		isLoading,
+		hasBooking: (occurrenceId?: string | null) =>
+			Boolean(occurrenceId && booked?.includes(occurrenceId)),
+	};
 };
 
 export const useCreateBooking = () => {

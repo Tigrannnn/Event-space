@@ -1,10 +1,24 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { AppErrorCode, BookingWithEstimate, estimateStripeFeeInCents } from '@event-space/shared';
+import {
+	AppErrorCode,
+	BookingWithEstimate,
+	countActiveBookings,
+	estimateStripeFeeInCents,
+	MY_BOOKINGS_PAGE_SIZE,
+	type BookingDisplayStatus,
+	type MyBookingsSummary,
+	type PaginatedCursorResponse,
+} from '@event-space/shared';
 import { AppException } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { StripeBalanceTransaction } from '@infra/stripe/stripe.types';
 import { resolveRefundPolicy, mapOccurrenceForBookingResponse } from '../booking.utils';
+import {
+	encodeBookingCursor,
+	myBookingsWhere,
+	MY_BOOKINGS_ORDER,
+} from '../my-bookings-filters';
 
 @Injectable()
 export class BookingQueryService {
@@ -15,9 +29,14 @@ export class BookingQueryService {
 		private readonly stripe: StripeService,
 	) {}
 
-	async findByUser(userId: string): Promise<BookingWithEstimate[]> {
-		const bookings = await this.prisma.booking.findMany({
-			where: { userId },
+	async findByUser(
+		userId: string,
+		params: { cursor?: string; limit?: number; status?: BookingDisplayStatus } = {},
+	): Promise<PaginatedCursorResponse<BookingWithEstimate>> {
+		const limit = Math.min(Math.max(params.limit ?? MY_BOOKINGS_PAGE_SIZE, 1), 50);
+
+		const rows = await this.prisma.booking.findMany({
+			where: myBookingsWhere({ userId, status: params.status, cursor: params.cursor }),
 			include: {
 				occurrence: {
 					include: {
@@ -48,8 +67,13 @@ export class BookingQueryService {
 					},
 				},
 			},
-			orderBy: { updatedAt: 'desc' },
+			take: limit + 1,
+			orderBy: MY_BOOKINGS_ORDER,
 		});
+
+		const hasMore = rows.length > limit;
+		const bookings = hasMore ? rows.slice(0, limit) : rows;
+		const last = bookings[bookings.length - 1];
 
 		const now = new Date();
 		const enrichedBookings = await Promise.all(
@@ -109,7 +133,36 @@ export class BookingQueryService {
 			}),
 		);
 
-		return enrichedBookings;
+		return {
+			data: enrichedBookings,
+			nextCursor: hasMore && last ? encodeBookingCursor(last) : null,
+			hasMore,
+		};
+	}
+
+	/**
+	 * The two things every page of the site asks about the visitor's bookings: how many are
+	 * still ahead of them, and which dates they already hold.
+	 *
+	 * A separate query on purpose. The list above costs two Stripe calls per booking to work
+	 * out what a refund would be, and the header badge has no use for that — before this, every
+	 * page load paid for it.
+	 */
+	async summaryForUser(userId: string): Promise<MyBookingsSummary> {
+		const bookings = await this.prisma.booking.findMany({
+			where: { userId, status: 'CONFIRMED' },
+			select: {
+				occurrenceId: true,
+				status: true,
+				checkedInAt: true,
+				occurrence: { select: { date: true, event: { select: { duration: true } } } },
+			},
+		});
+
+		return {
+			activeCount: countActiveBookings(bookings, Date.now()),
+			confirmedOccurrenceIds: bookings.map((booking) => booking.occurrenceId),
+		};
 	}
 
 	async acceptReschedule(userId: string, bookingId: string) {

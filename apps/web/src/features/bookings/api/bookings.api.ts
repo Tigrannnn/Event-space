@@ -11,13 +11,29 @@ import type {
 	StartQuantityPayment,
 	BookingWithOccurrence,
 	BookingWithEstimate,
+	BookingDisplayStatus,
+	MyBookingsSummary,
+	PaginatedCursorResponse,
 } from '@event-space/shared';
+import { MY_BOOKINGS_PAGE_SIZE } from '@event-space/shared';
+
+export type MyBookingsPage = PaginatedCursorResponse<BookingWithEstimate>;
 
 export const bookingApi = {
 	createBooking: (data: CreateBookingData) =>
 		clientApi.post<CreateBookingResponse>('/bookings', data).then((res) => res.data),
 
-	getMyBookings: () => clientApi.get<BookingWithEstimate[]>('/bookings/my').then((res) => res.data),
+	getMyBookings: ({
+		cursor,
+		limit = MY_BOOKINGS_PAGE_SIZE,
+		status,
+	}: { cursor?: string; limit?: number; status?: BookingDisplayStatus } = {}) =>
+		clientApi
+			.get<MyBookingsPage>('/bookings/my', { params: { cursor, limit, status } })
+			.then((res) => res.data),
+
+	getMyBookingsSummary: () =>
+		clientApi.get<MyBookingsSummary>('/bookings/my/summary').then((res) => res.data),
 
 	getBooking: (id: string) => clientApi.get<Booking>(`/bookings/${id}`).then((res) => res.data),
 
