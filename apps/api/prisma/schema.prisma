@@ -7,7 +7,7 @@ generator zod {
   output                = "../../../packages/shared/src/generated"
   useMultipleFiles      = true
   writeBarrelFiles      = true
-  createInputTypes      = true
+  createInputTypes      = false
   createModelTypes      = true
   addSelectQueries      = false
   addIncludeQueries     = false
