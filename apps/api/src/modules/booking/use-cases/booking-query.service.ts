@@ -132,9 +132,9 @@ export class BookingQueryService {
 	 * The two things every page of the site asks about the visitor's bookings: how many are
 	 * still ahead of them, and which dates they already hold.
 	 *
-	 * A separate query on purpose. The list above costs two Stripe calls per booking to work
-	 * out what a refund would be, and the header badge has no use for that — before this, every
-	 * page load paid for it.
+	 * A separate query on purpose. The list above drags in the event, its pictures, its
+	 * translations and the ledger to work out a refund estimate, and the header badge has no
+	 * use for any of it — before this, every page of the site pulled the lot.
 	 */
 	async summaryForUser(userId: string): Promise<MyBookingsSummary> {
 		const bookings = await this.prisma.booking.findMany({
