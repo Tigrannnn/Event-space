@@ -12,8 +12,6 @@ export const BannerCreateWithoutEventInputSchema: z.ZodType<Prisma.BannerCreateW
   id: z.uuid().optional(),
   imageUrl: z.string(),
   imagePublicId: z.string(),
-  imageMobileUrl: z.string().optional().nullable(),
-  imageMobilePublicId: z.string().optional().nullable(),
   status: z.lazy(() => BannerStatusSchema).optional(),
   sortOrder: z.number().int().optional(),
   startsAt: z.coerce.date().optional().nullable(),

@@ -35,7 +35,6 @@ export const BannerFormSchema = z
 		textAlign: BannerTextAlignEnum,
 		theme: BannerThemeEnum,
 		image: BannerFormImageSchema.nullable(),
-		imageMobile: BannerFormImageSchema.nullable(),
 		translations: z
 			.array(BannerFormTranslationSchema)
 			.min(1, 'admin.validation.translationRequired'),

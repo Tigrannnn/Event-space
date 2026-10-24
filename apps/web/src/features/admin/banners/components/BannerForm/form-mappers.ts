@@ -14,7 +14,6 @@ export function mapBannerToFormValues(banner?: Banner): BannerFormValues {
 		textAlign: banner?.textAlign ?? 'LEFT',
 		theme: banner?.theme ?? 'DARK',
 		image: banner ? { kind: 'existing', url: banner.imageUrl } : null,
-		imageMobile: banner?.imageMobileUrl ? { kind: 'existing', url: banner.imageMobileUrl } : null,
 		translations: (banner?.translations ?? []).map((translation) => ({
 			locale: translation.locale,
 			title: translation.title,
@@ -53,9 +52,6 @@ function appendFiles(formData: FormData, values: BannerFormValues): void {
 		formData.append('image', values.image.file);
 	}
 
-	if (values.imageMobile?.kind === 'file') {
-		formData.append('imageMobile', values.imageMobile.file);
-	}
 }
 
 export function buildCreateBannerFormData(values: BannerFormValues): FormData {
@@ -66,15 +62,9 @@ export function buildCreateBannerFormData(values: BannerFormValues): FormData {
 	return formData;
 }
 
-export function buildUpdateBannerFormData(values: BannerFormValues, banner: Banner): FormData {
+export function buildUpdateBannerFormData(values: BannerFormValues): FormData {
 	const formData = new FormData();
-	formData.append(
-		'payload',
-		JSON.stringify({
-			...buildPayload(values),
-			removeMobileImage: Boolean(banner.imageMobileUrl) && values.imageMobile === null,
-		}),
-	);
+	formData.append('payload', JSON.stringify(buildPayload(values)));
 	appendFiles(formData, values);
 
 	return formData;

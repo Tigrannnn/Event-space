@@ -1,9 +1,6 @@
 /** Maximum size per banner image file (5 MiB). */
 export const MAX_BANNER_IMAGE_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
-/** Desktop + mobile picture per banner. */
-export const MAX_BANNER_IMAGE_FILES = 2;
-
 /** JSON `payload` field + multipart boundaries (512 KiB). */
 export const MAX_BANNER_MULTIPART_PAYLOAD_OVERHEAD_BYTES = 512 * 1024;
 

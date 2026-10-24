@@ -2,13 +2,13 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { StringWithAggregatesFilterSchema } from './StringWithAggregatesFilterSchema';
-import { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAggregatesFilterSchema';
 import { EnumBannerStatusWithAggregatesFilterSchema } from './EnumBannerStatusWithAggregatesFilterSchema';
 import { BannerStatusSchema } from './BannerStatusSchema';
 import { IntWithAggregatesFilterSchema } from './IntWithAggregatesFilterSchema';
 import { DateTimeNullableWithAggregatesFilterSchema } from './DateTimeNullableWithAggregatesFilterSchema';
 import { EnumBannerTargetTypeWithAggregatesFilterSchema } from './EnumBannerTargetTypeWithAggregatesFilterSchema';
 import { BannerTargetTypeSchema } from './BannerTargetTypeSchema';
+import { StringNullableWithAggregatesFilterSchema } from './StringNullableWithAggregatesFilterSchema';
 import { EnumBannerTextAlignWithAggregatesFilterSchema } from './EnumBannerTextAlignWithAggregatesFilterSchema';
 import { BannerTextAlignSchema } from './BannerTextAlignSchema';
 import { EnumBannerThemeWithAggregatesFilterSchema } from './EnumBannerThemeWithAggregatesFilterSchema';
@@ -22,8 +22,6 @@ export const BannerScalarWhereWithAggregatesInputSchema: z.ZodType<Prisma.Banner
   id: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
   imagePublicId: z.union([ z.lazy(() => StringWithAggregatesFilterSchema), z.string() ]).optional(),
-  imageMobileUrl: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
-  imageMobilePublicId: z.union([ z.lazy(() => StringNullableWithAggregatesFilterSchema), z.string() ]).optional().nullable(),
   status: z.union([ z.lazy(() => EnumBannerStatusWithAggregatesFilterSchema), z.lazy(() => BannerStatusSchema) ]).optional(),
   sortOrder: z.union([ z.lazy(() => IntWithAggregatesFilterSchema), z.number() ]).optional(),
   startsAt: z.union([ z.lazy(() => DateTimeNullableWithAggregatesFilterSchema), z.coerce.date() ]).optional().nullable(),

@@ -307,8 +307,6 @@ export const admin: Messages['admin'] = {
 	bannerUntitled: 'Баннер без заголовка',
 	bannerImage: 'Картинка',
 	bannerImageHint: 'Широкая картинка от 1600 px. Пусть сторона под текстом будет поспокойнее.',
-	bannerMobileImage: 'Картинка для телефона',
-	bannerMobileImageHint: 'Необязательно. Без неё на телефоне обрежется широкая.',
 	bannerRemoveImage: 'Убрать картинку',
 	bannerTitle: 'Заголовок',
 	bannerSubtitle: 'Подзаголовок',

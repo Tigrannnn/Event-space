@@ -14,8 +14,6 @@ export const BannerSelectSchema: z.ZodType<Prisma.BannerSelect> = z.object({
   id: z.boolean().optional(),
   imageUrl: z.boolean().optional(),
   imagePublicId: z.boolean().optional(),
-  imageMobileUrl: z.boolean().optional(),
-  imageMobilePublicId: z.boolean().optional(),
   status: z.boolean().optional(),
   sortOrder: z.boolean().optional(),
   startsAt: z.boolean().optional(),

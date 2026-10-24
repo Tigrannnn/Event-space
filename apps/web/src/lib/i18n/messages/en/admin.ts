@@ -305,8 +305,6 @@ export const admin = {
 	bannerUntitled: 'Untitled banner',
 	bannerImage: 'Picture',
 	bannerImageHint: 'Wide picture, 1600 px or more. Keep the busy half away from the text.',
-	bannerMobileImage: 'Phone picture',
-	bannerMobileImageHint: 'Optional. Without it, the wide picture is cropped on phones.',
 	bannerRemoveImage: 'Remove picture',
 	bannerTitle: 'Headline',
 	bannerSubtitle: 'Subtitle',

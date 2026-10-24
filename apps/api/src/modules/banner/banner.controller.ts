@@ -35,10 +35,7 @@ import {
 	type MultipartBannerFiles,
 } from './banner-multipart.mapper';
 
-const BANNER_IMAGE_FIELDS = [
-	{ name: 'image', maxCount: 1 },
-	{ name: 'imageMobile', maxCount: 1 },
-];
+const BANNER_IMAGE_FIELDS = [{ name: 'image', maxCount: 1 }];
 
 const MULTIPART_BODY = {
 	schema: {
@@ -49,8 +46,7 @@ const MULTIPART_BODY = {
 				type: 'string',
 				description: 'JSON: banner fields + translations[]',
 			},
-			image: { type: 'string', format: 'binary', description: 'Desktop picture' },
-			imageMobile: { type: 'string', format: 'binary', description: 'Optional phone picture' },
+			image: { type: 'string', format: 'binary', description: 'The banner picture' },
 		},
 	},
 };

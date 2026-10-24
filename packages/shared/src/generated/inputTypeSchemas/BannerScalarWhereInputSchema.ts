@@ -2,13 +2,13 @@ import type { Prisma } from '@prisma/client';
 
 import { z } from 'zod';
 import { StringFilterSchema } from './StringFilterSchema';
-import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumBannerStatusFilterSchema } from './EnumBannerStatusFilterSchema';
 import { BannerStatusSchema } from './BannerStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 import { EnumBannerTargetTypeFilterSchema } from './EnumBannerTargetTypeFilterSchema';
 import { BannerTargetTypeSchema } from './BannerTargetTypeSchema';
+import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumBannerTextAlignFilterSchema } from './EnumBannerTextAlignFilterSchema';
 import { BannerTextAlignSchema } from './BannerTextAlignSchema';
 import { EnumBannerThemeFilterSchema } from './EnumBannerThemeFilterSchema';
@@ -22,8 +22,6 @@ export const BannerScalarWhereInputSchema: z.ZodType<Prisma.BannerScalarWhereInp
   id: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
   imagePublicId: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  imageMobileUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
-  imageMobilePublicId: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   status: z.union([ z.lazy(() => EnumBannerStatusFilterSchema), z.lazy(() => BannerStatusSchema) ]).optional(),
   sortOrder: z.union([ z.lazy(() => IntFilterSchema), z.number() ]).optional(),
   startsAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),

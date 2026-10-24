@@ -13,8 +13,6 @@ export const BannerOrderByWithAggregationInputSchema: z.ZodType<Prisma.BannerOrd
   id: z.lazy(() => SortOrderSchema).optional(),
   imageUrl: z.lazy(() => SortOrderSchema).optional(),
   imagePublicId: z.lazy(() => SortOrderSchema).optional(),
-  imageMobileUrl: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
-  imageMobilePublicId: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),
   status: z.lazy(() => SortOrderSchema).optional(),
   sortOrder: z.lazy(() => SortOrderSchema).optional(),
   startsAt: z.union([ z.lazy(() => SortOrderSchema), z.lazy(() => SortOrderInputSchema) ]).optional(),

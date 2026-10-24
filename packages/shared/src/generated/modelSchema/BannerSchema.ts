@@ -16,8 +16,6 @@ export const BannerSchema = z.object({
   id: z.uuid(),
   imageUrl: z.string(),
   imagePublicId: z.string(),
-  imageMobileUrl: z.string().nullable(),
-  imageMobilePublicId: z.string().nullable(),
   sortOrder: z.number().int(),
   startsAt: z.coerce.date().nullable(),
   endsAt: z.coerce.date().nullable(),

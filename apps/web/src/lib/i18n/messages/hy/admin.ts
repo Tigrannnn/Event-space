@@ -307,8 +307,6 @@ export const admin: Messages['admin'] = {
 	bannerUntitled: 'Առանց վերնագրի բաններ',
 	bannerImage: 'Նկար',
 	bannerImageHint: 'Լայն նկար՝ 1600 px-ից։ Տեքստի կողմը թող ավելի հանգիստ լինի։',
-	bannerMobileImage: 'Նկար հեռախոսի համար',
-	bannerMobileImageHint: 'Ըստ ցանկության։ Առանց դրա հեռախոսում կկտրվի լայն նկարը։',
 	bannerRemoveImage: 'Հեռացնել նկարը',
 	bannerTitle: 'Վերնագիր',
 	bannerSubtitle: 'Ենթավերնագիր',

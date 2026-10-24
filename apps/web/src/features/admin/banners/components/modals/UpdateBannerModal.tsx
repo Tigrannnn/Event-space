@@ -36,7 +36,7 @@ export default function UpdateBannerModal() {
 				submitLabel={isPending ? translate('admin.saving') : translate('admin.updateBanner')}
 				onCancel={closeModal}
 				onSubmit={(values: BannerFormValues) =>
-					updateBanner({ id: banner.id, formData: buildUpdateBannerFormData(values, banner) })
+					updateBanner({ id: banner.id, formData: buildUpdateBannerFormData(values) })
 				}
 			/>
 		</Modal>

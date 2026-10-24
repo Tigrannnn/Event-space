@@ -77,39 +77,21 @@ export default function BannerForm({
 				onClose={onCancel}
 			/>
 
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-				<Controller
-					control={control}
-					name="image"
-					render={({ field }) => (
-						<BannerImageField
-							label={translate('admin.bannerImage')}
-							hint={translate('admin.bannerImageHint')}
-							removeLabel={translate('admin.bannerRemoveImage')}
-							value={field.value}
-							onChange={field.onChange}
-							aspectClassName="aspect-16/5"
-							disabled={isPending}
-						/>
-					)}
-				/>
-
-				<Controller
-					control={control}
-					name="imageMobile"
-					render={({ field }) => (
-						<BannerImageField
-							label={translate('admin.bannerMobileImage')}
-							hint={translate('admin.bannerMobileImageHint')}
-							removeLabel={translate('admin.bannerRemoveImage')}
-							value={field.value}
-							onChange={field.onChange}
-							aspectClassName="aspect-16/9"
-							disabled={isPending}
-						/>
-					)}
-				/>
-			</div>
+			<Controller
+				control={control}
+				name="image"
+				render={({ field }) => (
+					<BannerImageField
+						label={translate('admin.bannerImage')}
+						hint={translate('admin.bannerImageHint')}
+						removeLabel={translate('admin.bannerRemoveImage')}
+						value={field.value}
+						onChange={field.onChange}
+						aspectClassName="aspect-16/5"
+						disabled={isPending}
+					/>
+				)}
+			/>
 			{errors.image && <p className="text-xs text-red-500">{errorText(errors.image.message)}</p>}
 
 			<div className="space-y-3">

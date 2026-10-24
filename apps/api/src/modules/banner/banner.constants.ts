@@ -1,17 +1,16 @@
 import { Prisma } from '@prisma/client';
 import {
 	MAX_BANNER_IMAGE_FILE_SIZE_BYTES,
-	MAX_BANNER_IMAGE_FILES,
 	MAX_BANNER_MULTIPART_PAYLOAD_OVERHEAD_BYTES,
 } from '@event-space/shared';
 
 export const bannerImageUploadOptions = {
 	limits: {
 		fileSize: MAX_BANNER_IMAGE_FILE_SIZE_BYTES,
-		files: MAX_BANNER_IMAGE_FILES,
+		files: 1,
 		fieldSize: MAX_BANNER_MULTIPART_PAYLOAD_OVERHEAD_BYTES,
 		fields: 4,
-		parts: MAX_BANNER_IMAGE_FILES + 4,
+		parts: 5,
 	},
 } as const;
 

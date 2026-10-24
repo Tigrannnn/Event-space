@@ -139,10 +139,6 @@ export const CreateBannerSchema = BannerFieldsSchema.extend({
 export type CreateBannerData = z.infer<typeof CreateBannerSchema>;
 
 export const UpdateBannerSchema = BannerFieldsSchema.partial()
-	.extend({
-		/** Drops the mobile picture without replacing it. */
-		removeMobileImage: z.boolean().optional(),
-	})
 	.superRefine(refineBanner)
 	.openapi({ description: 'JSON payload field for PUT /banners/:id (multipart)' });
 

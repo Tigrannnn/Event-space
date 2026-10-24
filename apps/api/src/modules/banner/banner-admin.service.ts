@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { UploadService, type CloudinaryUploadResult } from '@infra/upload/upload.service';
+import { UploadService } from '@infra/upload/upload.service';
 import { AppException } from '@shared';
 import {
 	AppErrorCode,
@@ -24,7 +24,6 @@ function toTranslationRow(translation: CreateBannerTranslation) {
 
 export interface BannerImageFiles {
 	image?: Express.Multer.File;
-	imageMobile?: Express.Multer.File;
 }
 
 @Injectable()
@@ -66,19 +65,12 @@ export class BannerAdminService {
 		const { translations, ...fields } = data;
 
 		const image = await this.uploadService.uploadImage(files.image);
-		let imageMobile: CloudinaryUploadResult | null = null;
 
 		try {
-			if (files.imageMobile) {
-				imageMobile = await this.uploadService.uploadImage(files.imageMobile);
-			}
-
 			const banner = await this.prisma.banner.create({
 				data: {
 					imageUrl: image.url,
 					imagePublicId: image.publicId,
-					imageMobileUrl: imageMobile?.url ?? null,
-					imageMobilePublicId: imageMobile?.publicId ?? null,
 					status: fields.status,
 					startsAt: fields.startsAt ?? null,
 					endsAt: fields.endsAt ?? null,
@@ -98,11 +90,7 @@ export class BannerAdminService {
 
 			return banner;
 		} catch (error) {
-			await this.uploadService.deleteMultipleByPublicId(
-				[image.publicId, imageMobile?.publicId].filter((publicId): publicId is string =>
-					Boolean(publicId),
-				),
-			);
+			await this.uploadService.deleteByPublicId(image.publicId);
 			throw error;
 		}
 	}
@@ -114,7 +102,7 @@ export class BannerAdminService {
 	): Promise<BannerWithTargets> {
 		const existing = await this.findOne(id);
 
-		const { translations, removeMobileImage, ...fields } = data;
+		const { translations, ...fields } = data;
 
 		const targetType = fields.targetType ?? existing.targetType;
 		await this.assertTargetExists(targetType, {
@@ -132,24 +120,10 @@ export class BannerAdminService {
 			await this.assertActiveSlotFree();
 		}
 
-		const uploaded = await this.uploadImages(files);
-		const uploadedPublicIds = [uploaded.image?.publicId, uploaded.imageMobile?.publicId].filter(
-			(publicId): publicId is string => Boolean(publicId),
-		);
+		const uploaded = files.image ? await this.uploadService.uploadImage(files.image) : null;
 
 		const updateData: Prisma.BannerUncheckedUpdateInput = {
-			...(uploaded.image && {
-				imageUrl: uploaded.image.url,
-				imagePublicId: uploaded.image.publicId,
-			}),
-			...(uploaded.imageMobile
-				? {
-						imageMobileUrl: uploaded.imageMobile.url,
-						imageMobilePublicId: uploaded.imageMobile.publicId,
-					}
-				: removeMobileImage
-					? { imageMobileUrl: null, imageMobilePublicId: null }
-					: {}),
+			...(uploaded && { imageUrl: uploaded.url, imagePublicId: uploaded.publicId }),
 			...(fields.status !== undefined && { status: fields.status }),
 			...(fields.startsAt !== undefined && { startsAt: fields.startsAt ?? null }),
 			...(fields.endsAt !== undefined && { endsAt: fields.endsAt ?? null }),
@@ -184,12 +158,17 @@ export class BannerAdminService {
 				include: BANNER_INCLUDE,
 			});
 
-			await this.deleteReplacedImages(existing, banner);
+			if (uploaded && existing.imagePublicId !== uploaded.publicId) {
+				// The picture it replaced has nothing pointing at it any more.
+				await this.uploadService.deleteByPublicId(existing.imagePublicId);
+			}
 			await this.bannerService.invalidateCache();
 
 			return banner;
 		} catch (error) {
-			await this.uploadService.deleteMultipleByPublicId(uploadedPublicIds);
+			if (uploaded) {
+				await this.uploadService.deleteByPublicId(uploaded.publicId);
+			}
 			throw error;
 		}
 	}
@@ -199,11 +178,7 @@ export class BannerAdminService {
 
 		await this.prisma.banner.delete({ where: { id } });
 
-		await this.uploadService.deleteMultipleByPublicId(
-			[banner.imagePublicId, banner.imageMobilePublicId].filter((publicId): publicId is string =>
-				Boolean(publicId),
-			),
-		);
+		await this.uploadService.deleteByPublicId(banner.imagePublicId);
 		await this.bannerService.invalidateCache();
 	}
 
@@ -217,41 +192,6 @@ export class BannerAdminService {
 		await this.bannerService.invalidateCache();
 
 		return this.findAll();
-	}
-
-	private async uploadImages(
-		files: BannerImageFiles,
-	): Promise<{ image?: CloudinaryUploadResult; imageMobile?: CloudinaryUploadResult }> {
-		const uploaded: { image?: CloudinaryUploadResult; imageMobile?: CloudinaryUploadResult } = {};
-
-		if (files.image) {
-			uploaded.image = await this.uploadService.uploadImage(files.image);
-		}
-
-		if (files.imageMobile) {
-			try {
-				uploaded.imageMobile = await this.uploadService.uploadImage(files.imageMobile);
-			} catch (error) {
-				if (uploaded.image) {
-					await this.uploadService.deleteByPublicId(uploaded.image.publicId);
-				}
-				throw error;
-			}
-		}
-
-		return uploaded;
-	}
-
-	private async deleteReplacedImages(
-		before: BannerWithTargets,
-		after: BannerWithTargets,
-	): Promise<void> {
-		const replaced = [
-			before.imagePublicId === after.imagePublicId ? null : before.imagePublicId,
-			before.imageMobilePublicId === after.imageMobilePublicId ? null : before.imageMobilePublicId,
-		].filter((publicId): publicId is string => Boolean(publicId));
-
-		await this.uploadService.deleteMultipleByPublicId(replaced);
 	}
 
 	private async assertTargetExists(

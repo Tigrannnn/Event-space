@@ -12,7 +12,6 @@ import type { BannerImageFiles } from './banner-admin.service';
 
 export type MultipartBannerFiles = {
 	image?: Express.Multer.File[];
-	imageMobile?: Express.Multer.File[];
 };
 
 export function parseCreateBannerMultipart(
@@ -37,15 +36,12 @@ export function parseUpdateBannerMultipart(
 
 function pickImageFiles(files: MultipartBannerFiles | undefined): BannerImageFiles {
 	const image = files?.image?.[0];
-	const imageMobile = files?.imageMobile?.[0];
 
-	for (const file of [image, imageMobile]) {
-		if (file) {
-			assertValidImageFile(file, { maxSizeBytes: MAX_BANNER_IMAGE_FILE_SIZE_BYTES });
-		}
+	if (image) {
+		assertValidImageFile(image, { maxSizeBytes: MAX_BANNER_IMAGE_FILE_SIZE_BYTES });
 	}
 
-	return { image, imageMobile };
+	return { image };
 }
 
 function parsePayloadJson(payloadRaw: string | undefined): unknown {

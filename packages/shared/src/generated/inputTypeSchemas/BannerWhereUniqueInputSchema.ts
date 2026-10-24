@@ -3,13 +3,13 @@ import type { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { BannerWhereInputSchema } from './BannerWhereInputSchema';
 import { StringFilterSchema } from './StringFilterSchema';
-import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumBannerStatusFilterSchema } from './EnumBannerStatusFilterSchema';
 import { BannerStatusSchema } from './BannerStatusSchema';
 import { IntFilterSchema } from './IntFilterSchema';
 import { DateTimeNullableFilterSchema } from './DateTimeNullableFilterSchema';
 import { EnumBannerTargetTypeFilterSchema } from './EnumBannerTargetTypeFilterSchema';
 import { BannerTargetTypeSchema } from './BannerTargetTypeSchema';
+import { StringNullableFilterSchema } from './StringNullableFilterSchema';
 import { EnumBannerTextAlignFilterSchema } from './EnumBannerTextAlignFilterSchema';
 import { BannerTextAlignSchema } from './BannerTextAlignSchema';
 import { EnumBannerThemeFilterSchema } from './EnumBannerThemeFilterSchema';
@@ -25,39 +25,21 @@ export const BannerWhereUniqueInputSchema: z.ZodType<Prisma.BannerWhereUniqueInp
   z.object({
     id: z.uuid(),
     imagePublicId: z.string(),
-    imageMobilePublicId: z.string(),
-  }),
-  z.object({
-    id: z.uuid(),
-    imagePublicId: z.string(),
-  }),
-  z.object({
-    id: z.uuid(),
-    imageMobilePublicId: z.string(),
   }),
   z.object({
     id: z.uuid(),
   }),
   z.object({
     imagePublicId: z.string(),
-    imageMobilePublicId: z.string(),
-  }),
-  z.object({
-    imagePublicId: z.string(),
-  }),
-  z.object({
-    imageMobilePublicId: z.string(),
   }),
 ])
 .and(z.strictObject({
   id: z.uuid().optional(),
   imagePublicId: z.string().optional(),
-  imageMobilePublicId: z.string().optional(),
   AND: z.union([ z.lazy(() => BannerWhereInputSchema), z.lazy(() => BannerWhereInputSchema).array() ]).optional(),
   OR: z.lazy(() => BannerWhereInputSchema).array().optional(),
   NOT: z.union([ z.lazy(() => BannerWhereInputSchema), z.lazy(() => BannerWhereInputSchema).array() ]).optional(),
   imageUrl: z.union([ z.lazy(() => StringFilterSchema), z.string() ]).optional(),
-  imageMobileUrl: z.union([ z.lazy(() => StringNullableFilterSchema), z.string() ]).optional().nullable(),
   status: z.union([ z.lazy(() => EnumBannerStatusFilterSchema), z.lazy(() => BannerStatusSchema) ]).optional(),
   sortOrder: z.union([ z.lazy(() => IntFilterSchema), z.number().int() ]).optional(),
   startsAt: z.union([ z.lazy(() => DateTimeNullableFilterSchema), z.coerce.date() ]).optional().nullable(),

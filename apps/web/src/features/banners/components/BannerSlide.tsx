@@ -50,24 +50,11 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 				fill
 				sizes="100vw"
 				priority={isPriority}
-				className={cn('object-cover', banner.imageMobileUrl && 'max-sm:hidden')}
+				className="object-cover"
 				unoptimized
 			/>
-			{banner.imageMobileUrl && (
-				<Image
-					src={optimizeImageUrl(banner.imageMobileUrl)}
-					alt=""
-					fill
-					sizes="100vw"
-					priority={isPriority}
-					className="object-cover sm:hidden"
-					unoptimized
-				/>
-			)}
 
-			<div
-				className={cn('absolute inset-0', SCRIM[banner.textAlign][banner.theme])}
-			/>
+			<div className={cn('absolute inset-0', SCRIM[banner.textAlign][banner.theme])} />
 
 			<div
 				className={cn(
