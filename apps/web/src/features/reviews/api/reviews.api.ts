@@ -7,7 +7,8 @@ import type {
 	UpdateReviewData,
 } from '@event-space/shared';
 
-export type ReviewsPage = PaginatedCursorResponse<Review>;
+/** `mine` arrives with the first page only: the visitor's own reviews, whatever their state. */
+export type ReviewsPage = PaginatedCursorResponse<Review> & { mine: Review[] };
 
 export const reviewsApi = {
 	getForEvent: (eventId: string, params: { cursor?: string; limit?: number } = {}) =>

@@ -64,19 +64,22 @@ export class ReviewController {
 	) {}
 
 	@Get('events/:eventId/reviews')
-	@ApiOperation({ summary: 'Published reviews of an event, newest first' })
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiOperation({ summary: "Published reviews of an event, plus the visitor's own" })
 	@ApiParam({ name: 'eventId', description: 'Event ID' })
 	@ApiQuery({ name: 'cursor', required: false, description: 'nextCursor of the previous page' })
 	@ApiQuery({ name: 'limit', required: false, type: Number })
 	findForEvent(
 		@Param('eventId') eventId: string,
+		@GetOptionalUserId() userId?: string,
 		@Query('cursor') cursor?: string,
 		@Query('limit') limit?: string,
 	) {
-		return this.reviewService.findForEvent(eventId, {
-			cursor,
-			limit: parseOptionalQueryInt(limit, 'limit'),
-		});
+		return this.reviewService.findForEvent(
+			eventId,
+			{ cursor, limit: parseOptionalQueryInt(limit, 'limit') },
+			userId,
+		);
 	}
 
 	@Get('bookings/:bookingId/review')

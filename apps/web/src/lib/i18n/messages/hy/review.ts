@@ -25,6 +25,8 @@ export const review: Messages['review'] = {
 	notEligible: 'Այս ամրագրման համար կարծիք թողնել հնարավոր չէ։',
 	editWindowOver: 'Կարծիքը կարելի է փոխել ուղարկելուց հետո երկու օրվա ընթացքում։',
 	backToBookings: 'Դեպի իմ ամրագրումները',
+	yours: 'Ձեր կարծիքը',
+	onlyYouSeeIt: 'Ստուգվում է — մինչև հրապարակելը այն տեսնում եք միայն Դուք։',
 	sectionTitle: 'Կարծիքներ',
 	count: 'գնահատականներ՝ {count}',
 	companyReply: 'Ընկերության պատասխանը',

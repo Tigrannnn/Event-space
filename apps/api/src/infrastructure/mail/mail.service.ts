@@ -18,6 +18,8 @@ import {
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
 	REVIEW_INVITE_STRINGS,
+	REVIEW_PENDING_STRINGS,
+	REVIEW_REPLY_STRINGS,
 	escapeHtml,
 	formatMailAmount,
 	formatMailDay,
@@ -782,6 +784,140 @@ export class MailService implements OnModuleInit {
 			.join('');
 
 		return `<mj-text align="center" padding="0px 0px 16px 0px">${stars}</mj-text>`;
+	}
+
+	/**
+	 * Tells the company a review is waiting.
+	 *
+	 * Nothing else does: without it a review with text sits in the queue until somebody happens
+	 * to open the admin panel, and the person who wrote it waits with no idea why.
+	 */
+	async sendReviewPendingNotice(params: {
+		to: string;
+		locale: Locale;
+		authorName: string;
+		eventTitle: string;
+		rating: number;
+		text?: string | null;
+		queueUrl: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(REVIEW_PENDING_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const intro = strings.intro(params.authorName, params.eventTitle);
+		const rows: [string, string][] = [[strings.rating, `${params.rating}/5`]];
+
+		try {
+			const html = await this.templateService.render('review-pending', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				INTRO: intro,
+				DETAILS_ROWS: this.buildDetailRows(rows),
+				QUOTE_BLOCK: params.text ? this.buildQuoteBlock(params.text) : '',
+				QUEUE_URL: params.queueUrl,
+				BUTTON: strings.button,
+				OUTRO: strings.outro,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					intro,
+					'',
+					`${strings.rating}: ${params.rating}/5`,
+					'',
+					params.text ?? '',
+					'',
+					params.queueUrl,
+				].join('\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send review notice to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	/** Tells the author the company has answered, since nothing would bring them back otherwise. */
+	async sendReviewReply(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		eventTitle: string;
+		reviewText?: string | null;
+		reply: string;
+		eventUrl: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(REVIEW_REPLY_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const intro = strings.intro(params.eventTitle);
+
+		try {
+			const html = await this.templateService.render('review-reply', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				INTRO: intro,
+				REVIEW_BLOCK: params.reviewText
+					? this.buildLabelledQuote(strings.yourReview, params.reviewText)
+					: '',
+				REPLY_BLOCK: this.buildLabelledQuote(strings.ourReply, params.reply),
+				EVENT_URL: params.eventUrl,
+				BUTTON: strings.button,
+				OUTRO: strings.outro,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					strings.greeting(params.userName),
+					'',
+					intro,
+					'',
+					...(params.reviewText ? [`${strings.yourReview}: ${params.reviewText}`, ''] : []),
+					`${strings.ourReply}: ${params.reply}`,
+					'',
+					params.eventUrl,
+					'',
+					strings.outro,
+					brand.name,
+				].join('\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send review reply email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	private buildQuoteBlock(text: string): string {
+		return (
+			'<mj-text align="left" font-size="15px" color="#111827" padding="0px 0px 20px 0px" ' +
+			'css-class="text-main"><em>' +
+			escapeHtml(text) +
+			'</em></mj-text>'
+		);
+	}
+
+	private buildLabelledQuote(label: string, text: string): string {
+		return (
+			'<mj-text align="left" font-size="14px" color="#6b7280" padding="0px 0px 16px 0px" ' +
+			'css-class="text-muted"><strong>' +
+			escapeHtml(label) +
+			'</strong><br /><span style="color: #111827;">' +
+			escapeHtml(text) +
+			'</span></mj-text>'
+		);
 	}
 
 	private buildTimeRange(start: Date, durationMinutes: number | undefined, locale: Locale): string {

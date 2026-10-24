@@ -25,6 +25,8 @@ export const review: Messages['review'] = {
 	notEligible: 'По этой броне отзыв оставить нельзя.',
 	editWindowOver: 'Изменить отзыв можно в течение двух суток после отправки.',
 	backToBookings: 'К моим броням',
+	yours: 'Ваш отзыв',
+	onlyYouSeeIt: 'На проверке — пока мы не опубликуем, его не видит никто, кроме вас.',
 	sectionTitle: 'Отзывы',
 	count: 'оценок: {count}',
 	companyReply: 'Ответ компании',

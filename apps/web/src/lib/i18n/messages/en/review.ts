@@ -23,6 +23,8 @@ export const review = {
 	notEligible: 'There is nothing to review for this booking.',
 	editWindowOver: 'A review can be changed within two days of writing it.',
 	backToBookings: 'Back to my bookings',
+	yours: 'Your review',
+	onlyYouSeeIt: 'Being read — nobody else can see it until we publish it.',
 	sectionTitle: 'Reviews',
 	count: '{count} ratings',
 	companyReply: 'Reply from the company',

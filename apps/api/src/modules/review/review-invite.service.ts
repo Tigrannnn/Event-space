@@ -7,6 +7,7 @@ import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { EnvKey, getEventTranslation, reviewOpensAt, REVIEW_CONFIG } from '@event-space/shared';
 import { ReviewService } from './review.service';
+import { reviewFormUrl, siteUrlFor } from './review-urls';
 
 const BATCH_SIZE = 100;
 const MAIL_BATCH_SIZE = 5;
@@ -89,14 +90,14 @@ export class ReviewInviteService {
 
 		const locale = booking.user.locale ?? DEFAULT_LOCALE;
 		const token = this.reviewService.buildReviewToken(booking.id);
-		const base = this.siteUrl(booking.brandHost);
+		const base = siteUrlFor(booking.brandHost, this.config.get<string>(EnvKey.FRONTEND_URL) ?? '');
 
 		const sent = await this.mailService.sendReviewInvite({
 			to: email,
 			locale,
 			userName: booking.user.name,
 			eventTitle: getEventTranslation({ translations: event.translations }, locale).title,
-			reviewUrl: `${base}/${locale}/bookings/${booking.id}/review?t=${encodeURIComponent(token)}`,
+			reviewUrl: reviewFormUrl(base, locale, booking.id, token),
 			brandHost: booking.brandHost ?? undefined,
 		});
 
@@ -110,15 +111,5 @@ export class ReviewInviteService {
 		if (!sent) {
 			this.logger.warn(`Review invite for booking ${booking.id} could not be delivered`);
 		}
-	}
-
-	private siteUrl(brandHost: string | null): string {
-		const host = brandHost?.split(':')[0]?.trim();
-
-		if (host && host !== 'localhost') {
-			return `https://${host}`;
-		}
-
-		return (this.config.get<string>(EnvKey.FRONTEND_URL) ?? '').replace(/\/+$/, '');
 	}
 }

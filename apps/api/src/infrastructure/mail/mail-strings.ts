@@ -536,6 +536,91 @@ export const REVIEW_INVITE_STRINGS: Record<Locale, ReviewInviteStrings> = {
 	},
 };
 
+interface ReviewPendingStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	intro: (authorName: string, eventTitle: string) => string;
+	rating: string;
+	button: string;
+	outro: string;
+}
+
+/**
+ * Written for the one person who reads it — the admin — so it is short and has no greeting.
+ * Always in the company's own language rather than the author's.
+ */
+export const REVIEW_PENDING_STRINGS: Record<Locale, ReviewPendingStrings> = {
+	en: {
+		subject: (eventTitle) => `New review awaiting you: ${eventTitle}`,
+		title: 'A review is waiting to be read',
+		intro: (authorName, eventTitle) => `${authorName} has written about "${eventTitle}".`,
+		rating: 'Rating',
+		button: 'Open the queue',
+		outro: 'It stays hidden from the tour page until you publish it.',
+	},
+	ru: {
+		subject: (eventTitle) => `Новый отзыв на проверку: ${eventTitle}`,
+		title: 'Отзыв ждёт проверки',
+		intro: (authorName, eventTitle) => `${authorName} написал(а) о туре «${eventTitle}».`,
+		rating: 'Оценка',
+		button: 'Открыть очередь',
+		outro: 'До публикации на странице тура его никто не видит.',
+	},
+	hy: {
+		subject: (eventTitle) => `Նոր կարծիք ստուգման՝ ${eventTitle}`,
+		title: 'Կարծիքը սպասում է ստուգման',
+		intro: (authorName, eventTitle) => `${authorName}-ը գրել է «${eventTitle}» շրջագայության մասին։`,
+		rating: 'Գնահատական',
+		button: 'Բացել հերթը',
+		outro: 'Մինչև հրապարակելը այն շրջագայության էջում ոչ ոք չի տեսնում։',
+	},
+};
+
+interface ReviewReplyStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	intro: (eventTitle: string) => string;
+	yourReview: string;
+	ourReply: string;
+	button: string;
+	outro: string;
+}
+
+export const REVIEW_REPLY_STRINGS: Record<Locale, ReviewReplyStrings> = {
+	en: {
+		subject: (eventTitle) => `We have replied to your review of ${eventTitle}`,
+		title: 'A reply to your review',
+		greeting: (userName) => `Dear ${userName},`,
+		intro: (eventTitle) => `Thank you for writing about "${eventTitle}" — here is our answer.`,
+		yourReview: 'Your review',
+		ourReply: 'Our reply',
+		button: 'Open the tour page',
+		outro: 'Thank you for travelling with us.',
+	},
+	ru: {
+		subject: (eventTitle) => `Мы ответили на ваш отзыв о туре «${eventTitle}»`,
+		title: 'Ответ на ваш отзыв',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		intro: (eventTitle) => `Спасибо за отзыв о туре «${eventTitle}» — вот что мы ответили.`,
+		yourReview: 'Ваш отзыв',
+		ourReply: 'Наш ответ',
+		button: 'Открыть страницу тура',
+		outro: 'Спасибо, что путешествуете с нами.',
+	},
+	hy: {
+		subject: (eventTitle) => `Մենք պատասխանել ենք «${eventTitle}» շրջագայության մասին Ձեր կարծիքին`,
+		title: 'Պատասխան Ձեր կարծիքին',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		intro: (eventTitle) =>
+			`Շնորհակալություն «${eventTitle}» շրջագայության մասին կարծիքի համար — ահա մեր պատասխանը։`,
+		yourReview: 'Ձեր կարծիքը',
+		ourReply: 'Մեր պատասխանը',
+		button: 'Բացել շրջագայության էջը',
+		outro: 'Շնորհակալություն, որ ճանապարհորդում եք մեզ հետ։',
+	},
+};
+
 const LOCALE_INTL: Record<Locale, string> = { en: 'en-US', ru: 'ru-RU', hy: 'hy-AM' };
 
 export function formatMailDay(date: Date, locale: Locale): string {
