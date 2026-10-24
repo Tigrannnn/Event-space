@@ -8,6 +8,11 @@ export const EnvSchema = z.object({
 	[EnvKey.NODE_ENV]: z.enum(['development', 'production', 'test']).default('development'),
 	[EnvKey.DATABASE_URL]: z.url(),
 	[EnvKey.JWT_ACCESS_SECRET]: z.string().min(8),
+	/**
+	 * Signs the review links sent by email. Optional: without it one is derived from the
+	 * access-token secret, so an existing deployment keeps booting — see reviewTokenSecret.
+	 */
+	[EnvKey.REVIEW_TOKEN_SECRET]: z.string().optional(),
 	[EnvKey.ALLOWED_ORIGINS]: z.string().transform((val) => val.split(',')),
 	[EnvKey.FRONTEND_URL]: z.url(),
 	[EnvKey.REDIS_URL]: z.string(),

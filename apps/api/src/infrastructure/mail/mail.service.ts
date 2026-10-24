@@ -17,6 +17,7 @@ import {
 	BOOKING_QUANTITY_CHANGED_STRINGS,
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
+	REVIEW_INVITE_STRINGS,
 	escapeHtml,
 	formatMailAmount,
 	formatMailDay,
@@ -76,6 +77,7 @@ export class MailService implements OnModuleInit {
 			BRAND_LOGO: buildBrandLogoBlock(brand),
 			BRAND_TITLE: buildBrandTitle(brand),
 			BRAND_FOOTER: buildBrandFooter(brand),
+			BRAND_PRIMARY: brand.colorPrimary,
 		};
 	}
 
@@ -704,6 +706,82 @@ export class MailService implements OnModuleInit {
 			this.logSmtpError(`Failed to send booking reminder email to ${params.to}`, error);
 			return false;
 		}
+	}
+
+	/**
+	 * The invitation to rate a tour that has just ended.
+	 *
+	 * The five stars are links, each carrying its own score: tapping one opens the form with
+	 * the rating already chosen. That first tap is most of what stops people from answering,
+	 * and it costs nothing to make it happen in the inbox instead of on the page.
+	 */
+	async sendReviewInvite(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		eventTitle: string;
+		reviewUrl: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(REVIEW_INVITE_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const intro = strings.intro(params.eventTitle);
+
+		const textLines = [
+			strings.greeting(params.userName),
+			'',
+			intro,
+			'',
+			params.reviewUrl,
+			'',
+			strings.outro,
+			brand.name,
+		];
+
+		try {
+			const html = await this.templateService.render('review-invite', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				INTRO: intro,
+				RATE_HINT: strings.rateHint,
+				STARS_BLOCK: this.buildStarsBlock(params.reviewUrl),
+				REVIEW_URL: params.reviewUrl,
+				BUTTON: strings.button,
+				OUTRO: strings.outro,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: textLines.join('\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send review invite email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	/**
+	 * Five stars as plain text characters rather than images: most mail clients hide remote
+	 * images by default, and a row of empty boxes is worse than no stars at all.
+	 */
+	private buildStarsBlock(reviewUrl: string): string {
+		const separator = reviewUrl.includes('?') ? '&' : '?';
+		const stars = [1, 2, 3, 4, 5]
+			.map(
+				(rating) =>
+					`<a href="${escapeHtml(`${reviewUrl}${separator}rating=${rating}`)}" ` +
+					`style="text-decoration: none; color: #f59e0b; font-size: 34px; padding: 0 6px;">&#9733;</a>`,
+			)
+			.join('');
+
+		return `<mj-text align="center" padding="0px 0px 16px 0px">${stars}</mj-text>`;
 	}
 
 	private buildTimeRange(start: Date, durationMinutes: number | undefined, locale: Locale): string {

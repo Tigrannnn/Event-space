@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
 	canEditReview,
+	EnvKey,
 	initialReviewStatus,
 	REVIEW_CONFIG,
 	reviewOpensAt,
@@ -14,6 +16,7 @@ import {
 } from '@event-space/shared';
 import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
 import { applyRatingDelta } from './review-rating';
+import { reviewTokenSecret, signReviewToken, verifyReviewToken } from './review-token';
 
 const BOOKING_FOR_REVIEW = {
 	occurrence: {
@@ -28,7 +31,50 @@ const BOOKING_FOR_REVIEW = {
 
 @Injectable()
 export class ReviewService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly config: ConfigService,
+	) {}
+
+	/**
+	 * Who is acting on this booking: the signed-in owner, or whoever holds the link we emailed.
+	 *
+	 * The link is the only way in for a guest an admin booked by hand — they have no password
+	 * and never will. It is checked against the booking in the path, so one link opens one
+	 * booking and nothing else.
+	 */
+	async resolveActor(bookingId: string, userId?: string, token?: string): Promise<string> {
+		if (token) {
+			const booking = await this.prisma.booking.findUnique({
+				where: { id: bookingId },
+				select: { userId: true },
+			});
+
+			if (booking && verifyReviewToken(bookingId, token, this.tokenSecret())) {
+				return booking.userId;
+			}
+		}
+
+		if (!userId) {
+			throw new AppException(AppErrorCode.UNAUTHORIZED);
+		}
+
+		return userId;
+	}
+
+	/** A link that outlives the review window by a day, so the last day of it still works. */
+	buildReviewToken(bookingId: string, now: number = Date.now()): string {
+		const lifetimeMs = (REVIEW_CONFIG.WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000;
+
+		return signReviewToken(bookingId, now + lifetimeMs, this.tokenSecret());
+	}
+
+	private tokenSecret(): string {
+		return reviewTokenSecret(
+			this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		);
+	}
 
 	/** The reviews under an event: published ones only, newest first. */
 	async findForEvent(eventId: string, params: { cursor?: string; limit?: number } = {}) {
@@ -98,12 +144,14 @@ export class ReviewService {
 		});
 	}
 
-	async update(userId: string, reviewId: string, data: UpdateReviewData) {
-		const existing = await this.prisma.review.findUnique({ where: { id: reviewId } });
+	async updateForBooking(userId: string, bookingId: string, data: UpdateReviewData) {
+		const existing = await this.prisma.review.findUnique({ where: { bookingId } });
 
 		if (!existing || existing.userId !== userId) {
-			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { id: reviewId });
+			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { bookingId });
 		}
+
+		const reviewId = existing.id;
 
 		if (!canEditReview(existing.createdAt)) {
 			throw new AppException(AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED);

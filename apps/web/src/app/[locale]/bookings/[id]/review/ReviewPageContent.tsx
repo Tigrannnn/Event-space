@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, Clock } from 'lucide-react';
 import { getEventTranslation, REVIEW_CONFIG } from '@event-space/shared';
 import { StarRatingInput, useMyReview, useSaveReview } from '@/features/reviews';
@@ -14,14 +15,22 @@ const fieldClassName =
 	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100';
 
 export default function ReviewPageContent({ bookingId }: { bookingId: string }) {
+	const searchParams = useSearchParams();
+	// Two ways in: signed in, or holding the link we emailed. A guest booked by hand has no
+	// account at all, so the link is the only one they will ever have.
+	const token = searchParams.get('t') ?? undefined;
+	const presetRating = Number(searchParams.get('rating'));
 	const translate = useTranslation();
 	const { formatDateTime } = useFormatDate();
 	const navigation = useLocalizedNavigation();
 
-	const { data: state, isLoading } = useMyReview(bookingId);
-	const saveReview = useSaveReview(bookingId);
+	const { data: state, isLoading } = useMyReview(bookingId, token);
+	const saveReview = useSaveReview(bookingId, token);
 
-	const [rating, setRating] = useState(0);
+	// A star tapped in the email arrives as ?rating=4, so the form opens already answered.
+	const [rating, setRating] = useState(
+		Number.isInteger(presetRating) && presetRating >= 1 && presetRating <= 5 ? presetRating : 0,
+	);
 	const [text, setText] = useState('');
 	const [isStarted, setIsStarted] = useState(false);
 
@@ -100,7 +109,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 						if (rating === 0) return;
 
 						saveReview.mutate(
-							{ reviewId: existing?.id, data: { rating, text: text.trim() || null } },
+							{ isUpdate: Boolean(existing), data: { rating, text: text.trim() || null } },
 							{ onSuccess: () => navigation.push('/bookings') },
 						);
 					}}

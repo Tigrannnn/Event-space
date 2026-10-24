@@ -1,0 +1,77 @@
+<mj-wrapper padding="0px 20px 40px 20px">
+	<mj-section
+		background-color="#ffffff"
+		border-radius="40px"
+		padding="40px"
+		css-class="card-bg shadow-card"
+	>
+		<mj-column>
+			<mj-text
+				align="center"
+				font-size="22px"
+				font-weight="900"
+				color="#1b4c00"
+				padding="0px 0px 8px 0px"
+				css-class="text-main"
+			>
+				{{ TITLE }}
+			</mj-text>
+			<mj-divider
+				border-width="1px"
+				border-color="#e5e7eb"
+				padding="0px 0px 24px 0px"
+				css-class="divider-color"
+			/>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#111827"
+				padding="0px 0px 12px 0px"
+				css-class="text-main"
+			>
+				{{ GREETING }}
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px 0px 20px 0px"
+				css-class="text-muted"
+			>
+				{{ INTRO }}
+			</mj-text>
+			<mj-text
+				align="center"
+				font-size="13px"
+				color="#6b7280"
+				padding="0px 0px 8px 0px"
+				css-class="text-muted"
+			>
+				{{ RATE_HINT }}
+			</mj-text>
+			{{ STARS_BLOCK }}
+			<mj-button
+				href="{{ REVIEW_URL }}"
+				background-color="{{ BRAND_PRIMARY }}"
+				color="#ffffff"
+				border-radius="999px"
+				font-size="15px"
+				font-weight="700"
+				padding="8px 0px 24px 0px"
+				inner-padding="14px 28px"
+			>
+				{{ BUTTON }}
+			</mj-button>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#6b7280"
+				padding="0px"
+				css-class="text-muted"
+			>
+				{{ OUTRO }}<br />
+				{{ SIGNATURE }}
+			</mj-text>
+		</mj-column>
+	</mj-section>
+</mj-wrapper>

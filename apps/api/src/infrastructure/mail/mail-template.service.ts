@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import mjml2html from 'mjml';
@@ -47,6 +47,7 @@ export class MailTemplateService {
 			this.loadTemplate('booking-reminder', templatePath);
 			this.loadTemplate('booking-cancelled', templatePath);
 			this.loadTemplate('booking-quantity-changed', templatePath);
+			this.loadTemplate('review-invite', templatePath);
 			console.log(`Mail templates loaded from: ${templatePath}`);
 		} catch (error) {
 			console.error('Failed to load mail templates:', error);

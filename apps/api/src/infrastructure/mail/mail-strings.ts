@@ -493,6 +493,49 @@ export const BOOKING_REMINDER_STRINGS: Record<Locale, BookingReminderStrings> = 
 	},
 };
 
+interface ReviewInviteStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	intro: (eventTitle: string) => string;
+	rateHint: string;
+	button: string;
+	outro: string;
+}
+
+export const REVIEW_INVITE_STRINGS: Record<Locale, ReviewInviteStrings> = {
+	en: {
+		subject: (eventTitle) => `How was ${eventTitle}?`,
+		title: 'How was the tour?',
+		greeting: (userName) => `Dear ${userName},`,
+		intro: (eventTitle) =>
+			`You have just been on "${eventTitle}". Tap a star — it takes a second, and it helps the next traveller choose.`,
+		rateHint: 'Pick a rating:',
+		button: 'Rate the tour',
+		outro: 'Thank you for travelling with us.',
+	},
+	ru: {
+		subject: (eventTitle) => `Как прошёл тур «${eventTitle}»?`,
+		title: 'Как прошёл тур?',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		intro: (eventTitle) =>
+			`Вы только что были на туре «${eventTitle}». Нажмите на звезду — это секунда, а следующему путешественнику поможет выбрать.`,
+		rateHint: 'Поставьте оценку:',
+		button: 'Оценить тур',
+		outro: 'Спасибо, что путешествуете с нами.',
+	},
+	hy: {
+		subject: (eventTitle) => `Ինչպե՞ս անցավ «${eventTitle}» շրջագայությունը`,
+		title: 'Ինչպե՞ս անցավ շրջագայությունը',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		intro: (eventTitle) =>
+			`Դուք նոր եք վերադարձել «${eventTitle}» շրջագայությունից։ Սեղմեք աստղի վրա — դա վայրկյան է, բայց կօգնի հաջորդ ճանապարհորդին ընտրել։`,
+		rateHint: 'Տվեք Ձեր գնահատականը.',
+		button: 'Գնահատել շրջագայությունը',
+		outro: 'Շնորհակալություն, որ ճանապարհորդում եք մեզ հետ։',
+	},
+};
+
 const LOCALE_INTL: Record<Locale, string> = { en: 'en-US', ru: 'ru-RU', hy: 'hy-AM' };
 
 export function formatMailDay(date: Date, locale: Locale): string {

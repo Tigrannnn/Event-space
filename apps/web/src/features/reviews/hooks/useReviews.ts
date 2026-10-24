@@ -14,10 +14,10 @@ export const useEventReviews = (eventId: string) => {
 	});
 };
 
-export const useMyReview = (bookingId: string) => {
+export const useMyReview = (bookingId: string, token?: string) => {
 	return useQuery({
 		queryKey: ['reviews', 'mine', bookingId],
-		queryFn: () => reviewsApi.getMine(bookingId),
+		queryFn: () => reviewsApi.getMine(bookingId, token),
 	});
 };
 
@@ -27,15 +27,17 @@ export const useMyReview = (bookingId: string) => {
  * Both paths invalidate the same things: the booking list carries the review on its cards, and
  * the event's average may have just moved — which the catalogue and the event page both show.
  */
-export const useSaveReview = (bookingId: string) => {
+export const useSaveReview = (bookingId: string, token?: string) => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ reviewId, data }: { reviewId?: string; data: CreateReviewData }) =>
-			reviewId ? reviewsApi.update(reviewId, data) : reviewsApi.create(bookingId, data),
+		mutationFn: ({ isUpdate, data }: { isUpdate: boolean; data: CreateReviewData }) =>
+			isUpdate
+				? reviewsApi.update(bookingId, data, token)
+				: reviewsApi.create(bookingId, data, token),
 		onSuccess: async (review) => {
 			addToast(
 				translate(review.status === 'PUBLISHED' ? 'review.savedLive' : 'review.savedPending'),

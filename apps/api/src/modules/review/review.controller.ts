@@ -35,12 +35,14 @@ import type {
 import { ADMIN_CONFIG, BOOKING_CONFIG } from '@event-space/shared/constants';
 import {
 	GetCurrentUserId,
+	GetOptionalUserId,
 	parseOptionalQueryInt,
 	Roles,
 	RolesGuard,
 	ZodValidationPipe,
 } from '@shared';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
+import { OptionalAccessTokenGuard } from '@modules/auth/guards/optional-access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import { ReviewService } from './review.service';
 import { ReviewAdminService } from './review-admin.service';
@@ -78,43 +80,57 @@ export class ReviewController {
 	}
 
 	@Get('bookings/:bookingId/review')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'My review of this booking, and whether I may write one' })
-	findMine(@GetCurrentUserId() userId: string, @Param('bookingId') bookingId: string) {
-		return this.reviewService.findMine(userId, bookingId);
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
+	async findMine(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('bookingId') bookingId: string,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
+
+		return this.reviewService.findMine(actorId, bookingId);
 	}
 
 	@Post('bookings/:bookingId/review')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'Rate the tour this booking was for' })
 	@ApiResponse({ status: 201, description: 'Review saved' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
 	async create(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('bookingId') bookingId: string,
 		@Body(new ZodValidationPipe(CreateReviewSchema)) data: CreateReviewData,
+		@Query('t') token?: string,
 	) {
+		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
+
+		// Keyed by the booking rather than the person: a guest arriving by link has no account
+		// to count against, and one booking can only ever hold one review anyway.
 		await this.rateLimiter.consumePerUser(
 			`${BOOKING_CONFIG.KEY_PREFIX}:review`,
-			userId,
+			bookingId,
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
 		);
 
-		return this.reviewService.create(userId, bookingId, data);
+		return this.reviewService.create(actorId, bookingId, data);
 	}
 
-	@Patch('reviews/:id')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@Patch('bookings/:bookingId/review')
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'Change my own review, within two days of writing it' })
-	update(
-		@GetCurrentUserId() userId: string,
-		@Param('id') id: string,
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
+	async update(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('bookingId') bookingId: string,
 		@Body(new ZodValidationPipe(UpdateReviewSchema)) data: UpdateReviewData,
+		@Query('t') token?: string,
 	) {
-		return this.reviewService.update(userId, id, data);
+		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
+
+		return this.reviewService.updateForBooking(actorId, bookingId, data);
 	}
 
 	@Get('admin/reviews')
