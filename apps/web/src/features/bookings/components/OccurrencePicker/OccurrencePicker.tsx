@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import type { EventOccurrence } from '@event-space/shared';
 import { useFormatDate } from '@/hooks/format';
+import { centerInScroller, keepInView } from '@/utils/scroll';
 import { useTranslation } from '@/hooks/translation';
 import { OccurrencePrice } from '../OccurrencePrice';
 
@@ -29,6 +30,7 @@ export function OccurrencePicker({
 	const { formatDateTime } = useFormatDate();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const activeRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 
@@ -59,7 +61,11 @@ export function OccurrencePicker({
 	}, [isOpen]);
 
 	useEffect(() => {
-		if (isOpen) activeRef.current?.scrollIntoView({ block: 'nearest' });
+		if (isOpen) centerInScroller(panelRef.current, activeRef.current);
+	}, [isOpen]);
+
+	useEffect(() => {
+		if (isOpen) keepInView(panelRef.current, activeRef.current);
 	}, [isOpen, activeIndex]);
 
 	const open = () => {
@@ -126,6 +132,7 @@ export function OccurrencePicker({
 
 			{isOpen && (
 				<div
+					ref={panelRef}
 					role="listbox"
 					className="absolute top-full right-0 left-0 z-30 mt-2 max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-700 dark:bg-gray-800"
 				>

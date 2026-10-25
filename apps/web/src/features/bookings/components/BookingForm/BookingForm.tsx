@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ModalHeader } from '@/components/ui/Modal';
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
@@ -44,10 +44,6 @@ export default function BookingForm({
 	const { formatDateTime } = useFormatDate();
 	const { hasBooking: isOccurrenceBooked } = useHasBookingForOccurrence();
 	const selectedRef = useRef<HTMLButtonElement>(null);
-
-	useEffect(() => {
-		selectedRef.current?.scrollIntoView({ block: 'nearest' });
-	}, []);
 
 	// Filter and sort future occurrences
 	const now = new Date();
@@ -118,6 +114,7 @@ export default function BookingForm({
 					<VerticalScroll
 						className="max-h-[min(22rem,40vh)] pr-1"
 						contentClassName="space-y-2 py-1"
+						scrollToRef={selectedRef}
 					>
 						{futureOccurrences.map((occurrence) => {
 							const spotsLeft = occurrence.maxParticipants - occurrence.currentParticipants;

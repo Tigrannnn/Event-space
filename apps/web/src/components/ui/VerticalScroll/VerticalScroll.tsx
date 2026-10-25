@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { cn } from '@/utils/cn';
+import { centerInScroller } from '@/utils/scroll';
 
 interface VerticalScrollProps {
 	children: ReactNode;
@@ -11,6 +12,11 @@ interface VerticalScrollProps {
 	contentClassName?: string;
 	/** Gradient start colour for the edge fades — has to match whatever is behind the list. */
 	fadeClassName?: string;
+	/**
+	 * Item to centre in the list once it is on screen. Scrolls this list alone, unlike
+	 * `scrollIntoView`, which also drags every scrollable parent — the modal around it included.
+	 */
+	scrollToRef?: RefObject<HTMLElement | null>;
 }
 
 export function VerticalScroll({
@@ -18,6 +24,7 @@ export function VerticalScroll({
 	className,
 	contentClassName,
 	fadeClassName = 'from-white dark:from-gray-900',
+	scrollToRef,
 }: VerticalScrollProps) {
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
@@ -48,6 +55,10 @@ export function VerticalScroll({
 			observer.disconnect();
 		};
 	}, [updateEdges]);
+
+	useEffect(() => {
+		if (scrollToRef) centerInScroller(scrollerRef.current, scrollToRef.current);
+	}, [scrollToRef]);
 
 	return (
 		<div className="relative">
