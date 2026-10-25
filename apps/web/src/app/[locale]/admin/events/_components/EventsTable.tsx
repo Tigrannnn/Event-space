@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { localizePath } from '@/lib/i18n/config';
 import { addDays, endOfMonth, startOfMonth, startOfToday } from 'date-fns';
-import { Pencil, Plus, Trash2, Users, Eye } from 'lucide-react';
+import { Pencil, Plus, Ticket, Trash2, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Buttons/Button';
 import {
@@ -464,8 +464,9 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="secondary"
 												onClick={() => router.push(localizePath(`/admin/bookings?eventId=${event.id}`, locale))}
 												aria-label={`${translate('admin.viewBookings')}: ${eventTranslation.title}`}
+												title={translate('admin.viewBookings')}
 											>
-												<Users className="h-4 w-4" />
+												<Ticket className="h-4 w-4" />
 											</Button>
 											<Button
 												type="button"
