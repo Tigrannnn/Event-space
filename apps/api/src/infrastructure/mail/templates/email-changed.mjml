@@ -1,0 +1,64 @@
+<mj-wrapper padding="0px 20px 40px 20px">
+	<mj-section
+		background-color="#ffffff"
+		border-radius="40px"
+		padding="40px"
+		css-class="card-bg shadow-card"
+	>
+		<mj-column>
+			<mj-text
+				align="center"
+				font-size="22px"
+				font-weight="900"
+				color="#1b4c00"
+				padding="0px 0px 8px 0px"
+				css-class="text-main"
+			>
+				{{ TITLE }}
+			</mj-text>
+			<mj-divider
+				border-width="1px"
+				border-color="#e5e7eb"
+				padding="0px 0px 24px 0px"
+				css-class="divider-color"
+			/>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#111827"
+				padding="0px 0px 16px 0px"
+				css-class="text-main"
+			>
+				{{ GREETING }}
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="15px"
+				color="#111827"
+				padding="0px 0px 20px 0px"
+				css-class="text-main"
+			>
+				{{ INTRO }}
+			</mj-text>
+			<mj-text
+				align="center"
+				font-size="17px"
+				font-weight="700"
+				color="#1b4c00"
+				padding="0px 0px 24px 0px"
+				css-class="text-main"
+			>
+				{{ NEW_EMAIL }}
+			</mj-text>
+			<mj-text
+				align="left"
+				font-size="14px"
+				color="#6b7280"
+				padding="0px"
+				css-class="text-muted"
+			>
+				{{ WARNING }}
+			</mj-text>
+		</mj-column>
+	</mj-section>
+</mj-wrapper>

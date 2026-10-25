@@ -1,8 +1,5 @@
 import supertest from 'supertest';
-import {
-	AUTH_CONFIG,
-	AuthAction,
-} from '@event-space/shared';
+import { AUTH_CONFIG, AuthAction } from '@event-space/shared';
 import {
 	buildRegisterData,
 	clearAuthRateLimits,
@@ -95,10 +92,7 @@ describe('Auth (e2e)', () => {
 		});
 
 		it('verifies email, issues httpOnly cookies, deletes OTP', async () => {
-			const otp = await waitForRedisKey(
-				ctx.redis,
-				otpKey(AuthAction.REGISTER, verifyEmail_user),
-			);
+			const otp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.REGISTER, verifyEmail_user));
 
 			const res = await supertest(ctx.httpServer)
 				.post('/auth/verify-email')
@@ -296,10 +290,7 @@ describe('Auth (e2e)', () => {
 				.send({ email: resetEmail })
 				.expect(200);
 
-			const otp = await waitForRedisKey(
-				ctx.redis,
-				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
-			);
+			const otp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.RESET_PASSWORD, resetEmail));
 			expect(otp).toMatch(/^\d{6}$/);
 		});
 
@@ -310,10 +301,7 @@ describe('Auth (e2e)', () => {
 				.send({ email: resetEmail })
 				.expect(200);
 
-			const otp = await waitForRedisKey(
-				ctx.redis,
-				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
-			);
+			const otp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.RESET_PASSWORD, resetEmail));
 
 			const res = await supertest(ctx.httpServer)
 				.post('/auth/reset-password')
@@ -337,10 +325,7 @@ describe('Auth (e2e)', () => {
 				.send({ email: resetEmail })
 				.expect(200);
 
-			const otp = await waitForRedisKey(
-				ctx.redis,
-				otpKey(AuthAction.RESET_PASSWORD, resetEmail),
-			);
+			const otp = await waitForRedisKey(ctx.redis, otpKey(AuthAction.RESET_PASSWORD, resetEmail));
 
 			await supertest(ctx.httpServer)
 				.post('/auth/reset-password')

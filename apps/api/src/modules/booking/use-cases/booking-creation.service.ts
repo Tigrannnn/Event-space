@@ -48,121 +48,124 @@ export class BookingCreationService {
 	) {
 		const { occurrenceId, quantity = 1, phone } = data;
 
-		const { booking, event, occurrence, freedIntentId } = await this.prisma.$transaction(async (tx) => {
-			// Load the specific occurrence by id and include its event
-			const occurrence = await tx.eventOccurrence.findUnique({
-				where: { id: occurrenceId },
-				include: {
-					event: {
-						include: {
-							cancellationRules: true,
-							translations: true,
-							category: { include: { translations: true } },
-							occurrences: true,
-							images: true,
+		const { booking, event, occurrence, freedIntentId } = await this.prisma.$transaction(
+			async (tx) => {
+				// Load the specific occurrence by id and include its event
+				const occurrence = await tx.eventOccurrence.findUnique({
+					where: { id: occurrenceId },
+					include: {
+						event: {
+							include: {
+								cancellationRules: true,
+								translations: true,
+								category: { include: { translations: true } },
+								occurrences: true,
+								images: true,
+							},
 						},
 					},
-				},
-			});
-
-			if (!occurrence) throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
-
-			const event = occurrence.event;
-			if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
-			// Ensure the event and occurrence are bookable (published and in the future)
-			if (
-				event.status !== 'PUBLISHED' ||
-				occurrence.status !== 'ACTIVE' ||
-				new Date(occurrence.date) <= new Date()
-			) {
-				throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
-			}
-
-			const existing = await tx.booking.findUnique({
-				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
-			});
-			if (existing && existing.status === 'CONFIRMED') {
-				throw new AppException(AppErrorCode.ALREADY_BOOKED);
-			}
-
-			if (occurrence.currentParticipants > occurrence.maxParticipants - quantity) {
-				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
-				throw spotsLeft === 0
-					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
-					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
-			}
-
-			if (phone) {
-				await tx.user.update({
-					where: { id: userId },
-					data: { phone: { set: phone } },
 				});
-			}
 
-			const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
+				if (!occurrence)
+					throw new AppException(AppErrorCode.OCCURRENCE_NOT_FOUND, { id: occurrenceId });
 
-			// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
-			// left over from a finished cycle may already be paid — and even refunded — so
-			// carrying it into a new attempt would confirm this booking without payment.
-			// Only a still-PENDING booking is in the same cycle and may keep its intent.
-			const keepsPaymentIntent = existing?.status === 'PENDING';
+				const event = occurrence.event;
+				if (!event) throw new AppException(AppErrorCode.EVENT_NOT_FOUND);
+				// Ensure the event and occurrence are bookable (published and in the future)
+				if (
+					event.status !== 'PUBLISHED' ||
+					occurrence.status !== 'ACTIVE' ||
+					new Date(occurrence.date) <= new Date()
+				) {
+					throw new AppException(AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING);
+				}
 
-			const upserted = await tx.booking.upsert({
-				where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
-				update: {
-					status: 'PENDING',
-					quantity,
-					...pricing,
-					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
-					...(brandHost ? { brandHost } : {}),
-				},
-				create: {
-					userId,
-					occurrenceId: occurrence.id,
-					status: 'PENDING',
-					quantity,
-					...pricing,
-					brandHost,
-				},
-			});
+				const existing = await tx.booking.findUnique({
+					where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
+				});
+				if (existing && existing.status === 'CONFIRMED') {
+					throw new AppException(AppErrorCode.ALREADY_BOOKED);
+				}
 
-			await tx.user.update({ where: { id: userId }, data: { locale } });
+				if (occurrence.currentParticipants > occurrence.maxParticipants - quantity) {
+					const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+					throw spotsLeft === 0
+						? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+						: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+				}
 
-			if (pricing.amount > 0) {
-				return { booking: upserted, event, occurrence, freedIntentId: null };
-			}
+				if (phone) {
+					await tx.user.update({
+						where: { id: userId },
+						data: { phone: { set: phone } },
+					});
+				}
 
-			const reserved = await tx.eventOccurrence.updateMany({
-				where: {
-					id: occurrence.id,
-					currentParticipants: { lte: occurrence.maxParticipants - quantity },
-				},
-				data: { currentParticipants: { increment: quantity } },
-			});
+				const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
 
-			if (reserved.count === 0) {
-				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
-				throw spotsLeft === 0
-					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
-					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
-			}
+				// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
+				// left over from a finished cycle may already be paid — and even refunded — so
+				// carrying it into a new attempt would confirm this booking without payment.
+				// Only a still-PENDING booking is in the same cycle and may keep its intent.
+				const keepsPaymentIntent = existing?.status === 'PENDING';
 
-			const confirmed = await tx.booking.update({
-				where: { id: upserted.id },
-				data: {
-					status: 'CONFIRMED',
-					paymentIntentId: null,
-					referenceNumber: upserted.referenceNumber ?? (await getNextBookingReference(tx)),
-				},
-			});
+				const upserted = await tx.booking.upsert({
+					where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
+					update: {
+						status: 'PENDING',
+						quantity,
+						...pricing,
+						...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
+						...(brandHost ? { brandHost } : {}),
+					},
+					create: {
+						userId,
+						occurrenceId: occurrence.id,
+						status: 'PENDING',
+						quantity,
+						...pricing,
+						brandHost,
+					},
+				});
 
-			return {
-				booking: confirmed,
-				event,
-				occurrence,
-				freedIntentId: existing?.paymentIntentId ?? null,
-			};
-		});
+				await tx.user.update({ where: { id: userId }, data: { locale } });
+
+				if (pricing.amount > 0) {
+					return { booking: upserted, event, occurrence, freedIntentId: null };
+				}
+
+				const reserved = await tx.eventOccurrence.updateMany({
+					where: {
+						id: occurrence.id,
+						currentParticipants: { lte: occurrence.maxParticipants - quantity },
+					},
+					data: { currentParticipants: { increment: quantity } },
+				});
+
+				if (reserved.count === 0) {
+					const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+					throw spotsLeft === 0
+						? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+						: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+				}
+
+				const confirmed = await tx.booking.update({
+					where: { id: upserted.id },
+					data: {
+						status: 'CONFIRMED',
+						paymentIntentId: null,
+						referenceNumber: upserted.referenceNumber ?? (await getNextBookingReference(tx)),
+					},
+				});
+
+				return {
+					booking: confirmed,
+					event,
+					occurrence,
+					freedIntentId: existing?.paymentIntentId ?? null,
+				};
+			},
+		);
 
 		if (Number(booking.amount) === 0) {
 			if (freedIntentId) {

@@ -38,6 +38,9 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Ձեր դերը փոխել հնարավոր չէ՝ խնդրեք մեկ այլ ադմինի։',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Ադմին կարող է դառնալ միայն հաստատված էլ. փոստով հաշիվը։',
+	[AppErrorCode.EMAIL_UNCHANGED]: 'Հաշվին արդեն նշված է այս էլ. հասցեն։',
+	[AppErrorCode.EMAIL_CHANGE_NOT_REQUESTED]:
+		'Այս հասցեի փոփոխություն չի պահանջվել, կամ կոդի ժամկետը լրացել է։ Պահանջեք նոր կոդ։',
 	[AppErrorCode.USER_NOT_SHADOW]:
 		'Այստեղ կարելի է խմբագրել միայն ադմինիստրատորի ստեղծած հյուրի պրոֆիլը։ Այս օգտատերն ունի իր հաշիվը։',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:

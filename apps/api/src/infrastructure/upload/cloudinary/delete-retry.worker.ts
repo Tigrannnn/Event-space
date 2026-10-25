@@ -50,9 +50,7 @@ export class CloudinaryDeleteRetryWorker implements OnModuleInit, OnModuleDestro
 
 		const attempts = await this.deleteQueue.incrementAttemptCount(publicId);
 		if (attempts >= this.config.MAX_ATTEMPTS) {
-			this.logger.error(
-				`Cloudinary delete abandoned after ${attempts} attempts: ${publicId}`,
-			);
+			this.logger.error(`Cloudinary delete abandoned after ${attempts} attempts: ${publicId}`);
 			await this.deleteQueue.clearAttemptCount(publicId);
 			return;
 		}

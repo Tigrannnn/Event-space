@@ -111,6 +111,14 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Only an account with a confirmed email can be made an admin',
 	},
+	[AppErrorCode.EMAIL_UNCHANGED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This is already the email on the account',
+	},
+	[AppErrorCode.EMAIL_CHANGE_NOT_REQUESTED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'No email change was requested for this address',
+	},
 	[AppErrorCode.USER_NOT_SHADOW]: {
 		status: HttpStatus.CONFLICT,
 		message: 'Only a guest profile created by an admin can be edited this way',

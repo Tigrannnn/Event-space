@@ -1,6 +1,12 @@
 import { AppErrorCode } from '@event-space/shared';
 import { AppException } from '@shared';
-import type { Event, EventImageFileItem, EventImageItem, EventOccurrenceStatus, EventStatus } from '@event-space/shared';
+import type {
+	Event,
+	EventImageFileItem,
+	EventImageItem,
+	EventOccurrenceStatus,
+	EventStatus,
+} from '@event-space/shared';
 import type { EventImage, Prisma } from '@prisma/client';
 import type { UserRoleType } from '@event-space/shared';
 import { endOfDay, startOfDay } from '../../shared/utils/app-day.util';
@@ -65,7 +71,10 @@ export function validateStatusTransition(oldStatus: EventStatus, newStatus: Even
 	};
 
 	if (!allowedTransitions[oldStatus].includes(newStatus)) {
-		throw new AppException(AppErrorCode.INVALID_STATUS_TRANSITION, { from: oldStatus, to: newStatus });
+		throw new AppException(AppErrorCode.INVALID_STATUS_TRANSITION, {
+			from: oldStatus,
+			to: newStatus,
+		});
 	}
 }
 
@@ -73,7 +82,7 @@ export interface GuestCapacityOccurrenceLike {
 	date: Date | string;
 	currentParticipants?: number | null;
 	maxParticipants?: number | null;
-    status: EventOccurrenceStatus;
+	status: EventOccurrenceStatus;
 }
 
 export interface GuestCapacityEventLike {
@@ -121,14 +130,20 @@ export interface OccurrenceDateWindow {
  * Parses the raw date params once, so the SQL filter below and the in-memory
  * guest filter above can never disagree about which dates are in range.
  */
-export function buildOccurrenceDateWindow(startDate?: string, endDate?: string): OccurrenceDateWindow {
+export function buildOccurrenceDateWindow(
+	startDate?: string,
+	endDate?: string,
+): OccurrenceDateWindow {
 	return {
 		...(startDate ? { from: startOfDay(startDate) } : {}),
 		...(endDate ? { to: endOfDay(endDate) } : {}),
 	};
 }
 
-export function buildOccurrenceDateFilter(startDate?: string, endDate?: string): Prisma.DateTimeFilter | undefined {
+export function buildOccurrenceDateFilter(
+	startDate?: string,
+	endDate?: string,
+): Prisma.DateTimeFilter | undefined {
 	const { from, to } = buildOccurrenceDateWindow(startDate, endDate);
 
 	if (!from && !to) {

@@ -1,13 +1,7 @@
 import { Server } from 'http';
 import * as bcrypt from 'bcrypt';
 import supertest from 'supertest';
-import {
-	AUTH_CONFIG,
-	AuthAction,
-	AuthKeyType,
-	Email,
-	RegisterData,
-} from '@event-space/shared';
+import { AUTH_CONFIG, AuthAction, AuthKeyType, Email, RegisterData } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { RedisService } from '@infra/redis/redis.service';
 
@@ -78,8 +72,7 @@ export async function verifyEmail(
 	email: Email,
 	code?: string,
 ) {
-	const otp =
-		code ?? (await waitForRedisKey(redis, otpKey(AuthAction.REGISTER, email)));
+	const otp = code ?? (await waitForRedisKey(redis, otpKey(AuthAction.REGISTER, email)));
 
 	return supertest(httpServer).post('/auth/verify-email').send({ email, code: otp });
 }

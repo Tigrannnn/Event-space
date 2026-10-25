@@ -1,8 +1,20 @@
-import { eventMatchesSearch, normalizeForSearch, parseSearchQuery, SearchableEvent } from './event-search.util';
+import {
+	eventMatchesSearch,
+	normalizeForSearch,
+	parseSearchQuery,
+	SearchableEvent,
+} from './event-search.util';
 
-function event(texts: { ru?: string; en?: string; hy?: string }, category = 'Экскурсии'): SearchableEvent {
+function event(
+	texts: { ru?: string; en?: string; hy?: string },
+	category = 'Экскурсии',
+): SearchableEvent {
 	return {
-		translations: Object.values(texts).map((text) => ({ title: text!, description: '', location: '' })),
+		translations: Object.values(texts).map((text) => ({
+			title: text,
+			description: '',
+			location: '',
+		})),
 		category: { translations: [{ name: category }] },
 	};
 }
@@ -42,7 +54,11 @@ describe('eventMatchesSearch', () => {
 	};
 	const hike = {
 		translations: [
-			{ title: 'Поход на гору Аждаак', description: 'Вид на Севан с вершины', location: 'Гегамский хребет' },
+			{
+				title: 'Поход на гору Аждаак',
+				description: 'Вид на Севан с вершины',
+				location: 'Гегамский хребет',
+			},
 		],
 		category: { translations: [{ name: 'Походы' }] },
 	};

@@ -7,16 +7,19 @@ import {
 	Res,
 	Req,
 	Ip,
+	UseGuards,
 } from '@nestjs/common';
 import * as express from 'express';
 import type { Locale } from '@prisma/client';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import {
 	AUTH_CONFIG,
 	AppErrorCode,
+	ConfirmEmailChangeSchema,
 	EnvKey,
 	ForgotPasswordSchema,
+	RequestEmailChangeSchema,
 	GoogleLoginSchema,
 	LoginSchema,
 	RegisterSchema,
@@ -26,7 +29,10 @@ import {
 } from '@event-space/shared';
 import type {
 	AuthResponse,
+	ConfirmEmailChangeData,
 	ForgotPasswordData,
+	RequestEmailChangeData,
+	SafeUserData,
 	GoogleLoginData,
 	LoginData,
 	RegisterData,
@@ -35,7 +41,14 @@ import type {
 	ResetPasswordData,
 	VerifyEmailData,
 } from '@event-space/shared';
-import { AppException, GetBrandHost, GetCurrentUserId, GetLocale, ZodValidationPipe } from '@shared';
+import {
+	AppException,
+	GetBrandHost,
+	GetCurrentUserId,
+	GetLocale,
+	ZodValidationPipe,
+} from '@shared';
+import { AccessTokenGuard } from './guards/access-token.guard';
 import { getReference } from '@infra/swagger/swagger.utils';
 
 @ApiTags('auth')
@@ -208,6 +221,37 @@ export class AuthController {
 		return {
 			user: result.user,
 		};
+	}
+
+	@UseGuards(AccessTokenGuard)
+	@Post('email/change')
+	@HttpCode(HttpStatus.OK)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: 'Send a code to a new email address before moving the account to it' })
+	@ApiBody(getReference('RequestEmailChangeSchema'))
+	async requestEmailChange(
+		@GetCurrentUserId() userId: string,
+		@Body(new ZodValidationPipe(RequestEmailChangeSchema)) data: RequestEmailChangeData,
+		@Ip() ip: string,
+		@GetLocale() locale: Locale | undefined,
+		@GetBrandHost() brandHost: string | undefined,
+	): Promise<void> {
+		await this.authService.requestEmailChange(userId, data, ip, locale, brandHost);
+	}
+
+	@UseGuards(AccessTokenGuard)
+	@Post('email/confirm')
+	@HttpCode(HttpStatus.OK)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: 'Confirm the code and move the account to the new email' })
+	@ApiBody(getReference('ConfirmEmailChangeSchema'))
+	async confirmEmailChange(
+		@GetCurrentUserId() userId: string,
+		@Body(new ZodValidationPipe(ConfirmEmailChangeSchema)) data: ConfirmEmailChangeData,
+		@Ip() ip: string,
+		@GetBrandHost() brandHost: string | undefined,
+	): Promise<SafeUserData> {
+		return this.authService.confirmEmailChange(userId, data, ip, brandHost);
 	}
 
 	@Post('logout')

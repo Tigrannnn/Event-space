@@ -10,6 +10,8 @@ import {
 	LoginData,
 	RegisterData,
 	RegisterResponse,
+	RequestEmailChangeData,
+	ConfirmEmailChangeData,
 	ResendCodeData,
 	ResetPasswordData,
 	SafeUserData,
@@ -103,6 +105,7 @@ export class AuthService {
 		email: Email,
 		locale?: Locale,
 		brandHost?: string,
+		owner?: string,
 	): Promise<string> {
 		const digits = AUTH_CONFIG.OTP.DIGITS;
 		const min = Math.pow(10, digits - 1);
@@ -111,7 +114,7 @@ export class AuthService {
 		const otp = crypto.randomInt(min, max).toString();
 
 		const otpKey = this.getOtpKey(action, email);
-		await this.redis.set(otpKey, otp, AUTH_CONFIG.OTP.EXPIRY_SECONDS);
+		await this.redis.set(otpKey, owner ? `${owner}:${otp}` : otp, AUTH_CONFIG.OTP.EXPIRY_SECONDS);
 
 		await this.rateLimiter.setCooldown(action, email);
 
@@ -168,6 +171,104 @@ export class AuthService {
 		return {
 			userId,
 		};
+	}
+
+	async requestEmailChange(
+		userId: string,
+		data: RequestEmailChangeData,
+		ip: string,
+		locale?: Locale,
+		brandHost?: string,
+	): Promise<void> {
+		const email = data.email.trim().toLowerCase();
+		const action = AuthAction.CHANGE_EMAIL;
+
+		const user = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { email: true, passwordHash: true },
+		});
+
+		if (!user) throw new AppException(AppErrorCode.CURRENT_USER_NOT_FOUND);
+		if (user.email === email) throw new AppException(AppErrorCode.EMAIL_UNCHANGED);
+
+		if (user.passwordHash) {
+			const matches = data.password ? await bcrypt.compare(data.password, user.passwordHash) : false;
+
+			if (!matches) throw new AppException(AppErrorCode.INVALID_CREDENTIALS);
+		}
+
+		const taken = await this.prisma.user.findUnique({ where: { email }, select: { id: true } });
+		if (taken) throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS);
+
+		await this.rateLimiter.validate(action, email, ip, { checkCooldown: true });
+
+		await this.generateAndSaveOtp(action, email, locale, brandHost, userId);
+	}
+
+	async confirmEmailChange(
+		userId: string,
+		data: ConfirmEmailChangeData,
+		ip: string,
+		brandHost?: string,
+	): Promise<SafeUserData> {
+		const email = data.email.trim().toLowerCase();
+		const action = AuthAction.CHANGE_EMAIL;
+
+		await this.rateLimiter.validate(action, email, ip, { checkCooldown: false });
+
+		const otpKey = this.getOtpKey(action, email);
+		const saved = await this.redis.get(otpKey);
+
+		if (!saved) throw new AppException(AppErrorCode.EMAIL_CHANGE_NOT_REQUESTED);
+
+		const separator = saved.indexOf(':');
+		const owner = separator === -1 ? '' : saved.slice(0, separator);
+		const code = separator === -1 ? saved : saved.slice(separator + 1);
+
+		if (owner !== userId || code !== data.code) {
+			await this.rateLimiter.hit(action, email, ip);
+
+			throw new AppException(AppErrorCode.INVALID_VERIFICATION_CODE);
+		}
+
+		const current = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { email: true, name: true, locale: true },
+		});
+
+		if (!current) throw new AppException(AppErrorCode.CURRENT_USER_NOT_FOUND);
+
+		const updated = await this.moveAccountToEmail(userId, email);
+
+		await this.redis.del(otpKey);
+		await this.rateLimiter.clean(action, email, ip);
+
+		if (current.email) {
+			await this.mail.sendEmailChangedNotice({
+				to: current.email,
+				locale: current.locale ?? DEFAULT_MAIL_LOCALE,
+				userName: current.name,
+				newEmail: email,
+				brandHost,
+			});
+		}
+
+		return updated;
+	}
+
+	private async moveAccountToEmail(userId: string, email: string): Promise<SafeUserData> {
+		try {
+			return await this.prisma.user.update({
+				where: { id: userId },
+				data: { email, emailVerified: true, isShadow: false },
+				omit: { passwordHash: true, googleId: true },
+			});
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+				throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS);
+			}
+			throw error;
+		}
 	}
 
 	async verifyEmail(data: VerifyEmailData, ip: string): Promise<AuthServiceResponse> {
@@ -245,9 +346,7 @@ export class AuthService {
 
 		if (!user.passwordHash) {
 			throw new AppException(
-				user.googleId
-					? AppErrorCode.SOCIAL_LOGIN_REQUIRED
-					: AppErrorCode.ACCOUNT_NEEDS_REGISTRATION,
+				user.googleId ? AppErrorCode.SOCIAL_LOGIN_REQUIRED : AppErrorCode.ACCOUNT_NEEDS_REGISTRATION,
 			);
 		}
 

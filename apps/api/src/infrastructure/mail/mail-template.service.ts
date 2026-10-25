@@ -50,6 +50,7 @@ export class MailTemplateService {
 			this.loadTemplate('review-invite', templatePath);
 			this.loadTemplate('review-pending', templatePath);
 			this.loadTemplate('review-reply', templatePath);
+			this.loadTemplate('email-changed', templatePath);
 			console.log(`Mail templates loaded from: ${templatePath}`);
 		} catch (error) {
 			console.error('Failed to load mail templates:', error);

@@ -9,6 +9,8 @@ export {
 	useLogin,
 	useForgotPassword,
 	useResetPassword,
+	useRequestEmailChange,
+	useConfirmEmailChange,
 	useLogout,
 } from './hooks/useAuth';
 export { useCooldown } from './hooks/useCooldown';

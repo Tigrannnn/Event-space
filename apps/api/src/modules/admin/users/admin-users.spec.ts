@@ -112,7 +112,7 @@ describe('fixing a guest profile', () => {
 	it('passes an empty object through without inventing fields', async () => {
 		const { service, updates } = build();
 
-		await service.updateShadow('u1', {} as UpdateShadowUserData);
+		await service.updateShadow('u1', {});
 
 		expect(updates[0].data).toEqual({});
 	});

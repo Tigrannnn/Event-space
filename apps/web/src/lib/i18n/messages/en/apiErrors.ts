@@ -44,6 +44,9 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'You cannot change your own role — ask another admin.',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Only an account with a confirmed email can be made an admin.',
+	[AppErrorCode.EMAIL_UNCHANGED]: 'That is already the email on your account.',
+	[AppErrorCode.EMAIL_CHANGE_NOT_REQUESTED]:
+		'No change to this address was requested, or the code has expired. Ask for a new one.',
 	[AppErrorCode.USER_NOT_SHADOW]:
 		'Only a guest profile created by an admin can be edited here. This person has their own account.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:

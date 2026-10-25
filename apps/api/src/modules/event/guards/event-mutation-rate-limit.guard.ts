@@ -7,9 +7,7 @@ import {
 } from '@event-space/shared';
 import { AppException } from '@shared';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
-import {
-	EVENT_MUTATION_RATE_LIMIT_KEY,
-} from '../decorators/rate-limit-event-mutation.decorator';
+import { EVENT_MUTATION_RATE_LIMIT_KEY } from '../decorators/rate-limit-event-mutation.decorator';
 
 @Injectable()
 export class EventMutationRateLimitGuard implements CanActivate {

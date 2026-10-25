@@ -56,9 +56,9 @@ export class RateLimiterService {
 		}
 
 		const results = await Promise.all(checks);
-		const localCount = results[0] as string | null;
-		const globalCount = results[1] as string | null;
-		const isCoolingDown = checkCooldown ? (results[2] as string | null) : null;
+		const localCount = results[0];
+		const globalCount = results[1];
+		const isCoolingDown = checkCooldown ? results[2] : null;
 
 		// 1. Check Resend Cooldown (only if enabled)
 		if (checkCooldown && isCoolingDown) {

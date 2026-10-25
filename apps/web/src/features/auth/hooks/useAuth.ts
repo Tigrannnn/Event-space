@@ -3,7 +3,9 @@ import { authApi } from '../api/auth.api';
 import {
 	AppErrorCode,
 	AuthAction,
+	ConfirmEmailChangeData,
 	ForgotPasswordData,
+	RequestEmailChangeData,
 	LoginData,
 	RegisterData,
 	ResendCodeData,
@@ -128,6 +130,43 @@ export const useForgotPassword = () => {
 		onError: (error: unknown) => {
 			const message = apiError(error, 'auth.sendResetCodeFailed');
 			addToast(message, ToastType.ERROR);
+		},
+	});
+};
+
+export const useRequestEmailChange = () => {
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (data: RequestEmailChangeData) => authApi.requestEmailChange(data),
+		onSuccess: () => {
+			addToast(translate('profile.emailCodeSent'), ToastType.SUCCESS);
+		},
+		onError: (error: unknown) => {
+			addToast(apiError(error, 'profile.emailCodeFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useConfirmEmailChange = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (data: ConfirmEmailChangeData) => authApi.confirmEmailChange(data),
+		onSuccess: async (response) => {
+			queryClient.setQueryData(['me'], response.data);
+			addToast(translate('profile.emailChanged'), ToastType.SUCCESS);
+			closeModal();
+			await queryClient.invalidateQueries({ queryKey: ['me'] });
+		},
+		onError: (error: unknown) => {
+			addToast(apiError(error, 'profile.emailChangeFailed'), ToastType.ERROR);
 		},
 	});
 };

@@ -38,6 +38,9 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Свою роль изменить нельзя — попросите другого администратора.',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Администратором можно сделать только аккаунт с подтверждённой почтой.',
+	[AppErrorCode.EMAIL_UNCHANGED]: 'На аккаунте уже указана эта почта.',
+	[AppErrorCode.EMAIL_CHANGE_NOT_REQUESTED]:
+		'Смена почты на этот адрес не запрашивалась или срок кода истёк. Запросите код заново.',
 	[AppErrorCode.USER_NOT_SHADOW]:
 		'Так можно править только гостевой профиль, заведённый администратором. У этого пользователя свой аккаунт.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:

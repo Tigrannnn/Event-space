@@ -88,9 +88,19 @@ export default function EditProfileModal() {
 						error={errors.phone?.message}
 					/>
 
-					<Button type="button" onClick={handleChangePassword}>
-						{translate('profile.changePassword')}
-					</Button>
+					<div className="flex flex-col gap-3 sm:flex-row">
+						<Button type="button" onClick={handleChangePassword} className="flex-1">
+							{translate('profile.changePassword')}
+						</Button>
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={() => openModal(ModalType.ChangeEmail)}
+							className="flex-1"
+						>
+							{translate('profile.changeEmail')}
+						</Button>
+					</div>
 
 					<div className="flex gap-3 pt-2">
 						<Button type="button" variant="secondary" onClick={closeModal} className="flex-1">

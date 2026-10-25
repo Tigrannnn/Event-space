@@ -25,12 +25,7 @@ export class CloudinaryDeleteQueueService {
 	}
 
 	async claimDue(limit = this.config.BATCH_SIZE): Promise<string[]> {
-		const due = await this.redis.zrangebyscore(
-			this.config.PENDING_ZSET,
-			0,
-			Date.now(),
-			limit,
-		);
+		const due = await this.redis.zrangebyscore(this.config.PENDING_ZSET, 0, Date.now(), limit);
 
 		if (!due.length) {
 			return [];

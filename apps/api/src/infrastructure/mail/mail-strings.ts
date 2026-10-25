@@ -32,6 +32,7 @@ export const VERIFICATION_STRINGS: Record<Locale, VerificationStrings> = {
 			[AuthAction.REGISTER]: 'sign up',
 			[AuthAction.LOGIN]: 'sign in',
 			[AuthAction.RESET_PASSWORD]: 'reset your password',
+			[AuthAction.CHANGE_EMAIL]: 'confirm your new email',
 		},
 	},
 	ru: {
@@ -44,6 +45,7 @@ export const VERIFICATION_STRINGS: Record<Locale, VerificationStrings> = {
 			[AuthAction.REGISTER]: 'завершить регистрацию',
 			[AuthAction.LOGIN]: 'войти',
 			[AuthAction.RESET_PASSWORD]: 'сменить пароль',
+			[AuthAction.CHANGE_EMAIL]: 'подтвердить новую почту',
 		},
 	},
 	hy: {
@@ -56,6 +58,7 @@ export const VERIFICATION_STRINGS: Record<Locale, VerificationStrings> = {
 			[AuthAction.REGISTER]: 'գրանցումն ավարտելու համար',
 			[AuthAction.LOGIN]: 'մուտք գործելու համար',
 			[AuthAction.RESET_PASSWORD]: 'գաղտնաբառը փոխելու համար',
+			[AuthAction.CHANGE_EMAIL]: 'նոր էլ. հասցեն հաստատելու համար',
 		},
 	},
 };
@@ -533,6 +536,41 @@ export const REVIEW_INVITE_STRINGS: Record<Locale, ReviewInviteStrings> = {
 		rateHint: 'Տվեք Ձեր գնահատականը.',
 		button: 'Գնահատել շրջագայությունը',
 		outro: 'Շնորհակալություն, որ ճանապարհորդում եք մեզ հետ։',
+	},
+};
+
+interface EmailChangedStrings {
+	subject: string;
+	title: string;
+	greeting: (userName: string) => string;
+	intro: string;
+	warning: string;
+}
+
+export const EMAIL_CHANGED_STRINGS: Record<Locale, EmailChangedStrings> = {
+	en: {
+		subject: 'The email on your account has changed',
+		title: 'Your sign-in email has changed',
+		greeting: (userName) => `Hello, ${userName}!`,
+		intro: 'From now on your account signs in with this address:',
+		warning:
+			'If this was not you, write to us from this address right away — we will change it back and secure the account.',
+	},
+	ru: {
+		subject: 'Почта на аккаунте изменена',
+		title: 'Почта для входа изменена',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		intro: 'Теперь вход в ваш аккаунт выполняется по этому адресу:',
+		warning:
+			'Если это были не вы — немедленно напишите нам с этого адреса, мы вернём почту обратно и защитим аккаунт.',
+	},
+	hy: {
+		subject: 'Հաշվի էլ. հասցեն փոխվել է',
+		title: 'Մուտքի էլ. հասցեն փոխվել է',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}!`,
+		intro: 'Այսուհետ Ձեր հաշիվ մուտք է գործվում այս հասցեով՝',
+		warning:
+			'Եթե դա Դուք չեք եղել, անմիջապես գրեք մեզ այս հասցեից — մենք կվերադարձնենք հասցեն և կպաշտպանենք հաշիվը։',
 	},
 };
 

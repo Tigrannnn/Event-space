@@ -36,6 +36,7 @@ export enum ModalType {
 	ChangeQuantity = 'change-quantity',
 	UserDetails = 'user-details',
 	EditGuest = 'edit-guest',
+	ChangeEmail = 'change-email',
 	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
@@ -146,6 +147,7 @@ export interface ModalDataMap {
 	[ModalType.ChangeQuantity]: ChangeQuantityModalData;
 	[ModalType.UserDetails]: UserDetailsModalData;
 	[ModalType.EditGuest]: EditGuestModalData;
+	[ModalType.ChangeEmail]: null;
 	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;

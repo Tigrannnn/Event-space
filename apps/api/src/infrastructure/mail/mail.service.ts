@@ -18,6 +18,7 @@ import {
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
 	REVIEW_INVITE_STRINGS,
+	EMAIL_CHANGED_STRINGS,
 	REVIEW_PENDING_STRINGS,
 	REVIEW_REPLY_STRINGS,
 	escapeHtml,
@@ -838,6 +839,48 @@ export class MailService implements OnModuleInit {
 			return true;
 		} catch (error) {
 			this.logSmtpError(`Failed to send review notice to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendEmailChangedNotice(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		newEmail: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(EMAIL_CHANGED_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+
+		try {
+			const html = await this.templateService.render('email-changed', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				INTRO: strings.intro,
+				NEW_EMAIL: params.newEmail,
+				WARNING: strings.warning,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject,
+				text: [
+					strings.greeting(params.userName),
+					'',
+					strings.intro,
+					params.newEmail,
+					'',
+					strings.warning,
+				].join('\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send the email-change notice to ${params.to}`, error);
 			return false;
 		}
 	}

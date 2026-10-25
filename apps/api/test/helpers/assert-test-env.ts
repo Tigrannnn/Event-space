@@ -23,8 +23,7 @@ export function assertTestRedisUrl(url = process.env.REDIS_URL): void {
 	// Dev uses db 0; tests must use another logical DB or a dedicated instance.
 	if (!url.includes('/1') && !url.includes('test')) {
 		throw new Error(
-			`Refusing to flush Redis at "${url}". ` +
-				`Set REDIS_URL=redis://localhost:6379/1 in .env.test`,
+			`Refusing to flush Redis at "${url}". ` + `Set REDIS_URL=redis://localhost:6379/1 in .env.test`,
 		);
 	}
 }

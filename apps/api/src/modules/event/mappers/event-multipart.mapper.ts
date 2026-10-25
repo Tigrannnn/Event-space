@@ -29,10 +29,7 @@ export function parseCreateEventMultipart(
 	files: Express.Multer.File[] | undefined,
 ): ParsedCreateEventMultipart {
 	const payload = parsePayloadJson(payloadRaw);
-	const { images, ...eventFields } = parseWithSchema(
-		CreateEventMultipartPayloadSchema,
-		payload,
-	);
+	const { images, ...eventFields } = parseWithSchema(CreateEventMultipartPayloadSchema, payload);
 
 	const imageItems = images ?? [];
 	const normalizedFiles = files ?? [];
@@ -43,7 +40,7 @@ export function parseCreateEventMultipart(
 	assertWithinImageLimit(imageItems.length);
 
 	return {
-		eventData: eventFields as CreateEventData,
+		eventData: eventFields,
 		imageItems,
 		files: normalizedFiles,
 	};
@@ -54,10 +51,7 @@ export function parseUpdateEventMultipart(
 	files: Express.Multer.File[] | undefined,
 ): ParsedUpdateEventMultipart {
 	const payload = parsePayloadJson(payloadRaw);
-	const { images, ...eventFields } = parseWithSchema(
-		UpdateEventMultipartPayloadSchema,
-		payload,
-	);
+	const { images, ...eventFields } = parseWithSchema(UpdateEventMultipartPayloadSchema, payload);
 
 	if (!images) {
 		throw new AppException(AppErrorCode.IMAGES_REQUIRED);
@@ -71,7 +65,7 @@ export function parseUpdateEventMultipart(
 	assertWithinImageLimit(images.length);
 
 	return {
-		eventData: eventFields as UpdateEventData,
+		eventData: eventFields,
 		imageItems: images,
 		files: normalizedFiles,
 	};
@@ -112,10 +106,7 @@ function isZodValidationError(
 	error: unknown,
 ): error is { issues: Array<{ path: PropertyKey[]; message: string }> } {
 	return (
-		typeof error === 'object' &&
-		error !== null &&
-		'issues' in error &&
-		Array.isArray((error as { issues: unknown }).issues)
+		typeof error === 'object' && error !== null && 'issues' in error && Array.isArray(error.issues)
 	);
 }
 

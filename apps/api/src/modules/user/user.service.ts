@@ -16,7 +16,7 @@ export class UserService {
 
 		const { passwordHash, ...safeUser } = user;
 
-		return safeUser;
+		return { ...safeUser, hasPassword: Boolean(passwordHash) };
 	}
 
 	async updateMe(userId: string, data: UpdateUserData): Promise<SafeUserData> {

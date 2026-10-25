@@ -1,7 +1,10 @@
 import clientApi from '@/lib/client.api';
 import {
 	AuthResponse,
+	ConfirmEmailChangeData,
 	ForgotPasswordData,
+	RequestEmailChangeData,
+	SafeUserData,
 	GoogleLoginData,
 	LoginData,
 	RegisterData,
@@ -27,6 +30,12 @@ export const authApi = {
 
 	resetPassword: (data: ResetPasswordData) =>
 		clientApi.post<AuthResponse>('/auth/reset-password', data),
+
+	requestEmailChange: (data: RequestEmailChangeData) =>
+		clientApi.post<void>('/auth/email/change', data),
+
+	confirmEmailChange: (data: ConfirmEmailChangeData) =>
+		clientApi.post<SafeUserData>('/auth/email/confirm', data),
 
 	refreshTokens: () => clientApi.post<void>('/auth/refresh'),
 

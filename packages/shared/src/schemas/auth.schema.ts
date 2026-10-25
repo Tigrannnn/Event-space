@@ -26,6 +26,21 @@ export const VerifyEmailSchema = z.object({
 
 export type VerifyEmailData = z.infer<typeof VerifyEmailSchema>;
 
+// === CHANGE EMAIL ===
+export const RequestEmailChangeSchema = z.object({
+	email: EmailSchema,
+	password: z.string().optional(),
+});
+
+export type RequestEmailChangeData = z.infer<typeof RequestEmailChangeSchema>;
+
+export const ConfirmEmailChangeSchema = z.object({
+	email: EmailSchema,
+	code: CodeSchema,
+});
+
+export type ConfirmEmailChangeData = z.infer<typeof ConfirmEmailChangeSchema>;
+
 // === LOGIN ===
 export const LoginSchema = z.object({
 	email: EmailSchema,

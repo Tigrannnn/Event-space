@@ -36,9 +36,13 @@ export type UserData = z.infer<typeof UserSchema>;
 export const SafeUserSchema = UserSchema.omit({
 	passwordHash: true,
 	googleId: true,
-}).openapi({
-	description: 'User information without sensitive fields',
-});
+})
+	.extend({
+		hasPassword: z.boolean().optional(),
+	})
+	.openapi({
+		description: 'User information without sensitive fields',
+	});
 
 export type SafeUserData = z.infer<typeof SafeUserSchema>;
 

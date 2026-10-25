@@ -48,7 +48,10 @@ describe('AppExceptionFilter', () => {
 		const { host, status, json } = createHost();
 		const errors = [{ path: 'email', message: 'Invalid email' }];
 
-		filter.catch(new BadRequestException({ statusCode: 400, message: 'Validation failed', errors }), host);
+		filter.catch(
+			new BadRequestException({ statusCode: 400, message: 'Validation failed', errors }),
+			host,
+		);
 
 		expect(status).toHaveBeenCalledWith(400);
 		expect(json).toHaveBeenCalledWith({

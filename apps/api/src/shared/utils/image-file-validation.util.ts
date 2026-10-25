@@ -29,10 +29,7 @@ export function detectImageFormat(buffer: Buffer): DetectedImageFormat | null {
 		return 'png';
 	}
 
-	if (
-		buffer.toString('ascii', 0, 4) === 'RIFF' &&
-		buffer.toString('ascii', 8, 12) === 'WEBP'
-	) {
+	if (buffer.toString('ascii', 0, 4) === 'RIFF' && buffer.toString('ascii', 8, 12) === 'WEBP') {
 		return 'webp';
 	}
 
