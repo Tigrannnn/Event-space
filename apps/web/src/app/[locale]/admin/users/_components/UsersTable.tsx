@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Eye, Ticket } from 'lucide-react';
+import { Eye, Pencil, Ticket } from 'lucide-react';
 import { startOfToday, subDays } from 'date-fns';
 import { APP_TIME_ZONE } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
@@ -312,6 +312,18 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 									>
 										<Eye className="h-4 w-4" />
 									</Button>
+									{user.isShadow && (
+										<Button
+											type="button"
+											size="xs"
+											variant="secondary"
+											onClick={() => openModal(ModalType.EditGuest, { user })}
+											aria-label={`${translate('admin.editGuest')}: ${user.name}`}
+											title={translate('admin.editGuest')}
+										>
+											<Pencil className="h-4 w-4" />
+										</Button>
+									)}
 									<Button
 										type="button"
 										size="xs"

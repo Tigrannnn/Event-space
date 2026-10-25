@@ -111,6 +111,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Only an account with a confirmed email can be made an admin',
 	},
+	[AppErrorCode.USER_NOT_SHADOW]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Only a guest profile created by an admin can be edited this way',
+	},
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]: {
 		status: HttpStatus.CONFLICT,
 		message: 'Occurrence has active bookings, its date cannot be moved',

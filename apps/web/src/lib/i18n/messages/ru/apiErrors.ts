@@ -38,6 +38,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Свою роль изменить нельзя — попросите другого администратора.',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Администратором можно сделать только аккаунт с подтверждённой почтой.',
+	[AppErrorCode.USER_NOT_SHADOW]:
+		'Так можно править только гостевой профиль, заведённый администратором. У этого пользователя свой аккаунт.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
 		'На эту дату есть активные брони — через форму события её не изменить. Воспользуйтесь переносом даты.',
 	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'У этого события уже есть другая дата на это время.',

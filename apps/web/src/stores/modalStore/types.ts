@@ -35,6 +35,7 @@ export enum ModalType {
 	BookingConfirm = 'booking-confirm',
 	ChangeQuantity = 'change-quantity',
 	UserDetails = 'user-details',
+	EditGuest = 'edit-guest',
 	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
@@ -103,6 +104,10 @@ export interface UserDetailsModalData {
 	user: SafeUserData;
 }
 
+export interface EditGuestModalData {
+	user: SafeUserData;
+}
+
 export interface EventDetailsModalData {
 	event: Event;
 }
@@ -140,6 +145,7 @@ export interface ModalDataMap {
 	[ModalType.BookingConfirm]: BookingDetailsModalData;
 	[ModalType.ChangeQuantity]: ChangeQuantityModalData;
 	[ModalType.UserDetails]: UserDetailsModalData;
+	[ModalType.EditGuest]: EditGuestModalData;
 	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;

@@ -17,6 +17,7 @@ import {
 } from '@/features/admin/categories';
 import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
+import EditGuestModal from '@/features/admin/user/components/EditGuestModal';
 import EventDetailsModal from '@/features/admin/events/components/modals/EventDetailsModal';
 import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
 import CreateManualBookingModal from '@/features/admin/bookings/components/CreateManualBookingModal';
@@ -53,6 +54,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.BookingConfirm && <BookingConfirmModal key="booking-confirm" />}
 					{activeModal === ModalType.ChangeQuantity && <ChangeQuantityModal key="change-quantity" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
+					{activeModal === ModalType.EditGuest && <EditGuestModal key="edit-guest" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}
 					{activeModal === ModalType.UpdateEvent && <UpdateEventModal key="edit-event" />}

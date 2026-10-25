@@ -13,6 +13,7 @@ import {
 	type UserFilters,
 	type CreateCategoryData,
 	type UpdateCategoryData,
+	type UpdateShadowUserData,
 	type ModerateReviewData,
 	type ReplyToReviewData,
 	type ReviewStatus,
@@ -393,6 +394,28 @@ export const useUpdateUserRole = () => {
 			adminApi.updateUserRole(id, role),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+		},
+	});
+};
+
+export const useUpdateShadowUser = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateShadowUserData }) =>
+			adminApi.updateShadowUser(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.updateGuestSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.updateGuestFailed'), ToastType.ERROR);
 		},
 	});
 };

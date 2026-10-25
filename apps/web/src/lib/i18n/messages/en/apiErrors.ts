@@ -44,6 +44,8 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'You cannot change your own role — ask another admin.',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Only an account with a confirmed email can be made an admin.',
+	[AppErrorCode.USER_NOT_SHADOW]:
+		'Only a guest profile created by an admin can be edited here. This person has their own account.',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
 		'This date has active bookings, so the event form cannot change it. Use the reschedule action instead.',
 	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'This event already has another date at that time.',

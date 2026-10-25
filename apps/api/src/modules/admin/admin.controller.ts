@@ -68,6 +68,7 @@ import type {
 	BookingDisplayStatus,
 	EventDifficulty,
 	EventStatus,
+	UpdateShadowUserData,
 	UserRoleType,
 	TimeFilterType,
 	SpotsFilterType,
@@ -81,6 +82,7 @@ import type {
 	PaymentMethod,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
+import { UpdateShadowUserSchema } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { EventService } from '@modules/event/event.service';
 
@@ -508,6 +510,24 @@ export class AdminController {
 			throw new AppException(AppErrorCode.USER_NOT_FOUND);
 		}
 		return user;
+	}
+
+	@Patch('users/:id')
+	@ApiOperation({ summary: 'Fix a guest profile created by an admin' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	@ApiBody(getReference('UpdateShadowUserSchema'))
+	async updateShadowUser(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdateShadowUserSchema)) data: UpdateShadowUserData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.usersService.updateShadow(id, data);
 	}
 
 	@Patch('users/:id/role')

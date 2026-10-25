@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppErrorCode, isUuid } from '@event-space/shared';
 import { AppException } from '@shared';
-import type { PaginatedParams, SafeUserData, UserRoleType } from '@event-space/shared';
+import type {
+	PaginatedParams,
+	SafeUserData,
+	UpdateShadowUserData,
+	UserRoleType,
+} from '@event-space/shared';
 import { safeUserSelect } from '../common/admin-selects';
 import { buildDayRangeFilter, toPage } from '../common/query-helpers';
 
@@ -86,5 +92,34 @@ export class AdminUsersService {
 			data: { role },
 			select: safeUserSelect,
 		});
+	}
+
+	async updateShadow(id: string, data: UpdateShadowUserData): Promise<SafeUserData> {
+		const user = await this.prisma.user.findUnique({
+			where: { id },
+			select: { isShadow: true },
+		});
+
+		if (!user) throw new AppException(AppErrorCode.USER_NOT_FOUND, { id });
+		if (!user.isShadow) throw new AppException(AppErrorCode.USER_NOT_SHADOW, { id });
+
+		const email = data.email ? data.email.trim().toLowerCase() : null;
+
+		try {
+			return await this.prisma.user.update({
+				where: { id },
+				data: {
+					...(data.name === undefined ? {} : { name: data.name }),
+					...(data.phone === undefined ? {} : { phone: data.phone }),
+					...(data.email === undefined ? {} : { email }),
+				},
+				select: safeUserSelect,
+			});
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+				throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS, { email: email ?? '' });
+			}
+			throw error;
+		}
 	}
 }

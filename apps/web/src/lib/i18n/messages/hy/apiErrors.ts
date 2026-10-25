@@ -38,6 +38,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CANNOT_CHANGE_OWN_ROLE]: 'Ձեր դերը փոխել հնարավոր չէ՝ խնդրեք մեկ այլ ադմինի։',
 	[AppErrorCode.CANNOT_PROMOTE_UNVERIFIED]:
 		'Ադմին կարող է դառնալ միայն հաստատված էլ. փոստով հաշիվը։',
+	[AppErrorCode.USER_NOT_SHADOW]:
+		'Այստեղ կարելի է խմբագրել միայն ադմինիստրատորի ստեղծած հյուրի պրոֆիլը։ Այս օգտատերն ունի իր հաշիվը։',
 	[AppErrorCode.OCCURRENCE_DATE_LOCKED]:
 		'Այս ամսաթվին կան ակտիվ ամրագրումներ՝ միջոցառման ձևից այն փոխել հնարավոր չէ։ Օգտվեք ամսաթվի տեղափոխումից։',
 	[AppErrorCode.OCCURRENCE_DATE_TAKEN]: 'Այս միջոցառումն արդեն ունի այլ ամսաթիվ այդ ժամին։',

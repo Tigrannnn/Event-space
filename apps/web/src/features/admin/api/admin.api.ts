@@ -15,6 +15,7 @@ import type {
 	EventFilters,
 	PaginatedResponse,
 	SafeUserData,
+	UpdateShadowUserData,
 	UserRoleType,
 	UserFilters,
 	EventStatus,
@@ -133,6 +134,8 @@ export const adminApi = {
 		clientApi.get<Category>(`/admin/categories/${id}`).then((res) => res.data),
 	updateUserRole: (id: string, role: UserRoleType) =>
 		clientApi.patch<SafeUserData>(`/admin/users/${id}/role`, { role }).then((res) => res.data),
+	updateShadowUser: (id: string, data: UpdateShadowUserData) =>
+		clientApi.patch<SafeUserData>(`/admin/users/${id}`, data).then((res) => res.data),
 	createManualBooking: (data: CreateManualBookingData) =>
 		clientApi.post<BookingWithOccurrence>('/admin/bookings/manual', data).then((res) => res.data),
 	getCategories: (params?: { skip?: number; limit?: number; search?: string }) =>

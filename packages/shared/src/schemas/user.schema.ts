@@ -76,3 +76,16 @@ export const UpdateUserSchema = z.object({
 });
 
 export type UpdateUserData = z.infer<typeof UpdateUserSchema>;
+
+export const UpdateShadowUserSchema = z
+	.object({
+		name: NameSchema.optional(),
+		phone: PhoneSchema.optional().nullable(),
+		email: EmailSchema.optional().nullable(),
+	})
+	.openapi({
+		description: 'Fields an admin may fix on a guest profile they created by hand',
+		example: { name: 'Ани Саргсян', phone: '+374 99 123 456', email: 'ani@example.com' },
+	});
+
+export type UpdateShadowUserData = z.infer<typeof UpdateShadowUserSchema>;
