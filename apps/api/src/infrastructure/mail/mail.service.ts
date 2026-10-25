@@ -313,8 +313,10 @@ export class MailService implements OnModuleInit {
 		referenceNumber: number;
 		userName: string;
 		bookedAt: Date;
+		eventId: string;
 		eventTitle: string;
 		eventLocation?: string;
+		eventLocationUrl?: string;
 		meetingLocation?: string;
 		meetingLocationUrl?: string;
 		occurrenceDate: Date;
@@ -329,6 +331,12 @@ export class MailService implements OnModuleInit {
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const siteBase = brand.siteUrl.replace(/\/+$/, '');
+		const eventUrl = siteBase
+			? `${siteBase}/${params.locale}/events/${encodeURIComponent(params.eventId)}`
+			: undefined;
+		const homeUrl = siteBase ? `${siteBase}/${params.locale}` : undefined;
+		const bookingsUrl = siteBase ? `${siteBase}/${params.locale}/bookings` : undefined;
 		const formattedDate = formatMailDate(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const paymentMethodLabel =
@@ -358,17 +366,33 @@ export class MailService implements OnModuleInit {
 			.sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent)
 			.map((rule) => strings.cancellationRule(rule.hoursBeforeEvent, rule.refundPercentage));
 
+		const textRows = rows.flatMap(([label, value]) => {
+			const linkedUrl =
+				label === strings.event
+					? eventUrl
+					: label === strings.location
+						? params.eventLocationUrl
+						: undefined;
+			return [`${label}: ${value}`, ...(linkedUrl ? [linkedUrl] : [])];
+		});
 		const textLines = [
 			strings.title,
 			'',
-			...rows.map(([label, value]) => `${label}: ${value}`),
-			...(params.meetingLocation ? ['', `${strings.meetingPoint}: ${params.meetingLocation}`] : []),
-			...(params.meetingLocationUrl ? [params.meetingLocationUrl] : []),
+			...textRows,
+			...(params.meetingLocation
+				? [
+						'',
+						`${strings.meetingPoint}: ${params.meetingLocation}`,
+						...(params.meetingLocationUrl ? [params.meetingLocationUrl] : []),
+					]
+				: []),
 			...(params.paymentMethod === 'PAY_ON_ARRIVAL' ? ['', strings.bringCash(totalAmount)] : []),
 			...(params.whatsIncluded?.length
 				? ['', `${strings.included}:`, ...params.whatsIncluded.map((item) => `— ${item}`)]
 				: []),
 			...(cancellationLines.length ? ['', `${strings.cancellationTitle}:`, ...cancellationLines] : []),
+			...(homeUrl ? ['', `${strings.homeButton}: ${homeUrl}`] : []),
+			...(bookingsUrl ? [`${strings.myBookingsButton}: ${bookingsUrl}`] : []),
 			'',
 			strings.outro,
 			brand.name,
@@ -379,14 +403,18 @@ export class MailService implements OnModuleInit {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				INTRO: strings.intro,
-				HIGHLIGHT_BLOCK: this.buildMeetingBlock(strings, params),
-				DETAILS_ROWS: this.buildDetailRows(rows),
+				HIGHLIGHT_BLOCK: this.buildBookingConfirmationMeetingBlock(strings, params),
+				DETAILS_ROWS: this.buildDetailRows(rows, {
+					[strings.event]: this.buildMailAnchor(eventUrl, params.eventTitle),
+					[strings.location]: this.buildMailAnchor(params.eventLocationUrl, params.eventLocation || '—'),
+				}),
 				NOTE_BLOCK:
 					params.paymentMethod === 'PAY_ON_ARRIVAL'
 						? this.buildNoteBlock(strings.bringCash(totalAmount))
 						: '',
 				INCLUDED_BLOCK: this.buildListBlock(strings.included, params.whatsIncluded ?? []),
 				CANCELLATION_BLOCK: this.buildListBlock(strings.cancellationTitle, cancellationLines),
+				ACTIONS_BLOCK: this.buildBookingActionButtons(strings, brand, homeUrl, bookingsUrl),
 				OUTRO: strings.outro,
 				SIGNATURE: brand.name,
 			});
@@ -972,15 +1000,62 @@ export class MailService implements OnModuleInit {
 		return `${startLabel} — ${formatMailTime(end, locale)} · ${zone}`;
 	}
 
-	private buildDetailRows(rows: [string, string][]): string {
+	private buildDetailRows(
+		rows: [string, string][],
+		linkedValues: Record<string, string> = {},
+	): string {
 		return rows
 			.map(
 				([label, value], index) =>
 					`<tr style="${index < rows.length - 1 ? 'border-bottom: 1px solid #e5e7eb; ' : ''}text-align: left;">` +
 					`<td style="padding: 8px 0; font-weight: 600;">${escapeHtml(label)}</td>` +
-					`<td style="padding: 8px 0;">${escapeHtml(value)}</td></tr>`,
+					`<td style="padding: 8px 0;">${linkedValues[label] ?? escapeHtml(value)}</td></tr>`,
 			)
 			.join('');
+	}
+
+	private buildMailAnchor(url: string | undefined, label: string): string {
+		if (!url) return escapeHtml(label);
+
+		try {
+			const parsed = new URL(url);
+			if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return escapeHtml(label);
+		} catch {
+			return escapeHtml(label);
+		}
+
+		return `<a href="${escapeHtml(url)}" target="_blank" style="color: #00a5ba; text-decoration: underline;">${escapeHtml(label)}</a>`;
+	}
+
+	private buildBookingConfirmationMeetingBlock(
+		strings: { meetingPoint: string },
+		params: { meetingLocation?: string; meetingLocationUrl?: string },
+	): string {
+		if (!params.meetingLocation && !params.meetingLocationUrl) return '';
+
+		const location = params.meetingLocation
+			? this.buildMailAnchor(params.meetingLocationUrl, params.meetingLocation)
+			: this.buildMailAnchor(params.meetingLocationUrl, params.meetingLocationUrl ?? '');
+
+		return (
+			'<mj-text align="left" font-size="15px" color="#111827" padding="0px 0px 20px 0px" css-class="text-main">' +
+			`<strong>${escapeHtml(strings.meetingPoint)}:</strong> ${location}` +
+			'</mj-text>'
+		);
+	}
+
+	private buildBookingActionButtons(
+		strings: { homeButton: string; myBookingsButton: string },
+		brand: MailBrand,
+		homeUrl: string | undefined,
+		bookingsUrl: string | undefined,
+	): string {
+		const button = (url: string | undefined, label: string) =>
+			url
+				? `<mj-button href="${escapeHtml(url)}" background-color="${escapeHtml(brand.colorPrimary)}" color="#ffffff" border-radius="14px" font-size="15px" font-weight="700" padding="6px 0" width="100%">${escapeHtml(label)}</mj-button>`
+				: '';
+
+		return button(homeUrl, strings.homeButton) + button(bookingsUrl, strings.myBookingsButton);
 	}
 
 	private buildMeetingBlock(

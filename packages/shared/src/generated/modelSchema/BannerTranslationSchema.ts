@@ -9,7 +9,7 @@ export const BannerTranslationSchema = z.object({
   locale: LocaleSchema,
   id: z.uuid(),
   bannerId: z.string(),
-  title: z.string(),
+  title: z.string().nullable(),
   subtitle: z.string().nullable(),
 })
 

@@ -8,6 +8,10 @@ const EMPTY_TRANSLATION = {
 	subtitle: null,
 } as const;
 
+function hasBannerText(translation: BannerTranslation): boolean {
+	return Boolean(translation.title?.trim() || translation.subtitle?.trim());
+}
+
 export function getBannerTranslation(
 	banner: Pick<Banner, 'translations'> | undefined,
 	locale: Locale = 'en',
@@ -15,8 +19,10 @@ export function getBannerTranslation(
 	const translations = banner?.translations ?? [];
 
 	return (
+		translations.find((translation) => translation.locale === locale && hasBannerText(translation)) ??
+		translations.find((translation) => translation.locale === 'en' && hasBannerText(translation)) ??
+		translations.find(hasBannerText) ??
 		translations.find((translation) => translation.locale === locale) ??
-		translations.find((translation) => translation.locale === 'en') ??
 		translations[0] ?? { ...EMPTY_TRANSLATION, locale }
 	);
 }

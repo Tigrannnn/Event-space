@@ -139,7 +139,7 @@ export default function BannerForm({
 								<span className={`text-sm font-medium ${hasError ? 'text-red-500' : ''}`}>
 									{localeInfo?.label ?? field.locale}
 								</span>
-								{translationFields.length > 1 && (
+								{translationFields.length > 0 && (
 									<button
 										type="button"
 										className="ml-1 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
@@ -172,7 +172,9 @@ export default function BannerForm({
 						className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
 					>
 						<label className="space-y-1.5">
-							<span className="text-sm font-semibold">{translate('admin.bannerTitle')}</span>
+							<span className="text-sm font-semibold">
+								{translate('admin.bannerTitle')} {translate('admin.bannerTextOptional')}
+							</span>
 							<input
 								{...register(`translations.${activeTabIndex}.title`)}
 								className={fieldClassName}
@@ -186,7 +188,9 @@ export default function BannerForm({
 						</label>
 
 						<label className="space-y-1.5">
-							<span className="text-sm font-semibold">{translate('admin.bannerSubtitle')}</span>
+							<span className="text-sm font-semibold">
+								{translate('admin.bannerSubtitle')} {translate('admin.bannerTextOptional')}
+							</span>
 							<input
 								{...register(`translations.${activeTabIndex}.subtitle`)}
 								className={fieldClassName}
@@ -267,9 +271,7 @@ export default function BannerForm({
 
 				{(errors.eventId || errors.categoryId || errors.url) && (
 					<p className="text-xs text-red-500">
-						{errorText(
-							errors.eventId?.message ?? errors.categoryId?.message ?? errors.url?.message,
-						)}
+						{errorText(errors.eventId?.message ?? errors.categoryId?.message ?? errors.url?.message)}
 					</p>
 				)}
 			</div>
@@ -305,9 +307,7 @@ export default function BannerForm({
 							/>
 						)}
 					/>
-					{errors.endsAt && (
-						<p className="text-xs text-red-500">{errorText(errors.endsAt.message)}</p>
-					)}
+					{errors.endsAt && <p className="text-xs text-red-500">{errorText(errors.endsAt.message)}</p>}
 				</div>
 			</div>
 

@@ -443,7 +443,7 @@ model BannerTranslation {
 
   locale Locale
 
-  title    String  @db.VarChar(80)
+  title    String? @db.VarChar(80)
   subtitle String? @db.VarChar(160)
 
   banner Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)

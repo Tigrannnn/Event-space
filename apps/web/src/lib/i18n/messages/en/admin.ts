@@ -319,6 +319,7 @@ export const admin = {
 	bannerRemoveImage: 'Remove picture',
 	bannerTitle: 'Headline',
 	bannerSubtitle: 'Subtitle',
+	bannerTextOptional: '(optional)',
 	bannerTarget: 'Where it leads',
 	bannerTargetEvent: 'Event',
 	bannerTargetCategory: 'Category',

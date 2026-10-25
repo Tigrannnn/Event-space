@@ -11,7 +11,7 @@ interface BannerCarouselProps {
 	banners: Banner[];
 }
 
-const AUTOPLAY_MS = 7000;
+const AUTOPLAY_MS = 5000;
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const translate = useTranslation();

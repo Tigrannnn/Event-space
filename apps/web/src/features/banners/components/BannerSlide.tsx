@@ -62,22 +62,19 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 					ALIGNMENT[banner.textAlign],
 				)}
 			>
-				<p
-					className={cn(
-						'max-w-xl text-xl leading-tight font-black uppercase sm:text-3xl lg:text-4xl',
-						isDark ? 'text-white' : 'text-gray-900',
-					)}
-				>
-					{text.title}
-				</p>
-
-				{text.subtitle && (
+				{text.title && (
 					<p
 						className={cn(
-							'max-w-lg text-sm sm:text-base',
-							isDark ? 'text-white/85' : 'text-gray-700',
+							'max-w-xl text-xl leading-tight font-black uppercase sm:text-3xl lg:text-4xl',
+							isDark ? 'text-white' : 'text-gray-900',
 						)}
 					>
+						{text.title}
+					</p>
+				)}
+
+				{text.subtitle && (
+					<p className={cn('max-w-lg text-sm sm:text-base', isDark ? 'text-white/85' : 'text-gray-700')}>
 						{text.subtitle}
 					</p>
 				)}
@@ -98,7 +95,7 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 				target="_blank"
 				rel="noopener noreferrer"
 				className={slideClassName}
-				aria-label={text.title}
+				aria-label={text.title || href}
 			>
 				{content}
 			</a>
@@ -106,7 +103,11 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 	}
 
 	return (
-		<Link href={localizePath(href, locale)} className={slideClassName} aria-label={text.title}>
+		<Link
+			href={localizePath(href, locale)}
+			className={slideClassName}
+			aria-label={text.title || href}
+		>
 			{content}
 		</Link>
 	);

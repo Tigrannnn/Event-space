@@ -47,7 +47,7 @@ export type Banner = z.infer<typeof BannerSchema>;
 
 export const CreateBannerTranslationSchema = z.object({
 	locale: BannerTranslationSchema.shape.locale,
-	title: z.string().trim().min(1).max(BANNER_LIMITS.TITLE_MAX),
+	title: z.string().trim().max(BANNER_LIMITS.TITLE_MAX).nullish(),
 	subtitle: z.string().trim().max(BANNER_LIMITS.SUBTITLE_MAX).nullish(),
 });
 
@@ -63,7 +63,7 @@ const BannerFieldsSchema = z.object({
 	url: z.url().max(BANNER_LIMITS.URL_MAX).nullish(),
 	textAlign: BannerTextAlignEnum,
 	theme: BannerThemeEnum,
-	translations: z.array(CreateBannerTranslationSchema).min(1),
+	translations: z.array(CreateBannerTranslationSchema),
 });
 
 /** A slide points at exactly one thing, and the other two fields must stay empty. */
@@ -132,6 +132,7 @@ export const CreateBannerSchema = BannerFieldsSchema.extend({
 	status: BannerStatusEnum.default('DRAFT'),
 	textAlign: BannerTextAlignEnum.default('LEFT'),
 	theme: BannerThemeEnum.default('DARK'),
+	translations: z.array(CreateBannerTranslationSchema).default([]),
 })
 	.superRefine(refineBanner)
 	.openapi({ description: 'JSON payload field for POST /banners (multipart)' });

@@ -359,6 +359,8 @@ interface BookingConfirmationStrings {
 	amount: string;
 	meetingPoint: string;
 	openMap: string;
+	homeButton: string;
+	myBookingsButton: string;
 	included: string;
 	cancellationTitle: string;
 	cancellationRule: (hours: number, percent: number) => string;
@@ -386,6 +388,8 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		amount: 'Amount',
 		meetingPoint: 'Meeting point',
 		openMap: 'Open in maps',
+		homeButton: 'Home page',
+		myBookingsButton: 'My bookings',
 		included: "What's included",
 		cancellationTitle: 'Cancellation',
 		cancellationRule: (hours, percent) =>
@@ -416,6 +420,8 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		amount: 'Сумма',
 		meetingPoint: 'Место сбора',
 		openMap: 'Открыть на карте',
+		homeButton: 'На главную',
+		myBookingsButton: 'Мои брони',
 		included: 'Что входит',
 		cancellationTitle: 'Отмена брони',
 		cancellationRule: (hours, percent) => `Более чем за ${hours} ч до начала — возврат ${percent}%`,
@@ -445,6 +451,8 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		amount: 'Գումար',
 		meetingPoint: 'Հավաքատեղի',
 		openMap: 'Բացել քարտեզում',
+		homeButton: 'Գլխավոր էջ',
+		myBookingsButton: 'Իմ ամրագրումները',
 		included: 'Ինչ է ներառված',
 		cancellationTitle: 'Չեղարկում',
 		cancellationRule: (hours, percent) =>

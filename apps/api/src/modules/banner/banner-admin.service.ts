@@ -17,7 +17,7 @@ import { BannerService } from './banner.service';
 function toTranslationRow(translation: CreateBannerTranslation) {
 	return {
 		locale: translation.locale,
-		title: translation.title,
+		title: translation.title ?? null,
 		subtitle: translation.subtitle ?? null,
 	};
 }

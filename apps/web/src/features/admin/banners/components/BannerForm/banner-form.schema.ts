@@ -17,7 +17,7 @@ export type BannerFormImage = z.infer<typeof BannerFormImageSchema>;
 
 export const BannerFormTranslationSchema = z.object({
 	locale: LocaleEnum,
-	title: z.string().min(1, 'admin.validation.titleRequired').max(BANNER_LIMITS.TITLE_MAX),
+	title: z.string().max(BANNER_LIMITS.TITLE_MAX),
 	subtitle: z.string().max(BANNER_LIMITS.SUBTITLE_MAX).optional(),
 });
 
@@ -35,9 +35,7 @@ export const BannerFormSchema = z
 		textAlign: BannerTextAlignEnum,
 		theme: BannerThemeEnum,
 		image: BannerFormImageSchema.nullable(),
-		translations: z
-			.array(BannerFormTranslationSchema)
-			.min(1, 'admin.validation.translationRequired'),
+		translations: z.array(BannerFormTranslationSchema),
 	})
 	.superRefine((values, ctx) => {
 		if (!values.image) {
