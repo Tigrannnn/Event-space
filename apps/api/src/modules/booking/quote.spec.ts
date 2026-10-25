@@ -63,6 +63,19 @@ describe('quoteBooking', () => {
 		expect(quote.total).toBe(9000);
 	});
 
+	it('makes the booking free at a hundred percent off', () => {
+		const quote = quoteBooking({ price: 10000, discountPercent: 100 }, { quantity: 3 });
+
+		expect(quote.unitPrice).toBe(0);
+		expect(quote.total).toBe(0);
+		expect(quote.baseTotal).toBe(30000);
+		expect(quote.discountPercent).toBe(100);
+		expect(quote.lines).toEqual([
+			{ kind: 'BASE', label: 'base', amount: 30000 },
+			{ kind: 'DISCOUNT', label: 'occurrenceDiscount', amount: -30000 },
+		]);
+	});
+
 	it('refuses a quantity below one', () => {
 		expect(quoteBooking({ price: 10000 }, { quantity: 0 }).total).toBe(10000);
 		expect(quoteBooking({ price: 10000 }, { quantity: -5 }).total).toBe(10000);
@@ -78,7 +91,7 @@ describe('normalizeDiscountPercent', () => {
 		expect(normalizeDiscountPercent(Number.NaN)).toBe(0);
 	});
 
-	it('never lets a discount make the tour free', () => {
+	it('allows a full discount but nothing beyond it', () => {
 		expect(normalizeDiscountPercent(100)).toBe(DISCOUNT_PERCENT_MAX);
 		expect(normalizeDiscountPercent(1000)).toBe(DISCOUNT_PERCENT_MAX);
 	});

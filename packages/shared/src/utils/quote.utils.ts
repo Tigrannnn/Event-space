@@ -1,5 +1,5 @@
 export const DISCOUNT_PERCENT_MIN = 1;
-export const DISCOUNT_PERCENT_MAX = 99;
+export const DISCOUNT_PERCENT_MAX = 100;
 
 const MINOR_UNITS = 100;
 

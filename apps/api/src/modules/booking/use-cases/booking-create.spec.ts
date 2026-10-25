@@ -25,6 +25,8 @@ function build(world: World = {}) {
 	const bookingUpdates: Record<string, unknown>[] = [];
 	const ledger: unknown[] = [];
 	const emails: unknown[] = [];
+	const txBookingUpdates: Record<string, unknown>[] = [];
+	let upserted: Record<string, unknown> = {};
 
 	const occurrence = {
 		id: 'o1',
@@ -57,12 +59,18 @@ function build(world: World = {}) {
 			upsert: (args: { update: Record<string, unknown>; create: Record<string, unknown> }) => {
 				upserts.push({ update: args.update, create: args.create });
 				const keeps = existing && !('paymentIntentId' in args.update);
-				return Promise.resolve({
+				upserted = {
 					id: 'b1',
 					...args.create,
 					paymentIntentId: keeps ? existing?.paymentIntentId : null,
 					brandHost: args.create.brandHost ?? null,
-				});
+				};
+				return Promise.resolve(upserted);
+			},
+			update: (args: { data: Record<string, unknown> }) => {
+				txBookingUpdates.push(args.data);
+				upserted = { ...upserted, ...args.data };
+				return Promise.resolve(upserted);
 			},
 		},
 		user: {
@@ -168,6 +176,7 @@ function build(world: World = {}) {
 		userUpdates,
 		createdUsers,
 		bookingUpdates,
+		txBookingUpdates,
 		ledger,
 		emails,
 	};
@@ -211,6 +220,20 @@ describe('creating a booking', () => {
 			discountPercent: 20,
 		});
 		expect(stripeCalls.find((call) => call.method === 'createPaymentIntent')?.args[0]).toBe(16000);
+	});
+
+	it('confirms a booking that a full discount made free, without touching Stripe', async () => {
+		const { service, stripeCalls, upserts, txBookingUpdates, emails } = build({
+			discountPercent: 100,
+		});
+		const result = await service.create('u1', create as never, 'ru');
+
+		expect(upserts[0].create).toMatchObject({ amount: 0, baseAmount: 20000, discountPercent: 100 });
+		expect(stripeCalls.find((call) => call.method === 'createPaymentIntent')).toBeUndefined();
+		expect(txBookingUpdates[0]).toMatchObject({ status: 'CONFIRMED', paymentIntentId: null });
+		expect(result.clientSecret).toBeNull();
+		expect(result.booking).toMatchObject({ amount: 0, status: 'CONFIRMED' });
+		expect(emails).toHaveLength(1);
 	});
 
 	it('leaves a booking on a date without a discount at the full price', async () => {

@@ -48,7 +48,7 @@ export class BookingCreationService {
 	) {
 		const { occurrenceId, quantity = 1, phone } = data;
 
-		const { booking, event, occurrence } = await this.prisma.$transaction(async (tx) => {
+		const { booking, event, occurrence, freedIntentId } = await this.prisma.$transaction(async (tx) => {
 			// Load the specific occurrence by id and include its event
 			const occurrence = await tx.eventOccurrence.findUnique({
 				where: { id: occurrenceId },
@@ -128,8 +128,70 @@ export class BookingCreationService {
 
 			await tx.user.update({ where: { id: userId }, data: { locale } });
 
-			return { booking: upserted, event, occurrence };
+			if (pricing.amount > 0) {
+				return { booking: upserted, event, occurrence, freedIntentId: null };
+			}
+
+			const reserved = await tx.eventOccurrence.updateMany({
+				where: {
+					id: occurrence.id,
+					currentParticipants: { lte: occurrence.maxParticipants - quantity },
+				},
+				data: { currentParticipants: { increment: quantity } },
+			});
+
+			if (reserved.count === 0) {
+				const spotsLeft = Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
+				throw spotsLeft === 0
+					? new AppException(AppErrorCode.NO_SPOTS_AVAILABLE)
+					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
+			}
+
+			const confirmed = await tx.booking.update({
+				where: { id: upserted.id },
+				data: {
+					status: 'CONFIRMED',
+					paymentIntentId: null,
+					referenceNumber: upserted.referenceNumber ?? (await getNextBookingReference(tx)),
+				},
+			});
+
+			return {
+				booking: confirmed,
+				event,
+				occurrence,
+				freedIntentId: existing?.paymentIntentId ?? null,
+			};
 		});
+
+		if (Number(booking.amount) === 0) {
+			if (freedIntentId) {
+				try {
+					await this.stripe.cancelPaymentIntent(freedIntentId, `free-booking-${booking.id}`);
+				} catch (e) {
+					this.logger.warn(
+						`Failed to cancel payment intent ${freedIntentId} freed by a full discount on booking ${booking.id}`,
+						e as Error,
+					);
+				}
+			}
+
+			await this.notifications.sendConfirmation(booking.id, locale);
+
+			return {
+				booking: {
+					...booking,
+					amount: Number(booking.amount),
+					baseAmount: nullableNumber(booking.baseAmount),
+					occurrence: mapOccurrenceForBookingResponse(occurrence),
+					refundPercentage: 0,
+					refundReason: 'RULES' as const,
+					estimatedStripeFeeInCents: 0,
+					estimatedRefundInCents: 0,
+				} satisfies BookingWithEstimate,
+				clientSecret: null,
+			};
+		}
 
 		let paymentIntent: StripePaymentIntent | null = null;
 		try {

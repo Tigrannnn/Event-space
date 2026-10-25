@@ -232,6 +232,11 @@ export class BookingQuantityService {
 		}
 
 		const currentAmountInCents = toCents(booking.amount);
+
+		if (currentAmountInCents === 0) {
+			throw new AppException(AppErrorCode.QUANTITY_SETTLEMENT_INVALID);
+		}
+
 		const unitPriceInCents = Math.round(currentAmountInCents / booking.quantity);
 		const newAmountInCents = unitPriceInCents * request.quantity;
 
