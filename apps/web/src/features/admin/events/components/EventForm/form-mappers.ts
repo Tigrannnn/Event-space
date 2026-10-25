@@ -3,6 +3,7 @@ import {
 	countsActiveBookings,
 	EventDifficultyEnum,
 	EventStatusEnum,
+	normalizeDiscountPercent,
 	type Event,
 	type EventImageItem,
 	toZonedLocalInput,
@@ -28,7 +29,7 @@ export function getDefaultEventFormValues(): EventFormValues {
 		price: '',
 		maxParticipants: '',
 		duration: '',
-		occurrences: [{ date: '', maxParticipants: '' }],
+		occurrences: [{ date: '', maxParticipants: '', discountPercent: '' }],
 		cancellationRules: [
 			{
 				hoursBeforeEvent: 72,
@@ -62,6 +63,7 @@ function buildEventFields(values: EventFormValues) {
 			id: occurrence.id,
 			date: fromDateTimeLocalInput(occurrence.date),
 			maxParticipants: occurrence.maxParticipants ? Number(occurrence.maxParticipants) : undefined,
+			discountPercent: normalizeDiscountPercent(Number(occurrence.discountPercent)) || null,
 		}));
 
 	const primaryOccurrence = occurrences[0];
@@ -129,6 +131,7 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		id: occurrence.id,
 		date: toZonedLocalInput(occurrence.date),
 		maxParticipants: String(occurrence.maxParticipants ?? ''),
+		discountPercent: occurrence.discountPercent ? String(occurrence.discountPercent) : '',
 		status: occurrence.status,
 		activeBookingsCount: countsActiveBookings(occurrence.bookingStats),
 		previousDate: occurrence.previousDate ? toZonedLocalInput(occurrence.previousDate) : undefined,
@@ -143,7 +146,8 @@ export function mapEventToFormValues(event?: Event): EventFormValues {
 		price: String(event.price),
 		duration: String(event.duration),
 		status: event.status,
-		occurrences: occurrences.length > 0 ? occurrences : [{ date: '', maxParticipants: '' }],
+		occurrences:
+			occurrences.length > 0 ? occurrences : [{ date: '', maxParticipants: '', discountPercent: '' }],
 		cancellationRules: (event.cancellationRules ?? [])
 			.slice()
 			.sort((a, b) => b.hoursBeforeEvent - a.hoursBeforeEvent)
@@ -201,17 +205,23 @@ const startOfDay = (value: string): number =>
 	new Date(`${value.split('T')[0]}T00:00:00.000Z`).getTime();
 
 export function nextOccurrenceDraft(
-	existing: { date?: string; maxParticipants?: string }[],
-): { date: string; maxParticipants: string } {
+	existing: { date?: string; maxParticipants?: string; discountPercent?: string }[],
+): { date: string; maxParticipants: string; discountPercent: string } {
 	const dated = existing
 		.filter((occurrence) => occurrence.date)
 		.sort((a, b) => (a.date as string).localeCompare(b.date as string));
 
 	const latest = dated.at(-1);
-	if (!latest?.date) return { date: '', maxParticipants: '' };
+	if (!latest?.date) return { date: '', maxParticipants: '', discountPercent: '' };
 
 	const from = startOfDay(latest.date);
-	if (Number.isNaN(from)) return { date: '', maxParticipants: latest.maxParticipants ?? '' };
+	if (Number.isNaN(from)) {
+		return {
+			date: '',
+			maxParticipants: latest.maxParticipants ?? '',
+			discountPercent: latest.discountPercent ?? '',
+		};
+	}
 
 	const previous = dated.at(-2)?.date;
 	const gap = previous ? Math.round((from - startOfDay(previous)) / DAY_MS) : 1;
@@ -222,5 +232,6 @@ export function nextOccurrenceDraft(
 	return {
 		date: `${new Date(from + step * DAY_MS).toISOString().slice(0, 10)}T${time}`,
 		maxParticipants: latest.maxParticipants ?? '',
+		discountPercent: latest.discountPercent ?? '',
 	};
 }

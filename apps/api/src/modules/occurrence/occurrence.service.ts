@@ -9,6 +9,7 @@ import {
 	CancelOccurrenceData,
 	RescheduleOccurrenceData,
 	compactCancellationReasons,
+	normalizeDiscountPercent,
 	pickCancellationReason,
 } from '@event-space/shared';
 import { AppException } from '@shared';
@@ -22,6 +23,7 @@ interface OccurrenceInput {
 	id?: string;
 	date: Date;
 	maxParticipants?: number;
+	discountPercent?: number | null;
 }
 
 @Injectable()
@@ -306,7 +308,11 @@ export class OccurrenceService {
 
 			await tx.eventOccurrence.update({
 				where: { id: occ.id! },
-				data: { date: occ.date, maxParticipants: occ.maxParticipants ?? 100 },
+				data: {
+					date: occ.date,
+					maxParticipants: occ.maxParticipants ?? 100,
+					discountPercent: normalizeDiscountPercent(occ.discountPercent) || null,
+				},
 			});
 		}
 
@@ -316,6 +322,7 @@ export class OccurrenceService {
 					eventId,
 					date: o.date,
 					maxParticipants: o.maxParticipants ?? 100,
+					discountPercent: normalizeDiscountPercent(o.discountPercent) || null,
 				})),
 			});
 		}

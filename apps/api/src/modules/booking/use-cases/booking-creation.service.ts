@@ -21,6 +21,8 @@ import {
 	calculateRefundPercentage,
 	getNextBookingReference,
 	mapOccurrenceForBookingResponse,
+	nullableNumber,
+	priceBooking,
 } from '../booking.utils';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingNotificationService } from './booking-notification.service';
@@ -97,7 +99,7 @@ export class BookingCreationService {
 				});
 			}
 
-			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
+			const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
 
 			// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
 			// left over from a finished cycle may already be paid — and even refunded — so
@@ -110,7 +112,7 @@ export class BookingCreationService {
 				update: {
 					status: 'PENDING',
 					quantity,
-					amount,
+					...pricing,
 					...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
 					...(brandHost ? { brandHost } : {}),
 				},
@@ -119,7 +121,7 @@ export class BookingCreationService {
 					occurrenceId: occurrence.id,
 					status: 'PENDING',
 					quantity,
-					amount,
+					...pricing,
 					brandHost,
 				},
 			});
@@ -190,6 +192,7 @@ export class BookingCreationService {
 			const bookingWithEstimate = {
 				...updatedBooking,
 				amount: Number(updatedBooking.amount),
+				baseAmount: nullableNumber(updatedBooking.baseAmount),
 				occurrence: mapOccurrenceForBookingResponse(occurrence),
 				refundPercentage,
 				refundReason: 'RULES' as const,
@@ -331,14 +334,14 @@ export class BookingCreationService {
 					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 			}
 
-			const amount = parseFloat((Number(event.price) * quantity).toFixed(2));
+			const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
 
 			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
 
 			const bookingData = {
 				status: 'CONFIRMED' as const,
 				quantity,
-				amount,
+				...pricing,
 				paymentIntentId: null,
 				paymentMethod,
 				createdByAdminId: adminId,
@@ -357,7 +360,7 @@ export class BookingCreationService {
 			});
 
 			if (paymentMethod === 'OFFLINE_PAID') {
-				await this.ledger.recordOfflinePayment(tx, booking.id, amount);
+				await this.ledger.recordOfflinePayment(tx, booking.id, pricing.amount);
 			}
 
 			return { booking, cancelledPaymentIntentId, event, occurrence };
@@ -382,6 +385,7 @@ export class BookingCreationService {
 		return {
 			...result.booking,
 			amount: Number(result.booking.amount),
+			baseAmount: nullableNumber(result.booking.baseAmount),
 			occurrence: mapOccurrenceForBookingResponse(result.occurrence),
 			refundPercentage: 0,
 			refundReason: 'RULES' as const,
@@ -420,7 +424,7 @@ export class BookingCreationService {
 			}
 
 			const quantity = data.quantity ?? booking.quantity;
-			const amount = parseFloat((Number(occurrence.event.price) * quantity).toFixed(2));
+			const pricing = priceBooking(occurrence.event.price, occurrence.discountPercent, quantity);
 
 			const reserved = await tx.eventOccurrence.updateMany({
 				where: {
@@ -447,12 +451,12 @@ export class BookingCreationService {
 					paymentIntentId: null,
 					referenceNumber,
 					quantity,
-					amount,
+					...pricing,
 				},
 			});
 
 			if (paymentMethod === 'OFFLINE_PAID') {
-				await this.ledger.recordOfflinePayment(tx, bookingId, amount);
+				await this.ledger.recordOfflinePayment(tx, bookingId, pricing.amount);
 			}
 
 			return updated;
@@ -460,7 +464,11 @@ export class BookingCreationService {
 
 		await this.notifications.sendConfirmation(confirmed.id, locale);
 
-		return { ...confirmed, amount: Number(confirmed.amount) };
+		return {
+			...confirmed,
+			amount: Number(confirmed.amount),
+			baseAmount: nullableNumber(confirmed.baseAmount),
+		};
 	}
 
 	private async releaseCardPayment(bookingId: string, paymentIntentId: string): Promise<void> {

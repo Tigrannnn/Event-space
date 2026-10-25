@@ -4,6 +4,7 @@ type WithPrice = Record<string, unknown> & { price: unknown };
 
 interface RawBooking extends Record<string, unknown> {
 	amount: unknown;
+	baseAmount?: unknown;
 	occurrence?: (Record<string, unknown> & { event?: WithPrice | null }) | null;
 	adjustments?: (Record<string, unknown> & { amount: unknown })[] | null;
 }
@@ -21,6 +22,7 @@ export function normalizeBookingResponse(booking: RawBooking): BookingWithDetail
 	return {
 		...booking,
 		amount: Number(booking.amount),
+		baseAmount: booking.baseAmount == null ? null : Number(booking.baseAmount),
 		event,
 		occurrence,
 		adjustments: booking.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [],

@@ -276,6 +276,8 @@ export const admin: Messages['admin'] = {
 	noSelection: 'Нет выбора',
 	occurrences: 'События',
 	occurrencesDescription: 'Добавьте одну или несколько дат для этого мероприятия.',
+	occurrenceDiscount: 'Скидка, %',
+	occurrenceDiscountHint: 'Скидка на эту дату. Пусто или 0 — цена без скидки.',
 	addOccurrence: 'Добавить дату',
 	timeZoneHint: 'Время указывается по Еревану ({offset}). Гости увидят его именно таким, где бы вы ни были.',
 	dateAndTime: 'Дата и время',

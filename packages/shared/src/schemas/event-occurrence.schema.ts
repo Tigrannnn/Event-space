@@ -3,12 +3,20 @@ import {
 	EventOccurrenceStatusSchema,
 	EventOccurrenceSchema as GeneratedEventOccurrenceSchema,
 } from '../generated';
+import { DISCOUNT_PERCENT_MAX, DISCOUNT_PERCENT_MIN } from '../utils/quote.utils';
 import { EventSchema } from './event.schema';
 import { CancellationReasonsSchema } from './cancellation-reason.schema';
 
 export const CreateEventOccurrenceSchema = z.object({
 	date: z.coerce.date(),
 	maxParticipants: z.number().int().min(1).optional(),
+	discountPercent: z
+		.number()
+		.int()
+		.min(DISCOUNT_PERCENT_MIN)
+		.max(DISCOUNT_PERCENT_MAX)
+		.nullable()
+		.optional(),
 });
 
 export const UpdateEventOccurrenceSchema = CreateEventOccurrenceSchema.extend({
@@ -55,6 +63,7 @@ export type RescheduleAnswers = z.infer<typeof RescheduleAnswersSchema>;
 export const EventOccurrenceSchema = GeneratedEventOccurrenceSchema.extend({
 	maxParticipants: z.number().int(),
 	currentParticipants: z.number().int(),
+	discountPercent: z.number().int().nullable(),
 	bookingStats: BookingStatusCountsSchema.optional(),
 	rescheduleAnswers: RescheduleAnswersSchema.optional(),
 });

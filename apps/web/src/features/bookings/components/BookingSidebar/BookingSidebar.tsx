@@ -13,6 +13,7 @@ import {
 	isEventAvailable,
 	getEventTranslation,
 	getUpcomingEventOccurrences,
+	quoteBooking,
 } from '@event-space/shared';
 import { useCurrentUser } from '@/features/users';
 import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
@@ -46,6 +47,11 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	);
 
 	const { openModal } = useModalStore();
+
+	const quote = quoteBooking(
+		{ price: event.price, discountPercent: selectedOccurrence?.discountPercent },
+		{ quantity: 1 },
+	);
 
 	const currentParticipants = Number(selectedOccurrence?.currentParticipants ?? 0);
 	const maxParticipants = Number(selectedOccurrence?.maxParticipants ?? 0);
@@ -116,10 +122,20 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 			<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
-					<div className="flex items-baseline gap-2">
+					<div className="flex flex-wrap items-baseline gap-2">
 						<span className="text-primary text-3xl font-black sm:text-4xl">
-							{formatCurrency(event.price)}
+							{formatCurrency(quote.unitPrice)}
 						</span>
+						{quote.discountPercent > 0 && (
+							<>
+								<span className="text-lg font-semibold text-gray-400 line-through">
+									{formatCurrency(quote.baseUnitPrice)}
+								</span>
+								<span className="rounded-full bg-red-500 px-2 py-1 text-[11px] leading-none font-black text-white">
+									{translate('event.discountOff', { percent: quote.discountPercent })}
+								</span>
+							</>
+						)}
 						<span className="font-medium text-gray-500 dark:text-gray-400">
 							{translate('event.perPerson')}
 						</span>

@@ -14,6 +14,7 @@ interface World {
 	published?: boolean;
 	pastDate?: boolean;
 	userByEmail?: { id: string; emailVerified: boolean } | null;
+	discountPercent?: number | null;
 }
 
 function build(world: World = {}) {
@@ -31,6 +32,7 @@ function build(world: World = {}) {
 		date: new Date(Date.now() + (world.pastDate ? -5 : 240) * HOUR),
 		maxParticipants: 10,
 		currentParticipants: 10 - (world.spotsFree ?? 5),
+		discountPercent: world.discountPercent ?? null,
 		event: {
 			id: 'e1',
 			status: world.published === false ? 'DRAFT' : 'PUBLISHED',
@@ -195,6 +197,30 @@ describe('creating a booking', () => {
 		expect(result).toMatchObject({
 			clientSecret: 'secret_new',
 			booking: { paymentIntentId: 'pi_new', amount: 20000, refundPercentage: 100 },
+		});
+	});
+
+	it('charges the discount set on the date and freezes what it was', async () => {
+		const { service, stripeCalls, upserts } = build({ discountPercent: 20 });
+		await service.create('u1', create as never, 'hy');
+
+		expect(upserts[0].create).toMatchObject({
+			quantity: 2,
+			amount: 16000,
+			baseAmount: 20000,
+			discountPercent: 20,
+		});
+		expect(stripeCalls.find((call) => call.method === 'createPaymentIntent')?.args[0]).toBe(16000);
+	});
+
+	it('leaves a booking on a date without a discount at the full price', async () => {
+		const { upserts, service } = build();
+		await service.create('u1', create as never, 'hy');
+
+		expect(upserts[0].create).toMatchObject({
+			amount: 20000,
+			baseAmount: 20000,
+			discountPercent: null,
 		});
 	});
 

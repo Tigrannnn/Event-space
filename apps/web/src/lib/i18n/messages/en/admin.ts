@@ -274,6 +274,8 @@ export const admin = {
 	noSelection: 'No selection',
 	occurrences: 'Occurrences',
 	occurrencesDescription: 'Add one or more dates for this event.',
+	occurrenceDiscount: 'Discount, %',
+	occurrenceDiscountHint: 'Discount for this date. Empty or 0 means full price.',
 	addOccurrence: 'Add occurrence',
 	timeZoneHint: 'Enter times in Yerevan time ({offset}). Guests see it exactly as entered, wherever you are.',
 	dateAndTime: 'Date and time',

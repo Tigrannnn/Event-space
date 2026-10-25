@@ -9,7 +9,12 @@ import Input from '@/components/ui/Inputs/Input';
 import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
-import { getEventTranslation, PhoneSchema, type EventOccurrence } from '@event-space/shared';
+import {
+	getEventTranslation,
+	PhoneSchema,
+	quoteBooking,
+	type EventOccurrence,
+} from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 import { useHasBookingForOccurrence } from '../../hooks/useBookings';
@@ -58,7 +63,10 @@ export default function BookingForm({
 		}
 	};
 
-	const totalPrice = selectedOccurrence ? event.price * quantity : 0;
+	const quote = quoteBooking(
+		{ price: event.price, discountPercent: selectedOccurrence?.discountPercent },
+		{ quantity },
+	);
 	const t = getEventTranslation(event, locale);
 	const isPhoneValid = phone.trim() ? PhoneSchema.safeParse(phone.trim()).success : false;
 
@@ -110,6 +118,10 @@ export default function BookingForm({
 							const isSoldOut = spotsLeft <= 0;
 							const isSelected = selectedOccurrence?.id === occurrence.id;
 							const hasBooking = isOccurrenceBooked(occurrence.id);
+							const occurrencePrice = quoteBooking(
+								{ price: event.price, discountPercent: occurrence.discountPercent },
+								{ quantity: 1 },
+							);
 
 							return (
 								<button
@@ -137,6 +149,23 @@ export default function BookingForm({
 													? translate('booking.alreadyBooked')
 													: `${spotsLeft} ${translate('booking.spotsLeft')}`}
 										</span>
+									</div>
+									<div className="mt-1 flex items-baseline gap-2">
+										<span className="text-primary text-sm font-bold">
+											{formatCurrency(occurrencePrice.unitPrice)}
+										</span>
+										{occurrencePrice.discountPercent > 0 && (
+											<>
+												<span className="text-xs text-gray-400 line-through">
+													{formatCurrency(occurrencePrice.baseUnitPrice)}
+												</span>
+												<span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] leading-none font-black text-white">
+													{translate('event.discountOff', {
+														percent: occurrencePrice.discountPercent,
+													})}
+												</span>
+											</>
+										)}
 									</div>
 								</button>
 							);
@@ -172,9 +201,27 @@ export default function BookingForm({
 						/>
 					</div>
 
-					<div className="mt-4 flex items-center justify-between">
-						<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
-						<span className="text-primary text-2xl font-bold">{formatCurrency(totalPrice)}</span>
+					<div className="mt-4 space-y-1">
+						{quote.discountPercent > 0 && (
+							<>
+								<div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+									<span>{translate('event.oldPrice')}</span>
+									<span className="line-through">{formatCurrency(quote.baseTotal)}</span>
+								</div>
+								<div className="flex items-center justify-between text-sm font-semibold text-red-500">
+									<span>
+										{translate('event.discountOff', { percent: quote.discountPercent })}
+									</span>
+									<span>{formatCurrency(quote.total - quote.baseTotal)}</span>
+								</div>
+							</>
+						)}
+						<div className="flex items-center justify-between">
+							<span className="text-gray-600 dark:text-gray-400">
+								{translate('booking.totalPrice')}
+							</span>
+							<span className="text-primary text-2xl font-bold">{formatCurrency(quote.total)}</span>
+						</div>
 					</div>
 				</>
 			)}

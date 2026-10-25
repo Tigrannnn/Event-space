@@ -4,7 +4,7 @@ import { PrismaService } from '@infra/prisma/prisma.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
 import type { AdminCancelBookingData } from '@event-space/shared';
-import { resolveRefundPolicy } from '@modules/booking/booking.utils';
+import { nullableNumber, resolveRefundPolicy } from '@modules/booking/booking.utils';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
 import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
 
@@ -70,7 +70,12 @@ export class AdminBookingCancellationService {
 		});
 
 		const respond = (processed: boolean, message: string) => ({
-			booking: { ...booking, amount: Number(booking.amount), status: 'CANCELLED' },
+			booking: {
+				...booking,
+				amount: Number(booking.amount),
+				baseAmount: nullableNumber(booking.baseAmount),
+				status: 'CANCELLED',
+			},
 			refundType,
 			refundMethod: queued?.method ?? refundMethod,
 			reason: reason ?? null,

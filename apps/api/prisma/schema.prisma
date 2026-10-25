@@ -161,6 +161,7 @@ model EventOccurrence {
   status              EventOccurrenceStatus @default(ACTIVE)
   maxParticipants     Int                   @default(100) @map("max_participants")
   currentParticipants Int                   @default(0) @map("current_participants")
+  discountPercent     Int?                  @map("discount_percent")
   createdAt           DateTime              @default(now()) @map("created_at")
   updatedAt           DateTime              @updatedAt @map("updated_at")
   cancelledAt         DateTime?
@@ -239,6 +240,9 @@ model Booking {
   updatedAt DateTime      @updatedAt @map("updated_at")
 
   amount Decimal @db.Decimal(10, 2)
+
+  baseAmount      Decimal? @map("base_amount") @db.Decimal(10, 2)
+  discountPercent Int?     @map("discount_percent")
 
   paymentMethod PaymentMethod @default(SITE_PAYMENT) @map("payment_method")
 

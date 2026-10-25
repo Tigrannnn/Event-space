@@ -8,6 +8,8 @@ import {
 	EventStatusEnum,
 	EventDifficultyEnum,
 	DEFAULT_CURRENCY,
+	DISCOUNT_PERCENT_MAX,
+	DISCOUNT_PERCENT_MIN,
 	getCategoryTranslation,
 	hasCancellationReason,
 	type CancellationReasons,
@@ -582,6 +584,9 @@ export default function EventForm({
 								{translate('admin.occurrences')}
 							</h3>
 							<p className="text-xs text-gray-500">{translate('admin.occurrencesDescription')}</p>
+							<p className="text-xs text-gray-500">
+								{translate('admin.occurrenceDiscountHint')}
+							</p>
 							<TimeZoneNote messageKey="admin.timeZoneHint" className="mt-1.5" />
 						</div>
 						<Button
@@ -679,6 +684,21 @@ export default function EventForm({
 												type="number"
 												min="1"
 												{...register(`occurrences.${index}.maxParticipants`)}
+												className={fieldClassName}
+												disabled={isPending || isCancelled || finished}
+											/>
+										</label>
+
+										<label className="w-full space-y-1.5 md:max-w-32">
+											<span className="text-xs font-medium text-gray-500">
+												{translate('admin.occurrenceDiscount')}
+											</span>
+											<input
+												type="number"
+												min={DISCOUNT_PERCENT_MIN}
+												max={DISCOUNT_PERCENT_MAX}
+												placeholder="0"
+												{...register(`occurrences.${index}.discountPercent`)}
 												className={fieldClassName}
 												disabled={isPending || isCancelled || finished}
 											/>

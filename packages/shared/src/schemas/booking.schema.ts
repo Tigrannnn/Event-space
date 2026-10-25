@@ -34,6 +34,7 @@ export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 
 export const BookingSchema = GeneratedBookingSchema.extend({
 	amount: z.number(),
+	baseAmount: z.number().nullable(),
 }).openapi({
 	description: 'Booking base information',
 	example: {

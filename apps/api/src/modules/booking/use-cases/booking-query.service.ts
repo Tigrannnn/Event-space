@@ -11,7 +11,11 @@ import {
 	type PaginatedCursorResponse,
 } from '@event-space/shared';
 import { AppException, encodeKeysetCursor } from '@shared';
-import { resolveRefundPolicy, mapOccurrenceForBookingResponse } from '../booking.utils';
+import {
+	resolveRefundPolicy,
+	mapOccurrenceForBookingResponse,
+	nullableNumber,
+} from '../booking.utils';
 import { readPayments, toLedgerRows } from '../money/booking-money';
 import { myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
 
@@ -78,6 +82,7 @@ export class BookingQueryService {
 				return {
 					...booking,
 					amount: Number(booking.amount),
+					baseAmount: nullableNumber(booking.baseAmount),
 					occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
 					refundPercentage: 0,
 					refundReason: 'RULES' as const,
@@ -114,6 +119,7 @@ export class BookingQueryService {
 			return {
 				...booking,
 				amount: Number(booking.amount),
+				baseAmount: nullableNumber(booking.baseAmount),
 				occurrence: mapOccurrenceForBookingResponse(occurrence),
 				refundPercentage: policy.percentage,
 				refundReason: policy.reason,

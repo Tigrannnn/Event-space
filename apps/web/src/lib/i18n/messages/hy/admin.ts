@@ -276,6 +276,8 @@ export const admin: Messages['admin'] = {
 	noSelection: 'Ընտրություն չկա',
 	occurrences: 'Ժամանակահատվածներ',
 	occurrencesDescription: 'Ավելացրեք մեկ կամ ավելի ամսաթվեր այս միջոցառման համար։',
+	occurrenceDiscount: 'Զեղչ, %',
+	occurrenceDiscountHint: 'Զեղչ այս ամսաթվի համար։ Դատարկ կամ 0 — ամբողջ գինը։',
 	addOccurrence: 'Ավելացնել ժամանակահատված',
 	timeZoneHint: 'Ժամը նշեք Երևանի ժամանակով ({offset})։ Հյուրերը այն կտեսնեն հենց այդպես՝ անկախ ձեր գտնվելու վայրից։',
 	dateAndTime: 'Ամսաթիվ եւ ժամ',

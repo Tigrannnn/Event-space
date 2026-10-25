@@ -1,5 +1,23 @@
 import type { Prisma } from '@prisma/client';
-import type { CancellationPolicyRule } from '@event-space/shared';
+import { quoteBooking, type CancellationPolicyRule } from '@event-space/shared';
+
+export function nullableNumber(value: Prisma.Decimal | number | null | undefined): number | null {
+	return value === null || value === undefined ? null : Number(value);
+}
+
+export function priceBooking(
+	price: Prisma.Decimal | number,
+	discountPercent: number | null | undefined,
+	quantity: number,
+): { amount: number; baseAmount: number; discountPercent: number | null } {
+	const quote = quoteBooking({ price: Number(price), discountPercent }, { quantity });
+
+	return {
+		amount: quote.total,
+		baseAmount: quote.baseTotal,
+		discountPercent: quote.discountPercent || null,
+	};
+}
 
 export function mapOccurrenceForBookingResponse(
 	occurrence: Prisma.EventOccurrenceGetPayload<{

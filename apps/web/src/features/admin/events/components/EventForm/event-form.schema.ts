@@ -43,6 +43,7 @@ export const EventOccurrenceFormSchema = z.object({
 	id: z.string().uuid().optional(),
 	date: z.string().min(1, 'admin.validation.dateRequired'),
 	maxParticipants: z.string().optional(),
+	discountPercent: z.string().optional(),
 	status: EventOccurrenceStatusEnum.default(EventOccurrenceStatusEnum.enum.ACTIVE).optional(),
 	/**
 	 * Bookings that still hold a seat (pending + confirmed) — the same rule the API uses to

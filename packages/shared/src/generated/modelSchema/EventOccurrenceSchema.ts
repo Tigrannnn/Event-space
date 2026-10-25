@@ -12,6 +12,7 @@ export const EventOccurrenceSchema = z.object({
   date: z.coerce.date(),
   maxParticipants: z.number().int(),
   currentParticipants: z.number().int(),
+  discountPercent: z.number().int().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   cancelledAt: z.coerce.date().nullable(),

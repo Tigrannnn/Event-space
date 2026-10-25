@@ -10,6 +10,7 @@ import {
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
+	quoteFromBooking,
 } from '@event-space/shared';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { useConfirm } from '@/hooks/confirmModal';
@@ -36,6 +37,7 @@ function centsToDollars(cents: number) {
 
 export default function BookingCard({ booking }: BookingCardProps) {
 	const { occurrence, quantity, status, refundPercentage, estimatedRefundInCents } = booking;
+	const quote = quoteFromBooking(booking);
 	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
@@ -247,13 +249,21 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						</span>
 					</div>
 					<div className="text-right">
-						<span className="text-primary text-xl font-bold">
-							{formatCurrency(event.price, { quantity })}
-						</span>
+						{quote.discountPercent > 0 && (
+							<div className="text-sm text-gray-400 line-through dark:text-gray-500">
+								{formatCurrency(quote.baseTotal)}
+							</div>
+						)}
+						<span className="text-primary text-xl font-bold">{formatCurrency(quote.total)}</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500">
 							{' '}
 							{translate('booking.total')}
 						</span>
+						{quote.discountPercent > 0 && (
+							<div className="text-sm font-semibold text-red-500">
+								{translate('event.discountOff', { percent: quote.discountPercent })}
+							</div>
+						)}
 
 						{/* Refund estimate & commission — only a paid, not yet attended booking can be refunded */}
 						{(() => {

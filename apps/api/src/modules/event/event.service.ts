@@ -8,6 +8,7 @@ import {
 	EventImageItem,
 	EventStatus,
 	EventStatusEnum,
+	normalizeDiscountPercent,
 	pickCancellationReason,
 	UpdateEventData,
 	UserRoleType,
@@ -246,6 +247,7 @@ export class EventService {
 							eventId: created.id,
 							date: o.date,
 							maxParticipants: o.maxParticipants,
+							discountPercent: normalizeDiscountPercent(o.discountPercent) || null,
 						})),
 					});
 				}

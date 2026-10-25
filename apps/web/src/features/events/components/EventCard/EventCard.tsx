@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { EventImageWithFallback } from '../EventImage';
 import {
 	averageRating,
+	eventPricing,
 	getEventCoverImageUrl,
 	isEventAvailable,
 	getEventTranslation,
@@ -43,6 +44,7 @@ export default function EventCard({ event }: EventCardProps) {
 		useHasBookingForOccurrence();
 
 	const eventIsAvailable = isEventAvailable(event);
+	const pricing = eventPricing(event);
 	const average = averageRating(event);
 	const eventTranslation = getEventTranslation(event, locale);
 	const occurrenceDate = getPrimaryEventOccurrence(event);
@@ -77,7 +79,11 @@ export default function EventCard({ event }: EventCardProps) {
 			{/* Media Section */}
 			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
 				{/* {categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>} */}
-				<PriceBadge price={event.price} />
+				<PriceBadge
+					price={pricing.fromPrice}
+					basePrice={pricing.basePrice}
+					discountPercent={pricing.maxDiscountPercent}
+				/>
 				<div className="absolute top-3 right-3 z-20">
 					<FavoriteButton eventId={event.id} />
 				</div>
