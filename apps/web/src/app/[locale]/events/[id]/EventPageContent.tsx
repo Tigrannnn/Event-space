@@ -197,7 +197,7 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 
 					{/* Right Column - Booking Sidebar */}
 					<div className="lg:col-span-1">
-						<div className="sticky top-24">
+						<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
 							<BookingSidebar event={event} />
 						</div>
 					</div>

@@ -99,7 +99,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	if (!upcomingOccurrences.length) {
 		return (
-			<div className="sticky top-10">
+			<div>
 				<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
 					<div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/70">
 						<p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -112,7 +112,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	}
 
 	return (
-		<div className="sticky top-10">
+		<div>
 			<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
