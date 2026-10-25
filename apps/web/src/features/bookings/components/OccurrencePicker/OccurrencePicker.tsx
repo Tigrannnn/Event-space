@@ -28,6 +28,7 @@ export function OccurrencePicker({
 	const translate = useTranslation();
 	const { formatDateTime } = useFormatDate();
 	const containerRef = useRef<HTMLDivElement>(null);
+	const activeRef = useRef<HTMLButtonElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 
@@ -56,6 +57,10 @@ export function OccurrencePicker({
 			document.removeEventListener('keydown', onKeyDown);
 		};
 	}, [isOpen]);
+
+	useEffect(() => {
+		if (isOpen) activeRef.current?.scrollIntoView({ block: 'nearest' });
+	}, [isOpen, activeIndex]);
 
 	const open = () => {
 		setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
@@ -132,6 +137,7 @@ export function OccurrencePicker({
 						return (
 							<button
 								key={occurrence.id}
+								ref={isActive ? activeRef : undefined}
 								type="button"
 								role="option"
 								aria-selected={isSelected}

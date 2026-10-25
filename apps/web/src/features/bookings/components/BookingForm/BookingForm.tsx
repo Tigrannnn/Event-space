@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ModalHeader } from '@/components/ui/Modal';
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
@@ -43,6 +43,11 @@ export default function BookingForm({
 	const formatCurrency = useFormatCurrency();
 	const { formatDateTime } = useFormatDate();
 	const { hasBooking: isOccurrenceBooked } = useHasBookingForOccurrence();
+	const selectedRef = useRef<HTMLButtonElement>(null);
+
+	useEffect(() => {
+		selectedRef.current?.scrollIntoView({ block: 'nearest' });
+	}, []);
 
 	// Filter and sort future occurrences
 	const now = new Date();
@@ -123,6 +128,7 @@ export default function BookingForm({
 							return (
 								<button
 									key={occurrence.id}
+									ref={isSelected ? selectedRef : undefined}
 									onClick={() => handleOccurrenceSelect(occurrence)}
 									disabled={isSoldOut || isLoading || hasBooking}
 									className={`w-full rounded-xl border p-3 text-left transition-all ${
