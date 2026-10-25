@@ -177,6 +177,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 								selectedId={selectedOccurrence?.id}
 								onSelect={setSelectedOccId}
 								price={event.price}
+								isBooked={isOccurrenceBooked}
 							/>
 							<TimeZoneNote className="mt-2" />
 						</div>

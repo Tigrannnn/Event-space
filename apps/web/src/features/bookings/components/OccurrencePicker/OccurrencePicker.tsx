@@ -13,6 +13,7 @@ export interface OccurrencePickerProps {
 	selectedId?: string;
 	onSelect: (occurrenceId: string) => void;
 	price: number;
+	isBooked?: (occurrenceId: string) => boolean;
 	disabled?: boolean;
 }
 
@@ -24,6 +25,7 @@ export function OccurrencePicker({
 	selectedId,
 	onSelect,
 	price,
+	isBooked,
 	disabled = false,
 }: OccurrencePickerProps) {
 	const translate = useTranslation();
@@ -36,6 +38,16 @@ export function OccurrencePicker({
 
 	const selectedIndex = occurrences.findIndex((occurrence) => occurrence.id === selectedId);
 	const selected = selectedIndex >= 0 ? occurrences[selectedIndex] : undefined;
+
+	const stateOf = (occurrence: EventOccurrence) => {
+		if (spotsOf(occurrence) === 0) {
+			return { label: translate('booking.soldOut'), isWarning: true };
+		}
+		if (isBooked?.(occurrence.id)) {
+			return { label: translate('booking.alreadyBooked'), isWarning: false };
+		}
+		return { label: `${spotsOf(occurrence)} ${translate('booking.spotsLeft')}`, isWarning: false };
+	};
 
 	useEffect(() => {
 		if (!isOpen) return;
@@ -117,10 +129,10 @@ export function OccurrencePicker({
 					{selected && (
 						<span className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
 							<OccurrencePrice price={price} discountPercent={selected.discountPercent} />
-							<span className="text-xs text-gray-500 dark:text-gray-400">
-								{spotsOf(selected) > 0
-									? `${spotsOf(selected)} ${translate('booking.spotsLeft')}`
-									: translate('booking.soldOut')}
+							<span
+								className={`text-xs ${stateOf(selected).isWarning ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
+							>
+								{stateOf(selected).label}
 							</span>
 						</span>
 					)}
@@ -137,7 +149,7 @@ export function OccurrencePicker({
 					className="absolute top-full right-0 left-0 z-30 mt-2 max-h-72 overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-700 dark:bg-gray-800"
 				>
 					{occurrences.map((occurrence, index) => {
-						const spotsLeft = spotsOf(occurrence);
+						const state = stateOf(occurrence);
 						const isSelected = occurrence.id === selectedId;
 						const isActive = index === activeIndex;
 
@@ -148,10 +160,9 @@ export function OccurrencePicker({
 								type="button"
 								role="option"
 								aria-selected={isSelected}
-								disabled={spotsLeft === 0}
 								onMouseEnter={() => setActiveIndex(index)}
 								onClick={() => pick(occurrence.id)}
-								className={`flex w-full items-start justify-between gap-3 rounded-lg px-3 py-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50 ${
+								className={`flex w-full items-start justify-between gap-3 rounded-lg px-3 py-3 text-left transition ${
 									isSelected
 										? 'bg-primary/10 dark:bg-primary/20'
 										: isActive
@@ -171,11 +182,9 @@ export function OccurrencePicker({
 								</span>
 								<span className="flex shrink-0 items-center gap-2">
 									<span
-										className={`text-xs ${spotsLeft === 0 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
+										className={`text-xs ${state.isWarning ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
 									>
-										{spotsLeft === 0
-											? translate('booking.soldOut')
-											: `${spotsLeft} ${translate('booking.spotsLeft')}`}
+										{state.label}
 									</span>
 									{isSelected && <Check className="text-primary h-4 w-4" />}
 								</span>
