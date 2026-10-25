@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useMemo } from 'react';
-import { Clock, EyeOff } from 'lucide-react';
-import { averageRating, type Event } from '@event-space/shared';
+import Link from 'next/link';
+import { Clock, EyeOff, Pencil } from 'lucide-react';
+import { averageRating, canEditReview, type Event } from '@event-space/shared';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
+import { localizePath } from '@/lib/i18n/config';
 import { useEventReviews } from '../hooks/useReviews';
 import { StarRating } from './StarRating';
 
@@ -67,6 +69,15 @@ export function EventReviews({ event }: { event: Event }) {
 								<span className="text-xs text-gray-500">
 									{formatDateShort(review.createdAt)}
 								</span>
+								{canEditReview(review.createdAt) && (
+									<Link
+										href={localizePath(`/bookings/${review.bookingId}/review`, translate.locale)}
+										className="text-primary ml-auto flex items-center gap-1 text-xs font-semibold hover:underline"
+									>
+										<Pencil className="h-3.5 w-3.5" />
+										{translate('review.editAction')}
+									</Link>
+								)}
 							</div>
 
 							{review.text && (

@@ -10,6 +10,7 @@ import StripePaymentForm from '@/features/bookings/components/StripePaymentForm'
 import { BookingWithEstimate, type EventOccurrence } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useCurrentUser } from '@/features/users';
+import { useEventById } from '@/features/events';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isLoading } = useCreateBooking();
@@ -18,19 +19,33 @@ export default function CreateBookingModal() {
 	const translate = useTranslation();
 	const modalData = useModalData(ModalType.CreateBooking);
 	const { data: user } = useCurrentUser();
-	const event = modalData?.event;
+	const cardEvent = modalData?.event;
+	// The card that opened this modal may be minutes old. Spots and dates can move while the
+	// person is still filling the form, so the modal keeps its own live copy, seeded with
+	// whatever the card already had so there is no blank flash while it catches up.
+	const { data: event } = useEventById(cardEvent?.id ?? '', {
+		initialData: cardEvent,
+		enabled: Boolean(cardEvent),
+	});
 	const defaultOccurrence = modalData?.selectedOccurrence || null;
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
 	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);
-	const [selectedOccurrence, setSelectedOccurrence] = useState<EventOccurrence | null>(
+	const [pickedOccurrence, setPickedOccurrence] = useState<EventOccurrence | null>(
 		defaultOccurrence,
 	);
+	// The form only ever hands back an id (see onOccurrenceSelect below); this re-reads its
+	// spots and price from the live event on every poll, so a choice made a minute ago does not
+	// quietly keep showing what was true a minute ago.
+	const selectedOccurrence =
+		(pickedOccurrence &&
+			event?.occurrences?.find((occurrence) => occurrence.id === pickedOccurrence.id)) ||
+		pickedOccurrence;
 
 	const handleClose = () => {
 		setClientSecret(null);
 		setBooking(null);
-		setSelectedOccurrence(null);
+		setPickedOccurrence(null);
 		closeModal();
 	};
 
@@ -88,7 +103,7 @@ export default function CreateBookingModal() {
 					initialQuantity={modalData?.initialQuantity ?? 1}
 					maxQuantity={spotsLeft}
 					onSubmit={handleConfirm}
-					onOccurrenceSelect={setSelectedOccurrence}
+					onOccurrenceSelect={setPickedOccurrence}
 					selectedOccurrence={selectedOccurrence}
 					isLoading={isLoading}
 					submitLabel={

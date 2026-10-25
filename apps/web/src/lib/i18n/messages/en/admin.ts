@@ -3,6 +3,8 @@ export const admin = {
 	exitToSite: 'Exit to Site',
 	cancel: 'Cancel',
 	dashboard: 'Dashboard',
+	liveData: 'Data refreshes on its own',
+	liveDataHint: 'This page updates every 20 seconds without a reload',
 	events: 'Events',
 	bookings: 'Bookings',
 	checkIn: 'Check In',

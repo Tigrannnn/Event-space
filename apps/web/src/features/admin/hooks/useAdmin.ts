@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	type AdminCancelBookingData,
+	type DashboardStats,
 	type ChangeQuantityData,
 	type QuantitySettlement,
 	type RefundMethod,
@@ -23,11 +24,14 @@ import { useModalStore } from '@/stores';
 import { adminApi } from '../api/admin.api';
 import { useApiError } from '@/hooks/apiError';
 import { useTranslation } from '@/hooks/translation';
+import { LIVE_BADGE_QUERY_OPTIONS, LIVE_QUERY_OPTIONS } from '@/hooks/liveQuery';
 
-export const useStats = () => {
+export const useAdminStats = (initialData?: DashboardStats) => {
 	return useQuery({
 		queryKey: ['admin', 'stats'],
 		queryFn: () => adminApi.getStats(),
+		initialData,
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -35,6 +39,7 @@ export const useDashboardFlow = (from: string, to: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'flow', from, to],
 		queryFn: () => adminApi.getDashboardFlow(from, to),
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -42,6 +47,7 @@ export const useDashboardRevenue = (from: string, to: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'revenue', from, to],
 		queryFn: () => adminApi.getDashboardRevenue(from, to),
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -49,10 +55,15 @@ export const useDashboardExpectedTimeline = (from: string, to: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'revenue', 'timeline', from, to],
 		queryFn: () => adminApi.getDashboardExpectedTimeline(from, to),
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
-export const useDashboardSnapshots = (from: string, to: string, options?: { enabled?: boolean }) => {
+export const useDashboardSnapshots = (
+	from: string,
+	to: string,
+	options?: { enabled?: boolean },
+) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'snapshots', from, to],
 		queryFn: () => adminApi.getDashboardSnapshots(from, to),
@@ -65,6 +76,7 @@ export const useBookingState = (from: string, to: string, options?: { enabled?: 
 		queryKey: ['admin', 'stats', 'booking-state', from, to],
 		queryFn: () => adminApi.getBookingState(from, to),
 		enabled: options?.enabled ?? true,
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -72,6 +84,7 @@ export const useBookingCohort = (from: string, to: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'booking-cohort', from, to],
 		queryFn: () => adminApi.getBookingCohort(from, to),
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -96,6 +109,7 @@ export const useAdminBookings = (params?: BookingFilters, options?: { enabled?: 
 		queryKey: ['admin', 'bookings', params],
 		queryFn: () => adminApi.getBookings(params),
 		enabled: options?.enabled ?? true,
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 
@@ -329,8 +343,8 @@ export function useCancelOccurrence() {
 			queryClient.invalidateQueries({ queryKey: ['admin', 'events'] });
 		},
 		onError: (error) => {
-			const message = apiError(error, 'admin.cancelOccurrenceFailed')
-			addToast(message, ToastType.ERROR)
+			const message = apiError(error, 'admin.cancelOccurrenceFailed');
+			addToast(message, ToastType.ERROR);
 		},
 	});
 }
@@ -449,7 +463,10 @@ export const useCreateManualBooking = () => {
 	});
 };
 
-export const useAdminCategories = (params?: { skip?: number; limit?: number; search?: string }, options?: { enabled?: boolean }) => {
+export const useAdminCategories = (
+	params?: { skip?: number; limit?: number; search?: string },
+	options?: { enabled?: boolean },
+) => {
 	return useQuery({
 		queryKey: ['admin', 'categories', params],
 		queryFn: () => adminApi.getCategories(params),
@@ -620,7 +637,7 @@ export const usePendingReviewsCount = () => {
 	const { data } = useQuery({
 		queryKey: ['admin', 'reviews', 'pending-count'],
 		queryFn: () => adminApi.getPendingReviewsCount(),
-		staleTime: 60 * 1000,
+		...LIVE_BADGE_QUERY_OPTIONS,
 	});
 
 	return data?.count ?? 0;
@@ -658,9 +675,7 @@ export const useModerateReview = () => {
 		...callbacks,
 		onSuccess: async (review) => {
 			addToast(
-				translate(
-					review.status === 'PUBLISHED' ? 'admin.reviewPublished' : 'admin.reviewRejected',
-				),
+				translate(review.status === 'PUBLISHED' ? 'admin.reviewPublished' : 'admin.reviewRejected'),
 				ToastType.SUCCESS,
 			);
 			await callbacks.onSuccess();

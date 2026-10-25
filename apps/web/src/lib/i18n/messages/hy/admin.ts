@@ -5,6 +5,8 @@ export const admin: Messages['admin'] = {
 	exitToSite: 'Դուրս գալ վեբ-հարթակ',
 	cancel: 'Չեղարկել',
 	dashboard: 'Կառավարման վահանակ',
+	liveData: 'Տվյալներն ինքնաթարմացվում են',
+	liveDataHint: 'Այս էջը թարմացվում է ամեն 20 վայրկյանը մեկ, առանց վերաբեռնման',
 	events: 'Միջոցառումներ',
 	bookings: 'Ամրագրումներ',
 	checkIn: 'Ստուգում',

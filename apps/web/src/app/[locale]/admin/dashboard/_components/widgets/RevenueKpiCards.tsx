@@ -5,6 +5,7 @@ import { DollarSign, Hourglass } from 'lucide-react';
 import { toZonedDateKey, type DashboardRevenue } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency } from '@/hooks/format';
+import { FlashValue } from '@/components/ui/FlashValue';
 
 interface RevenueKpiCardsProps {
 	revenue?: DashboardRevenue;
@@ -80,7 +81,7 @@ export default function RevenueKpiCards({
 							<div className="min-w-0">
 								<p className="text-sm text-gray-500">{translate('admin.revenueEarned')}</p>
 								<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-									{formatCurrency(totals.earned)}
+									<FlashValue watch={totals.earned}>{formatCurrency(totals.earned)}</FlashValue>
 								</p>
 								<p className="mt-2 text-xs text-gray-500">
 									{translate('admin.revenueEarnedHint', { count: totals.toursFinished })}
@@ -131,7 +132,7 @@ export default function RevenueKpiCards({
 						<div className="min-w-0 flex-1">
 							<p className="text-sm text-gray-500">{translate('admin.revenueExpected')}</p>
 							<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-								{formatCurrency(upcoming.expected)}
+								<FlashValue watch={upcoming.expected}>{formatCurrency(upcoming.expected)}</FlashValue>
 							</p>
 							<p className="mt-2 text-xs text-gray-500">
 								{translate('admin.revenueExpectedTours', { count: upcoming.tours })}

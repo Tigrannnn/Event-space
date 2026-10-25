@@ -5,6 +5,8 @@ export const admin: Messages['admin'] = {
 	exitToSite: 'Выход на сайт',
 	cancel: 'Отмена',
 	dashboard: 'Панель управления',
+	liveData: 'Данные обновляются сами',
+	liveDataHint: 'Эта страница обновляется каждые 20 секунд без перезагрузки',
 	events: 'События',
 	bookings: 'Брони',
 	checkIn: 'Регистрация',

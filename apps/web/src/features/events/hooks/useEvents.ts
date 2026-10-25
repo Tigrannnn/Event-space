@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useQuery, InfiniteData } from '@tanstack/react-query';
 import { Event, EventDifficulty } from '@event-space/shared';
 import { eventApi, PaginatedEventsResponse } from '../api/events.api';
+import { PUBLIC_LIVE_QUERY_OPTIONS } from '@/hooks/liveQuery';
 
 /**
  * Custom hook to fetch events using React Query with infinite scroll
@@ -78,15 +79,22 @@ export const useEvents = (options: UseEventsOptions = {}) => {
  */
 interface UseEventByIdOptions {
 	initialData?: Event;
+	enabled?: boolean;
 }
 
+/**
+ * The one query on the event page is kept live: a client here is one date and one click away
+ * from booking, and spots that fill up on another device should show up before they submit
+ * rather than surface only as a NOT_ENOUGH_SPOTS error after they have filled in the form. The
+ * server still checks again at booking time either way — this just keeps the UI honest.
+ */
 export const useEventById = (id: string, options?: UseEventByIdOptions) => {
 	return useQuery<Event>({
 		queryKey: ['event', id],
 		queryFn: () => eventApi.getEventById(id),
-		staleTime: 1000 * 60 * 5,
 		gcTime: 1000 * 60 * 10,
 		retry: 1,
+		...PUBLIC_LIVE_QUERY_OPTIONS,
 		...options,
 	});
 };

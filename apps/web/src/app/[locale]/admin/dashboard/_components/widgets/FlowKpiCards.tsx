@@ -6,6 +6,7 @@ import type { BookingCohort, DashboardFlow } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { FlashValue } from '@/components/ui/FlashValue';
 import { BOOKING_STATUS_COLORS } from '../booking-status-colors';
 
 interface FlowKpiCardsProps {
@@ -115,7 +116,9 @@ function KpiCard({ label, value, change, icon: Icon, footer }: KpiCardProps) {
 			<div className="flex items-start justify-between gap-4">
 				<div className="min-w-0 flex-1">
 					<p className="text-sm text-gray-500">{label}</p>
-					<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+					<p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+						<FlashValue watch={value}>{value}</FlashValue>
+					</p>
 					<p className="mt-2">
 						<DeltaBadge change={change} />
 					</p>

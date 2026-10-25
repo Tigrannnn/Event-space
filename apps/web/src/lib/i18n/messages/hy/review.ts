@@ -28,6 +28,7 @@ export const review: Messages['review'] = {
 	retry: 'Կրկնել',
 	backToBookings: 'Դեպի իմ ամրագրումները',
 	yours: 'Ձեր կարծիքը',
+	editAction: 'Խմբագրել',
 	onlyYouSeeIt: 'Ստուգվում է — մինչև հրապարակելը այն տեսնում եք միայն Դուք։',
 	sectionTitle: 'Կարծիքներ',
 	count: 'գնահատականներ՝ {count}',

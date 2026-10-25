@@ -23,6 +23,7 @@ import { ModalType, useModalStore } from '@/stores';
 import React from 'react';
 import { useFormatCurrency } from '@/hooks/format';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
+import { FlashValue } from '@/components/ui/FlashValue';
 import { OccurrencePicker } from '../OccurrencePicker';
 
 export interface BookingSidebarProps {
@@ -147,9 +148,12 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						<span className="font-bold text-gray-700 dark:text-gray-300">
 							{currentParticipants} / {maxParticipants} {translate('event.participants')}
 						</span>
-						<span className="text-primary font-bold dark:text-emerald-400">
+						<FlashValue
+							watch={spotsLeft}
+							className="text-primary font-bold dark:text-emerald-400"
+						>
 							{spotsLeft} {translate('event.spotsLeft')}
-						</span>
+						</FlashValue>
 					</div>
 					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-200 sm:h-2.5 dark:bg-gray-700">
 						<div

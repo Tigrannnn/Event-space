@@ -28,6 +28,7 @@ export const review: Messages['review'] = {
 	retry: 'Повторить',
 	backToBookings: 'К моим броням',
 	yours: 'Ваш отзыв',
+	editAction: 'Изменить',
 	onlyYouSeeIt: 'На проверке — пока мы не опубликуем, его не видит никто, кроме вас.',
 	sectionTitle: 'Отзывы',
 	count: 'оценок: {count}',

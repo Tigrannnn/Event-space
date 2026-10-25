@@ -19,6 +19,7 @@ import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { usePendingReviewsCount } from '@/features/admin/hooks/useAdmin';
+import { FlashValue } from '@/components/ui/FlashValue';
 
 interface AdminSidebarProps {
 	mobileOpen?: boolean;
@@ -83,9 +84,13 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 							<Icon className="h-5 w-5 shrink-0" />
 							<span className="flex-1">{item.label}</span>
 							{item.badge ? (
-								<span className="bg-primary rounded-full px-2 py-0.5 text-xs font-bold text-white">
+								<FlashValue
+									watch={item.badge}
+									variant="pop"
+									className="bg-primary rounded-full px-2 py-0.5 text-xs font-bold text-white"
+								>
 									{item.badge}
-								</span>
+								</FlashValue>
 							) : null}
 						</Link>
 					);

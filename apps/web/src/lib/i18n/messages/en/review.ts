@@ -26,6 +26,7 @@ export const review = {
 	retry: 'Try again',
 	backToBookings: 'Back to my bookings',
 	yours: 'Your review',
+	editAction: 'Edit',
 	onlyYouSeeIt: 'Being read — nobody else can see it until we publish it.',
 	sectionTitle: 'Reviews',
 	count: '{count} ratings',

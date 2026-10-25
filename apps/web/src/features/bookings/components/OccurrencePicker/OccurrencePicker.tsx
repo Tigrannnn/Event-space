@@ -7,6 +7,7 @@ import { useFormatDate } from '@/hooks/format';
 import { centerInScroller, keepInView } from '@/utils/scroll';
 import { useTranslation } from '@/hooks/translation';
 import { OccurrencePrice } from '../OccurrencePrice';
+import { FlashValue } from '@/components/ui/FlashValue';
 
 export interface OccurrencePickerProps {
 	occurrences: EventOccurrence[];
@@ -129,11 +130,12 @@ export function OccurrencePicker({
 					{selected && (
 						<span className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1">
 							<OccurrencePrice price={price} discountPercent={selected.discountPercent} />
-							<span
+							<FlashValue
+								watch={stateOf(selected).label}
 								className={`text-xs ${stateOf(selected).isWarning ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
 							>
 								{stateOf(selected).label}
-							</span>
+							</FlashValue>
 						</span>
 					)}
 				</span>
@@ -181,11 +183,12 @@ export function OccurrencePicker({
 									/>
 								</span>
 								<span className="flex shrink-0 items-center gap-2">
-									<span
+									<FlashValue
+										watch={state.label}
 										className={`text-xs ${state.isWarning ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
 									>
 										{state.label}
-									</span>
+									</FlashValue>
 									{isSelected && <Check className="text-primary h-4 w-4" />}
 								</span>
 							</button>

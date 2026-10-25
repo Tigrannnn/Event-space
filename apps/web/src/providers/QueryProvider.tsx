@@ -14,7 +14,6 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
       queries: {
         staleTime: 60 * 1000,
         retry: 2,
-        refetchOnWindowFocus: false,
       },
     },
   }));
@@ -22,7 +21,7 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

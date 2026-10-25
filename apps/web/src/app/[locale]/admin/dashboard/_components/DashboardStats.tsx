@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { DashboardStats as DashboardStatsData } from '@event-space/shared';
 import {
+	useAdminStats,
 	useBookingCohort,
 	useBookingState,
 	useDashboardFlow,
@@ -10,6 +11,7 @@ import {
 	useDashboardRevenue,
 } from '@/features/admin/hooks/useAdmin';
 import { useUrlFilters } from '@/hooks/urlFilters';
+import { LiveDot } from '@/components/ui/LiveDot';
 import DashboardRangePicker from './DashboardRangePicker';
 import FlowKpiCards, { BookingsCreatedCard } from './widgets/FlowKpiCards';
 import FlowChart from './widgets/FlowChart';
@@ -30,6 +32,7 @@ import {
 } from './dashboard-range';
 
 interface DashboardStatsProps {
+	/** The server's snapshot from first paint — the live query below takes over from here. */
 	stats: DashboardStatsData;
 }
 
@@ -44,8 +47,9 @@ interface DashboardStatsProps {
  * Needs Attention and Upcoming Events ignore the range entirely: they are a to-do list for right
  * now, and a booking that needed attention in March has long since been handled.
  */
-export default function DashboardStats({ stats }: DashboardStatsProps) {
+export default function DashboardStats({ stats: initialStats }: DashboardStatsProps) {
 	const translate = useTranslation();
+	const { data: stats = initialStats } = useAdminStats(initialStats);
 	const [moneyView, setMoneyView] = useState<'tours' | 'cash'>('tours');
 	const { filters: range, setFilters: setRange } = useUrlFilters({
 		parse: parseDashboardRange,
@@ -72,6 +76,11 @@ export default function DashboardStats({ stats }: DashboardStatsProps) {
 
 	return (
 		<div className="space-y-6">
+			<div className="flex items-center gap-2 text-xs text-gray-500">
+				<LiveDot label={translate('admin.liveDataHint')} />
+				{translate('admin.liveData')}
+			</div>
+
 			<DashboardRangePicker range={range} onRangeChange={setRange} />
 
 			<div className="flex gap-2">

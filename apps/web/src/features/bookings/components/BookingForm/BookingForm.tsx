@@ -21,6 +21,7 @@ import { useHasBookingForOccurrence } from '../../hooks/useBookings';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 import { VerticalScroll } from '@/components/ui/VerticalScroll';
 import { OccurrencePrice } from '../OccurrencePrice';
+import { FlashValue } from '@/components/ui/FlashValue';
 
 export default function BookingForm({
 	event,
@@ -140,7 +141,8 @@ export default function BookingForm({
 										<span className="text-sm font-medium text-gray-900 dark:text-white">
 											{formatDateTime(occurrence.date)}
 										</span>
-										<span
+										<FlashValue
+											watch={isSoldOut ? 'sold-out' : spotsLeft}
 											className={`text-xs ${isSoldOut ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
 										>
 											{isSoldOut
@@ -148,7 +150,7 @@ export default function BookingForm({
 												: hasBooking
 													? translate('booking.alreadyBooked')
 													: `${spotsLeft} ${translate('booking.spotsLeft')}`}
-										</span>
+										</FlashValue>
 									</div>
 									<OccurrencePrice
 										price={event.price}
