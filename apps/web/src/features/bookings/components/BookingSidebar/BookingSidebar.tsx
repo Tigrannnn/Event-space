@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Button from '@/components/ui/Buttons/Button';
-import Select from '@/components/ui/Select';
 import { CheckIcon } from '../../../../components/ui/Icons';
 import {
 	Event,
@@ -22,15 +21,15 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { ModalType, useModalStore } from '@/stores';
 import React from 'react';
-import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { useFormatCurrency } from '@/hooks/format';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
+import { OccurrencePicker } from '../OccurrencePicker';
 
 export interface BookingSidebarProps {
 	event: Event;
 }
 
 export default function BookingSidebar({ event }: BookingSidebarProps) {
-	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
@@ -173,19 +172,12 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
 								{translate('event.date')}
 							</span>
-							<Select
-								value={selectedOccurrence?.id ?? ''}
-								onValueChange={setSelectedOccId}
-								className="focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm transition focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-							>
-								{upcomingOccurrences.map((occurrence) => (
-									<option key={occurrence.id} value={occurrence.id}>
-										{formatDateTime(occurrence.date)} -{' '}
-										{Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants)}{' '}
-										{translate('booking.spotsLeft')}
-									</option>
-								))}
-							</Select>
+							<OccurrencePicker
+								occurrences={upcomingOccurrences}
+								selectedId={selectedOccurrence?.id}
+								onSelect={setSelectedOccId}
+								price={event.price}
+							/>
 							<TimeZoneNote className="mt-2" />
 						</div>
 					</div>

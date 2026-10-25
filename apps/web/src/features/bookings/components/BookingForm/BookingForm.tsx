@@ -20,6 +20,7 @@ import { useFormatDate } from '@/hooks/format/useFormatDate';
 import { useHasBookingForOccurrence } from '../../hooks/useBookings';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 import { VerticalScroll } from '@/components/ui/VerticalScroll';
+import { OccurrencePrice } from '../OccurrencePrice';
 
 export default function BookingForm({
 	event,
@@ -118,10 +119,6 @@ export default function BookingForm({
 							const isSoldOut = spotsLeft <= 0;
 							const isSelected = selectedOccurrence?.id === occurrence.id;
 							const hasBooking = isOccurrenceBooked(occurrence.id);
-							const occurrencePrice = quoteBooking(
-								{ price: event.price, discountPercent: occurrence.discountPercent },
-								{ quantity: 1 },
-							);
 
 							return (
 								<button
@@ -150,23 +147,11 @@ export default function BookingForm({
 													: `${spotsLeft} ${translate('booking.spotsLeft')}`}
 										</span>
 									</div>
-									<div className="mt-1 flex items-baseline gap-2">
-										<span className="text-primary text-sm font-bold">
-											{formatCurrency(occurrencePrice.unitPrice)}
-										</span>
-										{occurrencePrice.discountPercent > 0 && (
-											<>
-												<span className="text-xs text-gray-400 line-through">
-													{formatCurrency(occurrencePrice.baseUnitPrice)}
-												</span>
-												<span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] leading-none font-black text-white">
-													{translate('event.discountOff', {
-														percent: occurrencePrice.discountPercent,
-													})}
-												</span>
-											</>
-										)}
-									</div>
+									<OccurrencePrice
+										price={event.price}
+										discountPercent={occurrence.discountPercent}
+										className="mt-1"
+									/>
 								</button>
 							);
 						})}
