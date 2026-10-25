@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, Clock } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { getEventTranslation, REVIEW_CONFIG } from '@event-space/shared';
 import { StarRatingInput, useMyReview, useSaveReview } from '@/features/reviews';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import LoadingScreen from '@/components/ui/LoadingScreen/LoadingScreen';
+import ReviewFormSkeleton from './ReviewFormSkeleton';
 
 const fieldClassName =
 	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100';
@@ -24,7 +24,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 	const { formatDateTime } = useFormatDate();
 	const navigation = useLocalizedNavigation();
 
-	const { data: state, isLoading } = useMyReview(bookingId, token);
+	const { data: state, isLoading, isError, refetch, isFetching } = useMyReview(bookingId, token);
 	const saveReview = useSaveReview(bookingId, token);
 
 	// A star tapped in the email arrives as ?rating=4, so the form opens already answered.
@@ -34,8 +34,30 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 	const [text, setText] = useState('');
 	const [isStarted, setIsStarted] = useState(false);
 
-	if (isLoading || !state) {
-		return <LoadingScreen />;
+	if (isLoading) {
+		return <ReviewFormSkeleton />;
+	}
+
+	// Without this the page spun forever on any failure — an expired session, a link that is
+	// not ours, the API having a bad minute — because there was nothing to render but the
+	// loader while `state` stayed undefined.
+	if (isError || !state) {
+		return (
+			<div className="mx-auto w-full max-w-2xl px-4 py-10">
+				<div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400">
+					<AlertTriangle className="h-10 w-10" />
+					<p>{translate('review.loadFailed')}</p>
+					<div className="flex flex-col gap-3 sm:flex-row">
+						<Button onClick={() => void refetch()} isLoading={isFetching}>
+							{translate('review.retry')}
+						</Button>
+						<Button variant="secondary" onClick={() => navigation.push('/bookings')}>
+							{translate('review.backToBookings')}
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
 	}
 
 	const existing = state.review;

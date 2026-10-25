@@ -22,6 +22,8 @@ export const review = {
 	windowClosed: 'The time for reviewing this tour has passed.',
 	notEligible: 'There is nothing to review for this booking.',
 	editWindowOver: 'A review can be changed within two days of writing it.',
+	loadFailed: 'Could not open the form. The link may have expired, or you may need to sign in again.',
+	retry: 'Try again',
 	backToBookings: 'Back to my bookings',
 	yours: 'Your review',
 	onlyYouSeeIt: 'Being read — nobody else can see it until we publish it.',
