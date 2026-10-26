@@ -106,6 +106,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: 'Այս պրոմոկոդի օգտագործման սահմանաչափը սպառվել է։',
 	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Այս պրոմոկոդը չի կիրառվում այս տուրի համար։',
 	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Այս կոդով պրոմոկոդ արդեն գոյություն ունի։',
+	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: 'Այս գումարը ավելի մեծ է, քան այս ամրագրման համար դեռ հնարավոր է վերադարձնել։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'Այս ամրագրումը վճարում չունի ստուգելու համար։',
 

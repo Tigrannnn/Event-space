@@ -497,6 +497,12 @@ export const admin = {
 	dateChangeWarning:
 		'Warning: this event already has bookings. Changing the date or time will affect every participant.',
 	cancelBookingFailed: 'Could not cancel the booking',
+	compensateBooking: 'Compensation',
+	compensateBookingHint: 'The booking stays as it is — nothing is cancelled, no seats are freed',
+	compensateAmount: 'Amount, AMD',
+	compensateReason: 'Reason (admin only)',
+	compensateBookingSuccess: 'Compensation recorded',
+	compensateBookingFailed: 'Could not record the compensation',
 	updateBookingFailed: 'Could not update the booking',
 	createManualBookingFailed: 'Could not create the booking',
 	createEventFailed: 'Could not create the event',

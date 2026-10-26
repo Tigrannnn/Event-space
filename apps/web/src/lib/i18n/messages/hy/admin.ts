@@ -500,6 +500,12 @@ export const admin: Messages['admin'] = {
 	dateChangeWarning:
 		'Ուշադրություն: Այս միջոցառումն ունի ամրագրումներ։ Ժամանակի փոփոխումը կհայտնվի բոլոր մասնակիցների համար։',
 	cancelBookingFailed: 'Չհաջողվեց չեղարկել ամրագրումը',
+	compensateBooking: 'Փոխհատուցում',
+	compensateBookingHint: 'Ամրագրումը կմնա ինչպես կա՝ առանց չեղարկման, տեղերը չեն ազատվում',
+	compensateAmount: 'Գումար, AMD',
+	compensateReason: 'Պատճառ (տեսանելի է միայն ադմինին)',
+	compensateBookingSuccess: 'Փոխհատուցումը գրանցվեց',
+	compensateBookingFailed: 'Չհաջողվեց գրանցել փոխհատուցումը',
 	updateBookingFailed: 'Չհաջողվեց թարմացնել ամրագրումը',
 	createManualBookingFailed: 'Չհաջողվեց ստեղծել ամրագրումը',
 	createEventFailed: 'Չհաջողվեց ստեղծել միջոցառումը',

@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { localizePath } from '@/lib/i18n/config';
-import { Eye, Ban, Plus, Pencil, CheckCircle, Undo2, UserCheck } from 'lucide-react';
+import { Eye, Ban, Plus, Pencil, CheckCircle, Undo2, UserCheck, HandCoins } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
 import TablePagination from '@/components/ui/TablePagination';
@@ -164,6 +164,10 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 
 	const handleOpenBookingAction = (booking: BookingWithDetails) => {
 		openModal(ModalType.BookingCancel, { booking });
+	};
+
+	const handleOpenCompensation = (booking: BookingWithDetails) => {
+		openModal(ModalType.CompensateBooking, { booking });
 	};
 
 	const handlePreviousPage = () => {
@@ -486,6 +490,18 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											disabled={booking.status !== 'CONFIRMED' || booking.quantity < 2}
 										>
 											<Pencil className="h-4 w-4" />
+										</Button>
+
+										<Button
+											type="button"
+											size="xs"
+											variant="secondary"
+											title={translate('admin.compensateBooking')}
+											aria-label={translate('admin.compensateBooking')}
+											onClick={() => handleOpenCompensation(booking)}
+											disabled={Number(booking.amount) === 0}
+										>
+											<HandCoins className="h-4 w-4" />
 										</Button>
 
 										<Button

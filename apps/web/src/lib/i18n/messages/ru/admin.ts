@@ -499,6 +499,12 @@ export const admin: Messages['admin'] = {
 	dateChangeWarning:
 		'Внимание: у этого события уже есть брони. Изменение даты или времени затронет всех участников.',
 	cancelBookingFailed: 'Не удалось отменить бронь',
+	compensateBooking: 'Компенсация',
+	compensateBookingHint: 'Бронь останется как есть — без отмены, места не освобождаются',
+	compensateAmount: 'Сумма, AMD',
+	compensateReason: 'Причина (видна только админам)',
+	compensateBookingSuccess: 'Компенсация оформлена',
+	compensateBookingFailed: 'Не удалось оформить компенсацию',
 	updateBookingFailed: 'Не удалось обновить бронь',
 	createManualBookingFailed: 'Не удалось создать бронь',
 	createEventFailed: 'Не удалось создать событие',

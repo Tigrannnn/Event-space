@@ -106,6 +106,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: 'Лимит использований этого промокода уже исчерпан.',
 	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Этот промокод не подходит к этому туру.',
 	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Промокод с таким кодом уже существует.',
+	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: 'Эта сумма больше того, что ещё можно вернуть по этой брони.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',
 

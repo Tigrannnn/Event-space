@@ -1,6 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	type AdminCancelBookingData,
+	type CompensateBookingData,
 	type DashboardStats,
 	type ChangeQuantityData,
 	type QuantitySettlement,
@@ -140,6 +141,32 @@ export const useCancelBookingByAdmin = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.cancelBookingFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useCompensateBooking = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: CompensateBookingData }) =>
+			adminApi.compensateBooking(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.compensateBookingSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.compensateBookingFailed'), ToastType.ERROR);
 		},
 	});
 };

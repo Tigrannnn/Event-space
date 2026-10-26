@@ -306,6 +306,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'A promo code with this code already exists',
 	},
+	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This amount is more than what is left to refund on this booking',
+	},
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Invalid reference number',

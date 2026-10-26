@@ -1,17 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
+import { Injectable, Logger } from '@nestjs/common';
 import { adminCancelReason } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
+import { StripeService } from '@infra/stripe/stripe.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
-import type { AdminCancelBookingData } from '@event-space/shared';
+import type { AdminCancelBookingData, CompensateBookingData } from '@event-space/shared';
 import { nullableNumber, resolveRefundPolicy } from '@modules/booking/booking.utils';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
 import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
+import { readPayments, toLedgerRows } from '@modules/booking/money/booking-money';
+import { planCompensation } from '@modules/booking/money/refund-allocation';
 
 @Injectable()
 export class AdminBookingCancellationService {
+	private readonly logger = new Logger(AdminBookingCancellationService.name);
+
 	constructor(
 		private readonly prisma: PrismaService,
+		private readonly stripe: StripeService,
 		private readonly ledger: BookingLedgerService,
 		private readonly refunds: BookingRefundService,
 	) {}
@@ -118,5 +125,74 @@ export class AdminBookingCancellationService {
 				? 'Booking cancelled and refund processed.'
 				: 'Booking cancelled and refund processed according to cancellation rules.',
 		);
+	}
+
+	/**
+	 * Gives money back without cancelling anything — a compensation, not a refund-because-the-
+	 * booking-ended. The booking's status, seats and quantity are left exactly as they were.
+	 *
+	 * The amount is capped at what the ledger says is still refundable (charged minus already
+	 * refunded), spread across payments newest-first the same way a guest-removal refund is, so
+	 * it still works correctly for a booking that was topped up more than once.
+	 */
+	async compensate(adminId: string, bookingId: string, data: CompensateBookingData) {
+		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+
+		const amountInCents = Math.round(data.amount * 100);
+		const rows = await this.ledger.listForBooking(this.prisma, bookingId);
+		const payments = readPayments(toLedgerRows(rows));
+		const plan = planCompensation(payments, amountInCents);
+
+		if (plan.netInCents < amountInCents) {
+			throw new AppException(AppErrorCode.COMPENSATION_EXCEEDS_REMAINING);
+		}
+
+		const reason = `Compensation by admin ${adminId}${data.reason ? `: ${data.reason}` : ''}`;
+		let compensatedInCents = 0;
+		let failed = false;
+
+		for (const part of plan.parts) {
+			const operationKey = `compensation:${randomUUID()}`;
+
+			if (data.method === 'MANUAL' || !part.paymentIntentId) {
+				await this.ledger.recordManualRefund(this.prisma, {
+					bookingId,
+					paymentIntentId: part.paymentIntentId,
+					amountInCents: part.amountInCents,
+					reason,
+					operationKey,
+				});
+				compensatedInCents += part.amountInCents;
+				continue;
+			}
+
+			try {
+				const refund = await this.stripe.refund(
+					part.paymentIntentId,
+					`admin-compensation-${bookingId}-${part.paymentIntentId}-${part.amountInCents}`,
+					part.amountInCents,
+				);
+				await this.ledger.recordManualRefund(this.prisma, {
+					bookingId,
+					paymentIntentId: part.paymentIntentId,
+					amountInCents: refund.amount,
+					reason,
+					operationKey,
+				});
+				compensatedInCents += refund.amount;
+			} catch (error) {
+				failed = true;
+				this.logger.error(`Compensation refund failed for booking ${bookingId}:`, error as Error);
+			}
+		}
+
+		return {
+			compensatedAmount: compensatedInCents / 100,
+			failed,
+			message: failed
+				? 'Part of the compensation could not be processed at Stripe.'
+				: 'Compensation recorded.',
+		};
 	}
 }

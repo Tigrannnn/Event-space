@@ -61,6 +61,7 @@ import {
 	CreatePromoCodeSchema,
 	UpdatePromoCodeSchema,
 	AdminCancelBookingSchema,
+	CompensateBookingSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
 } from '@event-space/shared';
@@ -82,6 +83,7 @@ import type {
 	CreatePromoCodeData,
 	UpdatePromoCodeData,
 	AdminCancelBookingData,
+	CompensateBookingData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
 	PaymentMethod,
@@ -570,6 +572,24 @@ export class AdminController {
 		);
 
 		return this.bookingCancellationService.cancel(adminId, id, data);
+	}
+
+	@Post('bookings/:id/compensate')
+	@ApiOperation({ summary: 'Give money back without cancelling the booking (compensation)' })
+	@ApiBody(getReference('CompensateBookingSchema'))
+	async compensateBooking(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(CompensateBookingSchema)) data: CompensateBookingData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingCancellationService.compensate(adminId, id, data);
 	}
 
 	@Post('bookings/manual')

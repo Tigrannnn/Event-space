@@ -249,6 +249,23 @@ export const AdminCancelBookingSchema = z.object({
 
 export type AdminCancelBookingData = z.input<typeof AdminCancelBookingSchema>;
 
+export const CompensateBookingSchema = z.object({
+	amount: z.number().positive().openapi({
+		description: 'Amount to give back, in AMD — the booking stays as it was, nothing is cancelled',
+		example: 2000,
+	}),
+	method: RefundMethodSchema.default('STRIPE').openapi({
+		description: 'Refund through Stripe, or record a compensation the admin already paid by hand',
+		example: 'STRIPE',
+	}),
+	reason: z.string().trim().max(500).optional().openapi({
+		description: 'Optional admin note for why this compensation was given',
+		example: 'Guide was late, apologised with a partial refund',
+	}),
+});
+
+export type CompensateBookingData = z.infer<typeof CompensateBookingSchema>;
+
 export const BookingAuthorSchema = z.enum(['client', 'admin']);
 
 export type BookingAuthor = z.infer<typeof BookingAuthorSchema>;

@@ -64,3 +64,40 @@ export function planGuestRefund(params: {
 		parts,
 	};
 }
+
+export interface CompensationPlan {
+	/** What could actually be covered — less than the request if the booking doesn't have
+	 *  that much left to give back. */
+	netInCents: number;
+	parts: RefundPart[];
+}
+
+/**
+ * Spreads a flat admin-chosen amount across whatever is still refundable, newest payment
+ * first — the same order `planGuestRefund` uses, so a top-up is given back before the
+ * original charge it topped up.
+ */
+export function planCompensation(payments: BookingPayments, amountInCents: number): CompensationPlan {
+	const parts: RefundPart[] = [];
+	let left = amountInCents;
+
+	if (payments.cards.length > 0) {
+		for (const card of [...payments.cards].reverse()) {
+			if (left <= 0) break;
+			const available = card.chargedInCents - card.refundedInCents;
+			const amount = Math.min(left, available);
+			if (amount <= 0) continue;
+			parts.push({ paymentIntentId: card.paymentIntentId, amountInCents: amount });
+			left -= amount;
+		}
+	} else {
+		const available = payments.cashInCents - payments.cashRefundedInCents;
+		const amount = Math.min(left, available);
+		if (amount > 0) {
+			parts.push({ paymentIntentId: null, amountInCents: amount });
+			left -= amount;
+		}
+	}
+
+	return { netInCents: amountInCents - left, parts };
+}

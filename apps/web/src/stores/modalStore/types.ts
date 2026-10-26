@@ -49,6 +49,7 @@ export enum ModalType {
 	UpdateBanner = 'update-banner',
 	CreatePromoCode = 'create-promo-code',
 	UpdatePromoCode = 'update-promo-code',
+	CompensateBooking = 'compensate-booking',
 }
 
 export interface ContactInfoModalData {
@@ -166,6 +167,7 @@ export interface ModalDataMap {
 	[ModalType.UpdateBanner]: UpdateBannerModalData;
 	[ModalType.CreatePromoCode]: null;
 	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
+	[ModalType.CompensateBooking]: BookingDetailsModalData;
 }
 
 export interface ModalState {
