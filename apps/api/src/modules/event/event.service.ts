@@ -130,42 +130,29 @@ export class EventService {
 			eventMatchesPrice(event, minPrice, maxPrice, occurrenceDateWindow);
 
 		const searchWords = search ? parseSearchQuery(search) : [];
-		if (searchWords.length > 0) {
-			// Word endings, typos and other alphabets can't be expressed as a database filter, so
-			// every event that passes the other filters is matched here. A catalogue holds tens of
-			// events, not thousands, which keeps that cheap.
-			const candidates = await this.prisma.event.findMany({
-				where,
-				orderBy: [{ id: 'asc' }],
-				include: this.eventInclude,
-			});
-			const matching = candidates.filter(
-				(event) =>
-					eventMatchesSearch(event, searchWords) && matchesGuests(event) && matchesPrice(event),
-			);
 
-			const hasMore = matching.length > limit;
-			const data = matching.slice(0, limit);
-			const nextCursor = hasMore ? data[data.length - 1].id : null;
-
-			return { data, nextCursor, hasMore };
-		}
-
-		const events = await this.prisma.event.findMany({
+		// Word endings, typos, guest capacity and the discounted price can't be expressed as a
+		// database filter, so every event that passes the DB-level filters above is re-checked
+		// here. One query for the whole candidate set — rather than a page at a time with a
+		// post-filter — is what keeps a page from coming back thin or empty while matching
+		// events sit further down the id order unfetched. A catalogue holds tens of events, not
+		// thousands, which keeps that cheap.
+		const candidates = await this.prisma.event.findMany({
 			where,
-			take: limit + 1,
 			orderBy: [{ id: 'asc' }],
 			include: this.eventInclude,
 		});
 
-		const hasMore = events.length > limit;
-		const page = hasMore ? events.slice(0, limit) : events;
+		const matching = candidates.filter(
+			(event) =>
+				(searchWords.length === 0 || eventMatchesSearch(event, searchWords)) &&
+				matchesGuests(event) &&
+				matchesPrice(event),
+		);
 
-		// The guest and price filters run after the query, so the next page starts after the
-		// last event fetched, not the last one kept — otherwise hidden events would be fetched
-		// again.
-		const data = page.filter((event) => matchesGuests(event) && matchesPrice(event));
-		const nextCursor = hasMore ? page[page.length - 1].id : null;
+		const hasMore = matching.length > limit;
+		const data = matching.slice(0, limit);
+		const nextCursor = hasMore ? data[data.length - 1].id : null;
 
 		return { data, nextCursor, hasMore };
 	}
