@@ -26,6 +26,7 @@ import {
 	buildOccurrenceDateFilter,
 	buildOccurrenceDateWindow,
 	eventMatchesGuestCapacity,
+	eventMatchesPrice,
 	findRemovedImages,
 	sortByOrder,
 	validateExistingImageRefs,
@@ -98,16 +99,6 @@ export class EventService {
 				}
 			: {};
 
-		const priceFilter =
-			minPrice !== undefined || maxPrice !== undefined
-				? {
-						price: {
-							...(minPrice !== undefined ? { gte: minPrice } : {}),
-							...(maxPrice !== undefined ? { lte: maxPrice } : {}),
-						},
-					}
-				: {};
-
 		const difficultyFilter = difficulties?.length ? { difficulty: { in: difficulties } } : {};
 
 		const occurrenceDateWindow = buildOccurrenceDateWindow(startDate, endDate);
@@ -123,12 +114,9 @@ export class EventService {
 			},
 		};
 
-		const filters: Prisma.EventWhereInput[] = [
-			statusFilter,
-			categoryFilter,
-			priceFilter,
-			difficultyFilter,
-		].filter((f) => Object.keys(f).length > 0);
+		const filters: Prisma.EventWhereInput[] = [statusFilter, categoryFilter, difficultyFilter].filter(
+			(f) => Object.keys(f).length > 0,
+		);
 		if (cursorId) {
 			filters.push({ id: { gt: cursorId } });
 		}
@@ -136,6 +124,10 @@ export class EventService {
 
 		const matchesGuests = (event: Parameters<typeof eventMatchesGuestCapacity>[0]) =>
 			!guests || guests <= 0 || eventMatchesGuestCapacity(event, guests, occurrenceDateWindow);
+		// `event.price` is only ever the listed price — a discounted date can charge well under
+		// or over it, so the match has to look at each date's actual price, not the DB column.
+		const matchesPrice = (event: Parameters<typeof eventMatchesPrice>[0]) =>
+			eventMatchesPrice(event, minPrice, maxPrice, occurrenceDateWindow);
 
 		const searchWords = search ? parseSearchQuery(search) : [];
 		if (searchWords.length > 0) {
@@ -148,7 +140,8 @@ export class EventService {
 				include: this.eventInclude,
 			});
 			const matching = candidates.filter(
-				(event) => eventMatchesSearch(event, searchWords) && matchesGuests(event),
+				(event) =>
+					eventMatchesSearch(event, searchWords) && matchesGuests(event) && matchesPrice(event),
 			);
 
 			const hasMore = matching.length > limit;
@@ -168,9 +161,10 @@ export class EventService {
 		const hasMore = events.length > limit;
 		const page = hasMore ? events.slice(0, limit) : events;
 
-		// The guest filter runs after the query, so the next page starts after the last event
-		// fetched, not the last one kept — otherwise hidden events would be fetched again.
-		const data = page.filter(matchesGuests);
+		// The guest and price filters run after the query, so the next page starts after the
+		// last event fetched, not the last one kept — otherwise hidden events would be fetched
+		// again.
+		const data = page.filter((event) => matchesGuests(event) && matchesPrice(event));
 		const nextCursor = hasMore ? page[page.length - 1].id : null;
 
 		return { data, nextCursor, hasMore };

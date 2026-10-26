@@ -1,4 +1,4 @@
-import { AppErrorCode } from '@event-space/shared';
+import { AppErrorCode, quoteBooking } from '@event-space/shared';
 import { AppException } from '@shared';
 import type {
 	Event,
@@ -117,6 +117,53 @@ export function eventMatchesGuestCapacity(
 		const currentParticipants = Number(occurrence.currentParticipants ?? 0);
 		const maxParticipants = Number(occurrence.maxParticipants ?? 0);
 		return Math.max(0, maxParticipants - currentParticipants) >= guestCount;
+	});
+}
+
+export interface PriceOccurrenceLike {
+	date: Date | string;
+	status: EventOccurrenceStatus;
+	discountPercent?: number | null;
+}
+
+export interface PriceEventLike {
+	price: Prisma.Decimal | number;
+	occurrences?: PriceOccurrenceLike[] | null;
+}
+
+/**
+ * The listed price (`event.price`) is never what a discounted date actually charges — so
+ * filtering by it, like the SQL `where` used to, hides exactly the tours a "price under X"
+ * search is looking for. An event matches as soon as ONE bookable date's *discounted* price
+ * falls in range, the same "one date is enough" rule `eventMatchesGuestCapacity` uses, and
+ * for the same reason: the other dates' prices say nothing about that one.
+ */
+export function eventMatchesPrice(
+	event: PriceEventLike,
+	minPrice?: number,
+	maxPrice?: number,
+	dateWindow?: OccurrenceDateWindow,
+): boolean {
+	if (minPrice === undefined && maxPrice === undefined) {
+		return true;
+	}
+
+	const now = new Date();
+
+	return (event.occurrences ?? []).some((occurrence) => {
+		if (occurrence.status !== 'ACTIVE') return false;
+
+		const date = new Date(occurrence.date);
+		if (date <= now) return false;
+		if (dateWindow?.from && date < dateWindow.from) return false;
+		if (dateWindow?.to && date > dateWindow.to) return false;
+
+		const { unitPrice } = quoteBooking(
+			{ price: Number(event.price), discountPercent: occurrence.discountPercent },
+			{ quantity: 1 },
+		);
+
+		return (minPrice === undefined || unitPrice >= minPrice) && (maxPrice === undefined || unitPrice <= maxPrice);
 	});
 }
 
