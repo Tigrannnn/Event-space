@@ -6,6 +6,8 @@ export const booking = {
 	paymentSuccess: 'Payment successful! Your booking will be confirmed shortly.',
 	bookingRef: 'Booking ref',
 	bookingRefTip: 'Save this code — you will need it to find your booking',
+	showQrCode: 'Check-in QR code',
+	qrCodeHint: 'Show this code at the entrance — staff will scan it to confirm your booking',
 	dateMoved: 'The tour date has changed. It used to be:',
 	dateMovedFullRefund: 'If the new date does not suit you, we refund everything in full — until',
 	dateSuitsMe: 'The date works',

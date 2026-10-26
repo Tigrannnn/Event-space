@@ -327,6 +327,8 @@ export const BookingWithEstimateSchema = BookingWithDetailsSchema.extend({
 	}),
 	estimatedStripeFeeInCents: z.number().openapi({ example: 350 }),
 	estimatedRefundInCents: z.number().openapi({ example: 8650 }),
+	/** Signed QR payload for check-in; null once the booking can no longer be checked in. */
+	checkinToken: z.string().nullable(),
 });
 
 export type BookingWithEstimate = z.infer<typeof BookingWithEstimateSchema>;

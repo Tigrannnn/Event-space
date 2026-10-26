@@ -110,6 +110,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'Ամրագրումն արդեն այս ամսաթվին է։',
 	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'Այդ ամսաթիվը այլ տուրի է պատկանում։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
+	[AppErrorCode.INVALID_CHECKIN_TOKEN]: 'QR կոդն անվավեր է կամ ժամկետանց։',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'Այս ամրագրումը վճարում չունի ստուգելու համար։',
 
 	[AppErrorCode.OCCURRENCE_IN_PAST]: 'Հնարավոր չէ ավելացնել անցյալում գտնվող ամսաթիվ։',

@@ -91,6 +91,10 @@ export const adminApi = {
 			.then((res) => res.data),
 	getBookingByReference: (ref: number) =>
 		clientApi.get<BookingWithDetails>(`/admin/bookings/by-reference/${ref}`).then((res) => res.data),
+	getBookingByCheckinToken: (token: string) =>
+		clientApi
+			.get<BookingWithDetails>(`/admin/bookings/by-checkin-token/${encodeURIComponent(token)}`)
+			.then((res) => res.data),
 	checkInBooking: (id: string) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`).then((res) => res.data),
 	undoBookingCheckIn: (id: string) =>

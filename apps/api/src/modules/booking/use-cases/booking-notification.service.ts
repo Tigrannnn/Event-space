@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { type Locale } from '@prisma/client';
+import { EnvKey } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
+import { buildCheckinToken } from '../booking.utils';
 
 const UNSENT_MIN_AGE_MS = 5 * 60 * 1000;
 const UNSENT_WINDOW_MS = 6 * 60 * 60 * 1000;
@@ -15,6 +18,7 @@ export class BookingNotificationService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly mail: MailService,
+		private readonly config: ConfigService,
 	) {}
 
 	async sendConfirmation(bookingId: string, locale: Locale): Promise<void> {
@@ -92,10 +96,16 @@ export class BookingNotificationService {
 
 		const event = booking.occurrence.event;
 
+		const checkinToken = buildCheckinToken(booking, booking.occurrence.date, {
+			reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		});
+
 		return this.mail.sendBookingConfirmation({
 			to: booking.user.email,
 			locale: mailLocale,
 			referenceNumber: booking.referenceNumber ?? 0,
+			checkinToken,
 			userName: booking.user.name,
 			bookedAt: booking.createdAt,
 			eventId: event.id,

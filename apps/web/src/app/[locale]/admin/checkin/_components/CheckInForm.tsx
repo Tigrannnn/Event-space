@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/features/admin/api/admin.api';
 import Button from '@/components/ui/Buttons/Button';
@@ -22,23 +23,36 @@ export default function CheckInForm() {
 	const [ref, setRef] = useState<number | null>(null);
 	const { addToast } = useToastStore();
 	const queryClient = useQueryClient();
+	const searchParams = useSearchParams();
+	const [token, setToken] = useState<string | null>(null);
 
-	const {
-		data: booking,
-		isLoading,
-		isError,
-	} = useQuery({
-		queryKey: ['checkin-booking', ref],
+	// A scanned QR lands here as ?token=..., not a reference number typed by hand.
+	useEffect(() => {
+		const fromUrl = searchParams.get('token');
+		if (fromUrl) setToken(fromUrl);
+	}, [searchParams]);
+
+	const byReference = useQuery({
+		queryKey: ['checkin-booking', 'ref', ref],
 		queryFn: () => adminApi.getBookingByReference(ref!),
 		enabled: ref !== null,
 		retry: false,
 	});
 
+	const byToken = useQuery({
+		queryKey: ['checkin-booking', 'token', token],
+		queryFn: () => adminApi.getBookingByCheckinToken(token!),
+		enabled: token !== null,
+		retry: false,
+	});
+
+	const { data: booking, isLoading, isError } = token !== null ? byToken : byReference;
+
 	const { mutate: checkIn, isPending: isCheckingIn } = useMutation({
 		mutationFn: (id: string) => adminApi.checkInBooking(id),
 		onSuccess: () => {
 			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
-			queryClient.invalidateQueries({ queryKey: ['checkin-booking', ref] });
+			queryClient.invalidateQueries({ queryKey: ['checkin-booking'] });
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.failedToCheckIn'), ToastType.ERROR);
@@ -49,7 +63,7 @@ export default function CheckInForm() {
 		mutationFn: (id: string) => adminApi.undoBookingCheckIn(id),
 		onSuccess: () => {
 			addToast(translate('admin.checkInUndone'), ToastType.SUCCESS);
-			queryClient.invalidateQueries({ queryKey: ['checkin-booking', ref] });
+			queryClient.invalidateQueries({ queryKey: ['checkin-booking'] });
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.failedToUndoCheckIn'), ToastType.ERROR);

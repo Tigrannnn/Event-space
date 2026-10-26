@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
@@ -9,6 +10,7 @@ import {
 	CreateBookingData,
 	ConfirmBookingManuallyData,
 	CreateManualBookingData,
+	EnvKey,
 } from '@event-space/shared';
 import { AppException } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
@@ -23,6 +25,7 @@ import {
 	mapOccurrenceForBookingResponse,
 	nullableNumber,
 	priceBooking,
+	buildCheckinToken,
 } from '../booking.utils';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingNotificationService } from './booking-notification.service';
@@ -40,7 +43,15 @@ export class BookingCreationService {
 		private readonly payments: BookingPaymentService,
 		private readonly ledger: BookingLedgerService,
 		private readonly promoCodes: PromoCodeService,
+		private readonly config: ConfigService,
 	) {}
+
+	private tokenConfig() {
+		return {
+			reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		};
+	}
 
 	async create(
 		userId: string,
@@ -218,6 +229,7 @@ export class BookingCreationService {
 					refundReason: 'RULES' as const,
 					estimatedStripeFeeInCents: 0,
 					estimatedRefundInCents: 0,
+					checkinToken: buildCheckinToken(booking, occurrence.date, this.tokenConfig()),
 				} satisfies BookingWithEstimate,
 				clientSecret: null,
 			};
@@ -290,6 +302,7 @@ export class BookingCreationService {
 				refundReason: 'RULES' as const,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
+				checkinToken: buildCheckinToken(updatedBooking, occurrence.date, this.tokenConfig()),
 			} satisfies BookingWithEstimate;
 
 			return {
@@ -483,6 +496,7 @@ export class BookingCreationService {
 			refundReason: 'RULES' as const,
 			estimatedStripeFeeInCents: 0,
 			estimatedRefundInCents: 0,
+			checkinToken: buildCheckinToken(result.booking, result.occurrence.date, this.tokenConfig()),
 		} satisfies BookingWithEstimate;
 	}
 

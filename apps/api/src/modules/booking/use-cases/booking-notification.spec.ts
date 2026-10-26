@@ -82,7 +82,8 @@ function build(stored: StoredBooking[], mailResults: (boolean | Error)[] = []) {
 		},
 	};
 
-	const service = new BookingNotificationService(prisma as never, mail as never);
+	const config = { get: () => undefined, getOrThrow: () => 'test-secret' };
+	const service = new BookingNotificationService(prisma as never, mail as never, config as never);
 	return { service, sent };
 }
 

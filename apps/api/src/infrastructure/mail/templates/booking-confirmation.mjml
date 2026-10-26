@@ -35,6 +35,7 @@
 			<mj-table css-class="text-muted" font-size="14px" color="#6b7280" padding="0px 0px 20px 0px">
 				{{ DETAILS_ROWS }}
 			</mj-table>
+			{{ QR_BLOCK }}
 			{{ NOTE_BLOCK }}
 			{{ INCLUDED_BLOCK }}
 			{{ CANCELLATION_BLOCK }}

@@ -12,3 +12,4 @@ export * from './currency.constant';
 export * from './brands.constant';
 export * from './time.constant';
 export * from './ledger-reason.constant';
+export * from './checkin.constant';

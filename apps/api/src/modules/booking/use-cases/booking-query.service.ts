@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { EnvKey } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
@@ -15,13 +17,24 @@ import {
 	resolveRefundPolicy,
 	mapOccurrenceForBookingResponse,
 	nullableNumber,
+	buildCheckinToken,
 } from '../booking.utils';
 import { readPayments, toLedgerRows } from '../money/booking-money';
 import { myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
 
 @Injectable()
 export class BookingQueryService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly config: ConfigService,
+	) {}
+
+	private tokenConfig() {
+		return {
+			reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		};
+	}
 
 	async findByUser(
 		userId: string,
@@ -88,6 +101,7 @@ export class BookingQueryService {
 					refundReason: 'RULES' as const,
 					estimatedStripeFeeInCents: 0,
 					estimatedRefundInCents: 0,
+					checkinToken: buildCheckinToken(booking, occurrence?.date, this.tokenConfig()),
 				};
 			}
 
@@ -125,6 +139,7 @@ export class BookingQueryService {
 				refundReason: policy.reason,
 				estimatedStripeFeeInCents,
 				estimatedRefundInCents,
+				checkinToken: buildCheckinToken(booking, occurrence.date, this.tokenConfig()),
 			};
 		});
 

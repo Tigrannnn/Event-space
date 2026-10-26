@@ -1,5 +1,26 @@
 import type { Prisma } from '@prisma/client';
-import { quoteBooking, type CancellationPolicyRule } from '@event-space/shared';
+import { CHECKIN_CONFIG, quoteBooking, type CancellationPolicyRule } from '@event-space/shared';
+import { checkinTokenSecret, signCheckinToken } from './checkin-token';
+
+/**
+ * A QR payload for check-in — null once the booking cannot be checked in at all: cancelled, or
+ * past the window. Anything else (PENDING, already checked in) still gets one: the admin sees
+ * the real state on the card either way, and a not-yet-confirmed booking that gets paid at the
+ * door should not need a second code mailed to it.
+ */
+export function buildCheckinToken(
+	booking: { id: string; status: string },
+	occurrenceDate: Date | string | undefined,
+	config: { reviewTokenSecret?: string; jwtSecret: string },
+): string | null {
+	if (booking.status === 'CANCELLED' || !occurrenceDate) return null;
+
+	const expiresAt = new Date(occurrenceDate).getTime() + CHECKIN_CONFIG.EXPIRES_AFTER_EVENT_MS;
+	if (expiresAt < Date.now()) return null;
+
+	const secret = checkinTokenSecret(config.reviewTokenSecret, config.jwtSecret);
+	return signCheckinToken(booking.id, expiresAt, secret);
+}
 
 export function nullableNumber(value: Prisma.Decimal | number | null | undefined): number | null {
 	return value === null || value === undefined ? null : Number(value);

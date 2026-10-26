@@ -4,6 +4,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Locale, PaymentMethod } from '@prisma/client';
 import * as nodemailer from 'nodemailer';
+import * as QRCode from 'qrcode';
 import { MailTemplateService } from './mail-template.service';
 import {
 	buildBrandFooter,
@@ -336,6 +337,7 @@ export class MailService implements OnModuleInit {
 		whatsIncluded?: string[];
 		cancellationRules?: { hoursBeforeEvent: number; refundPercentage: number }[];
 		brandHost?: string;
+		checkinToken?: string | null;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
@@ -406,11 +408,18 @@ export class MailService implements OnModuleInit {
 		];
 
 		try {
+			const qrBlock = await this.buildCheckinQrBlock(
+				params.checkinToken,
+				params.brandHost,
+				strings.checkinQrLabel,
+			);
+
 			const html = await this.templateService.render('booking-confirmation', {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				INTRO: strings.intro,
 				HIGHLIGHT_BLOCK: this.buildBookingConfirmationMeetingBlock(strings, params),
+				QR_BLOCK: qrBlock,
 				DETAILS_ROWS: this.buildDetailRows(rows, {
 					[strings.event]: this.buildMailAnchor(eventUrl, params.eventTitle),
 					[strings.location]: this.buildMailAnchor(params.eventLocationUrl, params.eventLocation || '—'),
@@ -1124,6 +1133,30 @@ export class MailService implements OnModuleInit {
 			escapeHtml(note) +
 			'</mj-text>'
 		);
+	}
+
+	/** A QR the admin's camera reads straight into the check-in page — no token means no code. */
+	private async buildCheckinQrBlock(
+		checkinToken: string | null | undefined,
+		brandHost: string | undefined,
+		label: string,
+	): Promise<string> {
+		if (!checkinToken) return '';
+
+		const siteUrl = this.brandFor(brandHost).siteUrl.replace(/\/+$/, '');
+		const checkinUrl = `${siteUrl}/admin/checkin?token=${encodeURIComponent(checkinToken)}`;
+
+		try {
+			const dataUri = await QRCode.toDataURL(checkinUrl, { margin: 1, width: 240 });
+			return (
+				'<mj-image width="160px" padding="8px 0px 4px 0px" src="' +
+				dataUri +
+				'" alt="QR" />' +
+				`<mj-text align="center" font-size="12px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${escapeHtml(label)}</mj-text>`
+			);
+		} catch {
+			return '';
+		}
 	}
 
 	private buildListBlock(title: string, items: string[]): string {

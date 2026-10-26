@@ -110,6 +110,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'Бронь уже на этой дате.',
 	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'Эта дата принадлежит другому туру.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
+	[AppErrorCode.INVALID_CHECKIN_TOKEN]: 'QR-код недействителен или просрочен.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',
 
 	[AppErrorCode.OCCURRENCE_IN_PAST]: 'Нельзя добавить дату в прошлом.',

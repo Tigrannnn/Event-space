@@ -24,6 +24,7 @@ import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { BookingReviewAction } from '@/features/reviews';
+import { BookingQrCode } from '../BookingQrCode';
 import { useModalStore } from '@/stores';
 import { ModalType } from '@/stores/modalStore';
 
@@ -165,18 +166,26 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					{eventTranslation.title}
 				</Link>
 
-				<div className="mb-4">
-					<div className="flex items-center gap-2">
-						<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
-							{translate('booking.bookingRef')}
-						</span>
-						<span className="text-primary font-mono text-lg font-bold">
-							{formatBookingReference(booking.referenceNumber)}
-						</span>
+				<div className="mb-4 flex items-start justify-between gap-3">
+					<div>
+						<div className="flex items-center gap-2">
+							<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
+								{translate('booking.bookingRef')}
+							</span>
+							<span className="text-primary font-mono text-lg font-bold">
+								{formatBookingReference(booking.referenceNumber)}
+							</span>
+						</div>
+						<p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+							{translate('booking.bookingRefTip')}
+						</p>
 					</div>
-					<p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-						{translate('booking.bookingRefTip')}
-					</p>
+					{booking.checkinToken && (
+						<BookingQrCode
+							checkinToken={booking.checkinToken}
+							referenceNumber={booking.referenceNumber}
+						/>
+					)}
 				</div>
 
 				<div className="mb-4 space-y-2 text-sm text-gray-500 dark:text-gray-400">

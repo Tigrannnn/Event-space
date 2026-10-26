@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { AppException } from '@shared';
-import { AppErrorCode } from '@event-space/shared';
+import { AppErrorCode, EnvKey } from '@event-space/shared';
+import { verifyCheckinToken, checkinTokenSecret } from '@modules/booking/checkin-token';
 import type { BookingWithDetails, PaginatedParams, TransferBookingData } from '@event-space/shared';
 import { bookingInclude } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
@@ -23,6 +25,7 @@ export class AdminBookingsService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly mailService: MailService,
+		private readonly config: ConfigService,
 	) {}
 
 	async findAll({ skip = 0, limit = 20, ...filters }: FindAllBookingsParams = {}) {
@@ -82,6 +85,25 @@ export class AdminBookingsService {
 	async findByReference(referenceNumber: number) {
 		const booking = await this.prisma.booking.findUnique({
 			where: { referenceNumber },
+			include: bookingInclude,
+		});
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+
+		return booking;
+	}
+
+	/** Resolves a scanned QR: the signature and expiry are the only gate — the mutation itself
+	 *  stays behind the normal admin guard, so a leaked link alone checks nothing in. */
+	async findByCheckinToken(token: string) {
+		const secret = checkinTokenSecret(
+			this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		);
+		const bookingId = verifyCheckinToken(token, secret);
+		if (!bookingId) throw new AppException(AppErrorCode.INVALID_CHECKIN_TOKEN);
+
+		const booking = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
 			include: bookingInclude,
 		});
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);

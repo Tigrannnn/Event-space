@@ -104,7 +104,8 @@ export type { Page };
 export function createAdmin(prisma: never, stripe: never) {
 	const mail = { sendOccurrenceRescheduledEmail: () => Promise.resolve() } as never;
 	const users = new AdminUsersService(prisma);
-	const bookings = new AdminBookingsService(prisma, mail);
+	const config = { get: () => undefined, getOrThrow: () => 'test-secret' } as never;
+	const bookings = new AdminBookingsService(prisma, mail, config);
 	const cancellation = new AdminBookingCancellationService(
 		prisma,
 		stripe,

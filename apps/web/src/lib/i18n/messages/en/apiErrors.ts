@@ -116,6 +116,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'This booking is already on that date.',
 	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'That date belongs to a different tour.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',
+	[AppErrorCode.INVALID_CHECKIN_TOKEN]: 'This QR code is invalid or has expired.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'This booking has no payment to reconcile.',
 
 	[AppErrorCode.OCCURRENCE_IN_PAST]: 'You cannot add a date in the past.',

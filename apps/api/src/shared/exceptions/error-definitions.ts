@@ -322,6 +322,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Invalid reference number',
 	},
+	[AppErrorCode.INVALID_CHECKIN_TOKEN]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This QR code is invalid or has expired',
+	},
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Booking has no payment intent to reconcile',

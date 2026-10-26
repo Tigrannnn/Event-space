@@ -262,6 +262,12 @@ export class AdminController {
 		return this.bookingsAdminService.findByReference(referenceNumber);
 	}
 
+	@Get('bookings/by-checkin-token/:token')
+	@ApiOperation({ summary: 'Find booking by a scanned check-in QR token' })
+	async getBookingByCheckinToken(@Param('token') token: string) {
+		return this.bookingsAdminService.findByCheckinToken(token);
+	}
+
 	@Get('bookings/:id')
 	@ApiOperation({ summary: 'Get booking by ID (admin only)' })
 	async getBookingById(@Param('id') id: string) {
