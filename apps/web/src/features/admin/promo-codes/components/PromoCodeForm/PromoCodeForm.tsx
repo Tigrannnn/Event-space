@@ -56,8 +56,8 @@ export default function PromoCodeForm({
 			discountPercent: percent,
 			maxUses: maxUses.trim() ? Number(maxUses) : undefined,
 			maxUsesPerUser: maxUsesPerUser.trim() ? Number(maxUsesPerUser) : undefined,
-			validFrom: validFrom || undefined,
-			validUntil: validUntil || undefined,
+			validFrom: validFrom ? new Date(validFrom) : undefined,
+			validUntil: validUntil ? new Date(validUntil) : undefined,
 			active,
 			note: note.trim() || undefined,
 		});
