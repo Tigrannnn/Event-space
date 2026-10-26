@@ -58,6 +58,7 @@
 			>
 				{{ SUPPORT }}
 			</mj-text>
+			{{ ACTIONS_BLOCK }}
 			<mj-text
 				align="left"
 				font-size="15px"

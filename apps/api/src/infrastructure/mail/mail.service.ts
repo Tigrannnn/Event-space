@@ -197,6 +197,8 @@ export class MailService implements OnModuleInit {
 	}): Promise<void> {
 		const strings = pickLocale(OCCURRENCE_RESCHEDULED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const previousDate = formatMailDate(params.previousDate, params.locale);
 		const newDate = formatMailDate(params.newDate, params.locale);
 		const reasonLine = params.reason ? strings.reason(params.reason) : undefined;
@@ -215,6 +217,7 @@ export class MailService implements OnModuleInit {
 			KEEPS_BOOKING: strings.keepsBooking,
 			CANT_MAKE: cantMakeLine ?? '',
 			SUPPORT: strings.support,
+			ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 			SIGNOFF: strings.signoff,
 			SIGNATURE: brand.name,
 		});
@@ -231,6 +234,7 @@ export class MailService implements OnModuleInit {
 					strings.keepsBooking,
 					cantMakeLine,
 					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 					`${strings.signoff} ${brand.name}`,
 				]
 					.filter(Boolean)
@@ -260,6 +264,8 @@ export class MailService implements OnModuleInit {
 	}): Promise<void> {
 		const strings = pickLocale(EVENT_CANCELLED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const formattedDate = formatMailDate(params.eventDate, params.locale);
 		const reasonLine = params.cancellationReason
 			? strings.reason(params.cancellationReason)
@@ -275,6 +281,7 @@ export class MailService implements OnModuleInit {
 				: '',
 			REFUND: strings.refund(params.refundAmount),
 			SUPPORT: strings.support,
+			ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 			SIGNOFF: strings.signoff,
 			SIGNATURE: brand.name,
 		});
@@ -290,6 +297,7 @@ export class MailService implements OnModuleInit {
 					reasonLine,
 					strings.refund(params.refundAmount),
 					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 					`${strings.signoff} ${brand.name}`,
 				]
 					.filter(Boolean)
@@ -332,11 +340,10 @@ export class MailService implements OnModuleInit {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
 		const siteBase = brand.siteUrl.replace(/\/+$/, '');
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const eventUrl = siteBase
 			? `${siteBase}/${params.locale}/events/${encodeURIComponent(params.eventId)}`
 			: undefined;
-		const homeUrl = siteBase ? `${siteBase}/${params.locale}` : undefined;
-		const bookingsUrl = siteBase ? `${siteBase}/${params.locale}/bookings` : undefined;
 		const formattedDate = formatMailDate(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const paymentMethodLabel =
@@ -391,8 +398,8 @@ export class MailService implements OnModuleInit {
 				? ['', `${strings.included}:`, ...params.whatsIncluded.map((item) => `— ${item}`)]
 				: []),
 			...(cancellationLines.length ? ['', `${strings.cancellationTitle}:`, ...cancellationLines] : []),
-			...(homeUrl ? ['', `${strings.homeButton}: ${homeUrl}`] : []),
-			...(bookingsUrl ? [`${strings.myBookingsButton}: ${bookingsUrl}`] : []),
+			...(homeUrl || bookingsUrl ? [''] : []),
+			...this.buildBookingActionText(strings, homeUrl, bookingsUrl),
 			'',
 			strings.outro,
 			brand.name,
@@ -451,6 +458,8 @@ export class MailService implements OnModuleInit {
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CANCELLED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const body = strings.body(
 			params.eventTitle,
@@ -481,6 +490,7 @@ export class MailService implements OnModuleInit {
 				BODY: body,
 				REFUND: refundLine,
 				SUPPORT: strings.support,
+				ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 				SIGNOFF: strings.signoff,
 				SIGNATURE: brand.name,
 			});
@@ -493,6 +503,7 @@ export class MailService implements OnModuleInit {
 					body,
 					refundLine,
 					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 					`${strings.signoff} ${brand.name}`,
 				]
 					.filter(Boolean)
@@ -530,6 +541,8 @@ export class MailService implements OnModuleInit {
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const money = (amount: number) => formatMailAmount(amount, params.currency, params.locale);
 
@@ -566,6 +579,7 @@ export class MailService implements OnModuleInit {
 					)
 					.join(''),
 				SUPPORT: strings.support,
+				ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 				SIGNOFF: strings.signoff,
 				SIGNATURE: brand.name,
 			});
@@ -578,6 +592,7 @@ export class MailService implements OnModuleInit {
 					body,
 					...moneyLines,
 					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 					`${strings.signoff} ${brand.name}`,
 				].join('\n\n'),
 				html,
@@ -604,6 +619,8 @@ export class MailService implements OnModuleInit {
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const body = strings.notAddedBody(
 			params.eventTitle,
@@ -625,6 +642,7 @@ export class MailService implements OnModuleInit {
 					escapeHtml(refundLine) +
 					'</mj-text>',
 				SUPPORT: strings.support,
+				ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 				SIGNOFF: strings.signoff,
 				SIGNATURE: brand.name,
 			});
@@ -637,6 +655,7 @@ export class MailService implements OnModuleInit {
 					body,
 					refundLine,
 					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 					`${strings.signoff} ${brand.name}`,
 				].join('\n\n'),
 				html,
@@ -671,6 +690,7 @@ export class MailService implements OnModuleInit {
 		const labels = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const strings = pickLocale(BOOKING_REMINDER_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
 		const day = formatMailDay(params.occurrenceDate, params.locale);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const totalAmount = formatMailAmount(params.amount, params.currency, params.locale);
@@ -702,6 +722,8 @@ export class MailService implements OnModuleInit {
 			...(params.whatsIncluded?.length
 				? ['', `${labels.included}:`, ...params.whatsIncluded.map((item) => `— ${item}`)]
 				: []),
+			...(homeUrl || bookingsUrl ? [''] : []),
+			...this.buildBookingActionText(labels, homeUrl, bookingsUrl),
 			'',
 			strings.outro,
 			brand.name,
@@ -720,6 +742,7 @@ export class MailService implements OnModuleInit {
 						? this.buildNoteBlock(labels.bringCash(totalAmount))
 						: '',
 				INCLUDED_BLOCK: this.buildListBlock(labels.included, params.whatsIncluded ?? []),
+				ACTIONS_BLOCK: this.buildBookingActionButtons(labels, brand, homeUrl, bookingsUrl),
 				OUTRO: strings.outro,
 				SIGNATURE: brand.name,
 			});
@@ -1052,10 +1075,30 @@ export class MailService implements OnModuleInit {
 	): string {
 		const button = (url: string | undefined, label: string) =>
 			url
-				? `<mj-button href="${escapeHtml(url)}" background-color="${escapeHtml(brand.colorPrimary)}" color="#ffffff" border-radius="14px" font-size="15px" font-weight="700" padding="6px 0" width="100%">${escapeHtml(label)}</mj-button>`
+				? `<mj-button href="${escapeHtml(url)}" background-color="#1e293b" border="2px solid ${escapeHtml(brand.colorPrimary)}" color="#f3f4f6" border-radius="12px" font-size="16px" font-weight="700" padding="6px 0" inner-padding="14px 20px" width="100%">${escapeHtml(label)}</mj-button>`
 				: '';
 
 		return button(homeUrl, strings.homeButton) + button(bookingsUrl, strings.myBookingsButton);
+	}
+
+	private buildBookingPageUrls(brand: MailBrand, locale: Locale) {
+		const siteBase = brand.siteUrl.replace(/\/+$/, '');
+
+		return {
+			homeUrl: siteBase ? `${siteBase}/${locale}` : undefined,
+			bookingsUrl: siteBase ? `${siteBase}/${locale}/bookings` : undefined,
+		};
+	}
+
+	private buildBookingActionText(
+		strings: { homeButton: string; myBookingsButton: string },
+		homeUrl: string | undefined,
+		bookingsUrl: string | undefined,
+	): string[] {
+		return [
+			homeUrl ? `${strings.homeButton}: ${homeUrl}` : '',
+			bookingsUrl ? `${strings.myBookingsButton}: ${bookingsUrl}` : '',
+		].filter(Boolean);
 	}
 
 	private buildMeetingBlock(
