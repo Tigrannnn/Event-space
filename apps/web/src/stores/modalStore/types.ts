@@ -38,6 +38,7 @@ export enum ModalType {
 	UserDetails = 'user-details',
 	EditGuest = 'edit-guest',
 	ChangeEmail = 'change-email',
+	BookingQrCode = 'booking-qr-code',
 	EventDetails = 'event-details',
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
@@ -114,6 +115,11 @@ export interface EditGuestModalData {
 	user: SafeUserData;
 }
 
+export interface BookingQrCodeModalData {
+	checkinToken: string;
+	referenceNumber: number | null;
+}
+
 export interface EventDetailsModalData {
 	event: Event;
 }
@@ -157,6 +163,7 @@ export interface ModalDataMap {
 	[ModalType.UserDetails]: UserDetailsModalData;
 	[ModalType.EditGuest]: EditGuestModalData;
 	[ModalType.ChangeEmail]: null;
+	[ModalType.BookingQrCode]: BookingQrCodeModalData;
 	[ModalType.EventDetails]: EventDetailsModalData;
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;

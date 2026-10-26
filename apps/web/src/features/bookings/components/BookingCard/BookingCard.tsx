@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { formatDateTimeZone } from '@/utils/date';
 import { formatBookingReference, getBookingStatusBadgeVariant, movedFromDate } from '@/utils/booking';
-import { Calendar, CalendarClock, Info, MapPin, Navigation, Plus, Users } from 'lucide-react';
+import { Calendar, CalendarClock, Info, MapPin, Navigation, Plus, QrCode, Users } from 'lucide-react';
 import {
 	getBookingDisplayStatus,
 	getEventCoverImageUrl,
@@ -24,7 +24,6 @@ import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { BookingReviewAction } from '@/features/reviews';
-import { BookingQrCode } from '../BookingQrCode';
 import { useModalStore } from '@/stores';
 import { ModalType } from '@/stores/modalStore';
 
@@ -181,10 +180,19 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						</p>
 					</div>
 					{booking.checkinToken && (
-						<BookingQrCode
-							checkinToken={booking.checkinToken}
-							referenceNumber={booking.referenceNumber}
-						/>
+						<button
+							type="button"
+							onClick={() =>
+								openModal(ModalType.BookingQrCode, {
+									checkinToken: booking.checkinToken!,
+									referenceNumber: booking.referenceNumber,
+								})
+							}
+							aria-label={translate('booking.showQrCode')}
+							className="hover:border-primary hover:text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors dark:border-gray-700 dark:text-gray-400"
+						>
+							<QrCode className="h-4 w-4" />
+						</button>
 					)}
 				</div>
 

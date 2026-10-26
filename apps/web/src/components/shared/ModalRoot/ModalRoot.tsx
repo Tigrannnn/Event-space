@@ -19,6 +19,7 @@ import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import { CreatePromoCodeModal, UpdatePromoCodeModal } from '@/features/admin/promo-codes';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EditGuestModal from '@/features/admin/user/components/EditGuestModal';
+import { BookingQrCodeModal } from '@/features/bookings/components/BookingQrCode';
 import ChangeEmailModal from '@/features/profile/components/ChangeEmailModal';
 import EventDetailsModal from '@/features/admin/events/components/modals/EventDetailsModal';
 import BookingDetailsModal from '@/features/admin/bookings/components/BookingDetailsModal';
@@ -65,6 +66,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.ChangeQuantity && <ChangeQuantityModal key="change-quantity" />}
 					{activeModal === ModalType.UserDetails && <UserDetailsModal key="user-details" />}
 					{activeModal === ModalType.EditGuest && <EditGuestModal key="edit-guest" />}
+					{activeModal === ModalType.BookingQrCode && <BookingQrCodeModal key="booking-qr-code" />}
 					{activeModal === ModalType.ChangeEmail && <ChangeEmailModal key="change-email" />}
 					{activeModal === ModalType.EventDetails && <EventDetailsModal key="event-details" />}
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}

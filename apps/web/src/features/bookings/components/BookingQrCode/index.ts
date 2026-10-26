@@ -1,1 +1,1 @@
-export * from './BookingQrCode';
+export { default as BookingQrCodeModal } from './BookingQrCode';
