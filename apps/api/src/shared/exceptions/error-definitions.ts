@@ -282,6 +282,30 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'The tour has already started, the booking can no longer be cancelled',
 	},
+	[AppErrorCode.PROMO_CODE_NOT_FOUND]: {
+		status: HttpStatus.NOT_FOUND,
+		message: 'Promo code not found',
+	},
+	[AppErrorCode.PROMO_CODE_INACTIVE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This promo code is no longer active',
+	},
+	[AppErrorCode.PROMO_CODE_EXPIRED]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This promo code has expired or is not active yet',
+	},
+	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'This promo code has reached its usage limit',
+	},
+	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This promo code does not apply to this tour',
+	},
+	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A promo code with this code already exists',
+	},
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Invalid reference number',

@@ -14,6 +14,8 @@ import {
 	type UserFilters,
 	type CreateCategoryData,
 	type UpdateCategoryData,
+	type CreatePromoCodeData,
+	type UpdatePromoCodeData,
 	type UpdateShadowUserData,
 	type ModerateReviewData,
 	type ReplyToReviewData,
@@ -533,6 +535,65 @@ export const useDeleteCategory = () => {
 				queryClient.invalidateQueries({ queryKey: ['admin', 'categories'] }),
 				queryClient.invalidateQueries({ queryKey: ['categories'] }),
 			]);
+		},
+	});
+};
+
+export const useAdminPromoCodes = (params?: { skip?: number; limit?: number; search?: string }) => {
+	return useQuery({
+		queryKey: ['admin', 'promo-codes', params],
+		queryFn: () => adminApi.getPromoCodes(params),
+	});
+};
+
+export const useCreatePromoCode = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (data: CreatePromoCodeData) => adminApi.createPromoCode(data),
+		onSuccess: async () => {
+			addToast(translate('admin.createPromoCodeSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'promo-codes'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.createPromoCodeFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdatePromoCode = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdatePromoCodeData }) =>
+			adminApi.updatePromoCode(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.updatePromoCodeSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'promo-codes'] });
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.updatePromoCodeFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useDeletePromoCode = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.deletePromoCode(id),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['admin', 'promo-codes'] });
 		},
 	});
 };

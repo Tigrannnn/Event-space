@@ -38,6 +38,9 @@ import type {
 	CreateCategoryData,
 	UpdateCategoryData,
 	BookingWithOccurrence,
+	PromoCode,
+	CreatePromoCodeData,
+	UpdatePromoCodeData,
 } from '@event-space/shared';
 
 /** A review as the moderation queue needs it: who wrote it, about what, and for which booking. */
@@ -148,6 +151,18 @@ export const adminApi = {
 		clientApi.patch<Category>(`/admin/categories/${id}`, data).then((res) => res.data),
 	deleteCategory: (id: string) =>
 		clientApi.delete<{ message: string }>(`/admin/categories/${id}`).then((res) => res.data),
+	getPromoCodeById: (id: string) =>
+		clientApi.get<PromoCode>(`/admin/promo-codes/${id}`).then((res) => res.data),
+	getPromoCodes: (params?: { skip?: number; limit?: number; search?: string }) =>
+		clientApi
+			.get<PaginatedResponse<PromoCode>>('/admin/promo-codes', { params })
+			.then((res) => res.data),
+	createPromoCode: (data: CreatePromoCodeData) =>
+		clientApi.post<PromoCode>('/admin/promo-codes', data).then((res) => res.data),
+	updatePromoCode: (id: string, data: UpdatePromoCodeData) =>
+		clientApi.patch<PromoCode>(`/admin/promo-codes/${id}`, data).then((res) => res.data),
+	deletePromoCode: (id: string) =>
+		clientApi.delete<{ message: string }>(`/admin/promo-codes/${id}`).then((res) => res.data),
 	getBanners: () => clientApi.get<Banner[]>('/banners/admin').then((res) => res.data),
 	createBanner: (formData: FormData) =>
 		clientApi

@@ -4,7 +4,7 @@ export interface BookingFormProps {
 	event: Event;
 	initialQuantity: number;
 	maxQuantity: number;
-	onSubmit: (quantity: number, phone: string) => void;
+	onSubmit: (quantity: number, phone: string, promoCode?: string) => void;
 	onOccurrenceSelect: (occurrence: EventOccurrence) => void;
 	selectedOccurrence: EventOccurrence | null;
 	isLoading: boolean;

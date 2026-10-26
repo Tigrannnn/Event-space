@@ -1,6 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { BookingController } from './booking.controller';
+import { PromoCodeService } from './promo/promo-code.service';
+import { PromoCodeController } from './promo/promo-code.controller';
 import { BookingReconcileService } from './jobs/booking-reconcile.service';
 import { BookingReminderService } from './jobs/booking-reminder.service';
 import { BookingRefundRetryService } from './jobs/booking-refund-retry.service';
@@ -35,8 +37,9 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		BookingQuantityService,
 		BookingTopUpService,
 		BookingTopUpJobService,
+		PromoCodeService,
 	],
 	exports: [BookingService, BookingLedgerService, BookingRefundService],
-	controllers: [BookingController],
+	controllers: [BookingController, PromoCodeController],
 })
 export class BookingModule {}

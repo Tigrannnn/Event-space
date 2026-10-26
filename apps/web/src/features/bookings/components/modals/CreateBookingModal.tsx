@@ -57,14 +57,14 @@ export default function CreateBookingModal() {
 		? Math.max(0, selectedOccurrence.maxParticipants - selectedOccurrence.currentParticipants)
 		: 0;
 
-	const handleConfirm = (quantity: number, phone: string) => {
+	const handleConfirm = (quantity: number, phone: string, promoCode?: string) => {
 		if (!selectedOccurrence) {
 			addToast(translate('booking.selectDate'), ToastType.ERROR);
 			return;
 		}
 
 		createBooking(
-			{ occurrenceId: selectedOccurrence.id, quantity, phone, paymentMethod: 'STRIPE' },
+			{ occurrenceId: selectedOccurrence.id, quantity, phone, paymentMethod: 'STRIPE', promoCode },
 			{
 				onSuccess: (data) => {
 					if (!data.clientSecret) {

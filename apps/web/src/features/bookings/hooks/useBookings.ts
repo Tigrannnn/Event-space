@@ -93,6 +93,27 @@ export const useQuantityQuote = (bookingId: string | undefined, quantity: number
 	});
 };
 
+/**
+ * Checks a promo code before any money moves. `code` is only set once the visitor commits
+ * to it (presses "apply"), not on every keystroke — so a half-typed code never fires a
+ * request, and nothing is spent: the booking is what actually redeems the code.
+ */
+export const usePromoCodeQuote = (
+	occurrenceId: string | undefined,
+	quantity: number,
+	code: string | null,
+) => {
+	return useQuery({
+		queryKey: ['promo-code-quote', occurrenceId, quantity, code],
+		queryFn: () =>
+			bookingApi.validatePromoCode({ occurrenceId: occurrenceId as string, quantity, code: code as string }),
+		enabled: Boolean(occurrenceId && code),
+		retry: false,
+		staleTime: 0,
+		gcTime: 0,
+	});
+};
+
 export const useStartQuantityPayment = () => {
 	const { addToast } = useToastStore();
 	const apiError = useApiError();

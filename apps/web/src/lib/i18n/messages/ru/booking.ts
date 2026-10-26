@@ -40,6 +40,12 @@ export const booking: Messages['booking'] = {
 	spotsLeft: 'мест осталось',
 	selectSpots: 'Выберите места',
 	totalPrice: 'Итоговая цена',
+	promoCode: 'Промокод',
+	promoCodeApply: 'Применить',
+	promoCodeApplied: 'Промокод «{code}» применён',
+	promoCodeRemove: 'Убрать промокод',
+	promoCodeNotBetter:
+		'У этой даты уже действует скидка −{percent}%, ваш промокод её не перебивает — применена более выгодная скидка',
 	spotsAvailable: 'мест доступно',
 	preparingPayment: 'Готовим оплату...',
 	continueToPayment: 'Перейти к оплате',

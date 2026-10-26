@@ -7,6 +7,7 @@ import {
 	SafeUserData,
 	Category,
 	EventOccurrence,
+	PromoCode,
 } from '@event-space/shared';
 import type { ReactNode } from 'react';
 import type { ModalSize } from '@/components/ui/Modal/Modal.types';
@@ -46,6 +47,8 @@ export enum ModalType {
 	CategoryDetails = 'category-details',
 	CreateBanner = 'create-banner',
 	UpdateBanner = 'update-banner',
+	CreatePromoCode = 'create-promo-code',
+	UpdatePromoCode = 'update-promo-code',
 }
 
 export interface ContactInfoModalData {
@@ -129,6 +132,10 @@ export interface UpdateBannerModalData {
 	banner: Banner;
 }
 
+export interface UpdatePromoCodeModalData {
+	promoCode: PromoCode;
+}
+
 export interface ModalDataMap {
 	[ModalType.Register]: null;
 	[ModalType.Login]: null;
@@ -157,6 +164,8 @@ export interface ModalDataMap {
 	[ModalType.CategoryDetails]: CategoryDetailsModalData;
 	[ModalType.CreateBanner]: null;
 	[ModalType.UpdateBanner]: UpdateBannerModalData;
+	[ModalType.CreatePromoCode]: null;
+	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
 }
 
 export interface ModalState {

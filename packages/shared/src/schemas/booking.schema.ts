@@ -89,6 +89,10 @@ export const CreateBookingSchema = z.object({
 		description: 'Selected payment method for the booking',
 		example: 'AMERIA',
 	}),
+	promoCode: z.string().trim().min(1).optional().openapi({
+		description: 'Promo code entered by the customer, if any',
+		example: 'SUMMER10',
+	}),
 });
 
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;

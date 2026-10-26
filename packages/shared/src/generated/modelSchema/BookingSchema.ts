@@ -19,6 +19,7 @@ export const BookingSchema = z.object({
   amount: z.instanceof(Prisma.Decimal, { message: "Field 'amount' must be a Decimal. Location: ['Models', 'Booking']"}),
   baseAmount: z.instanceof(Prisma.Decimal, { message: "Field 'baseAmount' must be a Decimal. Location: ['Models', 'Booking']"}).nullable(),
   discountPercent: z.number().int().nullable(),
+  promoCodeId: z.string().nullable(),
   createdByAdminId: z.string().nullable(),
   rescheduleRefundUntil: z.coerce.date().nullable(),
   rescheduleAcceptedAt: z.coerce.date().nullable(),

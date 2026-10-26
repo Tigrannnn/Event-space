@@ -106,6 +106,12 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'This booking is already checked in.',
 	[AppErrorCode.NOT_CHECKED_IN]: 'This booking is not checked in.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'The tour has already started, so the booking can no longer be cancelled. Please contact the organiser.',
+	[AppErrorCode.PROMO_CODE_NOT_FOUND]: 'This promo code does not exist.',
+	[AppErrorCode.PROMO_CODE_INACTIVE]: 'This promo code is no longer active.',
+	[AppErrorCode.PROMO_CODE_EXPIRED]: 'This promo code is not valid right now.',
+	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: 'This promo code has already been used up.',
+	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'This promo code does not apply to this tour.',
+	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'A promo code with this code already exists.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'This booking has no payment to reconcile.',
 

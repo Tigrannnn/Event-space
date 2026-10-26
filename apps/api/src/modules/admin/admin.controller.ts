@@ -24,6 +24,7 @@ import { AdminBookingsService } from './bookings/admin-bookings.service';
 import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
 import { AdminEventsService } from './events/admin-events.service';
 import { AdminCategoriesService } from './categories/admin-categories.service';
+import { AdminPromoCodesService } from './promo-codes/admin-promo-codes.service';
 import { DashboardStatsService } from './dashboard/dashboard-stats.service';
 import { DashboardFlowService } from './dashboard/dashboard-flow.service';
 import { DashboardRevenueService } from './dashboard/dashboard-revenue.service';
@@ -57,6 +58,8 @@ import {
 	CreateManualBookingSchema,
 	CreateCategorySchema,
 	UpdateCategorySchema,
+	CreatePromoCodeSchema,
+	UpdatePromoCodeSchema,
 	AdminCancelBookingSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
@@ -76,6 +79,8 @@ import type {
 	CreateManualBookingData,
 	CreateCategoryData,
 	UpdateCategoryData,
+	CreatePromoCodeData,
+	UpdatePromoCodeData,
 	AdminCancelBookingData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
@@ -109,6 +114,7 @@ export class AdminController {
 		private readonly bookingCancellationService: AdminBookingCancellationService,
 		private readonly eventsAdminService: AdminEventsService,
 		private readonly categoriesService: AdminCategoriesService,
+		private readonly promoCodesService: AdminPromoCodesService,
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardRevenueService: DashboardRevenueService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
@@ -676,5 +682,76 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
 		);
 		await this.categoriesService.delete(id);
+	}
+
+	@Get('promo-codes/:id')
+	@ApiOperation({ summary: 'Get promo code by ID (admin only)' })
+	async getPromoCodeById(@Param('id') id: string) {
+		const promoCode = await this.promoCodesService.findOne(id);
+		if (!promoCode) {
+			throw new AppException(AppErrorCode.PROMO_CODE_NOT_FOUND);
+		}
+		return promoCode;
+	}
+
+	@Get('promo-codes')
+	@ApiOperation({ summary: 'Get all promo codes (admin)' })
+	@ApiQuery({ name: 'skip', required: false, type: Number })
+	@ApiQuery({ name: 'limit', required: false, type: Number })
+	@ApiQuery({ name: 'search', required: false })
+	async getAllPromoCodes(
+		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
+		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
+		@Query('search') search?: string,
+	) {
+		const safeLimit = Math.min(limit, 100);
+		return this.promoCodesService.findAll({ skip, limit: safeLimit, search });
+	}
+
+	@Post('promo-codes')
+	@ApiOperation({ summary: 'Create promo code (admin only)' })
+	@ApiResponse({ status: 201, description: 'Promo code created' })
+	@ApiBody(getReference('CreatePromoCodeSchema'))
+	async createPromoCode(
+		@GetCurrentUserId() adminId: string,
+		@Body(new ZodValidationPipe(CreatePromoCodeSchema)) data: CreatePromoCodeData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.promoCodesService.create(data);
+	}
+
+	@Patch('promo-codes/:id')
+	@ApiOperation({ summary: 'Update promo code (admin only)' })
+	@ApiBody(getReference('UpdatePromoCodeSchema'))
+	async updatePromoCode(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdatePromoCodeSchema)) data: UpdatePromoCodeData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+		return this.promoCodesService.update(id, data);
+	}
+
+	@Delete('promo-codes/:id')
+	@ApiOperation({ summary: 'Delete promo code (admin only)' })
+	@ApiResponse({ status: 200, description: 'Promo code deleted' })
+	async deletePromoCode(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:delete`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_MAX_PER_HOUR,
+			ADMIN_CONFIG.RATE_LIMITS.DELETE_WINDOW_SEC,
+		);
+		await this.promoCodesService.delete(id);
 	}
 }

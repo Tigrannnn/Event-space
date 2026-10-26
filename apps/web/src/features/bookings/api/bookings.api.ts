@@ -14,6 +14,8 @@ import type {
 	BookingDisplayStatus,
 	MyBookingsSummary,
 	PaginatedCursorResponse,
+	ApplyPromoCodeData,
+	PromoCodeQuote,
 } from '@event-space/shared';
 import { MY_BOOKINGS_PAGE_SIZE } from '@event-space/shared';
 
@@ -61,4 +63,7 @@ export const bookingApi = {
 
 	changeQuantity: (id: string, data: ChangeQuantityData) =>
 		clientApi.patch<BookingQuantityChange>(`/bookings/${id}/quantity`, data).then((res) => res.data),
+
+	validatePromoCode: (data: ApplyPromoCodeData) =>
+		clientApi.post<PromoCodeQuote>('/promo-codes/validate', data).then((res) => res.data),
 };

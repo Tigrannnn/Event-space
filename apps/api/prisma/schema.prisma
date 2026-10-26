@@ -82,6 +82,7 @@ model Category {
   translations CategoryTranslation[]
   events       Event[]
   banners      Banner[]             @relation("category_banners")
+  promoCodes   PromoCode[]          @relation("category_promo_codes")
 
   @@map("categories")
 }
@@ -126,6 +127,7 @@ model Event {
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
   translations      EventTranslation[]
+  promoCodes        PromoCode[]              @relation("event_promo_codes")
 
   @@index([categoryId])
   @@map("events")
@@ -243,6 +245,7 @@ model Booking {
 
   baseAmount      Decimal? @map("base_amount") @db.Decimal(10, 2)
   discountPercent Int?     @map("discount_percent")
+  promoCodeId     String?  @map("promo_code_id")
 
   paymentMethod PaymentMethod @default(SITE_PAYMENT) @map("payment_method")
 
@@ -269,11 +272,40 @@ model Booking {
 
   statusHistory BookingStatusHistory[] @relation("booking_status_history")
   review        Review?                @relation("booking_review")
+  promoCode     PromoCode?             @relation("booking_promo_code", fields: [promoCodeId], references: [id])
 
   @@unique([userId, occurrenceId])
   @@index([userId])
   @@index([occurrenceId])
+  @@index([promoCodeId])
   @@map("bookings")
+}
+
+model PromoCode {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  discountPercent Int       @map("discount_percent")
+  maxUses         Int?      @map("max_uses")
+  maxUsesPerUser  Int?      @map("max_uses_per_user")
+  usageCount      Int       @default(0) @map("usage_count")
+  validFrom       DateTime? @map("valid_from")
+  validUntil      DateTime? @map("valid_until")
+  active          Boolean   @default(true)
+  note            String?
+
+  eventId    String? @map("event_id")
+  categoryId String? @map("category_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  event    Event?    @relation("event_promo_codes", fields: [eventId], references: [id], onDelete: Cascade)
+  category Category? @relation("category_promo_codes", fields: [categoryId], references: [id], onDelete: Cascade)
+  bookings Booking[] @relation("booking_promo_code")
+
+  @@index([eventId])
+  @@index([categoryId])
+  @@map("promo_codes")
 }
 
 model BookingStatusHistory {

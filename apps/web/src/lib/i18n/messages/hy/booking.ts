@@ -40,6 +40,12 @@ export const booking: Messages['booking'] = {
 	spotsLeft: 'տեղ մնաց',
 	selectSpots: 'Ընտրեք տեղերը',
 	totalPrice: 'Ընդհանուր գին',
+	promoCode: 'Պրոմոկոդ',
+	promoCodeApply: 'Կիրառել',
+	promoCodeApplied: '«{code}» պրոմոկոդը կիրառվեց',
+	promoCodeRemove: 'Հեռացնել պրոմոկոդը',
+	promoCodeNotBetter:
+		'Այս ամսաթվի համար արդեն գործում է −{percent}% զեղչ, ձեր պրոմոկոդն այն չի գերազանցում․ կիրառվեց ավելի շահավետը',
 	spotsAvailable: 'հասանելի տեղ',
 	preparingPayment: 'Պատրաստում ենք վճարումը...',
 	continueToPayment: 'Շարունակել վճարմանը',

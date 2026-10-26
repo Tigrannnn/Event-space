@@ -12,6 +12,11 @@ export const BOOKING_CONFIG = {
 		/** Max cancellation attempts per user per hour */
 		CANCEL_MAX_PER_HOUR: 30,
 		CANCEL_WINDOW_SEC: 3600,
+
+		/** Max promo code guesses per user per 5 minutes — a real typo or two is never blocked,
+		 *  scripted guessing of codes is. */
+		PROMO_VALIDATE_MAX_PER_WINDOW: 10,
+		PROMO_VALIDATE_WINDOW_SEC: 300,
 	},
 } as const;
 

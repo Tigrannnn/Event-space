@@ -14,6 +14,7 @@ import {
 	Tag,
 	Image as ImageIcon,
 	Star,
+	Percent,
 } from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -37,6 +38,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		{ href: '/admin/dashboard', label: translate('admin.dashboard'), icon: LayoutDashboard },
 		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
 		{ href: '/admin/categories', label: translate('admin.categories'), icon: Tag },
+		{ href: '/admin/promo-codes', label: translate('admin.promoCodes'), icon: Percent },
 		{ href: '/admin/banners', label: translate('admin.banners'), icon: ImageIcon },
 		{ href: '/admin/reviews', label: translate('admin.reviews'), icon: Star, badge: pendingReviews },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },

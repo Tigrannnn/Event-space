@@ -100,6 +100,12 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Эта бронь уже отмечена как явка.',
 	[AppErrorCode.NOT_CHECKED_IN]: 'Эта бронь не отмечена как явка.',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Тур уже начался, бронь больше нельзя отменить. Свяжитесь с организатором.',
+	[AppErrorCode.PROMO_CODE_NOT_FOUND]: 'Такого промокода нет.',
+	[AppErrorCode.PROMO_CODE_INACTIVE]: 'Этот промокод больше не активен.',
+	[AppErrorCode.PROMO_CODE_EXPIRED]: 'Этот промокод сейчас не действует.',
+	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: 'Лимит использований этого промокода уже исчерпан.',
+	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Этот промокод не подходит к этому туру.',
+	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Промокод с таким кодом уже существует.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',
 

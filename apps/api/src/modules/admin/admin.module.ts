@@ -4,6 +4,7 @@ import { AdminBookingsService } from './bookings/admin-bookings.service';
 import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
 import { AdminEventsService } from './events/admin-events.service';
 import { AdminCategoriesService } from './categories/admin-categories.service';
+import { AdminPromoCodesService } from './promo-codes/admin-promo-codes.service';
 import { DashboardStatsService } from './dashboard/dashboard-stats.service';
 import { AdminController } from './admin.controller';
 import { DashboardSnapshotService } from './dashboard/dashboard-snapshot.service';
@@ -23,6 +24,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		AdminBookingCancellationService,
 		AdminEventsService,
 		AdminCategoriesService,
+		AdminPromoCodesService,
 		DashboardStatsService,
 		DashboardSnapshotService,
 		DashboardFlowService,

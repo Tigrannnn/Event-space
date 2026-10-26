@@ -100,6 +100,12 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.ALREADY_CHECKED_IN]: 'Այս ամրագրման համար արդեն նշված է ներկայություն։',
 	[AppErrorCode.NOT_CHECKED_IN]: 'Այս ամրագրումը գրանցված չէ։',
 	[AppErrorCode.TOUR_ALREADY_STARTED]: 'Տուրն արդեն սկսվել է, ամրագրումն այլևս հնարավոր չէ չեղարկել։ Կապվեք կազմակերպչի հետ։',
+	[AppErrorCode.PROMO_CODE_NOT_FOUND]: 'Նման պրոմոկոդ չկա։',
+	[AppErrorCode.PROMO_CODE_INACTIVE]: 'Այս պրոմոկոդն այլևս ակտիվ չէ։',
+	[AppErrorCode.PROMO_CODE_EXPIRED]: 'Այս պրոմոկոդն այժմ ուժի մեջ չէ։',
+	[AppErrorCode.PROMO_CODE_LIMIT_REACHED]: 'Այս պրոմոկոդի օգտագործման սահմանաչափը սպառվել է։',
+	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Այս պրոմոկոդը չի կիրառվում այս տուրի համար։',
+	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Այս կոդով պրոմոկոդ արդեն գոյություն ունի։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'Այս ամրագրումը վճարում չունի ստուգելու համար։',
 

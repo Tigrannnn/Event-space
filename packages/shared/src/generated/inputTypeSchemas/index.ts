@@ -8,6 +8,7 @@ export { EventImageScalarFieldEnumSchema } from './EventImageScalarFieldEnumSche
 export { CancellationPolicyRuleScalarFieldEnumSchema } from './CancellationPolicyRuleScalarFieldEnumSchema';
 export { FavoriteScalarFieldEnumSchema } from './FavoriteScalarFieldEnumSchema';
 export { BookingScalarFieldEnumSchema } from './BookingScalarFieldEnumSchema';
+export { PromoCodeScalarFieldEnumSchema } from './PromoCodeScalarFieldEnumSchema';
 export { BookingStatusHistoryScalarFieldEnumSchema } from './BookingStatusHistoryScalarFieldEnumSchema';
 export { BookingReferenceScalarFieldEnumSchema } from './BookingReferenceScalarFieldEnumSchema';
 export { BookingAdjustmentScalarFieldEnumSchema } from './BookingAdjustmentScalarFieldEnumSchema';

@@ -27,6 +27,7 @@ import {
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingNotificationService } from './booking-notification.service';
 import { BookingPaymentService } from './booking-payment.service';
+import { PromoCodeService } from '../promo/promo-code.service';
 
 @Injectable()
 export class BookingCreationService {
@@ -38,6 +39,7 @@ export class BookingCreationService {
 		private readonly notifications: BookingNotificationService,
 		private readonly payments: BookingPaymentService,
 		private readonly ledger: BookingLedgerService,
+		private readonly promoCodes: PromoCodeService,
 	) {}
 
 	async create(
@@ -101,7 +103,30 @@ export class BookingCreationService {
 					});
 				}
 
-				const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
+				let pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
+				let promoCodeId: string | null = null;
+
+				if (data.promoCode) {
+					const promoCode = await this.promoCodes.findApplicable(data.promoCode, event, tx);
+					await this.promoCodes.assertWithinUserLimit(promoCode, userId, tx);
+
+					// A retry of the same still-pending booking (e.g. payment failed and the
+					// customer tried again) must not spend a second use of the code.
+					const alreadyRedeemedByThisBooking =
+						existing?.status === 'PENDING' && existing.promoCodeId === promoCode.id;
+
+					if (!alreadyRedeemedByThisBooking) {
+						await this.promoCodes.redeem(tx, promoCode);
+					}
+
+					pricing = this.promoCodes.quote(
+						promoCode,
+						event.price,
+						quantity,
+						occurrence.discountPercent,
+					);
+					promoCodeId = promoCode.id;
+				}
 
 				// Re-booking reuses the same row (unique [userId, occurrenceId]). A payment intent
 				// left over from a finished cycle may already be paid — and even refunded — so
@@ -115,6 +140,7 @@ export class BookingCreationService {
 						status: 'PENDING',
 						quantity,
 						...pricing,
+						promoCodeId,
 						...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
 						...(brandHost ? { brandHost } : {}),
 					},
@@ -124,6 +150,7 @@ export class BookingCreationService {
 						status: 'PENDING',
 						quantity,
 						...pricing,
+						promoCodeId,
 						brandHost,
 					},
 				});
