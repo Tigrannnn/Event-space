@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { usePreventScroll } from '@react-aria/overlays';
 import type { ModalPosition, ModalProps, ModalSize } from './Modal.types';
@@ -40,14 +39,6 @@ export default function Modal({
 	preventScroll = true,
 }: ModalProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	// `fixed` is only ever relative to the viewport when nothing between here and <body> sets
-	// a transform, filter, or similar — and a card's own hover:-translate-y-1 does exactly that.
-	// Rendered where it's opened, this modal would be clipped inside whatever card opened it;
-	// a portal straight to <body> sidesteps the whole class of bug.
-	const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
-	if (portalNode === null && typeof document !== 'undefined') {
-		setPortalNode(document.body);
-	}
 
 	// Accessibility hooks
 	useFocusTrap({ containerRef: containerRef as React.RefObject<HTMLElement> });
@@ -69,7 +60,7 @@ export default function Modal({
 		}
 	};
 
-	const modal = (
+	return (
 		<>
 			{/* Backdrop with fade animation */}
 			<motion.div
@@ -106,10 +97,6 @@ export default function Modal({
 			</div>
 		</>
 	);
-
-	if (!portalNode) return null;
-
-	return createPortal(modal, portalNode);
 }
 
 /**
