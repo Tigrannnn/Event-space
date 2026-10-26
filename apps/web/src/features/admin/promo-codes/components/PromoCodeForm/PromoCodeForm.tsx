@@ -110,14 +110,15 @@ export default function PromoCodeForm({
 		onSubmit({
 			code: code.trim(),
 			discountPercent: percent,
-			maxUses: maxUses.trim() ? Number(maxUses) : undefined,
-			maxUsesPerUser: maxUsesPerUser.trim() ? Number(maxUsesPerUser) : undefined,
-			validFrom: validFrom ? new Date(validFrom) : undefined,
-			validUntil: validUntil ? new Date(validUntil) : undefined,
+			// Explicit null, not undefined, on every optional field below: Prisma's update
+			// treats `undefined` as "leave it as it was", so an admin clearing a field back
+			// to empty on an edit would otherwise see it silently stay at its old value.
+			maxUses: maxUses.trim() ? Number(maxUses) : null,
+			maxUsesPerUser: maxUsesPerUser.trim() ? Number(maxUsesPerUser) : null,
+			validFrom: validFrom ? new Date(validFrom) : null,
+			validUntil: validUntil ? new Date(validUntil) : null,
 			active,
-			note: note.trim() || undefined,
-			// Explicit null, not undefined: on edit this must actually clear whichever
-			// scope the code no longer belongs to, not silently leave the old one in place.
+			note: note.trim() || null,
 			eventId: scope === 'event' ? eventId : null,
 			categoryId: scope === 'category' ? categoryId : null,
 		});
