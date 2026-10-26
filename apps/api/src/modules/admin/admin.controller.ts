@@ -62,6 +62,7 @@ import {
 	UpdatePromoCodeSchema,
 	AdminCancelBookingSchema,
 	CompensateBookingSchema,
+	TransferBookingSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
 } from '@event-space/shared';
@@ -84,6 +85,7 @@ import type {
 	UpdatePromoCodeData,
 	AdminCancelBookingData,
 	CompensateBookingData,
+	TransferBookingData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
 	PaymentMethod,
@@ -590,6 +592,24 @@ export class AdminController {
 		);
 
 		return this.bookingCancellationService.compensate(adminId, id, data);
+	}
+
+	@Post('bookings/:id/transfer')
+	@ApiOperation({ summary: 'Move a booking to another date of the same tour' })
+	@ApiBody(getReference('TransferBookingSchema'))
+	async transferBooking(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(TransferBookingSchema)) data: TransferBookingData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingsAdminService.transferOccurrence(id, data);
 	}
 
 	@Post('bookings/manual')

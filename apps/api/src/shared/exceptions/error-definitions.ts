@@ -310,6 +310,14 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'This amount is more than what is left to refund on this booking',
 	},
+	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This booking is already on that date',
+	},
+	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'That date belongs to a different tour',
+	},
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'Invalid reference number',

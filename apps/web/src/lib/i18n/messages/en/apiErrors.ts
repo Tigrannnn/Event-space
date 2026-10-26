@@ -113,6 +113,8 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'This promo code does not apply to this tour.',
 	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'A promo code with this code already exists.',
 	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: 'This amount is more than what is left to refund on this booking.',
+	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'This booking is already on that date.',
+	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'That date belongs to a different tour.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'This is not a valid booking reference.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'This booking has no payment to reconcile.',
 

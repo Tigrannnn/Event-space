@@ -50,6 +50,7 @@ export enum ModalType {
 	CreatePromoCode = 'create-promo-code',
 	UpdatePromoCode = 'update-promo-code',
 	CompensateBooking = 'compensate-booking',
+	TransferBooking = 'transfer-booking',
 }
 
 export interface ContactInfoModalData {
@@ -168,6 +169,7 @@ export interface ModalDataMap {
 	[ModalType.CreatePromoCode]: null;
 	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
 	[ModalType.CompensateBooking]: BookingDetailsModalData;
+	[ModalType.TransferBooking]: BookingDetailsModalData;
 }
 
 export interface ModalState {

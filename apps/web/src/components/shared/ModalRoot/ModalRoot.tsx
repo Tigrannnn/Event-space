@@ -25,6 +25,7 @@ import BookingDetailsModal from '@/features/admin/bookings/components/BookingDet
 import CreateManualBookingModal from '@/features/admin/bookings/components/CreateManualBookingModal';
 import BookingCancelModal from '@/features/admin/bookings/components/BookingCancelModal';
 import CompensateBookingModal from '@/features/admin/bookings/components/CompensateBookingModal';
+import TransferBookingModal from '@/features/admin/bookings/components/TransferBookingModal';
 import ChangeQuantityModal from '@/features/bookings/components/modals/ChangeQuantityModal';
 import BookingConfirmModal from '@/features/admin/bookings/components/BookingConfirmModal';
 import UpdateBookingModal from '@/features/admin/bookings/components/UpdateBookingModal';
@@ -56,6 +57,9 @@ export default function ModalRoot() {
 					{activeModal === ModalType.BookingCancel && <BookingCancelModal key="booking-cancel" />}
 					{activeModal === ModalType.CompensateBooking && (
 						<CompensateBookingModal key="compensate-booking" />
+					)}
+					{activeModal === ModalType.TransferBooking && (
+						<TransferBookingModal key="transfer-booking" />
 					)}
 					{activeModal === ModalType.BookingConfirm && <BookingConfirmModal key="booking-confirm" />}
 					{activeModal === ModalType.ChangeQuantity && <ChangeQuantityModal key="change-quantity" />}

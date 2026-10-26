@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import {
 	type AdminCancelBookingData,
 	type CompensateBookingData,
+	type TransferBookingData,
 	type DashboardStats,
 	type ChangeQuantityData,
 	type QuantitySettlement,
@@ -141,6 +142,34 @@ export const useCancelBookingByAdmin = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.cancelBookingFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useTransferBooking = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: TransferBookingData }) =>
+			adminApi.transferBooking(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.transferBookingSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.transferBookingFailed'), ToastType.ERROR);
 		},
 	});
 };

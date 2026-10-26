@@ -266,6 +266,19 @@ export const CompensateBookingSchema = z.object({
 
 export type CompensateBookingData = z.infer<typeof CompensateBookingSchema>;
 
+export const TransferBookingSchema = z.object({
+	occurrenceId: z.string().uuid().openapi({
+		description: 'Another date of the same tour to move this booking to',
+		example: '550e8400-e29b-41d4-a716-446655440003',
+	}),
+	reason: z.string().trim().max(500).optional().openapi({
+		description: 'Optional admin note for why the booking was moved',
+		example: 'Date was underbooked, moved to a date that will run',
+	}),
+});
+
+export type TransferBookingData = z.infer<typeof TransferBookingSchema>;
+
 export const BookingAuthorSchema = z.enum(['client', 'admin']);
 
 export type BookingAuthor = z.infer<typeof BookingAuthorSchema>;

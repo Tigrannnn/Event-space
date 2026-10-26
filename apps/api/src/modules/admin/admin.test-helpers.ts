@@ -102,8 +102,9 @@ export type { Page };
 
 /** The admin services wired together the way the module wires them. */
 export function createAdmin(prisma: never, stripe: never) {
+	const mail = { sendOccurrenceRescheduledEmail: () => Promise.resolve() } as never;
 	const users = new AdminUsersService(prisma);
-	const bookings = new AdminBookingsService(prisma);
+	const bookings = new AdminBookingsService(prisma, mail);
 	const cancellation = new AdminBookingCancellationService(
 		prisma,
 		stripe,
@@ -129,6 +130,8 @@ export function createAdmin(prisma: never, stripe: never) {
 			bookings.findAll(params),
 		checkInBooking: (id: string) => bookings.checkIn(id, 'admin-1'),
 		undoBookingCheckIn: (id: string) => bookings.undoCheckIn(id, 'admin-1'),
+		transferBooking: (id: string, data: Parameters<AdminBookingsService['transferOccurrence']>[1]) =>
+			bookings.transferOccurrence(id, data),
 		adminCancelBooking: (
 			adminId: string,
 			id: string,

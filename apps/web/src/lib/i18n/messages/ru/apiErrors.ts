@@ -107,6 +107,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Этот промокод не подходит к этому туру.',
 	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Промокод с таким кодом уже существует.',
 	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: 'Эта сумма больше того, что ещё можно вернуть по этой брони.',
+	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'Бронь уже на этой дате.',
+	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'Эта дата принадлежит другому туру.',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Неверный номер брони.',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'У этой брони нет платежа для сверки.',
 

@@ -107,6 +107,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.PROMO_CODE_NOT_APPLICABLE]: 'Այս պրոմոկոդը չի կիրառվում այս տուրի համար։',
 	[AppErrorCode.PROMO_CODE_ALREADY_EXISTS]: 'Այս կոդով պրոմոկոդ արդեն գոյություն ունի։',
 	[AppErrorCode.COMPENSATION_EXCEEDS_REMAINING]: 'Այս գումարը ավելի մեծ է, քան այս ամրագրման համար դեռ հնարավոր է վերադարձնել։',
+	[AppErrorCode.BOOKING_TRANSFER_SAME_OCCURRENCE]: 'Ամրագրումն արդեն այս ամսաթվին է։',
+	[AppErrorCode.BOOKING_TRANSFER_DIFFERENT_EVENT]: 'Այդ ամսաթիվը այլ տուրի է պատկանում։',
 	[AppErrorCode.INVALID_REFERENCE_NUMBER]: 'Սխալ ամրագրման համար։',
 	[AppErrorCode.BOOKING_NO_PAYMENT_INTENT]: 'Այս ամրագրումը վճարում չունի ստուգելու համար։',
 
