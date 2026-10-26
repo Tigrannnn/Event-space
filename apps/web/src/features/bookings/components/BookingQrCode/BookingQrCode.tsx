@@ -5,6 +5,7 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { useModalStore, useModalData, ModalType } from '@/stores/modalStore';
 import { formatBookingReference } from '@/utils/booking';
 import { useTranslation } from '@/hooks/translation';
+import { localizePath } from '@/lib/i18n/config';
 
 export default function BookingQrCodeModal() {
 	const translate = useTranslation();
@@ -16,6 +17,12 @@ export default function BookingQrCodeModal() {
 	}
 
 	const { checkinToken, referenceNumber } = modalData;
+	// A bare token read like a URL to the scanning camera app — it needs to BE one, the same
+	// link the admin's checkin page already resolves by ?token=.
+	const checkinUrl =
+		typeof window !== 'undefined'
+			? `${window.location.origin}${localizePath('/admin/checkin', translate.locale)}?token=${encodeURIComponent(checkinToken)}`
+			: checkinToken;
 
 	return (
 		<Modal onClose={closeModal} size="sm" ariaLabel={translate('booking.showQrCode')}>
@@ -25,7 +32,7 @@ export default function BookingQrCodeModal() {
 					{translate('booking.qrCodeHint')}
 				</p>
 				<div className="mx-auto w-fit rounded-2xl bg-white p-4">
-					<QRCode value={checkinToken} size={220} />
+					<QRCode value={checkinUrl} size={220} />
 				</div>
 				<p className="text-primary mt-4 font-mono text-lg font-bold">
 					{formatBookingReference(referenceNumber)}
