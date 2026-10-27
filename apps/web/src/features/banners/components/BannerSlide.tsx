@@ -6,6 +6,8 @@ import { getBannerHref, getBannerTranslation, optimizeImageUrl } from '@event-sp
 import type { Banner, Locale } from '@event-space/shared';
 import { localizePath } from '@/lib/i18n/config';
 import { cn } from '@/utils/cn';
+import { useSkin } from '@/providers/BrandProvider';
+import { ArrowRight } from 'lucide-react';
 
 interface BannerSlideProps {
 	banner: Banner;
@@ -41,8 +43,40 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 	const href = getBannerHref(banner);
 	const isExternal = banner.targetType === 'URL';
 	const isDark = banner.theme === 'DARK';
+	const isMinimal = useSkin() === 'minimal';
 
-	const content = (
+	const minimalContent = (
+		<div className="grid h-full w-full grid-rows-[11rem_1fr] bg-gray-50 sm:grid-cols-5 sm:grid-rows-1 dark:bg-neutral-900">
+			<div className="relative sm:order-2 sm:col-span-3">
+				<Image
+					src={optimizeImageUrl(banner.imageUrl)}
+					alt=""
+					fill
+					sizes="(min-width: 640px) 60vw, 100vw"
+					priority={isPriority}
+					className="object-cover"
+					unoptimized
+				/>
+			</div>
+			<div className="flex flex-col justify-center gap-3 p-6 sm:order-1 sm:col-span-2 sm:p-10">
+				{text.title && (
+					<p className="text-2xl leading-tight font-semibold tracking-tight text-gray-900 sm:text-3xl dark:text-white">
+						{text.title}
+					</p>
+				)}
+				{text.subtitle && <p className="text-base text-gray-600 dark:text-gray-300">{text.subtitle}</p>}
+				{href && (
+					<span className="bg-primary mt-1 flex size-10 items-center justify-center rounded-full text-white">
+						<ArrowRight className="size-5" />
+					</span>
+				)}
+			</div>
+		</div>
+	);
+
+	const content = isMinimal ? (
+		minimalContent
+	) : (
 		<>
 			<Image
 				src={optimizeImageUrl(banner.imageUrl)}

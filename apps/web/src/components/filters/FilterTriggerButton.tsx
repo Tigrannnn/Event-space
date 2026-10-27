@@ -4,6 +4,7 @@ import type React from 'react';
 import { cn } from '@/utils/cn';
 import { ChevronDownIcon } from 'lucide-react';
 import { Button } from '@/components/ui/primitives/button';
+import { useSkin } from '@/providers/BrandProvider';
 
 interface FilterTriggerButtonProps extends React.ComponentProps<typeof Button> {
 	isActive?: boolean;
@@ -19,15 +20,21 @@ export function FilterTriggerButton({
 	size = 'sm',
 	...props
 }: FilterTriggerButtonProps) {
+	const isMinimal = useSkin() === 'minimal';
+
 	return (
 		<Button
 			type="button"
 			variant={variant}
 			size={size}
 			className={cn(
-				'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
+				isMinimal
+					? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-colors hover:border-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-gray-100 dark:hover:border-gray-300 dark:hover:bg-neutral-950'
+					: 'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
 				isActive &&
-					'border-primary/60 bg-primary/10 text-primary ring-primary/60 dark:bg-primary/10 ring-1',
+					(isMinimal
+						? 'border-gray-900 bg-gray-100 ring-1 ring-gray-900 hover:bg-gray-100 dark:border-gray-100 dark:bg-neutral-800 dark:ring-gray-100 dark:hover:bg-neutral-800'
+						: 'border-primary/60 bg-primary/10 text-primary ring-primary/60 dark:bg-primary/10 ring-1'),
 				className,
 			)}
 			{...props}
@@ -50,14 +57,22 @@ export function CategoryPill({
 	children,
 	...props
 }: CategoryPillProps) {
+	const isMinimal = useSkin() === 'minimal';
+
 	return (
 		<button
 			type="button"
 			className={cn(
-				'h-9 shrink-0 rounded-full border px-4 text-sm font-medium shadow-sm transition-all duration-200',
-				isActive
-					? 'border-primary bg-primary font-semibold'
-					: 'border-primary/50 bg-background hover:border-primary/40 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10',
+				isMinimal
+					? 'h-10 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors'
+					: 'h-9 shrink-0 rounded-full border px-4 text-sm font-medium shadow-sm transition-all duration-200',
+				isMinimal
+					? isActive
+						? 'border-gray-900 bg-gray-900 text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900'
+						: 'border-gray-300 bg-white text-gray-900 hover:border-gray-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-gray-100 dark:hover:border-gray-300'
+					: isActive
+						? 'border-primary bg-primary font-semibold'
+						: 'border-primary/50 bg-background hover:border-primary/40 hover:bg-primary/5 hover:text-primary dark:hover:bg-primary/10',
 				className,
 			)}
 			{...props}

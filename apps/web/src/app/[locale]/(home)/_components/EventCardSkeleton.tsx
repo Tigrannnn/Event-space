@@ -9,7 +9,7 @@ export default function EventCardSkeleton() {
 	if (skin === 'minimal') {
 		return (
 			<div>
-				<Skeleton className="aspect-4/3 w-full rounded-2xl" />
+				<Skeleton className="aspect-5/4 w-full rounded-2xl" />
 				<Skeleton className="mt-3 h-4 w-3/4 rounded" />
 				<Skeleton className="mt-2 h-4 w-1/2 rounded" />
 				<Skeleton className="mt-2 h-4 w-2/3 rounded" />

@@ -82,7 +82,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 				ref={scrollerRef}
 				className={cn(
 					'flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overflow-y-hidden rounded-2xl [&::-webkit-scrollbar]:hidden',
-					isMinimal ? 'aspect-16/9 sm:aspect-21/6' : 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+					isMinimal
+						? 'h-[23rem] border border-gray-200 sm:h-72 dark:border-neutral-800'
+						: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (
@@ -104,7 +106,10 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						type="button"
 						onClick={() => goTo(activeIndex - 1)}
 						aria-label={translate('common.previousBanner')}
-						className="absolute top-1/2 left-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900"
+						className={cn(
+							'absolute top-1/2 left-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
+							isMinimal && 'top-auto right-16 bottom-9 left-auto translate-y-0',
+						)}
 					>
 						<ChevronLeft className="h-5 w-5" />
 					</button>
@@ -112,12 +117,22 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						type="button"
 						onClick={() => goTo(activeIndex + 1)}
 						aria-label={translate('common.nextBanner')}
-						className="absolute top-1/2 right-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900"
+						className={cn(
+							'absolute top-1/2 right-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
+							isMinimal && 'top-auto bottom-9 translate-y-0',
+						)}
 					>
 						<ChevronRight className="h-5 w-5" />
 					</button>
 
-					<div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 gap-2 sm:bottom-10">
+					<div
+						className={cn(
+							'flex gap-2',
+							isMinimal
+								? 'mt-3 justify-center'
+								: 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-10',
+						)}
+					>
 						{banners.map((banner, index) => (
 							<button
 								key={banner.id}
@@ -127,7 +142,13 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 								aria-current={index === activeIndex}
 								className={cn(
 									'h-2 cursor-pointer rounded-full transition-all',
-									index === activeIndex ? 'w-6 bg-white' : 'w-2 bg-white/55 hover:bg-white/80',
+									index === activeIndex
+										? isMinimal
+											? 'bg-primary w-6'
+											: 'w-6 bg-white'
+										: isMinimal
+											? 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-neutral-700'
+											: 'w-2 bg-white/55 hover:bg-white/80',
 								)}
 							/>
 						))}

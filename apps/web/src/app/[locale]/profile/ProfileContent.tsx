@@ -14,6 +14,7 @@ import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { useSkin } from '@/providers/BrandProvider';
 
 interface ProfileContentProps {
 	initialUser: SafeUserData | null;
@@ -31,6 +32,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const translate = useTranslation();
 	const { USER_ROLE_LABELS } = useLabels();
 	const confirm = useConfirm();
+	const isMinimal = useSkin() === 'minimal';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -85,6 +87,102 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const handleOpenEditProfile = () => {
 		openModal(ModalType.EditProfile);
 	};
+
+	if (isMinimal) {
+		const initial = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
+		const rows = [
+			{
+				key: 'edit',
+				icon: User,
+				title: translate('profile.editProfile'),
+				hint: translate('profile.updateNamePassword'),
+				onClick: handleOpenEditProfile,
+			},
+			{
+				key: 'bookings',
+				icon: Ticket,
+				title: translate('profile.myBookings'),
+				hint: translate('profile.viewBookings'),
+				href: localizePath('/bookings', navigation.locale),
+			},
+			{
+				key: 'favorites',
+				icon: Heart,
+				title: translate('favorites.title'),
+				hint: translate('favorites.subtitle'),
+				href: localizePath('/favorites', navigation.locale),
+			},
+			...(user.role === 'ADMIN'
+				? [
+						{
+							key: 'admin',
+							icon: ShieldCheck,
+							title: translate('profile.adminPanel'),
+							hint: translate('profile.managePlatform'),
+							href: localizePath('/admin/dashboard', navigation.locale),
+						},
+					]
+				: []),
+		];
+		const rowClassName =
+			'flex w-full cursor-pointer items-center justify-between gap-4 py-5 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-900';
+
+		return (
+			<div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
+				<div className="mb-10 flex items-center gap-5">
+					<div className="bg-primary flex size-20 shrink-0 items-center justify-center rounded-full text-3xl font-semibold text-white">
+						{initial}
+					</div>
+					<div className="min-w-0">
+						<h1 className="truncate text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+							{user.name}
+						</h1>
+						<p className="truncate text-gray-500 dark:text-gray-400">
+							{[user.email, user.phone].filter(Boolean).join(' · ')}
+						</p>
+						<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{USER_ROLE_LABELS[user.role]}</p>
+					</div>
+				</div>
+
+				<div className="divide-y divide-gray-200 border-y border-gray-200 dark:divide-neutral-800 dark:border-neutral-800">
+					{rows.map((row) => {
+						const content = (
+							<>
+								<span className="flex items-center gap-4">
+									<row.icon className="size-6 shrink-0 text-gray-700 dark:text-gray-300" strokeWidth={1.5} />
+									<span>
+										<span className="block font-medium text-gray-900 dark:text-white">{row.title}</span>
+										<span className="block text-sm text-gray-500 dark:text-gray-400">{row.hint}</span>
+									</span>
+								</span>
+								<ArrowRight className="size-5 shrink-0 text-gray-400" />
+							</>
+						);
+
+						return row.href ? (
+							<Link key={row.key} href={row.href} className={rowClassName}>
+								{content}
+							</Link>
+						) : (
+							<button key={row.key} type="button" onClick={row.onClick} className={rowClassName}>
+								{content}
+							</button>
+						);
+					})}
+				</div>
+
+				<button
+					type="button"
+					onClick={handleLogout}
+					disabled={isLoggingOut}
+					className="mt-8 flex items-center gap-2 text-sm font-medium text-gray-700 underline underline-offset-4 hover:text-gray-900 disabled:opacity-50 dark:text-gray-300 dark:hover:text-white"
+				>
+					<LogOut className="size-4" />
+					{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
+				</button>
+			</div>
+		);
+	}
 
 	return (
 		<div className="min-h-0">

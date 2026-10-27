@@ -25,6 +25,7 @@ import { useFormatCurrency } from '@/hooks/format';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { OccurrencePicker } from '../OccurrencePicker';
+import { useSkin } from '@/providers/BrandProvider';
 
 export interface BookingSidebarProps {
 	event: Event;
@@ -34,6 +35,10 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const formatCurrency = useFormatCurrency();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
+	const cardClassName =
+		useSkin() === 'minimal'
+			? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
+			: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
 	const locale = translate.locale;
 	const eventTranslation = getEventTranslation(event, locale);
 	const [selectedOccId, setSelectedOccId] = useState<string | undefined>(undefined);
@@ -106,7 +111,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	if (!upcomingOccurrences.length) {
 		return (
 			<div>
-				<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
+				<div className={cardClassName}>
 					<div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-800/70">
 						<p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
 							{translate('event.noUpcomingOccurrences')}
@@ -119,7 +124,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	return (
 		<div>
-			<div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50">
+			<div className={cardClassName}>
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
 					<div className="flex flex-wrap items-baseline gap-2">

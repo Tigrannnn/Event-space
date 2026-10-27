@@ -26,12 +26,14 @@ import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { useSkin } from '@/providers/BrandProvider';
+import EventPageMinimal from './EventPageMinimal';
 
 interface EventPageContentProps {
 	initialEvent: Event;
 }
 
-export default function EventPageContent({ initialEvent }: EventPageContentProps) {
+function EventPageClassic({ initialEvent }: EventPageContentProps) {
 	const { data } = useEventById(initialEvent.id, { initialData: initialEvent });
 	const event = data ?? initialEvent;
 	const router = useRouter();
@@ -205,4 +207,10 @@ export default function EventPageContent({ initialEvent }: EventPageContentProps
 			</div>
 		</div>
 	);
+}
+
+export default function EventPageContent(props: EventPageContentProps) {
+	const skin = useSkin();
+
+	return skin === 'minimal' ? <EventPageMinimal {...props} /> : <EventPageClassic {...props} />;
 }

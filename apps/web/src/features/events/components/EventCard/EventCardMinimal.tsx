@@ -62,7 +62,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 		<button
 			type="button"
 			onClick={handleBookClick}
-			className="bg-primary hover:bg-primary/90 relative z-20 rounded-full px-4 py-2 text-sm font-semibold text-white transition-colors"
+			className="bg-primary hover:bg-primary/90 relative z-20 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-colors"
 		>
 			{translate('event.bookTour')}
 		</button>
@@ -76,7 +76,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 			/>
 
-			<div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-neutral-900">
+			<div className="relative aspect-5/4 w-full overflow-hidden rounded-2xl bg-gray-100 dark:bg-neutral-900">
 				<div className="size-full transition-transform duration-500 group-hover:scale-[1.03]">
 					<EventImageWithFallback
 						src={getEventCoverImageUrl(event) ?? ''}
@@ -95,7 +95,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 
 			<div className="flex flex-1 flex-col gap-0.5 pt-3">
 				<div className="flex items-start justify-between gap-3">
-					<h3 className="line-clamp-2 text-[15px] leading-snug font-semibold text-gray-900 dark:text-white">
+					<h3 className="line-clamp-2 text-lg leading-snug font-semibold text-gray-900 dark:text-white">
 						{eventTranslation.title}
 					</h3>
 					{average !== null && (
@@ -106,11 +106,13 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 					)}
 				</div>
 
-				<p className="text-sm text-gray-500 dark:text-gray-400">{occurrenceLabel}</p>
-				<p className="truncate text-sm text-gray-500 dark:text-gray-400">{eventTranslation.location}</p>
+				<p className="text-[15px] text-gray-500 dark:text-gray-400">{occurrenceLabel}</p>
+				<p className="truncate text-[15px] text-gray-500 dark:text-gray-400">
+					{eventTranslation.location}
+				</p>
 
 				<div className="mt-2 flex items-end justify-between gap-3">
-					<div className="min-w-0 text-[15px] text-gray-900 dark:text-white" suppressHydrationWarning>
+					<div className="min-w-0 text-base text-gray-900 dark:text-white" suppressHydrationWarning>
 						{isDiscounted && (
 							<div className="text-sm text-gray-400 line-through">
 								{formatCurrency(pricing.basePrice as number | string)}

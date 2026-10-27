@@ -7,6 +7,7 @@ import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/lib/utils';
 import { ModalType, useModalStore } from '@/stores';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useSkin } from '@/providers/BrandProvider';
 
 interface FavoriteButtonProps {
 	eventId: string;
@@ -15,6 +16,7 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 	const translate = useTranslation();
+	const isMinimal = useSkin() === 'minimal';
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { isLoading: isFavoritesLoading } = useFavoriteIds();
 	const isFavorite = useIsFavorite(eventId);
@@ -32,6 +34,34 @@ export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 
 		toggleFavorite.mutate({ eventId, isFavorite });
 	};
+
+	if (isMinimal) {
+		// No disc behind it: the outline sits straight on the photo, as a bare heart.
+		return (
+			<button
+				type="button"
+				onClick={handleClick}
+				aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
+				aria-pressed={isFavorite}
+				className={cn(
+					'relative z-20 flex size-10 items-center justify-center transition-transform hover:scale-110 active:scale-95',
+					className,
+				)}
+				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+			>
+				{isUserLoading || (isFavoritesLoading && user) ? (
+					<Skeleton className="size-5 rounded-full" />
+				) : (
+					<Heart
+						className={cn(
+							'size-7 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-colors',
+							isFavorite ? 'fill-rose-500 stroke-rose-500' : 'fill-black/35 stroke-white stroke-[1.75]',
+						)}
+					/>
+				)}
+			</button>
+		);
+	}
 
 	// 44px on touch — the smallest target a thumb hits reliably — and back to 40px from the
 	// small breakpoint up, where a pointer does the aiming.
