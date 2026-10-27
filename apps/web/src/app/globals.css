@@ -59,7 +59,8 @@
  * The minimal skin: one typeface, flatter surfaces, and no shadows to speak of. Colours follow
  * from the layout (accent = primary); the rest of the difference lives in the components.
  */
-:root[data-skin='minimal'] {
+:root[data-skin='minimal'],
+:root[data-skin='listing'] {
 	--font-sans: var(--font-minimal-latin), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 	--shadow-sm: none;
 	--shadow: none;

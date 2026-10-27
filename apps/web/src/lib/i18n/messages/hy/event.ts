@@ -32,4 +32,9 @@ export const event: Messages['event'] = {
 	moreDates: '+ {count} ավելին',
 	noUpcomingOccurrences: 'Կներեք, բոլոր էքսկուրսիաները ավարտվել են',
 	noSpotsLeft: 'Մասնատեղեր չկան',
+	freeCancellation: 'Անվճար չեղարկում',
+	onlySpotsLeft: 'Մնացել է {count} տեղ',
+	chooseDates: 'Ընտրել ամսաթվերը',
+	reviewsCount: 'Կարծիքներ՝ {count}',
+	nextDeparture: 'Մոտակա մեկնարկ',
 };

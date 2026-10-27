@@ -24,7 +24,7 @@ export interface BrandAboutContent {
  * How a site looks beyond its colours: layout of the header, the tour cards and the catalogue.
  * Two companies that sell side by side should not read as one site in two paints.
  */
-export type BrandSkin = 'classic' | 'minimal';
+export type BrandSkin = 'classic' | 'minimal' | 'listing';
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
 
@@ -232,6 +232,7 @@ const brands: Record<string, Brand> = {
 	},
 	'ampar.event-space.space': {
 		name: 'Ampar',
+		skin: 'listing',
 		colorPrimary: '#6055BE',
 		colorAccent: '#BD4A4B',
 		description: siteConfig.description,

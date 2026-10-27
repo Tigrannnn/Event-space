@@ -42,6 +42,18 @@ export function useEventCardState(event: Event) {
 		? `${formatDateTime(firstOccurrenceDate ?? '')}${additionalOccurrencesCount > 0 ? ` ${translate('event.moreDates').replace('{count}', String(additionalOccurrencesCount))}` : ''}`
 		: '';
 
+	const nextOccurrence = upcomingOccurrences[0];
+	const spotsLeft = nextOccurrence
+		? Math.max(
+				0,
+				Number(nextOccurrence.maxParticipants ?? 0) - Number(nextOccurrence.currentParticipants ?? 0),
+			)
+		: null;
+	const hasFreeCancellation = (event.cancellationRules ?? []).some(
+		(rule) => rule.refundPercentage === 100 && rule.hoursBeforeEvent > 0,
+	);
+	const ratingCount = event.ratingCount ?? 0;
+
 	const hasBooking = (event.occurrences ?? []).some((occurrence) =>
 		isOccurrenceBooked(occurrence.id),
 	);
@@ -68,6 +80,9 @@ export function useEventCardState(event: Event) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		spotsLeft,
+		hasFreeCancellation,
+		ratingCount,
 		handleBookClick,
 	};
 }

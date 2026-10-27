@@ -35,7 +35,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const formatCurrency = useFormatCurrency();
 	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
-	const isMinimal = useSkin() === 'minimal';
+	const skin = useSkin();
+	const isMinimal = skin === 'minimal';
+	const isListing = skin === 'listing';
 	const cardClassName = isMinimal
 		? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
 		: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
@@ -122,33 +124,158 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 		);
 	}
 
-	if (isMinimal) {
-		const placeRow = (
-			icon: React.ReactNode,
-			label: string,
-			text: string,
-			url?: string | null,
-		) => (
-			<div className="flex items-start gap-3 text-sm">
-				<span className="mt-0.5 text-gray-500 dark:text-gray-400">{icon}</span>
-				<div className="min-w-0">
-					<p className="text-gray-500 dark:text-gray-400">{label}</p>
-					{url ? (
-						<a
-							href={url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="font-medium text-gray-900 underline underline-offset-4 dark:text-white"
-						>
-							{text}
-						</a>
-					) : (
-						<p className="font-medium text-gray-900 dark:text-white">{text}</p>
-					)}
+	const placeRow = (icon: React.ReactNode, label: string, text: string, url?: string | null) => (
+		<div className="flex items-start gap-3 text-sm">
+			<span className="mt-0.5 text-gray-500 dark:text-gray-400">{icon}</span>
+			<div className="min-w-0">
+				<p className="text-gray-500 dark:text-gray-400">{label}</p>
+				{url ? (
+					<a
+						href={url}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="font-medium text-gray-900 underline underline-offset-4 dark:text-white"
+					>
+						{text}
+					</a>
+				) : (
+					<p className="font-medium text-gray-900 dark:text-white">{text}</p>
+				)}
+			</div>
+		</div>
+	);
+
+	if (isListing) {
+		const hasFreeCancellation = (event.cancellationRules ?? []).some(
+			(rule) => rule.refundPercentage === 100 && rule.hoursBeforeEvent > 0,
+		);
+		const facts = [
+			hasFreeCancellation && translate('event.freeCancellation'),
+			translate('event.secureBooking'),
+		].filter((fact): fact is string => typeof fact === 'string');
+
+		return (
+			<div className="overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900">
+				<div className="bg-primary/8 border-b border-gray-200 px-5 py-4 dark:border-neutral-800">
+					<div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+						{quote.discountPercent > 0 && (
+							<span className="rounded bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white">
+								{translate('event.discountOff', { percent: quote.discountPercent })}
+							</span>
+						)}
+						{quote.discountPercent > 0 && (
+							<span className="text-sm text-gray-500 line-through">
+								{formatCurrency(quote.baseUnitPrice)}
+							</span>
+						)}
+					</div>
+					<div className="mt-1 flex items-baseline gap-2">
+						<span className="text-3xl font-bold text-gray-900 dark:text-white">
+							{formatCurrency(quote.unitPrice)}
+						</span>
+						<span className="text-sm text-gray-600 dark:text-gray-400">
+							{translate('event.perPerson')}
+						</span>
+					</div>
+				</div>
+
+				<div className="space-y-5 p-5">
+					<div>
+						<p className="mb-2 text-sm font-semibold text-gray-900 dark:text-white">
+							{translate('event.date')}
+						</p>
+						<OccurrencePicker
+							occurrences={upcomingOccurrences}
+							selectedId={selectedOccurrence?.id}
+							onSelect={setSelectedOccId}
+							price={event.price}
+							isBooked={isOccurrenceBooked}
+						/>
+						<TimeZoneNote className="mt-2" />
+					</div>
+
+					<div>
+						<div className="mb-1.5 flex justify-between gap-3 text-sm">
+							<span className="text-gray-600 dark:text-gray-400">
+								{currentParticipants} / {maxParticipants} {translate('event.participants')}
+							</span>
+							<FlashValue
+								watch={spotsLeft}
+								className={
+									spotsLeft <= 5
+										? 'font-semibold text-red-600 dark:text-red-400'
+										: 'font-semibold text-gray-900 dark:text-white'
+								}
+							>
+								{spotsLeft} {translate('event.spotsLeft')}
+							</FlashValue>
+						</div>
+						<div className="h-1.5 w-full overflow-hidden rounded-sm bg-gray-200 dark:bg-neutral-800">
+							<div
+								className="bg-primary h-1.5 transition-all duration-500"
+								style={{ width: `${progressPercentage}%` }}
+							/>
+						</div>
+					</div>
+
+					<div>
+						{!eventIsAvailable ? (
+							<p className="rounded-md border border-gray-200 p-4 text-center text-sm font-medium text-gray-700 dark:border-neutral-700 dark:text-gray-300">
+								{translate('event.eventEnded')}
+							</p>
+						) : isUserLoading || isMyBookingsLoading ? (
+							<Skeleton className="h-12 w-full rounded-md" />
+						) : hasBooking ? (
+							<div className="flex flex-col gap-2">
+								<Button variant="primary" className="w-full" onClick={handleBookClick}>
+									<Plus className="h-4 w-4" strokeWidth={2.5} />
+									{translate('event.bookAnotherSpot')}
+								</Button>
+								<Button variant="secondary" className="w-full" onClick={handleViewBooking}>
+									<Ticket className="h-4 w-4" />
+									{translate('event.viewMyBooking')}
+								</Button>
+							</div>
+						) : (
+							<Button
+								variant="primary"
+								className="w-full py-3"
+								onClick={handleBookClick}
+								disabled={isSoldOut}
+							>
+								{isSoldOut ? translate('event.noSpotsLeft') : translate('event.bookTour')}
+							</Button>
+						)}
+						<ul className="mt-3 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+							{facts.map((fact) => (
+								<li key={fact} className="flex items-center gap-2">
+									<CheckIcon className="size-4 shrink-0 text-emerald-600" />
+									{fact}
+								</li>
+							))}
+						</ul>
+					</div>
+
+					<div className="space-y-4 border-t border-gray-200 pt-4 dark:border-neutral-800">
+						{placeRow(
+							<MapPin className="size-5" />,
+							translate('event.location'),
+							eventTranslation.location,
+							event.locationUrl,
+						)}
+						{placeRow(
+							<Navigation className="size-5" />,
+							translate('event.meetingLocationLabel'),
+							eventTranslation.meetingLocation,
+							event.meetingLocationUrl,
+						)}
+					</div>
 				</div>
 			</div>
 		);
+	}
 
+	if (isMinimal) {
 		return (
 			<div className={cardClassName}>
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -223,12 +350,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							</Button>
 						</div>
 					) : (
-						<Button
-							variant="primary"
-							className="w-full"
-							onClick={handleBookClick}
-							disabled={isSoldOut}
-						>
+						<Button variant="primary" className="w-full" onClick={handleBookClick} disabled={isSoldOut}>
 							{isSoldOut ? translate('event.noSpotsLeft') : translate('event.bookTour')}
 						</Button>
 					)}
@@ -262,7 +384,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
 					<div className="flex flex-wrap items-baseline gap-2">
-						<span className="text-primary text-3xl font-black sm:text-4xl in-data-[skin=minimal]:font-semibold in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:dark:text-white">
+						<span className="text-primary text-3xl font-black in-data-[skin=minimal]:font-semibold in-data-[skin=minimal]:text-gray-900 sm:text-4xl in-data-[skin=minimal]:dark:text-white">
 							{formatCurrency(quote.unitPrice)}
 						</span>
 						{quote.discountPercent > 0 && (
@@ -287,10 +409,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						<span className="font-bold text-gray-700 dark:text-gray-300">
 							{currentParticipants} / {maxParticipants} {translate('event.participants')}
 						</span>
-						<FlashValue
-							watch={spotsLeft}
-							className="text-primary font-bold dark:text-emerald-400"
-						>
+						<FlashValue watch={spotsLeft} className="text-primary font-bold dark:text-emerald-400">
 							{spotsLeft} {translate('event.spotsLeft')}
 						</FlashValue>
 					</div>
@@ -309,7 +428,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 				{/* Date & Time Info */}
 				<div className="mb-6 space-y-2.5 sm:mb-8 sm:space-y-3">
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 sm:gap-3 sm:rounded-2xl sm:p-4 in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:sm:px-0 dark:bg-gray-700/50 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<Calendar className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex w-full flex-col gap-2">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
@@ -325,7 +444,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							<TimeZoneNote className="mt-2" />
 						</div>
 					</div>
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 sm:gap-3 sm:rounded-2xl sm:p-4 in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:sm:px-0 dark:bg-gray-700/50 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
@@ -346,7 +465,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						</div>
 					</div>
 
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 sm:gap-3 sm:rounded-2xl sm:p-4 in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:sm:px-0 dark:bg-gray-700/50 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<Navigation className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">

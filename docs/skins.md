@@ -1,8 +1,8 @@
-# Скины сайта (classic, minimal) и как добавить третий
+# Скины сайта (classic, minimal, listing) и как добавить ещё один
 
 Скин — это то, как выглядит и как устроен сайт компании кроме цветов: шапка, карточки, страница тура, модалки. Нужен, чтобы сайты разных компаний-конкурентов не выглядели одним сайтом в разных красках. Админка скинов не имеет.
 
-Сейчас два скина: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour.
+Сейчас три скина: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour и One Day Tour, `listing` у Ampar.
 
 ## Как это устроено
 
@@ -114,3 +114,26 @@
 - Не запускать `prettier --write` на целых папках: переформатирует чужой код. Форматировать только свои файлы.
 - Раньше в `in-data-[skin=…]:` порядок классов в CSS решал победителя при равной специфичности. Если класс скина не применился, посмотреть порядок в сгенерированном CSS и поставить вариант с `sm:` или `dark:` отдельно (`in-data-[skin=minimal]:sm:...`).
 - Общую библиотеку нужно собирать после правок типов: `NODE_OPTIONS=--max-old-space-size=6144 npm run build` в `packages/shared`.
+
+
+## Скин `listing` (в духе booking.com, сделан 28.10.2026, назначен Ampar)
+
+Главное отличие от двух других: каталог идёт строками (фото слева, факты в середине, цена и кнопка справа), а не сеткой карточек. Бейджи показывают только реальные данные: «Бесплатная отмена» (правило возврата 100% за срок до тура), «Осталось мест: N» (5 и меньше на ближайшей дате), скидка, оценка отзывов.
+
+Как устроен: как и `minimal`, акцент приравнен к основному цвету (`layout.tsx`), но настоящий второй цвет бренда остаётся в переменной `--brand-accent` (используется для рамки поиска, значка скидки, счётчиков). `data-skin='listing'` тоже получает Inter и плоские тени (`globals.css`). Фон страницы `slate-50`.
+
+| Файл | Как |
+|---|---|
+| `components/layout/Header/HeaderListing.tsx` (новый) | сплошная полоса цвета бренда, под ней широкая строка поиска с рамкой `--brand-accent`; `ContactIcons` и `LanguageMenu` получили проп `onDark` |
+| `features/events/components/EventCard/EventCardListing.tsx` (новый) | карточка-строка; данные из `useEventCardState` (добавлены `spotsLeft`, `hasFreeCancellation`, `ratingCount`) |
+| `app/[locale]/(home)/_components/events-grid.ts` | у `listing` одна колонка, `max-w-5xl` |
+| `EventCardSkeleton.tsx`, `EventsFiltersBarSkeleton.tsx` | версия строкой; панель фильтров берёт минималистичную заглушку |
+| `filters/EventsFiltersBar.tsx`, `components/filters/FilterTriggerButton.tsx` | плоские кнопки с малым скруглением, активная в цвете бренда |
+| `features/banners/components/BannerCarousel.tsx`, `BannerSlide.tsx` | невысокий баннер с рамкой, подпись без капса |
+| `app/[locale]/events/[id]/EventPageListing.tsx` (новый) | хлебные крошки, оценка рядом с заголовком, мозаика фото, полоса фактов, липкая панель разделов, разделы в рамках |
+| `features/bookings/components/BookingSidebar/BookingSidebar.tsx` | ветка `isListing`: цветная шапка с ценой, даты строками, бейджи, места |
+| `features/bookings/components/OccurrencePicker/OccurrenceRows.tsx` (новый) | даты строками с радио и ценой; используются и в сайдбаре, и в `BookingForm` |
+| Button, Input, Modal, ModalHeader, AuthModal, Footer, Skeleton, BookingCard | к каждому классу `in-data-[skin=minimal]:` добавлен такой же `in-data-[skin=listing]:`, скругления мельче (`rounded-md`, `rounded-lg`) |
+| `lib/i18n/messages/*/event.ts` | ключи `freeCancellation`, `onlySpotsLeft`, `chooseDates`, `reviewsCount`, `nextDeparture` |
+
+Не переделано у `listing` (выглядит как `classic` с плоским цветом): профиль, нижняя панель, «Избранное», «Мои брони», форма отзыва, «О нас» и правовые страницы, календарь «Когда?». Свой шрифт у него общий с `minimal` (Inter).

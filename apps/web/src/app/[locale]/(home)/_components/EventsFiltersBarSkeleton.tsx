@@ -41,10 +41,10 @@ function EventsFiltersBarSkeletonMinimal() {
 export default function EventsFiltersBarSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
 				<EventsFiltersBarSkeletonClassic />
 			</div>
-			<div className="hidden in-data-[skin=minimal]:block">
+			<div className="hidden in-data-[skin=minimal]:block in-data-[skin=listing]:block">
 				<EventsFiltersBarSkeletonMinimal />
 			</div>
 		</>

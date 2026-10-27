@@ -18,6 +18,24 @@ export default function EventCardSkeleton() {
 		);
 	}
 
+	if (skin === 'listing') {
+		return (
+			<div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white sm:flex-row dark:border-neutral-800 dark:bg-neutral-900">
+				<Skeleton className="aspect-video w-full rounded-none sm:aspect-auto sm:min-h-52 sm:w-64 lg:w-80" />
+				<div className="flex flex-1 flex-col gap-3 p-4">
+					<Skeleton className="h-6 w-3/4 rounded" />
+					<Skeleton className="h-4 w-1/2 rounded" />
+					<Skeleton className="h-4 w-2/5 rounded" />
+					<Skeleton className="mt-auto h-5 w-32 rounded" />
+				</div>
+				<div className="flex flex-col justify-end gap-3 border-t border-gray-200 p-4 sm:w-52 sm:border-t-0 sm:border-l lg:w-60 dark:border-neutral-800">
+					<Skeleton className="ml-auto h-7 w-28 rounded" />
+					<Skeleton className="h-10 w-full rounded-md" />
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<SkeletonCard className="overflow-hidden rounded-2xl p-0 sm:rounded-4xl md:rounded-[2.5rem]">
 			{/* Image skeleton */}

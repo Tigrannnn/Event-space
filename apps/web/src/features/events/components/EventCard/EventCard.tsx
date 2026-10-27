@@ -3,6 +3,7 @@
 import { useSkin } from '@/providers/BrandProvider';
 import EventCardClassic from './EventCardClassic';
 import EventCardMinimal from './EventCardMinimal';
+import EventCardListing from './EventCardListing';
 import type { EventCardProps } from './useEventCardState';
 
 export type { EventCardProps };
@@ -10,5 +11,8 @@ export type { EventCardProps };
 export default function EventCard(props: EventCardProps) {
 	const skin = useSkin();
 
-	return skin === 'minimal' ? <EventCardMinimal {...props} /> : <EventCardClassic {...props} />;
+	if (skin === 'minimal') return <EventCardMinimal {...props} />;
+	if (skin === 'listing') return <EventCardListing {...props} />;
+
+	return <EventCardClassic {...props} />;
 }

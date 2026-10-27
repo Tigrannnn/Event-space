@@ -138,9 +138,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent">
+		<div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=listing]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=listing]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=listing]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent in-data-[skin=listing]:dark:bg-transparent">
 			{/* Event Image */}
-			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl">
+			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl in-data-[skin=listing]:rounded-lg">
 				<EventImageWithFallback
 					src={getEventCoverImageUrl(event) ?? ''}
 					alt={eventTranslation.title}
@@ -157,10 +157,10 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			</div>
 
 			{/* Content */}
-			<div className="flex flex-1 flex-col p-4 sm:p-6 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0">
+			<div className="flex flex-1 flex-col p-4 sm:p-6 in-data-[skin=minimal]:px-0 in-data-[skin=listing]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=listing]:sm:px-0">
 				<Link
 					href={localizePath(`/events/${event.id}`, locale)}
-					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white in-data-[skin=minimal]:font-semibold"
+					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold"
 				>
 					{eventTranslation.title}
 				</Link>
@@ -171,7 +171,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
 								{translate('booking.bookingRef')}
 							</span>
-							<span className="text-primary font-mono text-lg font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:dark:text-white">
+							<span className="text-primary font-mono text-lg font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white">
 								{formatBookingReference(booking.referenceNumber)}
 							</span>
 						</div>
@@ -271,7 +271,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								{formatCurrency(quote.baseTotal)}
 							</div>
 						)}
-						<span className="text-primary text-xl font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:font-semibold in-data-[skin=minimal]:dark:text-white">{formatCurrency(quote.total)}</span>
+						<span className="text-primary text-xl font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white">{formatCurrency(quote.total)}</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500">
 							{' '}
 							{translate('booking.total')}

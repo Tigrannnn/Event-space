@@ -20,10 +20,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 				)}
 				<input
 					ref={ref}
-					className={cn(`focus:border-primary w-full rounded-xl border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 in-data-[skin=minimal]:border in-data-[skin=minimal]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=minimal]:dark:focus:border-gray-300 ${
+					className={cn(`focus:border-primary w-full rounded-xl border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 in-data-[skin=minimal]:border in-data-[skin=listing]:border in-data-[skin=minimal]:bg-white in-data-[skin=listing]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=listing]:focus:border-gray-900 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:dark:bg-neutral-950 in-data-[skin=minimal]:dark:focus:border-gray-300 in-data-[skin=listing]:dark:focus:border-gray-300 ${
 						error
 							? 'border-red-500 dark:border-red-400'
-							: 'in-data-[skin=minimal]:border-gray-300 in-data-[skin=minimal]:dark:border-neutral-700'
+							: 'in-data-[skin=minimal]:border-gray-300 in-data-[skin=listing]:border-gray-300 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=listing]:dark:border-neutral-700'
 					}`, className)}
 					{...props}
 				/>

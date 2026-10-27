@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import Header from './Header';
 import HeaderMinimal from './HeaderMinimal';
+import HeaderListing from './HeaderListing';
 import { useSkin } from '@/providers/BrandProvider';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
@@ -82,6 +83,8 @@ export default function HeaderWrapper() {
 			<div ref={headerRef} className="sticky top-0 z-50">
 				{skin === 'minimal' ? (
 					<HeaderMinimal />
+				) : skin === 'listing' ? (
+					<HeaderListing />
 				) : (
 					<>
 						<TopBar isTopBarVisible={isTopBarVisible} />

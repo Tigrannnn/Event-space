@@ -28,6 +28,7 @@ import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useSkin } from '@/providers/BrandProvider';
 import EventPageMinimal from './EventPageMinimal';
+import EventPageListing from './EventPageListing';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -212,5 +213,8 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 export default function EventPageContent(props: EventPageContentProps) {
 	const skin = useSkin();
 
-	return skin === 'minimal' ? <EventPageMinimal {...props} /> : <EventPageClassic {...props} />;
+	if (skin === 'minimal') return <EventPageMinimal {...props} />;
+	if (skin === 'listing') return <EventPageListing {...props} />;
+
+	return <EventPageClassic {...props} />;
 }

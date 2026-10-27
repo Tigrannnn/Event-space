@@ -21,7 +21,7 @@ export default function Footer() {
 	if (pathname.includes('/admin')) return null;
 
 	return (
-		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950">
+		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:dark:bg-neutral-950">
 			{isMinimal && (
 				<div className="mx-auto mb-4 max-w-7xl">
 					<ContactIcons className="-ml-2.5" />

@@ -16,7 +16,9 @@ const AUTOPLAY_MS = 5000;
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const translate = useTranslation();
-	const isMinimal = useSkin() === 'minimal';
+	const skin = useSkin();
+	const isMinimal = skin === 'minimal';
+	const isListing = skin === 'listing';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -84,7 +86,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 					'flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overflow-y-hidden rounded-2xl [&::-webkit-scrollbar]:hidden',
 					isMinimal
 						? 'h-[23rem] border border-gray-200 sm:h-72 dark:border-neutral-800'
-						: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+						: isListing
+							? 'h-44 rounded-lg border border-gray-200 sm:h-60 dark:border-neutral-800'
+							: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (
@@ -109,6 +113,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						className={cn(
 							'absolute top-1/2 left-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
 							isMinimal && 'top-auto right-16 bottom-14 left-auto translate-y-0',
+							isListing && 'rounded-md',
 						)}
 					>
 						<ChevronLeft className="h-5 w-5" />
@@ -120,6 +125,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						className={cn(
 							'absolute top-1/2 right-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
 							isMinimal && 'top-auto bottom-14 translate-y-0',
+							isListing && 'rounded-md',
 						)}
 					>
 						<ChevronRight className="h-5 w-5" />
@@ -130,7 +136,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 							'flex gap-2',
 							isMinimal
 								? 'mt-3 justify-center'
-								: 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-10',
+								: isListing
+									? 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-9'
+									: 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-10',
 						)}
 					>
 						{banners.map((banner, index) => (

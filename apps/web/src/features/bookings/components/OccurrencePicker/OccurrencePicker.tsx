@@ -10,6 +10,7 @@ import { OccurrencePrice } from '../OccurrencePrice';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { useSkin } from '@/providers/BrandProvider';
 import { OccurrenceChips } from './OccurrenceChips';
+import { OccurrenceRows } from './OccurrenceRows';
 
 export interface OccurrencePickerProps {
 	occurrences: EventOccurrence[];
@@ -205,5 +206,8 @@ function OccurrencePickerClassic({
 export function OccurrencePicker(props: OccurrencePickerProps) {
 	const skin = useSkin();
 
-	return skin === 'minimal' ? <OccurrenceChips {...props} /> : <OccurrencePickerClassic {...props} />;
+	if (skin === 'minimal') return <OccurrenceChips {...props} />;
+	if (skin === 'listing') return <OccurrenceRows {...props} />;
+
+	return <OccurrencePickerClassic {...props} />;
 }

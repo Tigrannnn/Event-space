@@ -68,7 +68,7 @@ export default function Modal({
 				initial="hidden"
 				animate="visible"
 				exit="exit"
-				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none ${backdropClassName}`}
+				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=listing]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none in-data-[skin=listing]:backdrop-blur-none ${backdropClassName}`}
 				onClick={handleBackdropClick}
 				aria-hidden="true"
 			/>
@@ -83,7 +83,7 @@ export default function Modal({
 					initial="hidden"
 					animate="visible"
 					exit="exit"
-					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90dvh] overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50 in-data-[skin=minimal]:rounded-2xl in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=minimal]:shadow-xl in-data-[skin=minimal]:dark:bg-neutral-900`}
+					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90dvh] overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50 in-data-[skin=minimal]:rounded-2xl in-data-[skin=listing]:rounded-lg in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-lg in-data-[skin=minimal]:shadow-xl in-data-[skin=listing]:shadow-xl in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900`}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="modal-title"

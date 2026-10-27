@@ -111,7 +111,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
 	const brand = getBrandForHost((await headers()).get('host'));
 	const skin = brand.skin ?? DEFAULT_BRAND_SKIN;
-	const isMinimal = skin === 'minimal';
+	const isFlat = skin !== 'classic';
 
 	if (!googleClientId) {
 		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
@@ -122,13 +122,13 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isMinimal ? fontMinimal.variable : ''}`}
+			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isFlat ? fontMinimal.variable : ''}`}
 			suppressHydrationWarning
 		>
 			<head>
-				{/* A minimal site runs on one colour: the accent follows the primary, which also
+				{/* A minimal or listing site runs on one colour: the accent follows the primary, which also
 				    flattens every primary-to-accent gradient on the way. */}
-				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${isMinimal ? brand.colorPrimary : brand.colorAccent}; }`}</style>
+				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${isFlat ? brand.colorPrimary : brand.colorAccent}; --brand-accent: ${brand.colorAccent}; }`}</style>
 				{/* Read at request time so the API origin follows the running
 				    environment instead of being frozen into the built bundle. */}
 				<script
@@ -148,7 +148,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 			</head>
 			<body
 				className={`text-black flex min-h-dvh flex-col antialiased dark:text-white ${
-					isMinimal ? 'bg-white dark:bg-neutral-950' : 'bg-gray-100 dark:bg-gray-900'
+					isFlat ? (skin === 'listing' ? 'bg-slate-50 dark:bg-neutral-950' : 'bg-white dark:bg-neutral-950') : 'bg-gray-100 dark:bg-gray-900'
 				}`}
 			>
 				<BrandProvider brand={brand}>

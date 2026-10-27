@@ -23,7 +23,7 @@ export function EventsFiltersBar({
 	isLoadingCategories = false,
 }: EventsFiltersBarProps) {
 	const translate = useTranslation();
-	const isMinimal = useSkin() === 'minimal';
+	const isMinimal = useSkin() !== 'classic';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {

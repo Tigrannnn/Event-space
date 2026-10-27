@@ -17,7 +17,13 @@ const LANGUAGE_NAMES: Record<Locale, string> = {
 };
 
 /** The language switch of the minimal skin: one button showing the current language, a menu behind it. */
-export default function LanguageMenu({ className }: { className?: string }) {
+export default function LanguageMenu({
+	className,
+	onDark = false,
+}: {
+	className?: string;
+	onDark?: boolean;
+}) {
 	const translate = useTranslation();
 	const { switchLocale } = useLocalizedNavigation();
 	const params = useParams();
@@ -31,7 +37,10 @@ export default function LanguageMenu({ className }: { className?: string }) {
 					type="button"
 					aria-label={translate('header.language')}
 					className={cn(
-						'flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-neutral-800',
+						'flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors',
+						onDark
+							? 'text-white hover:bg-white/15'
+							: 'text-gray-800 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-neutral-800',
 						className,
 					)}
 				>
