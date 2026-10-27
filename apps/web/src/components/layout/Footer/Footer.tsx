@@ -7,10 +7,13 @@ import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
 import { useCategories } from '@/features/categories/hooks/useCategories';
 import { getCategoryTranslation } from '@event-space/shared';
+import { useSkin } from '@/providers/BrandProvider';
+import ContactIcons from '../Header/ContactIcons';
 
 export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
+	const isMinimal = useSkin() === 'minimal';
 	const locale = translate.locale;
 	const pathname = usePathname();
 	const { data: categories } = useCategories();
@@ -19,6 +22,12 @@ export default function Footer() {
 
 	return (
 		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950">
+			{isMinimal && (
+				<div className="mx-auto mb-4 max-w-7xl">
+					<ContactIcons className="-ml-2.5" />
+				</div>
+			)}
+
 			{categories && categories.length > 0 && (
 				<nav className="mx-auto mb-5 flex max-w-7xl flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
 					{categories.map((category) => (

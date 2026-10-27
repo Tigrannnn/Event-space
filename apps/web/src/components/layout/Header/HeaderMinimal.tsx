@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Heart, Search, Ticket, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
+import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
+import ContactIcons from './ContactIcons';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -45,7 +46,7 @@ export default function HeaderMinimal() {
 					{brand.name}
 				</Link>
 
-				<LanguageSwitcher variant="admin" className="ml-auto md:hidden" />
+				<LanguageMenu className="ml-auto md:hidden" />
 
 				<div className="order-last flex w-full items-center md:order-0 md:mx-auto md:max-w-xl md:flex-1">
 					<div className="focus-within:border-primary flex w-full items-center rounded-full border border-gray-300 bg-white py-1 pr-1 pl-5 transition-shadow focus-within:shadow-md dark:border-neutral-700 dark:bg-neutral-900">
@@ -82,7 +83,8 @@ export default function HeaderMinimal() {
 				</div>
 
 				<nav className="hidden shrink-0 items-center gap-1 md:flex">
-					<LanguageSwitcher variant="admin" className="mr-2" />
+					<ContactIcons className="mr-1 hidden xl:flex" />
+					<LanguageMenu className="mr-1" />
 					{!isHydrated || isUserLoading ? null : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
