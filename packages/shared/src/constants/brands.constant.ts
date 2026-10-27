@@ -197,6 +197,7 @@ const brands: Record<string, Brand> = {
 	// Primary is their orange darkened (#EC8232 → #CD6313) so white button text stays legible.
 	'1001travel.event-space.space': {
 		name: '1000+1 Travel',
+		skin: 'listing',
 		colorPrimary: '#CD6313',
 		colorAccent: '#4C9FD7',
 		description: siteConfig.description,
