@@ -146,13 +146,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	);
 
 	if (isListing) {
-		const hasFreeCancellation = (event.cancellationRules ?? []).some(
-			(rule) => rule.refundPercentage === 100 && rule.hoursBeforeEvent > 0,
-		);
-		const facts = [
-			hasFreeCancellation && translate('event.freeCancellation'),
-			translate('event.secureBooking'),
-		].filter((fact): fact is string => typeof fact === 'string');
+		const facts = [translate('event.secureBooking')];
 
 		return (
 			<div className="overflow-hidden rounded-lg border border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900">

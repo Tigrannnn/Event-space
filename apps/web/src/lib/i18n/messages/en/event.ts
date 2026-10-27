@@ -30,7 +30,6 @@ export const event = {
 	moreDates: '+ {count} more',
 	noUpcomingOccurrences: 'Sorry, all departures have already ended',
 	noSpotsLeft: 'No spots left',
-	freeCancellation: 'Free cancellation',
 	onlySpotsLeft: 'Only {count} spots left',
 	chooseDates: 'Choose dates',
 	reviewsCount: 'Reviews: {count}',

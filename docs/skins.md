@@ -118,7 +118,7 @@
 
 ## Скин `listing` (в духе booking.com, сделан 28.10.2026, назначен Ampar и 1000+1 Travel)
 
-Главное отличие от двух других: каталог идёт строками (фото слева, факты в середине, цена и кнопка справа), а не сеткой карточек. Бейджи показывают только реальные данные: «Бесплатная отмена» (правило возврата 100% за срок до тура), «Осталось мест: N» (5 и меньше на ближайшей дате), скидка, оценка отзывов.
+Главное отличие от двух других: каталог идёт строками (фото слева, факты в середине, цена и кнопка справа), а не сеткой карточек. Бейджи показывают только реальные данные: «Осталось мест: N» (5 и меньше на ближайшей дате), скидка, оценка отзывов.
 
 Как устроен: как и `minimal`, акцент приравнен к основному цвету (`layout.tsx`), но настоящий второй цвет бренда остаётся в переменной `--brand-accent` (используется для значка скидки и счётчиков). `data-skin='listing'` тоже получает Inter и плоские тени (`globals.css`). Фон страницы `slate-50`.
 
@@ -134,7 +134,7 @@
 | `features/bookings/components/BookingSidebar/BookingSidebar.tsx` | ветка `isListing`: цветная шапка с ценой, даты строками, бейджи, места |
 | `features/bookings/components/OccurrencePicker/OccurrenceRows.tsx` (новый) | даты строками с радио и ценой; используются и в сайдбаре, и в `BookingForm` |
 | Button, Input, Modal, ModalHeader, AuthModal, Footer, Skeleton, BookingCard | к каждому классу `in-data-[skin=minimal]:` добавлен такой же `in-data-[skin=listing]:`, скругления мельче (`rounded-md`, `rounded-lg`) |
-| `lib/i18n/messages/*/event.ts` | ключи `freeCancellation`, `onlySpotsLeft`, `chooseDates`, `reviewsCount`, `nextDeparture` |
+| `lib/i18n/messages/*/event.ts` | ключи `onlySpotsLeft`, `chooseDates`, `reviewsCount`, `nextDeparture` |
 
 Дополнительно для `listing`:
 

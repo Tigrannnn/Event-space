@@ -49,9 +49,6 @@ export function useEventCardState(event: Event) {
 				Number(nextOccurrence.maxParticipants ?? 0) - Number(nextOccurrence.currentParticipants ?? 0),
 			)
 		: null;
-	const hasFreeCancellation = (event.cancellationRules ?? []).some(
-		(rule) => rule.refundPercentage === 100 && rule.hoursBeforeEvent > 0,
-	);
 	const ratingCount = event.ratingCount ?? 0;
 
 	const hasBooking = (event.occurrences ?? []).some((occurrence) =>
@@ -81,7 +78,6 @@ export function useEventCardState(event: Event) {
 		occurrenceLabel,
 		hasBooking,
 		spotsLeft,
-		hasFreeCancellation,
 		ratingCount,
 		handleBookClick,
 	};

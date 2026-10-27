@@ -32,7 +32,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 		occurrenceLabel,
 		hasBooking,
 		spotsLeft,
-		hasFreeCancellation,
 		ratingCount,
 		handleBookClick,
 	} = useEventCardState(event);
@@ -125,11 +124,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 				</p>
 
 				<div className="mt-auto flex flex-wrap gap-1.5 pt-1">
-					{hasFreeCancellation && (
-						<span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-							{translate('event.freeCancellation')}
-						</span>
-					)}
 					{fewSpots && (
 						<span className="rounded bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">
 							{translate('event.onlySpotsLeft', { count: spotsLeft ?? 0 })}

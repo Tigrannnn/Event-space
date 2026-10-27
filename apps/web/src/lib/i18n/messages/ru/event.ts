@@ -32,7 +32,6 @@ export const event: Messages['event'] = {
 	moreDates: '+ {count} ещё',
 	noUpcomingOccurrences: 'К сожалению, все выезды завершены',
 	noSpotsLeft: 'Мест нет',
-	freeCancellation: 'Бесплатная отмена',
 	onlySpotsLeft: 'Осталось мест: {count}',
 	chooseDates: 'Выбрать даты',
 	reviewsCount: 'Отзывов: {count}',
