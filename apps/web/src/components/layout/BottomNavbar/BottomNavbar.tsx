@@ -27,7 +27,9 @@ export default function BottomNavbar() {
 	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
-	const isMinimal = useSkin() === 'minimal';
+	const skin = useSkin();
+	const isMinimal = skin !== 'classic';
+	const isListing = skin === 'listing';
 
 	if (isAdminPage) {
 		return null;
@@ -70,13 +72,24 @@ export default function BottomNavbar() {
 		const itemClassName = (active: boolean) =>
 			cn(
 				'relative flex h-full flex-1 flex-col items-center justify-center gap-1 pt-2 pb-1.5 text-[11px] transition-colors',
-				active
-					? 'text-primary font-semibold'
-					: 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+				isListing
+					? active
+						? 'font-semibold text-white'
+						: 'text-white/70 hover:text-white'
+					: active
+						? 'text-primary font-semibold'
+						: 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
 			);
 
 		return (
-			<nav className="fixed right-0 bottom-0 left-0 z-40 flex items-stretch border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/95">
+			<nav
+				className={cn(
+					'fixed right-0 bottom-0 left-0 z-40 flex items-stretch pb-[env(safe-area-inset-bottom)] md:hidden',
+					isListing
+						? 'bg-primary'
+						: 'border-t border-gray-200 bg-white/95 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95',
+				)}
+			>
 				{items.map(({ key, href, route, label, aria, Icon, count }) => {
 					const active =
 						isRouteActive(pathname, route) &&
@@ -87,7 +100,12 @@ export default function BottomNavbar() {
 							<span className="relative">
 								<Icon className="size-6" strokeWidth={active ? 2.25 : 1.6} />
 								{count > 0 && (
-									<span className="bg-primary absolute -top-1 -right-2.5 flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-semibold text-white">
+									<span
+										className={cn(
+											'absolute -top-1 -right-2.5 flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-semibold text-white',
+											isListing ? 'bg-(--brand-accent)' : 'bg-primary',
+										)}
+									>
 										{count}
 									</span>
 								)}

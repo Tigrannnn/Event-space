@@ -98,7 +98,7 @@ export default function HeaderListing() {
 					)}
 				</nav>
 
-				<div className="order-last flex w-full items-stretch rounded-md border-[3px] border-(--brand-accent) bg-white">
+				<div className="order-last flex w-full items-stretch rounded-md bg-white">
 					<Search className="my-auto ml-3 size-5 shrink-0 text-gray-500" />
 					<input
 						type="text"
@@ -124,7 +124,7 @@ export default function HeaderListing() {
 					<button
 						type="button"
 						onClick={handleSubmitSearch}
-						className="bg-primary m-px rounded-[3px] px-6 text-sm font-semibold text-white transition-colors hover:brightness-90"
+						className="bg-primary m-1 rounded px-6 text-sm font-semibold text-white transition-colors hover:brightness-90"
 					>
 						{translate('header.search')}
 					</button>

@@ -138,9 +138,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
-		<div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=listing]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=listing]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=listing]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent in-data-[skin=listing]:dark:bg-transparent">
+		<div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:sm:rounded-lg in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent">
 			{/* Event Image */}
-			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl in-data-[skin=listing]:rounded-lg">
+			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl">
 				<EventImageWithFallback
 					src={getEventCoverImageUrl(event) ?? ''}
 					alt={eventTranslation.title}
@@ -157,7 +157,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			</div>
 
 			{/* Content */}
-			<div className="flex flex-1 flex-col p-4 sm:p-6 in-data-[skin=minimal]:px-0 in-data-[skin=listing]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=listing]:sm:px-0">
+			<div className="flex flex-1 flex-col p-4 sm:p-6 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0">
 				<Link
 					href={localizePath(`/events/${event.id}`, locale)}
 					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold"

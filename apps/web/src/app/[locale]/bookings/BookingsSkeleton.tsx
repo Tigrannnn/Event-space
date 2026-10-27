@@ -69,10 +69,10 @@ function BookingsSkeletonMinimal() {
 export default function BookingsSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
 				<BookingsSkeletonClassic />
 			</div>
-			<div className="hidden in-data-[skin=minimal]:block">
+			<div className="hidden in-data-[skin=minimal]:block in-data-[skin=listing]:block">
 				<BookingsSkeletonMinimal />
 			</div>
 		</>

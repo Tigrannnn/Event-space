@@ -81,14 +81,50 @@ function EventDetailSkeletonMinimal() {
 	);
 }
 
+function EventDetailSkeletonListing() {
+	return (
+		<div className="mx-auto max-w-[1200px] px-4 py-5 sm:px-6 lg:px-8">
+			<div className="mb-4 flex items-center justify-between">
+				<Skeleton className="h-5 w-40 rounded" />
+				<Skeleton className="h-9 w-48 rounded-md" />
+			</div>
+			<Skeleton className="mb-2 h-9 w-2/3 rounded" />
+			<Skeleton className="mb-4 h-4 w-1/3 rounded" />
+			<Skeleton className="h-64 w-full rounded-lg sm:h-[26rem]" />
+			<div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+				<div className="space-y-5 lg:col-span-2">
+					<Skeleton className="h-[4.5rem] w-full rounded-lg" />
+					<Skeleton className="h-12 w-full rounded-lg" />
+					<div className="space-y-3 rounded-lg border border-gray-200 p-6 dark:border-neutral-800">
+						<Skeleton className="h-6 w-40 rounded" />
+						<Skeleton className="h-4 w-full rounded" />
+						<Skeleton className="h-4 w-full rounded" />
+						<Skeleton className="h-4 w-2/3 rounded" />
+					</div>
+				</div>
+				<div className="overflow-hidden rounded-lg border border-gray-300 dark:border-neutral-700">
+					<Skeleton className="h-20 w-full rounded-none" />
+					<div className="space-y-4 p-5">
+						<Skeleton className="h-32 w-full rounded-md" />
+						<Skeleton className="h-12 w-full rounded-md" />
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export default function EventDetailSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden">
 				<EventDetailSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
 				<EventDetailSkeletonMinimal />
+			</div>
+			<div className="hidden in-data-[skin=listing]:block">
+				<EventDetailSkeletonListing />
 			</div>
 		</>
 	);

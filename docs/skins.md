@@ -120,20 +120,32 @@
 
 Главное отличие от двух других: каталог идёт строками (фото слева, факты в середине, цена и кнопка справа), а не сеткой карточек. Бейджи показывают только реальные данные: «Бесплатная отмена» (правило возврата 100% за срок до тура), «Осталось мест: N» (5 и меньше на ближайшей дате), скидка, оценка отзывов.
 
-Как устроен: как и `minimal`, акцент приравнен к основному цвету (`layout.tsx`), но настоящий второй цвет бренда остаётся в переменной `--brand-accent` (используется для рамки поиска, значка скидки, счётчиков). `data-skin='listing'` тоже получает Inter и плоские тени (`globals.css`). Фон страницы `slate-50`.
+Как устроен: как и `minimal`, акцент приравнен к основному цвету (`layout.tsx`), но настоящий второй цвет бренда остаётся в переменной `--brand-accent` (используется для значка скидки и счётчиков). `data-skin='listing'` тоже получает Inter и плоские тени (`globals.css`). Фон страницы `slate-50`.
 
 | Файл | Как |
 |---|---|
-| `components/layout/Header/HeaderListing.tsx` (новый) | сплошная полоса цвета бренда, под ней широкая строка поиска с рамкой `--brand-accent`; `ContactIcons` и `LanguageMenu` получили проп `onDark` |
+| `components/layout/Header/HeaderListing.tsx` (новый) | сплошная полоса цвета бренда, под ней широкая строка поиска с без рамки; `ContactIcons` и `LanguageMenu` получили проп `onDark` |
 | `features/events/components/EventCard/EventCardListing.tsx` (новый) | карточка-строка; данные из `useEventCardState` (добавлены `spotsLeft`, `hasFreeCancellation`, `ratingCount`) |
 | `app/[locale]/(home)/_components/events-grid.ts` | у `listing` одна колонка, `max-w-5xl` |
 | `EventCardSkeleton.tsx`, `EventsFiltersBarSkeleton.tsx` | версия строкой; панель фильтров берёт минималистичную заглушку |
 | `filters/EventsFiltersBar.tsx`, `components/filters/FilterTriggerButton.tsx` | плоские кнопки с малым скруглением, активная в цвете бренда |
-| `features/banners/components/BannerCarousel.tsx`, `BannerSlide.tsx` | невысокий баннер с рамкой, подпись без капса |
+| `features/banners/components/BannerCarousel.tsx`, `BannerSlide.tsx` | баннер высотой 14–20rem с боковыми отступами (`max-w-5xl`, в одну ширину со списком), подпись без капса |
 | `app/[locale]/events/[id]/EventPageListing.tsx` (новый) | хлебные крошки, оценка рядом с заголовком, мозаика фото, полоса фактов, липкая панель разделов, разделы в рамках |
 | `features/bookings/components/BookingSidebar/BookingSidebar.tsx` | ветка `isListing`: цветная шапка с ценой, даты строками, бейджи, места |
 | `features/bookings/components/OccurrencePicker/OccurrenceRows.tsx` (новый) | даты строками с радио и ценой; используются и в сайдбаре, и в `BookingForm` |
 | Button, Input, Modal, ModalHeader, AuthModal, Footer, Skeleton, BookingCard | к каждому классу `in-data-[skin=minimal]:` добавлен такой же `in-data-[skin=listing]:`, скругления мельче (`rounded-md`, `rounded-lg`) |
 | `lib/i18n/messages/*/event.ts` | ключи `freeCancellation`, `onlySpotsLeft`, `chooseDates`, `reviewsCount`, `nextDeparture` |
 
-Не переделано у `listing` (выглядит как `classic` с плоским цветом): профиль, нижняя панель, «Избранное», «Мои брони», форма отзыва, «О нас» и правовые страницы, календарь «Когда?». Свой шрифт у него общий с `minimal` (Inter).
+Дополнительно для `listing`:
+
+| Файл | Как |
+|---|---|
+| `components/layout/Footer/Footer.tsx` | сплошной цвет бренда, белые ссылки, `ContactIcons onDark` |
+| `components/layout/BottomNavbar/BottomNavbar.tsx` | ветка `minimal`, но панель цвета бренда, белые подписи, счётчики цветом `--brand-accent` |
+| `app/[locale]/profile/ProfileContent.tsx` | ветка `minimal`: шапка карточкой, квадратный аватар, строки в рамке |
+| `features/bookings/components/BookingCard/BookingCard.tsx` | карточка брони с рамкой и белым фоном (у `minimal` без рамки) |
+| `ProfileSkeleton`, `BookingsSkeleton` | берут версию `minimal` |
+| `EventDetailSkeleton.tsx` | своя версия `EventDetailSkeletonListing` |
+| `app/[locale]/not-found.tsx` | у каждого скина своя 404: классическая, левая тихая надпись у `minimal`, карточка с двумя кнопками у `listing` |
+
+Не переделано у `listing`: «Избранное», «Мои брони» (шапка и пустое состояние), форма отзыва, «О нас» и правовые страницы, календарь «Когда?». Шрифт общий с `minimal` (Inter).

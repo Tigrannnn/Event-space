@@ -32,7 +32,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const translate = useTranslation();
 	const { USER_ROLE_LABELS } = useLabels();
 	const confirm = useConfirm();
-	const isMinimal = useSkin() === 'minimal';
+	const skin = useSkin();
+	const isMinimal = skin !== 'classic';
+	const isListing = skin === 'listing';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -125,12 +127,22 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 				: []),
 		];
 		const rowClassName =
-			'flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-gray-50 sm:py-5 dark:hover:bg-neutral-900';
+			`flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-gray-50 sm:py-5 dark:hover:bg-neutral-900 ${isListing ? 'px-4' : ''}`;
 
 		return (
-			<div className="mx-auto max-w-2xl px-4 py-6 pb-24 sm:py-14 md:pb-14">
-				<div className="mb-8 flex items-center gap-4 sm:mb-10 sm:gap-5">
-					<div className="bg-primary flex size-16 shrink-0 items-center justify-center rounded-full text-2xl font-semibold text-white sm:size-20 sm:text-3xl">
+			<div
+				className={`mx-auto px-4 py-6 pb-24 md:pb-14 ${isListing ? 'max-w-3xl sm:py-8' : 'max-w-2xl sm:py-14'}`}
+			>
+				<div
+					className={`flex items-center gap-4 sm:gap-5 ${
+						isListing
+							? 'mb-5 rounded-lg border border-gray-200 bg-white p-4 sm:mb-6 sm:p-5 dark:border-neutral-800 dark:bg-neutral-900'
+							: 'mb-8 sm:mb-10'
+					}`}
+				>
+					<div
+						className={`bg-primary flex size-16 shrink-0 items-center justify-center text-2xl font-semibold text-white sm:size-20 sm:text-3xl ${isListing ? 'rounded-lg' : 'rounded-full'}`}
+					>
 						{initial}
 					</div>
 					<div className="min-w-0">
@@ -144,7 +156,13 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					</div>
 				</div>
 
-				<div className="divide-y divide-gray-200 border-y border-gray-200 dark:divide-neutral-800 dark:border-neutral-800">
+				<div
+					className={`divide-y divide-gray-200 dark:divide-neutral-800 ${
+						isListing
+							? 'overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+							: 'border-y border-gray-200 dark:border-neutral-800'
+					}`}
+				>
 					{rows.map((row) => {
 						const content = (
 							<>
