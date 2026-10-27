@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { Prisma } from '@prisma/client';
 import { EnvKey } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
@@ -12,7 +13,7 @@ import {
 	type MyBookingsSummary,
 	type PaginatedCursorResponse,
 } from '@event-space/shared';
-import { AppException, encodeKeysetCursor } from '@shared';
+import { AppException } from '@shared';
 import {
 	resolveRefundPolicy,
 	mapOccurrenceForBookingResponse,
@@ -20,7 +21,49 @@ import {
 	buildCheckinToken,
 } from '../booking.utils';
 import { readPayments, toLedgerRows } from '../money/booking-money';
-import { myBookingsWhere, MY_BOOKINGS_ORDER } from '../my-bookings-filters';
+import {
+	decodeMyBookingsCursor,
+	encodeMyBookingsCursor,
+	myBookingsOrder,
+	myBookingsPhases,
+	myBookingsWhere,
+	type MyBookingsPhase,
+} from '../my-bookings-filters';
+
+const MY_BOOKING_INCLUDE = {
+	adjustments: true,
+	review: true,
+	occurrence: {
+		include: {
+			event: {
+				include: {
+					images: true,
+					cancellationRules: true,
+					translations: true,
+					category: { include: { translations: true } },
+					occurrences: true,
+				},
+			},
+		},
+	},
+	user: {
+		select: {
+			id: true,
+			email: true,
+			name: true,
+			phone: true,
+			image: true,
+			role: true,
+			emailVerified: true,
+			isShadow: true,
+			locale: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	},
+} satisfies Prisma.BookingInclude;
+
+type MyBookingRow = Prisma.BookingGetPayload<{ include: typeof MY_BOOKING_INCLUDE }>;
 
 @Injectable()
 export class BookingQueryService {
@@ -42,47 +85,37 @@ export class BookingQueryService {
 	): Promise<PaginatedCursorResponse<BookingWithEstimate>> {
 		const limit = Math.min(Math.max(params.limit ?? MY_BOOKINGS_PAGE_SIZE, 1), 50);
 
-		const rows = await this.prisma.booking.findMany({
-			where: myBookingsWhere({ userId, status: params.status, cursor: params.cursor }),
-			include: {
-				adjustments: true,
-				review: true,
-				occurrence: {
-					include: {
-						event: {
-							include: {
-								images: true,
-								cancellationRules: true,
-								translations: true,
-								category: { include: { translations: true } },
-								occurrences: true,
-							},
-						},
-					},
-				},
-				user: {
-					select: {
-						id: true,
-						email: true,
-						name: true,
-						phone: true,
-						image: true,
-						role: true,
-						emailVerified: true,
-						isShadow: true,
-						locale: true,
-						createdAt: true,
-						updatedAt: true,
-					},
-				},
-			},
-			take: limit + 1,
-			orderBy: MY_BOOKINGS_ORDER,
-		});
+		const cursor = decodeMyBookingsCursor(params.cursor);
+		const boundary = cursor?.boundary ?? new Date();
+		const phases = myBookingsPhases(params.status);
+		const firstPhase = cursor ? phases.indexOf(cursor.phase) : 0;
+		const resumed = cursor && firstPhase >= 0 ? cursor : null;
+
+		const rows: { row: MyBookingRow; phase: MyBookingsPhase }[] = [];
+
+		for (const phase of phases.slice(Math.max(firstPhase, 0))) {
+			const missing = limit + 1 - rows.length;
+			if (missing <= 0) break;
+
+			const page = await this.prisma.booking.findMany({
+				where: myBookingsWhere({
+					userId,
+					status: params.status,
+					phase,
+					boundary,
+					after: resumed?.phase === phase ? resumed : null,
+				}),
+				include: MY_BOOKING_INCLUDE,
+				take: missing,
+				orderBy: myBookingsOrder(phase),
+			});
+
+			rows.push(...page.map((row) => ({ row, phase })));
+		}
 
 		const hasMore = rows.length > limit;
-		const bookings = hasMore ? rows.slice(0, limit) : rows;
-		const last = bookings[bookings.length - 1];
+		const bookings = (hasMore ? rows.slice(0, limit) : rows).map((entry) => entry.row);
+		const last = hasMore ? rows[limit - 1] : undefined;
 
 		const now = new Date();
 		const enrichedBookings = bookings.map((row) => {
@@ -145,7 +178,14 @@ export class BookingQueryService {
 
 		return {
 			data: enrichedBookings,
-			nextCursor: hasMore && last ? encodeKeysetCursor(last) : null,
+			nextCursor: last
+				? encodeMyBookingsCursor({
+						phase: last.phase,
+						boundary,
+						date: last.row.occurrence.date,
+						id: last.row.id,
+					})
+				: null,
 			hasMore,
 		};
 	}
