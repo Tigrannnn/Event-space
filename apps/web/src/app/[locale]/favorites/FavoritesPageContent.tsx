@@ -6,6 +6,7 @@ import { useGetFavorites } from '@/features/favorites/hooks/useFavorites';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useSkin } from '@/providers/BrandProvider';
 import EventCard from '@/features/events/components/EventCard';
 import FavoritesSkeleton from './FavoritesSkeleton';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
@@ -14,6 +15,7 @@ import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserve
 export default function FavoritesPageContent() {
 	const translate = useTranslation();
 	const navigation = useLocalizedNavigation();
+	const isListing = useSkin() === 'listing';
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
 
 	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -49,7 +51,13 @@ export default function FavoritesPageContent() {
 	}
 
 	return (
-		<div className="min-h-full px-4 py-8">
+		<div
+			className={
+				isListing
+					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
+					: 'min-h-full px-4 py-8'
+			}
+		>
 			<div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 				<div>
 					<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -61,7 +69,13 @@ export default function FavoritesPageContent() {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+			<div
+				className={
+					isListing
+						? 'flex flex-col gap-4'
+						: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+				}
+			>
 				{favorites.map((event) => (
 					<EventCard key={event.id} event={event} />
 				))}

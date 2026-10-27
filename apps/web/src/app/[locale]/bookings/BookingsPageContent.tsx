@@ -11,6 +11,7 @@ import { CalendarX, Filter } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useSkin } from '@/providers/BrandProvider';
 import { type BookingDisplayStatus } from '@event-space/shared';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
@@ -24,6 +25,7 @@ export default function BookingsPageContent() {
 	const { addToast } = useToastStore();
 	const { locale } = useTranslation();
 	const navigation = useLocalizedNavigation();
+	const isListing = useSkin() === 'listing';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('CONFIRMED');
 	const {
 		data,
@@ -83,12 +85,20 @@ export default function BookingsPageContent() {
 	}
 
 	return (
-		<div className="min-h-full max-w-full px-4 py-8">
+		<div
+			className={
+				isListing
+					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
+					: 'min-h-full max-w-full px-4 py-8'
+			}
+		>
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 				<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
 					{translate('booking.myBookings')}
 				</h1>
-				<div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+				<div
+					className={`flex items-center gap-2 border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800 ${isListing ? 'rounded-md' : 'rounded-full shadow-sm'}`}
+				>
 					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
 					<select
 						value={statusFilter}
@@ -109,7 +119,13 @@ export default function BookingsPageContent() {
 					{translate('booking.noBookingsMatchFilter')}
 				</div>
 			) : (
-				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				<div
+					className={
+						isListing
+							? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
+							: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+					}
+				>
 					{bookings.map((booking) => (
 						<BookingCard key={booking.id} booking={booking} />
 					))}

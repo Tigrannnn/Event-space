@@ -78,14 +78,38 @@ function ProfileSkeletonMinimal() {
 	);
 }
 
+function ProfileSkeletonListing() {
+	return (
+		<div>
+			<div className="bg-primary/80">
+				<div className="mx-auto flex max-w-[1336px] items-center gap-4 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+					<Skeleton className="size-16 shrink-0 rounded-md bg-white/30 sm:size-20" />
+					<div className="w-full space-y-2">
+						<Skeleton className="h-8 w-2/3 rounded bg-white/30 sm:w-64" />
+						<Skeleton className="h-5 w-3/4 rounded bg-white/30 sm:w-72" />
+					</div>
+				</div>
+			</div>
+			<div className="mx-auto grid max-w-[1336px] grid-cols-1 gap-4 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-3 lg:px-8">
+				{[1, 2, 3].map((i) => (
+					<Skeleton key={i} className="h-[5.5rem] rounded-lg" />
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function ProfileSkeleton() {
 	return (
 		<>
 			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
 				<ProfileSkeletonClassic />
 			</div>
-			<div className="hidden in-data-[skin=minimal]:block in-data-[skin=listing]:block">
+			<div className="hidden in-data-[skin=minimal]:block">
 				<ProfileSkeletonMinimal />
+			</div>
+			<div className="hidden in-data-[skin=listing]:block">
+				<ProfileSkeletonListing />
 			</div>
 		</>
 	);

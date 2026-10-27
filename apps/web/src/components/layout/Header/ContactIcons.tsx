@@ -11,9 +11,12 @@ import { cn } from '@/utils/cn';
 export default function ContactIcons({
 	className,
 	onDark = false,
+	square = false,
 }: {
 	className?: string;
 	onDark?: boolean;
+	/** Bordered square buttons instead of bare round ones. */
+	square?: boolean;
 }) {
 	const { contact } = useBrand();
 	const translate = useTranslation();
@@ -56,7 +59,9 @@ export default function ContactIcons({
 					aria-label={label}
 					title={label}
 					className={cn(
-						'flex size-10 items-center justify-center rounded-full transition-colors',
+						'flex size-10 items-center justify-center transition-colors',
+						square ? 'rounded-md border' : 'rounded-full',
+						square && (onDark ? 'border-white/40' : 'border-gray-300 dark:border-neutral-700'),
 						onDark
 							? 'text-white/85 hover:bg-white/15 hover:text-white'
 							: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white',

@@ -66,14 +66,41 @@ function BookingsSkeletonMinimal() {
 	);
 }
 
+function BookingsSkeletonListing() {
+	return (
+		<div className="mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8">
+			<Skeleton className="mb-6 h-10 w-48 rounded" />
+			<div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+				{[1, 2, 3, 4].map((i) => (
+					<div
+						key={i}
+						className="flex flex-col overflow-hidden rounded-lg border border-gray-200 sm:flex-row dark:border-neutral-800"
+					>
+						<Skeleton className="aspect-video w-full rounded-none sm:aspect-auto sm:min-h-56 sm:w-60" />
+						<div className="flex-1 space-y-3 p-4">
+							<Skeleton className="h-6 w-4/5 rounded" />
+							<Skeleton className="h-4 w-1/2 rounded" />
+							<Skeleton className="h-4 w-2/3 rounded" />
+							<Skeleton className="h-10 w-full rounded-md" />
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function BookingsSkeleton() {
 	return (
 		<>
 			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
 				<BookingsSkeletonClassic />
 			</div>
-			<div className="hidden in-data-[skin=minimal]:block in-data-[skin=listing]:block">
+			<div className="hidden in-data-[skin=minimal]:block">
 				<BookingsSkeletonMinimal />
+			</div>
+			<div className="hidden in-data-[skin=listing]:block">
+				<BookingsSkeletonListing />
 			</div>
 		</>
 	);

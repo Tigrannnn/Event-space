@@ -18,7 +18,9 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ eventId, className, variant = 'overlay' }: FavoriteButtonProps) {
 	const translate = useTranslation();
-	const isMinimal = useSkin() === 'minimal';
+	const skin = useSkin();
+	const isMinimal = skin === 'minimal';
+	const isListing = skin === 'listing';
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { isLoading: isFavoritesLoading } = useFavoriteIds();
 	const isFavorite = useIsFavorite(eventId);
@@ -64,6 +66,32 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 									: 'fill-black/35 stroke-white stroke-[1.75]',
 						)}
 					/>
+				)}
+			</button>
+		);
+	}
+
+	if (isListing) {
+		// A small white tile with a square corner, the way a saved-property button sits on a photo.
+		return (
+			<button
+				type="button"
+				onClick={handleClick}
+				aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
+				aria-pressed={isFavorite}
+				className={cn(
+					'relative z-20 flex size-9 items-center justify-center rounded-md border bg-white shadow-sm transition-colors hover:bg-gray-50 dark:bg-neutral-900 dark:hover:bg-neutral-800',
+					isFavorite
+						? 'border-primary text-primary'
+						: 'border-gray-300 text-gray-700 dark:border-neutral-700 dark:text-gray-200',
+					className,
+				)}
+				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+			>
+				{isUserLoading || (isFavoritesLoading && user) ? (
+					<Skeleton className="size-4 rounded" />
+				) : (
+					<Heart className={cn('size-[18px]', isFavorite && 'fill-current')} strokeWidth={2} />
 				)}
 			</button>
 		);

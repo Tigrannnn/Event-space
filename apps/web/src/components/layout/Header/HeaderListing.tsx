@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Heart, Search, Ticket, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
-import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
+import LanguageCode from '@/components/ui/LanguageSwitcher/LanguageCode';
 import ContactIcons from './ContactIcons';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -33,7 +33,7 @@ export default function HeaderListing() {
 	} = useHeaderControls();
 
 	const actionLink =
-		'relative flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-white/15';
+		'relative flex min-w-16 flex-col items-center gap-0.5 rounded-md px-3 py-1.5 text-[11px] font-medium text-white/90 transition-colors hover:bg-white/15 hover:text-white';
 
 	return (
 		<header className="bg-primary relative z-40 text-white">
@@ -45,11 +45,11 @@ export default function HeaderListing() {
 					{brand.name}
 				</Link>
 
-				<LanguageMenu onDark className="ml-auto md:hidden" />
+				<LanguageCode onDark className="ml-auto md:hidden" />
 
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:flex">
-					<ContactIcons onDark className="mr-1 hidden xl:flex" />
-					<LanguageMenu onDark className="mr-1" />
+					<ContactIcons onDark square className="mr-2 hidden gap-1.5 xl:flex" />
+					<LanguageCode onDark className="mr-2" />
 					{!isHydrated || isUserLoading ? null : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>

@@ -142,10 +142,14 @@
 |---|---|
 | `components/layout/Footer/Footer.tsx` | сплошной цвет бренда, белые ссылки, `ContactIcons onDark` |
 | `components/layout/BottomNavbar/BottomNavbar.tsx` | ветка `minimal`, но панель цвета бренда, белые подписи, счётчики цветом `--brand-accent` |
-| `app/[locale]/profile/ProfileContent.tsx` | ветка `minimal`: шапка карточкой, квадратный аватар, строки в рамке |
-| `features/bookings/components/BookingCard/BookingCard.tsx` | карточка брони с рамкой и белым фоном (у `minimal` без рамки) |
-| `ProfileSkeleton`, `BookingsSkeleton` | берут версию `minimal` |
-| `EventDetailSkeleton.tsx` | своя версия `EventDetailSkeletonListing` |
+| `app/[locale]/profile/ProfileContent.tsx` | своя ветка `isListing`: цветная полоса с квадратным аватаром и кнопкой выхода, ниже плитки-ссылки в сетке |
+| `features/bookings/components/BookingCard/BookingCard.tsx` | карточка брони строкой (фото слева от `sm`) с рамкой; `BookingsPageContent` и `FavoritesPageContent` для `listing` дают колонку/две колонки в ширину строки поиска |
+| `ProfileSkeleton`, `BookingsSkeleton`, `EventDetailSkeleton` | у каждой своя версия `...Listing` |
+| `features/favorites/components/FavoriteButton.tsx` | белая плитка со скруглением `md`, в избранном рамка и сердце цвета бренда |
+| `components/ui/LanguageSwitcher/LanguageCode.tsx` (новый) | язык: квадрат с кодом `RU`, в меню строки «код + название» |
+| `components/layout/Header/ContactIcons.tsx` | проп `square`: контакты квадратными кнопками с рамкой (шапка и футер `listing`) |
+| `components/layout/Header/HeaderListing.tsx` | «Избранное» и «Брони» значком над подписью |
+| `components/ui/Modal/Modal.tsx`, `ModalHeader`, `ModalCloseButton` | цветная верхняя кромка, заголовок слева с линией под ним, квадратная кнопка закрытия |
 | `app/[locale]/not-found.tsx` | у каждого скина своя 404: классическая, левая тихая надпись у `minimal`, карточка с двумя кнопками у `listing` |
 
 Не переделано у `listing`: «Избранное», «Мои брони» (шапка и пустое состояние), форма отзыва, «О нас» и правовые страницы, календарь «Когда?». Шрифт общий с `minimal` (Inter).

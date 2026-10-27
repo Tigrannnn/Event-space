@@ -14,7 +14,7 @@ export default function ModalCloseButton({
 			// and, with every field valid, saved it instead of closing.
 			type="button"
 			onClick={onClick}
-			className={`absolute top-0 right-0 cursor-pointer rounded-full p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 ${className}`}
+			className={`absolute top-0 right-0 cursor-pointer rounded-full in-data-[skin=listing]:rounded-md p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 ${className}`}
 			aria-label={ariaLabel}
 			{...props}
 		>
