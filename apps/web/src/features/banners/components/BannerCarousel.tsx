@@ -108,7 +108,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						aria-label={translate('common.previousBanner')}
 						className={cn(
 							'absolute top-1/2 left-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
-							isMinimal && 'top-auto right-16 bottom-9 left-auto translate-y-0',
+							isMinimal && 'top-auto right-16 bottom-14 left-auto translate-y-0',
 						)}
 					>
 						<ChevronLeft className="h-5 w-5" />
@@ -119,7 +119,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						aria-label={translate('common.nextBanner')}
 						className={cn(
 							'absolute top-1/2 right-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
-							isMinimal && 'top-auto bottom-9 translate-y-0',
+							isMinimal && 'top-auto bottom-14 translate-y-0',
 						)}
 					>
 						<ChevronRight className="h-5 w-5" />
