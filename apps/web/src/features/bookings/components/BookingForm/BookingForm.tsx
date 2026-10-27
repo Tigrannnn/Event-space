@@ -21,6 +21,8 @@ import { useHasBookingForOccurrence, usePromoCodeQuote } from '../../hooks/useBo
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 import { VerticalScroll } from '@/components/ui/VerticalScroll';
 import { OccurrencePrice } from '../OccurrencePrice';
+import { OccurrenceChips } from '../OccurrencePicker/OccurrenceChips';
+import { useSkin } from '@/providers/BrandProvider';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { useApiError } from '@/hooks/apiError';
 
@@ -47,6 +49,7 @@ export default function BookingForm({
 	const formatCurrency = useFormatCurrency();
 	const { formatDateTime } = useFormatDate();
 	const { hasBooking: isOccurrenceBooked } = useHasBookingForOccurrence();
+	const isMinimal = useSkin() === 'minimal';
 	const selectedRef = useRef<HTMLButtonElement>(null);
 	const apiError = useApiError();
 	const promoQuote = usePromoCodeQuote(selectedOccurrence?.id, quantity, appliedPromoCode);
@@ -136,7 +139,20 @@ export default function BookingForm({
 					{translate('booking.selectDate')}
 				</p>
 				<TimeZoneNote />
-				{futureOccurrences.length > 0 ? (
+				{futureOccurrences.length > 0 && isMinimal ? (
+					<OccurrenceChips
+						occurrences={futureOccurrences}
+						selectedId={selectedOccurrence?.id}
+						onSelect={(id) => {
+							const chosen = futureOccurrences.find((occurrence) => occurrence.id === id);
+							if (chosen) handleOccurrenceSelect(chosen);
+						}}
+						price={event.price}
+						isBooked={isOccurrenceBooked}
+						disabled={isLoading}
+						disableBooked
+					/>
+				) : futureOccurrences.length > 0 ? (
 					<VerticalScroll
 						className="max-h-[min(22rem,40vh)] pr-1"
 						contentClassName="space-y-2 py-1"

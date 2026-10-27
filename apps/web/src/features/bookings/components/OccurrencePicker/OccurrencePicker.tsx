@@ -8,6 +8,8 @@ import { centerInScroller, keepInView } from '@/utils/scroll';
 import { useTranslation } from '@/hooks/translation';
 import { OccurrencePrice } from '../OccurrencePrice';
 import { FlashValue } from '@/components/ui/FlashValue';
+import { useSkin } from '@/providers/BrandProvider';
+import { OccurrenceChips } from './OccurrenceChips';
 
 export interface OccurrencePickerProps {
 	occurrences: EventOccurrence[];
@@ -21,7 +23,7 @@ export interface OccurrencePickerProps {
 const spotsOf = (occurrence: EventOccurrence): number =>
 	Math.max(0, occurrence.maxParticipants - occurrence.currentParticipants);
 
-export function OccurrencePicker({
+function OccurrencePickerClassic({
 	occurrences,
 	selectedId,
 	onSelect,
@@ -198,4 +200,10 @@ export function OccurrencePicker({
 			)}
 		</div>
 	);
+}
+
+export function OccurrencePicker(props: OccurrencePickerProps) {
+	const skin = useSkin();
+
+	return skin === 'minimal' ? <OccurrenceChips {...props} /> : <OccurrencePickerClassic {...props} />;
 }
