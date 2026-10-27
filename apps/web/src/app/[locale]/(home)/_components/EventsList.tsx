@@ -12,6 +12,8 @@ import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
 import { useCategories } from '@/features/categories/hooks/useCategories';
+import { useSkin } from '@/providers/BrandProvider';
+import { eventsGridClass } from './events-grid';
 import {
 	EventsFiltersBar,
 	computePriceBounds,
@@ -39,6 +41,7 @@ export default function EventsList({
 	categorySlug,
 }: EventsListProps) {
 	const translate = useTranslation();
+	const skin = useSkin();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const locale = translate.locale;
@@ -72,14 +75,7 @@ export default function EventsList({
 		};
 	}, [initialEvents, initialNextCursor, initialHasMore]);
 
-	const {
-		data,
-		fetchNextPage,
-		hasNextPage,
-		isFetchingNextPage,
-		isLoading,
-		isError,
-	} = useEvents({
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useEvents({
 		limit: 8,
 		search: searchQuery,
 		startDate: filters.dateRange ? formatDateParam(filters.dateRange.from) : undefined,
@@ -187,7 +183,7 @@ export default function EventsList({
 	return (
 		<div>
 			{filtersBar}
-			<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
+			<div className={eventsGridClass(skin)}>
 				{filteredEvents.map((event) => (
 					<EventCard key={event.id} event={event} />
 				))}

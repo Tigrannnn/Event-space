@@ -2,6 +2,8 @@
 
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
+import { useSkin } from '@/providers/BrandProvider';
+import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/primitives/button';
 import { HorizontalScroll } from '@/components/ui/HorizontalScroll';
 import { CategoryFilterSection } from './CategoryFilterSection';
@@ -21,6 +23,7 @@ export function EventsFiltersBar({
 	isLoadingCategories = false,
 }: EventsFiltersBarProps) {
 	const translate = useTranslation();
+	const isMinimal = useSkin() === 'minimal';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {
@@ -28,7 +31,14 @@ export function EventsFiltersBar({
 	};
 
 	return (
-		<div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-gray-200/70 bg-gray-50/90 px-4 py-2.5 shadow-sm backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-gray-700/70 dark:bg-gray-900/85">
+		<div
+			className={cn(
+				'sticky top-0 z-30 -mx-4 mb-4 border-b px-4 py-2.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
+				isMinimal
+					? 'border-gray-200 bg-white/95 dark:border-neutral-800 dark:bg-neutral-950/95'
+					: 'border-gray-200/70 bg-gray-50/90 shadow-sm dark:border-gray-700/70 dark:bg-gray-900/85',
+			)}
+		>
 			<div className="md:hidden">
 				<EventsFiltersDrawer
 					categories={categories}
@@ -42,7 +52,9 @@ export function EventsFiltersBar({
 			<div className="hidden md:block">
 				<HorizontalScroll
 					className="min-h-11 items-center gap-3"
-					fadeClassName="from-gray-50 dark:from-gray-900"
+					fadeClassName={
+						isMinimal ? 'from-white dark:from-neutral-950' : 'from-gray-50 dark:from-gray-900'
+					}
 				>
 					<div className="flex min-w-0 shrink-0 items-center">
 						{isLoadingCategories ? (

@@ -1,6 +1,23 @@
+'use client';
+
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
+import { useSkin } from '@/providers/BrandProvider';
 
 export default function EventCardSkeleton() {
+	const skin = useSkin();
+
+	if (skin === 'minimal') {
+		return (
+			<div>
+				<Skeleton className="aspect-4/3 w-full rounded-2xl" />
+				<Skeleton className="mt-3 h-4 w-3/4 rounded" />
+				<Skeleton className="mt-2 h-4 w-1/2 rounded" />
+				<Skeleton className="mt-2 h-4 w-2/3 rounded" />
+				<Skeleton className="mt-3 h-5 w-1/3 rounded" />
+			</div>
+		);
+	}
+
 	return (
 		<SkeletonCard className="overflow-hidden rounded-2xl p-0 sm:rounded-4xl md:rounded-[2.5rem]">
 			{/* Image skeleton */}

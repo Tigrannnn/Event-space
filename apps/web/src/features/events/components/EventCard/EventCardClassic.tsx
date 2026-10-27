@@ -1,0 +1,145 @@
+'use client';
+
+import React from 'react';
+import Button from '@/components/ui/Buttons/Button';
+import { CategoryBadge } from '../CategoryBadge';
+import { PriceBadge } from '../PriceBadge';
+import { CapacityBar } from '../CapacityBar';
+
+import Link from 'next/link';
+import { EventImageWithFallback } from '../EventImage';
+import { getEventCoverImageUrl } from '@event-space/shared';
+import { useEventCardState, type EventCardProps } from './useEventCardState';
+
+import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
+import { StarRating } from '@/features/reviews';
+import { BookOpen, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { localizePath } from '@/lib/i18n/config';
+
+export default function EventCardClassic({ event }: EventCardProps) {
+	const {
+		translate,
+		locale,
+		user,
+		isUserLoading,
+		isMyBookingsLoading,
+		eventIsAvailable,
+		pricing,
+		average,
+		eventTranslation,
+		occurrenceLabel,
+		hasBooking,
+		handleBookClick,
+	} = useEventCardState(event);
+
+	return (
+		<article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
+			<Link
+				href={localizePath(`/events/${event.id}`, locale)}
+				aria-label={`View details for ${eventTranslation.title}`}
+				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
+			/>
+			{/* Media Section */}
+			<div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100 sm:aspect-16/10 dark:bg-gray-900">
+				{/* {categoryTranslation && <CategoryBadge>{categoryTranslation.name}</CategoryBadge>} */}
+				<PriceBadge
+					price={pricing.fromPrice}
+					basePrice={pricing.basePrice}
+					discountPercent={pricing.maxDiscountPercent}
+				/>
+				<div className="absolute top-3 right-3 z-20">
+					<FavoriteButton eventId={event.id} />
+				</div>
+				<EventImageWithFallback src={getEventCoverImageUrl(event) ?? ''} alt={eventTranslation.title} />
+			</div>
+
+			{/* Content Section */}
+			<div className="flex flex-1 flex-col p-4 sm:p-6 md:p-8">
+				<div className="mb-3 flex items-center gap-2">
+					<span className="bg-accent h-2 w-2 animate-pulse rounded-full" />
+					<span className="text-accent text-[13px] font-bold tracking-wider uppercase sm:text-xs">
+						{occurrenceLabel}
+					</span>
+				</div>
+
+				<h3 className="text-primary group-hover:text-accent mb-3 line-clamp-2 min-h-12 text-xl leading-tight font-black tracking-tight transition-colors sm:min-h-14 sm:text-2xl">
+					{eventTranslation.title}
+				</h3>
+
+				{average !== null && (
+					<div className="mb-2 flex items-center gap-2">
+						<StarRating value={average} />
+						<span className="text-xs font-semibold text-gray-700 dark:text-gray-300">{average}</span>
+						<span className="text-xs text-gray-500">
+							{translate('review.count', { count: event.ratingCount ?? 0 })}
+						</span>
+					</div>
+				)}
+
+				<div className="mb-1 flex items-center gap-2 text-gray-600 dark:text-gray-400">
+					<MapPin className="text-primary h-4 w-4 shrink-0 sm:h-5 sm:w-5" />
+					<a
+						href={event.locationUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="hover:text-primary relative z-20 cursor-pointer text-left text-sm font-medium underline underline-offset-2 transition-colors sm:text-base"
+					>
+						{eventTranslation.location}
+					</a>
+				</div>
+
+				<div className="mb-4 flex items-center gap-2 text-gray-500 sm:mb-6 dark:text-gray-500">
+					<Navigation className="h-3.5 w-3.5 shrink-0" />
+					<a
+						href={event.meetingLocationUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="hover:text-primary relative z-20 cursor-pointer text-left text-xs underline underline-offset-2 transition-colors"
+					>
+						{translate('event.meetingLocationLabel')}: {eventTranslation.meetingLocation}
+					</a>
+				</div>
+
+				{/* Footer Section: Metrics & Action - always at bottom */}
+				<div className="mt-auto space-y-4 border-t border-gray-50 pt-4 sm:space-y-6 sm:pt-6 dark:border-gray-700/50">
+					{!eventIsAvailable ? (
+						<Button disabled variant="secondary" className="relative z-20 w-full">
+							{translate('event.eventEndedButton')}
+						</Button>
+					) : isUserLoading || (isMyBookingsLoading && user) ? (
+						<Skeleton className="h-12 w-full rounded-xl" />
+					) : hasBooking ? (
+						<div
+							className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full rounded-xl border shadow-sm"
+							role="group"
+						>
+							<Link
+								href={localizePath('/bookings', locale)}
+								onClick={(e) => e.stopPropagation()}
+								className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 rounded-l-[11px] px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+							>
+								<Ticket className="h-4 w-4 shrink-0" />
+								<span className="truncate">{translate('event.viewMyBooking')}</span>
+							</Link>
+							<button
+								type="button"
+								onClick={handleBookClick}
+								aria-label={translate('event.bookAnotherSpot')}
+								title={translate('event.bookAnotherSpot')}
+								className="bg-primary shadow-primary/20 hover:bg-accent hover:shadow-accent/30 dark:shadow-primary/10 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 cursor-pointer items-center justify-center rounded-r-[11px] border-l text-white shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset active:scale-95 sm:w-14"
+							>
+								<Plus className="h-5 w-5" strokeWidth={2.5} />
+							</button>
+						</div>
+					) : (
+						<Button variant="primary" className="relative z-20 w-full" onClick={handleBookClick}>
+							<BookOpen className="h-4 w-4" />
+							{translate('event.bookTour')}
+						</Button>
+					)}
+				</div>
+			</div>
+		</article>
+	);
+}

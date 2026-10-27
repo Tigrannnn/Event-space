@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Banner } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import BannerSlide from './BannerSlide';
 
@@ -15,6 +16,7 @@ const AUTOPLAY_MS = 5000;
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const translate = useTranslation();
+	const isMinimal = useSkin() === 'minimal';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -78,7 +80,10 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 		>
 			<div
 				ref={scrollerRef}
-				className="flex aspect-16/9 snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-2xl [scrollbar-width:none] sm:aspect-16/5 sm:rounded-3xl [&::-webkit-scrollbar]:hidden"
+				className={cn(
+					'flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overflow-y-hidden rounded-2xl [&::-webkit-scrollbar]:hidden',
+					isMinimal ? 'aspect-16/9 sm:aspect-21/6' : 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+				)}
 			>
 				{banners.map((banner, index) => (
 					<div

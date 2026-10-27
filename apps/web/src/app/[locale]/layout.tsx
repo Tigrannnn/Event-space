@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
+import { Geist_Mono, Inter, Manrope, Noto_Sans_Armenian } from 'next/font/google';
 import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
@@ -9,7 +9,7 @@ import GoogleProvider from '@/providers/GoogleProvider';
 import { BrandProvider } from '@/providers/BrandProvider';
 import { getBrandForHost, isDemoHost } from '@/config/brands';
 import { PRIVATE_PAGE_ROBOTS } from '@/lib/seo';
-import { EnvKey } from '@event-space/shared';
+import { DEFAULT_BRAND_SKIN, EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
 import { getRequestSiteUrl } from '@/lib/site-url';
@@ -41,6 +41,15 @@ const fontArmenian = Noto_Sans_Armenian({
 	display: 'swap',
 });
 
+// The minimal skin sets its text in Inter rather than Manrope; it is fetched only by pages that
+// actually apply it, so the classic sites pay nothing for it.
+const fontMinimal = Inter({
+	variable: '--font-minimal-latin',
+	subsets: ['latin', 'cyrillic'],
+	weight: ['400', '500', '600', '700'],
+	display: 'swap',
+	preload: false,
+});
 
 const geistMono = Geist_Mono({
 	variable: '--font-geist-mono',
@@ -101,6 +110,8 @@ export default async function Layout({ children, params }: LayoutProps) {
 	const { locale } = await params;
 	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
 	const brand = getBrandForHost((await headers()).get('host'));
+	const skin = brand.skin ?? DEFAULT_BRAND_SKIN;
+	const isMinimal = skin === 'minimal';
 
 	if (!googleClientId) {
 		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
@@ -110,11 +121,14 @@ export default async function Layout({ children, params }: LayoutProps) {
 		<html
 			lang={locale}
 			translate="no"
-			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable}`}
+			data-skin={skin}
+			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isMinimal ? fontMinimal.variable : ''}`}
 			suppressHydrationWarning
 		>
 			<head>
-				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${brand.colorAccent}; }`}</style>
+				{/* A minimal site runs on one colour: the accent follows the primary, which also
+				    flattens every primary-to-accent gradient on the way. */}
+				<style>{`:root { --color-primary: ${brand.colorPrimary}; --color-accent: ${isMinimal ? brand.colorPrimary : brand.colorAccent}; }`}</style>
 				{/* Read at request time so the API origin follows the running
 				    environment instead of being frozen into the built bundle. */}
 				<script
@@ -133,7 +147,9 @@ export default async function Layout({ children, params }: LayoutProps) {
 				)}
 			</head>
 			<body
-				className="text-black flex min-h-dvh flex-col bg-gray-100 antialiased dark:bg-gray-900 dark:text-white"
+				className={`text-black flex min-h-dvh flex-col antialiased dark:text-white ${
+					isMinimal ? 'bg-white dark:bg-neutral-950' : 'bg-gray-100 dark:bg-gray-900'
+				}`}
 			>
 				<BrandProvider brand={brand}>
 					<QueryProvider>

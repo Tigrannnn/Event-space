@@ -1,20 +1,13 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { localizePath } from '@/lib/i18n/config';
 import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
-import { useModalStore, ModalType } from '@/stores';
-import { useCurrentUser } from '@/features/users';
-import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
-import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
-import { useHydrated } from '@/hooks/hydration/useHydrated';
+import { ModalType } from '@/stores';
+import { useHeaderControls } from './useHeaderControls';
 
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { useTranslation } from '@/hooks/translation';
-import { useBrand } from '@/providers/BrandProvider';
 import { SearchIcon } from 'lucide-react';
 
 /**
@@ -23,39 +16,23 @@ import { SearchIcon } from 'lucide-react';
  * - Mobile: Search (buttons hidden, shown in bottom nav)
  */
 export default function Header() {
-	const navigation = useLocalizedNavigation();
-	const searchParams = useSearchParams();
-	const urlSearchQuery = searchParams.get('search') || '';
-	const [inputValue, setInputValue] = useState(urlSearchQuery);
-	const translate = useTranslation();
-	const brand = useBrand();
+	const {
+		navigation,
+		translate,
+		brand,
+		openModal,
+		user,
+		isUserLoading,
+		isHydrated,
+		myBookingsCount,
+		myFavoritesCount,
+		inputValue,
+		setInputValue,
+		handleSubmitSearch,
+		handleKeyDown,
+	} = useHeaderControls();
 	const [brandFirstWord, ...brandRestWords] = brand.name.split(' ');
 	const brandRest = brandRestWords.join(' ');
-	const { openModal } = useModalStore();
-	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const myBookingsCount = useActiveBookingsCount();
-	const myFavoritesCount = useFavoritesCount();
-	const isHydrated = useHydrated();
-
-	const handleSubmitSearch = useCallback(() => {
-		const params = new URLSearchParams(searchParams);
-		if (inputValue.trim()) {
-			params.set('search', inputValue.trim());
-		} else {
-			params.delete('search');
-		}
-		const query = params.toString();
-		navigation.push(query ? `/?${query}` : '/', { scroll: false });
-	}, [inputValue, navigation, searchParams]);
-
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
-			if (e.key === 'Enter') {
-				handleSubmitSearch();
-			}
-		},
-		[handleSubmitSearch],
-	);
 
 	return (
 		<header className="from-primary to-accent relative top-0 z-40 bg-linear-to-r px-2 py-3 sm:px-8 md:py-6 lg:py-10">
@@ -139,10 +116,7 @@ export default function Header() {
 								</Link>
 
 								<Link href={localizePath('/profile', navigation.locale)}>
-									<Button
-										variant="secondary"
-										className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
-									>
+									<Button variant="secondary" className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base">
 										{user.name.split(' ')[0].trim().length <= 10
 											? user.name.split(' ')[0]
 											: translate('header.profile')}

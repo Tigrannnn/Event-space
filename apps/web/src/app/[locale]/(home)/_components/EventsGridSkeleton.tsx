@@ -1,8 +1,14 @@
+'use client';
+
+import { useSkin } from '@/providers/BrandProvider';
 import EventCardSkeleton from './EventCardSkeleton';
+import { eventsGridClass } from './events-grid';
 
 export default function EventsGridSkeleton({ count = 8 }: { count?: number }) {
+	const skin = useSkin();
+
 	return (
-		<div className="grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4">
+		<div className={eventsGridClass(skin)}>
 			{Array.from({ length: count }).map((_, i) => (
 				<EventCardSkeleton key={i} />
 			))}

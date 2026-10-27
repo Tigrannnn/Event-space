@@ -20,8 +20,17 @@ export interface BrandAboutContent {
 	contactBody: string;
 }
 
+/**
+ * How a site looks beyond its colours: layout of the header, the tour cards and the catalogue.
+ * Two companies that sell side by side should not read as one site in two paints.
+ */
+export type BrandSkin = 'classic' | 'minimal';
+
+export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
+
 export interface Brand {
 	name: string;
+	skin?: BrandSkin;
 	colorPrimary: string;
 	colorAccent: string;
 	description: string;
@@ -283,6 +292,7 @@ const brands: Record<string, Brand> = {
 	},
 	'buggytour.event-space.space': {
 		name: 'Buggy Tour',
+		skin: 'minimal',
 		colorPrimary: '#089439',
 		colorAccent: '#8E8229',
 		description: siteConfig.description,
