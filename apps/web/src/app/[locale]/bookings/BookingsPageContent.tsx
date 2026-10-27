@@ -25,8 +25,10 @@ export default function BookingsPageContent() {
 	const { addToast } = useToastStore();
 	const { locale } = useTranslation();
 	const navigation = useLocalizedNavigation();
-	const isListing = useSkin() === 'listing';
-	const [statusFilter, setStatusFilter] = useState<StatusFilter>('CONFIRMED');
+	const skin = useSkin();
+	const isListing = skin === 'listing';
+	const isMinimal = skin === 'minimal';
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,
 		isLoading,
@@ -90,7 +92,13 @@ export default function BookingsPageContent() {
 					{translate('booking.myBookings')}
 				</h1>
 				<div
-					className={`flex items-center gap-2 border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800 ${isListing ? 'rounded-md' : 'rounded-full shadow-sm'}`}
+					className={`flex items-center gap-2 border px-3 py-2 ${
+						isListing
+							? 'rounded-md border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+							: isMinimal
+								? 'rounded-full border-gray-300 bg-white hover:border-gray-900 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-gray-300'
+								: 'rounded-full border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'
+					}`}
 				>
 					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
 					<select
@@ -108,7 +116,15 @@ export default function BookingsPageContent() {
 			</div>
 
 			{bookings.length === 0 ? (
-				<div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/70 dark:text-gray-400">
+				<div
+					className={`p-8 text-center text-sm text-gray-500 dark:text-gray-400 ${
+						isListing
+							? 'rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+							: isMinimal
+								? 'border-y border-gray-200 py-12 dark:border-neutral-800'
+								: 'rounded-2xl border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/70'
+					}`}
+				>
 					{translate('booking.noBookingsMatchFilter')}
 				</div>
 			) : (

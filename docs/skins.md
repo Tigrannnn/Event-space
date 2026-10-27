@@ -160,3 +160,4 @@
 |---|---|
 | `features/bookings/components/QuantitySelector/QuantitySelector.tsx` | выбор количества мест: у `minimal` строка между линиями с круглыми кнопками, у `listing` рамка и квадратные кнопки цвета бренда |
 | `components/ui/EmptyState/EmptyState.tsx` (новый) | пустые «Брони» и «Избранное»: у каждого скина свой вид (диск, тонкая иконка слева, карточка с квадратной иконкой) |
+| `app/[locale]/bookings/BookingsPageContent.tsx` | выбор статуса и пустой список «по этому фильтру ничего нет»: у `minimal` круглая рамка и пустое место между линиями, у `listing` квадратная рамка и белая карточка |
