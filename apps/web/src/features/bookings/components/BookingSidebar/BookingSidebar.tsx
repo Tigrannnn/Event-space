@@ -128,7 +128,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				{/* Price */}
 				<div className="mb-5 sm:mb-6">
 					<div className="flex flex-wrap items-baseline gap-2">
-						<span className="text-primary text-3xl font-black sm:text-4xl">
+						<span className="text-primary text-3xl font-black sm:text-4xl in-data-[skin=minimal]:font-semibold in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:dark:text-white">
 							{formatCurrency(quote.unitPrice)}
 						</span>
 						{quote.discountPercent > 0 && (
@@ -175,7 +175,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 				{/* Date & Time Info */}
 				<div className="mb-6 space-y-2.5 sm:mb-8 sm:space-y-3">
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<Calendar className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex w-full flex-col gap-2">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
@@ -191,7 +191,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							<TimeZoneNote className="mt-2" />
 						</div>
 					</div>
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<MapPin className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
@@ -212,7 +212,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						</div>
 					</div>
 
-					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50">
+					<div className="flex items-center gap-2.5 rounded-xl bg-gray-50 p-3 sm:gap-3 sm:rounded-2xl sm:p-4 dark:bg-gray-700/50 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:sm:rounded-none in-data-[skin=minimal]:border-b in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-transparent">
 						<Navigation className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
 						<div className="flex flex-col">
 							<span className="text-[13px] font-medium text-gray-500 uppercase sm:text-xs dark:text-gray-400">
@@ -243,7 +243,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 					<Skeleton className="h-10 w-full rounded-xl" />
 				) : hasBooking ? (
 					<div
-						className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm"
+						className="border-primary/20 dark:border-primary/30 relative z-20 flex h-12 w-full overflow-hidden rounded-xl border shadow-sm in-data-[skin=minimal]:rounded-full"
 						role="group"
 					>
 						<button

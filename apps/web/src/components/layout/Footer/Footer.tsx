@@ -18,7 +18,7 @@ export default function Footer() {
 	if (pathname.includes('/admin')) return null;
 
 	return (
-		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900">
+		<footer className="mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950">
 			{categories && categories.length > 0 && (
 				<nav className="mx-auto mb-5 flex max-w-7xl flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
 					{categories.map((category) => (

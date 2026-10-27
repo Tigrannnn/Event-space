@@ -33,7 +33,7 @@ export default function AuthModal() {
 			ariaLabel={config?.ariaLabel ? translate(config.ariaLabel) : translate('auth.authModal')}
 		>
 			{config && (
-				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50">
+				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=minimal]:shadow-none in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=minimal]:dark:bg-neutral-900">
 					{/* Header */}
 					<ModalHeader
 							title={translate(config.title, { brand: brand.name })}

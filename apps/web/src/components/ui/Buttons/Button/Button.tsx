@@ -3,14 +3,14 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/cn';
 
 const buttonVariants = cva(
-	'relative flex cursor-pointer items-center justify-center gap-2 font-bold transition-all duration-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100',
+	'relative flex cursor-pointer items-center justify-center gap-2 font-bold transition-all duration-300 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 in-data-[skin=minimal]:font-semibold in-data-[skin=minimal]:rounded-full in-data-[skin=minimal]:sm:rounded-full',
 	{
 		variants: {
 			variant: {
 				primary:
-					'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-accent hover:shadow-accent/30 disabled:hover:bg-primary disabled:shadow-none dark:shadow-primary/10',
+					'bg-primary text-white shadow-lg shadow-primary/20 hover:bg-accent hover:shadow-accent/30 disabled:hover:bg-primary disabled:shadow-none dark:shadow-primary/10 in-data-[skin=minimal]:shadow-none in-data-[skin=minimal]:hover:shadow-none in-data-[skin=minimal]:hover:brightness-90',
 				secondary:
-					'border-2 border-primary bg-white text-primary hover:bg-primary hover:text-white disabled:border-gray-300 disabled:hover:bg-white disabled:hover:text-primary dark:border-primary/70 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-primary dark:hover:text-white',
+					'border-2 border-primary bg-white text-primary hover:bg-primary hover:text-white disabled:border-gray-300 disabled:hover:bg-white disabled:hover:text-primary dark:border-primary/70 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-primary dark:hover:text-white in-data-[skin=minimal]:border in-data-[skin=minimal]:border-gray-300 in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:hover:border-gray-900 in-data-[skin=minimal]:hover:bg-white in-data-[skin=minimal]:hover:text-gray-900 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=minimal]:dark:text-gray-100 in-data-[skin=minimal]:dark:hover:border-gray-300 in-data-[skin=minimal]:dark:hover:bg-neutral-950',
 				danger:
 					'bg-red-500 text-white shadow-lg shadow-red-500/20 hover:bg-red-600 hover:shadow-red-600/30 disabled:hover:bg-red-500 disabled:shadow-none dark:shadow-red-500/10',
 			},

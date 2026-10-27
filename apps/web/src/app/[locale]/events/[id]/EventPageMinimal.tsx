@@ -74,10 +74,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 						<Share2 className="size-4" />
 						<span className="underline">{translate('event.share')}</span>
 					</button>
-					<FavoriteButton
-						eventId={event.id}
-						className="[&_svg]:fill-transparent [&_svg]:stroke-gray-800 [&_svg]:drop-shadow-none dark:[&_svg]:stroke-gray-100"
-					/>
+					<FavoriteButton eventId={event.id} variant="plain" />
 				</div>
 			</div>
 

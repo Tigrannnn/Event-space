@@ -12,9 +12,11 @@ import { useSkin } from '@/providers/BrandProvider';
 interface FavoriteButtonProps {
 	eventId: string;
 	className?: string;
+	/** `plain` is for use on the page background; `overlay` for use on top of a photo. */
+	variant?: 'overlay' | 'plain';
 }
 
-export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
+export function FavoriteButton({ eventId, className, variant = 'overlay' }: FavoriteButtonProps) {
 	const translate = useTranslation();
 	const isMinimal = useSkin() === 'minimal';
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
@@ -55,7 +57,11 @@ export function FavoriteButton({ eventId, className }: FavoriteButtonProps) {
 					<Heart
 						className={cn(
 							'size-7 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)] transition-colors',
-							isFavorite ? 'fill-rose-500 stroke-rose-500' : 'fill-black/35 stroke-white stroke-[1.75]',
+							isFavorite
+								? 'fill-rose-500 stroke-rose-500'
+								: variant === 'plain'
+									? 'fill-transparent stroke-gray-800 drop-shadow-none dark:stroke-gray-100'
+									: 'fill-black/35 stroke-white stroke-[1.75]',
 						)}
 					/>
 				)}
