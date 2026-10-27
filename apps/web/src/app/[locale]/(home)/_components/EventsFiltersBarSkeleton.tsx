@@ -38,14 +38,33 @@ function EventsFiltersBarSkeletonMinimal() {
 	);
 }
 
+function EventsFiltersBarSkeletonListing() {
+	return (
+		<div className="-mx-4 mb-4 border-b border-gray-200 bg-white px-4 py-2.5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-neutral-800 dark:bg-neutral-950">
+			<div className="mx-auto flex min-h-11 max-w-[1336px] items-center gap-3 overflow-x-auto">
+				<Skeleton className="h-10 w-28 shrink-0 rounded-md" />
+				<Skeleton className="h-10 w-24 shrink-0 rounded-md" />
+				<Skeleton className="h-10 w-32 shrink-0 rounded-md" />
+				<Skeleton className="h-10 w-24 shrink-0 rounded-md" />
+				<div className="h-6 w-px shrink-0 bg-gray-200 dark:bg-neutral-800" />
+				<Skeleton className="h-10 w-28 shrink-0 rounded-md" />
+				<Skeleton className="h-10 w-32 shrink-0 rounded-md" />
+			</div>
+		</div>
+	);
+}
+
 export default function EventsFiltersBarSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden">
 				<EventsFiltersBarSkeletonClassic />
 			</div>
-			<div className="hidden in-data-[skin=minimal]:block in-data-[skin=listing]:block">
+			<div className="hidden in-data-[skin=minimal]:block">
 				<EventsFiltersBarSkeletonMinimal />
+			</div>
+			<div className="hidden in-data-[skin=listing]:block">
+				<EventsFiltersBarSkeletonListing />
 			</div>
 		</>
 	);

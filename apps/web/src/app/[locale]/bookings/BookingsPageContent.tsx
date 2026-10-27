@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useMyBookings } from '../../../features/bookings/hooks/useBookings';
 import BookingCard from '../../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
-import Button from '@/components/ui/Buttons/Button';
+import EmptyState from '@/components/ui/EmptyState/EmptyState';
 import { CalendarX, Filter } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
@@ -67,20 +67,13 @@ export default function BookingsPageContent() {
 	// simply all cancelled.
 	if (bookings.length === 0 && statusFilter === 'ALL') {
 		return (
-			<div className="flex flex-1 flex-col items-center justify-center px-4">
-				<div className="bg-primary/10 dark:bg-primary/20 mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full">
-					<CalendarX className="text-primary h-12 w-12" strokeWidth={1.5} />
-				</div>
-				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-					{translate('booking.noBookings')}
-				</h2>
-				<p className="mt-2 text-gray-500 dark:text-gray-400">
-					{translate('booking.noBookingsDescription')}
-				</p>
-				<Button variant="primary" className="mt-6" onClick={() => navigation.push('/')}>
-					{translate('booking.browseEvents')}
-				</Button>
-			</div>
+			<EmptyState
+				icon={CalendarX}
+				title={translate('booking.noBookings')}
+				description={translate('booking.noBookingsDescription')}
+				actionLabel={translate('booking.browseEvents')}
+				onAction={() => navigation.push('/')}
+			/>
 		);
 	}
 

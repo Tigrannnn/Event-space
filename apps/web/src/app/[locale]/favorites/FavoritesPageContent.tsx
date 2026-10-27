@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { Heart } from 'lucide-react';
 import { useGetFavorites } from '@/features/favorites/hooks/useFavorites';
-import Button from '@/components/ui/Buttons/Button';
+import EmptyState from '@/components/ui/EmptyState/EmptyState';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useSkin } from '@/providers/BrandProvider';
@@ -35,18 +35,15 @@ export default function FavoritesPageContent() {
 
 	if (!favorites.length) {
 		return (
-			<div className="flex flex-1 flex-col items-center justify-center px-4 py-12 text-center">
-				<div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
-					<Heart className="h-12 w-12" />
-				</div>
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-					{translate('favorites.title')}
-				</h1>
-				<p className="mt-3 max-w-md text-gray-500 dark:text-gray-400">{translate('favorites.empty')}</p>
-				<Button variant="primary" className="mt-6" onClick={() => navigation.push('/')}>
-					{translate('favorites.browse')}
-				</Button>
-			</div>
+			<EmptyState
+				icon={Heart}
+				tone="rose"
+				headingAs="h1"
+				title={translate('favorites.title')}
+				description={translate('favorites.empty')}
+				actionLabel={translate('favorites.browse')}
+				onAction={() => navigation.push('/')}
+			/>
 		);
 	}
 

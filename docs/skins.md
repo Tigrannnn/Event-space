@@ -128,7 +128,7 @@
 | `features/events/components/EventCard/EventCardListing.tsx` (новый) | карточка-строка; данные из `useEventCardState` (добавлены `spotsLeft`, `hasFreeCancellation`, `ratingCount`) |
 | `app/[locale]/(home)/_components/events-grid.ts` | у `listing` одна колонка, `max-w-5xl` |
 | `EventCardSkeleton.tsx`, `EventsFiltersBarSkeleton.tsx` | версия строкой; панель фильтров берёт минималистичную заглушку |
-| `filters/EventsFiltersBar.tsx`, `components/filters/FilterTriggerButton.tsx` | плоские кнопки с малым скруглением, активная в цвете бренда |
+| `filters/EventsFiltersBar.tsx`, `components/filters/FilterTriggerButton.tsx` | плоские кнопки с малым скруглением, активная в цвете бренда. Своя панель у `listing`: одна строка на любой ширине без кнопки «Фильтры», сначала дата, гости, сложность, цена, потом категории |
 | `features/banners/components/BannerCarousel.tsx`, `BannerSlide.tsx` | баннер высотой 14–20rem с боковыми отступами (`max-w-5xl`, в одну ширину со списком), подпись без капса |
 | `app/[locale]/events/[id]/EventPageListing.tsx` (новый) | хлебные крошки, оценка рядом с заголовком, мозаика фото, полоса фактов, липкая панель разделов, разделы в рамках |
 | `features/bookings/components/BookingSidebar/BookingSidebar.tsx` | ветка `isListing`: цветная шапка с ценой, даты строками, бейджи, места |
@@ -153,3 +153,10 @@
 | `app/[locale]/not-found.tsx` | у каждого скина своя 404: классическая, левая тихая надпись у `minimal`, карточка с двумя кнопками у `listing` |
 
 Не переделано у `listing`: «Избранное», «Мои брони» (шапка и пустое состояние), форма отзыва, «О нас» и правовые страницы, календарь «Когда?». Шрифт общий с `minimal` (Inter).
+
+## Общие для `minimal` и `listing`
+
+| Файл | Как |
+|---|---|
+| `features/bookings/components/QuantitySelector/QuantitySelector.tsx` | выбор количества мест: у `minimal` строка между линиями с круглыми кнопками, у `listing` рамка и квадратные кнопки цвета бренда |
+| `components/ui/EmptyState/EmptyState.tsx` (новый) | пустые «Брони» и «Избранное»: у каждого скина свой вид (диск, тонкая иконка слева, карточка с квадратной иконкой) |
