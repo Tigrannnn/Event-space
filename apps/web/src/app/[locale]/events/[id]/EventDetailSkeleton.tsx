@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 
-export default function EventDetailSkeleton() {
+function EventDetailSkeletonClassic() {
 	return (
 		<div className="min-h-full bg-gray-50 dark:bg-gray-900">
 			{/* Hero Skeleton */}
@@ -48,5 +48,48 @@ export default function EventDetailSkeleton() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+function EventDetailSkeletonMinimal() {
+	return (
+		<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+			<Skeleton className="mb-4 h-5 w-16 rounded" />
+			<Skeleton className="mb-3 h-10 w-2/3 rounded-lg" />
+			<Skeleton className="mb-6 h-5 w-1/3 rounded" />
+			<Skeleton className="h-64 w-full rounded-2xl sm:h-[30rem]" />
+			<div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-16">
+				<div className="space-y-4 lg:col-span-2">
+					<Skeleton className="h-5 w-56 rounded" />
+					<div className="space-y-3 border-t border-gray-200 pt-8 dark:border-neutral-800">
+						<Skeleton className="h-6 w-40 rounded" />
+						<Skeleton className="h-4 w-full rounded" />
+						<Skeleton className="h-4 w-full rounded" />
+						<Skeleton className="h-4 w-2/3 rounded" />
+					</div>
+				</div>
+				<div className="space-y-4 rounded-2xl border border-gray-200 p-6 dark:border-neutral-800">
+					<Skeleton className="h-8 w-40 rounded" />
+					<div className="grid grid-cols-2 gap-2">
+						<Skeleton className="h-24 rounded-xl" />
+						<Skeleton className="h-24 rounded-xl" />
+					</div>
+					<Skeleton className="h-12 w-full rounded-full" />
+				</div>
+			</div>
+		</div>
+	);
+}
+
+export default function EventDetailSkeleton() {
+	return (
+		<>
+			<div className="in-data-[skin=minimal]:hidden">
+				<EventDetailSkeletonClassic />
+			</div>
+			<div className="hidden in-data-[skin=minimal]:block">
+				<EventDetailSkeletonMinimal />
+			</div>
+		</>
 	);
 }

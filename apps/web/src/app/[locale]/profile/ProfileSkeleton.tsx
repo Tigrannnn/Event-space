@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonAvatar, SkeletonCard, SkeletonListItem } from '@/components/ui/Skeleton';
 
-export default function ProfileSkeleton() {
+function ProfileSkeletonClassic() {
 	return (
 		<div className="min-h-full">
 			{/* Header */}
@@ -49,5 +49,44 @@ export default function ProfileSkeleton() {
 				</SkeletonCard>
 			</div>
 		</div>
+	);
+}
+
+function ProfileSkeletonMinimal() {
+	return (
+		<div className="mx-auto max-w-2xl px-4 py-6 pb-24 sm:py-14">
+			<div className="mb-8 flex items-center gap-4 sm:mb-10 sm:gap-5">
+				<Skeleton className="size-16 shrink-0 rounded-full sm:size-20" />
+				<div className="w-full space-y-2">
+					<Skeleton className="h-8 w-2/3 rounded sm:w-64" />
+					<Skeleton className="h-5 w-3/4 rounded sm:w-72" />
+				</div>
+			</div>
+			<div className="divide-y divide-gray-200 border-y border-gray-200 dark:divide-neutral-800 dark:border-neutral-800">
+				{[1, 2, 3].map((i) => (
+					<div key={i} className="flex items-center gap-4 py-5">
+						<Skeleton className="size-6 shrink-0 rounded" />
+						<div className="w-full space-y-2">
+							<Skeleton className="h-5 w-40 rounded" />
+							<Skeleton className="h-4 w-56 max-w-full rounded" />
+						</div>
+					</div>
+				))}
+			</div>
+			<Skeleton className="mt-8 h-5 w-24 rounded" />
+		</div>
+	);
+}
+
+export default function ProfileSkeleton() {
+	return (
+		<>
+			<div className="in-data-[skin=minimal]:hidden">
+				<ProfileSkeletonClassic />
+			</div>
+			<div className="hidden in-data-[skin=minimal]:block">
+				<ProfileSkeletonMinimal />
+			</div>
+		</>
 	);
 }

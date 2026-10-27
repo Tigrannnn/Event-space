@@ -1,6 +1,6 @@
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 
-export default function BookingsSkeleton() {
+function BookingsSkeletonClassic() {
 	return (
 		<div className="min-h-full max-w-full px-4 py-8">
 			{/* Header */}
@@ -41,5 +41,40 @@ export default function BookingsSkeleton() {
 				))}
 			</div>
 		</div>
+	);
+}
+
+function BookingsSkeletonMinimal() {
+	return (
+		<div className="min-h-full max-w-full px-4 py-8">
+			<Skeleton className="mb-6 h-10 w-48 rounded" />
+			<div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+				{[1, 2, 3, 4].map((i) => (
+					<div key={i}>
+						<Skeleton className="aspect-video w-full rounded-2xl" />
+						<Skeleton className="mt-3 h-6 w-4/5 rounded" />
+						<Skeleton className="mt-2 h-4 w-1/2 rounded" />
+						<Skeleton className="mt-2 h-4 w-2/3 rounded" />
+						<div className="mt-4 flex gap-2">
+							<Skeleton className="h-10 flex-1 rounded-full" />
+							<Skeleton className="h-10 flex-1 rounded-full" />
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+export default function BookingsSkeleton() {
+	return (
+		<>
+			<div className="in-data-[skin=minimal]:hidden">
+				<BookingsSkeletonClassic />
+			</div>
+			<div className="hidden in-data-[skin=minimal]:block">
+				<BookingsSkeletonMinimal />
+			</div>
+		</>
 	);
 }

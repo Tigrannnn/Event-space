@@ -125,19 +125,19 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 				: []),
 		];
 		const rowClassName =
-			'flex w-full cursor-pointer items-center justify-between gap-4 py-5 text-left transition-colors hover:bg-gray-50 dark:hover:bg-neutral-900';
+			'flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-gray-50 sm:py-5 dark:hover:bg-neutral-900';
 
 		return (
-			<div className="mx-auto max-w-2xl px-4 py-10 sm:py-14">
-				<div className="mb-10 flex items-center gap-5">
-					<div className="bg-primary flex size-20 shrink-0 items-center justify-center rounded-full text-3xl font-semibold text-white">
+			<div className="mx-auto max-w-2xl px-4 py-6 pb-24 sm:py-14 md:pb-14">
+				<div className="mb-8 flex items-center gap-4 sm:mb-10 sm:gap-5">
+					<div className="bg-primary flex size-16 shrink-0 items-center justify-center rounded-full text-2xl font-semibold text-white sm:size-20 sm:text-3xl">
 						{initial}
 					</div>
 					<div className="min-w-0">
-						<h1 className="truncate text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+						<h1 className="text-2xl font-semibold tracking-tight break-words text-gray-900 sm:text-3xl dark:text-white">
 							{user.name}
 						</h1>
-						<p className="truncate text-gray-500 dark:text-gray-400">
+						<p className="text-sm break-words text-gray-500 sm:text-base dark:text-gray-400">
 							{[user.email, user.phone].filter(Boolean).join(' · ')}
 						</p>
 						<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{USER_ROLE_LABELS[user.role]}</p>
@@ -148,9 +148,9 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					{rows.map((row) => {
 						const content = (
 							<>
-								<span className="flex items-center gap-4">
+								<span className="flex min-w-0 items-center gap-4">
 									<row.icon className="size-6 shrink-0 text-gray-700 dark:text-gray-300" strokeWidth={1.5} />
-									<span>
+									<span className="min-w-0">
 										<span className="block font-medium text-gray-900 dark:text-white">{row.title}</span>
 										<span className="block text-sm text-gray-500 dark:text-gray-400">{row.hint}</span>
 									</span>
