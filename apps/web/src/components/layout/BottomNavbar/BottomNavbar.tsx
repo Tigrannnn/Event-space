@@ -14,6 +14,8 @@ import { isRouteActive } from '@/utils/route';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
+import { useSkin } from '@/providers/BrandProvider';
+import { cn } from '@/utils/cn';
 
 export default function BottomNavbar() {
 	const pathname = usePathname();
@@ -25,9 +27,102 @@ export default function BottomNavbar() {
 	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
+	const isMinimal = useSkin() === 'minimal';
 
 	if (isAdminPage) {
 		return null;
+	}
+
+	if (isMinimal) {
+		const items = [
+			{
+				key: 'home',
+				href: localizePath('/', locale),
+				route: '/',
+				label: translate('header.home'),
+				aria: translate('header.goHome'),
+				Icon: HomeIcon,
+				count: 0,
+			},
+			...(!isUserLoading && user
+				? [
+						{
+							key: 'favorites',
+							href: localizePath('/favorites', locale),
+							route: '/favorites',
+							label: translate('header.favorites'),
+							aria: translate('header.favorites'),
+							Icon: Heart,
+							count: myFavoritesCount,
+						},
+						{
+							key: 'bookings',
+							href: localizePath('/bookings', locale),
+							route: '/bookings',
+							label: translate('header.bookings'),
+							aria: translate('header.bookings'),
+							Icon: Ticket,
+							count: myBookingsCount,
+						},
+					]
+				: []),
+		];
+		const itemClassName = (active: boolean) =>
+			cn(
+				'relative flex h-full flex-1 flex-col items-center justify-center gap-1 pt-2 pb-1.5 text-[11px] transition-colors',
+				active
+					? 'text-primary font-semibold'
+					: 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+			);
+
+		return (
+			<nav className="fixed right-0 bottom-0 left-0 z-40 flex items-stretch border-t border-gray-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/95">
+				{items.map(({ key, href, route, label, aria, Icon, count }) => {
+					const active =
+						isRouteActive(pathname, route) &&
+						(route !== '/' || pathname.split('/').filter(Boolean).length <= 1);
+
+					return (
+						<Link key={key} href={href} className={itemClassName(active)} aria-label={aria}>
+							<span className="relative">
+								<Icon className="size-6" strokeWidth={active ? 2.25 : 1.6} />
+								{count > 0 && (
+									<span className="bg-primary absolute -top-1 -right-2.5 flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-semibold text-white">
+										{count}
+									</span>
+								)}
+							</span>
+							{label}
+						</Link>
+					);
+				})}
+
+				{!isUserLoading &&
+					(user ? (
+						<Link
+							href={localizePath('/profile', locale)}
+							className={itemClassName(isRouteActive(pathname, '/profile'))}
+							aria-label={translate('header.goProfile')}
+						>
+							<UserIcon
+								className="size-6"
+								strokeWidth={isRouteActive(pathname, '/profile') ? 2.25 : 1.6}
+							/>
+							{translate('header.profile')}
+						</Link>
+					) : (
+						<button
+							type="button"
+							onClick={() => openModal(ModalType.Register)}
+							className={itemClassName(false)}
+							aria-label={translate('header.signUp')}
+						>
+							<UserIcon className="size-6" strokeWidth={1.6} />
+							{translate('header.signUp')}
+						</button>
+					))}
+			</nav>
+		);
 	}
 
 	// Links rather than router.push: Next prefetches a Link's route (down to its
@@ -86,9 +181,7 @@ export default function BottomNavbar() {
 						aria-label={translate('header.goProfile')}
 					>
 						<UserIcon height={16} />
-						<span className="mt-1 text-[10px] font-medium sm:text-xs">
-							{translate('header.profile')}
-						</span>
+						<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.profile')}</span>
 					</Link>
 				) : (
 					// Signing up opens a modal — an action, not a destination, so not a link.
@@ -98,9 +191,7 @@ export default function BottomNavbar() {
 						aria-label={translate('header.signUp')}
 					>
 						<UserIcon height={16} />
-						<span className="mt-1 text-[10px] font-medium sm:text-xs">
-							{translate('header.signUp')}
-						</span>
+						<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.signUp')}</span>
 					</button>
 				))}
 		</nav>
