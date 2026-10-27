@@ -25,9 +25,14 @@ import {
 	buildNewImageRows,
 	buildOccurrenceDateFilter,
 	buildOccurrenceDateWindow,
+	compareEventListKeys,
+	decodeEventListCursor,
+	encodeEventListCursor,
+	eventListKey,
 	eventMatchesGuestCapacity,
 	eventMatchesPrice,
 	findRemovedImages,
+	firstOccurrenceDate,
 	sortByOrder,
 	validateExistingImageRefs,
 	validateStatusTransition,
@@ -87,10 +92,6 @@ export class EventService {
 		guests?: number,
 		difficulties?: EventDifficulty[],
 	) {
-		// Pages are ordered by event id, so the cursor is the last id already sent. Older
-		// cursors of the form "<date>_<id>" still work: only the id part is read.
-		const cursorId = cursor ? cursor.split('_').pop() : undefined;
-
 		const categoryFilter = categorySlug
 			? {
 					category: {
@@ -117,9 +118,6 @@ export class EventService {
 		const filters: Prisma.EventWhereInput[] = [statusFilter, categoryFilter, difficultyFilter].filter(
 			(f) => Object.keys(f).length > 0,
 		);
-		if (cursorId) {
-			filters.push({ id: { gt: cursorId } });
-		}
 		const where: Prisma.EventWhereInput = { AND: filters };
 
 		const matchesGuests = (event: Parameters<typeof eventMatchesGuestCapacity>[0]) =>
@@ -150,11 +148,24 @@ export class EventService {
 				matchesPrice(event),
 		);
 
-		const hasMore = matching.length > limit;
-		const data = matching.slice(0, limit);
-		const nextCursor = hasMore ? data[data.length - 1].id : null;
+		const now = new Date();
+		const listed = matching
+			.map((event) => ({
+				event,
+				key: eventListKey(event, firstOccurrenceDate(event, occurrenceDateWindow, now)),
+			}))
+			.sort((a, b) => compareEventListKeys(a.key, b.key));
 
-		return { data, nextCursor, hasMore };
+		const after = decodeEventListCursor(cursor);
+		const rest = after
+			? listed.filter((entry) => compareEventListKeys(entry.key, after) > 0)
+			: listed;
+		const page = rest.slice(0, limit);
+
+		const hasMore = rest.length > limit;
+		const nextCursor = hasMore ? encodeEventListCursor(page[page.length - 1].key) : null;
+
+		return { data: page.map((entry) => entry.event), nextCursor, hasMore };
 	}
 
 	async findOne(id: string, userId: string | undefined) {

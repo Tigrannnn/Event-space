@@ -163,7 +163,10 @@ export function eventMatchesPrice(
 			{ quantity: 1 },
 		);
 
-		return (minPrice === undefined || unitPrice >= minPrice) && (maxPrice === undefined || unitPrice <= maxPrice);
+		return (
+			(minPrice === undefined || unitPrice >= minPrice) &&
+			(maxPrice === undefined || unitPrice <= maxPrice)
+		);
 	});
 }
 
@@ -185,6 +188,58 @@ export function buildOccurrenceDateWindow(
 		...(startDate ? { from: startOfDay(startDate) } : {}),
 		...(endDate ? { to: endOfDay(endDate) } : {}),
 	};
+}
+
+/** The nearest active date inside the window; dates already gone count only if none is ahead. */
+export function firstOccurrenceDate(
+	event: { occurrences?: { date: Date | string; status: EventOccurrenceStatus }[] },
+	window: OccurrenceDateWindow = {},
+	now: Date = new Date(),
+): Date | null {
+	const inWindow = (event.occurrences ?? [])
+		.filter((occurrence) => occurrence.status === 'ACTIVE')
+		.map((occurrence) => new Date(occurrence.date))
+		.filter((date) => (!window.from || date >= window.from) && (!window.to || date <= window.to));
+	const ahead = inWindow.filter((date) => date > now);
+	const pool = ahead.length > 0 ? ahead : inWindow;
+
+	if (pool.length === 0) return null;
+
+	return new Date(Math.min(...pool.map((date) => date.getTime())));
+}
+
+export interface EventListKey {
+	date: Date;
+	id: string;
+}
+
+const NO_DATE = new Date(8.64e15);
+
+export function eventListKey(event: { id: string }, date: Date | null): EventListKey {
+	return { date: date ?? NO_DATE, id: event.id };
+}
+
+export function compareEventListKeys(a: EventListKey, b: EventListKey): number {
+	const byDate = a.date.getTime() - b.date.getTime();
+	if (byDate !== 0) return byDate;
+	return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+export function encodeEventListCursor(key: EventListKey): string {
+	return `${key.date.toISOString()}_${key.id}`;
+}
+
+/** A cursor of an older shape, or a malformed one, means no cursor: the list restarts. */
+export function decodeEventListCursor(cursor?: string): EventListKey | null {
+	if (!cursor) return null;
+
+	const separator = cursor.indexOf('_');
+	if (separator <= 0) return null;
+
+	const date = new Date(cursor.slice(0, separator));
+	const id = cursor.slice(separator + 1);
+
+	return id && !Number.isNaN(date.getTime()) ? { date, id } : null;
 }
 
 export function buildOccurrenceDateFilter(
