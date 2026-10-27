@@ -53,6 +53,7 @@ export function classifyBookingRevenue(
 ): BookingRevenue {
 	const endsAt = tourEndsAt(tour);
 	const finished = endsAt.getTime() <= now.getTime();
+	const started = tour.date.getTime() <= now.getTime();
 	const cancelled = booking.status === 'CANCELLED';
 
 	const charges = booking.adjustments.filter((row) => row.type === 'CHARGE');
@@ -60,9 +61,9 @@ export function classifyBookingRevenue(
 
 	const collected = charges.reduce((sum, row) => sum + row.amount - (row.feeAmount ?? 0), 0);
 	const refunded = refunds.reduce((sum, row) => sum + row.amount, 0);
-	const corrections = finished
+	const corrections = started
 		? refunds
-				.filter((row) => row.createdAt.getTime() > endsAt.getTime())
+				.filter((row) => row.createdAt.getTime() > tour.date.getTime())
 				.reduce((sum, row) => sum + row.amount, 0)
 		: 0;
 
@@ -82,8 +83,8 @@ export function classifyBookingRevenue(
 	}
 
 	const net = collected - refunded;
-	const settled = finished || cancelled;
-	const keptFromCancellation = !finished && cancelled && net > 0 ? net : 0;
+	const settled = started || cancelled;
+	const keptFromCancellation = !started && cancelled && net > 0 ? net : 0;
 
 	return {
 		earned: settled ? round2(net) : 0,

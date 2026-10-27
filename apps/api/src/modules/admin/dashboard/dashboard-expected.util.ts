@@ -1,5 +1,5 @@
 import { toDateKey } from '../../../shared/utils/app-day.util';
-import { round2, tourEndsAt } from './dashboard-revenue.util';
+import { round2 } from './dashboard-revenue.util';
 
 export interface ExpectedAdjustment {
 	type: 'CHARGE' | 'REFUND';
@@ -46,9 +46,9 @@ export function addDaysToKey(key: string, days: number): string {
 }
 
 function settlementMoment(booking: ExpectedBooking): Date {
-	const endsAt = tourEndsAt({ date: booking.tourDate, durationMinutes: booking.durationMinutes });
+	const startsAt = booking.tourDate;
 
-	if (booking.status !== 'CANCELLED') return endsAt;
+	if (booking.status !== 'CANCELLED') return startsAt;
 
 	const lastRefund = booking.adjustments
 		.filter((row) => row.type === 'REFUND')
@@ -58,9 +58,9 @@ function settlementMoment(booking: ExpectedBooking): Date {
 		);
 	const cancelledAt = lastRefund ?? booking.cancelledAt;
 
-	if (!cancelledAt) return endsAt;
+	if (!cancelledAt) return startsAt;
 
-	return cancelledAt < endsAt ? cancelledAt : endsAt;
+	return cancelledAt < startsAt ? cancelledAt : startsAt;
 }
 
 function stepsOf(booking: ExpectedBooking): Step[] {

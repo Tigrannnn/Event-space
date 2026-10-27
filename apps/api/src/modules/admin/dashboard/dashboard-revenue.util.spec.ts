@@ -49,6 +49,25 @@ describe('classifyBookingRevenue, money kept from cancellations', () => {
 	});
 });
 
+describe('classifyBookingRevenue, tour in progress', () => {
+	const runningTour: RevenueTour = {
+		date: new Date(now.getTime() - 2 * HOUR),
+		durationMinutes: 600,
+	};
+
+	it('counts a paid booking as earned once the tour has started', () => {
+		const result = classifyBookingRevenue(paid(25000), runningTour, now);
+		expect(result).toMatchObject({ earned: 25000, expected: 0 });
+	});
+
+	it('counts a refund after the start as a correction', () => {
+		const booking = paid(25000);
+		booking.adjustments.push(refund(5000, new Date(now.getTime() - HOUR)));
+		const result = classifyBookingRevenue(booking, runningTour, now);
+		expect(result).toMatchObject({ earned: 20000, corrections: 5000 });
+	});
+});
+
 describe('classifyBookingRevenue', () => {
 	it('counts a paid booking on a finished tour as earned', () => {
 		const result = classifyBookingRevenue(paid(25000), finishedTour, now);
