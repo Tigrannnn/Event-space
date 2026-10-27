@@ -63,7 +63,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 	const hairline = 'border-t border-gray-200 pt-8 dark:border-neutral-800';
 
 	return (
-		<div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+		<div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
 			<div className="mb-4 flex items-center justify-between">
 				<button type="button" onClick={() => router.back()} className={`${textButton} -ml-3`}>
 					<ArrowLeft className="size-4" />
@@ -121,7 +121,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 			) : (
 				<div className="relative">
 					<div
-						className={`grid h-64 gap-2 overflow-hidden rounded-2xl sm:h-[26rem] ${
+						className={`grid h-64 gap-2 overflow-hidden rounded-2xl sm:h-[30rem] ${
 							shown.length >= 3
 								? 'grid-cols-1 sm:grid-cols-4 sm:grid-rows-2'
 								: shown.length === 2
