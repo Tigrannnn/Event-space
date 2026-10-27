@@ -2,7 +2,7 @@ import type { BrandSkin } from '@event-space/shared';
 
 /** The catalogue grid, shared by the list and its skeleton so they never differ in shape. */
 export function eventsGridClass(skin: BrandSkin): string {
-	if (skin === 'listing') return 'flex flex-col gap-3 py-4 sm:gap-4 sm:py-6 mx-auto w-full max-w-5xl';
+	if (skin === 'listing') return 'flex flex-col gap-3 py-4 sm:gap-4 sm:py-6 mx-auto w-full max-w-[1336px]';
 
 	return skin === 'minimal'
 		? 'grid grid-cols-1 gap-x-6 gap-y-10 py-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
