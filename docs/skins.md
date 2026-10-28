@@ -164,3 +164,4 @@
 | `features/reviews/components/StarRating.tsx`, `EventReviews.tsx` | звёзды: у `minimal` чёрные, у `listing` цвета бренда; отзывы: у `minimal` строки с линиями, у `listing` белые карточки и оценка в квадрате |
 | `app/[locale]/bookings/[id]/review/ReviewPageContent.tsx` | форма отзыва: у `minimal` узкая колонка и линии, у `listing` форма в белой карточке |
 | `app/[locale]/about/AboutPageContent.tsx` | «О нас»: у `minimal` крупный заголовок и разделы между линиями, у `listing` цветная полоса и три карточки с иконками; в разделе контактов кнопки связи |
+| `app/[locale]/legal/LegalPageContent.tsx` | «Условия» и «Политика»: у `minimal` узкая колонка, крупный заголовок, разделы между линиями; у `listing` цветная полоса, слева липкое оглавление со ссылками на разделы, справа нумерованные карточки |
