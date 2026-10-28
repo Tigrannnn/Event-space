@@ -14,10 +14,10 @@ import { cn } from '@/utils/cn';
 import ReviewFormSkeleton from './ReviewFormSkeleton';
 
 const fieldClassName =
-	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100 in-data-[skin=minimal]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-700 in-data-[skin=listing]:dark:bg-neutral-900';
+	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100 in-data-[skin=minimal]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-700 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-2xl in-data-[skin=soft]:border-gray-200 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:bg-gray-800';
 
 const noticeClassName =
-	'flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-solid in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:border-solid in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900';
+	'flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-solid in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:border-solid in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-[2rem] in-data-[skin=soft]:border-gray-300 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:border-gray-600 in-data-[skin=soft]:dark:bg-gray-800';
 
 export default function ReviewPageContent({ bookingId }: { bookingId: string }) {
 	const searchParams = useSearchParams();
@@ -111,12 +111,14 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 				className={cn(
 					skin === 'listing' &&
 						'rounded-lg border border-gray-200 bg-white p-5 sm:p-8 dark:border-neutral-800 dark:bg-neutral-900',
+					skin === 'soft' && 'rounded-[2rem] bg-white p-6 shadow-md sm:p-10 dark:bg-gray-800',
 				)}
 			>
 				<h1
 					className={cn(
 						'text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white',
 						skin === 'minimal' && 'font-semibold tracking-tight',
+						skin === 'soft' && 'text-primary',
 					)}
 				>
 					{translate('review.pageTitle')}

@@ -61,6 +61,54 @@ export default function LegalPageContent({ document }: LegalPageContentProps) {
 		);
 	}
 
+	if (skin === 'soft') {
+		return (
+			<div className="min-h-full px-4 py-8 sm:py-12">
+				<div className="mx-auto max-w-3xl">
+					<div className="text-center">
+						<h1 className="text-primary text-4xl font-bold sm:text-5xl">{content.title}</h1>
+						<p className="bg-accent/10 text-accent mt-4 inline-block rounded-full px-4 py-1.5 text-sm font-bold">
+							{translate('legal.updated')}
+						</p>
+					</div>
+
+					<p className="bg-primary/10 mt-8 rounded-3xl p-6 leading-relaxed text-gray-700 sm:p-8 dark:text-gray-200">
+						{withCompany(content.intro)}
+					</p>
+
+					<div className="mt-6 flex flex-col gap-4">
+						{content.sections.map((section, index) => (
+							<section
+								key={section.title}
+								className="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8 dark:border-gray-700 dark:bg-gray-800"
+							>
+								<h2 className="flex items-center gap-3 text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+									<span className="bg-accent flex size-8 shrink-0 items-center justify-center rounded-full font-sans text-sm text-white">
+										{index + 1}
+									</span>
+									{section.title}
+								</h2>
+								<div className="mt-3 flex flex-col gap-3">
+									{section.body.map((paragraph) => (
+										<p key={paragraph} className="leading-relaxed text-gray-600 dark:text-gray-300">
+											{withCompany(paragraph)}
+										</p>
+									))}
+								</div>
+							</section>
+						))}
+					</div>
+
+					{contact && (
+						<p className="mt-8 rounded-full border-2 border-dashed border-gray-300 px-6 py-3 text-center text-sm text-gray-600 dark:border-gray-600 dark:text-gray-400">
+							{contact}
+						</p>
+					)}
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="min-h-full pb-10">

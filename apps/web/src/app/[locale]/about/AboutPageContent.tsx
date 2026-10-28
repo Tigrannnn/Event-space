@@ -40,6 +40,52 @@ export default function AboutPageContent() {
 		);
 	}
 
+	if (skin === 'soft') {
+		const [mission, story, contact] = sections;
+
+		return (
+			<div className="min-h-full px-4 py-8 sm:py-12">
+				<div className="mx-auto max-w-4xl">
+					<div className="relative overflow-hidden rounded-[2rem] bg-white p-8 text-center shadow-md sm:p-14 dark:bg-gray-800">
+						<div
+							aria-hidden
+							className="bg-primary/10 pointer-events-none absolute -top-20 -left-16 size-60 rounded-full"
+						/>
+						<div
+							aria-hidden
+							className="bg-accent/10 pointer-events-none absolute -right-12 -bottom-16 size-52 rounded-full"
+						/>
+						<h1 className="text-primary relative text-4xl font-bold sm:text-6xl">{brand.name}</h1>
+						<p className="bg-accent/10 text-accent relative mx-auto mt-5 inline-block rounded-full px-5 py-2 text-sm font-bold sm:text-base">
+							{about.tagline}
+						</p>
+					</div>
+
+					<div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+						{[mission, story].map(({ key, title, body, Icon }) => (
+							<section
+								key={key}
+								className="rounded-3xl border border-gray-200/70 bg-white p-6 shadow-sm sm:p-8 dark:border-gray-700 dark:bg-gray-800"
+							>
+								<span className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-full">
+									<Icon className="size-6" strokeWidth={1.75} />
+								</span>
+								<h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
+								<p className="mt-2 leading-relaxed text-gray-600 dark:text-gray-300">{body}</p>
+							</section>
+						))}
+					</div>
+
+					<section className="mt-6 rounded-3xl border-2 border-dashed border-gray-300 bg-white p-6 text-center sm:p-8 dark:border-gray-600 dark:bg-gray-800">
+						<h2 className="text-2xl font-bold text-gray-900 dark:text-white">{contact.title}</h2>
+						<p className="mx-auto mt-2 max-w-xl text-gray-600 dark:text-gray-300">{contact.body}</p>
+						<ContactIcons className="mt-4 justify-center gap-2" />
+					</section>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="min-h-full pb-10">
