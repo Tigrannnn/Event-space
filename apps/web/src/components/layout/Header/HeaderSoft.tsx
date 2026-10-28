@@ -12,7 +12,7 @@ const countBadge =
 	'absolute -top-1.5 -right-2 inline-flex min-w-5 items-center justify-center rounded-full bg-(--brand-accent) px-1.5 py-0.5 text-[11px] leading-none font-bold text-white';
 
 /**
- * The soft skin's header: one band in the brand colour with a rounded bottom edge, the name set
+ * The soft skin's header: one band blending from the brand colour to its accent with a rounded bottom edge, the name set
  * as a serif wordmark, and a pill-shaped search centred underneath. Where the classic header
  * stacks a gradient strip over a gradient band, this keeps everything in a single calm one.
  */
@@ -37,11 +37,7 @@ export default function HeaderSoft() {
 		'relative flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25';
 
 	return (
-		<header className="bg-primary relative z-40 overflow-hidden rounded-b-[2rem] text-white shadow-lg sm:rounded-b-[2.5rem]">
-			<div
-				aria-hidden
-				className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(255,255,255,0.22),transparent_55%)]"
-			/>
+		<header className="from-primary to-accent relative z-40 overflow-hidden rounded-b-[2rem] bg-linear-to-r text-white shadow-lg sm:rounded-b-[2.5rem]">
 			<div className="relative mx-auto max-w-[1600px] px-4 pt-4 pb-5 sm:px-8 sm:pt-5 sm:pb-6">
 				<div className="flex flex-wrap items-center gap-x-4 gap-y-3">
 					<Link
