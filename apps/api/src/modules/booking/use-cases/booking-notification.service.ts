@@ -50,6 +50,40 @@ export class BookingNotificationService {
 		}
 	}
 
+	async sendNoSeatsLeft(bookingId: string, locale: Locale, refundFailed: boolean): Promise<void> {
+		try {
+			const booking = await this.prisma.booking.findUnique({
+				where: { id: bookingId },
+				include: {
+					user: true,
+					occurrence: { include: { event: { include: { translations: true } } } },
+				},
+			});
+
+			if (!booking?.user?.email) {
+				return;
+			}
+
+			const mailLocale = booking.user.locale ?? locale;
+			const translations = booking.occurrence.event.translations;
+			const translation = translations.find((t) => t.locale === mailLocale) ?? translations[0];
+
+			await this.mail.sendBookingNoSeatsEmail({
+				to: booking.user.email,
+				locale: mailLocale,
+				userName: booking.user.name,
+				eventTitle: translation?.title ?? '',
+				occurrenceDate: booking.occurrence.date,
+				refundAmount: Number(booking.amount),
+				refundFailed,
+				currency: 'AMD',
+				brandHost: booking.brandHost ?? undefined,
+			});
+		} catch (error) {
+			this.logger.error(`Failed to send no seats email for booking ${bookingId}`, error as Error);
+		}
+	}
+
 	async retryUnsentConfirmations(now: Date = new Date()): Promise<number> {
 		const bookings = await this.prisma.booking.findMany({
 			where: {

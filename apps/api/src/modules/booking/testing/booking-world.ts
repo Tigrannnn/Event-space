@@ -310,6 +310,10 @@ export function createWorld(world: World = {}) {
 			emails.push({ kind: 'cancelled', payload });
 			return Promise.resolve(true);
 		},
+		sendBookingNoSeatsEmail: (payload: Record<string, unknown>) => {
+			emails.push({ kind: 'no-seats', payload });
+			return Promise.resolve(true);
+		},
 	};
 
 	const kit = createBookingKit(prisma as never, stripe as never, mail as never);

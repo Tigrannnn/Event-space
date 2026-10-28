@@ -20,7 +20,7 @@ export function createBookingKit(prisma: never, stripe: never, mail: never) {
 	const cancellations = new BookingCancellationService(prisma, refunds, notifications);
 	const quantities = new BookingQuantityService(prisma, refunds, notifications);
 	const topUps = new BookingTopUpService(prisma, stripe, ledger, refunds, quantities, notifications);
-	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications, topUps);
+	const payments = new BookingPaymentService(prisma, stripe, ledger, notifications, topUps, refunds);
 	const promoCodes = new PromoCodeService(prisma);
 	const creation = new BookingCreationService(
 		prisma,

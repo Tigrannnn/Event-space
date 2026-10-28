@@ -15,6 +15,7 @@ import {
 } from './mail-brand';
 import {
 	BOOKING_CANCELLED_STRINGS,
+	BOOKING_NO_SEATS_STRINGS,
 	BOOKING_QUANTITY_CHANGED_STRINGS,
 	BOOKING_CONFIRMATION_STRINGS,
 	BOOKING_REMINDER_STRINGS,
@@ -524,6 +525,64 @@ export class MailService implements OnModuleInit {
 			return true;
 		} catch (error) {
 			this.logSmtpError(`Failed to send booking cancelled email to ${params.to}`, error);
+			return false;
+		}
+	}
+
+	async sendBookingNoSeatsEmail(params: {
+		to: string;
+		locale: Locale;
+		userName: string;
+		eventTitle: string;
+		occurrenceDate: Date;
+		refundAmount: number;
+		refundFailed?: boolean;
+		currency: string;
+		brandHost?: string;
+	}): Promise<boolean> {
+		const strings = pickLocale(BOOKING_NO_SEATS_STRINGS, params.locale);
+		const brand = this.brandFor(params.brandHost);
+		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
+		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const body = strings.body(
+			params.eventTitle,
+			formatMailDate(params.occurrenceDate, params.locale),
+		);
+		const refundLine = params.refundFailed
+			? strings.refundPending
+			: strings.refund(formatMailAmount(params.refundAmount, params.currency, params.locale));
+
+		try {
+			const html = await this.templateService.render('booking-cancelled', {
+				...this.brandVariables(brand),
+				TITLE: strings.title,
+				GREETING: strings.greeting(params.userName),
+				BODY: body,
+				REFUND: refundLine,
+				SUPPORT: strings.support,
+				ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
+				SIGNOFF: strings.signoff,
+				SIGNATURE: brand.name,
+			});
+
+			await this.deliver({
+				to: params.to,
+				subject: strings.subject(params.eventTitle),
+				text: [
+					strings.greeting(params.userName),
+					body,
+					refundLine,
+					strings.support,
+					...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
+					`${strings.signoff} ${brand.name}`,
+				].join('\n\n'),
+				html,
+				brand,
+			});
+
+			return true;
+		} catch (error) {
+			this.logSmtpError(`Failed to send no seats left email to ${params.to}`, error);
 			return false;
 		}
 	}

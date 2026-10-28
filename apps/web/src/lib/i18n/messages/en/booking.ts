@@ -69,7 +69,7 @@ export const booking = {
 	paymentInProgress: 'Payment is already in progress. Please wait for it to finish.',
 	paymentConfirmed: 'Payment confirmed! Your booking is complete.',
 	paymentCancelled:
-		'Your booking could not be completed. If you were charged, you will be refunded automatically.',
+		'You were just too late: the last seats were taken while your payment was going through. The full amount goes back to your card, and we will email you the details.',
 	paymentTimeout: 'Payment is taking longer than expected. Check your bookings later.',
 	stripeMissing: 'Stripe is not configured properly. Please contact support.',
 	unknownEvent: 'Unknown event',

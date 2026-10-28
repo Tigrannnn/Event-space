@@ -7,6 +7,7 @@ import { StripeService } from '@infra/stripe/stripe.service';
 import { StripeBalanceTransaction, StripePaymentIntentRetrieve } from '@infra/stripe/stripe.types';
 import { getNextBookingReference } from '../booking.utils';
 import { BookingLedgerService } from '../money/booking-ledger.service';
+import { BookingRefundService } from '../money/booking-refund.service';
 import { BookingNotificationService } from './booking-notification.service';
 import { BookingTopUpService } from './booking-top-up.service';
 
@@ -20,6 +21,7 @@ export class BookingPaymentService {
 		private readonly ledger: BookingLedgerService,
 		private readonly notifications: BookingNotificationService,
 		private readonly topUps: BookingTopUpService,
+		private readonly refunds: BookingRefundService,
 	) {}
 
 	async reconcilePayment(
@@ -75,6 +77,13 @@ export class BookingPaymentService {
 						where: { id: booking.id },
 						data: { paymentIntentId },
 					});
+					await this.queueAutoRefund(
+						tx,
+						booking.id,
+						paymentIntentId,
+						amountReceived,
+						LEDGER_REASON.PAYMENT_CAPTURED_AFTER_CANCEL,
+					);
 					return {
 						action: 'refund' as const,
 						booking: cancelledBooking,
@@ -114,6 +123,13 @@ export class BookingPaymentService {
 						where: { id: booking.id },
 						data: { status: 'CANCELLED', paymentIntentId },
 					});
+					await this.queueAutoRefund(
+						tx,
+						booking.id,
+						paymentIntentId,
+						amountReceived,
+						LEDGER_REASON.NO_SPOTS_LEFT,
+					);
 					return {
 						action: 'refund' as const,
 						booking: cancelledBooking,
@@ -166,6 +182,8 @@ export class BookingPaymentService {
 		}
 
 		if (result.action === 'refund') {
+			let refundFailed = false;
+
 			try {
 				await this.ledger.recordChargeIfMissing({
 					bookingId: result.bookingId,
@@ -174,26 +192,44 @@ export class BookingPaymentService {
 					reason: LEDGER_REASON.PAYMENT_CAPTURED_THEN_REFUNDED,
 				});
 
-				const stripeRefund = await this.stripe.refund(
-					result.paymentIntentId,
-					result.idempotencyKey,
-					result.amountReceived,
+				const outcome = await this.refunds.settle(
+					{ id: result.bookingId, paymentIntentId: result.paymentIntentId },
+					this.refunds.refundPlan({
+						paymentIntentId: result.paymentIntentId,
+						grossInCents: result.amountReceived,
+						withholdFee: false,
+						idempotencyKey: result.idempotencyKey,
+						successReason: result.reason,
+						failureReason: 'Refund could not be processed at Stripe',
+						failureLogSuffix: ' (automatic)',
+					}),
 				);
-
-				await this.ledger.recordRefund({
-					bookingId: result.bookingId,
-					paymentIntentId: result.paymentIntentId,
-					amountInCents: stripeRefund.amount,
-					stripeRefundId: stripeRefund.id,
-					reason: result.reason,
-					overwriteReason: true,
-				});
+				refundFailed = outcome.failed;
 			} catch (e) {
+				refundFailed = true;
 				this.logger.error(`Failed to auto-refund booking ${result.bookingId}`, e as Error);
+			}
+
+			if (result.reason === LEDGER_REASON.NO_SPOTS_LEFT) {
+				await this.notifications.sendNoSeatsLeft(result.bookingId, locale, refundFailed);
 			}
 		}
 
 		return result.action === 'skipped' ? null : result.booking;
+	}
+
+	// Queued inside the same transaction that cancels the booking, so a refund that fails at
+	// Stripe is picked up by the retry job instead of living only in a log line.
+	private queueAutoRefund(
+		tx: Prisma.TransactionClient,
+		bookingId: string,
+		paymentIntentId: string,
+		amountReceived: number,
+		reason: string,
+	) {
+		return this.ledger.queueRefunds(tx, [
+			{ bookingId, paymentIntentId, amount: amountReceived / 100, kind: 'full', reason },
+		]);
 	}
 
 	private async recordChargeFee(paymentIntent: StripePaymentIntentRetrieve): Promise<void> {

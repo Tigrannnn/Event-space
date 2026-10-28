@@ -248,6 +248,59 @@ export const BOOKING_CANCELLED_STRINGS: Record<Locale, BookingCancelledStrings> 
 	},
 };
 
+interface BookingNoSeatsStrings {
+	subject: (eventTitle: string) => string;
+	title: string;
+	greeting: (userName: string) => string;
+	body: (eventTitle: string, eventDate: string) => string;
+	refund: (amount: string) => string;
+	refundPending: string;
+	support: string;
+	signoff: string;
+}
+
+export const BOOKING_NO_SEATS_STRINGS: Record<Locale, BookingNoSeatsStrings> = {
+	en: {
+		subject: (eventTitle) => `Sold out: ${eventTitle}`,
+		title: 'The last seats were just taken',
+		greeting: (userName) => `Dear ${userName},`,
+		body: (eventTitle, eventDate) =>
+			`While your payment was going through, someone else booked the last seats for "${eventTitle}" on ${eventDate}, so we could not confirm your booking. We are sorry.`,
+		refund: (amount) =>
+			`The full amount, ${amount}, is being returned to the card you paid with. It usually takes 5–10 business days to appear, and your bank may show it as a pending charge until then.`,
+		refundPending:
+			'The refund could not be processed automatically. We are already looking into it and will get back to you.',
+		support: 'You can pick another date or tour — or reply to this email and we will help.',
+		signoff: 'Best regards,',
+	},
+	ru: {
+		subject: (eventTitle) => `Места закончились: ${eventTitle}`,
+		title: 'Последние места только что заняли',
+		greeting: (userName) => `Здравствуйте, ${userName}!`,
+		body: (eventTitle, eventDate) =>
+			`Пока шла ваша оплата, другой человек забронировал последние места на тур «${eventTitle}» ${eventDate}, поэтому подтвердить вашу бронь не удалось. Приносим извинения.`,
+		refund: (amount) =>
+			`Вся сумма, ${amount}, возвращается на карту, с которой была оплата. Обычно деньги приходят за 5–10 рабочих дней, до этого банк может показывать списание как ожидающее.`,
+		refundPending: 'Возврат не удалось провести автоматически. Мы уже разбираемся и свяжемся с вами.',
+		support:
+			'Вы можете выбрать другую дату или тур, а если нужна помощь — просто ответьте на это письмо.',
+		signoff: 'С уважением,',
+	},
+	hy: {
+		subject: (eventTitle) => `Տեղերը սպառվել են՝ ${eventTitle}`,
+		title: 'Վերջին տեղերը հենց նոր զբաղեցրին',
+		greeting: (userName) => `Բարև Ձեզ, ${userName}:`,
+		body: (eventTitle, eventDate) =>
+			`Մինչ Ձեր վճարումը իրականացվում էր, մեկ ուրիշը ամրագրեց «${eventTitle}» տուրի վերջին տեղերը ${eventDate}-ի համար, ուստի Ձեր ամրագրումը հաստատել չհաջողվեց։ Ներողություն ենք խնդրում։`,
+		refund: (amount) =>
+			`Ամբողջ գումարը՝ ${amount}, վերադարձվում է այն քարտին, որով վճարել եք։ Սովորաբար դա տևում է 5–10 աշխատանքային օր, մինչ այդ բանկը կարող է այն ցույց տալ որպես սպասվող գործարք։`,
+		refundPending: 'Վերադարձը չհաջողվեց կատարել ավտոմատ։ Մենք արդեն զբաղվում ենք և կկապվենք Ձեզ հետ։',
+		support:
+			'Կարող եք ընտրել այլ ամսաթիվ կամ տուր, իսկ օգնության համար պարզապես պատասխանեք այս նամակին։',
+		signoff: 'Հարգանքով՝',
+	},
+};
+
 interface BookingQuantityChangedStrings {
 	subject: (eventTitle: string) => string;
 	title: string;

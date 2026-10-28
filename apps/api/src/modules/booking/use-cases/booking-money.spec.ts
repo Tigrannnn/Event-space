@@ -275,14 +275,16 @@ describe('money paths: payment confirmation', () => {
 	});
 
 	it('refunds automatically and writes the charge first when the seats ran out', async () => {
-		const { service, stripeCalls, ledger } = createWorld({ bookings: pending, spotsFree: 0 });
+		const { service, stripeCalls, ledger, table, emails } = createWorld({
+			bookings: pending,
+			spotsFree: 0,
+		});
 		const result = await service.reconcilePayment('pi_b1', 'b1');
 
 		expect(result).toMatchObject({ id: 'b1', status: 'CANCELLED' });
 		expect(refundCalls(stripeCalls)).toEqual([
 			{ method: 'refund', args: ['pi_b1', 'auto-refund-no-spots-b1', 2000000] },
 		]);
-		expect(ledger).toHaveLength(2);
 		expect(ledger[0].where).toEqual({
 			stripePaymentIntentId_type_operationKey: {
 				stripePaymentIntentId: 'pi_b1',
@@ -296,21 +298,36 @@ describe('money paths: payment confirmation', () => {
 			reason: 'Payment captured, then refunded automatically',
 		});
 		expect(Number((ledger[0].create as { amount: unknown }).amount)).toBe(20000);
-		expect(ledger[1].create).toMatchObject({
-			type: 'REFUND',
+		expect(table.map((row) => row.type).sort()).toEqual(['CHARGE', 'REFUND']);
+		expect(table.find((row) => row.type === 'REFUND')).toMatchObject({
 			status: 'SUCCEEDED',
 			stripeRefundId: 're_pi_b1',
 			reason: 'NO_SPOTS_LEFT',
 		});
-		expect(ledger[1].update).toEqual({
-			stripeRefundId: 're_pi_b1',
-			status: 'SUCCEEDED',
-			reason: 'NO_SPOTS_LEFT',
+		expect(emails.map((email) => email.kind)).toEqual(['no-seats']);
+		expect(emails[0].payload).toMatchObject({
+			to: 'a@x.am',
+			refundAmount: 20000,
+			refundFailed: false,
 		});
 	});
 
+	it('keeps the refund queued for the retry job when Stripe is down, and says so in the email', async () => {
+		const { service, table, emails } = createWorld({
+			bookings: pending,
+			spotsFree: 0,
+			stripeFails: true,
+		});
+		await service.reconcilePayment('pi_b1', 'b1');
+
+		const refund = table.find((row) => row.type === 'REFUND');
+		expect(refund).toMatchObject({ status: 'PENDING' });
+		expect(refund?.reason).toContain('NO_SPOTS_LEFT');
+		expect(emails[0].payload).toMatchObject({ refundFailed: true });
+	});
+
 	it('refunds a payment that arrives after the booking was cancelled and returns that booking', async () => {
-		const { service, stripeCalls, ledger } = createWorld({
+		const { service, stripeCalls, table, emails } = createWorld({
 			bookings: [booking({ id: 'b1', status: 'CANCELLED' })],
 		});
 		const result = await service.reconcilePayment('pi_b1', 'b1');
@@ -319,7 +336,8 @@ describe('money paths: payment confirmation', () => {
 		expect(refundCalls(stripeCalls)).toEqual([
 			{ method: 'refund', args: ['pi_b1', 'auto-refund-b1', 2000000] },
 		]);
-		expect(ledger.map((row) => (row.create as { type: string }).type)).toEqual(['CHARGE', 'REFUND']);
+		expect(table.map((row) => row.type).sort()).toEqual(['CHARGE', 'REFUND']);
+		expect(emails).toHaveLength(0);
 	});
 
 	it('leaves a booking pending while the payment has not succeeded', async () => {
