@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
 import ContactIcons from './ContactIcons';
+import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -31,13 +32,14 @@ export default function HeaderSoft() {
 		setInputValue,
 		handleSubmitSearch,
 		handleKeyDown,
+		searchBox,
 	} = useHeaderControls();
 
 	const pill =
 		'relative flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25';
 
 	return (
-		<header className="from-primary to-accent relative z-40 overflow-hidden rounded-b-[2rem] bg-linear-to-r text-white shadow-lg sm:rounded-b-[2.5rem]">
+		<header className="from-primary to-accent relative z-40 rounded-b-[2rem] bg-linear-to-r text-white shadow-lg sm:rounded-b-[2.5rem]">
 			<div className="relative mx-auto max-w-[1600px] px-4 pt-4 pb-5 sm:px-8 sm:pt-5 sm:pb-6">
 				<div className="flex flex-wrap items-center gap-x-4 gap-y-3">
 					<Link
@@ -99,12 +101,20 @@ export default function HeaderSoft() {
 					</nav>
 				</div>
 
-				<div className="mx-auto mt-4 flex w-full max-w-2xl items-center rounded-full bg-white p-1.5 pl-5 shadow-md">
+				<div
+					ref={searchBox.containerRef}
+					className="relative mx-auto mt-4 flex w-full max-w-2xl items-center rounded-full bg-white p-1.5 pl-5 shadow-md"
+				>
 					<Search className="size-5 shrink-0 text-gray-400" />
 					<input
 						type="text"
 						value={inputValue}
-						onChange={(event) => setInputValue(event.target.value)}
+						onChange={(event) => {
+							setInputValue(event.target.value);
+							searchBox.setOpen(true);
+						}}
+						onFocus={() => searchBox.setOpen(true)}
+						autoComplete="off"
 						onKeyDown={handleKeyDown}
 						placeholder={translate('header.searchPlaceholder')}
 						className="min-w-0 flex-1 bg-transparent px-3 py-2 text-[15px] text-gray-900 placeholder-gray-500 focus:outline-none"
@@ -129,6 +139,7 @@ export default function HeaderSoft() {
 					>
 						{translate('header.search')}
 					</button>
+					<SearchDropdown box={searchBox} />
 				</div>
 			</div>
 		</header>

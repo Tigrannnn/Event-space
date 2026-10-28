@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { localizePath } from '@/lib/i18n/config';
 import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
+import { SearchDropdown } from '@/features/search';
 import { ModalType } from '@/stores';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -30,6 +31,7 @@ export default function Header() {
 		setInputValue,
 		handleSubmitSearch,
 		handleKeyDown,
+		searchBox,
 	} = useHeaderControls();
 	const [brandFirstWord, ...brandRestWords] = brand.name.split(' ');
 	const brandRest = brandRestWords.join(' ');
@@ -62,13 +64,18 @@ export default function Header() {
 					</Link>
 					{/* Search with button */}
 					<div className="flex w-full min-w-0 flex-1 items-center gap-2">
-						<div className="flex-1">
+						<div ref={searchBox.containerRef} className="relative flex-1">
 							<SearchBar
 								value={inputValue}
-								onChange={setInputValue}
+								onChange={(value) => {
+									setInputValue(value);
+									searchBox.setOpen(true);
+								}}
 								onKeyDown={handleKeyDown}
+								onFocus={() => searchBox.setOpen(true)}
 								placeholder={translate('header.searchPlaceholder')}
 							/>
+							<SearchDropdown box={searchBox} />
 						</div>
 						<button
 							onClick={handleSubmitSearch}

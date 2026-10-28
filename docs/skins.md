@@ -201,3 +201,13 @@
 Кнопка «Написать отзыв» внизу страницы тура (все скины): `WriteReviewButton`, данные из `reviewableBookingId` в ответе `GET /events/:id/reviews`.
 | `features/banners/components/BannerCarousel.tsx` (`INDICATOR`) | индикатор слайдов у каждого скина свой: `classic` белые таблетки на фото, `minimal` тонкие чёрточки под баннером, `listing` квадратные точки на тёмной плашке справа, `soft` точки в белой плавающей капсуле |
 | `components/ui/Buttons/Button/Button.tsx` (вариант `secondary`) | вторая кнопка у каждого скина своя: `classic` без изменений (рамка цвета бренда), `minimal` серая заливка, `listing` контур цвета бренда, `soft` белая с тёплой рамкой и тенью. |
+| `components/ui/Toast/ToastContainer.tsx` | тосты: `classic` как был (цветная таблетка), `minimal` тёмная плашка внизу по центру (в тёмной теме светлая) с точкой статуса, `listing` карточка сверху справа с цветной полосой слева и иконкой, `soft` белая карточка с круглой иконкой (у успеха на градиенте бренда). |
+| `features/bookings/components/PaymentSummary.tsx`, `StripePaymentForm.tsx` | сводка в окне оплаты у каждого скина своя. |
+| `features/bookings/components/modals/BookingSuccessModal.tsx` (`SUCCESS_UI`, `DETAIL_UI`) | экран после оплаты: шапка, номер брони, плитки деталей и «что включено» у каждого скина свои. |
+| `features/search/components/SearchDropdown.tsx` (`LOOK`) | выпадающие подсказки под полем поиска: панель, заголовки, строки, миниатюры и цена у каждого скина свои. Логика (история, рекомендуемые, живые подсказки, клавиатура) общая, в `useSearchBox`. |
+
+## Подсказки поиска
+
+- API: `GET /search/suggestions?q=` (туры и категории, тот же нечёткий поиск, что и в выдаче), `GET /search/recommended` (самые бронируемые за 30 дней, остаток добирается случайными; в интерфейсе называется «Рекомендуемые туры»), `GET|POST /search/history`, `DELETE /search/history/:id` (только для вошедших).
+- История хранится на сервере в таблице `search_queries`: строки не склеиваются, поэтому по ней можно считать «часто ищут» и показывать админам, что ищут. `hidden` убирает запрос только из подсказок самого человека.
+- Каждая шапка (`Header*.tsx`) оборачивает поле в контейнер с `searchBox.containerRef` и кладёт внутрь `<SearchDropdown box={searchBox} />`; контейнер не должен иметь `overflow-hidden`, иначе список обрежется.

@@ -391,6 +391,8 @@ model User {
   favorites Favorite[] @relation("user_favorites")
   reviews   Review[]   @relation("user_reviews")
 
+  searchQueries SearchQuery[] @relation("user_search_queries")
+
   @@map("users")
 }
 
@@ -515,4 +517,21 @@ model Review {
   @@index([eventId, status, createdAt])
   @@index([status, createdAt])
   @@map("reviews")
+}
+
+/// Запрос, который вошедший посетитель отправил в поиск. Строки не склеиваются: по ним потом
+/// можно считать, что ищут чаще всего. `hidden` убирает запрос из подсказок самого человека, но не из счёта.
+model SearchQuery {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  query      String   @db.VarChar(100)
+  normalized String   @db.VarChar(100)
+  hidden     Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation("user_search_queries", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([normalized])
+  @@map("search_queries")
 }

@@ -17,3 +17,4 @@ export * from './DashboardSnapshotSchema';
 export * from './BannerSchema';
 export * from './BannerTranslationSchema';
 export * from './ReviewSchema';
+export * from './SearchQuerySchema';

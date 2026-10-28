@@ -7,6 +7,7 @@ import { profile } from './profile';
 import { event } from './event';
 import { booking } from './booking';
 import { review } from './review';
+import { search } from './search';
 import { cancellation } from './cancellation';
 import { admin } from './admin';
 import { error } from './error';
@@ -24,6 +25,7 @@ export const en = {
 	event,
 	booking,
 	review,
+	search,
 	cancellation,
 	admin,
 	error,

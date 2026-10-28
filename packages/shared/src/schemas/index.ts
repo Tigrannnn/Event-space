@@ -17,3 +17,4 @@ export * from './review.schema';
 export * from './locale.schema';
 export * from './cancellation-reason.schema';
 export * from './promo-code.schema';
+export * from './search.schema';

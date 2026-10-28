@@ -18,6 +18,7 @@ import { StripeModule } from './infrastructure/stripe/stripe.module';
 import { CategoryModule } from '@modules/category/category.module';
 import { OccurrenceModule } from './modules/occurrence/occurrence.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { SearchModule } from './modules/search/search.module';
 import { BannerModule } from '@modules/banner/banner.module';
 import { ReviewModule } from '@modules/review/review.module';
 
@@ -44,6 +45,7 @@ import { ReviewModule } from '@modules/review/review.module';
 		StripeModule,
 		OccurrenceModule,
 		FavoritesModule,
+		SearchModule,
 		BannerModule,
 		ReviewModule,
 	],

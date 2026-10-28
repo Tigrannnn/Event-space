@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageCode from '@/components/ui/LanguageSwitcher/LanguageCode';
 import ContactIcons from './ContactIcons';
+import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -30,6 +31,7 @@ export default function HeaderListing() {
 		setInputValue,
 		handleSubmitSearch,
 		handleKeyDown,
+		searchBox,
 	} = useHeaderControls();
 
 	const actionLink =
@@ -98,12 +100,20 @@ export default function HeaderListing() {
 					)}
 				</nav>
 
-				<div className="order-last flex w-full items-stretch rounded-md bg-white">
+				<div
+					ref={searchBox.containerRef}
+					className="relative order-last flex w-full items-stretch rounded-md bg-white"
+				>
 					<Search className="my-auto ml-3 size-5 shrink-0 text-gray-500" />
 					<input
 						type="text"
 						value={inputValue}
-						onChange={(event) => setInputValue(event.target.value)}
+						onChange={(event) => {
+							setInputValue(event.target.value);
+							searchBox.setOpen(true);
+						}}
+						onFocus={() => searchBox.setOpen(true)}
+						autoComplete="off"
 						onKeyDown={handleKeyDown}
 						placeholder={translate('header.searchPlaceholder')}
 						className="min-w-0 flex-1 bg-transparent px-3 py-3 text-[15px] text-gray-900 placeholder-gray-500 focus:outline-none"
@@ -128,6 +138,7 @@ export default function HeaderListing() {
 					>
 						{translate('header.search')}
 					</button>
+					<SearchDropdown box={searchBox} />
 				</div>
 			</div>
 		</header>

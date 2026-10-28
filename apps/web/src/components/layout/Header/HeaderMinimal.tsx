@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
 import ContactIcons from './ContactIcons';
+import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -31,6 +32,7 @@ export default function HeaderMinimal() {
 		setInputValue,
 		handleSubmitSearch,
 		handleKeyDown,
+		searchBox,
 	} = useHeaderControls();
 
 	const actionLink =
@@ -48,12 +50,20 @@ export default function HeaderMinimal() {
 
 				<LanguageMenu className="ml-auto md:hidden" />
 
-				<div className="order-last flex w-full items-center md:order-0 md:mx-auto md:max-w-xl md:flex-1">
+				<div
+					ref={searchBox.containerRef}
+					className="relative order-last flex w-full items-center md:order-0 md:mx-auto md:max-w-xl md:flex-1"
+				>
 					<div className="focus-within:border-primary flex w-full items-center rounded-full border border-gray-300 bg-white py-1 pr-1 pl-5 transition-shadow focus-within:shadow-md dark:border-neutral-700 dark:bg-neutral-900">
 						<input
 							type="text"
 							value={inputValue}
-							onChange={(event) => setInputValue(event.target.value)}
+							onChange={(event) => {
+								setInputValue(event.target.value);
+								searchBox.setOpen(true);
+							}}
+							onFocus={() => searchBox.setOpen(true)}
+							autoComplete="off"
 							onKeyDown={handleKeyDown}
 							placeholder={translate('header.searchPlaceholder')}
 							className="min-w-0 flex-1 bg-transparent py-1.5 text-sm text-gray-900 placeholder-gray-500 focus:outline-none dark:text-white dark:placeholder-gray-400"
@@ -80,6 +90,7 @@ export default function HeaderMinimal() {
 							<Search className="size-4" strokeWidth={2.5} />
 						</button>
 					</div>
+					<SearchDropdown box={searchBox} />
 				</div>
 
 				<nav className="hidden shrink-0 items-center gap-1 md:flex">

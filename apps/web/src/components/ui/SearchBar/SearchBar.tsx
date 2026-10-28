@@ -12,6 +12,7 @@ export const SearchBar = ({
 	value,
 	onChange,
 	onKeyDown,
+	onFocus,
 	placeholder = 'Search events...',
 }: SearchBarProps) => {
 	const router = useLocalizedNavigation();
@@ -23,6 +24,8 @@ export const SearchBar = ({
 				value={value ?? ''}
 				onChange={(e) => onChange(e.target.value)}
 				onKeyDown={onKeyDown}
+				onFocus={onFocus}
+				autoComplete="off"
 				placeholder={placeholder}
 				className="text-primary focus:ring-primary/20 focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-8 text-sm placeholder-gray-400 transition-all duration-200 focus:ring-2 focus:outline-none lg:rounded-2xl lg:px-5 lg:py-3.5 lg:pr-11 lg:text-base dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
 			/>

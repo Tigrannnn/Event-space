@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useModalStore } from '@/stores';
 import { useCurrentUser } from '@/features/users';
@@ -10,6 +10,7 @@ import { useHydrated } from '@/hooks/hydration/useHydrated';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
+import { searchApi, useSearchBox } from '@/features/search';
 
 /** What every header variant needs: the search box, the signed-in visitor and their counters. */
 export function useHeaderControls() {
@@ -25,25 +26,32 @@ export function useHeaderControls() {
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
 
-	const handleSubmitSearch = useCallback(() => {
-		const params = new URLSearchParams(searchParams);
-		if (inputValue.trim()) {
-			params.set('search', inputValue.trim());
-		} else {
-			params.delete('search');
-		}
-		const query = params.toString();
-		navigation.push(query ? `/?${query}` : '/', { scroll: false });
-	}, [inputValue, navigation, searchParams]);
+	const submitSearch = useCallback(
+		(value: string) => {
+			const text = value.trim();
+			const params = new URLSearchParams(searchParams);
+			if (text) {
+				params.set('search', text);
+			} else {
+				params.delete('search');
+			}
+			const query = params.toString();
+			navigation.push(query ? `/?${query}` : '/', { scroll: false });
 
-	const handleKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
-			if (e.key === 'Enter') {
-				handleSubmitSearch();
+			if (user && text.length >= 2) {
+				void searchApi.recordQuery(text).catch(() => undefined);
 			}
 		},
-		[handleSubmitSearch],
+		[navigation, searchParams, user],
 	);
+
+	const handleSubmitSearch = useCallback(() => submitSearch(inputValue), [submitSearch, inputValue]);
+
+	const searchBox = useSearchBox({
+		value: inputValue,
+		setValue: setInputValue,
+		submit: submitSearch,
+	});
 
 	return {
 		navigation,
@@ -58,6 +66,7 @@ export function useHeaderControls() {
 		inputValue,
 		setInputValue,
 		handleSubmitSearch,
-		handleKeyDown,
+		handleKeyDown: searchBox.onKeyDown,
+		searchBox,
 	};
 }
