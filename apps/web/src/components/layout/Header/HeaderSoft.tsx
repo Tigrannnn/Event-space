@@ -42,9 +42,8 @@ export default function HeaderSoft() {
 				<div className="flex flex-wrap items-center gap-x-4 gap-y-3">
 					<Link
 						href={localizePath('/', navigation.locale)}
-						className="flex max-w-full shrink-0 items-center gap-2.5"
+						className="flex max-w-full shrink-0 items-center"
 					>
-						<span className="size-3 rounded-full bg-(--brand-accent) ring-4 ring-white/25" />
 						<span className="font-(family-name:--font-display) text-2xl font-bold tracking-tight text-white sm:text-3xl">
 							{brand.name}
 						</span>
