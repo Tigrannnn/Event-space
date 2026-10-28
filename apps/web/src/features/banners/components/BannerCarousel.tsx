@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Banner } from '@event-space/shared';
+import type { Banner, BrandSkin } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
@@ -13,6 +13,39 @@ interface BannerCarouselProps {
 }
 
 const AUTOPLAY_MS = 5000;
+
+/**
+ * The position indicator under or over the slides, one per skin: white pills on the photo for
+ * classic, thin segments under the banner for minimal, square dots on a dark tab for listing,
+ * and dots in a floating white capsule for soft.
+ */
+const INDICATOR: Record<BrandSkin, { container: string; dot: string; active: string; inactive: string }> = {
+	classic: {
+		container: 'absolute bottom-7 left-1/2 -translate-x-1/2 gap-2 sm:bottom-10',
+		dot: 'h-2 rounded-full',
+		active: 'w-6 bg-white',
+		inactive: 'w-2 bg-white/55 hover:bg-white/80',
+	},
+	minimal: {
+		container: 'mt-3 justify-center gap-1.5',
+		dot: 'h-1 w-10 rounded-full',
+		active: 'bg-gray-900 dark:bg-white',
+		inactive: 'bg-gray-200 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700',
+	},
+	listing: {
+		container: 'absolute right-3 bottom-7 gap-1.5 rounded bg-black/45 px-2.5 py-2 sm:bottom-9',
+		dot: 'size-2 rounded-[2px]',
+		active: 'bg-white',
+		inactive: 'bg-white/40 hover:bg-white/70',
+	},
+	soft: {
+		container:
+			'absolute bottom-7 left-1/2 -translate-x-1/2 gap-1.5 rounded-full bg-white/90 px-3 py-2 shadow-md sm:bottom-9 dark:bg-gray-800/90',
+		dot: 'h-2 rounded-full',
+		active: 'w-5 bg-primary',
+		inactive: 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600',
+	},
+};
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const translate = useTranslation();
@@ -134,16 +167,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						<ChevronRight className="h-5 w-5" />
 					</button>
 
-					<div
-						className={cn(
-							'flex gap-2',
-							isMinimal
-								? 'mt-3 justify-center'
-								: isListing
-									? 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-9'
-									: 'absolute bottom-7 left-1/2 -translate-x-1/2 sm:bottom-10',
-						)}
-					>
+					<div className={cn('flex', INDICATOR[skin].container)}>
 						{banners.map((banner, index) => (
 							<button
 								key={banner.id}
@@ -152,14 +176,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 								aria-label={`${translate('common.goToBanner')} ${index + 1}`}
 								aria-current={index === activeIndex}
 								className={cn(
-									'h-2 cursor-pointer rounded-full transition-all',
-									index === activeIndex
-										? isMinimal
-											? 'bg-primary w-6'
-											: 'w-6 bg-white'
-										: isMinimal
-											? 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-neutral-700'
-											: 'w-2 bg-white/55 hover:bg-white/80',
+									'cursor-pointer transition-all',
+									INDICATOR[skin].dot,
+									index === activeIndex ? INDICATOR[skin].active : INDICATOR[skin].inactive,
 								)}
 							/>
 						))}
