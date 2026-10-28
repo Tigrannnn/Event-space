@@ -211,7 +211,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 			role="listbox"
 			aria-label={translate('search.listLabel')}
 			className={cn(
-				'absolute top-full right-0 left-0 z-50 mt-2 max-h-[70dvh] overflow-y-auto text-left',
+				'absolute top-full right-0 left-0 z-50 mt-2 max-h-[45dvh] overflow-y-auto text-left sm:max-h-[70dvh]',
 				look.panel,
 			)}
 		>
