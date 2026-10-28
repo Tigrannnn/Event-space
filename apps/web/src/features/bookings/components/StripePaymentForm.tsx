@@ -18,6 +18,7 @@ import {
 import { clientEnv } from '@/config/env';
 import useSystemTheme from '@/hooks/systemTheme';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
+import PaymentSummary from '@/features/bookings/components/PaymentSummary';
 import CancellationPolicyInfo from '@/components/shared/CancellationPolicyInfo';
 import { defaultLocale, Locale, localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -155,31 +156,12 @@ function StripePaymentFormContent({
 
 			<p className="text-sm text-gray-500 dark:text-gray-400">{translate('booking.cardDetails')}</p>
 
-			{selectedOccurrence && (
-				<div className="space-y-1 rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
-					<p className="text-sm font-semibold text-gray-900 dark:text-white">{eventTitle}</p>
-					<p className="text-sm text-gray-500 dark:text-gray-400">
-						{formatDateTimeZone(selectedOccurrence.date)}
-					</p>
-					<p className="text-sm text-gray-600 dark:text-gray-300">
-						{translate('booking.spots')}: <span className="font-medium">{booking.quantity}</span>
-					</p>
-					<p className="text-sm text-gray-600 dark:text-gray-300">
-						{translate('booking.total')}:{' '}
-						<span className="font-medium">{formatCurrency(booking.amount)}</span>
-					</p>
-				</div>
-			)}
-
-			<div className="bg-gray-100 p-4 dark:bg-gray-800">
-				<p>
-					{translate('booking.amount')}:{' '}
-					<span className="font-medium">{formatCurrency(booking.amount)}</span>
-				</p>
-				<p>
-					{translate('booking.quantity')}: <span className="font-medium">{booking.quantity}</span>
-				</p>
-			</div>
+			<PaymentSummary
+				title={selectedOccurrence ? eventTitle : undefined}
+				date={selectedOccurrence ? formatDateTimeZone(selectedOccurrence.date) : undefined}
+				quantity={booking.quantity}
+				total={formatCurrency(booking.amount)}
+			/>
 
 			<CancellationPolicyInfo
 				eventDate={occurrenceDate ?? ''}
@@ -188,7 +170,7 @@ function StripePaymentFormContent({
 				booking={booking}
 			/>
 
-			<div className="rounded-md border border-gray-200 p-3 dark:border-gray-700">
+			<div className="rounded-md border border-gray-200 p-3 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-gray-300 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:border-gray-300 in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:border-0 in-data-[skin=soft]:bg-white in-data-[skin=soft]:p-4 in-data-[skin=soft]:shadow-sm in-data-[skin=soft]:ring-1 in-data-[skin=soft]:ring-black/5 dark:border-gray-700 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=soft]:dark:ring-white/10">
 				<PaymentElement />
 			</div>
 
