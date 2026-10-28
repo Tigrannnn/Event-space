@@ -90,11 +90,11 @@ export default function Header() {
 								<Link href={localizePath('/favorites', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+										className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 									>
 										{translate('header.favorites')}
 										{myFavoritesCount > 0 && (
-											<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+											<span className="absolute -top-2 -right-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white ring-2 ring-white/70">
 												{myFavoritesCount}
 											</span>
 										)}
@@ -104,11 +104,11 @@ export default function Header() {
 								<Link href={localizePath('/bookings', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+										className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 									>
 										{translate('header.bookings')}
 										{myBookingsCount > 0 && (
-											<span className="absolute -top-1 -right-2 inline-flex items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+											<span className="absolute -top-2 -right-1 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white ring-2 ring-white/70">
 												{myBookingsCount}
 											</span>
 										)}
@@ -116,7 +116,7 @@ export default function Header() {
 								</Link>
 
 								<Link href={localizePath('/profile', navigation.locale)}>
-									<Button variant="secondary" className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base">
+									<Button variant="secondary" className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 px-4 py-2 text-sm lg:px-5 lg:py-2.5">
 										{user.name.split(' ')[0].trim().length <= 10
 											? user.name.split(' ')[0]
 											: translate('header.profile')}
@@ -128,14 +128,14 @@ export default function Header() {
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Register)}
-									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 								>
 									{translate('header.signUp')}
 								</Button>
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Login)}
-									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 								>
 									{translate('header.logIn')}
 								</Button>
