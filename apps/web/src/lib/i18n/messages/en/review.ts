@@ -11,6 +11,7 @@ export const review = {
 	savedPending: 'Thank you! Your review will appear once we have read it.',
 	saveFailed: 'Could not save the review',
 	rateTour: 'Rate the tour',
+	writeReview: 'Write a review',
 	change: 'Change',
 	onReview: 'Being read',
 	rejected: 'Not published',

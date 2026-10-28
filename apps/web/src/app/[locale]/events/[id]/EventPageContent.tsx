@@ -21,7 +21,7 @@ import {
 } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
 import { IncludedItem } from '@/components/ui/IncludedItem';
-import { EventReviews } from '@/features/reviews';
+import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
@@ -196,6 +196,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 						</div>
 
 						<EventReviews event={event} />
+						<WriteReviewButton eventId={event.id} />
 					</div>
 
 					{/* Right Column - Booking Sidebar */}

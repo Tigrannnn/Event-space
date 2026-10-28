@@ -12,7 +12,7 @@ import {
 } from '@event-space/shared';
 import { EventImage, EventImageFallback, useEventById } from '@/features/events';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
-import { EventReviews } from '@/features/reviews';
+import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useFormatDate } from '@/hooks/format';
@@ -206,6 +206,8 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 					<section className={hairline}>
 						<EventReviews event={event} />
 					</section>
+
+					<WriteReviewButton eventId={event.id} />
 				</div>
 
 				<div className="lg:col-span-1">

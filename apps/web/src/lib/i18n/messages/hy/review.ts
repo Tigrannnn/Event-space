@@ -13,6 +13,7 @@ export const review: Messages['review'] = {
 	savedPending: 'Շնորհակալություն։ Կարծիքը կհայտնվի ստուգումից հետո։',
 	saveFailed: 'Չհաջողվեց պահպանել կարծիքը',
 	rateTour: 'Գնահատել շրջագայությունը',
+	writeReview: 'Գրել կարծիք',
 	change: 'Փոխել',
 	onReview: 'Ստուգվում է',
 	rejected: 'Հրապարակված չէ',

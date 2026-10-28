@@ -13,6 +13,7 @@ export const review: Messages['review'] = {
 	savedPending: 'Спасибо! Отзыв появится после проверки.',
 	saveFailed: 'Не удалось сохранить отзыв',
 	rateTour: 'Оценить тур',
+	writeReview: 'Написать отзыв',
 	change: 'Изменить',
 	onReview: 'На проверке',
 	rejected: 'Не опубликован',

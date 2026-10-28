@@ -110,7 +110,7 @@ export class ReviewService {
 	) {
 		const limit = Math.min(Math.max(params.limit ?? REVIEW_CONFIG.PAGE_SIZE, 1), 50);
 
-		const [rows, mine] = await Promise.all([
+		const [rows, mine, reviewableBookingId] = await Promise.all([
 			this.prisma.review.findMany({
 				where: {
 					eventId,
@@ -131,6 +131,11 @@ export class ReviewService {
 						orderBy: KEYSET_ORDER,
 					})
 				: Promise.resolve([]),
+			// Same first-page-only rule: it answers "may this visitor review the tour right now",
+			// which the event page turns into a button.
+			userId && !params.cursor
+				? this.findReviewableBookingId(userId, eventId)
+				: Promise.resolve(null),
 		]);
 
 		const hasMore = rows.length > limit;
@@ -142,7 +147,28 @@ export class ReviewService {
 			nextCursor: hasMore && last ? encodeKeysetCursor(last) : null,
 			hasMore,
 			mine,
+			reviewableBookingId,
 		};
+	}
+
+	/**
+	 * A booking of this visitor on this event that can be reviewed now and has no review yet: the
+	 * same test the booking card applies (`reviewWindow`), asked once for the whole event.
+	 */
+	private async findReviewableBookingId(userId: string, eventId: string): Promise<string | null> {
+		const bookings = await this.prisma.booking.findMany({
+			where: { userId, status: 'CONFIRMED', review: null, occurrence: { eventId } },
+			select: {
+				id: true,
+				status: true,
+				occurrence: {
+					select: { date: true, status: true, event: { select: { duration: true } } },
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+		});
+
+		return bookings.find((booking) => reviewWindow(booking) === 'OPEN')?.id ?? null;
 	}
 
 	/** What this booking's card should draw: the review, or the reason there is no button. */
