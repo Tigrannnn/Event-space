@@ -151,7 +151,11 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 
 							saveReview.mutate(
 								{ isUpdate: Boolean(existing), data: { rating, text: text.trim() || null } },
-								{ onSuccess: () => navigation.push('/bookings') },
+								{
+								// Back to the tour that was just reviewed, where the review now shows.
+								onSuccess: () =>
+									navigation.push(state.event ? `/events/${state.event.id}` : '/bookings'),
+							},
 							);
 						}}
 					>
