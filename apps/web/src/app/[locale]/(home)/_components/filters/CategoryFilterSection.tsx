@@ -122,7 +122,7 @@ export function CategoryFilterSection({
 					</PopoverTrigger>
 					<PopoverContent
 						align="start"
-						className="text-foreground w-72 rounded-3xl p-0 shadow-lg dark:text-white"
+						className="filter-panel text-foreground w-72 rounded-3xl p-0 shadow-lg dark:text-white"
 					>
 						<Command className="text-foreground dark:text-white">
 							<CommandInput

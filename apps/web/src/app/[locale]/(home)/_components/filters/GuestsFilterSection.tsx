@@ -79,7 +79,7 @@ export function GuestsFilterSection({
 				</p>
 				<p className="text-xs text-gray-500 dark:text-gray-400">{translate('filters.guestsHint')}</p>
 			</div>
-			<div className="mt-4 flex items-center justify-between rounded-xl border border-gray-200/80 bg-white px-3 py-2 dark:border-gray-600/60 dark:bg-gray-800/80">
+			<div className="filter-box mt-4 flex items-center justify-between rounded-xl border border-gray-200/80 bg-white px-3 py-2 dark:border-gray-600/60 dark:bg-gray-800/80">
 				<Button
 					type="button"
 					variant="outline"
@@ -107,7 +107,7 @@ export function GuestsFilterSection({
 		// The drawer applies every section at once, so this one contributes only its stepper —
 		// and writes straight to the drawer's draft as the user taps.
 		return (
-			<div className="rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80">
+			<div className="filter-panel rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80">
 				{stepperContent}
 			</div>
 		);
@@ -121,7 +121,7 @@ export function GuestsFilterSection({
 					{label}
 				</FilterTriggerButton>
 			</PopoverTrigger>
-			<PopoverContent align="start" className="w-72 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
+			<PopoverContent align="start" className="filter-panel w-72 rounded-3xl p-4 text-foreground shadow-lg dark:text-white">
 				{stepperContent}
 				<FilterPopoverActions onApply={handleApply} onReset={isApplied ? handleReset : undefined} />
 			</PopoverContent>

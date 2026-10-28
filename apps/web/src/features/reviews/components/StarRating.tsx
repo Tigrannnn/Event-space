@@ -25,7 +25,7 @@ export function StarRating({ value, size = 'sm', className }: StarRatingProps) {
 					className={cn(
 						SIZES[size],
 						star <= Math.round(value)
-							? 'fill-amber-400 text-amber-400'
+							? 'fill-amber-400 text-amber-400 in-data-[skin=minimal]:fill-gray-900 in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:dark:fill-white in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:fill-primary in-data-[skin=listing]:text-primary'
 							: 'fill-transparent text-gray-300 dark:text-gray-600',
 					)}
 				/>
@@ -65,7 +65,7 @@ export function StarRatingInput({ value, onChange, label, disabled }: StarRating
 						className={cn(
 							'h-9 w-9 transition-transform',
 							star <= value
-								? 'fill-amber-400 text-amber-400'
+								? 'fill-amber-400 text-amber-400 in-data-[skin=minimal]:fill-gray-900 in-data-[skin=minimal]:text-gray-900 in-data-[skin=minimal]:dark:fill-white in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:fill-primary in-data-[skin=listing]:text-primary'
 								: 'fill-transparent text-gray-300 dark:text-gray-600',
 							!disabled && 'hover:scale-110',
 						)}

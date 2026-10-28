@@ -96,7 +96,7 @@ export function DifficultyFilterSection({
 			</PopoverTrigger>
 			<PopoverContent
 				align="start"
-				className="text-foreground w-72 rounded-3xl p-4 shadow-lg dark:text-white"
+				className="filter-panel text-foreground w-72 rounded-3xl p-4 shadow-lg dark:text-white"
 			>
 				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 					{translate('event.difficulty')}

@@ -13,7 +13,7 @@ import type { NumberBounds } from './types';
 
 /** Spinners are hidden: their arrows step by 1, which is meaningless against a 25 000 price. */
 const priceFieldClass =
-	'border-primary/40 focus:border-primary h-9 w-full [appearance:textfield] rounded-xl border bg-white pr-9 pl-3 text-sm font-semibold text-primary outline-none transition dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+	'price-field border-primary/40 focus:border-primary h-9 w-full [appearance:textfield] rounded-xl border bg-white pr-9 pl-3 text-sm font-semibold text-primary outline-none transition dark:bg-gray-900 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 
 interface PriceRangePickerProps {
 	value: NumberBounds | null;
@@ -182,7 +182,7 @@ export function PriceRangePicker({
 
 	if (variant === 'inline') {
 		return (
-			<div className="rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80">
+			<div className="filter-panel rounded-3xl border border-gray-200/80 bg-white p-4 shadow-sm dark:border-gray-700/70 dark:bg-gray-800/80">
 				{content}
 			</div>
 		);
@@ -198,7 +198,7 @@ export function PriceRangePicker({
 			</PopoverTrigger>
 			<PopoverContent
 				align="start"
-				className="text-foreground w-80 rounded-3xl p-4 shadow-lg dark:text-white"
+				className="filter-panel text-foreground w-80 rounded-3xl p-4 shadow-lg dark:text-white"
 			>
 				{content}
 				{stagesChanges && (
