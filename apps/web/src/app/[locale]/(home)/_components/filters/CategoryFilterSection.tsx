@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Category, getCategoryTranslation } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
+import { useSkin } from '@/providers/BrandProvider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import {
 	Command,
@@ -14,6 +15,8 @@ import {
 import { CategoryPill, FilterPopoverActions, FilterTriggerButton } from '@/components/filters';
 import { getExtraSelectedCategories, getTopCategories } from './filter-utils';
 import type { EventsFiltersState } from './types';
+
+const MAX_UNFOLDED_CATEGORIES = 4;
 
 interface CategoryFilterSectionProps {
 	categories: Category[];
@@ -33,7 +36,15 @@ export function CategoryFilterSection({
 	const [moreOpen, setMoreOpen] = useState(false);
 	const [draftCategories, setDraftCategories] = useState<string[]>(filters.categories);
 
-	const topCategories = useMemo(() => getTopCategories(categories, 3), [categories]);
+	const skin = useSkin();
+	// Up to four categories all fit on screen, so "more" would only hide one behind a click; past
+	// four, the first three stay and the rest go behind it. The listing skin never folds anything:
+	// its row scrolls instead.
+	const showAll = skin === 'listing' || categories.length <= MAX_UNFOLDED_CATEGORIES;
+	const topCategories = useMemo(
+		() => (showAll ? categories : getTopCategories(categories, 3)),
+		[categories, showAll],
+	);
 	const topSlugs = useMemo(() => topCategories.map((category) => category.slug), [topCategories]);
 	const remainingCategories = useMemo(
 		() => categories.filter((category) => !topSlugs.includes(category.slug)),

@@ -142,12 +142,6 @@
 	background: transparent;
 }
 
-:root[data-skin='minimal'] .filter-box,
-:root[data-skin='listing'] .filter-box {
-	border-radius: var(--field-radius);
-	border-color: var(--field-border);
-}
-
 :root[data-skin='minimal'] .price-field,
 :root[data-skin='listing'] .price-field {
 	border-radius: var(--field-radius);
@@ -158,6 +152,37 @@
 :root[data-skin='minimal'] .price-field:focus,
 :root[data-skin='listing'] .price-field:focus {
 	border-color: var(--accent-solid);
+}
+
+/* The "more" list of categories in the minimal skin: a round search field and soft rows. */
+:root[data-skin='minimal'] .filter-panel [data-slot='command-input-wrapper'] {
+	padding: 0.75rem 0.75rem 0.25rem;
+}
+
+:root[data-skin='minimal'] .filter-panel [data-slot='command-input-wrapper'] > div {
+	height: 2.5rem !important;
+	border-radius: 9999px !important;
+	border: 1px solid var(--field-border) !important;
+	background: transparent !important;
+}
+
+:root[data-skin='minimal'] .filter-panel [data-slot='command-list'] {
+	padding: 0.25rem 0.5rem;
+}
+
+:root[data-skin='minimal'] .filter-panel [data-slot='command-item'] {
+	border-radius: 0.75rem;
+	padding: 0.625rem 0.75rem;
+	font-size: 0.9375rem;
+}
+
+:root[data-skin='minimal'] .filter-panel [data-slot='command-item']:hover,
+:root[data-skin='minimal'] .filter-panel [data-slot='command-item'][data-selected='true'] {
+	background: var(--range-bg);
+}
+
+:root[data-skin='minimal'] .filter-panel [data-slot='command-item'][data-checked='true'] {
+	font-weight: 600;
 }
 
 :root[data-skin='minimal'] .filter-panel [data-slot='slider-range'],

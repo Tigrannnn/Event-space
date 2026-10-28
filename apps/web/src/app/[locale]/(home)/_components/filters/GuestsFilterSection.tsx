@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MinusIcon, PlusIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
+import { useSkin } from '@/providers/BrandProvider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 import { Button } from '@/components/ui/primitives/button';
 import { FilterPopoverActions, FilterTriggerButton } from '@/components/filters';
@@ -23,6 +24,7 @@ export function GuestsFilterSection({
 	variant = 'popover',
 }: GuestsFilterSectionProps) {
 	const translate = useTranslation();
+	const skin = useSkin();
 	const [draftGuests, setDraftGuests] = useState<number>(filters.guests ?? MIN_GUESTS);
 	const [isOpen, setIsOpen] = useState(false);
 	const isApplied = filters.guests !== null && filters.guests > 0;
@@ -79,27 +81,69 @@ export function GuestsFilterSection({
 				</p>
 				<p className="text-xs text-gray-500 dark:text-gray-400">{translate('filters.guestsHint')}</p>
 			</div>
-			<div className="filter-box mt-4 flex items-center justify-between rounded-xl border border-gray-200/80 bg-white px-3 py-2 dark:border-gray-600/60 dark:bg-gray-800/80">
-				<Button
-					type="button"
-					variant="outline"
-					size="icon-sm"
-					onClick={handleDecrement}
-					disabled={draftGuests <= MIN_GUESTS}
+			{skin === 'listing' ? (
+				<div className="mt-4 grid grid-cols-[auto_1fr_auto] items-stretch overflow-hidden rounded-md border border-gray-300 dark:border-neutral-700">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-lg"
+						className="text-primary h-11 w-11 rounded-none"
+						onClick={handleDecrement}
+						disabled={draftGuests <= MIN_GUESTS}
+					>
+						<MinusIcon className="size-5" />
+					</Button>
+					<span className="flex items-center justify-center border-x border-gray-300 text-xl font-bold text-foreground dark:border-neutral-700 dark:text-white">
+						{draftGuests}
+					</span>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-lg"
+						className="text-primary h-11 w-11 rounded-none"
+						onClick={handleIncrement}
+						disabled={draftGuests >= MAX_GUESTS}
+					>
+						<PlusIcon className="size-5" />
+					</Button>
+				</div>
+			) : (
+				<div
+					className={
+						skin === 'minimal'
+							? 'mt-5 flex items-center justify-between'
+							: 'mt-4 flex items-center justify-between rounded-xl border border-gray-200/80 bg-white px-3 py-2 dark:border-gray-600/60 dark:bg-gray-800/80'
+					}
 				>
-					<MinusIcon className="size-4" />
-				</Button>
-				<span className="min-w-8 text-center text-base font-semibold text-foreground dark:text-white">{draftGuests}</span>
-				<Button
-					type="button"
-					variant="outline"
-					size="icon-sm"
-					onClick={handleIncrement}
-					disabled={draftGuests >= MAX_GUESTS}
-				>
-					<PlusIcon className="size-4" />
-				</Button>
-			</div>
+					<Button
+						type="button"
+						variant="outline"
+						size={skin === 'minimal' ? 'icon-lg' : 'icon-sm'}
+						onClick={handleDecrement}
+						disabled={draftGuests <= MIN_GUESTS}
+					>
+						<MinusIcon className="size-4" />
+					</Button>
+					<span
+						className={
+							skin === 'minimal'
+								? 'min-w-10 text-center text-2xl font-semibold text-foreground dark:text-white'
+								: 'min-w-8 text-center text-base font-semibold text-foreground dark:text-white'
+						}
+					>
+						{draftGuests}
+					</span>
+					<Button
+						type="button"
+						variant="outline"
+						size={skin === 'minimal' ? 'icon-lg' : 'icon-sm'}
+						onClick={handleIncrement}
+						disabled={draftGuests >= MAX_GUESTS}
+					>
+						<PlusIcon className="size-4" />
+					</Button>
+				</div>
+			)}
 		</>
 	);
 
