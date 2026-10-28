@@ -29,6 +29,7 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import { useSkin } from '@/providers/BrandProvider';
 import EventPageMinimal from './EventPageMinimal';
 import EventPageListing from './EventPageListing';
+import EventPageSoft from './EventPageSoft';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -216,6 +217,7 @@ export default function EventPageContent(props: EventPageContentProps) {
 
 	if (skin === 'minimal') return <EventPageMinimal {...props} />;
 	if (skin === 'listing') return <EventPageListing {...props} />;
+	if (skin === 'soft') return <EventPageSoft {...props} />;
 
 	return <EventPageClassic {...props} />;
 }

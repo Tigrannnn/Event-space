@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Header from './Header';
 import HeaderMinimal from './HeaderMinimal';
 import HeaderListing from './HeaderListing';
+import HeaderSoft from './HeaderSoft';
 import { useSkin } from '@/providers/BrandProvider';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
@@ -85,6 +86,8 @@ export default function HeaderWrapper() {
 					<HeaderMinimal />
 				) : skin === 'listing' ? (
 					<HeaderListing />
+				) : skin === 'soft' ? (
+					<HeaderSoft />
 				) : (
 					<>
 						<TopBar isTopBarVisible={isTopBarVisible} />

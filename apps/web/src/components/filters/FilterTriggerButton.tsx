@@ -1,5 +1,6 @@
 'use client';
 
+import { isFlatSkin } from '@/utils/skin';
 import type React from 'react';
 import { cn } from '@/utils/cn';
 import { ChevronDownIcon } from 'lucide-react';
@@ -21,8 +22,9 @@ export function FilterTriggerButton({
 	...props
 }: FilterTriggerButtonProps) {
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 
 	return (
 		<Button
@@ -32,7 +34,9 @@ export function FilterTriggerButton({
 			className={cn(
 				isMinimal
 					? `${isListing ? 'rounded-md' : 'rounded-full'} flex h-10 shrink-0 items-center justify-between gap-2 border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-colors hover:border-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-gray-100 dark:hover:border-gray-300 dark:hover:bg-neutral-950`
-					: 'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
+					: isSoft
+						? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition-all hover:border-primary/50 hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100'
+						: 'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
 				isActive &&
 					(isListing
 						? 'border-primary bg-primary/10 text-primary ring-primary hover:bg-primary/10 dark:bg-primary/20 ring-1'
@@ -62,8 +66,9 @@ export function CategoryPill({
 	...props
 }: CategoryPillProps) {
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 
 	return (
 		<button
@@ -71,7 +76,9 @@ export function CategoryPill({
 			className={cn(
 				isMinimal
 					? `h-10 shrink-0 ${isListing ? 'rounded-md' : 'rounded-full'} border px-4 text-sm font-medium transition-colors`
-					: 'h-9 shrink-0 rounded-full border px-4 text-sm font-medium shadow-sm transition-all duration-200',
+					: isSoft
+						? 'h-10 shrink-0 rounded-full border px-4 text-sm font-semibold shadow-sm transition-all duration-200'
+						: 'h-9 shrink-0 rounded-full border px-4 text-sm font-medium shadow-sm transition-all duration-200',
 				isMinimal
 					? isActive
 						? isListing

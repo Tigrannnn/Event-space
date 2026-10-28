@@ -18,6 +18,22 @@ export default function EventCardSkeleton() {
 		);
 	}
 
+	if (skin === 'soft') {
+		return (
+			<div className="rounded-3xl border border-gray-200/70 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+				<Skeleton className="aspect-4/3 w-full rounded-2xl" />
+				<div className="space-y-3 px-2 pt-4 pb-1">
+					<Skeleton className="h-6 w-4/5 rounded" />
+					<Skeleton className="h-4 w-1/2 rounded" />
+					<div className="flex items-center justify-between border-t border-dashed border-gray-300 pt-4 dark:border-gray-600">
+						<Skeleton className="h-6 w-24 rounded" />
+						<Skeleton className="h-11 w-28 rounded-full" />
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white sm:flex-row dark:border-neutral-800 dark:bg-neutral-900">

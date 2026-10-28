@@ -232,6 +232,41 @@
 	font-weight: 700;
 }
 
+/*
+ * The soft skin: classic's rounded, colourful look, set on warm paper instead of cool grey, with
+ * a serif for headings and slightly tighter corners. Most of the difference is carried by these
+ * tokens, since every grey, radius and shadow utility reads them; the layout differences live in
+ * the components. The admin panel keeps the plain palette (`.admin-root` marks it).
+ */
+:root[data-skin='soft'] body:not(:has(.admin-root)) {
+	--font-display: var(--font-display-latin), var(--font-sans-armenian), ui-serif, Georgia, serif;
+	--color-gray-50: #faf6ef;
+	--color-gray-100: #f4eee3;
+	--color-gray-200: #e8dfd0;
+	--color-gray-300: #d8ccb8;
+	--color-gray-400: #aa9f8b;
+	--color-gray-500: #7f7462;
+	--color-gray-600: #5f5647;
+	--color-gray-700: #463f33;
+	--color-gray-800: #2f2a22;
+	--color-gray-900: #1d1a15;
+	--color-gray-950: #12100c;
+	--radius-2xl: 0.875rem;
+	--radius-3xl: 1.25rem;
+	--radius-4xl: 1.75rem;
+	--shadow-sm: 0 1px 2px rgba(74, 52, 24, 0.08);
+	--shadow: 0 1px 3px rgba(74, 52, 24, 0.1);
+	--shadow-md: 0 4px 12px rgba(74, 52, 24, 0.1);
+	--shadow-lg: 0 10px 24px rgba(74, 52, 24, 0.12);
+	--shadow-xl: 0 18px 40px rgba(74, 52, 24, 0.14);
+	--shadow-2xl: 0 24px 56px rgba(74, 52, 24, 0.18);
+}
+
+:root[data-skin='soft'] body:not(:has(.admin-root)) :is(h1, h2, h3) {
+	font-family: var(--font-display);
+	letter-spacing: -0.01em;
+}
+
 @theme {
 	--color-primary: #1a7000;
 	--color-primary-foreground: #ffffff;

@@ -47,7 +47,7 @@ export default function AdminShell({ children }: AdminShellProps) {
 		// The site layout lets the document scroll, so nothing above this has a fixed
 		// height to inherit — h-full would collapse to the content. The admin is a
 		// full-screen app with its own scrolling <main>, so it claims the viewport.
-		<div className="flex h-dvh min-h-0">
+		<div className="admin-root flex h-dvh min-h-0">
 			{mobileOpen && (
 				<button
 					type="button"

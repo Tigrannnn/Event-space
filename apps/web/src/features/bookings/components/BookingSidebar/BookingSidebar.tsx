@@ -38,6 +38,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const skin = useSkin();
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 	const cardClassName = isMinimal
 		? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
 		: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
@@ -144,6 +145,117 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 			</div>
 		</div>
 	);
+
+	if (isSoft) {
+		return (
+			<div className="rounded-3xl border border-gray-200/70 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+				<div className="p-6 sm:p-7">
+					<div className="flex flex-wrap items-center gap-2">
+						{quote.discountPercent > 0 && (
+							<span className="rounded-full bg-(--brand-accent) px-2.5 py-1 text-xs font-bold text-white">
+								{translate('event.discountOff', { percent: quote.discountPercent })}
+							</span>
+						)}
+						{quote.discountPercent > 0 && (
+							<span className="text-sm text-gray-400 line-through">
+								{formatCurrency(quote.baseUnitPrice)}
+							</span>
+						)}
+					</div>
+					<div className="mt-1 flex items-baseline gap-2">
+						<span className="font-(family-name:--font-display) text-primary text-4xl font-bold">
+							{formatCurrency(quote.unitPrice)}
+						</span>
+						<span className="text-sm text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
+					</div>
+
+					<div className="mt-5 rounded-2xl bg-gray-50 p-4 dark:bg-gray-900/50">
+						<p className="mb-2 flex items-center gap-2 text-xs font-bold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+							<Calendar className="text-primary size-4" />
+							{translate('event.date')}
+						</p>
+						<OccurrencePicker
+							occurrences={upcomingOccurrences}
+							selectedId={selectedOccurrence?.id}
+							onSelect={setSelectedOccId}
+							price={event.price}
+							isBooked={isOccurrenceBooked}
+						/>
+						<TimeZoneNote className="mt-2" />
+					</div>
+
+					<div className="mt-5">
+						<div className="mb-2 flex justify-between gap-3 text-sm">
+							<span className="text-gray-600 dark:text-gray-400">
+								{currentParticipants} / {maxParticipants} {translate('event.participants')}
+							</span>
+							<FlashValue watch={spotsLeft} className="text-accent font-bold">
+								{spotsLeft} {translate('event.spotsLeft')}
+							</FlashValue>
+						</div>
+						<div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+							<div
+								className="bg-accent h-2 rounded-full transition-all duration-500"
+								style={{ width: `${progressPercentage}%` }}
+							/>
+						</div>
+						{spotsLeft <= 5 && !isSoldOut && (
+							<p className="text-accent mt-2 text-xs font-bold">{translate('event.sellingFast')}</p>
+						)}
+					</div>
+				</div>
+
+				<div className="relative border-t border-dashed border-gray-300 dark:border-gray-600">
+					<span className="absolute top-0 -left-3 size-6 -translate-y-1/2 rounded-full bg-gray-50 dark:bg-gray-900" />
+					<span className="absolute top-0 -right-3 size-6 -translate-y-1/2 rounded-full bg-gray-50 dark:bg-gray-900" />
+				</div>
+
+				<div className="space-y-4 p-6 sm:p-7">
+					{!eventIsAvailable ? (
+						<p className="rounded-2xl bg-red-50 p-4 text-center text-sm font-semibold text-red-700 dark:bg-red-900/20 dark:text-red-200">
+							{translate('event.eventEnded')}
+						</p>
+					) : isUserLoading || isMyBookingsLoading ? (
+						<Skeleton className="h-12 w-full rounded-full" />
+					) : hasBooking ? (
+						<div className="flex flex-col gap-2">
+							<Button variant="primary" className="w-full" onClick={handleBookClick}>
+								<Plus className="h-4 w-4" strokeWidth={2.5} />
+								{translate('event.bookAnotherSpot')}
+							</Button>
+							<Button variant="secondary" className="w-full" onClick={handleViewBooking}>
+								<Ticket className="h-4 w-4" />
+								{translate('event.viewMyBooking')}
+							</Button>
+						</div>
+					) : (
+						<Button variant="primary" className="w-full" onClick={handleBookClick} disabled={isSoldOut}>
+							<BookOpen className="h-4 w-4" />
+							{isSoldOut ? translate('event.noSpotsLeft') : translate('event.bookTour')}
+						</Button>
+					)}
+					<p className="flex items-center justify-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+						<CheckIcon className="h-4 w-4" />
+						{translate('event.secureBooking')}
+					</p>
+					<div className="space-y-4 border-t border-dashed border-gray-300 pt-4 dark:border-gray-600">
+						{placeRow(
+							<MapPin className="text-primary size-5" />,
+							translate('event.location'),
+							eventTranslation.location,
+							event.locationUrl,
+						)}
+						{placeRow(
+							<Navigation className="text-primary size-5" />,
+							translate('event.meetingLocationLabel'),
+							eventTranslation.meetingLocation,
+							event.meetingLocationUrl,
+						)}
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	if (isListing) {
 		const facts = [translate('event.secureBooking')];

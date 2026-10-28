@@ -1,5 +1,6 @@
 'use client';
 
+import { isFlatSkin } from '@/utils/skin';
 import Link from 'next/link';
 import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
@@ -42,7 +43,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const { USER_ROLE_LABELS } = useLabels();
 	const confirm = useConfirm();
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 
 	if (hasInitialUser && isLoading) {

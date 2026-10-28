@@ -49,6 +49,25 @@ export default function EmptyState({
 		);
 	}
 
+	if (skin === 'soft') {
+		return (
+			<div className="mx-auto flex w-full max-w-xl flex-1 items-center px-4 py-10">
+				<div className="flex w-full flex-col items-center rounded-[2rem] border-2 border-dashed border-gray-300 bg-white p-8 text-center sm:p-12 dark:border-gray-600 dark:bg-gray-800">
+					<span className="bg-accent/10 text-accent flex size-20 items-center justify-center rounded-full">
+						<Icon className="size-9" strokeWidth={1.75} />
+					</span>
+					<Heading className="mt-5 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+						{title}
+					</Heading>
+					<p className="mt-2 text-gray-600 dark:text-gray-400">{description}</p>
+					<Button variant="primary" className="mt-6 px-8" onClick={onAction}>
+						{actionLabel}
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="mx-auto flex w-full max-w-[1336px] flex-1 items-center px-4 py-10 sm:px-6 lg:px-8">

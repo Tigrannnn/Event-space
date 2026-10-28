@@ -1,5 +1,6 @@
 'use client';
 
+import { isFlatSkin } from '@/utils/skin';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/translation';
 import { useSkin } from '@/providers/BrandProvider';
@@ -24,7 +25,7 @@ export function EventsFiltersBar({
 }: EventsFiltersBarProps) {
 	const translate = useTranslation();
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 

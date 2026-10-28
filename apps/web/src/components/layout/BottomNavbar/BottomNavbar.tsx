@@ -1,5 +1,6 @@
 'use client';
 
+import { isFlatSkin } from '@/utils/skin';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { localizePath } from '@/lib/i18n/config';
@@ -28,14 +29,15 @@ export default function BottomNavbar() {
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 
 	if (isAdminPage) {
 		return null;
 	}
 
-	if (isMinimal) {
+	if (isMinimal || isSoft) {
 		const items = [
 			{
 				key: 'home',
@@ -72,7 +74,11 @@ export default function BottomNavbar() {
 		const itemClassName = (active: boolean) =>
 			cn(
 				'relative flex h-full flex-1 flex-col items-center justify-center gap-1 pt-2 pb-1.5 text-[11px] transition-colors',
-				isListing
+				isSoft
+					? active
+						? 'bg-primary/10 text-primary rounded-full font-bold'
+						: 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+					: isListing
 					? active
 						? 'font-semibold text-white'
 						: 'text-white/70 hover:text-white'
@@ -85,6 +91,8 @@ export default function BottomNavbar() {
 			<nav
 				className={cn(
 					'fixed right-0 bottom-0 left-0 z-40 flex items-stretch pb-[env(safe-area-inset-bottom)] md:hidden',
+					isSoft &&
+						'right-3 bottom-3 left-3 rounded-full border border-gray-200/70 bg-white/95 p-1 shadow-xl backdrop-blur dark:border-gray-700 dark:bg-gray-800/95',
 					isListing
 						? 'bg-primary'
 						: 'border-t border-gray-200 bg-white/95 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95',

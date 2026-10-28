@@ -33,6 +33,28 @@ export default function NotFound() {
 		);
 	}
 
+	if (skin === 'soft') {
+		return (
+			<div className="mx-auto flex min-h-[60vh] max-w-xl items-center px-4 py-12">
+				<div className="w-full rounded-[2rem] border-2 border-dashed border-gray-300 bg-white p-8 text-center sm:p-12 dark:border-gray-600 dark:bg-gray-800">
+					<p className="font-(family-name:--font-display) text-primary text-7xl leading-none font-bold sm:text-8xl">
+						404
+					</p>
+					<h1 className="mt-5 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+						{translate('common.notFoundTitle')}
+					</h1>
+					<p className="mt-2 text-gray-600 dark:text-gray-400">
+						{translate('common.notFoundDescription')}
+					</p>
+					<Button className="mt-7 px-8" onClick={() => navigation.push('/')}>
+						<Home className="size-4" />
+						{translate('common.goHome')}
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">

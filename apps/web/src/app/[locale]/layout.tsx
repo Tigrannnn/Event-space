@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist_Mono, Inter, Manrope, Noto_Sans_Armenian } from 'next/font/google';
+import { Fraunces, Geist_Mono, Inter, Manrope, Noto_Sans_Armenian } from 'next/font/google';
 import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
@@ -9,6 +9,7 @@ import GoogleProvider from '@/providers/GoogleProvider';
 import { BrandProvider } from '@/providers/BrandProvider';
 import { getBrandForHost, isDemoHost } from '@/config/brands';
 import { PRIVATE_PAGE_ROBOTS } from '@/lib/seo';
+import { isFlatSkin } from '@/utils/skin';
 import { DEFAULT_BRAND_SKIN, EnvKey } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
 import { defaultLocale, isLocale, localeOpenGraph } from '@/lib/i18n/config';
@@ -47,6 +48,15 @@ const fontMinimal = Inter({
 	variable: '--font-minimal-latin',
 	subsets: ['latin', 'cyrillic'],
 	weight: ['400', '500', '600', '700'],
+	display: 'swap',
+	preload: false,
+});
+
+// The soft skin sets its headings in Fraunces, a soft serif; fetched only where it is applied.
+const fontDisplay = Fraunces({
+	variable: '--font-display-latin',
+	subsets: ['latin'],
+	weight: ['500', '600', '700'],
 	display: 'swap',
 	preload: false,
 });
@@ -111,7 +121,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
 	const brand = getBrandForHost((await headers()).get('host'));
 	const skin = brand.skin ?? DEFAULT_BRAND_SKIN;
-	const isFlat = skin !== 'classic';
+	const isFlat = isFlatSkin(skin);
 
 	if (!googleClientId) {
 		throw new Error('Missing GOOGLE_CLIENT_ID environment variable');
@@ -122,7 +132,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isFlat ? fontMinimal.variable : ''}`}
+			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isFlat ? fontMinimal.variable : ''} ${skin === 'soft' ? fontDisplay.variable : ''}`}
 			suppressHydrationWarning
 		>
 			<head>
@@ -148,7 +158,13 @@ export default async function Layout({ children, params }: LayoutProps) {
 			</head>
 			<body
 				className={`text-black flex min-h-dvh flex-col antialiased dark:text-white ${
-					isFlat ? (skin === 'listing' ? 'bg-slate-50 dark:bg-neutral-950' : 'bg-white dark:bg-neutral-950') : 'bg-gray-100 dark:bg-gray-900'
+					skin === 'soft'
+						? 'bg-gray-50 dark:bg-gray-900'
+						: isFlat
+							? skin === 'listing'
+								? 'bg-slate-50 dark:bg-neutral-950'
+								: 'bg-white dark:bg-neutral-950'
+							: 'bg-gray-100 dark:bg-gray-900'
 				}`}
 			>
 				<BrandProvider brand={brand}>

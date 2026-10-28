@@ -19,6 +19,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const skin = useSkin();
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -88,7 +89,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						? 'h-[23rem] border border-gray-200 sm:h-72 dark:border-neutral-800'
 						: isListing
 							? 'h-56 rounded-lg border border-gray-200 sm:h-80 dark:border-neutral-800'
-							: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+							: isSoft
+								? 'aspect-16/9 rounded-3xl shadow-lg ring-4 ring-white sm:aspect-16/6 dark:ring-gray-800'
+								: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (

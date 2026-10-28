@@ -24,7 +24,7 @@ export interface BrandAboutContent {
  * How a site looks beyond its colours: layout of the header, the tour cards and the catalogue.
  * Two companies that sell side by side should not read as one site in two paints.
  */
-export type BrandSkin = 'classic' | 'minimal' | 'listing';
+export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft';
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
 
@@ -219,6 +219,7 @@ const brands: Record<string, Brand> = {
 	// rather than simply going lighter, so the pair reads as two colours.
 	'yerivar.event-space.space': {
 		name: 'Yerivar',
+		skin: 'soft',
 		colorPrimary: '#1E8F82',
 		colorAccent: '#227CA0',
 		description: siteConfig.description,

@@ -1,5 +1,6 @@
 'use client';
 
+import { isFlatSkin } from '@/utils/skin';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { localizePath } from '@/lib/i18n/config';
@@ -15,10 +16,12 @@ export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const skin = useSkin();
-	const isMinimal = skin !== 'classic';
+	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
-	const muted = isListing ? 'text-white/75' : 'text-gray-500 dark:text-gray-400';
-	const linkHover = isListing ? 'hover:text-white hover:underline' : 'hover:text-primary';
+	const isSoft = skin === 'soft';
+	const onColor = isListing || isSoft;
+	const muted = onColor ? 'text-white/75' : 'text-gray-500 dark:text-gray-400';
+	const linkHover = onColor ? 'hover:text-white hover:underline' : 'hover:text-primary';
 	const locale = translate.locale;
 	const pathname = usePathname();
 	const { data: categories } = useCategories();
@@ -29,12 +32,13 @@ export default function Footer() {
 		<footer
 			className={cn(
 				'mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950',
-				isListing && 'bg-primary dark:bg-primary border-transparent text-white dark:border-transparent',
+				onColor && 'bg-primary dark:bg-primary border-transparent text-white dark:border-transparent',
+				isSoft && 'mt-16 rounded-t-[2rem] sm:rounded-t-[2.5rem] sm:py-8',
 			)}
 		>
-			{isMinimal && (
+			{(isMinimal || isSoft) && (
 				<div className="mx-auto mb-4 max-w-7xl">
-					<ContactIcons onDark={isListing} square={isListing} className="-ml-2.5" />
+					<ContactIcons onDark={onColor} square={isListing} className="-ml-2.5" />
 				</div>
 			)}
 
