@@ -13,6 +13,8 @@
 		"@dnd-kit/sortable": "^10.0.0",
 		"@dnd-kit/utilities": "^3.2.2",
 		"@event-space/shared": "*",
+		"@fontsource-variable/fraunces": "^5.3.0",
+		"@fontsource-variable/inter": "^5.3.0",
 		"@hookform/resolvers": "^5.2.2",
 		"@react-aria/overlays": "^3.31.2",
 		"@react-oauth/google": "^0.13.5",

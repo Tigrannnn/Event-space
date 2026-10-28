@@ -61,7 +61,7 @@
  */
 :root[data-skin='minimal'],
 :root[data-skin='listing'] {
-	--font-sans: var(--font-minimal-latin), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Inter Variable', var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 	--shadow-sm: none;
 	--shadow: none;
 	--shadow-md: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -285,7 +285,7 @@
  * the components. The admin panel keeps the plain palette (`.admin-root` marks it).
  */
 :root[data-skin='soft'] body:not(:has(.admin-root)) {
-	--font-display: var(--font-display-latin), var(--font-sans-armenian), ui-serif, Georgia, serif;
+	--font-display: 'Fraunces Variable', var(--font-sans-armenian), ui-serif, Georgia, serif;
 	--color-gray-50: #faf6ef;
 	--color-gray-100: #f4eee3;
 	--color-gray-200: #e8dfd0;

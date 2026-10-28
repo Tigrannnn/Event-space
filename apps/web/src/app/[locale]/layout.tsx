@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { Fraunces, Geist_Mono, Inter, Manrope, Noto_Sans_Armenian } from 'next/font/google';
+import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/fraunces';
 import { headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
@@ -40,25 +42,6 @@ const fontArmenian = Noto_Sans_Armenian({
 	subsets: ['armenian'],
 	weight: ['400', '500', '600', '700'],
 	display: 'swap',
-});
-
-// The minimal skin sets its text in Inter rather than Manrope; it is fetched only by pages that
-// actually apply it, so the classic sites pay nothing for it.
-const fontMinimal = Inter({
-	variable: '--font-minimal-latin',
-	subsets: ['latin', 'cyrillic'],
-	weight: ['400', '500', '600', '700'],
-	display: 'swap',
-	preload: false,
-});
-
-// The soft skin sets its headings in Fraunces, a soft serif; fetched only where it is applied.
-const fontDisplay = Fraunces({
-	variable: '--font-display-latin',
-	subsets: ['latin'],
-	weight: ['500', '600', '700'],
-	display: 'swap',
-	preload: false,
 });
 
 const geistMono = Geist_Mono({
@@ -132,7 +115,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable} ${isFlat ? fontMinimal.variable : ''} ${skin === 'soft' ? fontDisplay.variable : ''}`}
+			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable}`}
 			suppressHydrationWarning
 		>
 			<head>
