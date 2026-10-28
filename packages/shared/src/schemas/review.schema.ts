@@ -47,7 +47,6 @@ export const ReviewWindowStateSchema = z.enum(['OPEN', 'TOO_EARLY', 'CLOSED', 'N
 export const MyReviewSchema = z.object({
 	window: ReviewWindowStateSchema,
 	opensAt: z.coerce.date().nullable(),
-	canEdit: z.boolean(),
 	review: ReviewSchema.nullable(),
 	/** Enough to title the page without a second request for the whole event. */
 	event: z

@@ -70,7 +70,6 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.REVIEW_WINDOW_CLOSED]: 'Այս շրջագայության մասին կարծիք թողնելու ժամկետն անցել է։',
 	[AppErrorCode.REVIEW_NOT_ELIGIBLE]: 'Կարծիք կարելի է թողնել միայն վճարված և կայացած շրջագայության համար։',
 	[AppErrorCode.REVIEW_ALREADY_EXISTS]: 'Դուք արդեն կարծիք եք թողել այս շրջագայության մասին։',
-	[AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED]: 'Կարծիքը կարելի է փոխել միայն ուղարկելուց հետո երկու օրվա ընթացքում։',
 	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Ավելացրեք նկար բանների համար։',
 	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Ընտրեք, թե ուր է տանում բաները։',
 	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'Ավարտի ամսաթիվը չի կարող սկզբից շուտ լինել։',

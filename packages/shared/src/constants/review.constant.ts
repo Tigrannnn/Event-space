@@ -18,9 +18,6 @@ export const REVIEW_CONFIG = {
 	/** After this the tour is a memory, not an impression. */
 	WINDOW_DAYS: 60,
 
-	/** Second thoughts are allowed; rewriting history months later is not. */
-	EDIT_WINDOW_MS: 48 * 60 * 60 * 1000,
-
 	/** Page size for the reviews under an event. */
 	PAGE_SIZE: 10,
 } as const;

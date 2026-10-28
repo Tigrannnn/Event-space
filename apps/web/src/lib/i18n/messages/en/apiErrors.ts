@@ -76,7 +76,6 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.REVIEW_WINDOW_CLOSED]: 'The time for reviewing this tour has passed.',
 	[AppErrorCode.REVIEW_NOT_ELIGIBLE]: 'Only a paid booking for a tour that took place can be reviewed.',
 	[AppErrorCode.REVIEW_ALREADY_EXISTS]: 'You have already reviewed this tour.',
-	[AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED]: 'A review can only be changed within two days of writing it.',
 	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Add a picture for the banner.',
 	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Choose where the banner should lead.',
 	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'The end date cannot be earlier than the start date.',

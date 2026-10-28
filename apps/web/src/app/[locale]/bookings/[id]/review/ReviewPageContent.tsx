@@ -81,7 +81,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 
 	const title = state.event ? getEventTranslation(state.event, translate.locale).title : '';
 
-	const isEditable = state.window === 'OPEN' && (!existing || state.canEdit);
+	const isEditable = state.window === 'OPEN';
 
 	const notice = () => {
 		if (state.window === 'TOO_EARLY') {
@@ -97,13 +97,6 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 		}
 		if (state.window === 'NOT_ELIGIBLE') {
 			return { icon: <Clock className="h-10 w-10" />, text: translate('review.notEligible') };
-		}
-		if (existing && !state.canEdit) {
-			return {
-				icon: <CheckCircle2 className="h-10 w-10" />,
-				text:
-					existing.status === 'PENDING' ? translate('review.pendingNotice') : translate('review.thanks'),
-			};
 		}
 		return null;
 	};
@@ -215,10 +208,6 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 								{existing ? translate('review.update') : translate('review.submit')}
 							</Button>
 						</div>
-
-						{!isEditable && existing && (
-							<p className="text-xs text-gray-500">{translate('review.editWindowOver')}</p>
-						)}
 
 						{existing && (
 							<div className="flex justify-center border-t border-gray-200 pt-4 dark:border-gray-700">

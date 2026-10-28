@@ -55,10 +55,6 @@ export function initialReviewStatus(text?: string | null): 'PENDING' | 'PUBLISHE
 	return text?.trim() ? 'PENDING' : 'PUBLISHED';
 }
 
-export function canEditReview(createdAt: Date | string, now: number = Date.now()): boolean {
-	return now - new Date(createdAt).getTime() <= REVIEW_CONFIG.EDIT_WINDOW_MS;
-}
-
 /** The average as the page shows it: one decimal, and nothing at all before the first review. */
 export function averageRating(event: {
 	ratingSum?: number | null;

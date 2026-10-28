@@ -1,6 +1,5 @@
 import {
 	averageRating,
-	canEditReview,
 	initialReviewStatus,
 	REVIEW_CONFIG,
 	reviewWindow,
@@ -66,15 +65,6 @@ describe('initialReviewStatus', () => {
 
 	it('sends anything written by a person to a person', () => {
 		expect(initialReviewStatus('Отличный тур')).toBe('PENDING');
-	});
-});
-
-describe('canEditReview', () => {
-	const written = new Date('2026-10-21T10:00:00.000Z');
-
-	it('allows second thoughts, but not rewriting history', () => {
-		expect(canEditReview(written, written.getTime() + 47 * HOUR)).toBe(true);
-		expect(canEditReview(written, written.getTime() + 49 * HOUR)).toBe(false);
 	});
 });
 

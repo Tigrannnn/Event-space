@@ -70,7 +70,6 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.REVIEW_WINDOW_CLOSED]: 'Время для отзыва об этом туре уже прошло.',
 	[AppErrorCode.REVIEW_NOT_ELIGIBLE]: 'Отзыв можно оставить только по оплаченной броне на состоявшийся тур.',
 	[AppErrorCode.REVIEW_ALREADY_EXISTS]: 'Вы уже оставили отзыв об этом туре.',
-	[AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED]: 'Отзыв можно изменить только в течение двух суток после отправки.',
 	[AppErrorCode.BANNER_IMAGE_REQUIRED]: 'Добавьте картинку для баннера.',
 	[AppErrorCode.BANNER_TARGET_REQUIRED]: 'Выберите, куда ведёт баннер.',
 	[AppErrorCode.BANNER_INVALID_SCHEDULE]: 'Дата окончания не может быть раньше даты начала.',

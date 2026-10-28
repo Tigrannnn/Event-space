@@ -4,7 +4,6 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
-	canEditReview,
 	EnvKey,
 	getEventTranslation,
 	initialReviewStatus,
@@ -181,7 +180,6 @@ export class ReviewService {
 			opensAt: booking.occurrence
 				? new Date(reviewOpensAt(booking.occurrence.date, booking.occurrence.event?.duration))
 				: null,
-			canEdit: booking.review ? canEditReview(booking.review.createdAt, now) : false,
 			review: booking.review,
 			event: booking.occurrence?.event ?? null,
 			occurrenceDate: booking.occurrence?.date ?? null,
@@ -266,10 +264,6 @@ export class ReviewService {
 		}
 
 		const reviewId = existing.id;
-
-		if (!canEditReview(existing.createdAt)) {
-			throw new AppException(AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED);
-		}
 
 		const text = data.text?.trim() || null;
 		// An edited review is judged again from scratch: adding a sentence to a bare rating

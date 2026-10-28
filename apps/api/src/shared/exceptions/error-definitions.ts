@@ -187,10 +187,6 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'This booking already has a review',
 	},
-	[AppErrorCode.REVIEW_EDIT_WINDOW_CLOSED]: {
-		status: HttpStatus.FORBIDDEN,
-		message: 'Too late to change this review',
-	},
 	[AppErrorCode.BANNER_IMAGE_REQUIRED]: {
 		status: HttpStatus.BAD_REQUEST,
 		message: 'A banner needs a picture',
