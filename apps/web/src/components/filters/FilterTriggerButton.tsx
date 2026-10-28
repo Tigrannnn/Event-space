@@ -35,7 +35,7 @@ export function FilterTriggerButton({
 				isMinimal
 					? `${isListing ? 'rounded-md' : 'rounded-full'} flex h-10 shrink-0 items-center justify-between gap-2 border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-colors hover:border-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-gray-100 dark:hover:border-gray-300 dark:hover:bg-neutral-950`
 					: isSoft
-						? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition-all hover:border-primary/50 hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100'
+						? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition-all hover:border-primary/50 hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-white'
 						: 'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
 				isActive &&
 					(isListing
