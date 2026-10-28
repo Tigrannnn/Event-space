@@ -101,7 +101,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 						<Button
 							variant="secondary"
 							onClick={() => router.back()}
-							className="pointer-events-auto flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3"
+							className="pointer-events-auto flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm hover:bg-white dark:bg-gray-900/85 dark:text-white dark:hover:bg-gray-900 sm:px-4 sm:py-3"
 						>
 							<ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
 							<span className="hidden md:inline">{translate('event.back')}</span>
@@ -111,7 +111,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 							<Button
 								variant="secondary"
 								onClick={handleShareClick}
-								className="flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm sm:px-4 sm:py-3"
+								className="flex items-center gap-2 bg-white/90 px-3 py-2 shadow-lg backdrop-blur-sm hover:bg-white dark:bg-gray-900/85 dark:text-white dark:hover:bg-gray-900 sm:px-4 sm:py-3"
 							>
 								<Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
 								<span className="hidden md:inline">{translate('event.share')}</span>

@@ -90,7 +90,7 @@ export default function Header() {
 								<Link href={localizePath('/favorites', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+										className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 									>
 										{translate('header.favorites')}
 										{myFavoritesCount > 0 && (
@@ -104,7 +104,7 @@ export default function Header() {
 								<Link href={localizePath('/bookings', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+										className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 relative px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 									>
 										{translate('header.bookings')}
 										{myBookingsCount > 0 && (
@@ -116,7 +116,7 @@ export default function Header() {
 								</Link>
 
 								<Link href={localizePath('/profile', navigation.locale)}>
-									<Button variant="secondary" className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base">
+									<Button variant="secondary" className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base">
 										{user.name.split(' ')[0].trim().length <= 10
 											? user.name.split(' ')[0]
 											: translate('header.profile')}
@@ -128,14 +128,14 @@ export default function Header() {
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Register)}
-									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 								>
 									{translate('header.signUp')}
 								</Button>
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Login)}
-									className="px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
+									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2.5 text-xs lg:px-6 lg:py-3 lg:text-base"
 								>
 									{translate('header.logIn')}
 								</Button>
