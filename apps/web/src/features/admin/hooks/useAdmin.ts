@@ -740,8 +740,9 @@ export const useDeleteBanner = () => {
 	});
 };
 
-export const useAdminReviews = (status?: ReviewStatus) => {
+export const useAdminReviews = (status?: ReviewStatus, enabled = true) => {
 	return useInfiniteQuery({
+		enabled,
 		queryKey: ['admin', 'reviews', status ?? 'ALL'],
 		queryFn: ({ pageParam }) => adminApi.getReviews({ status, cursor: pageParam }),
 		initialPageParam: undefined as string | undefined,
@@ -750,12 +751,15 @@ export const useAdminReviews = (status?: ReviewStatus) => {
 };
 
 /** The number on the sidebar tab: how many reviews are waiting to be read. */
-export const usePendingReviewsCount = () => {
-	const { data } = useQuery({
+export const usePendingReviewsCountQuery = () =>
+	useQuery({
 		queryKey: ['admin', 'reviews', 'pending-count'],
 		queryFn: () => adminApi.getPendingReviewsCount(),
 		...LIVE_BADGE_QUERY_OPTIONS,
 	});
+
+export const usePendingReviewsCount = () => {
+	const { data } = usePendingReviewsCountQuery();
 
 	return data?.count ?? 0;
 };

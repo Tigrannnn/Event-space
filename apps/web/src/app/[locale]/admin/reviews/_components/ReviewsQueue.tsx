@@ -1,23 +1,32 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReviewStatus } from '@event-space/shared';
 import Select from '@/components/ui/Select';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
 import { useTranslation } from '@/hooks/translation';
-import { useAdminReviews } from '@/features/admin/hooks/useAdmin';
+import { useAdminReviews, usePendingReviewsCountQuery } from '@/features/admin/hooks/useAdmin';
 import ReviewCard from './ReviewCard';
 
 type StatusFilter = 'ALL' | ReviewStatus;
 
 export default function ReviewsQueue() {
 	const translate = useTranslation();
-	// Opens on the only thing that needs doing: everything else is already decided.
-	const [statusFilter, setStatusFilter] = useState<StatusFilter>('PENDING');
+	const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
+	const { data: pending } = usePendingReviewsCountQuery();
+
+	// Opens on the queue when there is one, on everything when there is nothing to decide. It is
+	// settled once, so clearing the last waiting review does not yank the list out from under you.
+	useEffect(() => {
+		if (statusFilter === null && pending) {
+			setStatusFilter(pending.count > 0 ? 'PENDING' : 'ALL');
+		}
+	}, [statusFilter, pending]);
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useAdminReviews(
-		statusFilter === 'ALL' ? undefined : statusFilter,
+		statusFilter === 'ALL' || statusFilter === null ? undefined : statusFilter,
+		statusFilter !== null,
 	);
 
 	const reviews = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -44,7 +53,7 @@ export default function ReviewsQueue() {
 				<Select
 					variant="filter"
 					size="sm"
-					value={statusFilter}
+					value={statusFilter ?? 'PENDING'}
 					onValueChange={(value) => setStatusFilter(value as StatusFilter)}
 					options={[
 						{ value: 'PENDING', label: translate('admin.reviewsQueue') },
@@ -55,7 +64,7 @@ export default function ReviewsQueue() {
 				/>
 			</div>
 
-			{reviews.length === 0 ? (
+			{statusFilter === null ? null : reviews.length === 0 ? (
 				<p className="px-3 py-8 text-center text-gray-500 sm:px-5">
 					{translate('admin.noReviewsFound')}
 				</p>
