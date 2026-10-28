@@ -90,7 +90,7 @@ export default function Header() {
 								<Link href={localizePath('/favorites', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
+										className="rounded-full border border-white/40 bg-white/25 text-white backdrop-blur-md hover:bg-white/35 hover:text-white sm:rounded-full dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 dark:hover:text-white relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 									>
 										{translate('header.favorites')}
 										{myFavoritesCount > 0 && (
@@ -104,7 +104,7 @@ export default function Header() {
 								<Link href={localizePath('/bookings', navigation.locale)}>
 									<Button
 										variant="secondary"
-										className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
+										className="rounded-full border border-white/40 bg-white/25 text-white backdrop-blur-md hover:bg-white/35 hover:text-white sm:rounded-full dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 dark:hover:text-white relative px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 									>
 										{translate('header.bookings')}
 										{myBookingsCount > 0 && (
@@ -116,7 +116,7 @@ export default function Header() {
 								</Link>
 
 								<Link href={localizePath('/profile', navigation.locale)}>
-									<Button variant="secondary" className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 px-4 py-2 text-sm lg:px-5 lg:py-2.5">
+									<Button variant="secondary" className="rounded-full border border-white/40 bg-white/25 text-white backdrop-blur-md hover:bg-white/35 hover:text-white sm:rounded-full dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 dark:hover:text-white px-4 py-2 text-sm lg:px-5 lg:py-2.5">
 										{user.name.split(' ')[0].trim().length <= 10
 											? user.name.split(' ')[0]
 											: translate('header.profile')}
@@ -128,14 +128,14 @@ export default function Header() {
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Register)}
-									className="bg-white text-primary hover:bg-white/90 dark:bg-white dark:text-primary dark:hover:bg-white/90 px-4 py-2 text-sm lg:px-5 lg:py-2.5"
+									className="rounded-full border border-white/40 bg-white/25 text-white backdrop-blur-md hover:bg-white/35 hover:text-white sm:rounded-full dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 dark:hover:text-white px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 								>
 									{translate('header.signUp')}
 								</Button>
 								<Button
 									variant="secondary"
 									onClick={() => openModal(ModalType.Login)}
-									className="rounded-full border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30 sm:rounded-full dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25 px-4 py-2 text-sm lg:px-5 lg:py-2.5"
+									className="rounded-full border border-white/40 bg-white/25 text-white backdrop-blur-md hover:bg-white/35 hover:text-white sm:rounded-full dark:border-white/30 dark:bg-white/20 dark:text-white dark:hover:bg-white/30 dark:hover:text-white px-4 py-2 text-sm lg:px-5 lg:py-2.5"
 								>
 									{translate('header.logIn')}
 								</Button>
