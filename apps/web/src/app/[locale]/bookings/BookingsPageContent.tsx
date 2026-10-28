@@ -7,7 +7,7 @@ import { useMyBookings } from '../../../features/bookings/hooks/useBookings';
 import BookingCard from '../../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import EmptyState from '@/components/ui/EmptyState/EmptyState';
-import { CalendarX, Filter } from 'lucide-react';
+import { CalendarX, Filter, Ticket } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -28,6 +28,7 @@ export default function BookingsPageContent() {
 	const skin = useSkin();
 	const isListing = skin === 'listing';
 	const isMinimal = skin === 'minimal';
+	const isSoft = skin === 'soft';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,
@@ -84,11 +85,18 @@ export default function BookingsPageContent() {
 			className={
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
-					: 'min-h-full max-w-full px-4 py-8'
+					: isSoft
+						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
+						: 'min-h-full max-w-full px-4 py-8'
 			}
 		>
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+				<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
+					{isSoft && (
+						<span className="bg-accent/10 text-accent flex size-11 items-center justify-center rounded-full">
+							<Ticket className="size-5" />
+						</span>
+					)}
 					{translate('booking.myBookings')}
 				</h1>
 				<div
@@ -132,7 +140,9 @@ export default function BookingsPageContent() {
 					className={
 						isListing
 							? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
-							: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+							: isSoft
+								? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4'
+								: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 					}
 				>
 					{bookings.map((booking) => (

@@ -45,6 +45,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const skin = useSkin();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -100,7 +101,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 		openModal(ModalType.EditProfile);
 	};
 
-	if (isMinimal) {
+	if (isMinimal || isSoft) {
 		const initial = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
 		const rows = [
 			{
@@ -136,6 +137,78 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					]
 				: []),
 		];
+		if (isSoft) {
+			return (
+				<div className="mx-auto max-w-5xl px-4 py-8 pb-24 sm:py-12 md:pb-14">
+					<div className="relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-md sm:p-8 dark:bg-gray-800">
+						<div
+							aria-hidden
+							className="bg-primary/10 pointer-events-none absolute -top-16 -right-16 size-56 rounded-full"
+						/>
+						<div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+							<div className="bg-primary flex size-24 shrink-0 items-center justify-center rounded-full font-(family-name:--font-display) text-4xl font-bold text-white ring-4 ring-(--brand-accent)/40">
+								{initial}
+							</div>
+							<div className="min-w-0 flex-1">
+								<h1 className="text-primary text-3xl font-bold break-words sm:text-4xl">{user.name}</h1>
+								<div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+									{[user.email, user.phone].filter(Boolean).map((item) => (
+										<span
+											key={item}
+											className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+										>
+											{item}
+										</span>
+									))}
+									<span className="bg-accent/10 text-accent rounded-full px-3 py-1 text-sm font-bold">
+										{USER_ROLE_LABELS[user.role]}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+						{rows.map((row) => {
+							const content = (
+								<>
+									<span className="bg-accent/10 text-accent flex size-12 shrink-0 items-center justify-center rounded-full">
+										<row.icon className="size-6" strokeWidth={1.75} />
+									</span>
+									<span className="min-w-0 flex-1">
+										<span className="block font-(family-name:--font-display) text-lg font-bold text-gray-900 dark:text-white">
+											{row.title}
+										</span>
+										<span className="block text-sm text-gray-600 dark:text-gray-400">{row.hint}</span>
+									</span>
+									<ArrowRight className="text-primary size-5 shrink-0" />
+								</>
+							);
+							const tile =
+								'flex w-full cursor-pointer items-center gap-4 rounded-3xl border border-gray-200/70 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-gray-700 dark:bg-gray-800';
+
+							return row.href ? (
+								<Link key={row.key} href={row.href} className={tile}>
+									{content}
+								</Link>
+							) : (
+								<button key={row.key} type="button" onClick={row.onClick} className={tile}>
+									{content}
+								</button>
+							);
+						})}
+					</div>
+
+					<div className="mt-6 flex justify-center">
+						<Button variant="secondary" onClick={handleLogout} disabled={isLoggingOut}>
+							<LogOut className="size-4" />
+							{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
+						</Button>
+					</div>
+				</div>
+			);
+		}
+
 		if (isListing) {
 			return (
 				<div className="pb-24 md:pb-10">

@@ -99,10 +99,29 @@ function ProfileSkeletonListing() {
 	);
 }
 
+function ProfileSkeletonSoft() {
+	return (
+		<div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
+			<div className="flex flex-col items-center gap-5 rounded-[2rem] bg-white p-6 sm:flex-row sm:p-8 dark:bg-gray-800">
+				<Skeleton className="size-24 shrink-0 rounded-full" />
+				<div className="w-full space-y-3">
+					<Skeleton className="h-9 w-2/3 rounded sm:w-72" />
+					<Skeleton className="h-6 w-full rounded-full sm:w-96" />
+				</div>
+			</div>
+			<div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+				{[1, 2, 3].map((i) => (
+					<Skeleton key={i} className="h-24 rounded-3xl" />
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function ProfileSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden">
 				<ProfileSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -110,6 +129,9 @@ export default function ProfileSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=listing]:block">
 				<ProfileSkeletonListing />
+			</div>
+			<div className="hidden in-data-[skin=soft]:block">
+				<ProfileSkeletonSoft />
 			</div>
 		</>
 	);

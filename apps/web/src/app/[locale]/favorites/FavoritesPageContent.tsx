@@ -15,7 +15,9 @@ import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserve
 export default function FavoritesPageContent() {
 	const translate = useTranslation();
 	const navigation = useLocalizedNavigation();
-	const isListing = useSkin() === 'listing';
+	const skin = useSkin();
+	const isListing = skin === 'listing';
+	const isSoft = skin === 'soft';
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
 
 	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -52,12 +54,19 @@ export default function FavoritesPageContent() {
 			className={
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
-					: 'min-h-full px-4 py-8'
+					: isSoft
+						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
+						: 'min-h-full px-4 py-8'
 			}
 		>
 			<div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 				<div>
-					<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+					<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
+						{isSoft && (
+							<span className="flex size-11 items-center justify-center rounded-full bg-rose-50 text-rose-500 dark:bg-rose-950/40">
+								<Heart className="size-5 fill-current" />
+							</span>
+						)}
 						{translate('favorites.title')}
 					</h1>
 					<p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -70,7 +79,9 @@ export default function FavoritesPageContent() {
 				className={
 					isListing
 						? 'flex flex-col gap-4'
-						: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+						: isSoft
+							? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 2xl:grid-cols-4'
+							: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 				}
 			>
 				{favorites.map((event) => (

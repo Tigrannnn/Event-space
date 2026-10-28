@@ -90,10 +90,31 @@ function BookingsSkeletonListing() {
 	);
 }
 
+function BookingsSkeletonSoft() {
+	return (
+		<div className="mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+			<Skeleton className="mb-6 h-11 w-56 rounded-full" />
+			<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4">
+				{[1, 2, 3, 4].map((i) => (
+					<div key={i} className="rounded-3xl border border-gray-200/70 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+						<Skeleton className="aspect-video w-full rounded-2xl" />
+						<div className="space-y-3 px-2 pt-4 pb-1">
+							<Skeleton className="h-6 w-4/5 rounded" />
+							<Skeleton className="h-4 w-1/2 rounded" />
+							<Skeleton className="h-4 w-2/3 rounded" />
+							<Skeleton className="h-10 w-full rounded-full" />
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function BookingsSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden">
 				<BookingsSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -101,6 +122,9 @@ export default function BookingsSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=listing]:block">
 				<BookingsSkeletonListing />
+			</div>
+			<div className="hidden in-data-[skin=soft]:block">
+				<BookingsSkeletonSoft />
 			</div>
 		</>
 	);
