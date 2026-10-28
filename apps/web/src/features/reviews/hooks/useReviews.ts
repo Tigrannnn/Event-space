@@ -56,3 +56,27 @@ export const useSaveReview = (bookingId: string, token?: string) => {
 		},
 	});
 };
+
+export const useDeleteMyReview = (bookingId: string, token?: string) => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: () => reviewsApi.remove(bookingId, token),
+		onSuccess: async () => {
+			addToast(translate('review.deleted'), ToastType.SUCCESS);
+
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['reviews'] }),
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'review.deleteFailed'), ToastType.ERROR);
+		},
+	});
+};

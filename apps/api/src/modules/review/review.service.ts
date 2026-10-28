@@ -296,6 +296,19 @@ export class ReviewService {
 		});
 	}
 
+	async deleteForBooking(userId: string, bookingId: string): Promise<void> {
+		const existing = await this.prisma.review.findUnique({ where: { bookingId } });
+
+		if (!existing || existing.userId !== userId) {
+			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { bookingId });
+		}
+
+		await this.prisma.$transaction(async (tx) => {
+			await tx.review.delete({ where: { id: existing.id } });
+			await applyRatingDelta(tx, existing.eventId, existing, null);
+		});
+	}
+
 	private assertWindowOpen(booking: Parameters<typeof reviewWindow>[0]): void {
 		switch (reviewWindow(booking)) {
 			case 'OPEN':

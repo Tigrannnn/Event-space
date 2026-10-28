@@ -31,6 +31,9 @@ export const reviewsApi = {
 			.post<Review>(`/bookings/${bookingId}/review`, data, { params: { t: token } })
 			.then((res) => res.data),
 
+	remove: (bookingId: string, token?: string) =>
+		clientApi.delete(`/bookings/${bookingId}/review`, { params: { t: token } }).then(() => undefined),
+
 	update: (bookingId: string, data: UpdateReviewData, token?: string) =>
 		clientApi
 			.patch<Review>(`/bookings/${bookingId}/review`, data, { params: { t: token } })

@@ -10,6 +10,7 @@ import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { localizePath } from '@/lib/i18n/config';
 import { useEventReviews } from '../hooks/useReviews';
+import { DeleteReviewButton } from './DeleteReviewButton';
 import { StarRating } from './StarRating';
 
 export function EventReviews({ event }: { event: Event }) {
@@ -78,6 +79,10 @@ export function EventReviews({ event }: { event: Event }) {
 										{translate('review.editAction')}
 									</Link>
 								)}
+								<DeleteReviewButton
+									bookingId={review.bookingId}
+									className={canEditReview(review.createdAt) ? '' : 'ml-auto'}
+								/>
 							</div>
 
 							{review.text && (

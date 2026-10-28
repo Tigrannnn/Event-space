@@ -136,6 +136,20 @@ export class ReviewController {
 		return this.reviewService.updateForBooking(actorId, bookingId, data);
 	}
 
+	@Delete('bookings/:bookingId/review')
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiOperation({ summary: 'Delete my own review' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
+	async removeOwn(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('bookingId') bookingId: string,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
+
+		await this.reviewService.deleteForBooking(actorId, bookingId);
+	}
+
 	@Get('admin/reviews')
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ADMIN)

@@ -4,7 +4,12 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { getEventTranslation, REVIEW_CONFIG } from '@event-space/shared';
-import { StarRatingInput, useMyReview, useSaveReview } from '@/features/reviews';
+import {
+	DeleteReviewButton,
+	StarRatingInput,
+	useMyReview,
+	useSaveReview,
+} from '@/features/reviews';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
@@ -104,6 +109,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 	};
 
 	const blocked = notice();
+	const goToEvent = () => navigation.push(state.event ? `/events/${state.event.id}` : '/bookings');
 
 	return (
 		<div className={cn('mx-auto w-full max-w-2xl px-4 py-10', skin === 'minimal' && 'max-w-xl')}>
@@ -140,6 +146,14 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 								{translate('review.yourRating')}: {existing.rating}/5
 							</p>
 						)}
+						{existing && (
+							<DeleteReviewButton
+								bookingId={bookingId}
+								token={token}
+								onDeleted={goToEvent}
+								className="text-sm"
+							/>
+						)}
 						<Button variant="secondary" onClick={() => navigation.push('/bookings')}>
 							{translate('review.backToBookings')}
 						</Button>
@@ -156,7 +170,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 								{
 								// Back to the tour that was just reviewed, where the review now shows.
 								onSuccess: () =>
-									navigation.push(state.event ? `/events/${state.event.id}` : '/bookings'),
+									goToEvent(),
 							},
 							);
 						}}
@@ -204,6 +218,17 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 
 						{!isEditable && existing && (
 							<p className="text-xs text-gray-500">{translate('review.editWindowOver')}</p>
+						)}
+
+						{existing && (
+							<div className="flex justify-center border-t border-gray-200 pt-4 dark:border-gray-700">
+								<DeleteReviewButton
+									bookingId={bookingId}
+									token={token}
+									onDeleted={goToEvent}
+									className="text-sm"
+								/>
+							</div>
 						)}
 					</form>
 				)}

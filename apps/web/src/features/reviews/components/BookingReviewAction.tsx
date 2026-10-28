@@ -6,6 +6,7 @@ import { reviewWindow, type BookingWithEstimate } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
 import { localizePath } from '@/lib/i18n/config';
+import { DeleteReviewButton } from './DeleteReviewButton';
 import { StarRating } from './StarRating';
 
 /**
@@ -52,11 +53,14 @@ export function BookingReviewAction({ booking }: { booking: BookingWithEstimate 
 				)}
 			</span>
 
-			<Link href={localizePath(`/bookings/${booking.id}/review`, locale)}>
-				<Button variant="secondary" size="xs">
-					{translate('review.change')}
-				</Button>
-			</Link>
+			<div className="flex items-center gap-3">
+				<DeleteReviewButton bookingId={booking.id} showLabel={false} />
+				<Link href={localizePath(`/bookings/${booking.id}/review`, locale)}>
+					<Button variant="secondary" size="xs">
+						{translate('review.change')}
+					</Button>
+				</Link>
+			</div>
 		</div>
 	);
 }
