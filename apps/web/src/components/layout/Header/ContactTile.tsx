@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type ComponentType } from 'react';
-import { ChevronDown, Instagram, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 import { useBrand, useSkin } from '@/providers/BrandProvider';
 import { useTranslation } from '@/hooks/translation';
 import type { MessageKey } from '@/lib/i18n/messages';
@@ -24,17 +24,21 @@ const LOOK = {
 		light: 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700',
 		dark: 'bg-white/15 text-white hover:bg-white/25',
 		panel: 'w-72 rounded-xl p-1',
-		row: 'rounded-lg px-3 py-2.5',
-		icon: 'rounded-lg',
+		row: 'rounded-lg px-3 py-2.5 hover:bg-gray-100 dark:hover:bg-neutral-800',
+		icon: 'bg-primary/10 text-primary rounded-lg',
+		title: 'text-sm font-semibold',
+		arrow: false,
 	},
 	soft: {
 		trigger:
 			'h-10 gap-1.5 rounded-full pr-3 pl-4 font-(family-name:--font-display) text-base font-semibold',
 		light: 'bg-primary/10 text-primary hover:bg-primary/20',
 		dark: 'bg-white/15 text-white hover:bg-white/25',
-		panel: 'w-80 rounded-3xl p-2',
-		row: 'rounded-2xl px-3 py-3',
-		icon: 'rounded-full',
+		panel: 'flex w-80 flex-col gap-1.5 rounded-[2rem] p-3 shadow-xl',
+		row: 'bg-primary/5 hover:bg-primary/10 rounded-3xl px-3 py-2.5 dark:bg-neutral-800 dark:hover:bg-neutral-700',
+		icon: 'bg-primary size-10 rounded-full text-white',
+		title: 'font-(family-name:--font-display) text-base font-semibold',
+		arrow: true,
 	},
 } as const;
 
@@ -130,22 +134,23 @@ export default function ContactTile({
 						{...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
 						onClick={() => setIsOpen(false)}
 						className={cn(
-							'flex items-center gap-3 text-left transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800',
+							'flex items-center gap-3 text-left transition-colors',
 							look.row,
 						)}
 					>
 						<span className={cn(
-							'bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center',
+							'flex size-9 shrink-0 items-center justify-center',
 							look.icon,
 						)}>
 							<Icon className="size-4.5" />
 						</span>
-						<span className="min-w-0">
-							<span className="block text-sm font-semibold text-gray-900 dark:text-white">
+						<span className="min-w-0 flex-1">
+							<span className={cn('block text-gray-900 dark:text-white', look.title)}>
 								{translate(title)}
 							</span>
 							<span className="block truncate text-xs text-gray-500 dark:text-gray-400">{value}</span>
 						</span>
+						{look.arrow && <ArrowUpRight className="text-primary size-4 shrink-0" />}
 					</a>
 				))}
 			</PopoverContent>
