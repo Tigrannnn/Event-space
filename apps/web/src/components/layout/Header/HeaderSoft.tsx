@@ -6,6 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguagePill from '@/components/ui/LanguageSwitcher/LanguagePill';
 import ContactIcons from './ContactIcons';
+import ContactTile from './ContactTile';
 import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -51,10 +52,13 @@ export default function HeaderSoft() {
 						</span>
 					</Link>
 
-					<LanguagePill onDark className="ml-auto md:hidden" />
+					<div className="ml-auto flex items-center gap-2 md:hidden">
+						<ContactTile onDark />
+						<LanguagePill onDark />
+					</div>
 
 					<nav className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
-						<ContactIcons onDark className="mr-1 hidden xl:flex" />
+						<ContactIcons onDark className="mr-1" />
 						<LanguagePill onDark className="mr-1" />
 						{!isHydrated || isUserLoading ? null : user ? (
 							<>

@@ -2,7 +2,7 @@
 
 import { useState, type ComponentType } from 'react';
 import { ChevronDown, Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { useBrand } from '@/providers/BrandProvider';
+import { useBrand, useSkin } from '@/providers/BrandProvider';
 import { useTranslation } from '@/hooks/translation';
 import type { MessageKey } from '@/lib/i18n/messages';
 import { cn } from '@/utils/cn';
@@ -17,12 +17,40 @@ interface Channel {
 	Icon: ComponentType<{ className?: string }>;
 }
 
+const LOOK = {
+	market: {
+		trigger:
+			'h-10 gap-1.5 rounded-xl px-3 text-sm font-semibold hover:bg-primary/10 hover:text-primary',
+		light: 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700',
+		dark: 'bg-white/15 text-white hover:bg-white/25',
+		panel: 'w-72 rounded-xl p-1',
+		row: 'rounded-lg px-3 py-2.5',
+		icon: 'rounded-lg',
+	},
+	soft: {
+		trigger:
+			'h-10 gap-1.5 rounded-full pr-3 pl-4 font-(family-name:--font-display) text-base font-semibold',
+		light: 'bg-primary/10 text-primary hover:bg-primary/20',
+		dark: 'bg-white/15 text-white hover:bg-white/25',
+		panel: 'w-80 rounded-3xl p-2',
+		row: 'rounded-2xl px-3 py-3',
+		icon: 'rounded-full',
+	},
+} as const;
+
 /**
- * The contacts of the market skin as one tile next to the language tile: it opens a list of the
+ * The contacts of the market and soft skins as one tile next to the language tile: it opens a list of the
  * company's channels, each a direct link (profile, call, mail, map) instead of a card of its own.
  */
-export default function ContactTile({ className }: { className?: string }) {
+export default function ContactTile({
+	className,
+	onDark = false,
+}: {
+	className?: string;
+	onDark?: boolean;
+}) {
 	const { contact } = useBrand();
+	const look = LOOK[useSkin() === 'soft' ? 'soft' : 'market'];
 	const translate = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -77,7 +105,9 @@ export default function ContactTile({ className }: { className?: string }) {
 					type="button"
 					aria-label={translate('header.contactUs')}
 					className={cn(
-						'hover:bg-primary/10 hover:text-primary flex h-10 items-center gap-1.5 rounded-xl bg-gray-100 px-3 text-sm font-semibold text-gray-800 transition-colors dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700',
+						'inline-flex items-center transition-colors',
+						look.trigger,
+						onDark ? look.dark : look.light,
 						className,
 					)}
 				>
@@ -88,7 +118,10 @@ export default function ContactTile({ className }: { className?: string }) {
 			</PopoverTrigger>
 			<PopoverContent
 				align="end"
-				className="w-72 rounded-xl border-gray-200 bg-white p-1 backdrop-blur-none dark:border-neutral-800 dark:bg-neutral-900"
+				className={cn(
+					'border-gray-200 bg-white backdrop-blur-none dark:border-neutral-800 dark:bg-neutral-900',
+					look.panel,
+				)}
 			>
 				{channels.map(({ key, title, value, href, external, Icon }) => (
 					<a
@@ -96,9 +129,15 @@ export default function ContactTile({ className }: { className?: string }) {
 						href={href}
 						{...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
 						onClick={() => setIsOpen(false)}
-						className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800"
+						className={cn(
+							'flex items-center gap-3 text-left transition-colors hover:bg-gray-100 dark:hover:bg-neutral-800',
+							look.row,
+						)}
 					>
-						<span className="bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center rounded-lg">
+						<span className={cn(
+							'bg-primary/10 text-primary flex size-9 shrink-0 items-center justify-center',
+							look.icon,
+						)}>
 							<Icon className="size-4.5" />
 						</span>
 						<span className="min-w-0">

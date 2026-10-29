@@ -6,6 +6,7 @@ import { useTranslation } from '@/hooks/translation';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ContactType, ModalType } from '@/stores/modalStore/types';
 import { cn } from '@/utils/cn';
+import ContactTile from './ContactTile';
 
 const BARE_LIGHT =
 	'rounded-full text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white';
@@ -46,6 +47,10 @@ export default function ContactIcons({
 	const look = LOOK[skin];
 	const translate = useTranslation();
 	const { openModal } = useModalStore();
+
+	if (skin === 'market' || skin === 'soft') {
+		return <ContactTile onDark={onDark} className={className} />;
+	}
 
 	const items = [
 		contact.instagram && {

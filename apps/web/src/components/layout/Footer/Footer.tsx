@@ -38,9 +38,9 @@ export default function Footer() {
 				isMarket && 'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
 			)}
 		>
-			{(isMinimal || isSoft) && (
+			{(isMinimal || isSoft || isMarket) && (
 				<div className="mx-auto mb-4 max-w-7xl">
-					<ContactIcons onDark={onColor} className="-ml-2.5" />
+					<ContactIcons onDark={onColor} className={isMinimal ? '-ml-2.5' : undefined} />
 				</div>
 			)}
 
