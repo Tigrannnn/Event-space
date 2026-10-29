@@ -165,7 +165,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 			)}
 
 			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
-				<div className="min-w-0 space-y-8">
+				<div className="min-w-0 space-y-8 lg:col-start-1 lg:row-start-1">
 					<div className="flex flex-wrap gap-3">
 						<span className="bg-primary/10 flex items-center gap-2 rounded-full px-4 py-2.5 text-gray-800 dark:text-gray-100">
 							<Clock className="text-primary size-5" />
@@ -205,18 +205,20 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 							</ul>
 						</section>
 					)}
+				</div>
 
+				<div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
+						<BookingSidebar event={event} />
+					</div>
+				</div>
+
+				<div className="min-w-0 space-y-8 lg:col-start-1 lg:row-start-2">
 					<section>
 						<EventReviews event={event} />
 					</section>
 
 					<WriteReviewButton eventId={event.id} />
-				</div>
-
-				<div>
-					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
-						<BookingSidebar event={event} />
-					</div>
 				</div>
 			</div>
 		</div>
