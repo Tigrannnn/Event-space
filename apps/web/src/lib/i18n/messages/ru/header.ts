@@ -12,6 +12,7 @@ export const header: Messages['header'] = {
 	goHome: 'Перейти на главную',
 	goProfile: 'Перейти в профиль',
 	language: 'Язык',
+	contactUs: 'Связаться',
 	visitInstagram: 'Посетить Instagram',
 	viewLocation: 'Посмотреть, где мы находимся',
 	contactInstagramTitle: 'Наш Instagram',

@@ -5,7 +5,7 @@ import { Heart, Search, Ticket, User, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageTile from '@/components/ui/LanguageSwitcher/LanguageTile';
-import ContactIcons from './ContactIcons';
+import ContactTile from './ContactTile';
 import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -47,7 +47,10 @@ export default function HeaderMarket() {
 					{brand.name}
 				</Link>
 
-				<LanguageTile className="ml-auto md:hidden" />
+				<div className="ml-auto flex items-center gap-2 md:hidden">
+						<ContactTile />
+						<LanguageTile />
+					</div>
 
 				<div
 					ref={searchBox.containerRef}
@@ -93,7 +96,7 @@ export default function HeaderMarket() {
 				</div>
 
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:ml-0 md:flex">
-					<ContactIcons className="mr-2 hidden gap-1.5 2xl:flex" />
+					<ContactTile />
 					<LanguageTile className="mr-1" />
 					{!isHydrated || isUserLoading ? null : user ? (
 						<>
