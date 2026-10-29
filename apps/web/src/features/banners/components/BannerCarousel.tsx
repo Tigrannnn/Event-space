@@ -132,19 +132,62 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
 
-	const scrollToIndex = useCallback((index: number) => {
-		const scroller = scrollerRef.current;
-		if (!scroller) return;
+	// The slide a click or the autoplay is scrolling to. While it is set, the scroll position on
+	// the way there is not the active slide: reading it would flip the indicator back to the slide
+	// being left and only then forward again.
+	const targetIndexRef = useRef<number | null>(null);
+	const targetTimerRef = useRef<number | null>(null);
 
-		scroller.scrollTo({ left: scroller.clientWidth * index, behavior: 'smooth' });
+	const clearTarget = useCallback(() => {
+		targetIndexRef.current = null;
+		if (targetTimerRef.current !== null) {
+			window.clearTimeout(targetTimerRef.current);
+			targetTimerRef.current = null;
+		}
 	}, []);
 
-	const updateActiveIndex = useCallback(() => {
+	const readActiveIndex = useCallback(() => {
 		const scroller = scrollerRef.current;
 		if (!scroller || scroller.clientWidth === 0) return;
 
 		setActiveIndex(Math.round(scroller.scrollLeft / scroller.clientWidth));
 	}, []);
+
+	const scrollToIndex = useCallback(
+		(index: number) => {
+			const scroller = scrollerRef.current;
+			if (!scroller) return;
+
+			clearTarget();
+			targetIndexRef.current = index;
+			// A scroll that never arrives (interrupted, or already in place) must not freeze the indicator.
+			targetTimerRef.current = window.setTimeout(() => {
+				clearTarget();
+				readActiveIndex();
+			}, 1000);
+
+			scroller.scrollTo({ left: scroller.clientWidth * index, behavior: 'smooth' });
+		},
+		[clearTarget, readActiveIndex],
+	);
+
+	const updateActiveIndex = useCallback(() => {
+		const scroller = scrollerRef.current;
+		if (!scroller || scroller.clientWidth === 0) return;
+
+		const target = targetIndexRef.current;
+		if (target !== null) {
+			if (Math.abs(scroller.scrollLeft - scroller.clientWidth * target) > 2) return;
+
+			clearTarget();
+			setActiveIndex(target);
+			return;
+		}
+
+		readActiveIndex();
+	}, [clearTarget, readActiveIndex]);
+
+	useEffect(() => clearTarget, [clearTarget]);
 
 	useEffect(() => {
 		const scroller = scrollerRef.current;
@@ -196,6 +239,8 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 		>
 			<div
 				ref={scrollerRef}
+				onPointerDown={clearTarget}
+				onWheel={clearTarget}
 				className={cn(
 					'flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overflow-y-hidden rounded-2xl [&::-webkit-scrollbar]:hidden',
 					isMinimal
