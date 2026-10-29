@@ -91,7 +91,9 @@ export function EventsFiltersBar({
 		<div
 			className={cn(
 				'sticky top-0 z-30 -mx-4 mb-4 border-b px-4 py-2.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
-				isMinimal
+				skin === 'drawer'
+					? 'border-gray-200/60 bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/50'
+					: isMinimal
 					? 'border-gray-200 bg-white/95 dark:border-neutral-800 dark:bg-neutral-950/95'
 					: 'border-gray-200/70 bg-gray-50/90 shadow-sm dark:border-gray-700/70 dark:bg-gray-900/85',
 			)}

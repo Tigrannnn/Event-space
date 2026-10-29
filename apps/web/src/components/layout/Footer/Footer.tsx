@@ -22,11 +22,11 @@ export default function Footer() {
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
 	const onColor = isListing || isSoft;
-	const muted = onColor ? 'text-white/75' : isDrawer ? 'text-white/60' : 'text-gray-500 dark:text-gray-400';
+	const muted = onColor ? 'text-white/75' : isDrawer ? 'text-gray-500 dark:text-white/60' : 'text-gray-500 dark:text-gray-400';
 	const linkHover = onColor
 		? 'hover:text-white hover:underline'
 		: isDrawer
-			? 'hover:text-white'
+			? 'hover:text-gray-900 dark:hover:text-white'
 			: 'hover:text-primary';
 	const locale = translate.locale;
 	const pathname = usePathname();
@@ -41,7 +41,7 @@ export default function Footer() {
 				onColor && 'bg-primary dark:bg-primary border-transparent text-white dark:border-transparent',
 				isSoft && 'mt-16 rounded-t-[2rem] sm:rounded-t-[2.5rem] sm:py-8',
 				isDrawer &&
-					'mt-16 rounded-t-[2.5rem] border-transparent bg-neutral-900 pt-10 text-white sm:px-8 sm:pt-14 sm:pb-8 dark:border-transparent dark:bg-neutral-900',
+					'mt-16 rounded-t-[2.5rem] border-transparent bg-white/70 pt-10 text-gray-900 backdrop-blur-xl sm:px-8 sm:pt-14 sm:pb-8 dark:border-transparent dark:bg-neutral-900/80 dark:text-white',
 				isMarket && 'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
 			)}
 		>
