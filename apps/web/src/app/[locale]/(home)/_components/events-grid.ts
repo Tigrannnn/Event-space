@@ -5,7 +5,7 @@ export function eventsGridClass(skin: BrandSkin): string {
 	if (skin === 'soft') return 'grid grid-cols-1 gap-5 py-5 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 2xl:grid-cols-4';
 
 	if (skin === 'drawer')
-		return 'mx-auto grid w-full max-w-7xl grid-cols-2 gap-3 py-4 sm:grid-cols-3 sm:gap-5 sm:py-6 lg:grid-cols-4';
+		return 'mx-auto grid w-full max-w-[1400px] grid-cols-2 gap-3 py-4 sm:grid-cols-3 sm:gap-5 sm:py-6 lg:grid-cols-4';
 
 	if (skin === 'market')
 		return 'grid grid-cols-2 gap-x-3 gap-y-6 py-4 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-8 sm:py-6 lg:grid-cols-4 xl:grid-cols-5 mx-auto w-full max-w-[1400px]';

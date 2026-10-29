@@ -88,7 +88,7 @@ export default function AboutPageContent() {
 
 	if (skin === 'drawer') {
 		return (
-			<div className="mx-auto min-h-full w-full max-w-7xl px-4 py-4 pb-12 sm:px-6 sm:py-6 lg:px-8">
+			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-12 sm:px-6 sm:py-6 lg:px-8">
 				<div className="bg-primary rounded-[2rem] px-6 py-12 text-white sm:rounded-[2.5rem] sm:px-12 sm:py-20">
 					<h1 className="text-5xl leading-none font-black tracking-tight sm:text-8xl">{brand.name}</h1>
 					<p className="mt-5 max-w-2xl text-lg text-white/85 sm:text-2xl">{about.tagline}</p>

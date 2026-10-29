@@ -88,7 +88,7 @@ export default function BookingsPageContent() {
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
 					: isDrawer
-						? 'mx-auto min-h-full w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8'
+						? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
 						: isSoft
 						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
 						: isMarket

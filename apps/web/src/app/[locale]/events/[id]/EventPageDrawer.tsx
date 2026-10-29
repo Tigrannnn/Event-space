@@ -67,7 +67,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 		'flex h-11 items-center gap-2 rounded-full bg-black/35 px-4 text-sm font-semibold text-white backdrop-blur-md transition-colors hover:bg-black/55';
 
 	return (
-		<div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+		<div className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
 			<div className="relative isolate aspect-4/5 max-h-[38rem] w-full overflow-hidden rounded-[2rem] bg-gray-200 sm:aspect-21/9 sm:rounded-[2.5rem] dark:bg-neutral-800">
 				<div className="absolute inset-0 -z-10">
 					{hasImages ? (

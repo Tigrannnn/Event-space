@@ -131,7 +131,7 @@ function EventDetailSkeletonMarket() {
 
 function EventDetailSkeletonDrawer() {
 	return (
-		<div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+		<div className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
 			<Skeleton className="aspect-4/5 max-h-[38rem] w-full rounded-[2rem] sm:aspect-21/9 sm:rounded-[2.5rem]" />
 			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
 				<div className="space-y-4">

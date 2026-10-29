@@ -126,7 +126,7 @@ function BookingsSkeletonMarket() {
 
 function BookingsSkeletonDrawer() {
 	return (
-		<div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+		<div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
 			<div className="mb-6 flex items-center justify-between">
 				<Skeleton className="h-10 w-56 rounded" />
 				<Skeleton className="h-10 w-36 rounded-full" />

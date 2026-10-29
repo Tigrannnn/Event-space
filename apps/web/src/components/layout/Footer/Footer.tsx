@@ -46,17 +46,17 @@ export default function Footer() {
 			)}
 		>
 			{isDrawer && (
-				<p className="mx-auto mb-8 max-w-7xl text-4xl font-black tracking-tight sm:text-6xl">{brand.name}</p>
+				<p className="mx-auto mb-8 max-w-[1400px] text-4xl font-black tracking-tight sm:text-6xl">{brand.name}</p>
 			)}
 
 			{(isMinimal || isSoft || isMarket) && !isDrawer && (
-				<div className="mx-auto mb-4 max-w-7xl">
+				<div className={cn('mx-auto mb-4', isDrawer ? 'max-w-[1400px]' : 'max-w-7xl')}>
 					<ContactIcons onDark={onColor} className={isMinimal ? '-ml-2.5' : undefined} />
 				</div>
 			)}
 
 			{categories && categories.length > 0 && (
-				<nav className={`mx-auto mb-5 flex max-w-7xl flex-wrap gap-x-5 gap-y-2 text-sm ${muted}`}>
+				<nav className={`mx-auto mb-5 flex ${isDrawer ? 'max-w-[1400px]' : 'max-w-7xl'} flex-wrap gap-x-5 gap-y-2 text-sm ${muted}`}>
 					{categories.map((category) => (
 						<Link
 							key={category.id}
@@ -70,7 +70,7 @@ export default function Footer() {
 			)}
 
 			<div
-				className={`mx-auto flex max-w-7xl flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between ${muted}`}
+				className={`mx-auto flex ${isDrawer ? 'max-w-[1400px]' : 'max-w-7xl'} flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between ${muted}`}
 			>
 				<p>
 					© {new Date().getFullYear()} {brand.name}

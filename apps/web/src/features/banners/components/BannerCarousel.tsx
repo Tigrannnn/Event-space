@@ -187,7 +187,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 				'relative py-4 sm:py-6',
 				isListing && 'mx-auto w-full max-w-[1336px]',
 				isMarket && 'mx-auto w-full max-w-[1400px]',
-				isDrawer && 'mx-auto w-full max-w-7xl',
+				isDrawer && 'mx-auto w-full max-w-[1400px]',
 			)}
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
