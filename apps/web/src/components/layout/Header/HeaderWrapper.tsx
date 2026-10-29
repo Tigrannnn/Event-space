@@ -5,6 +5,7 @@ import Header from './Header';
 import HeaderMinimal from './HeaderMinimal';
 import HeaderListing from './HeaderListing';
 import HeaderSoft from './HeaderSoft';
+import HeaderMarket from './HeaderMarket';
 import { useSkin } from '@/providers/BrandProvider';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
@@ -88,6 +89,8 @@ export default function HeaderWrapper() {
 					<HeaderListing />
 				) : skin === 'soft' ? (
 					<HeaderSoft />
+				) : skin === 'market' ? (
+					<HeaderMarket />
 				) : (
 					<>
 						<TopBar isTopBarVisible={isTopBarVisible} />

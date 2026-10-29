@@ -45,6 +45,12 @@ const INDICATOR: Record<BrandSkin, { container: string; dot: string; active: str
 		active: 'w-5 bg-primary',
 		inactive: 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600',
 	},
+	market: {
+		container: 'absolute bottom-7 left-1/2 -translate-x-1/2 gap-1.5 sm:bottom-9',
+		dot: 'h-1.5 rounded-full',
+		active: 'w-5 bg-white',
+		inactive: 'w-1.5 bg-white/60 hover:bg-white/80',
+	},
 };
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
@@ -53,6 +59,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
+	const isMarket = skin === 'market';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -108,7 +115,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 		<section
 			aria-roledescription="carousel"
 			aria-label={translate('common.bannersLabel')}
-			className={cn('relative py-4 sm:py-6', isListing && 'mx-auto w-full max-w-[1336px]')}
+			className={cn('relative py-4 sm:py-6', (isListing || isMarket) && 'mx-auto w-full max-w-[1336px]')}
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
 			onFocusCapture={() => setIsPaused(true)}
@@ -124,7 +131,9 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 							? 'h-56 rounded-lg border border-gray-200 sm:h-80 dark:border-neutral-800'
 							: isSoft
 								? 'aspect-16/9 rounded-3xl shadow-lg ring-4 ring-white sm:aspect-16/6 dark:ring-gray-800'
-								: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+								: isMarket
+									? 'aspect-2/1 sm:aspect-16/5'
+									: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (

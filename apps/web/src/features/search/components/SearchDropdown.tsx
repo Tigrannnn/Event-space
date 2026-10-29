@@ -83,6 +83,20 @@ const LOOK: Record<BrandSkin, Look> = {
 		remove:
 			'rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white',
 	},
+	market: {
+		panel:
+			'overflow-hidden rounded-2xl border border-gray-200 bg-white py-1 shadow-xl dark:border-neutral-700 dark:bg-neutral-900',
+		heading: 'px-4 pt-3 pb-1 text-base font-bold text-gray-900 dark:text-white',
+		row: 'flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left',
+		rowActive: 'bg-gray-100 dark:bg-neutral-800',
+		thumb: 'rounded-lg',
+		title: 'text-[15px] font-medium text-gray-900 dark:text-white',
+		meta: 'text-xs text-gray-500 dark:text-gray-400',
+		price: 'text-sm font-bold whitespace-nowrap text-gray-900 dark:text-white',
+		icon: 'text-gray-400',
+		remove:
+			'rounded-full p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-neutral-700 dark:hover:text-white',
+	},
 };
 
 function pickName<T extends { locale: string }>(

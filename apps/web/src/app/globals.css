@@ -60,7 +60,8 @@
  * from the layout (accent = primary); the rest of the difference lives in the components.
  */
 :root[data-skin='minimal'],
-:root[data-skin='listing'] {
+:root[data-skin='listing'],
+:root[data-skin='market'] {
 	--font-sans: 'Inter Variable', var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 	--shadow-sm: none;
 	--shadow: none;

@@ -68,7 +68,7 @@ export default function Modal({
 				initial="hidden"
 				animate="visible"
 				exit="exit"
-				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=listing]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none in-data-[skin=listing]:backdrop-blur-none ${backdropClassName}`}
+				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=listing]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none in-data-[skin=listing]:backdrop-blur-none in-data-[skin=market]:bg-black/40 in-data-[skin=market]:backdrop-blur-none ${backdropClassName}`}
 				onClick={handleBackdropClick}
 				aria-hidden="true"
 			/>

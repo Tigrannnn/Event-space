@@ -4,6 +4,9 @@ import type { BrandSkin } from '@event-space/shared';
 export function eventsGridClass(skin: BrandSkin): string {
 	if (skin === 'soft') return 'grid grid-cols-1 gap-5 py-5 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 2xl:grid-cols-4';
 
+	if (skin === 'market')
+		return 'grid grid-cols-2 gap-x-3 gap-y-6 py-4 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-8 sm:py-6 lg:grid-cols-4 xl:grid-cols-5 mx-auto w-full max-w-[1400px]';
+
 	if (skin === 'listing') return 'flex flex-col gap-3 py-4 sm:gap-4 sm:py-6 mx-auto w-full max-w-[1336px]';
 
 	return skin === 'minimal'

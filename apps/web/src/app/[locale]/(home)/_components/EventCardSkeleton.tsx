@@ -18,6 +18,18 @@ export default function EventCardSkeleton() {
 		);
 	}
 
+	if (skin === 'market') {
+		return (
+			<div>
+				<Skeleton className="aspect-5/4 w-full rounded-xl" />
+				<Skeleton className="mt-3 h-6 w-1/2 rounded" />
+				<Skeleton className="mt-2 h-4 w-full rounded" />
+				<Skeleton className="mt-1.5 h-4 w-2/3 rounded" />
+				<Skeleton className="mt-3 h-10 w-full rounded-xl" />
+			</div>
+		);
+	}
+
 	if (skin === 'soft') {
 		return (
 			<div className="rounded-3xl border border-gray-200/70 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">

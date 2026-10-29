@@ -26,7 +26,7 @@ export default function BookingSuccessModal() {
 	const navigation = useLocalizedNavigation();
 	const { data: user } = useCurrentUser();
 	const skin = useSkin();
-	const ui = SUCCESS_UI[skin];
+	const ui = SUCCESS_UI[skin === 'market' ? 'classic' : skin];
 	const modalData = useModalData(ModalType.BookingSuccess);
 
 	if (!modalData) {
@@ -174,7 +174,7 @@ interface DetailRowProps {
 }
 
 function DetailRow({ skin, icon, label, value, href }: DetailRowProps) {
-	const row = DETAIL_UI[skin];
+	const row = DETAIL_UI[skin === 'market' ? 'classic' : skin];
 	const valueNode = href ? (
 		<a
 			href={href}
@@ -237,7 +237,7 @@ interface SuccessUi {
 	includedLabel: string;
 }
 
-const SUCCESS_UI: Record<BrandSkin, SuccessUi> = {
+const SUCCESS_UI: Record<Exclude<BrandSkin, 'market'>, SuccessUi> = {
 	classic: {
 		hero: '',
 		badge:
@@ -318,7 +318,7 @@ interface DetailUi {
 	value: string;
 }
 
-const DETAIL_UI: Record<BrandSkin, DetailUi> = {
+const DETAIL_UI: Record<Exclude<BrandSkin, 'market'>, DetailUi> = {
 	classic: {
 		box: 'rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900',
 		head: 'flex items-center gap-2 text-gray-500 dark:text-gray-400',
