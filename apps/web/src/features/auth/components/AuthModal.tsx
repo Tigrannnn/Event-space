@@ -41,12 +41,12 @@ export default function AuthModal() {
 			{config && (
 				<div className={cn(isMarket && 'md:grid md:grid-cols-[5fr_7fr]')}>
 				{isMarket && (
-					<aside className="bg-primary hidden flex-col justify-between gap-10 p-8 text-white md:flex">
-						<span className="text-3xl font-black tracking-tight">{brand.name}</span>
+					<aside className="bg-primary/10 hidden flex-col justify-between gap-10 p-8 md:flex dark:bg-neutral-800">
+						<span className="text-primary text-3xl font-black tracking-tight">{brand.name}</span>
 						<ul className="space-y-4">
 							{MARKET_PERKS.map((key) => (
-								<li key={key} className="flex items-start gap-3 text-[15px] font-medium">
-									<span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-white/20">
+								<li key={key} className="flex items-start gap-3 text-[15px] font-medium text-gray-800 dark:text-gray-100">
+									<span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-white">
 										<Check className="size-4" strokeWidth={3} />
 									</span>
 									{translate(key)}
