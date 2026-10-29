@@ -36,7 +36,7 @@ export default function PaymentSummary({ title, date, quantity, total }: Payment
 		);
 	}
 
-	if (skin === 'market') {
+	if ((skin === 'market' || skin === 'drawer')) {
 		return (
 			<div className="rounded-2xl border border-gray-200 p-4 dark:border-neutral-700">
 				{title && <p className="text-sm font-bold text-gray-900 dark:text-white">{title}</p>}

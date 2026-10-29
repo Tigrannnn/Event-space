@@ -18,7 +18,7 @@ export default function FavoritesPageContent() {
 	const skin = useSkin();
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
 
 	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);

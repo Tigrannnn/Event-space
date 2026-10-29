@@ -29,7 +29,7 @@ export default function BookingsPageContent() {
 	const isListing = skin === 'listing';
 	const isMinimal = skin === 'minimal';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,

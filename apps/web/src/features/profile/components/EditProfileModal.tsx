@@ -72,7 +72,7 @@ export default function EditProfileModal() {
 			position="center"
 			ariaLabel={translate('profile.editProfile')}
 		>
-			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900">
+			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=market]:shadow-none in-data-[skin=drawer]:shadow-none in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:dark:bg-neutral-900">
 				<ModalHeader title={translate('profile.editProfile')} onClose={closeModal} />
 
 				<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">

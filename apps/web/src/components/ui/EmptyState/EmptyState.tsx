@@ -32,7 +32,7 @@ export default function EmptyState({
 }: EmptyStateProps) {
 	const skin = useSkin();
 
-	if (skin === 'market') {
+	if (skin === 'market' || skin === 'drawer') {
 		return (
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 py-16 text-center">
 				<div className="bg-primary/10 text-primary flex size-24 items-center justify-center rounded-3xl">

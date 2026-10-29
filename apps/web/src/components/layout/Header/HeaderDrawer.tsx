@@ -44,7 +44,7 @@ export default function HeaderDrawer() {
 					onClick={() => setIsMenuOpen(true)}
 					aria-haspopup="dialog"
 					aria-expanded={isMenuOpen}
-					className="relative order-2 ml-auto flex h-11 cursor-pointer items-center gap-2 rounded-full bg-gray-900 pr-3 pl-5 text-sm font-bold text-white transition-colors hover:bg-gray-700 md:order-3 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
+					className="relative order-2 ml-auto flex h-11 cursor-pointer items-center gap-2 rounded-full bg-gray-900 pr-3 pl-5 max-sm:w-11 max-sm:justify-center max-sm:p-0 text-sm font-bold text-white transition-colors hover:bg-gray-700 md:order-3 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
 				>
 					<span className="hidden sm:inline">{translate('header.menu')}</span>
 					<Menu className="size-5" />

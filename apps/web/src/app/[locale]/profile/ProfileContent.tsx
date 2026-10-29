@@ -46,7 +46,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;

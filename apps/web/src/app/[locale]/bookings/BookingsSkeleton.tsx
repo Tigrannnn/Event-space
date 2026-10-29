@@ -127,7 +127,7 @@ function BookingsSkeletonMarket() {
 export default function BookingsSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
 				<BookingsSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -139,7 +139,7 @@ export default function BookingsSkeleton() {
 			<div className="hidden in-data-[skin=soft]:block">
 				<BookingsSkeletonSoft />
 			</div>
-			<div className="hidden in-data-[skin=market]:block">
+			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
 				<BookingsSkeletonMarket />
 			</div>
 		</>

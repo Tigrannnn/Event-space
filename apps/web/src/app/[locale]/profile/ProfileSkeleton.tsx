@@ -134,7 +134,7 @@ function ProfileSkeletonMarket() {
 export default function ProfileSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
 				<ProfileSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -146,7 +146,7 @@ export default function ProfileSkeleton() {
 			<div className="hidden in-data-[skin=soft]:block">
 				<ProfileSkeletonSoft />
 			</div>
-			<div className="hidden in-data-[skin=market]:block">
+			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
 				<ProfileSkeletonMarket />
 			</div>
 		</>

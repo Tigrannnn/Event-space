@@ -67,7 +67,7 @@ function EventsFiltersBarSkeletonMarket() {
 export default function EventsFiltersBarSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
 				<EventsFiltersBarSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -76,7 +76,7 @@ export default function EventsFiltersBarSkeleton() {
 			<div className="hidden in-data-[skin=listing]:block">
 				<EventsFiltersBarSkeletonListing />
 			</div>
-			<div className="hidden in-data-[skin=market]:block">
+			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
 				<EventsFiltersBarSkeletonMarket />
 			</div>
 		</>

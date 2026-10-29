@@ -109,7 +109,7 @@ export default function LegalPageContent({ document }: LegalPageContentProps) {
 		);
 	}
 
-	if (skin === 'market') {
+	if (skin === 'market' || skin === 'drawer') {
 		return (
 			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">
 				<div className="bg-primary/10 rounded-3xl px-6 py-8 sm:px-10 sm:py-12">

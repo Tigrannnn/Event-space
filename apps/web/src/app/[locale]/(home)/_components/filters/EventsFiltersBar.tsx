@@ -27,7 +27,7 @@ export function EventsFiltersBar({
 	const skin = useSkin();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {

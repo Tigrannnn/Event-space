@@ -132,7 +132,7 @@ function EventDetailSkeletonMarket() {
 export default function EventDetailSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
 				<EventDetailSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -141,7 +141,7 @@ export default function EventDetailSkeleton() {
 			<div className="hidden in-data-[skin=listing]:block">
 				<EventDetailSkeletonListing />
 			</div>
-			<div className="hidden in-data-[skin=market]:block">
+			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
 				<EventDetailSkeletonMarket />
 			</div>
 		</>

@@ -170,7 +170,7 @@ function StripePaymentFormContent({
 				booking={booking}
 			/>
 
-			<div className="rounded-md border border-gray-200 p-3 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-gray-300 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border-gray-300 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:border-gray-300 in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:border-0 in-data-[skin=soft]:bg-white in-data-[skin=soft]:p-4 in-data-[skin=soft]:shadow-sm in-data-[skin=soft]:ring-1 in-data-[skin=soft]:ring-black/5 dark:border-gray-700 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=soft]:dark:ring-white/10">
+			<div className="rounded-md border border-gray-200 p-3 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-gray-300 in-data-[skin=market]:rounded-xl in-data-[skin=drawer]:rounded-xl in-data-[skin=market]:border-gray-300 in-data-[skin=drawer]:border-gray-300 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:border-gray-300 in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:border-0 in-data-[skin=soft]:bg-white in-data-[skin=soft]:p-4 in-data-[skin=soft]:shadow-sm in-data-[skin=soft]:ring-1 in-data-[skin=soft]:ring-black/5 dark:border-gray-700 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=soft]:dark:ring-white/10">
 				<PaymentElement />
 			</div>
 

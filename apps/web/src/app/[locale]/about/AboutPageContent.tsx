@@ -86,6 +86,32 @@ export default function AboutPageContent() {
 		);
 	}
 
+	if (skin === 'drawer') {
+		return (
+			<div className="mx-auto min-h-full w-full max-w-7xl px-4 py-4 pb-12 sm:px-6 sm:py-6 lg:px-8">
+				<div className="bg-primary rounded-[2rem] px-6 py-12 text-white sm:rounded-[2.5rem] sm:px-12 sm:py-20">
+					<h1 className="text-5xl leading-none font-black tracking-tight sm:text-8xl">{brand.name}</h1>
+					<p className="mt-5 max-w-2xl text-lg text-white/85 sm:text-2xl">{about.tagline}</p>
+				</div>
+
+				<div className="mt-8 divide-y divide-gray-200 border-t border-gray-200 sm:mt-12 dark:divide-neutral-800 dark:border-neutral-800">
+					{sections.map(({ key, title, body }, index) => (
+						<section key={key} className="grid gap-3 py-8 sm:grid-cols-[8rem_1fr_2fr] sm:gap-8 sm:py-10">
+							<span className="text-primary text-4xl font-black tabular-nums sm:text-5xl">
+								{String(index + 1).padStart(2, '0')}
+							</span>
+							<h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">{title}</h2>
+							<div>
+								<p className="text-lg leading-relaxed text-gray-600 dark:text-gray-300">{body}</p>
+								{key === 'contact' && <ContactIcons className="mt-5" />}
+							</div>
+						</section>
+					))}
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'market') {
 		return (
 			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">

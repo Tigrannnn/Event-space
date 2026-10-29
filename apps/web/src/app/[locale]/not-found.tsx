@@ -55,7 +55,7 @@ export default function NotFound() {
 		);
 	}
 
-	if (skin === 'market') {
+	if (skin === 'market' || skin === 'drawer') {
 		return (
 			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">
 				<div className="bg-primary/10 w-full rounded-3xl p-8 text-center sm:p-12">
