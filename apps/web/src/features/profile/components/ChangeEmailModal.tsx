@@ -64,7 +64,7 @@ export default function ChangeEmailModal() {
 			ariaLabel={translate('profile.changeEmail')}
 			disableBackdropClose={requestChange.isPending || confirmChange.isPending}
 		>
-			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
+			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900">
 				<ModalHeader title={translate('profile.changeEmail')} onClose={closeModal} />
 
 				{sentTo ? (

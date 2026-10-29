@@ -26,12 +26,12 @@ export default function BookingQrCodeModal() {
 
 	return (
 		<Modal onClose={closeModal} size="sm" ariaLabel={translate('booking.showQrCode')}>
-			<div className="w-full rounded-2xl bg-white p-6 text-center shadow-2xl dark:bg-gray-900">
+			<div className="w-full rounded-2xl bg-white p-6 text-center shadow-2xl dark:bg-gray-900 in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900">
 				<ModalHeader title={translate('booking.showQrCode')} onClose={closeModal} />
 				<p className="mt-2 mb-5 text-sm text-gray-500 dark:text-gray-400">
 					{translate('booking.qrCodeHint')}
 				</p>
-				<div className="mx-auto w-fit rounded-2xl bg-white p-4">
+				<div className="mx-auto w-fit rounded-2xl bg-white p-4 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border in-data-[skin=market]:border-gray-200">
 					<QRCode value={checkinUrl} size={220} />
 				</div>
 				<p className="text-primary mt-4 font-mono text-lg font-bold">

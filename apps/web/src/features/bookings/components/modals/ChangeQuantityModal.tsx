@@ -62,7 +62,7 @@ export default function ChangeQuantityModal() {
 
 	return (
 		<Modal onClose={closeModal} ariaLabel={translate('booking.changeQuantityTitle')}>
-			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
+			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900">
 				<ModalHeader title={translate('booking.changeQuantityTitle')} onClose={closeModal} />
 
 				<p className="text-sm font-medium text-gray-900 dark:text-white">{title}</p>

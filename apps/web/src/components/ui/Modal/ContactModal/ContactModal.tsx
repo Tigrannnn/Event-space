@@ -90,13 +90,15 @@ export default function ContactModal() {
 
 	return (
 		<Modal ariaLabel={translate(getTitleKey())} onClose={closeModal} size="sm" position="center">
-			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800">
-				<div className="mb-4 flex justify-center">{getIcon()}</div>
-				<h3 className="text-primary mb-2 text-center text-xl font-black">{translate(getTitleKey())}</h3>
+			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800 in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900">
+				<div className="mb-4 flex justify-center">
+					<span className="in-data-[skin=market]:bg-primary/10 in-data-[skin=market]:rounded-2xl in-data-[skin=market]:p-4">{getIcon()}</span>
+				</div>
+				<h3 className="text-primary in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:text-white mb-2 text-center text-xl font-black in-data-[skin=market]:font-bold">{translate(getTitleKey())}</h3>
 				<p className="mb-4 text-center text-gray-600 dark:text-gray-300">{translate(getDescriptionKey())}</p>
 				{/* A profile URL or address has few break opportunities, so let it break
 				    mid-word rather than push the modal wider than the screen. */}
-				<div className="mb-6 overflow-hidden rounded-xl bg-gray-100 p-4 text-center font-mono text-sm break-words dark:bg-gray-700 dark:text-gray-200">
+				<div className="mb-6 overflow-hidden rounded-xl bg-gray-100 p-4 text-center font-mono text-sm break-words dark:bg-gray-700 dark:text-gray-200 in-data-[skin=market]:border in-data-[skin=market]:border-gray-200 in-data-[skin=market]:bg-gray-50 in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=market]:dark:bg-neutral-800">
 					{data.value}
 				</div>
 

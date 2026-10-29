@@ -225,7 +225,7 @@
 | `features/banners/*` | баннер со скруглением, подпись без капса, точки внутри внизу по центру |
 | Button, Input, Modal | токены `in-data-[skin=market]:`: скругление `rounded-xl`, без теней, затемнение без размытия |
 | `ToastContainer.tsx`, `SearchDropdown.tsx` | тост как у `minimal`; панель подсказок со скруглением `2xl` |
-| `BookingSuccessModal.tsx` | пока берёт вид `classic` |
+| `BookingSuccessModal.tsx` | см. ниже: свой вид `market` |
 
 Остальные поверхности `market` (сделаны 29.10.2026):
 
@@ -245,5 +245,7 @@
 | `EventDetailSkeleton`, `EventsFiltersBarSkeleton`, `BookingsSkeleton`, `ProfileSkeleton` | своя версия `...Market`, выбор через `in-data-[skin=market]:` |
 
 | `features/reviews/components/EventReviews.tsx` | оценка жёлтой плашкой, отзывы серыми плитками в две колонки с кругом-аватаром, ответ компании белой карточкой с полосой слева; звёзды остались жёлтыми |
+
+Остальные модалки `market` (29.10.2026): `ConfirmModal`, `ContactModal` (иконка в плитке `bg-primary/10`, ссылка в рамке), `ChangeQuantityModal`, `ChangeEmailModal`, `EditProfileModal`, `BookingQrCode` — внутренняя карточка без тени, тёмный фон `neutral-900`, заголовок тёмным (не цветом бренда); сама `Modal` получила тёмный фон и мягкую тень. Формы входа, регистрации, сброса пароля и подтверждения почты лежат внутри `AuthModal` и отдельных правок не требуют. Просмотр фото (`ImagePreviewModal`) на тёмной подложке и от скина не зависит. Админские модалки скином не оформляются.
 
 Письма клиентам от скина не зависят.
