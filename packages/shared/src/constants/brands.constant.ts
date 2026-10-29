@@ -66,7 +66,6 @@ const defaultBrand: Brand = {
 	colorAccent: '#008391',
 	description: siteConfig.description,
 	ogImage: siteConfig.ogImage,
-	skin: 'drawer',
 	contact: {
 		instagram: 'https://instagram.com/eventspace',
 		phone: '+374 99 123 456',
@@ -288,6 +287,7 @@ const brands: Record<string, Brand> = {
 		colorAccent: '#f78c12',
 		description: siteConfig.description,
 		ogImage: '/brands/rstour-logo.png',
+		skin: 'drawer',
 		contact: {
 			instagram: 'https://www.instagram.com/rstour_armenia/',
 			phone: '+374 96 578656',
