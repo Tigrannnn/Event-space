@@ -42,7 +42,7 @@ export default function AuthModal() {
 				<div className={cn(isMarket && 'md:grid md:grid-cols-[5fr_7fr]')}>
 				{isMarket && (
 					<aside className="bg-primary/10 hidden flex-col justify-between gap-10 p-8 md:flex dark:bg-neutral-800">
-						<span className="text-primary text-3xl font-black tracking-tight">{brand.name}</span>
+						<span className="text-primary text-3xl font-black tracking-tight dark:text-white">{brand.name}</span>
 						<ul className="space-y-4">
 							{MARKET_PERKS.map((key) => (
 								<li key={key} className="flex items-start gap-3 text-[15px] font-medium text-gray-800 dark:text-gray-100">
@@ -55,7 +55,7 @@ export default function AuthModal() {
 						</ul>
 					</aside>
 				)}
-				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=market]:shadow-none in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:md:p-8 in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900">
+				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:md:p-8 in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900">
 					{/* Header */}
 					<ModalHeader
 							title={translate(config.title, { brand: brand.name })}

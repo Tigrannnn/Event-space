@@ -43,7 +43,7 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 			type="button"
 			onClick={() => login()}
 			disabled={isLoading}
-			className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-gray-200 bg-white py-4 font-bold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+			className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-xl border-2 border-gray-200 bg-white py-4 font-bold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=market]:dark:bg-neutral-800 in-data-[skin=market]:dark:hover:bg-neutral-700"
 			{...props}
 		>
 			{isLoading ? (
