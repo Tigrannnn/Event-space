@@ -50,7 +50,7 @@ export default function HeaderListing() {
 				<LanguageCode onDark className="ml-auto md:hidden" />
 
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:flex">
-					<ContactIcons onDark square className="mr-2 hidden gap-1.5 xl:flex" />
+					<ContactIcons onDark className="mr-2 hidden gap-1.5 xl:flex" />
 					<LanguageCode onDark className="mr-2" />
 					{!isHydrated || isUserLoading ? null : user ? (
 						<>

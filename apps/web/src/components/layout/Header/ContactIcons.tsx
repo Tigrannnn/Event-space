@@ -1,24 +1,49 @@
 'use client';
 
 import { Instagram, Mail, MapPin, Phone } from 'lucide-react';
-import { useBrand } from '@/providers/BrandProvider';
+import { useBrand, useSkin } from '@/providers/BrandProvider';
 import { useTranslation } from '@/hooks/translation';
 import { useModalStore } from '@/stores/modalStore/modalStore';
 import { ContactType, ModalType } from '@/stores/modalStore/types';
 import { cn } from '@/utils/cn';
 
+const BARE_LIGHT =
+	'rounded-full text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white';
+const BARE_DARK = 'rounded-full text-white/85 hover:bg-white/15 hover:text-white';
+
+const LOOK = {
+	minimal: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
+	listing: {
+		light:
+			'rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white',
+		dark: 'rounded-md border border-white/40 text-white/85 hover:bg-white/15 hover:text-white',
+		stroke: 1.6,
+	},
+	soft: {
+		light: 'bg-primary/10 text-primary hover:bg-primary/20 rounded-full',
+		dark: 'rounded-full bg-white/15 text-white hover:bg-white/25',
+		stroke: 2,
+	},
+	market: {
+		light:
+			'rounded-xl bg-gray-100 text-gray-600 hover:bg-primary/10 hover:text-primary dark:bg-neutral-800 dark:text-gray-300 dark:hover:bg-neutral-700 dark:hover:text-white',
+		dark: 'rounded-xl bg-white/15 text-white hover:bg-white/25',
+		stroke: 1.75,
+	},
+	classic: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
+} as const;
+
 /** The company's own channels as a row of icons, each opening the contact card on click. */
 export default function ContactIcons({
 	className,
 	onDark = false,
-	square = false,
 }: {
 	className?: string;
 	onDark?: boolean;
-	/** Bordered square buttons instead of bare round ones. */
-	square?: boolean;
 }) {
 	const { contact } = useBrand();
+	const skin = useSkin();
+	const look = LOOK[skin];
 	const translate = useTranslation();
 	const { openModal } = useModalStore();
 
@@ -60,14 +85,10 @@ export default function ContactIcons({
 					title={label}
 					className={cn(
 						'flex size-10 items-center justify-center transition-colors',
-						square ? 'rounded-md border' : 'rounded-full',
-						square && (onDark ? 'border-white/40' : 'border-gray-300 dark:border-neutral-700'),
-						onDark
-							? 'text-white/85 hover:bg-white/15 hover:text-white'
-							: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white',
+						onDark ? look.dark : look.light,
 					)}
 				>
-					<Icon className="size-5" strokeWidth={1.6} />
+					<Icon className="size-5" strokeWidth={look.stroke} />
 				</button>
 			))}
 		</div>

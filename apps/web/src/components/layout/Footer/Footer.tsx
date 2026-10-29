@@ -38,7 +38,7 @@ export default function Footer() {
 		>
 			{(isMinimal || isSoft) && (
 				<div className="mx-auto mb-4 max-w-7xl">
-					<ContactIcons onDark={onColor} square={isListing} className="-ml-2.5" />
+					<ContactIcons onDark={onColor} className="-ml-2.5" />
 				</div>
 			)}
 

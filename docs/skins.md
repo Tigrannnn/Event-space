@@ -228,3 +228,13 @@
 | `BookingSuccessModal.tsx` | пока берёт вид `classic` |
 
 Не делалось отдельно (выглядит как `classic` в одном цвете): страница тура и панель бронирования, профиль, брони, избранное, «О нас», правовые страницы, форма отзыва, футер, нижняя панель, панели фильтров, окно оплаты. Чтобы назначить скин бренду, поставить `skin: 'market'` в `brands.constant.ts`.
+
+## Контакты и язык в шапке у каждого скина свои
+
+| Файл | Как |
+|---|---|
+| `components/layout/Header/ContactIcons.tsx` | сам смотрит на скин (таблица `LOOK`, проп `square` убран): `minimal` голые круглые иконки, `listing` квадраты с рамкой, `soft` залитые тонированные круги, `market` серые плитки `rounded-xl`; `onDark` даёт те же формы на цвете бренда. `classic` показывает иконки в `TopBar` |
+| `components/ui/LanguageSwitcher/LanguageMenu.tsx` | `minimal`: глобус, название, шеврон. Отсюда же экспортируется `LANGUAGE_NAMES` |
+| `components/ui/LanguageSwitcher/LanguageCode.tsx` | `listing`: квадрат с рамкой и кодом `RU` |
+| `components/ui/LanguageSwitcher/LanguagePill.tsx` (новый) | `soft`: таблетка шрифтом с засечками, меню со скруглением `3xl` и кружком-галочкой |
+| `components/ui/LanguageSwitcher/LanguageTile.tsx` (новый) | `market`: серая плитка с кодом и шевроном, в меню название слева и код справа |

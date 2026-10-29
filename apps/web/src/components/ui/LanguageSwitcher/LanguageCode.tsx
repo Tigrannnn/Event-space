@@ -6,13 +6,8 @@ import { defaultLocale, locales, type Locale } from '@/lib/i18n/config';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/utils/cn';
+import { LANGUAGE_NAMES } from './LanguageMenu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
-
-const LANGUAGE_NAMES: Record<Locale, string> = {
-	hy: 'Հայերեն',
-	ru: 'Русский',
-	en: 'English',
-};
 
 /**
  * The language switch of the listing skin: a bordered square showing the two-letter code of the

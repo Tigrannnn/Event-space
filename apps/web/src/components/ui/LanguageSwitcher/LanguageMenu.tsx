@@ -10,7 +10,7 @@ import { cn } from '@/utils/cn';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/primitives/popover';
 
 /** Each language in its own tongue, so someone who cannot read the page can still find theirs. */
-const LANGUAGE_NAMES: Record<Locale, string> = {
+export const LANGUAGE_NAMES: Record<Locale, string> = {
 	hy: 'Հայերեն',
 	ru: 'Русский',
 	en: 'English',

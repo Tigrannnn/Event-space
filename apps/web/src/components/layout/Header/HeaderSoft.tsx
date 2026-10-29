@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Heart, Search, Ticket, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
-import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
+import LanguagePill from '@/components/ui/LanguageSwitcher/LanguagePill';
 import ContactIcons from './ContactIcons';
 import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
@@ -51,11 +51,11 @@ export default function HeaderSoft() {
 						</span>
 					</Link>
 
-					<LanguageMenu onDark className="ml-auto md:hidden" />
+					<LanguagePill onDark className="ml-auto md:hidden" />
 
 					<nav className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
 						<ContactIcons onDark className="mr-1 hidden xl:flex" />
-						<LanguageMenu onDark className="mr-1" />
+						<LanguagePill onDark className="mr-1" />
 						{!isHydrated || isUserLoading ? null : user ? (
 							<>
 								<Link href={localizePath('/favorites', navigation.locale)} className={pill}>

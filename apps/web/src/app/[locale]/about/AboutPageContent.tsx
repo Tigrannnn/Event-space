@@ -107,7 +107,7 @@ export default function AboutPageContent() {
 							</span>
 							<h2 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">{title}</h2>
 							<p className="mt-2 text-gray-600 dark:text-gray-300">{body}</p>
-							{key === 'contact' && <ContactIcons square className="mt-4 gap-1.5" />}
+							{key === 'contact' && <ContactIcons className="mt-4 gap-1.5" />}
 						</section>
 					))}
 				</div>
