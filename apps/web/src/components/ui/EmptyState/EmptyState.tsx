@@ -32,7 +32,24 @@ export default function EmptyState({
 }: EmptyStateProps) {
 	const skin = useSkin();
 
-	if (skin === 'market' || skin === 'drawer') {
+	if (skin === 'drawer') {
+		return (
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+				<div className="bg-primary flex size-28 items-center justify-center rounded-full text-white">
+					<Icon className="size-12" strokeWidth={1.5} />
+				</div>
+				<Heading className="mt-7 text-3xl font-black tracking-tight text-gray-900 dark:text-white">
+					{title}
+				</Heading>
+				<p className="mt-3 text-lg text-gray-500 dark:text-gray-400">{description}</p>
+				<Button variant="primary" className="mt-8 px-8" onClick={onAction}>
+					{actionLabel}
+				</Button>
+			</div>
+		);
+	}
+
+	if (skin === 'market') {
 		return (
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 py-16 text-center">
 				<div className="bg-primary/10 text-primary flex size-24 items-center justify-center rounded-3xl">

@@ -55,7 +55,35 @@ export default function NotFound() {
 		);
 	}
 
-	if (skin === 'market' || skin === 'drawer') {
+	if (skin === 'drawer') {
+		return (
+			<div className="mx-auto flex min-h-[60vh] max-w-3xl items-center px-4 py-12">
+				<div className="w-full text-center">
+					<p className="text-primary text-[7rem] leading-none font-black tracking-tighter sm:text-[11rem]">
+						404
+					</p>
+					<h1 className="mt-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+						{translate('common.notFoundTitle')}
+					</h1>
+					<p className="mx-auto mt-3 max-w-md text-lg text-gray-600 dark:text-gray-400">
+						{translate('common.notFoundDescription')}
+					</p>
+					<div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+						<Button className="px-8 py-3" onClick={() => navigation.push('/')}>
+							<Home className="size-4" />
+							{translate('common.goHome')}
+						</Button>
+						<Button variant="secondary" className="px-8 py-3" onClick={() => history.back()}>
+							<ArrowLeft className="size-4" />
+							{translate('event.back')}
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (skin === 'market') {
 		return (
 			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">
 				<div className="bg-primary/10 w-full rounded-3xl p-8 text-center sm:p-12">

@@ -40,6 +40,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market' || skin === 'drawer';
+	const isDrawer = skin === 'drawer';
 	const cardClassName = isMinimal
 		? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
 		: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
@@ -164,10 +165,12 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						)}
 					</div>
 					<div className="mt-1 flex items-baseline gap-2">
-						<span className="font-(family-name:--font-display) text-primary text-4xl font-bold">
+						<span className="text-primary font-(family-name:--font-display) text-4xl font-bold">
 							{formatCurrency(quote.unitPrice)}
 						</span>
-						<span className="text-sm text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
+						<span className="text-sm text-gray-500 dark:text-gray-400">
+							{translate('event.perPerson')}
+						</span>
 					</div>
 
 					<div className="mt-5 rounded-2xl bg-gray-50 p-4 dark:bg-gray-900/50">
@@ -384,10 +387,16 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	if (isMarket) {
 		return (
-			<div className="in-data-[skin=drawer]:rounded-[2rem] rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900">
+			<div
+				className={
+					isDrawer
+						? 'bg-primary/5 rounded-[2rem] p-6 sm:p-7 dark:bg-neutral-900'
+						: 'rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900'
+				}
+			>
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
 					<span
-						className={`text-3xl font-bold ${quote.discountPercent > 0 ? 'text-(--brand-accent)' : 'text-gray-900 dark:text-white'}`}
+						className={`${isDrawer ? 'text-4xl font-black tracking-tight' : 'text-3xl font-bold'} ${quote.discountPercent > 0 ? 'text-(--brand-accent)' : 'text-gray-900 dark:text-white'}`}
 					>
 						{formatCurrency(quote.unitPrice)}
 					</span>
@@ -396,10 +405,14 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							{formatCurrency(quote.baseUnitPrice)}
 						</span>
 					)}
-					<span className="text-sm text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
+					<span className="text-sm text-gray-500 dark:text-gray-400">
+						{translate('event.perPerson')}
+					</span>
 				</div>
 				{quote.discountPercent > 0 && (
-					<span className="mt-2 inline-block rounded-md bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white">
+					<span
+						className={`mt-2 inline-block bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white ${isDrawer ? 'rounded-full px-3 py-1' : 'rounded-md'}`}
+					>
 						{translate('event.discountOff', { percent: quote.discountPercent })}
 					</span>
 				)}
@@ -427,7 +440,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							{spotsLeft} {translate('event.spotsLeft')}
 						</FlashValue>
 					</div>
-					<div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-neutral-800">
+					<div
+						className={`h-2 w-full overflow-hidden rounded-full ${isDrawer ? 'bg-white dark:bg-neutral-800' : 'bg-gray-200 dark:bg-neutral-800'}`}
+					>
 						<div
 							className="bg-primary h-2 rounded-full transition-all duration-500"
 							style={{ width: `${progressPercentage}%` }}

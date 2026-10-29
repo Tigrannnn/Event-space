@@ -29,7 +29,8 @@ export default function BookingsPageContent() {
 	const isListing = skin === 'listing';
 	const isMinimal = skin === 'minimal';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market' || skin === 'drawer';
+	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,
@@ -86,7 +87,9 @@ export default function BookingsPageContent() {
 			className={
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
-					: isSoft
+					: isDrawer
+						? 'mx-auto min-h-full w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8'
+						: isSoft
 						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
 						: isMarket
 							? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
@@ -94,7 +97,7 @@ export default function BookingsPageContent() {
 			}
 		>
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-				<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
+				<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white in-data-[skin=drawer]:text-4xl in-data-[skin=drawer]:font-black in-data-[skin=drawer]:tracking-tight">
 					{isSoft && (
 						<span className="bg-accent/10 text-accent flex size-11 items-center justify-center rounded-full">
 							<Ticket className="size-5" />
@@ -106,6 +109,8 @@ export default function BookingsPageContent() {
 					className={`flex items-center gap-2 border px-3 py-2 ${
 						isListing
 							? 'rounded-md border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+							: isDrawer
+								? 'rounded-full border-transparent bg-white dark:bg-neutral-900'
 							: isMinimal
 								? 'rounded-full border-gray-300 bg-white hover:border-gray-900 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-gray-300'
 								: isMarket
@@ -133,6 +138,8 @@ export default function BookingsPageContent() {
 					className={`p-8 text-center text-sm text-gray-500 dark:text-gray-400 ${
 						isListing
 							? 'rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+							: isDrawer
+								? 'rounded-[2rem] bg-white dark:bg-neutral-900'
 							: isMinimal
 								? 'border-y border-gray-200 py-12 dark:border-neutral-800'
 								: isMarket
@@ -149,6 +156,8 @@ export default function BookingsPageContent() {
 							? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
 							: isSoft
 								? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4'
+								: isDrawer
+									? 'grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3'
 								: isMarket
 									? 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 									: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'

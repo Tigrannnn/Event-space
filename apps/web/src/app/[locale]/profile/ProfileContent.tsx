@@ -46,7 +46,8 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market' || skin === 'drawer';
+	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -138,6 +139,76 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					]
 				: []),
 		];
+		if (isDrawer) {
+			return (
+				<div className="mx-auto max-w-3xl px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-12">
+					<div className="bg-primary rounded-[2rem] p-6 text-white sm:rounded-[2.5rem] sm:p-10">
+						<div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+							<div className="text-primary flex size-20 shrink-0 items-center justify-center rounded-full bg-white text-4xl font-black sm:size-24 sm:text-5xl">
+								{initial}
+							</div>
+							<div className="min-w-0">
+								<h1 className="text-3xl leading-tight font-black tracking-tight break-words sm:text-4xl">
+									{user.name}
+								</h1>
+								<div className="mt-3 flex flex-wrap gap-2">
+									{[user.email, user.phone].filter(Boolean).map((item) => (
+										<span key={item} className="rounded-full bg-white/20 px-3 py-1 text-sm">
+											{item}
+										</span>
+									))}
+									<span className="rounded-full bg-white px-3 py-1 text-sm font-bold text-gray-900">
+										{USER_ROLE_LABELS[user.role]}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="mt-4 space-y-2">
+						{rows.map((row) => {
+							const content = (
+								<>
+									<span className="bg-primary/10 text-primary flex size-12 shrink-0 items-center justify-center rounded-full">
+										<row.icon className="size-6" strokeWidth={1.75} />
+									</span>
+									<span className="min-w-0 flex-1">
+										<span className="block text-lg font-black tracking-tight text-gray-900 dark:text-white">
+											{row.title}
+										</span>
+										<span className="block text-sm text-gray-500 dark:text-gray-400">{row.hint}</span>
+									</span>
+									<ArrowRight className="size-5 shrink-0 text-gray-400" />
+								</>
+							);
+							const tile =
+								'flex w-full cursor-pointer items-center gap-4 rounded-full bg-white py-3 pr-6 pl-3 text-left transition-colors hover:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800';
+
+							return row.href ? (
+								<Link key={row.key} href={row.href} className={tile}>
+									{content}
+								</Link>
+							) : (
+								<button key={row.key} type="button" onClick={row.onClick} className={tile}>
+									{content}
+								</button>
+							);
+						})}
+					</div>
+
+					<button
+						type="button"
+						onClick={handleLogout}
+						disabled={isLoggingOut}
+						className="mt-6 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-gray-900 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white disabled:opacity-50 dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
+					>
+						<LogOut className="size-4" />
+						{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
+					</button>
+				</div>
+			);
+		}
+
 		if (isMarket) {
 			return (
 				<div className="mx-auto max-w-[1400px] px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-10 lg:px-8">

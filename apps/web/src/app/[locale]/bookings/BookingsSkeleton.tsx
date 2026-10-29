@@ -124,6 +124,22 @@ function BookingsSkeletonMarket() {
 	);
 }
 
+function BookingsSkeletonDrawer() {
+	return (
+		<div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+			<div className="mb-6 flex items-center justify-between">
+				<Skeleton className="h-10 w-56 rounded" />
+				<Skeleton className="h-10 w-36 rounded-full" />
+			</div>
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+				{Array.from({ length: 3 }).map((_, index) => (
+					<Skeleton key={index} className="h-80 w-full rounded-[2rem]" />
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function BookingsSkeleton() {
 	return (
 		<>
@@ -139,8 +155,11 @@ export default function BookingsSkeleton() {
 			<div className="hidden in-data-[skin=soft]:block">
 				<BookingsSkeletonSoft />
 			</div>
-			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
+			<div className="hidden in-data-[skin=market]:block">
 				<BookingsSkeletonMarket />
+			</div>
+			<div className="hidden in-data-[skin=drawer]:block">
+				<BookingsSkeletonDrawer />
 			</div>
 		</>
 	);

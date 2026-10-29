@@ -66,6 +66,7 @@ const defaultBrand: Brand = {
 	colorAccent: '#008391',
 	description: siteConfig.description,
 	ogImage: siteConfig.ogImage,
+	skin: 'drawer',
 	contact: {
 		instagram: 'https://instagram.com/eventspace',
 		phone: '+374 99 123 456',

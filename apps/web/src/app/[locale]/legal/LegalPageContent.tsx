@@ -109,7 +109,63 @@ export default function LegalPageContent({ document }: LegalPageContentProps) {
 		);
 	}
 
-	if (skin === 'market' || skin === 'drawer') {
+	if (skin === 'drawer') {
+		return (
+			<div className="mx-auto min-h-full w-full max-w-4xl px-4 py-6 pb-12 sm:px-6 sm:py-10 lg:px-8">
+				<h1 className="text-4xl leading-none font-black tracking-tight text-gray-900 sm:text-6xl dark:text-white">
+					{content.title}
+				</h1>
+				<p className="bg-primary/10 text-primary mt-4 inline-block rounded-full px-4 py-1.5 text-sm font-bold">
+					{translate('legal.updated')}
+				</p>
+
+				<nav className="mt-8 flex [scrollbar-width:none] gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+					{content.sections.map((section, index) => (
+						<a
+							key={section.title}
+							href={`#section-${index + 1}`}
+							className="hover:bg-primary shrink-0 rounded-full bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-800 transition-colors hover:text-white dark:bg-neutral-800 dark:text-gray-100"
+						>
+							{index + 1}. {section.title}
+						</a>
+					))}
+				</nav>
+
+				<p className="mt-10 text-xl leading-relaxed text-gray-700 sm:text-2xl dark:text-gray-300">
+					{withCompany(content.intro)}
+				</p>
+
+				<div className="mt-10 divide-y divide-gray-200 border-t border-gray-200 dark:divide-neutral-800 dark:border-neutral-800">
+					{content.sections.map((section, index) => (
+						<section
+							key={section.title}
+							id={`section-${index + 1}`}
+							className="grid scroll-mt-40 gap-3 py-8 sm:grid-cols-[4rem_1fr] sm:gap-6"
+						>
+							<span className="text-primary text-3xl font-black tabular-nums">
+								{String(index + 1).padStart(2, '0')}
+							</span>
+							<div>
+								<h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
+									{section.title}
+								</h2>
+								<div className="mt-3 flex flex-col gap-3">
+									{section.body.map((paragraph) => (
+										<p key={paragraph} className="leading-relaxed text-gray-600 dark:text-gray-300">
+											{withCompany(paragraph)}
+										</p>
+									))}
+								</div>
+							</div>
+						</section>
+					))}
+				</div>
+				{contact && <p className="mt-6 text-sm text-gray-600 dark:text-gray-400">{contact}</p>}
+			</div>
+		);
+	}
+
+	if (skin === 'market') {
 		return (
 			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">
 				<div className="bg-primary/10 rounded-3xl px-6 py-8 sm:px-10 sm:py-12">

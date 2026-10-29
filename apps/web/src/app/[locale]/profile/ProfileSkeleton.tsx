@@ -131,6 +131,19 @@ function ProfileSkeletonMarket() {
 	);
 }
 
+function ProfileSkeletonDrawer() {
+	return (
+		<div className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-6">
+			<Skeleton className="h-52 w-full rounded-[2rem] sm:h-56 sm:rounded-[2.5rem]" />
+			<div className="mt-4 space-y-2">
+				{Array.from({ length: 4 }).map((_, index) => (
+					<Skeleton key={index} className="h-[4.5rem] w-full rounded-full" />
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function ProfileSkeleton() {
 	return (
 		<>
@@ -146,8 +159,11 @@ export default function ProfileSkeleton() {
 			<div className="hidden in-data-[skin=soft]:block">
 				<ProfileSkeletonSoft />
 			</div>
-			<div className="hidden in-data-[skin=market]:block in-data-[skin=drawer]:block">
+			<div className="hidden in-data-[skin=market]:block">
 				<ProfileSkeletonMarket />
+			</div>
+			<div className="hidden in-data-[skin=drawer]:block">
+				<ProfileSkeletonDrawer />
 			</div>
 		</>
 	);

@@ -18,7 +18,8 @@ export default function FavoritesPageContent() {
 	const skin = useSkin();
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market' || skin === 'drawer';
+	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
 
 	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -55,7 +56,9 @@ export default function FavoritesPageContent() {
 			className={
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
-					: isSoft
+					: isDrawer
+						? 'mx-auto min-h-full w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8'
+						: isSoft
 						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
 						: isMarket
 							? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
@@ -64,7 +67,7 @@ export default function FavoritesPageContent() {
 		>
 			<div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 				<div>
-					<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white">
+					<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white in-data-[skin=drawer]:text-4xl in-data-[skin=drawer]:font-black in-data-[skin=drawer]:tracking-tight">
 						{isSoft && (
 							<span className="flex size-11 items-center justify-center rounded-full bg-rose-50 text-rose-500 dark:bg-rose-950/40">
 								<Heart className="size-5 fill-current" />
@@ -82,7 +85,9 @@ export default function FavoritesPageContent() {
 				className={
 					isListing
 						? 'flex flex-col gap-4'
-						: isSoft
+						: isDrawer
+							? 'grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4'
+							: isSoft
 							? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 2xl:grid-cols-4'
 							: isMarket
 								? 'grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-8 lg:grid-cols-4 xl:grid-cols-5'
