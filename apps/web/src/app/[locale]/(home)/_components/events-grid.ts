@@ -13,3 +13,23 @@ export function eventsGridClass(skin: BrandSkin): string {
 		? 'grid grid-cols-1 gap-x-6 gap-y-10 py-6 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'
 		: 'grid grid-cols-1 gap-4 py-4 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 lg:gap-8 2xl:grid-cols-4';
 }
+
+/** Most a page of the catalogue ever shows: three rows of the widest grid (five columns). */
+export const CATALOGUE_FETCH_LIMIT = 15;
+
+export const CATALOGUE_ROWS = 3;
+
+/** On a phone the cards are shown six at a time, whatever the skin lays them out as. */
+export const CATALOGUE_MOBILE_PAGE = 6;
+
+const MOBILE_MAX_WIDTH = 640;
+
+/** How many cards one step of the catalogue reveals: three rows on a wide screen, six on a phone. */
+export function cataloguePageSize(grid: HTMLElement): number {
+	if (window.innerWidth < MOBILE_MAX_WIDTH) return CATALOGUE_MOBILE_PAGE;
+
+	const template = getComputedStyle(grid).gridTemplateColumns;
+	const columns = template && template !== 'none' ? template.split(' ').length : 1;
+
+	return Math.min(columns * CATALOGUE_ROWS, CATALOGUE_FETCH_LIMIT);
+}

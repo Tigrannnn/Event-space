@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { getCategoryTranslation, type Category } from '@event-space/shared';
 import EventsList from '../../(home)/_components/EventsList';
+import { CATALOGUE_FETCH_LIMIT } from '../../(home)/_components/events-grid';
 import {
 	buildEventsApiUrl,
 	parseFiltersFromSearchParams,
@@ -75,7 +76,11 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 	});
 
 	const filters = parseFiltersFromSearchParams(urlSearchParams);
-	const url = buildEventsApiUrl({ ...filters, categories: [slug] }, searchQuery);
+	const url = buildEventsApiUrl(
+		{ ...filters, categories: [slug] },
+		searchQuery,
+		CATALOGUE_FETCH_LIMIT,
+	);
 
 	const initialData = await serverFetch<PaginatedEventsResponse>(url).catch(() => ({
 		data: [],

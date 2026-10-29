@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useEffect, useState } from 'react';
+import { useCallback, useMemo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { EventCard } from '@/features/events';
 import EventsGridSkeleton from './EventsGridSkeleton';
@@ -13,7 +13,7 @@ import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
 import { useCategories } from '@/features/categories/hooks/useCategories';
 import { useSkin } from '@/providers/BrandProvider';
-import { eventsGridClass } from './events-grid';
+import { CATALOGUE_FETCH_LIMIT, CATALOGUE_MOBILE_PAGE, cataloguePageSize, eventsGridClass } from './events-grid';
 import {
 	EventsFiltersBar,
 	computePriceBounds,
@@ -76,7 +76,7 @@ export default function EventsList({
 	}, [initialEvents, initialNextCursor, initialHasMore]);
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } = useEvents({
-		limit: 8,
+		limit: CATALOGUE_FETCH_LIMIT,
 		search: searchQuery,
 		startDate: filters.dateRange ? formatDateParam(filters.dateRange.from) : undefined,
 		endDate: filters.dateRange ? formatDateParam(filters.dateRange.to) : undefined,
@@ -116,14 +116,48 @@ export default function EventsList({
 		[highestPrice],
 	);
 
+	const gridRef = useRef<HTMLDivElement>(null);
+	const [pageSize, setPageSize] = useState(CATALOGUE_MOBILE_PAGE);
+	const [steps, setSteps] = useState(1);
+	const resetKey = JSON.stringify([searchQuery, categorySlug, filters]);
+	const [seenResetKey, setSeenResetKey] = useState(resetKey);
+	if (seenResetKey !== resetKey) {
+		setSeenResetKey(resetKey);
+		setSteps(1);
+	}
+
+	// The grid is measured rather than guessed from the skin and the breakpoint: it already knows
+	// how many columns it has, so a step is always three whole rows.
+	const hasEvents = filteredEvents.length > 0;
+	useLayoutEffect(() => {
+		const grid = gridRef.current;
+		if (!grid) return;
+
+		const measure = () => setPageSize(cataloguePageSize(grid));
+		measure();
+
+		const observer = new ResizeObserver(measure);
+		observer.observe(grid);
+		return () => observer.disconnect();
+	}, [hasEvents]);
+
+	const visibleCount = steps * pageSize;
+	const visibleEvents = filteredEvents.slice(0, visibleCount);
+	const hasHiddenEvents = visibleCount < filteredEvents.length;
+
+	// Keep one step in hand: the next batch is already loaded by the time the reader reaches it.
+	useEffect(() => {
+		if (hasNextPage && !isFetchingNextPage && filteredEvents.length < visibleCount + pageSize) {
+			fetchNextPage();
+		}
+	}, [hasNextPage, isFetchingNextPage, filteredEvents.length, visibleCount, pageSize, fetchNextPage]);
+
 	const loadMoreRef = useIntersectionObserver(
 		useCallback(() => {
-			if (hasNextPage && !isFetchingNextPage) {
-				fetchNextPage();
-			}
-		}, [hasNextPage, isFetchingNextPage, fetchNextPage]),
+			if (hasHiddenEvents) setSteps((current) => current + 1);
+		}, [hasHiddenEvents]),
 		{
-			enabled: hasNextPage && !isFetchingNextPage,
+			enabled: hasHiddenEvents,
 			rootMargin: '200px',
 		},
 	);
@@ -146,7 +180,7 @@ export default function EventsList({
 		return (
 			<div>
 				{filtersBar}
-				<EventsGridSkeleton count={8} />
+				<EventsGridSkeleton count={CATALOGUE_MOBILE_PAGE} />
 			</div>
 		);
 	}
@@ -183,15 +217,15 @@ export default function EventsList({
 	return (
 		<div>
 			{filtersBar}
-			<div className={eventsGridClass(skin)}>
-				{filteredEvents.map((event) => (
+			<div ref={gridRef} className={eventsGridClass(skin)}>
+				{visibleEvents.map((event) => (
 					<EventCard key={event.id} event={event} />
 				))}
 			</div>
 
 			<LoadMoreTrigger
-				isLoading={isFetchingNextPage}
-				isEnabled={hasNextPage}
+				isLoading={isFetchingNextPage && !hasHiddenEvents}
+				isEnabled={hasHiddenEvents || hasNextPage}
 				loadMoreRef={loadMoreRef}
 			/>
 		</div>

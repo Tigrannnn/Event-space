@@ -11,6 +11,7 @@ import { BannerCarousel } from '@/features/banners';
 import type { Banner } from '@event-space/shared';
 import { parseFiltersFromSearchParams } from './_components/filters/filter-utils';
 import { buildEventsApiUrl } from './_components/filters/catalogue-url';
+import { CATALOGUE_FETCH_LIMIT } from './_components/events-grid';
 
 /**
  * Only alternates — title, description and the rest stay inherited from the locale layout.
@@ -68,7 +69,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 	const filters = parseFiltersFromSearchParams(urlSearchParams);
 
-	const url = buildEventsApiUrl(filters, searchQuery);
+	const url = buildEventsApiUrl(filters, searchQuery, CATALOGUE_FETCH_LIMIT);
 
 	// A promo banner belongs on the shop window, not over a list someone is filtering down:
 	// once the visitor is searching, they know what they came for.

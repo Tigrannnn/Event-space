@@ -31,8 +31,14 @@ export function buildCatalogueHref(
 }
 
 /** The events request behind a catalogue page, server side and client side alike. */
-export function buildEventsApiUrl(filters: EventsFiltersState, searchQuery = ''): string {
+export function buildEventsApiUrl(
+	filters: EventsFiltersState,
+	searchQuery = '',
+	limit?: number,
+): string {
 	const params = new URLSearchParams();
+
+	if (limit) params.set('limit', String(limit));
 
 	if (searchQuery) params.set('search', searchQuery);
 
