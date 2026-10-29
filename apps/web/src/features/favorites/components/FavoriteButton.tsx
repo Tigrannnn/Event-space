@@ -22,6 +22,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
 	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { isLoading: isFavoritesLoading } = useFavoriteIds();
 	const isFavorite = useIsFavorite(eventId);
@@ -93,6 +94,42 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 					<Skeleton className="size-4 rounded" />
 				) : (
 					<Heart className={cn('size-[18px]', isFavorite && 'fill-current')} strokeWidth={2} />
+				)}
+			</button>
+		);
+	}
+
+	if (isDrawer) {
+		// Frosted glass on the poster: the outline in white, a solid red heart once saved.
+		return (
+			<button
+				type="button"
+				onClick={handleClick}
+				aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
+				aria-pressed={isFavorite}
+				className={cn(
+					'relative z-20 flex size-10 items-center justify-center rounded-full backdrop-blur-md transition-transform hover:scale-110 active:scale-95',
+					variant === 'plain'
+						? 'bg-gray-100 dark:bg-neutral-800'
+						: 'bg-black/30 hover:bg-black/45',
+					className,
+				)}
+				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+			>
+				{isUserLoading || (isFavoritesLoading && user) ? (
+					<Skeleton className="size-4 rounded-full" />
+				) : (
+					<Heart
+						className={cn(
+							'size-5 transition-colors',
+							isFavorite
+								? 'fill-red-500 stroke-red-500'
+								: variant === 'plain'
+									? 'fill-transparent stroke-gray-800 dark:stroke-gray-100'
+									: 'fill-transparent stroke-white',
+						)}
+						strokeWidth={2}
+					/>
 				)}
 			</button>
 		);

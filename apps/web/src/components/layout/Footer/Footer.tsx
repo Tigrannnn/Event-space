@@ -20,9 +20,14 @@ export default function Footer() {
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 	const onColor = isListing || isSoft;
-	const muted = onColor ? 'text-white/75' : 'text-gray-500 dark:text-gray-400';
-	const linkHover = onColor ? 'hover:text-white hover:underline' : 'hover:text-primary';
+	const muted = onColor ? 'text-white/75' : isDrawer ? 'text-white/60' : 'text-gray-500 dark:text-gray-400';
+	const linkHover = onColor
+		? 'hover:text-white hover:underline'
+		: isDrawer
+			? 'hover:text-white'
+			: 'hover:text-primary';
 	const locale = translate.locale;
 	const pathname = usePathname();
 	const { data: categories } = useCategories();
@@ -35,10 +40,16 @@ export default function Footer() {
 				'mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950',
 				onColor && 'bg-primary dark:bg-primary border-transparent text-white dark:border-transparent',
 				isSoft && 'mt-16 rounded-t-[2rem] sm:rounded-t-[2.5rem] sm:py-8',
+				isDrawer &&
+					'mt-16 rounded-t-[2.5rem] border-transparent bg-neutral-900 pt-10 text-white sm:px-8 sm:pt-14 sm:pb-8 dark:border-transparent dark:bg-neutral-900',
 				isMarket && 'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
 			)}
 		>
-			{(isMinimal || isSoft || isMarket) && (
+			{isDrawer && (
+				<p className="mx-auto mb-8 max-w-7xl text-4xl font-black tracking-tight sm:text-6xl">{brand.name}</p>
+			)}
+
+			{(isMinimal || isSoft || isMarket) && !isDrawer && (
 				<div className="mx-auto mb-4 max-w-7xl">
 					<ContactIcons onDark={onColor} className={isMinimal ? '-ml-2.5' : undefined} />
 				</div>

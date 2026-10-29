@@ -53,7 +53,7 @@ export default function BookingForm({
 	const skin = useSkin();
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 	const DatePicker = isListing ? OccurrenceRows : OccurrenceChips;
 	const selectedRef = useRef<HTMLButtonElement>(null);
 	const apiError = useApiError();

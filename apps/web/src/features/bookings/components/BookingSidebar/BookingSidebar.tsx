@@ -39,7 +39,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
-	const isMarket = skin === 'market';
+	const isMarket = skin === 'market' || skin === 'drawer';
 	const cardClassName = isMinimal
 		? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
 		: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
@@ -384,7 +384,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 
 	if (isMarket) {
 		return (
-			<div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900">
+			<div className="in-data-[skin=drawer]:rounded-[2rem] rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6 dark:border-neutral-800 dark:bg-neutral-900">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
 					<span
 						className={`text-3xl font-bold ${quote.discountPercent > 0 ? 'text-(--brand-accent)' : 'text-gray-900 dark:text-white'}`}

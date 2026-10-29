@@ -18,6 +18,10 @@ export default function EventCardSkeleton() {
 		);
 	}
 
+	if (skin === 'drawer') {
+		return <Skeleton className="aspect-3/4 w-full rounded-[1.75rem]" />;
+	}
+
 	if (skin === 'market') {
 		return (
 			<div>

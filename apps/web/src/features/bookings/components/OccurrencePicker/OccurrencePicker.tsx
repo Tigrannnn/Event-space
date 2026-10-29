@@ -206,7 +206,7 @@ function OccurrencePickerClassic({
 export function OccurrencePicker(props: OccurrencePickerProps) {
 	const skin = useSkin();
 
-	if (skin === 'minimal' || skin === 'market') return <OccurrenceChips {...props} />;
+	if (skin === 'minimal' || skin === 'market' || skin === 'drawer') return <OccurrenceChips {...props} />;
 	if (skin === 'listing') return <OccurrenceRows {...props} />;
 
 	return <OccurrencePickerClassic {...props} />;

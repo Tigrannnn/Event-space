@@ -6,6 +6,7 @@ import EventCardMinimal from './EventCardMinimal';
 import EventCardListing from './EventCardListing';
 import EventCardSoft from './EventCardSoft';
 import EventCardMarket from './EventCardMarket';
+import EventCardDrawer from './EventCardDrawer';
 import type { EventCardProps } from './useEventCardState';
 
 export type { EventCardProps };
@@ -17,6 +18,7 @@ export default function EventCard(props: EventCardProps) {
 	if (skin === 'listing') return <EventCardListing {...props} />;
 	if (skin === 'soft') return <EventCardSoft {...props} />;
 	if (skin === 'market') return <EventCardMarket {...props} />;
+	if (skin === 'drawer') return <EventCardDrawer {...props} />;
 
 	return <EventCardClassic {...props} />;
 }
