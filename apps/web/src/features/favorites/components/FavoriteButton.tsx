@@ -21,6 +21,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 	const skin = useSkin();
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
+	const isMarket = skin === 'market';
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const { isLoading: isFavoritesLoading } = useFavoriteIds();
 	const isFavorite = useIsFavorite(eventId);
@@ -92,6 +93,41 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 					<Skeleton className="size-4 rounded" />
 				) : (
 					<Heart className={cn('size-[18px]', isFavorite && 'fill-current')} strokeWidth={2} />
+				)}
+			</button>
+		);
+	}
+
+	if (isMarket) {
+		// The marketplace heart: a flat white disc on the photo (grey on the page), an outline
+		// that fills red once saved.
+		return (
+			<button
+				type="button"
+				onClick={handleClick}
+				aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
+				aria-pressed={isFavorite}
+				className={cn(
+					'relative z-20 flex size-9 items-center justify-center rounded-full transition-transform hover:scale-110 active:scale-95',
+					variant === 'plain'
+						? 'bg-gray-100 dark:bg-neutral-800'
+						: 'bg-white/95 shadow-sm dark:bg-neutral-900/90',
+					className,
+				)}
+				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+			>
+				{isUserLoading || (isFavoritesLoading && user) ? (
+					<Skeleton className="size-4 rounded-full" />
+				) : (
+					<Heart
+						className={cn(
+							'size-5 transition-colors',
+							isFavorite
+								? 'fill-red-500 stroke-red-500'
+								: 'fill-transparent stroke-gray-700 dark:stroke-gray-200',
+						)}
+						strokeWidth={2}
+					/>
 				)}
 			</button>
 		);
