@@ -24,7 +24,7 @@ export interface BrandAboutContent {
  * How a site looks beyond its colours: layout of the header, the tour cards and the catalogue.
  * Two companies that sell side by side should not read as one site in two paints.
  */
-export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market';
+export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market' | 'drawer';
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
 

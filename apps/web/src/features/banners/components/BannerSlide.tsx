@@ -48,6 +48,7 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 
 	const minimalContent = (
 		<div className="grid h-full w-full grid-rows-[11rem_1fr] bg-gray-50 sm:grid-cols-5 sm:grid-rows-1 dark:bg-neutral-900">
@@ -104,7 +105,7 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 					<p
 						className={cn(
 							'max-w-xl text-xl leading-tight font-black sm:text-3xl lg:text-4xl',
-							isSoft ? 'font-(family-name:--font-display)' : !isListing && !isMarket && 'uppercase',
+							isSoft ? 'font-(family-name:--font-display)' : !isListing && !isMarket && !isDrawer && 'uppercase',
 							isDark ? 'text-white' : 'text-gray-900',
 						)}
 					>

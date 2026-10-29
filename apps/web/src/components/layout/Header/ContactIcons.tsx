@@ -31,6 +31,7 @@ const LOOK = {
 		dark: 'rounded-xl bg-white/15 text-white hover:bg-white/25',
 		stroke: 1.75,
 	},
+	drawer: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
 	classic: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
 } as const;
 

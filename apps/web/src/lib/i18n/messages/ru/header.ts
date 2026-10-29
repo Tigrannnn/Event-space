@@ -12,6 +12,8 @@ export const header: Messages['header'] = {
 	goHome: 'Перейти на главную',
 	goProfile: 'Перейти в профиль',
 	language: 'Язык',
+	menu: 'Меню',
+	closeMenu: 'Закрыть меню',
 	contactUs: 'Связаться',
 	visitInstagram: 'Посетить Instagram',
 	viewLocation: 'Посмотреть, где мы находимся',

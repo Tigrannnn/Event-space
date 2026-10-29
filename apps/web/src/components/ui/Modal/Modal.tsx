@@ -68,7 +68,7 @@ export default function Modal({
 				initial="hidden"
 				animate="visible"
 				exit="exit"
-				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=listing]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none in-data-[skin=listing]:backdrop-blur-none in-data-[skin=market]:bg-black/40 in-data-[skin=market]:backdrop-blur-none ${backdropClassName}`}
+				className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm dark:bg-black/70 overflow-hidden in-data-[skin=minimal]:bg-black/40 in-data-[skin=listing]:bg-black/40 in-data-[skin=minimal]:backdrop-blur-none in-data-[skin=listing]:backdrop-blur-none in-data-[skin=market]:bg-black/40 in-data-[skin=market]:backdrop-blur-none in-data-[skin=drawer]:bg-black/55 ${backdropClassName}`}
 				onClick={handleBackdropClick}
 				aria-hidden="true"
 			/>
@@ -83,7 +83,7 @@ export default function Modal({
 					initial="hidden"
 					animate="visible"
 					exit="exit"
-					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90dvh] overflow-y-auto rounded-2xl in-data-[skin=soft]:rounded-[2rem] in-data-[skin=soft]:sm:rounded-[2rem] in-data-[skin=soft]:bg-gray-50 bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50 in-data-[skin=minimal]:rounded-2xl in-data-[skin=listing]:rounded-md in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-md in-data-[skin=listing]:border-t-4 in-data-[skin=listing]:border-t-primary in-data-[skin=minimal]:shadow-xl in-data-[skin=listing]:shadow-xl in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=market]:rounded-2xl in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:shadow-xl in-data-[skin=market]:dark:bg-neutral-900`}
+					className={`w-full ${getSizeClass(size)} ${contentClassName} pointer-events-auto max-h-[90dvh] overflow-y-auto rounded-2xl in-data-[skin=soft]:rounded-[2rem] in-data-[skin=soft]:sm:rounded-[2rem] in-data-[skin=soft]:bg-gray-50 bg-white shadow-2xl sm:rounded-3xl dark:bg-gray-900 dark:text-white dark:shadow-black/50 in-data-[skin=minimal]:rounded-2xl in-data-[skin=listing]:rounded-md in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-md in-data-[skin=listing]:border-t-4 in-data-[skin=listing]:border-t-primary in-data-[skin=minimal]:shadow-xl in-data-[skin=listing]:shadow-xl in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=market]:rounded-2xl in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:shadow-xl in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-[2rem] in-data-[skin=drawer]:sm:rounded-[2rem] in-data-[skin=drawer]:dark:bg-neutral-900`}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="modal-title"

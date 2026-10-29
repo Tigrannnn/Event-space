@@ -22,6 +22,7 @@ const WRAPPER: Record<BrandSkin, string> = {
 	listing: 'top-4 right-4 left-4 sm:top-20 sm:right-6 sm:left-auto sm:w-96',
 	soft: 'right-4 bottom-24 left-4 sm:right-8 sm:bottom-8 sm:left-auto sm:w-96',
 	market: 'right-4 bottom-20 left-4 items-center sm:right-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2',
+	drawer: 'right-4 bottom-20 left-4 items-center sm:right-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2',
 };
 
 const VARIANTS: Record<BrandSkin, Variants> = {
@@ -30,6 +31,7 @@ const VARIANTS: Record<BrandSkin, Variants> = {
 	listing: ToastVariantsByPlacement.fromTop,
 	soft: ToastVariantsByPlacement.fromBottom,
 	market: ToastVariantsByPlacement.fromBottom,
+	drawer: ToastVariantsByPlacement.fromBottom,
 };
 
 function ClassicToast({ toast }: { toast: Toast }) {
@@ -111,6 +113,7 @@ const BODY: Record<BrandSkin, (props: { toast: Toast }) => React.ReactElement> =
 	listing: ListingToast,
 	soft: SoftToast,
 	market: MinimalToast,
+	drawer: MinimalToast,
 };
 
 export function ToastContainer() {

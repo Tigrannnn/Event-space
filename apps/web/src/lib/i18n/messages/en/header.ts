@@ -10,6 +10,8 @@ export const header = {
 	goHome: 'Go to home page',
 	goProfile: 'Go to profile',
 	language: 'Language',
+	menu: 'Menu',
+	closeMenu: 'Close menu',
 	contactUs: 'Contact us',
 	visitInstagram: 'Visit Instagram',
 	viewLocation: 'View our location',

@@ -6,6 +6,7 @@ import HeaderMinimal from './HeaderMinimal';
 import HeaderListing from './HeaderListing';
 import HeaderSoft from './HeaderSoft';
 import HeaderMarket from './HeaderMarket';
+import HeaderDrawer from './HeaderDrawer';
 import { useSkin } from '@/providers/BrandProvider';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
@@ -91,6 +92,8 @@ export default function HeaderWrapper() {
 					<HeaderSoft />
 				) : skin === 'market' ? (
 					<HeaderMarket />
+				) : skin === 'drawer' ? (
+					<HeaderDrawer />
 				) : (
 					<>
 						<TopBar isTopBarVisible={isTopBarVisible} />

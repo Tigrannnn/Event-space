@@ -143,6 +143,8 @@ export default async function Layout({ children, params }: LayoutProps) {
 				className={`text-black flex min-h-dvh flex-col antialiased dark:text-white ${
 					skin === 'soft'
 						? 'bg-gray-50 dark:bg-gray-900'
+						: skin === 'drawer'
+							? 'bg-stone-50 dark:bg-neutral-950'
 						: isFlat
 							? skin === 'listing'
 								? 'bg-slate-50 dark:bg-neutral-950'

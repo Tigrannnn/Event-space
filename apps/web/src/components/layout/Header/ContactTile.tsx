@@ -17,46 +17,9 @@ interface Channel {
 	Icon: ComponentType<{ className?: string }>;
 }
 
-const LOOK = {
-	market: {
-		trigger:
-			'h-10 gap-1.5 rounded-xl px-3 text-sm font-semibold hover:bg-primary/10 hover:text-primary',
-		light: 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700',
-		dark: 'bg-white/15 text-white hover:bg-white/25',
-		panel: 'w-72 rounded-xl p-1',
-		row: 'rounded-lg px-3 py-2.5 hover:bg-gray-100 dark:hover:bg-neutral-800',
-		icon: 'bg-primary/10 text-primary rounded-lg',
-		title: 'text-sm font-semibold',
-		arrow: false,
-	},
-	soft: {
-		trigger:
-			'h-10 gap-1.5 rounded-full pr-3 pl-4 font-(family-name:--font-display) text-base font-semibold',
-		light: 'bg-primary/10 text-primary hover:bg-primary/20',
-		dark: 'bg-white/15 text-white hover:bg-white/25',
-		panel: 'flex w-80 flex-col gap-1.5 rounded-[2rem] p-3 shadow-xl',
-		row: 'bg-primary/5 hover:bg-primary/10 rounded-3xl px-3 py-2.5 dark:bg-neutral-800 dark:hover:bg-neutral-700',
-		icon: 'bg-primary size-10 rounded-full text-white',
-		title: 'font-(family-name:--font-display) text-base font-semibold',
-		arrow: true,
-	},
-} as const;
-
-/**
- * The contacts of the market and soft skins as one tile next to the language tile: it opens a list of the
- * company's channels, each a direct link (profile, call, mail, map) instead of a card of its own.
- */
-export default function ContactTile({
-	className,
-	onDark = false,
-}: {
-	className?: string;
-	onDark?: boolean;
-}) {
+/** The company's own channels as direct links: profile, call, mail and map. */
+export function useContactChannels(): Channel[] {
 	const { contact } = useBrand();
-	const look = LOOK[useSkin() === 'soft' ? 'soft' : 'market'];
-	const translate = useTranslation();
-	const [isOpen, setIsOpen] = useState(false);
 
 	const channels: Channel[] = [];
 	if (contact.instagram) {
@@ -99,6 +62,51 @@ export default function ContactTile({
 			Icon: MapPin,
 		});
 	}
+
+	return channels;
+}
+
+const LOOK = {
+	market: {
+		trigger:
+			'h-10 gap-1.5 rounded-xl px-3 text-sm font-semibold hover:bg-primary/10 hover:text-primary',
+		light: 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700',
+		dark: 'bg-white/15 text-white hover:bg-white/25',
+		panel: 'w-72 rounded-xl p-1',
+		row: 'rounded-lg px-3 py-2.5 hover:bg-gray-100 dark:hover:bg-neutral-800',
+		icon: 'bg-primary/10 text-primary rounded-lg',
+		title: 'text-sm font-semibold',
+		arrow: false,
+	},
+	soft: {
+		trigger:
+			'h-10 gap-1.5 rounded-full pr-3 pl-4 font-(family-name:--font-display) text-base font-semibold',
+		light: 'bg-primary/10 text-primary hover:bg-primary/20',
+		dark: 'bg-white/15 text-white hover:bg-white/25',
+		panel: 'flex w-80 flex-col gap-1.5 rounded-[2rem] p-3 shadow-xl',
+		row: 'bg-primary/5 hover:bg-primary/10 rounded-3xl px-3 py-2.5 dark:bg-neutral-800 dark:hover:bg-neutral-700',
+		icon: 'bg-primary size-10 rounded-full text-white',
+		title: 'font-(family-name:--font-display) text-base font-semibold',
+		arrow: true,
+	},
+} as const;
+
+/**
+ * The contacts of the market and soft skins as one tile next to the language tile: it opens a list of the
+ * company's channels, each a direct link (profile, call, mail, map) instead of a card of its own.
+ */
+export default function ContactTile({
+	className,
+	onDark = false,
+}: {
+	className?: string;
+	onDark?: boolean;
+}) {
+	const look = LOOK[useSkin() === 'soft' ? 'soft' : 'market'];
+	const translate = useTranslation();
+	const [isOpen, setIsOpen] = useState(false);
+
+	const channels = useContactChannels();
 
 	if (channels.length === 0) return null;
 

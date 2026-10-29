@@ -10,7 +10,7 @@ export interface SkeletonProps {
 
 export const Skeleton = ({ className, children, style }: SkeletonProps) => (
 	<div
-		className={cn('animate-pulse rounded-md bg-gray-200 dark:bg-gray-700 in-data-[skin=minimal]:dark:bg-neutral-800 in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:dark:bg-neutral-800', className)}
+		className={cn('animate-pulse rounded-md bg-gray-200 dark:bg-gray-700 in-data-[skin=minimal]:dark:bg-neutral-800 in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:dark:bg-neutral-800 in-data-[skin=drawer]:dark:bg-neutral-800', className)}
 		style={style}
 	>
 		{children}

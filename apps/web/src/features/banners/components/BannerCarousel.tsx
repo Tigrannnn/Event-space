@@ -54,6 +54,12 @@ const INDICATOR: Record<
 		active: 'w-5 bg-white',
 		inactive: 'w-1.5 bg-white/60 hover:bg-white/80',
 	},
+	drawer: {
+		container: 'absolute bottom-7 left-6 sm:bottom-10 sm:left-10',
+		dot: '',
+		active: '',
+		inactive: '',
+	},
 };
 
 /**
@@ -104,6 +110,14 @@ const ARROW: Record<
 		arrows: false,
 		icon: 'h-5 w-5',
 	},
+	drawer: {
+		base:
+			'size-11 rounded-full border border-white/70 bg-black/25 text-white backdrop-blur-sm hover:bg-white hover:text-gray-900',
+		prev: 'top-auto right-20 bottom-9 left-auto translate-y-0',
+		next: 'top-auto right-8 bottom-9 translate-y-0',
+		arrows: true,
+		icon: 'h-4 w-4',
+	},
 };
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
@@ -113,6 +127,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
+	const isDrawer = skin === 'drawer';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -172,6 +187,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 				'relative py-4 sm:py-6',
 				isListing && 'mx-auto w-full max-w-[1336px]',
 				isMarket && 'mx-auto w-full max-w-[1400px]',
+				isDrawer && 'mx-auto w-full max-w-7xl',
 			)}
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
@@ -188,9 +204,11 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 							? 'h-56 rounded-lg border border-gray-200 sm:h-80 dark:border-neutral-800'
 							: isSoft
 								? 'aspect-16/9 rounded-3xl shadow-lg ring-4 ring-white sm:aspect-16/6 dark:ring-gray-800'
-								: isMarket
-									? 'aspect-2/1 sm:aspect-16/5'
-									: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+								: isDrawer
+									? 'aspect-4/3 rounded-[2rem] sm:aspect-16/6'
+									: isMarket
+										? 'aspect-2/1 sm:aspect-16/5'
+										: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (
@@ -236,7 +254,20 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 						);
 					})}
 
-					{isMarket ? (
+					{isDrawer ? (
+						<div
+							aria-live="polite"
+							className={cn('flex items-center gap-3 text-white tabular-nums', INDICATOR.drawer.container)}
+						>
+							<span className="text-2xl leading-none font-black sm:text-3xl">
+								{String(activeIndex + 1).padStart(2, '0')}
+							</span>
+							<span className="h-px w-8 bg-white/60 sm:w-12" />
+							<span className="text-sm font-medium text-white/70">
+								{String(banners.length).padStart(2, '0')}
+							</span>
+						</div>
+					) : isMarket ? (
 						<div
 							aria-live="polite"
 							className="absolute right-4 bottom-7 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-semibold text-white tabular-nums sm:right-6 sm:bottom-9"

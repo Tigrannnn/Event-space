@@ -12,6 +12,8 @@ export const header: Messages['header'] = {
 	goHome: 'Գնալ գլխավոր էջ',
 	goProfile: 'Գնալ պրոֆիլ',
 	language: 'Լեզու',
+	menu: 'Մենյու',
+	closeMenu: 'Փակել մենյուն',
 	contactUs: 'Կապ',
 	visitInstagram: 'Բացել Instagram-ը',
 	viewLocation: 'Տեսնել, թե որտեղ ենք գտնվում',
