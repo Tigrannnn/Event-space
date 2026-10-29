@@ -86,7 +86,7 @@ export default function HeaderMarket() {
 					<button
 						type="button"
 						onClick={handleSubmitSearch}
-						className="bg-primary rounded-[0.65rem] px-5 text-sm font-semibold text-white transition-colors hover:brightness-90 sm:px-7"
+						className="bg-primary -my-0.5 -mr-0.5 rounded-r-xl px-5 text-sm font-semibold text-white transition-colors hover:brightness-90 sm:px-7"
 						aria-label={translate('header.search')}
 					>
 						<Search className="size-5 sm:hidden" />
