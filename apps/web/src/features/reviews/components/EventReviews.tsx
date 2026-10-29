@@ -46,7 +46,7 @@ export function EventReviews({ event }: { event: Event }) {
 				</h2>
 				{average !== null && (
 					<span className="flex items-center gap-2">
-						<span className="text-2xl font-black text-gray-900 dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:rounded-md in-data-[skin=listing]:rounded-bl-none in-data-[skin=listing]:bg-primary in-data-[skin=listing]:px-2 in-data-[skin=listing]:py-0.5 in-data-[skin=listing]:text-xl in-data-[skin=listing]:text-white">{average}</span>
+						<span className="text-2xl font-black text-gray-900 dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:rounded-md in-data-[skin=listing]:rounded-bl-none in-data-[skin=listing]:bg-primary in-data-[skin=listing]:px-2 in-data-[skin=listing]:py-0.5 in-data-[skin=listing]:text-xl in-data-[skin=listing]:text-white in-data-[skin=market]:rounded-lg in-data-[skin=market]:bg-amber-100 in-data-[skin=market]:px-2 in-data-[skin=market]:py-0.5 in-data-[skin=market]:text-xl in-data-[skin=market]:font-bold in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:bg-amber-400 in-data-[skin=market]:dark:text-gray-900">{average}</span>
 						<StarRating value={average} size="md" />
 						<span className="text-sm text-gray-500">
 							{translate('review.count', { count: event.ratingCount ?? 0 })}
@@ -115,13 +115,16 @@ export function EventReviews({ event }: { event: Event }) {
 				</ul>
 			)}
 
-			<ul className="space-y-4">
+			<ul className="space-y-4 in-data-[skin=market]:grid in-data-[skin=market]:gap-3 in-data-[skin=market]:space-y-0 in-data-[skin=market]:md:grid-cols-2">
 				{reviews.map((review) => (
 					<li
 						key={review.id}
-						className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:pb-5 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900"
+						className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:pb-5 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=market]:border-0 in-data-[skin=market]:bg-gray-50 in-data-[skin=market]:dark:bg-neutral-800"
 					>
 						<div className="flex flex-wrap items-center gap-2">
+							<span className="bg-primary hidden size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white uppercase in-data-[skin=market]:flex">
+								{(review.user?.name ?? '?').trim().charAt(0)}
+							</span>
 							<span className="font-semibold text-gray-900 dark:text-gray-100">
 								{review.user?.name}
 							</span>
@@ -136,7 +139,7 @@ export function EventReviews({ event }: { event: Event }) {
 						)}
 
 						{review.adminReply && (
-							<div className="mt-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-l-4 in-data-[skin=listing]:border-primary in-data-[skin=listing]:dark:bg-neutral-800">
+							<div className="mt-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-l-4 in-data-[skin=listing]:border-primary in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border-l-4 in-data-[skin=market]:border-primary in-data-[skin=market]:bg-white in-data-[skin=market]:dark:bg-neutral-900">
 								<p className="text-xs font-semibold text-gray-500 uppercase">
 									{translate('review.companyReply')}
 								</p>

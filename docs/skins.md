@@ -244,4 +244,6 @@
 | `Modal`, `ModalHeader`, `ModalCloseButton`, `AuthModal`, `Skeleton` | токены `in-data-[skin=market]:` |
 | `EventDetailSkeleton`, `EventsFiltersBarSkeleton`, `BookingsSkeleton`, `ProfileSkeleton` | своя версия `...Market`, выбор через `in-data-[skin=market]:` |
 
-Не делалось отдельно: отзывы на странице тура (`EventReviews`) и звёзды остались классическими, письма клиентам от скина не зависят.
+| `features/reviews/components/EventReviews.tsx` | оценка жёлтой плашкой, отзывы серыми плитками в две колонки с кругом-аватаром, ответ компании белой карточкой с полосой слева; звёзды остались жёлтыми |
+
+Письма клиентам от скина не зависят.
