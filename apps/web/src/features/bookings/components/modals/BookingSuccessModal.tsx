@@ -26,7 +26,7 @@ export default function BookingSuccessModal() {
 	const navigation = useLocalizedNavigation();
 	const { data: user } = useCurrentUser();
 	const skin = useSkin();
-	const ui = SUCCESS_UI[skin === 'market' ? 'classic' : skin];
+	const ui = SUCCESS_UI[skin];
 	const modalData = useModalData(ModalType.BookingSuccess);
 
 	if (!modalData) {
@@ -174,7 +174,7 @@ interface DetailRowProps {
 }
 
 function DetailRow({ skin, icon, label, value, href }: DetailRowProps) {
-	const row = DETAIL_UI[skin === 'market' ? 'classic' : skin];
+	const row = DETAIL_UI[skin];
 	const valueNode = href ? (
 		<a
 			href={href}
@@ -188,7 +188,7 @@ function DetailRow({ skin, icon, label, value, href }: DetailRowProps) {
 		<p className={row.value}>{value}</p>
 	);
 
-	if (skin === 'listing') {
+	if (skin === 'listing' || skin === 'market') {
 		return (
 			<div className={row.box}>
 				<span className={row.icon}>{icon}</span>
@@ -237,7 +237,7 @@ interface SuccessUi {
 	includedLabel: string;
 }
 
-const SUCCESS_UI: Record<Exclude<BrandSkin, 'market'>, SuccessUi> = {
+const SUCCESS_UI: Record<BrandSkin, SuccessUi> = {
 	classic: {
 		hero: '',
 		badge:
@@ -290,6 +290,22 @@ const SUCCESS_UI: Record<Exclude<BrandSkin, 'market'>, SuccessUi> = {
 		included: 'mt-4 rounded-md border border-gray-300 p-4 dark:border-neutral-700',
 		includedLabel: 'text-sm font-bold text-gray-900 dark:text-white',
 	},
+	market: {
+		hero: 'mt-4 flex-row items-start gap-4 pt-0 text-left sm:pr-10',
+		badge: 'flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-600',
+		badgeIcon: 'h-6 w-6 text-white',
+		heroText: '',
+		title: 'text-xl font-bold text-gray-900 sm:text-2xl dark:text-white',
+		lead: 'mt-1 text-sm text-gray-600 dark:text-gray-300',
+		ref: 'bg-primary/10 mt-5 rounded-2xl p-4 text-left',
+		refLabel: 'text-xs font-semibold text-gray-700 dark:text-gray-300',
+		refRow: 'mt-1 flex items-center justify-between gap-2',
+		refNumber: 'text-primary font-mono text-2xl font-bold',
+		refTip: 'mt-1 text-xs text-gray-600 dark:text-gray-400',
+		grid: 'mt-4 grid gap-2 sm:grid-cols-2',
+		included: 'mt-4 rounded-2xl border border-gray-200 p-4 dark:border-neutral-700',
+		includedLabel: 'text-sm font-bold text-gray-900 dark:text-white',
+	},
 	soft: {
 		hero: '',
 		badge:
@@ -318,7 +334,7 @@ interface DetailUi {
 	value: string;
 }
 
-const DETAIL_UI: Record<Exclude<BrandSkin, 'market'>, DetailUi> = {
+const DETAIL_UI: Record<BrandSkin, DetailUi> = {
 	classic: {
 		box: 'rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900',
 		head: 'flex items-center gap-2 text-gray-500 dark:text-gray-400',
@@ -338,6 +354,13 @@ const DETAIL_UI: Record<Exclude<BrandSkin, 'market'>, DetailUi> = {
 		head: '',
 		icon: 'text-primary bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
 		label: 'text-xs text-gray-600 dark:text-gray-400',
+		value: 'text-sm font-bold text-gray-900 dark:text-white',
+	},
+	market: {
+		box: 'flex items-start gap-3 rounded-2xl border border-gray-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900',
+		head: '',
+		icon: 'text-primary bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl',
+		label: 'text-xs text-gray-500 dark:text-gray-400',
 		value: 'text-sm font-bold text-gray-900 dark:text-white',
 	},
 	soft: {

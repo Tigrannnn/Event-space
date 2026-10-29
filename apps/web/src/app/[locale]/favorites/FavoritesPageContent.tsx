@@ -18,6 +18,7 @@ export default function FavoritesPageContent() {
 	const skin = useSkin();
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
+	const isMarket = skin === 'market';
 	const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetFavorites();
 
 	const favorites = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -56,7 +57,9 @@ export default function FavoritesPageContent() {
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
 					: isSoft
 						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
-						: 'min-h-full px-4 py-8'
+						: isMarket
+							? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
+							: 'min-h-full px-4 py-8'
 			}
 		>
 			<div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -81,7 +84,9 @@ export default function FavoritesPageContent() {
 						? 'flex flex-col gap-4'
 						: isSoft
 							? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 2xl:grid-cols-4'
-							: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+							: isMarket
+								? 'grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-8 lg:grid-cols-4 xl:grid-cols-5'
+								: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 				}
 			>
 				{favorites.map((event) => (

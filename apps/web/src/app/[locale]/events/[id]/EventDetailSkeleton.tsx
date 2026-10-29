@@ -114,10 +114,25 @@ function EventDetailSkeletonListing() {
 	);
 }
 
+function EventDetailSkeletonMarket() {
+	return (
+		<div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-6 px-4 py-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:px-8">
+			<div className="space-y-4">
+				<Skeleton className="h-8 w-2/3 rounded" />
+				<Skeleton className="h-4 w-1/3 rounded" />
+				<Skeleton className="aspect-4/3 w-full rounded-2xl sm:aspect-16/10" />
+				<Skeleton className="h-20 w-full rounded-2xl" />
+				<Skeleton className="h-48 w-full rounded-2xl" />
+			</div>
+			<Skeleton className="h-96 w-full rounded-2xl" />
+		</div>
+	);
+}
+
 export default function EventDetailSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden">
 				<EventDetailSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -125,6 +140,9 @@ export default function EventDetailSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=listing]:block">
 				<EventDetailSkeletonListing />
+			</div>
+			<div className="hidden in-data-[skin=market]:block">
+				<EventDetailSkeletonMarket />
 			</div>
 		</>
 	);

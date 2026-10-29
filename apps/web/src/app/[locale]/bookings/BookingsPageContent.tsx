@@ -29,6 +29,7 @@ export default function BookingsPageContent() {
 	const isListing = skin === 'listing';
 	const isMinimal = skin === 'minimal';
 	const isSoft = skin === 'soft';
+	const isMarket = skin === 'market';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,
@@ -87,7 +88,9 @@ export default function BookingsPageContent() {
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
 					: isSoft
 						? 'mx-auto min-h-full w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8'
-						: 'min-h-full max-w-full px-4 py-8'
+						: isMarket
+							? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
+							: 'min-h-full max-w-full px-4 py-8'
 			}
 		>
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -105,7 +108,9 @@ export default function BookingsPageContent() {
 							? 'rounded-md border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
 							: isMinimal
 								? 'rounded-full border-gray-300 bg-white hover:border-gray-900 dark:border-neutral-700 dark:bg-neutral-950 dark:hover:border-gray-300'
-								: 'rounded-full border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'
+								: isMarket
+									? 'rounded-xl border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+									: 'rounded-full border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'
 					}`}
 				>
 					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -130,7 +135,9 @@ export default function BookingsPageContent() {
 							? 'rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
 							: isMinimal
 								? 'border-y border-gray-200 py-12 dark:border-neutral-800'
-								: 'rounded-2xl border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/70'
+								: isMarket
+									? 'rounded-2xl border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+									: 'rounded-2xl border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/70'
 					}`}
 				>
 					{translate('booking.noBookingsMatchFilter')}
@@ -142,7 +149,9 @@ export default function BookingsPageContent() {
 							? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
 							: isSoft
 								? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4'
-								: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+								: isMarket
+									? 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+									: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 					}
 				>
 					{bookings.map((booking) => (

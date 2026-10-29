@@ -227,14 +227,21 @@
 | `ToastContainer.tsx`, `SearchDropdown.tsx` | тост как у `minimal`; панель подсказок со скруглением `2xl` |
 | `BookingSuccessModal.tsx` | пока берёт вид `classic` |
 
-Не делалось отдельно (выглядит как `classic` в одном цвете): страница тура и панель бронирования, профиль, брони, избранное, «О нас», правовые страницы, форма отзыва, футер, нижняя панель, панели фильтров, окно оплаты. Чтобы назначить скин бренду, поставить `skin: 'market'` в `brands.constant.ts`.
-
-## Контакты и язык в шапке у каждого скина свои
+Остальные поверхности `market` (сделаны 29.10.2026):
 
 | Файл | Как |
 |---|---|
-| `components/layout/Header/ContactIcons.tsx` | сам смотрит на скин (таблица `LOOK`, проп `square` убран): `minimal` голые круглые иконки, `listing` квадраты с рамкой, `soft` залитые тонированные круги, `market` серые плитки `rounded-xl`; `onDark` даёт те же формы на цвете бренда. `classic` показывает иконки в `TopBar` |
-| `components/ui/LanguageSwitcher/LanguageMenu.tsx` | `minimal`: глобус, название, шеврон. Отсюда же экспортируется `LANGUAGE_NAMES` |
-| `components/ui/LanguageSwitcher/LanguageCode.tsx` | `listing`: квадрат с рамкой и кодом `RU` |
-| `components/ui/LanguageSwitcher/LanguagePill.tsx` (новый) | `soft`: таблетка шрифтом с засечками, меню со скруглением `3xl` и кружком-галочкой |
-| `components/ui/LanguageSwitcher/LanguageTile.tsx` (новый) | `market`: серая плитка с кодом и шевроном, в меню название слева и код справа |
+| `app/[locale]/events/[id]/EventPageMarket.tsx` (новый) | как страница товара: заголовок и оценка, большое фото с лентой миниатюр, факты и разделы в рамках `rounded-2xl`, справа липкая панель бронирования |
+| `BookingSidebar.tsx` (ветка `isMarket`) | цена крупно, со скидкой цветом `--brand-accent` и значком, даты плитками (`OccurrenceChips`), шкала мест, красное «скоро закончатся» |
+| `QuantitySelector.tsx`, `BookingForm.tsx`, `OccurrencePicker.tsx` | токены `in-data-[skin=market]:`; даты плитками, как у `minimal` |
+| `Footer.tsx` | серая плашка с закруглённым верхом |
+| `BottomNavbar.tsx` | общая плоская панель (`isFlatSkin`), активный раздел цветом бренда |
+| `FilterTriggerButton.tsx`, `globals.css` (токены `:root[data-skin='market']`) | кнопки фильтров и категорий серые `rounded-xl`, активная в цвете бренда; панели (календарь, гости, цена) через те же токены, что у `listing`, но скругление крупнее |
+| `ProfileContent.tsx` (ветка `isMarket`) | слева карточка с аватаром и выходом, справа плитки-ссылки |
+| `BookingCard.tsx`, `BookingsPageContent.tsx`, `FavoritesPageContent.tsx`, `EmptyState.tsx` | карточка брони с рамкой, избранное той же сеткой, что каталог, пустое состояние плиткой-иконкой |
+| `AboutPageContent.tsx`, `LegalPageContent.tsx`, `not-found.tsx`, `ReviewPageContent.tsx` | шапка-плашка `bg-primary/10`, три карточки с квадратными значками; правовые с липким оглавлением; форма отзыва в карточке |
+| `PaymentSummary.tsx`, `StripePaymentForm.tsx`, `BookingSuccessModal.tsx` (`SUCCESS_UI.market`, `DETAIL_UI.market`) | окно оплаты и экран после оплаты |
+| `Modal`, `ModalHeader`, `ModalCloseButton`, `AuthModal`, `Skeleton` | токены `in-data-[skin=market]:` |
+| `EventDetailSkeleton`, `EventsFiltersBarSkeleton`, `BookingsSkeleton`, `ProfileSkeleton` | своя версия `...Market`, выбор через `in-data-[skin=market]:` |
+
+Не делалось отдельно: отзывы на странице тура (`EventReviews`) и звёзды остались классическими, письма клиентам от скина не зависят.

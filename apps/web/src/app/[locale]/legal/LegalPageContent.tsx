@@ -109,6 +109,65 @@ export default function LegalPageContent({ document }: LegalPageContentProps) {
 		);
 	}
 
+	if (skin === 'market') {
+		return (
+			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">
+				<div className="bg-primary/10 rounded-3xl px-6 py-8 sm:px-10 sm:py-12">
+					<h1 className="text-primary text-3xl font-black sm:text-4xl">{content.title}</h1>
+					<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{translate('legal.updated')}</p>
+				</div>
+
+				<div className="grid grid-cols-1 gap-6 py-4 lg:grid-cols-4">
+					<nav className="hidden self-start rounded-2xl border border-gray-200 bg-white p-4 lg:sticky lg:top-[calc(var(--header-height,6rem)+1rem)] lg:block dark:border-neutral-800 dark:bg-neutral-900">
+						<ol className="space-y-1 text-sm">
+							{content.sections.map((section, index) => (
+								<li key={section.title}>
+									<a
+										href={`#section-${index + 1}`}
+										className="hover:bg-primary/10 hover:text-primary flex gap-2 rounded-lg px-2 py-1.5 text-gray-700 transition-colors dark:text-gray-300"
+									>
+										<span className="text-primary font-semibold">{index + 1}.</span>
+										{section.title}
+									</a>
+								</li>
+							))}
+						</ol>
+					</nav>
+
+					<div className="space-y-4 lg:col-span-3">
+						<p className="rounded-2xl border border-gray-200 bg-white p-5 text-gray-700 sm:p-6 dark:border-neutral-800 dark:bg-neutral-900 dark:text-gray-300">
+							{withCompany(content.intro)}
+						</p>
+						{content.sections.map((section, index) => (
+							<section
+								key={section.title}
+								id={`section-${index + 1}`}
+								className="scroll-mt-40 rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-neutral-800 dark:bg-neutral-900"
+							>
+								<h2 className="flex gap-3 text-lg font-bold text-gray-900 dark:text-white">
+									<span className="bg-primary flex size-7 shrink-0 items-center justify-center rounded-lg text-sm text-white">
+										{index + 1}
+									</span>
+									{section.title}
+								</h2>
+								<div className="mt-3 flex flex-col gap-2">
+									{section.body.map((paragraph) => (
+										<p key={paragraph} className="text-gray-600 dark:text-gray-300">
+											{withCompany(paragraph)}
+										</p>
+									))}
+								</div>
+							</section>
+						))}
+						{contact && (
+							<p className="text-sm text-gray-600 dark:text-gray-400">{contact}</p>
+						)}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="min-h-full pb-10">

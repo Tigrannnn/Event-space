@@ -86,6 +86,33 @@ export default function AboutPageContent() {
 		);
 	}
 
+	if (skin === 'market') {
+		return (
+			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">
+				<div className="bg-primary/10 rounded-3xl px-6 py-10 sm:px-10 sm:py-14">
+					<h1 className="text-primary text-3xl font-black sm:text-5xl">{brand.name}</h1>
+					<p className="mt-3 max-w-2xl text-lg text-gray-700 dark:text-gray-300">{about.tagline}</p>
+				</div>
+
+				<div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+					{sections.map(({ key, title, body, Icon }) => (
+						<section
+							key={key}
+							className="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 dark:border-neutral-800 dark:bg-neutral-900"
+						>
+							<span className="bg-primary flex size-12 items-center justify-center rounded-xl text-white">
+								<Icon className="size-6" strokeWidth={1.75} />
+							</span>
+							<h2 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">{title}</h2>
+							<p className="mt-2 text-gray-600 dark:text-gray-300">{body}</p>
+							{key === 'contact' && <ContactIcons className="mt-4 gap-1.5" />}
+						</section>
+					))}
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="min-h-full pb-10">

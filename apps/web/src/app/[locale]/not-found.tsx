@@ -55,6 +55,32 @@ export default function NotFound() {
 		);
 	}
 
+	if (skin === 'market') {
+		return (
+			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">
+				<div className="bg-primary/10 w-full rounded-3xl p-8 text-center sm:p-12">
+					<p className="text-primary text-7xl leading-none font-black sm:text-8xl">404</p>
+					<h1 className="mt-5 text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white">
+						{translate('common.notFoundTitle')}
+					</h1>
+					<p className="mt-2 text-gray-600 dark:text-gray-400">
+						{translate('common.notFoundDescription')}
+					</p>
+					<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+						<Button className="px-6 py-2.5" onClick={() => navigation.push('/')}>
+							<Home className="size-4" />
+							{translate('common.goHome')}
+						</Button>
+						<Button variant="secondary" className="px-6 py-2.5" onClick={() => history.back()}>
+							<ArrowLeft className="size-4" />
+							{translate('event.back')}
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">

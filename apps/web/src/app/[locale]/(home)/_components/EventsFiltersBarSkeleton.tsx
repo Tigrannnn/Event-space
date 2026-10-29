@@ -54,10 +54,20 @@ function EventsFiltersBarSkeletonListing() {
 	);
 }
 
+function EventsFiltersBarSkeletonMarket() {
+	return (
+		<div className="mx-auto flex max-w-[1400px] gap-2 overflow-hidden px-4 py-3 sm:px-6 lg:px-8">
+			{Array.from({ length: 6 }).map((_, index) => (
+				<Skeleton key={index} className="h-10 w-28 shrink-0 rounded-xl" />
+			))}
+		</div>
+	);
+}
+
 export default function EventsFiltersBarSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden">
 				<EventsFiltersBarSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -65,6 +75,9 @@ export default function EventsFiltersBarSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=listing]:block">
 				<EventsFiltersBarSkeletonListing />
+			</div>
+			<div className="hidden in-data-[skin=market]:block">
+				<EventsFiltersBarSkeletonMarket />
 			</div>
 		</>
 	);

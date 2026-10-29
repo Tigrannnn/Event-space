@@ -46,6 +46,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
+	const isMarket = skin === 'market';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -137,6 +138,70 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 					]
 				: []),
 		];
+		if (isMarket) {
+			return (
+				<div className="mx-auto max-w-[1400px] px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-10 lg:px-8">
+					<div className="grid grid-cols-1 gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
+						<div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+							<div className="flex items-center gap-4 lg:flex-col lg:items-start">
+								<div className="bg-primary flex size-16 shrink-0 items-center justify-center rounded-2xl text-2xl font-bold text-white sm:size-20 sm:text-3xl">
+									{initial}
+								</div>
+								<div className="min-w-0">
+									<h1 className="text-xl font-bold break-words text-gray-900 sm:text-2xl dark:text-white">
+										{user.name}
+									</h1>
+									<p className="mt-0.5 text-sm break-words text-gray-500 dark:text-gray-400">
+										{[user.email, user.phone].filter(Boolean).join(' · ')}
+									</p>
+									<span className="bg-primary/10 text-primary mt-2 inline-block rounded-md px-2 py-0.5 text-xs font-semibold">
+										{USER_ROLE_LABELS[user.role]}
+									</span>
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={handleLogout}
+								disabled={isLoggingOut}
+								className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-200 disabled:opacity-50 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700"
+							>
+								<LogOut className="size-4" />
+								{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
+							</button>
+						</div>
+
+						<div className="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+							{rows.map((row) => {
+								const content = (
+									<>
+										<span className="bg-primary/10 text-primary flex size-12 shrink-0 items-center justify-center rounded-xl">
+											<row.icon className="size-6" strokeWidth={1.75} />
+										</span>
+										<span className="min-w-0 flex-1">
+											<span className="block font-bold text-gray-900 dark:text-white">{row.title}</span>
+											<span className="block text-sm text-gray-500 dark:text-gray-400">{row.hint}</span>
+										</span>
+									</>
+								);
+								const tile =
+									'flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 text-left transition-colors hover:border-primary dark:border-neutral-800 dark:bg-neutral-900';
+
+								return row.href ? (
+									<Link key={row.key} href={row.href} className={tile}>
+										{content}
+									</Link>
+								) : (
+									<button key={row.key} type="button" onClick={row.onClick} className={tile}>
+										{content}
+									</button>
+								);
+							})}
+						</div>
+					</div>
+				</div>
+			);
+		}
+
 		if (isSoft) {
 			return (
 				<div className="mx-auto max-w-5xl px-4 py-8 pb-24 sm:py-12 md:pb-14">

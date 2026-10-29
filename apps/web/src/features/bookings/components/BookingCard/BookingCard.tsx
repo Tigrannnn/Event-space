@@ -138,7 +138,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
-		<div className="group flex h-full flex-col in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:sm:rounded-3xl in-data-[skin=soft]:p-3 in-data-[skin=listing]:sm:flex-row overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:sm:rounded-lg in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent">
+		<div className="group flex h-full flex-col in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:sm:rounded-3xl in-data-[skin=soft]:p-3 in-data-[skin=listing]:sm:flex-row overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:sm:rounded-lg in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent in-data-[skin=market]:rounded-2xl in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:border-gray-200 in-data-[skin=market]:shadow-none in-data-[skin=market]:hover:translate-y-0 in-data-[skin=market]:hover:shadow-md in-data-[skin=market]:dark:border-neutral-800 in-data-[skin=market]:dark:bg-neutral-900">
 			{/* Event Image */}
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl in-data-[skin=soft]:rounded-2xl in-data-[skin=listing]:sm:aspect-auto in-data-[skin=listing]:sm:w-60 in-data-[skin=listing]:sm:shrink-0">
 				<EventImageWithFallback
@@ -160,7 +160,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 			<div className="flex flex-1 flex-col p-4 sm:p-6 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:sm:px-0 in-data-[skin=soft]:px-2 in-data-[skin=soft]:pb-1 in-data-[skin=soft]:sm:px-2 in-data-[skin=soft]:sm:pb-1">
 				<Link
 					href={localizePath(`/events/${event.id}`, locale)}
-					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white in-data-[skin=soft]:text-primary in-data-[skin=soft]:font-(family-name:--font-display) in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold"
+					className="hover:text-primary dark:hover:text-primary mb-2 line-clamp-2 block min-h-14 text-lg font-bold text-gray-900 transition-colors sm:text-xl dark:text-white in-data-[skin=soft]:text-primary in-data-[skin=soft]:font-(family-name:--font-display) in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold in-data-[skin=market]:font-semibold"
 				>
 					{eventTranslation.title}
 				</Link>
@@ -171,7 +171,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 							<span className="text-xs font-medium tracking-widest text-gray-500 uppercase dark:text-gray-400">
 								{translate('booking.bookingRef')}
 							</span>
-							<span className="text-primary font-mono text-lg font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white">
+							<span className="text-primary font-mono text-lg font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:text-white">
 								{formatBookingReference(booking.referenceNumber)}
 							</span>
 						</div>
@@ -271,7 +271,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								{formatCurrency(quote.baseTotal)}
 							</div>
 						)}
-						<span className="text-primary text-xl font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white">{formatCurrency(quote.total)}</span>
+						<span className="text-primary text-xl font-bold in-data-[skin=minimal]:text-gray-900 in-data-[skin=listing]:text-gray-900 in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:font-semibold in-data-[skin=minimal]:dark:text-white in-data-[skin=listing]:dark:text-white in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:text-white">{formatCurrency(quote.total)}</span>
 						<span className="text-sm text-gray-400 dark:text-gray-500">
 							{' '}
 							{translate('booking.total')}

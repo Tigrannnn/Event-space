@@ -36,6 +36,31 @@ export default function PaymentSummary({ title, date, quantity, total }: Payment
 		);
 	}
 
+	if (skin === 'market') {
+		return (
+			<div className="rounded-2xl border border-gray-200 p-4 dark:border-neutral-700">
+				{title && <p className="text-sm font-bold text-gray-900 dark:text-white">{title}</p>}
+				{date && (
+					<p className="mt-1 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+						<Calendar className="size-4 shrink-0" />
+						{date}
+					</p>
+				)}
+				<div className="mt-3 flex items-center justify-between gap-4 text-sm text-gray-600 dark:text-gray-300">
+					<span className="flex items-center gap-1.5">
+						<Users className="size-4" />
+						{spotsLabel}
+					</span>
+					<span className="font-semibold">{quantity}</span>
+				</div>
+				<div className="mt-3 flex items-baseline justify-between gap-4 border-t border-gray-200 pt-3 dark:border-neutral-700">
+					<span className="text-sm text-gray-600 dark:text-gray-300">{totalLabel}</span>
+					<span className="text-2xl font-bold text-gray-900 dark:text-white">{total}</span>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'listing') {
 		return (
 			<div className="overflow-hidden rounded-md border border-gray-300 dark:border-neutral-700">

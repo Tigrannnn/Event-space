@@ -120,6 +120,27 @@
 	}
 }
 
+:root[data-skin='market'] {
+	--panel-radius: 1rem;
+	--control-radius: 0.75rem;
+	--field-radius: 0.75rem;
+	--accent-solid: var(--color-primary);
+	--accent-solid-fg: #ffffff;
+	--range-bg: color-mix(in srgb, var(--color-primary) 12%, transparent);
+	--field-fg: var(--color-primary);
+	--panel-border: #e5e7eb;
+	--panel-bg: #ffffff;
+	--field-border: #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root[data-skin='market'] {
+		--panel-border: #262626;
+		--panel-bg: #171717;
+		--field-border: #404040;
+	}
+}
+
 :root[data-skin='soft'] {
 	--panel-radius: 1.5rem;
 	--control-radius: 9999px;
@@ -145,7 +166,8 @@
 
 :root[data-skin='minimal'] .filter-panel,
 :root[data-skin='soft'] .filter-panel,
-:root[data-skin='listing'] .filter-panel {
+:root[data-skin='listing'] .filter-panel,
+:root[data-skin='market'] .filter-panel {
 	border-radius: var(--panel-radius);
 	border-color: var(--panel-border);
 	background: var(--panel-bg);
@@ -155,7 +177,8 @@
 
 :root[data-skin='minimal'] .filter-panel [data-slot='button'][data-variant='default'],
 :root[data-skin='soft'] .filter-panel [data-slot='button'][data-variant='default'],
-:root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='default'] {
+:root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='default'],
+:root[data-skin='market'] .filter-panel [data-slot='button'][data-variant='default'] {
 	border-radius: var(--control-radius);
 	background: var(--accent-solid);
 	color: var(--accent-solid-fg);
@@ -163,7 +186,8 @@
 
 :root[data-skin='minimal'] .filter-panel [data-slot='button'][data-variant='outline'],
 :root[data-skin='soft'] .filter-panel [data-slot='button'][data-variant='outline'],
-:root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='outline'] {
+:root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='outline'],
+:root[data-skin='market'] .filter-panel [data-slot='button'][data-variant='outline'] {
 	border-radius: var(--control-radius);
 	border-color: var(--field-border);
 	background: transparent;
@@ -171,7 +195,8 @@
 
 :root[data-skin='minimal'] .price-field,
 :root[data-skin='soft'] .price-field,
-:root[data-skin='listing'] .price-field {
+:root[data-skin='listing'] .price-field,
+:root[data-skin='market'] .price-field {
 	border-radius: var(--field-radius);
 	border-color: var(--field-border);
 	color: var(--field-fg);
@@ -179,7 +204,8 @@
 
 :root[data-skin='minimal'] .price-field:focus,
 :root[data-skin='soft'] .price-field:focus,
-:root[data-skin='listing'] .price-field:focus {
+:root[data-skin='listing'] .price-field:focus,
+:root[data-skin='market'] .price-field:focus {
 	border-color: var(--accent-solid);
 }
 
@@ -223,13 +249,15 @@
 
 :root[data-skin='minimal'] .filter-panel [data-slot='slider-range'],
 :root[data-skin='soft'] .filter-panel [data-slot='slider-range'],
-:root[data-skin='listing'] .filter-panel [data-slot='slider-range'] {
+:root[data-skin='listing'] .filter-panel [data-slot='slider-range'],
+:root[data-skin='market'] .filter-panel [data-slot='slider-range'] {
 	background: var(--accent-solid);
 }
 
 :root[data-skin='minimal'] .filter-panel [data-slot='slider-thumb'],
 :root[data-skin='soft'] .filter-panel [data-slot='slider-thumb'],
-:root[data-skin='listing'] .filter-panel [data-slot='slider-thumb'] {
+:root[data-skin='listing'] .filter-panel [data-slot='slider-thumb'],
+:root[data-skin='market'] .filter-panel [data-slot='slider-thumb'] {
 	width: 1rem;
 	height: 1rem;
 	border: 2px solid var(--accent-solid);
@@ -241,10 +269,13 @@
 :root[data-skin='minimal'] .filter-panel [data-range-end='true'],
 :root[data-skin='soft'] .filter-panel [data-selected-single='true'],
 :root[data-skin='listing'] .filter-panel [data-selected-single='true'],
+:root[data-skin='market'] .filter-panel [data-selected-single='true'],
 :root[data-skin='soft'] .filter-panel [data-range-start='true'],
 :root[data-skin='listing'] .filter-panel [data-range-start='true'],
+:root[data-skin='market'] .filter-panel [data-range-start='true'],
 :root[data-skin='soft'] .filter-panel [data-range-end='true'],
-:root[data-skin='listing'] .filter-panel [data-range-end='true'] {
+:root[data-skin='listing'] .filter-panel [data-range-end='true'],
+:root[data-skin='market'] .filter-panel [data-range-end='true'] {
 	border-radius: var(--control-radius);
 	background: var(--accent-solid);
 	color: var(--accent-solid-fg);
@@ -252,7 +283,8 @@
 
 :root[data-skin='minimal'] .filter-panel [data-range-middle='true'],
 :root[data-skin='soft'] .filter-panel [data-range-middle='true'],
-:root[data-skin='listing'] .filter-panel [data-range-middle='true'] {
+:root[data-skin='listing'] .filter-panel [data-range-middle='true'],
+:root[data-skin='market'] .filter-panel [data-range-middle='true'] {
 	background: var(--range-bg);
 	color: inherit;
 }
@@ -263,18 +295,23 @@
 :root[data-skin='minimal'] .filter-panel .rdp-range_end::after,
 :root[data-skin='soft'] .filter-panel .rdp-range_start,
 :root[data-skin='listing'] .filter-panel .rdp-range_start,
+:root[data-skin='market'] .filter-panel .rdp-range_start,
 :root[data-skin='soft'] .filter-panel .rdp-range_end,
 :root[data-skin='listing'] .filter-panel .rdp-range_end,
+:root[data-skin='market'] .filter-panel .rdp-range_end,
 :root[data-skin='soft'] .filter-panel .rdp-range_start::after,
 :root[data-skin='listing'] .filter-panel .rdp-range_start::after,
+:root[data-skin='market'] .filter-panel .rdp-range_start::after,
 :root[data-skin='soft'] .filter-panel .rdp-range_end::after,
-:root[data-skin='listing'] .filter-panel .rdp-range_end::after {
+:root[data-skin='listing'] .filter-panel .rdp-range_end::after,
+:root[data-skin='market'] .filter-panel .rdp-range_end::after {
 	background: var(--range-bg);
 }
 
 :root[data-skin='minimal'] .filter-panel .rdp-today:not(.rdp-selected),
 :root[data-skin='soft'] .filter-panel .rdp-today:not(.rdp-selected),
-:root[data-skin='listing'] .filter-panel .rdp-today:not(.rdp-selected) {
+:root[data-skin='listing'] .filter-panel .rdp-today:not(.rdp-selected),
+:root[data-skin='market'] .filter-panel .rdp-today:not(.rdp-selected) {
 	background: transparent;
 	font-weight: 700;
 }

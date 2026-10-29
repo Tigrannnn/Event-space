@@ -118,10 +118,23 @@ function ProfileSkeletonSoft() {
 	);
 }
 
+function ProfileSkeletonMarket() {
+	return (
+		<div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 px-4 py-4 sm:px-6 lg:grid-cols-[20rem_minmax(0,1fr)] lg:px-8">
+			<Skeleton className="h-56 w-full rounded-2xl" />
+			<div className="grid grid-cols-1 content-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
+				{Array.from({ length: 3 }).map((_, index) => (
+					<Skeleton key={index} className="h-24 w-full rounded-2xl" />
+				))}
+			</div>
+		</div>
+	);
+}
+
 export default function ProfileSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden">
 				<ProfileSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -132,6 +145,9 @@ export default function ProfileSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=soft]:block">
 				<ProfileSkeletonSoft />
+			</div>
+			<div className="hidden in-data-[skin=market]:block">
+				<ProfileSkeletonMarket />
 			</div>
 		</>
 	);

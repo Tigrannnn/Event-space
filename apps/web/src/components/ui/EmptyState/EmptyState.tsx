@@ -32,6 +32,21 @@ export default function EmptyState({
 }: EmptyStateProps) {
 	const skin = useSkin();
 
+	if (skin === 'market') {
+		return (
+			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 py-16 text-center">
+				<div className="bg-primary/10 text-primary flex size-24 items-center justify-center rounded-3xl">
+					<Icon className="size-11" strokeWidth={1.5} />
+				</div>
+				<Heading className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">{title}</Heading>
+				<p className="mt-2 text-gray-500 dark:text-gray-400">{description}</p>
+				<Button variant="primary" className="mt-6" onClick={onAction}>
+					{actionLabel}
+				</Button>
+			</div>
+		);
+	}
+
 	if (skin === 'minimal') {
 		return (
 			<div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-6 py-16">

@@ -19,6 +19,7 @@ export default function Footer() {
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
+	const isMarket = skin === 'market';
 	const onColor = isListing || isSoft;
 	const muted = onColor ? 'text-white/75' : 'text-gray-500 dark:text-gray-400';
 	const linkHover = onColor ? 'hover:text-white hover:underline' : 'hover:text-primary';
@@ -34,6 +35,7 @@ export default function Footer() {
 				'mt-10 border-t border-gray-200 bg-white px-4 py-6 pb-20 md:pb-6 dark:border-gray-800 dark:bg-gray-900 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=minimal]:dark:bg-neutral-950',
 				onColor && 'bg-primary dark:bg-primary border-transparent text-white dark:border-transparent',
 				isSoft && 'mt-16 rounded-t-[2rem] sm:rounded-t-[2.5rem] sm:py-8',
+				isMarket && 'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
 			)}
 		>
 			{(isMinimal || isSoft) && (
