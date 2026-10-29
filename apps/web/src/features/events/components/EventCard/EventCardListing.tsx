@@ -11,7 +11,6 @@ import { EventImageWithFallback } from '../EventImage';
 import { useEventCardState, type EventCardProps } from './useEventCardState';
 
 /** Shown as a warning once a date is down to this many places. */
-const FEW_SPOTS = 5;
 
 /**
  * The listing skin's tour card: a row with the photo on the left, the facts in the middle and
@@ -31,7 +30,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
-		spotsLeft,
 		ratingCount,
 		handleBookClick,
 	} = useEventCardState(event);
@@ -39,7 +37,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 
 	const percent = pricing.maxDiscountPercent ?? 0;
 	const isDiscounted = percent > 0 && pricing.basePrice !== null && pricing.basePrice !== undefined;
-	const fewSpots = eventIsAvailable && spotsLeft !== null && spotsLeft > 0 && spotsLeft <= FEW_SPOTS;
 
 	const control = !eventIsAvailable ? (
 		<span className="text-sm font-medium text-gray-400">{translate('event.eventEndedButton')}</span>
@@ -123,13 +120,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 					<span className="truncate">{occurrenceLabel}</span>
 				</p>
 
-				<div className="mt-auto flex flex-wrap gap-1.5 pt-1">
-					{fewSpots && (
-						<span className="rounded bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">
-							{translate('event.onlySpotsLeft', { count: spotsLeft ?? 0 })}
-						</span>
-					)}
-				</div>
 			</div>
 
 			<div className="flex shrink-0 flex-col justify-end gap-3 border-t border-gray-200 p-4 sm:w-52 sm:border-t-0 sm:border-l lg:w-60 dark:border-neutral-800">

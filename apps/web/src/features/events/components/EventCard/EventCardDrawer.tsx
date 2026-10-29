@@ -10,9 +10,6 @@ import { localizePath } from '@/lib/i18n/config';
 import { EventImageWithFallback } from '../EventImage';
 import { useEventCardState, type EventCardProps } from './useEventCardState';
 
-/** Few enough left to say so; above this the number is noise. */
-const SPOTS_NOTICE_LIMIT = 5;
-
 const ACTION =
 	'pointer-events-auto relative z-20 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95';
 
@@ -32,7 +29,6 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 		pricing,
 		average,
 		ratingCount,
-		spotsLeft,
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
@@ -42,7 +38,6 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 
 	const percent = pricing.maxDiscountPercent ?? 0;
 	const isDiscounted = percent > 0;
-	const showSpots = spotsLeft !== null && spotsLeft > 0 && spotsLeft <= SPOTS_NOTICE_LIMIT;
 
 	const control = (onPhoto: boolean) => {
 		const solid = onPhoto
@@ -165,19 +160,8 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 					<FavoriteButton eventId={event.id} />
 				</div>
 
-				{showSpots && (
-					<p className="absolute bottom-3 left-3 z-20 rounded-full bg-red-500 px-2.5 py-0.5 text-[11px] font-bold text-white @min-[16rem]:hidden">
-						{translate('event.onlySpotsLeft', { count: spotsLeft })}
-					</p>
-				)}
-
 				<div className="pointer-events-none absolute inset-x-2 bottom-2 z-20 hidden flex-col gap-3 rounded-3xl bg-black/45 p-3.5 text-white backdrop-blur-md @min-[16rem]:flex">
 					<div className="flex flex-col gap-1.5">
-						{showSpots && (
-							<p className="w-fit rounded-full bg-red-500 px-2.5 py-0.5 text-[11px] font-bold">
-								{translate('event.onlySpotsLeft', { count: spotsLeft })}
-							</p>
-						)}
 						<h3 className="line-clamp-2 text-base leading-snug font-bold tracking-tight">
 							{eventTranslation.title}
 						</h3>

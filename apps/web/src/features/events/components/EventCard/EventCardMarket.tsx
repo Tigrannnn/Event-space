@@ -10,9 +10,6 @@ import { localizePath } from '@/lib/i18n/config';
 import { EventImageWithFallback } from '../EventImage';
 import { useEventCardState, type EventCardProps } from './useEventCardState';
 
-/** Few enough left to say so; above this the number is noise. */
-const SPOTS_NOTICE_LIMIT = 5;
-
 /**
  * The market skin's tour card, after the big marketplaces: a borderless tile with the photo on
  * top, the price as the loudest thing under it (the sale price in the second brand colour with
@@ -29,7 +26,6 @@ export default function EventCardMarket({ event }: EventCardProps) {
 		pricing,
 		average,
 		ratingCount,
-		spotsLeft,
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
@@ -39,7 +35,6 @@ export default function EventCardMarket({ event }: EventCardProps) {
 
 	const percent = pricing.maxDiscountPercent ?? 0;
 	const isDiscounted = percent > 0;
-	const showSpots = spotsLeft !== null && spotsLeft > 0 && spotsLeft <= SPOTS_NOTICE_LIMIT;
 
 	const control = !eventIsAvailable ? (
 		<span className="block rounded-xl bg-gray-100 py-2.5 text-center text-sm font-semibold text-gray-400 dark:bg-neutral-800">
@@ -141,11 +136,6 @@ export default function EventCardMarket({ event }: EventCardProps) {
 					)}
 				</div>
 
-				{showSpots && (
-					<p className="mt-1 text-xs font-semibold text-red-600 dark:text-red-400">
-						{translate('event.onlySpotsLeft', { count: spotsLeft })}
-					</p>
-				)}
 
 				<div className="mt-auto pt-3">{control}</div>
 			</div>
