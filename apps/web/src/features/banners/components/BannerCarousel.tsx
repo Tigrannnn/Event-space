@@ -115,7 +115,11 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 		<section
 			aria-roledescription="carousel"
 			aria-label={translate('common.bannersLabel')}
-			className={cn('relative py-4 sm:py-6', (isListing || isMarket) && 'mx-auto w-full max-w-[1336px]')}
+			className={cn(
+				'relative py-4 sm:py-6',
+				isListing && 'mx-auto w-full max-w-[1336px]',
+				isMarket && 'mx-auto w-full max-w-[1400px]',
+			)}
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
 			onFocusCapture={() => setIsPaused(true)}

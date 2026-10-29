@@ -27,6 +27,7 @@ export function EventsFiltersBar({
 	const skin = useSkin();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
+	const isMarket = skin === 'market';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {
@@ -95,7 +96,7 @@ export function EventsFiltersBar({
 					: 'border-gray-200/70 bg-gray-50/90 shadow-sm dark:border-gray-700/70 dark:bg-gray-900/85',
 			)}
 		>
-			<div className={cn(isListing && 'mx-auto max-w-[1336px]')}>
+			<div className={cn(isMarket && 'mx-auto max-w-[1400px]')}>
 				<div className="md:hidden">
 					<EventsFiltersDrawer
 						categories={categories}
