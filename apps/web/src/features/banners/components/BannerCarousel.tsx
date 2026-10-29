@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Banner, BrandSkin } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useSkin } from '@/providers/BrandProvider';
@@ -19,7 +19,10 @@ const AUTOPLAY_MS = 5000;
  * classic, thin segments under the banner for minimal, square dots on a dark tab for listing,
  * and dots in a floating white capsule for soft.
  */
-const INDICATOR: Record<BrandSkin, { container: string; dot: string; active: string; inactive: string }> = {
+const INDICATOR: Record<
+	BrandSkin,
+	{ container: string; dot: string; active: string; inactive: string }
+> = {
 	classic: {
 		container: 'absolute bottom-7 left-1/2 -translate-x-1/2 gap-2 sm:bottom-10',
 		dot: 'h-2 rounded-full',
@@ -40,16 +43,66 @@ const INDICATOR: Record<BrandSkin, { container: string; dot: string; active: str
 	},
 	soft: {
 		container:
-			'absolute bottom-7 left-1/2 -translate-x-1/2 gap-1.5 rounded-full bg-white/90 px-3 py-2 shadow-md sm:bottom-9 dark:bg-gray-800/90',
-		dot: 'h-2 rounded-full',
-		active: 'w-5 bg-primary',
-		inactive: 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600',
+			'absolute bottom-7 left-1/2 -translate-x-1/2 items-center gap-2 rounded-full bg-black/25 px-3 py-2 backdrop-blur-sm sm:bottom-9',
+		dot: 'rounded-full',
+		active: 'size-3 bg-white',
+		inactive: 'size-2 bg-white/50 hover:bg-white/80',
 	},
 	market: {
 		container: 'absolute bottom-7 left-1/2 -translate-x-1/2 gap-1.5 sm:bottom-9',
 		dot: 'h-1.5 rounded-full',
 		active: 'w-5 bg-white',
 		inactive: 'w-1.5 bg-white/60 hover:bg-white/80',
+	},
+};
+
+/**
+ * The previous/next buttons, one look per skin so no two skins share them: a white disc for
+ * classic, an outlined disc beside the dots for minimal, dark squares for listing, big white
+ * discs with arrows for soft and tall slim white tabs for market.
+ */
+const ARROW: Record<
+	BrandSkin,
+	{ base: string; prev: string; next: string; arrows: boolean; icon: string }
+> = {
+	classic: {
+		base:
+			'h-10 w-10 rounded-full bg-white/90 text-gray-900 shadow-md hover:bg-white dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
+		prev: 'left-3',
+		next: 'right-3',
+		arrows: false,
+		icon: 'h-5 w-5',
+	},
+	minimal: {
+		base:
+			'h-9 w-9 rounded-full border border-gray-900 bg-white text-gray-900 hover:bg-gray-900 hover:text-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-white dark:hover:text-neutral-950',
+		prev: 'top-auto right-16 bottom-14 left-auto translate-y-0',
+		next: 'top-auto right-3 bottom-14 translate-y-0',
+		arrows: false,
+		icon: 'h-4 w-4',
+	},
+	listing: {
+		base: 'h-10 w-10 rounded-sm bg-black/50 text-white hover:bg-black/75',
+		prev: 'left-0',
+		next: 'right-0',
+		arrows: false,
+		icon: 'h-5 w-5',
+	},
+	soft: {
+		base:
+			'size-12 rounded-full bg-white text-primary shadow-lg ring-4 ring-white/40 hover:scale-105 dark:bg-gray-800',
+		prev: 'left-4',
+		next: 'right-4',
+		arrows: true,
+		icon: 'h-5 w-5',
+	},
+	market: {
+		base:
+			'h-16 w-9 rounded-xl bg-white/95 text-gray-900 shadow-sm hover:bg-white dark:bg-neutral-900/90 dark:text-white dark:hover:bg-neutral-900',
+		prev: 'left-3',
+		next: 'right-3',
+		arrows: false,
+		icon: 'h-5 w-5',
 	},
 };
 
@@ -155,47 +208,59 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 
 			{banners.length > 1 && (
 				<>
-					<button
-						type="button"
-						onClick={() => goTo(activeIndex - 1)}
-						aria-label={translate('common.previousBanner')}
-						className={cn(
-							'absolute top-1/2 left-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
-							isMinimal && 'top-auto right-16 bottom-14 left-auto translate-y-0',
-							isListing && 'rounded-md',
-						)}
-					>
-						<ChevronLeft className="h-5 w-5" />
-					</button>
-					<button
-						type="button"
-						onClick={() => goTo(activeIndex + 1)}
-						aria-label={translate('common.nextBanner')}
-						className={cn(
-							'absolute top-1/2 right-3 hidden h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-md transition hover:bg-white sm:flex dark:bg-gray-900/85 dark:text-gray-100 dark:hover:bg-gray-900',
-							isMinimal && 'top-auto bottom-14 translate-y-0',
-							isListing && 'rounded-md',
-						)}
-					>
-						<ChevronRight className="h-5 w-5" />
-					</button>
+					{(['prev', 'next'] as const).map((direction) => {
+						const isPrev = direction === 'prev';
+						const look = ARROW[skin];
+						const Icon = look.arrows
+							? isPrev
+								? ArrowLeft
+								: ArrowRight
+							: isPrev
+								? ChevronLeft
+								: ChevronRight;
 
-					<div className={cn('flex', INDICATOR[skin].container)}>
-						{banners.map((banner, index) => (
+						return (
 							<button
-								key={banner.id}
+								key={direction}
 								type="button"
-								onClick={() => goTo(index)}
-								aria-label={`${translate('common.goToBanner')} ${index + 1}`}
-								aria-current={index === activeIndex}
+								onClick={() => goTo(activeIndex + (isPrev ? -1 : 1))}
+								aria-label={translate(isPrev ? 'common.previousBanner' : 'common.nextBanner')}
 								className={cn(
-									'cursor-pointer transition-all',
-									INDICATOR[skin].dot,
-									index === activeIndex ? INDICATOR[skin].active : INDICATOR[skin].inactive,
+									'absolute top-1/2 hidden -translate-y-1/2 cursor-pointer items-center justify-center transition sm:flex',
+									look.base,
+									isPrev ? look.prev : look.next,
 								)}
-							/>
-						))}
-					</div>
+							>
+								<Icon className={look.icon} />
+							</button>
+						);
+					})}
+
+					{isMarket ? (
+						<div
+							aria-live="polite"
+							className="absolute right-4 bottom-7 rounded-lg bg-black/55 px-2.5 py-1 text-xs font-semibold text-white tabular-nums sm:right-6 sm:bottom-9"
+						>
+							{activeIndex + 1} / {banners.length}
+						</div>
+					) : (
+						<div className={cn('flex', INDICATOR[skin].container)}>
+							{banners.map((banner, index) => (
+								<button
+									key={banner.id}
+									type="button"
+									onClick={() => goTo(index)}
+									aria-label={`${translate('common.goToBanner')} ${index + 1}`}
+									aria-current={index === activeIndex}
+									className={cn(
+										'cursor-pointer transition-all',
+										INDICATOR[skin].dot,
+										index === activeIndex ? INDICATOR[skin].active : INDICATOR[skin].inactive,
+									)}
+								/>
+							))}
+						</div>
+					)}
 				</>
 			)}
 		</section>
