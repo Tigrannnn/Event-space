@@ -256,6 +256,7 @@ const brands: Record<string, Brand> = {
 		colorAccent: '#BE4E26',
 		description: siteConfig.description,
 		ogImage: '/brands/dilitour-logo.png',
+		skin: 'market',
 		contact: {
 			instagram: 'https://www.instagram.com/dili_tours/',
 			phone: '+374 94 016966',
