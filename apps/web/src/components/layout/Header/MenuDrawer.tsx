@@ -13,6 +13,7 @@ import { useBrand } from '@/providers/BrandProvider';
 import { useCurrentUser } from '@/features/users';
 import { useLogout } from '@/features/auth';
 import { useConfirm } from '@/hooks/confirmModal';
+import { ModalType, useModalStore } from '@/stores';
 import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
@@ -48,6 +49,7 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 	const { data: user } = useCurrentUser();
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
 	const confirm = useConfirm();
+	const { openModal } = useModalStore();
 	const bookingsCount = useActiveBookingsCount();
 	const favoritesCount = useFavoritesCount();
 	const channels = useContactChannels();
@@ -74,6 +76,11 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 		if (isConfirmed) {
 			logout();
 		}
+	};
+
+	const openAuth = (type: ModalType.Login | ModalType.Register) => {
+		onClose();
+		openModal(type);
 	};
 
 	if (!portalTarget || !isHydrated) return null;
@@ -148,7 +155,24 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 									{link('/bookings', translate('header.bookings'), Ticket, bookingsCount)}
 									{link('/profile', translate('header.profile'), User)}
 								</section>
-							) : null}
+							) : (
+								<section className="grid grid-cols-2 gap-3 md:hidden">
+									<button
+										type="button"
+										onClick={() => openAuth(ModalType.Login)}
+										className="h-12 cursor-pointer rounded-full border-2 border-gray-900 font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
+									>
+										{translate('header.logIn')}
+									</button>
+									<button
+										type="button"
+										onClick={() => openAuth(ModalType.Register)}
+										className="bg-primary h-12 cursor-pointer rounded-full font-bold text-white transition-all hover:brightness-90"
+									>
+										{translate('header.signUp')}
+									</button>
+								</section>
+							)}
 
 							<section className="space-y-1">
 								<h3 className={SECTION_TITLE}>{brand.name}</h3>

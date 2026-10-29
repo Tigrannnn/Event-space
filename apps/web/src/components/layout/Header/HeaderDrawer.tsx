@@ -86,7 +86,7 @@ export default function HeaderDrawer() {
 					<SearchDropdown box={searchBox} />
 				</div>
 
-				<div className="order-2 ml-auto flex items-center gap-1.5 md:order-3 md:ml-0 md:gap-2">
+				<div className="order-3 hidden items-center gap-2 md:flex">
 					{isHydrated && !isUserLoading && !user && (
 						<>
 							<button
@@ -113,7 +113,7 @@ export default function HeaderDrawer() {
 					aria-label={translate('header.menu')}
 					aria-haspopup="dialog"
 					aria-expanded={isMenuOpen}
-					className="relative order-2 flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-900 text-white transition-colors hover:bg-gray-700 md:order-4 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
+					className="relative order-2 ml-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-900 text-white transition-colors hover:bg-gray-700 md:order-4 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
 				>
 					<Menu className="size-5" />
 					{pending > 0 && (
