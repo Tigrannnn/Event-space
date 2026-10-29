@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowLeft, Check, Clock, Images, MapPin, Mountain, Share2, Star } from 'lucide-react';
+import { ArrowLeft, Check, Clock, MapPin, Mountain, Share2, Star } from 'lucide-react';
 import {
 	averageRating,
 	getCategoryTranslation,
@@ -27,10 +27,8 @@ interface EventPageSoftProps {
 	initialEvent: Event;
 }
 
-const MAX_GALLERY_IMAGES = 3;
-
 /**
- * The soft skin's tour page: the title and its chips first, then a framed photo mosaic, then the
+ * The soft skin's tour page: the title and its chips first, then a framed, horizontally scrolling photo strip, then the
  * text on white cards beside the booking card. The classic page opens on a full-width photo strip;
  * this one keeps everything inside the page margins.
  */
@@ -50,7 +48,6 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const imageUrls = getEventImageUrls(event.images);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
-	const shown = imageUrls.slice(0, MAX_GALLERY_IMAGES);
 	const average = averageRating(event);
 	const hasIncluded = eventTranslation.whatsIncluded.length > 0;
 
@@ -144,45 +141,25 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 					<EventImageFallback alt={eventTranslation.title} />
 				</div>
 			) : (
-				<div className="relative">
-					<div
-						className={`grid h-64 gap-2 overflow-hidden rounded-3xl shadow-lg ring-4 ring-white sm:h-[26rem] dark:ring-gray-800 ${
-							shown.length >= 3
-								? 'grid-cols-1 sm:grid-cols-3 sm:grid-rows-2'
-								: shown.length === 2
-									? 'grid-cols-1 sm:grid-cols-2'
-									: 'grid-cols-1'
-						}`}
-					>
-						{shown.map((src, index) => (
+				<div className="scrollbar-hide w-full snap-x snap-mandatory overflow-x-auto rounded-3xl bg-white p-2 shadow-lg sm:h-[26rem] dark:bg-gray-800">
+					<div className="flex h-full items-center">
+						{imageUrls.map((src, index) => (
 							<button
 								key={`${src}-${index}`}
 								type="button"
 								onClick={() => openPreview(index)}
-								className={`relative cursor-pointer overflow-hidden bg-gray-100 dark:bg-gray-900 ${
-									index === 0 && shown.length >= 3 ? 'sm:col-span-2 sm:row-span-2' : ''
-								} ${index > 0 ? 'hidden sm:block' : ''}`}
+								className="flex w-full shrink-0 snap-center items-center justify-center px-1 sm:h-full sm:w-auto"
 							>
 								<EventImage
 									src={src}
 									alt={eventTranslation.title}
 									onError={() => setFailedImages((count) => count + 1)}
 									fallback={<EventImageFallback alt={eventTranslation.title} />}
-									className="size-full object-cover transition-transform duration-500 hover:scale-105"
+									className="h-auto max-h-[70vh] w-full cursor-pointer rounded-2xl object-contain sm:h-full sm:w-auto"
 								/>
 							</button>
 						))}
 					</div>
-					{imageUrls.length > shown.length && (
-						<button
-							type="button"
-							onClick={() => openPreview(0)}
-							className="absolute right-4 bottom-4 flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-bold text-gray-900 shadow-md transition-transform hover:scale-105"
-						>
-							<Images className="size-4" />
-							{imageUrls.length}
-						</button>
-					)}
 				</div>
 			)}
 
