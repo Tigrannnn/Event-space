@@ -146,13 +146,13 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 			/>
 
 			<div className="relative aspect-4/5 overflow-hidden rounded-[1.75rem] bg-gray-200 @min-[16rem]:aspect-3/4 dark:bg-neutral-800">
-				<div className="absolute inset-0 -z-10 transition-transform duration-700 group-hover:scale-105">
+				<div className="absolute inset-0 transition-transform duration-700 group-hover:scale-105">
 					<EventImageWithFallback
 						src={getEventCoverImageUrl(event) ?? ''}
 						alt={eventTranslation.title}
 					/>
 				</div>
-				<div className="absolute inset-0 -z-10 hidden bg-linear-to-t from-black/70 via-transparent to-transparent @min-[16rem]:block" />
+				<div className="pointer-events-none absolute inset-0 hidden bg-linear-to-t from-black/70 via-transparent to-transparent @min-[16rem]:block" />
 
 				<div className="absolute top-3 right-3 left-3 z-20 flex items-start justify-between gap-2">
 					{isDiscounted ? (
