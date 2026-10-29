@@ -138,14 +138,14 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 	);
 
 	return (
-		<article className="group @container relative flex flex-col">
+		<article className="group @container relative isolate flex flex-col">
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
 				aria-label={`View details for ${eventTranslation.title}`}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-[1.75rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 			/>
 
-			<div className="relative isolate aspect-4/5 overflow-hidden rounded-[1.75rem] bg-gray-200 @min-[16rem]:aspect-3/4 dark:bg-neutral-800">
+			<div className="relative aspect-4/5 overflow-hidden rounded-[1.75rem] bg-gray-200 @min-[16rem]:aspect-3/4 dark:bg-neutral-800">
 				<div className="absolute inset-0 -z-10 transition-transform duration-700 group-hover:scale-105">
 					<EventImageWithFallback
 						src={getEventCoverImageUrl(event) ?? ''}
