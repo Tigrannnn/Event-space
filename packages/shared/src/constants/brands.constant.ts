@@ -122,10 +122,11 @@ const brands: Record<string, Brand> = {
 	},
 	'meetdilijan.event-space.space': {
 		name: 'Meet Dilijan',
-		colorPrimary: '#166534',
-		colorAccent: '#7c3aed',
+		colorPrimary: '#9c6b45',
+		colorAccent: '#3f8f4f',
 		description: siteConfig.description,
 		ogImage: '/brands/meetdilijan-logo.png',
+		skin: 'drawer',
 		contact: {
 			instagram: 'https://instagram.com/meetdilijan',
 			phone: '+374 99 000 000',
