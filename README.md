@@ -20,6 +20,10 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 - Self-service cancellation with a refund estimate shown before confirming
 - A home-page banner carousel the admin curates, with per-locale images and optional link to an event
 - Favorites list
+- Per-brand sites: the brand (name, colours, logo, contacts, "About" texts, language texts and **skin**) is resolved from the request host, so one codebase serves a separate-looking site per customer; see [Brands and skins](#brands-and-skins)
+- Six interchangeable site skins (`classic`, `minimal`, `listing`, `soft`, `market`, `drawer`) that change the layout and not just the colours: header, event cards, catalog grid, banner, event page, booking panel, profile, modals, footer and navigation. One of them (`drawer`) moves the account, company pages, contacts and language into a side menu in the header's corner
+- Catalog loads in steps of whole rows (three rows on desktop, six cards on a phone, whatever the column count of the skin) with infinite scroll
+- Company contacts (Instagram, phone, email, map) shown as a list of direct links, a header tile or a side menu depending on the skin
 - Reviews: star rating plus optional text, open only in the eligible window after the tour ends, editable for 48 hours; the author's own review is pinned at the top of the event page (with a "pending moderation" notice while it waits), review invitations are emailed automatically, and a signed link lets a booking made by an admin leave a review without an account
 - User dashboard with bookings, booking history, and favorites, both using keyset pagination with infinite scroll
 - Changing your own email address (code sent to the new address, notice sent to the old one) and basic profile fields
@@ -54,6 +58,16 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 
 ---
 
+## Brands and skins
+
+Every customer is a **brand** defined in `packages/shared/src/constants/brands.constant.ts`, keyed by the host it is served from (for example `rstour.event-space.space`). A brand carries its name, primary and accent colours, logo, contact details, "About" texts per language and an optional `skin`. Unknown hosts (including `localhost`) get the default brand, which uses the `classic` skin.
+
+A skin is chosen per brand and is applied through `data-skin` on `<html>`, a `useSkin()` hook and `in-data-[skin=…]:` Tailwind variants. Adding a brand is one entry in that file; adding a skin means following the checklist in [`docs/skins.md`](docs/skins.md), which also lists every component each skin touches and how to preview one locally.
+
+To preview a skin locally, temporarily make `getBrandForHost` in `apps/web/src/config/brands.ts` return a brand with the skin you want, and revert it before committing. After changing types in `packages/shared`, rebuild it with `npm run shared:build`.
+
+---
+
 ## Tech stack
 
 | Layer | Technology |
@@ -82,6 +96,8 @@ event-space/
 │   └── shared/        # Shared schemas, enums, types, utilities
 ├── infra/
 │   └── nginx/         # Reverse proxy config for production
+├── docs/
+│   └── skins.md       # Site skins: how they work and how to add one
 ├── docker-compose.yml
 ├── docker-compose.prod.yml
 └── package.json       # Root workspaces and shared scripts
