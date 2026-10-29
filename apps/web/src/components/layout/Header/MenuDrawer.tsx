@@ -138,7 +138,7 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 									{link('/profile', translate('header.profile'), User)}
 								</section>
 							) : (
-								<section className="grid grid-cols-2 gap-3">
+								<section className="grid grid-cols-2 gap-3 md:hidden">
 									<button
 										type="button"
 										onClick={() => openAuth(ModalType.Login)}

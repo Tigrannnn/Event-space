@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, Search, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
+import { ModalType } from '@/stores';
 import { SearchDropdown } from '@/features/search';
 import { useHeaderControls } from './useHeaderControls';
 import MenuDrawer from './MenuDrawer';
@@ -18,6 +19,10 @@ export default function HeaderDrawer() {
 		navigation,
 		translate,
 		brand,
+		openModal,
+		user,
+		isUserLoading,
+		isHydrated,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -38,20 +43,6 @@ export default function HeaderDrawer() {
 				>
 					{brand.name}
 				</Link>
-
-				<button
-					type="button"
-					onClick={() => setIsMenuOpen(true)}
-					aria-haspopup="dialog"
-					aria-expanded={isMenuOpen}
-					className="relative order-2 ml-auto flex h-11 cursor-pointer items-center gap-2 rounded-full bg-gray-900 pr-3 pl-5 max-sm:w-11 max-sm:justify-center max-sm:p-0 text-sm font-bold text-white transition-colors hover:bg-gray-700 md:order-3 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
-				>
-					<span className="hidden sm:inline">{translate('header.menu')}</span>
-					<Menu className="size-5" />
-					{pending > 0 && (
-						<span className="bg-primary absolute -top-1 -right-1 size-3 rounded-full ring-2 ring-white dark:ring-neutral-950" />
-					)}
-				</button>
 
 				<div
 					ref={searchBox.containerRef}
@@ -94,6 +85,41 @@ export default function HeaderDrawer() {
 					</button>
 					<SearchDropdown box={searchBox} />
 				</div>
+
+				<div className="order-3 hidden items-center gap-2 md:flex">
+					{isHydrated && !isUserLoading && !user && (
+						<>
+							<button
+								type="button"
+								onClick={() => openModal(ModalType.Login)}
+								className="h-11 cursor-pointer rounded-full border-2 border-gray-900 px-5 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
+							>
+								{translate('header.logIn')}
+							</button>
+							<button
+								type="button"
+								onClick={() => openModal(ModalType.Register)}
+								className="bg-primary h-11 cursor-pointer rounded-full px-5 text-sm font-bold text-white transition-all hover:brightness-90"
+							>
+								{translate('header.signUp')}
+							</button>
+						</>
+					)}
+				</div>
+
+				<button
+					type="button"
+					onClick={() => setIsMenuOpen(true)}
+					aria-label={translate('header.menu')}
+					aria-haspopup="dialog"
+					aria-expanded={isMenuOpen}
+					className="relative order-2 ml-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-900 text-white transition-colors hover:bg-gray-700 md:order-4 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
+				>
+					<Menu className="size-5" />
+					{pending > 0 && (
+						<span className="bg-primary absolute -top-0.5 -right-0.5 size-3 rounded-full ring-2 ring-white dark:ring-neutral-950" />
+					)}
+				</button>
 			</div>
 
 			<MenuDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
