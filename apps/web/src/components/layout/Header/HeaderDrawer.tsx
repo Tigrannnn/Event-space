@@ -35,7 +35,7 @@ export default function HeaderDrawer() {
 	const pending = myBookingsCount + myFavoritesCount;
 
 	return (
-		<header className="relative z-40 border-b border-gray-200 bg-white/95 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/95">
+		<header className="relative z-40 border-b border-gray-200/60 bg-white/60 backdrop-blur-xl dark:border-white/10 dark:bg-neutral-950/50">
 			<div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6 lg:px-8">
 				<Link
 					href={localizePath('/', navigation.locale)}

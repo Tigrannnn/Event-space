@@ -421,3 +421,25 @@
 	--control-radius: 9999px;
 	--field-radius: 1rem;
 }
+
+/*
+ * The drawer skin's page: soft glows of the brand's two colours over a warm base instead of a flat
+ * white or black, fixed to the window so they stay put while the page scrolls.
+ */
+:root[data-skin='drawer'] body {
+	background-image:
+		radial-gradient(60rem 36rem at -5% -8%, color-mix(in srgb, var(--color-primary) 22%, transparent), transparent 70%),
+		radial-gradient(52rem 34rem at 108% 12%, color-mix(in srgb, var(--brand-accent) 20%, transparent), transparent 70%),
+		radial-gradient(64rem 38rem at 50% 112%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 70%);
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root[data-skin='drawer'] body {
+		background-image:
+			radial-gradient(60rem 36rem at -5% -8%, color-mix(in srgb, var(--color-primary) 34%, transparent), transparent 70%),
+			radial-gradient(52rem 34rem at 108% 12%, color-mix(in srgb, var(--brand-accent) 28%, transparent), transparent 70%),
+			radial-gradient(64rem 38rem at 50% 112%, color-mix(in srgb, var(--color-primary) 24%, transparent), transparent 70%);
+	}
+}

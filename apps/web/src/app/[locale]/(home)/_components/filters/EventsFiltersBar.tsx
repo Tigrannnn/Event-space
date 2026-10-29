@@ -38,7 +38,7 @@ export function EventsFiltersBar({
 		// One row at every width, no drawer: the filters first, then the categories, each a plain
 		// button after the last, and the row scrolls sideways when it runs out of room.
 		return (
-			<div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-gray-200 bg-white/95 px-4 py-2.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-neutral-800 dark:bg-neutral-950/95">
+			<div className="sticky top-0 z-30 -mx-4 mb-4 border-b border-gray-200 bg-white/95 px-4 py-2.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 dark:border-neutral-800 dark:bg-neutral-950/95 in-data-[skin=drawer]:border-gray-200/60 in-data-[skin=drawer]:bg-white/60 in-data-[skin=drawer]:backdrop-blur-xl in-data-[skin=drawer]:dark:border-white/10 in-data-[skin=drawer]:dark:bg-neutral-950/50">
 				<div className="mx-auto max-w-[1336px]">
 					<HorizontalScroll
 						className="min-h-11 items-center gap-3"
