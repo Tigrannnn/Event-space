@@ -86,20 +86,20 @@ export default function HeaderDrawer() {
 					<SearchDropdown box={searchBox} />
 				</div>
 
-				<div className="order-3 hidden items-center gap-2 md:flex">
+				<div className="order-2 ml-auto flex items-center gap-1.5 md:order-3 md:ml-0 md:gap-2">
 					{isHydrated && !isUserLoading && !user && (
 						<>
 							<button
 								type="button"
 								onClick={() => openModal(ModalType.Login)}
-								className="h-11 cursor-pointer rounded-full border-2 border-gray-900 px-5 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
+								className="h-9 cursor-pointer rounded-full border-2 border-gray-900 px-3 text-xs font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white md:h-11 md:px-5 md:text-sm dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
 							>
 								{translate('header.logIn')}
 							</button>
 							<button
 								type="button"
 								onClick={() => openModal(ModalType.Register)}
-								className="bg-primary h-11 cursor-pointer rounded-full px-5 text-sm font-bold text-white transition-all hover:brightness-90"
+								className="bg-primary h-9 cursor-pointer rounded-full px-3 text-xs font-bold text-white transition-all hover:brightness-90 md:h-11 md:px-5 md:text-sm"
 							>
 								{translate('header.signUp')}
 							</button>
@@ -113,7 +113,7 @@ export default function HeaderDrawer() {
 					aria-label={translate('header.menu')}
 					aria-haspopup="dialog"
 					aria-expanded={isMenuOpen}
-					className="relative order-2 ml-auto flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-900 text-white transition-colors hover:bg-gray-700 md:order-4 md:ml-0 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
+					className="relative order-2 flex size-11 cursor-pointer items-center justify-center rounded-full bg-gray-900 text-white transition-colors hover:bg-gray-700 md:order-4 dark:bg-white dark:text-neutral-950 dark:hover:bg-gray-200"
 				>
 					<Menu className="size-5" />
 					{pending > 0 && (

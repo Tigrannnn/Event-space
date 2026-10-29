@@ -33,7 +33,7 @@ export default function BottomNavbar() {
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 
-	if (isAdminPage) {
+	if (isAdminPage || skin === 'drawer') {
 		return null;
 	}
 

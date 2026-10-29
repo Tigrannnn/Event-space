@@ -12,10 +12,10 @@ import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
 import { useCurrentUser } from '@/features/users';
 import { useLogout } from '@/features/auth';
+import { useConfirm } from '@/hooks/confirmModal';
 import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
-import { ModalType, useModalStore } from '@/stores';
 import { useEscapeKey, useFocusTrap } from '@/components/ui/Modal/hooks';
 import { LANGUAGE_NAMES } from '@/components/ui/LanguageSwitcher/LanguageMenu';
 import { cn } from '@/utils/cn';
@@ -45,9 +45,9 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const { locale, switchLocale } = useLocalizedNavigation();
-	const { openModal } = useModalStore();
 	const { data: user } = useCurrentUser();
 	const { mutate: logout, isPending: isLoggingOut } = useLogout();
+	const confirm = useConfirm();
 	const bookingsCount = useActiveBookingsCount();
 	const favoritesCount = useFavoritesCount();
 	const channels = useContactChannels();
@@ -60,12 +60,23 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 	useEscapeKey({ onClose, disabled: !isOpen });
 	usePreventScroll({ isDisabled: !isOpen });
 
-	if (!portalTarget || !isHydrated) return null;
-
-	const openAuth = (type: ModalType.Login | ModalType.Register) => {
+	const handleLogout = async () => {
 		onClose();
-		openModal(type);
+
+		const isConfirmed = await confirm({
+			title: translate('profile.logOutTitle'),
+			message: translate('profile.logOutMessage'),
+			confirmText: translate('profile.yesLogOut'),
+			cancelText: translate('profile.cancel'),
+			variant: 'danger',
+		});
+
+		if (isConfirmed) {
+			logout();
+		}
 	};
+
+	if (!portalTarget || !isHydrated) return null;
 
 	const link = (path: string, label: string, Icon: typeof Heart, count?: number) => (
 		<Link key={path} href={localizePath(path, locale)} onClick={onClose} className={ROW}>
@@ -137,24 +148,7 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 									{link('/bookings', translate('header.bookings'), Ticket, bookingsCount)}
 									{link('/profile', translate('header.profile'), User)}
 								</section>
-							) : (
-								<section className="grid grid-cols-2 gap-3 md:hidden">
-									<button
-										type="button"
-										onClick={() => openAuth(ModalType.Login)}
-										className="h-12 cursor-pointer rounded-full border-2 border-gray-900 font-bold text-gray-900 transition-colors hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-neutral-950"
-									>
-										{translate('header.logIn')}
-									</button>
-									<button
-										type="button"
-										onClick={() => openAuth(ModalType.Register)}
-										className="bg-primary h-12 cursor-pointer rounded-full font-bold text-white transition-all hover:brightness-90"
-									>
-										{translate('header.signUp')}
-									</button>
-								</section>
-							)}
+							) : null}
 
 							<section className="space-y-1">
 								<h3 className={SECTION_TITLE}>{brand.name}</h3>
@@ -230,10 +224,7 @@ export default function MenuDrawer({ isOpen, onClose }: MenuDrawerProps) {
 						{user && (
 							<button
 								type="button"
-								onClick={() => {
-									onClose();
-									logout();
-								}}
+								onClick={handleLogout}
 								disabled={isLoggingOut}
 								className="mt-8 flex cursor-pointer items-center gap-2 px-1 text-sm font-semibold text-gray-500 transition-colors hover:text-red-600 disabled:opacity-60 dark:text-gray-400"
 							>
