@@ -111,12 +111,12 @@ export default function EventCardSoft({ event }: EventCardProps) {
 					)}
 				</div>
 
-				<p className="mt-1 flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
+				<p className="mt-1 mb-4 flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
 					<MapPin className="text-primary size-4 shrink-0" />
 					<span className="truncate">{eventTranslation.location}</span>
 				</p>
 
-				<div className="mt-4 flex items-center justify-between gap-3 border-t border-dashed border-gray-300 pt-4 dark:border-gray-600">
+				<div className="mt-auto flex items-center justify-between gap-3 border-t border-dashed border-gray-300 pt-4 dark:border-gray-600">
 					<div className="min-w-0" suppressHydrationWarning>
 						{isDiscounted && (
 							<div className="text-xs text-gray-400 line-through">

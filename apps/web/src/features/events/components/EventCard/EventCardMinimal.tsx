@@ -111,7 +111,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 					{eventTranslation.location}
 				</p>
 
-				<div className="mt-2 flex items-end justify-between gap-3">
+				<div className="mt-auto flex items-end justify-between gap-3 pt-2">
 					<div className="min-w-0 text-base text-gray-900 dark:text-white" suppressHydrationWarning>
 						{isDiscounted && (
 							<div className="text-sm text-gray-400 line-through">
