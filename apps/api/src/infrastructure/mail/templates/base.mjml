@@ -29,6 +29,12 @@
 				.code-box-table {
 					background-color: #1e3a2f !important;
 				}
+				.outline-button table td {
+					background-color: #1f2937 !important;
+				}
+				.outline-button a {
+					color: #f3f4f6 !important;
+				}
 				.divider-color p {
 					border-top: 1px solid #374151 !important;
 				}

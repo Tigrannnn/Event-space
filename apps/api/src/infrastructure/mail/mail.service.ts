@@ -13,7 +13,7 @@ import {
 	resolveMailBrand,
 	type MailBrand,
 } from './mail-brand';
-import { mailSkinVariables } from './mail-skin';
+import { mailSkinTokens, mailSkinVariables } from './mail-skin';
 import {
 	BOOKING_CANCELLED_STRINGS,
 	BOOKING_NO_SEATS_STRINGS,
@@ -1186,7 +1186,7 @@ export class MailService implements OnModuleInit {
 	): string {
 		const button = (url: string | undefined, label: string) =>
 			url
-				? `<mj-button href="${escapeHtml(url)}" background-color="#1e293b" border="2px solid ${escapeHtml(brand.colorPrimary)}" color="#f3f4f6" border-radius="12px" font-size="16px" font-weight="700" padding="6px 0" inner-padding="14px 20px" width="100%">${escapeHtml(label)}</mj-button>`
+				? `<mj-button href="${escapeHtml(url)}" css-class="outline-button" background-color="#ffffff" border="2px solid ${escapeHtml(brand.colorPrimary)}" color="${escapeHtml(brand.colorPrimary)}" border-radius="${mailSkinTokens(brand.skin).buttonRadius}" font-size="16px" font-weight="700" padding="6px 0" inner-padding="14px 20px" width="100%">${escapeHtml(label)}</mj-button>`
 				: '';
 
 		return button(homeUrl, strings.homeButton) + button(bookingsUrl, strings.myBookingsButton);
