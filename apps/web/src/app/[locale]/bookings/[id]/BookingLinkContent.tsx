@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import BookingCard from '@/features/bookings/components/BookingCard';
-import GuestBookingNotice from '@/features/bookings/components/GuestBookingNotice';
+import GuestBookingNotice, {
+	recallGuestEmail,
+} from '@/features/bookings/components/GuestBookingNotice';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
 import { useBookingView } from '@/features/bookings/hooks/useBookings';
 import { useCurrentUser } from '@/features/users';
@@ -30,6 +32,7 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 	const queryClient = useQueryClient();
 	const { openModal } = useModalStore();
 	const { data: user } = useCurrentUser();
+	const [guestEmail] = useState(() => recallGuestEmail(bookingId));
 	const {
 		data: booking,
 		isLoading,
@@ -104,7 +107,7 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 
 			{token && booking.status === 'CONFIRMED' && (
 				<div className="mt-6">
-					<GuestBookingNotice bookingId={bookingId} accessToken={token} />
+					<GuestBookingNotice bookingId={bookingId} accessToken={token} email={guestEmail} />
 				</div>
 			)}
 

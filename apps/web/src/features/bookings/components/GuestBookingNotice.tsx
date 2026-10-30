@@ -9,6 +9,30 @@ import { localizePath } from '@/lib/i18n/config';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { bookingApi } from '../api/bookings.api';
 
+const EMAIL_KEY_PREFIX = 'guest-booking-email:';
+
+/**
+ * Where the letter went is only known on the page that took the booking, and the link to the
+ * booking page must not carry an address. It is passed across the redirect in this tab's
+ * session storage, which a private window or blocked storage may refuse: the page then just
+ * says "the letter" without the address.
+ */
+export function rememberGuestEmail(bookingId: string, email: string): void {
+	try {
+		sessionStorage.setItem(EMAIL_KEY_PREFIX + bookingId, email);
+	} catch {
+		// the notice falls back to a generic text
+	}
+}
+
+export function recallGuestEmail(bookingId: string): string | undefined {
+	try {
+		return sessionStorage.getItem(EMAIL_KEY_PREFIX + bookingId) ?? undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 interface GuestBookingNoticeProps {
 	bookingId: string;
 	accessToken: string;

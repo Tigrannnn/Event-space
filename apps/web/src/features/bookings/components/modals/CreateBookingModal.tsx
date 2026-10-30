@@ -5,6 +5,8 @@ import { Modal } from '@/components/ui/Modal';
 import { useModalStore, ModalType, useModalData } from '@/stores/modalStore';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useCreateBooking, useCreateGuestBooking } from '@/features/bookings/hooks/useBookings';
+import { rememberGuestEmail } from '@/features/bookings/components/GuestBookingNotice';
+import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import BookingForm from '@/features/bookings/components/BookingForm/BookingForm';
 import type { GuestDetails } from '@/features/bookings/components/BookingForm/types';
 import StripePaymentForm from '@/features/bookings/components/StripePaymentForm';
@@ -16,7 +18,8 @@ import { useEventById } from '@/features/events';
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isMemberLoading } = useCreateBooking();
 	const { mutate: createGuestBooking, isPending: isGuestLoading } = useCreateGuestBooking();
-	const { closeModal, openModal } = useModalStore();
+	const { closeModal } = useModalStore();
+	const navigation = useLocalizedNavigation();
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
 	const modalData = useModalData(ModalType.CreateBooking);
@@ -86,13 +89,9 @@ export default function CreateBookingModal() {
 
 						if (!data.clientSecret) {
 							addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
-							openModal(ModalType.BookingSuccess, {
-								booking: data.booking,
-								event,
-								occurrence: selectedOccurrence,
-								accessToken: access.token,
-								guestEmail: access.email,
-							});
+							rememberGuestEmail(data.booking.id, access.email);
+							handleClose();
+							navigation.push(`/bookings/${data.booking.id}?t=${encodeURIComponent(access.token)}`);
 							return;
 						}
 						setGuestAccess(access);
