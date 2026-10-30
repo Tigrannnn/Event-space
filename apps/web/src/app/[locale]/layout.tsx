@@ -2,13 +2,14 @@ import type { Metadata, Viewport } from 'next';
 import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/fraunces';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
 import GoogleProvider from '@/providers/GoogleProvider';
 import { BrandProvider } from '@/providers/BrandProvider';
+import { AuthHintProvider } from '@/providers/AuthHintProvider';
 import { getBrandForHost, isDemoHost } from '@/config/brands';
 import { PRIVATE_PAGE_ROBOTS } from '@/lib/seo';
 import { isFlatSkin } from '@/utils/skin';
@@ -103,6 +104,9 @@ export default async function Layout({ children, params }: LayoutProps) {
 	const { locale } = await params;
 	const googleClientId = clientEnv[EnvKey.GOOGLE_CLIENT_ID];
 	const brand = getBrandForHost((await headers()).get('host'));
+	// The refresh token outlives the access token, so it still says "signed in" when the short
+	// one has expired and is about to be renewed. Whether it is valid is checked afterwards.
+	const authHint = (await cookies()).get('refreshToken') ? 'user' : 'guest';
 	const skin = brand.skin ?? DEFAULT_BRAND_SKIN;
 	const isFlat = isFlatSkin(skin);
 
@@ -140,29 +144,31 @@ export default async function Layout({ children, params }: LayoutProps) {
 				)}
 			</head>
 			<body
-				className={`text-black flex min-h-dvh flex-col antialiased dark:text-white ${
+				className={`flex min-h-dvh flex-col text-black antialiased dark:text-white ${
 					skin === 'soft'
 						? 'bg-gray-50 dark:bg-gray-900'
 						: skin === 'drawer'
 							? 'bg-stone-50 dark:bg-neutral-950'
-						: isFlat
-							? skin === 'listing'
-								? 'bg-slate-50 dark:bg-neutral-950'
-								: 'bg-white dark:bg-neutral-950'
-							: 'bg-gray-100 dark:bg-gray-900'
+							: isFlat
+								? skin === 'listing'
+									? 'bg-slate-50 dark:bg-neutral-950'
+									: 'bg-white dark:bg-neutral-950'
+								: 'bg-gray-100 dark:bg-gray-900'
 				}`}
 			>
 				<BrandProvider brand={brand}>
-					<QueryProvider>
-						<GoogleProvider clientId={googleClientId}>
-							<HeaderWrapper />
-							<MainContent>{children}</MainContent>
-							<Footer />
-							<ModalRoot />
-							<BottomNavbar />
-							<ToastContainer />
-						</GoogleProvider>
-					</QueryProvider>
+					<AuthHintProvider hint={authHint}>
+						<QueryProvider>
+							<GoogleProvider clientId={googleClientId}>
+								<HeaderWrapper />
+								<MainContent>{children}</MainContent>
+								<Footer />
+								<ModalRoot />
+								<BottomNavbar />
+								<ToastContainer />
+							</GoogleProvider>
+						</QueryProvider>
+					</AuthHintProvider>
 				</BrandProvider>
 			</body>
 		</html>
