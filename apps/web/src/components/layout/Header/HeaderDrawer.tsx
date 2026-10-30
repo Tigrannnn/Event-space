@@ -24,7 +24,6 @@ export default function HeaderDrawer() {
 		user,
 		isUserLoading,
 		isHydrated,
-		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -89,7 +88,7 @@ export default function HeaderDrawer() {
 				</div>
 
 				<div className="order-3 hidden items-center gap-2 md:flex">
-					{!isHydrated || isUserLoading ? <AuthSkeleton hint={authHint} userCount={0} /> : null}
+					{!isHydrated || isUserLoading ? <AuthSkeleton /> : null}
 					{isHydrated && !isUserLoading && !user && (
 						<>
 							<button

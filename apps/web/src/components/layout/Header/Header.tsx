@@ -26,7 +26,6 @@ export default function Header() {
 		user,
 		isUserLoading,
 		isHydrated,
-		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -92,7 +91,7 @@ export default function Header() {
 					{/* Auth buttons */}
 					<nav className="hidden shrink-0 items-center gap-3 md:flex">
 						{!isHydrated || isUserLoading ? (
-							<AuthSkeleton hint={authHint} onDark />
+							<AuthSkeleton count={3} onDark />
 						) : user ? (
 							// Links so Next prefetches the route before the click is made.
 							<>

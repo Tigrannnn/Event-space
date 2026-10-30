@@ -7,7 +7,6 @@ import { useCurrentUser } from '@/features/users';
 import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useHydrated } from '@/hooks/hydration/useHydrated';
-import { useAuthHint } from '@/hooks/authHint/useAuthHint';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
@@ -26,7 +25,6 @@ export function useHeaderControls() {
 	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
-	const authHint = useAuthHint();
 
 	const submitSearch = useCallback(
 		(value: string) => {
@@ -63,7 +61,6 @@ export function useHeaderControls() {
 		user,
 		isUserLoading,
 		isHydrated,
-		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
