@@ -114,14 +114,22 @@ const LOOK: Record<BrandSkin, Look> = {
 	},
 };
 
+/** Skins whose whole header stands out while the search is open, instead of just the field. */
+const HEADER_STANDS_OUT: ReadonlySet<BrandSkin> = new Set(['listing', 'market', 'soft']);
+
 /**
- * Takes the clicks meant for the page behind the search while it is open: the page is darkened
- * (by the field itself, see SEARCH_FIELD_DIM) and nothing in it can be used until the search is
- * closed. It sits under the header, so the logo and the language switch still answer.
+ * Takes the clicks meant for the page behind the search while it is open, so nothing in it can
+ * be used until the search is closed. It sits under the header, so the logo and the language
+ * switch still answer. Where the whole header stands out it also darkens the page; elsewhere
+ * the page is darkened by the field itself (see SEARCH_FIELD_DIM).
  */
-function SearchClickCatcher({ box }: { box: SearchBox }) {
+function SearchClickCatcher({ box, skin }: { box: SearchBox; skin: BrandSkin }) {
 	return createPortal(
-		<div aria-hidden className="fixed inset-0 z-40" onMouseDown={box.close} />,
+		<div
+			aria-hidden
+			className={cn('fixed inset-0 z-40', HEADER_STANDS_OUT.has(skin) && 'bg-black/55')}
+			onMouseDown={box.close}
+		/>,
 		document.body,
 	);
 }
@@ -159,7 +167,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 	const { formatDateShort } = useFormatDate();
 
 	if (!box.open) return null;
-	if (box.items.length === 0) return <SearchClickCatcher box={box} />;
+	if (box.items.length === 0) return <SearchClickCatcher box={box} skin={skin} />;
 
 	const eventRow = (item: Extract<SearchItem, { kind: 'event' }>, index: number) => {
 		const event: SearchSuggestedEvent = item.event;
@@ -250,7 +258,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 
 	return (
 		<>
-			<SearchClickCatcher box={box} />
+			<SearchClickCatcher box={box} skin={skin} />
 			<div
 				role="listbox"
 				aria-label={translate('search.listLabel')}

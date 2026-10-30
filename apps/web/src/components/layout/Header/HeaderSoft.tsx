@@ -7,7 +7,7 @@ import { ModalType } from '@/stores';
 import LanguagePill from '@/components/ui/LanguageSwitcher/LanguagePill';
 import ContactIcons from './ContactIcons';
 import ContactTile from './ContactTile';
-import { SEARCH_FIELD_DIM, SearchDropdown } from '@/features/search';
+import { SearchDropdown } from '@/features/search';
 import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -109,7 +109,7 @@ export default function HeaderSoft() {
 
 				<div
 					ref={searchBox.containerRef}
-					className={`relative mx-auto mt-4 flex w-full max-w-2xl items-center rounded-full bg-white p-1.5 pl-5 shadow-md ${searchBox.open ? SEARCH_FIELD_DIM : ''}`}
+					className="relative mx-auto mt-4 flex w-full max-w-2xl items-center rounded-full bg-white p-1.5 pl-5 shadow-md"
 				>
 					<Search className="size-5 shrink-0 text-gray-400" />
 					<input

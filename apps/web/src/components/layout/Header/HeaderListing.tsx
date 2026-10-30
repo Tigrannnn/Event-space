@@ -6,7 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageCode from '@/components/ui/LanguageSwitcher/LanguageCode';
 import ContactIcons from './ContactIcons';
-import { SEARCH_FIELD_DIM, SearchDropdown } from '@/features/search';
+import { SearchDropdown } from '@/features/search';
 import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -104,7 +104,7 @@ export default function HeaderListing() {
 
 				<div
 					ref={searchBox.containerRef}
-					className={`relative order-last flex w-full items-stretch rounded-md bg-white ${searchBox.open ? SEARCH_FIELD_DIM : ''}`}
+					className="relative order-last flex w-full items-stretch rounded-md bg-white"
 				>
 					<Search className="my-auto ml-3 size-5 shrink-0 text-gray-500" />
 					<input
