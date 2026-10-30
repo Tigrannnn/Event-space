@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { getBrandForHost } from '@/config/brands';
 import { translate } from '@/lib/i18n/messages';
-import EventsList from './_components/EventsList';
+import { Suspense } from 'react';
+import EventsSection from './_components/EventsSection';
+import EventsFiltersBarSkeleton from './_components/EventsFiltersBarSkeleton';
+import EventsGridSkeleton from './_components/EventsGridSkeleton';
 import { getRequestLocale, localeAlternates, requestLocaleUrl } from '@/lib/seo';
 import { buildWebSiteJsonLd, serializeJsonLd } from '@/lib/structured-data';
 import { serverFetch } from '@/lib/server.api';
-import { PaginatedEventsResponse } from '@/features/events/api/events.api';
+import type { PaginatedEventsResponse } from '@/features/events/api/events.api';
 import { BannerCarousel } from '@/features/banners';
 import type { Banner } from '@event-space/shared';
 import { parseFiltersFromSearchParams } from './_components/filters/filter-utils';
@@ -71,22 +74,21 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 	const url = buildEventsApiUrl(filters, searchQuery, CATALOGUE_FETCH_LIMIT);
 
+	const events = serverFetch<PaginatedEventsResponse>(url).catch((error) => {
+		console.error('Error fetching events:', error);
+		return { data: [], nextCursor: null, hasMore: false } as PaginatedEventsResponse;
+	});
+
 	// A promo banner belongs on the shop window, not over a list someone is filtering down:
 	// once the visitor is searching, they know what they came for.
 	const isBrowsing = urlSearchParams.size === 0;
 
-	const [initialData, banners] = await Promise.all([
-		serverFetch<PaginatedEventsResponse>(url).catch((error) => {
-			console.error('Error fetching events:', error);
-			return { data: [], nextCursor: null, hasMore: false };
-		}),
-		isBrowsing
-			? serverFetch<Banner[]>('/banners').catch((error) => {
-					console.error('Error fetching banners:', error);
-					return [] as Banner[];
-				})
-			: Promise.resolve([] as Banner[]),
-	]);
+	const banners = isBrowsing
+		? await serverFetch<Banner[]>('/banners').catch((error) => {
+				console.error('Error fetching banners:', error);
+				return [] as Banner[];
+			})
+		: [];
 
 	return (
 		<div className="min-h-full px-4 sm:px-6 lg:px-8">
@@ -98,12 +100,16 @@ export default async function Home({ searchParams }: HomePageProps) {
 
 			{banners.length > 0 && <BannerCarousel banners={banners} />}
 
-			<EventsList
-				initialEvents={initialData.data}
-				initialNextCursor={initialData.nextCursor}
-				initialHasMore={initialData.hasMore}
-				searchQuery={searchQuery}
-			/>
+			<Suspense
+				fallback={
+					<>
+						<EventsFiltersBarSkeleton />
+						<EventsGridSkeleton count={8} />
+					</>
+				}
+			>
+				<EventsSection events={events} searchQuery={searchQuery} />
+			</Suspense>
 		</div>
 	);
 }
