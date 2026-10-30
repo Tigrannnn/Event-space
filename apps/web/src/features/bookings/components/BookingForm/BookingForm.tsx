@@ -15,6 +15,7 @@ import {
 	NameSchema,
 	PhoneSchema,
 	quoteBooking,
+	suggestEmailCorrection,
 	type EventOccurrence,
 } from '@event-space/shared';
 import { useFormatCurrency } from '@/hooks/format';
@@ -28,6 +29,8 @@ import { OccurrenceRows } from '../OccurrencePicker/OccurrenceRows';
 import { useSkin } from '@/providers/BrandProvider';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { useApiError } from '@/hooks/apiError';
+import { useModalStore } from '@/stores/modalStore/modalStore';
+import { ModalType } from '@/stores/modalStore/types';
 
 export default function BookingForm({
 	event,
@@ -51,6 +54,8 @@ export default function BookingForm({
 	const [guestName, setGuestName] = useState('');
 	const [guestEmail, setGuestEmail] = useState('');
 	const [guestEmailError, setGuestEmailError] = useState('');
+	const [guestEmailRepeat, setGuestEmailRepeat] = useState('');
+	const { openModal } = useModalStore();
 	const [promoCodeInput, setPromoCodeInput] = useState('');
 	const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 	const formatCurrency = useFormatCurrency();
@@ -101,9 +106,15 @@ export default function BookingForm({
 		: baseQuote;
 	const t = getEventTranslation(event, locale);
 	const isPhoneValid = phone.trim() ? PhoneSchema.safeParse(phone.trim()).success : false;
+	// An email typed wrong sends the ticket nowhere, and the money has already gone by then, so
+	// the address is typed twice and a likely slip in a popular domain is pointed out.
+	const emailsMatch = guestEmail.trim().toLowerCase() === guestEmailRepeat.trim().toLowerCase();
+	const emailSuggestion = isGuest ? suggestEmailCorrection(guestEmail) : null;
 	const isGuestValid =
 		!isGuest ||
-		(NameSchema.safeParse(guestName.trim()).success && EmailSchema.safeParse(guestEmail.trim()).success);
+		(NameSchema.safeParse(guestName.trim()).success &&
+			EmailSchema.safeParse(guestEmail.trim()).success &&
+			emailsMatch);
 
 	const handleApplyPromoCode = () => {
 		const trimmed = promoCodeInput.trim();
@@ -138,6 +149,11 @@ export default function BookingForm({
 
 		if (isGuest && !EmailSchema.safeParse(guestEmail.trim()).success) {
 			setGuestEmailError(translate('booking.guestEmailInvalid'));
+			return;
+		}
+
+		if (isGuest && !emailsMatch) {
+			setGuestEmailError(translate('booking.guestEmailMismatch'));
 			return;
 		}
 
@@ -247,9 +263,47 @@ export default function BookingForm({
 
 					{isGuest && (
 						<div className="mt-4 space-y-4">
-							<p className="text-xs text-gray-500 dark:text-gray-400">
-								{translate('booking.guestHint')}
-							</p>
+							<div className="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+								<p className="text-sm font-semibold text-gray-900 dark:text-white">
+									{translate('booking.guestPreferAccountTitle')}
+								</p>
+								<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+									{translate('booking.guestPreferAccountHint')}
+								</p>
+								<div className="mt-3 flex gap-2">
+									<Button
+										type="button"
+										variant="secondary"
+										size="sm"
+										className="flex-1"
+										onClick={() => openModal(ModalType.Login)}
+									>
+										{translate('booking.guestLogin')}
+									</Button>
+									<Button
+										type="button"
+										variant="secondary"
+										size="sm"
+										className="flex-1"
+										onClick={() => openModal(ModalType.Register)}
+									>
+										{translate('booking.guestRegister')}
+									</Button>
+								</div>
+							</div>
+
+							<div className="rounded-xl bg-amber-50 p-4 dark:bg-amber-950/30">
+								<p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+									{translate('booking.guestWhyTitle')}
+								</p>
+								<ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-900/90 dark:text-amber-100/90">
+									<li>{translate('booking.guestWhy1')}</li>
+									<li>{translate('booking.guestWhy2')}</li>
+									<li>{translate('booking.guestWhy3')}</li>
+									<li className="font-semibold">{translate('booking.guestWhy4')}</li>
+								</ul>
+							</div>
+
 							<Input
 								label={translate('booking.guestName')}
 								value={guestName}
@@ -267,6 +321,33 @@ export default function BookingForm({
 								}}
 								error={guestEmailError}
 								autoComplete="email"
+								required
+							/>
+							{emailSuggestion && (
+								<p className="-mt-2 text-xs text-amber-700 dark:text-amber-300">
+									{translate('booking.guestEmailDidYouMean', { email: emailSuggestion })}{' '}
+									<button
+										type="button"
+										className="font-semibold underline"
+										onClick={() => {
+											setGuestEmail(emailSuggestion);
+											setGuestEmailError('');
+										}}
+									>
+										{translate('booking.guestEmailFix')}
+									</button>
+								</p>
+							)}
+							<Input
+								label={translate('booking.guestEmailConfirm')}
+								type="email"
+								value={guestEmailRepeat}
+								onChange={(event) => setGuestEmailRepeat(event.target.value)}
+								onPaste={(event) => event.preventDefault()}
+								error={
+									guestEmailRepeat && !emailsMatch ? translate('booking.guestEmailMismatch') : undefined
+								}
+								autoComplete="off"
 								required
 							/>
 						</div>

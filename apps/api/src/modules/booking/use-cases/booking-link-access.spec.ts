@@ -2,7 +2,6 @@ import { AppErrorCode } from '@event-space/shared';
 import { AppException } from '@shared';
 import { BookingQueryService } from './booking-query.service';
 import { bookingLinkSecret, signBookingLinkToken } from '../booking-link-token';
-import { checkinTokenSecret, signCheckinToken } from '../checkin-token';
 
 const fakeConfig = { get: () => undefined, getOrThrow: () => 'test-secret' } as never;
 const prisma = {
@@ -39,22 +38,6 @@ describe('acting on a booking by its link', () => {
 
 		await expect(service.resolveActor('b1', undefined, token)).rejects.toMatchObject({
 			code: AppErrorCode.UNAUTHORIZED,
-		});
-	});
-});
-
-describe('the check-in QR picture', () => {
-	it('draws a code the server signed', async () => {
-		const token = signCheckinToken('b1', future(), checkinTokenSecret(undefined, 'test-secret'));
-
-		const png = await service.checkinQrPng(token);
-
-		expect(png.subarray(1, 4).toString()).toBe('PNG');
-	});
-
-	it('refuses a token it did not sign', async () => {
-		await expect(service.checkinQrPng('b1.9999999999999.forged')).rejects.toMatchObject({
-			code: AppErrorCode.BOOKING_NOT_FOUND,
 		});
 	});
 });

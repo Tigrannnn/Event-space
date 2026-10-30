@@ -8,3 +8,4 @@ export * from './review.utils';
 export * from './id.utils';
 export * from './time-zone.utils';
 export * from './quote.utils';
+export * from './email.utils';

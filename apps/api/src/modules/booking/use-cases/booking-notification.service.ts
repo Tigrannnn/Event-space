@@ -50,6 +50,22 @@ export class BookingNotificationService {
 		}
 	}
 
+	/**
+	 * The same letter again, on request. The first send is claimed once so that a retry job and
+	 * a webhook cannot both deliver it; this one is the person asking, so it skips the claim.
+	 */
+	async resendConfirmation(bookingId: string, locale: Locale): Promise<boolean> {
+		try {
+			return await this.deliverConfirmation(bookingId, locale);
+		} catch (error) {
+			this.logger.error(
+				`Failed to resend booking confirmation for booking ${bookingId}`,
+				error as Error,
+			);
+			return false;
+		}
+	}
+
 	async sendNoSeatsLeft(bookingId: string, locale: Locale, refundFailed: boolean): Promise<void> {
 		try {
 			const booking = await this.prisma.booking.findUnique({

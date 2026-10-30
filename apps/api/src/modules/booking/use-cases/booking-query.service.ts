@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Prisma } from '@prisma/client';
-import * as QRCode from 'qrcode';
-import { EnvKey, getBrandForHost } from '@event-space/shared';
+import { EnvKey } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
@@ -16,8 +15,6 @@ import {
 } from '@event-space/shared';
 import { AppException } from '@shared';
 import { bookingLinkSecret, verifyBookingLinkToken } from '../booking-link-token';
-import { checkinTokenSecret, verifyCheckinToken } from '../checkin-token';
-import { siteUrlFor } from '../../review/review-urls';
 import {
 	resolveRefundPolicy,
 	mapOccurrenceForBookingResponse,
@@ -264,29 +261,6 @@ export class BookingQueryService {
 		if (!userId) throw new AppException(AppErrorCode.UNAUTHORIZED);
 
 		return userId;
-	}
-
-	/**
-	 * The check-in QR as a picture. Mail clients drop images that are embedded in the letter, so
-	 * the letter links to this one instead. Only a code the server itself signed gets drawn, and a
-	 * host that is not one of the brands falls back to the main site, so the endpoint is no
-	 * general-purpose QR generator and cannot point a code at someone else's site.
-	 */
-	async checkinQrPng(token: string, host?: string): Promise<Buffer> {
-		const secret = checkinTokenSecret(
-			this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
-			this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
-		);
-
-		if (!verifyCheckinToken(token, secret)) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-
-		const knownHost = host && getBrandForHost(host).name !== getBrandForHost(null).name ? host : undefined;
-		const siteUrl = siteUrlFor(knownHost, this.config.get<string>(EnvKey.FRONTEND_URL) ?? '');
-
-		return QRCode.toBuffer(`${siteUrl}/admin/checkin?token=${encodeURIComponent(token)}`, {
-			margin: 1,
-			width: 240,
-		});
 	}
 
 	/** One booking in full, the way the list shows it, for the page behind a link in an email. */

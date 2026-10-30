@@ -7,6 +7,7 @@ import { AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import BookingCard from '@/features/bookings/components/BookingCard';
+import GuestBookingNotice from '@/features/bookings/components/GuestBookingNotice';
 import { bookingApi } from '@/features/bookings/api/bookings.api';
 import { useBookingView } from '@/features/bookings/hooks/useBookings';
 import { useCurrentUser } from '@/features/users';
@@ -93,13 +94,19 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 			<h1 className="text-primary mb-2 text-2xl font-black sm:text-3xl">
 				{translate('booking.guestPageTitle')}
 			</h1>
-			<p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-				{isAwaitingPayment
-					? translate('booking.guestPaymentChecking')
-					: translate('booking.guestPageHint')}
-			</p>
+			{isAwaitingPayment && (
+				<p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+					{translate('booking.guestPaymentChecking')}
+				</p>
+			)}
 
 			<BookingCard booking={booking} accessToken={token} />
+
+			{token && booking.status === 'CONFIRMED' && (
+				<div className="mt-6">
+					<GuestBookingNotice bookingId={bookingId} accessToken={token} />
+				</div>
+			)}
 
 			{!user && (
 				<div className="mt-6 rounded-2xl border border-gray-200 p-5 dark:border-gray-700">

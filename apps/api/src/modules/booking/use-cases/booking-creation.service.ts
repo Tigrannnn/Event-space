@@ -381,6 +381,20 @@ export class BookingCreationService {
 		};
 	}
 
+	/** Sends the confirmation letter again to a confirmed booking's own email. */
+	async resendConfirmation(userId: string, bookingId: string, locale: Locale = DEFAULT_LOCALE) {
+		const booking = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
+			select: { userId: true, status: true },
+		});
+
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (booking.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
+
+		return { sent: await this.notifications.resendConfirmation(bookingId, locale) };
+	}
+
 	async createManualBooking(
 		adminId: string,
 		data: CreateManualBookingData,

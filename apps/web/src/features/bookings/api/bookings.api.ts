@@ -46,6 +46,12 @@ export const bookingApi = {
 	getBooking: (id: string, token?: string) =>
 		clientApi.get<Booking>(`/bookings/${id}`, { params: { t: token } }).then((res) => res.data),
 
+	/** The confirmation letter again, to the booking's own email. */
+	resendConfirmation: (id: string, token?: string) =>
+		clientApi
+			.post<{ sent: boolean }>(`/bookings/${id}/resend-confirmation`, undefined, { params: { t: token } })
+			.then((res) => res.data),
+
 	/** One booking in full, with the refund it would get today. */
 	getBookingView: (id: string, token?: string) =>
 		clientApi
@@ -57,9 +63,11 @@ export const bookingApi = {
 			.patch<Booking>(`/bookings/${id}/cancel`, undefined, { params: { t: token } })
 			.then((res) => res.data),
 
-	acceptReschedule: (id: string) =>
+	acceptReschedule: (id: string, token?: string) =>
 		clientApi
-			.patch<{ accepted: boolean }>(`/bookings/${id}/accept-reschedule`)
+			.patch<{ accepted: boolean }>(`/bookings/${id}/accept-reschedule`, undefined, {
+				params: { t: token },
+			})
 			.then((res) => res.data),
 
 	reconcilePayment: (id: string, token?: string) =>
@@ -67,19 +75,29 @@ export const bookingApi = {
 			.post<Booking>(`/bookings/${id}/reconcile-payment`, undefined, { params: { t: token } })
 			.then((res) => res.data),
 
-	quoteQuantity: (id: string, data: QuantityQuoteRequest) =>
-		clientApi.post<QuantityQuote>(`/bookings/${id}/quantity/quote`, data).then((res) => res.data),
-
-	startQuantityPayment: (id: string, data: QuantityQuoteRequest) =>
-		clientApi.post<StartQuantityPayment>(`/bookings/${id}/quantity/payment`, data).then((res) => res.data),
-
-	reconcileQuantityPayment: (id: string, paymentIntentId: string) =>
+	quoteQuantity: (id: string, data: QuantityQuoteRequest, token?: string) =>
 		clientApi
-			.post<QuantityPaymentResult>(`/bookings/${id}/quantity/payments/${paymentIntentId}/reconcile`)
+			.post<QuantityQuote>(`/bookings/${id}/quantity/quote`, data, { params: { t: token } })
 			.then((res) => res.data),
 
-	changeQuantity: (id: string, data: ChangeQuantityData) =>
-		clientApi.patch<BookingQuantityChange>(`/bookings/${id}/quantity`, data).then((res) => res.data),
+	startQuantityPayment: (id: string, data: QuantityQuoteRequest, token?: string) =>
+		clientApi
+			.post<StartQuantityPayment>(`/bookings/${id}/quantity/payment`, data, { params: { t: token } })
+			.then((res) => res.data),
+
+	reconcileQuantityPayment: (id: string, paymentIntentId: string, token?: string) =>
+		clientApi
+			.post<QuantityPaymentResult>(
+				`/bookings/${id}/quantity/payments/${paymentIntentId}/reconcile`,
+				undefined,
+				{ params: { t: token } },
+			)
+			.then((res) => res.data),
+
+	changeQuantity: (id: string, data: ChangeQuantityData, token?: string) =>
+		clientApi
+			.patch<BookingQuantityChange>(`/bookings/${id}/quantity`, data, { params: { t: token } })
+			.then((res) => res.data),
 
 	validatePromoCode: (data: ApplyPromoCodeData) =>
 		clientApi.post<PromoCodeQuote>('/promo-codes/validate', data).then((res) => res.data),

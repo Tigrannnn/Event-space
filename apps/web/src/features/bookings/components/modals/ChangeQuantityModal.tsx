@@ -21,7 +21,9 @@ export default function ChangeQuantityModal() {
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
-	const booking = useModalData(ModalType.ChangeQuantity)?.booking;
+	const modalData = useModalData(ModalType.ChangeQuantity);
+	const booking = modalData?.booking;
+	const accessToken = modalData?.accessToken;
 
 	const current = booking?.quantity ?? 1;
 	const spotsLeft = booking?.occurrence
@@ -33,10 +35,10 @@ export default function ChangeQuantityModal() {
 	);
 	const [payment, setPayment] = useState<StartQuantityPayment | null>(null);
 
-	const changeQuantity = useChangeQuantity();
-	const startPayment = useStartQuantityPayment();
+	const changeQuantity = useChangeQuantity(accessToken);
+	const startPayment = useStartQuantityPayment(accessToken);
 	const changed = quantity !== current;
-	const quote = useQuantityQuote(booking?.id, quantity, Boolean(booking) && changed);
+	const quote = useQuantityQuote(booking?.id, quantity, Boolean(booking) && changed, accessToken);
 
 	if (!booking?.occurrence?.event) return null;
 
@@ -71,6 +73,7 @@ export default function ChangeQuantityModal() {
 					<div className="mt-4">
 						<QuantityPaymentForm
 							bookingId={booking.id}
+							accessToken={accessToken}
 							payment={payment}
 							onBack={() => setPayment(null)}
 							onDone={closeModal}

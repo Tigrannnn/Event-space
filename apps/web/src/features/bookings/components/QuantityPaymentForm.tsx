@@ -17,6 +17,7 @@ import { bookingApi } from '../api/bookings.api';
 
 interface QuantityPaymentFormProps {
 	bookingId: string;
+	accessToken?: string;
 	payment: StartQuantityPayment;
 	onBack: () => void;
 	onDone: () => void;
@@ -26,6 +27,7 @@ const POLL_ATTEMPTS = 20;
 
 function QuantityPaymentFormContent({
 	bookingId,
+	accessToken,
 	payment,
 	onBack,
 	onDone,
@@ -53,6 +55,7 @@ function QuantityPaymentFormContent({
 	const refresh = () =>
 		Promise.all([
 			queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+			queryClient.invalidateQueries({ queryKey: ['booking-view'] }),
 			queryClient.invalidateQueries({ queryKey: ['event'] }),
 			queryClient.invalidateQueries({ queryKey: ['events'] }),
 		]);
@@ -62,7 +65,7 @@ function QuantityPaymentFormContent({
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			const result = await bookingApi
-				.reconcileQuantityPayment(bookingId, payment.paymentIntentId)
+				.reconcileQuantityPayment(bookingId, payment.paymentIntentId, accessToken)
 				.catch(() => null);
 
 			if (result && result.status !== 'PENDING') return result.status;

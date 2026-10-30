@@ -101,15 +101,31 @@ export class MailService implements OnModuleInit {
 		text: string;
 		html: string;
 		brand?: MailBrand;
+		/** Pictures that travel inside the letter and are referenced from its HTML as `cid:<cid>`. */
+		inlineImages?: { filename: string; content: Buffer; cid: string }[];
 	}): Promise<void> {
-		const { brand, ...mail } = message;
+		const { brand, inlineImages, ...mail } = message;
 		const senderName = brand?.name ?? 'Event Space';
 		const from = `"${senderName}" <${this.config.get(EnvKey.SMTP_FROM)}>`;
 		const replyTo = brand?.replyTo;
 		const apiKey = this.resendApiKey;
 
 		if (!apiKey) {
-			await this.transporter.sendMail({ from, ...mail, ...(replyTo ? { replyTo } : {}) });
+			await this.transporter.sendMail({
+				from,
+				...mail,
+				...(replyTo ? { replyTo } : {}),
+				...(inlineImages?.length
+					? {
+							attachments: inlineImages.map((image) => ({
+								filename: image.filename,
+								content: image.content,
+								cid: image.cid,
+								contentDisposition: 'inline' as const,
+							})),
+						}
+					: {}),
+			});
 			return;
 		}
 
@@ -119,7 +135,21 @@ export class MailService implements OnModuleInit {
 				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ from, ...mail, ...(replyTo ? { reply_to: replyTo } : {}) }),
+			body: JSON.stringify({
+				from,
+				...mail,
+				...(replyTo ? { reply_to: replyTo } : {}),
+				...(inlineImages?.length
+					? {
+							attachments: inlineImages.map((image) => ({
+								filename: image.filename,
+								content: image.content.toString('base64'),
+								content_type: 'image/png',
+								content_id: image.cid,
+							})),
+						}
+					: {}),
+			}),
 		});
 
 		if (!response.ok) {
@@ -419,7 +449,7 @@ export class MailService implements OnModuleInit {
 		];
 
 		try {
-			const qrBlock = await this.buildCheckinQrBlock(
+			const qr = await this.buildCheckinQrBlock(
 				params.checkinToken,
 				params.brandHost,
 				strings.checkinQrLabel,
@@ -430,7 +460,7 @@ export class MailService implements OnModuleInit {
 				TITLE: strings.title,
 				INTRO: strings.intro,
 				HIGHLIGHT_BLOCK: this.buildBookingConfirmationMeetingBlock(strings, params),
-				QR_BLOCK: qrBlock,
+				QR_BLOCK: qr.block,
 				DETAILS_ROWS: this.buildDetailRows(rows, {
 					[strings.event]: this.buildMailAnchor(eventUrl, params.eventTitle),
 					[strings.location]: this.buildMailAnchor(params.eventLocationUrl, params.eventLocation || '—'),
@@ -452,6 +482,7 @@ export class MailService implements OnModuleInit {
 				text: textLines.join('\n'),
 				html,
 				brand,
+				inlineImages: qr.inlineImages,
 			});
 
 			return true;
@@ -1204,35 +1235,33 @@ export class MailService implements OnModuleInit {
 		);
 	}
 
-	/** A QR the admin's camera reads straight into the check-in page — no token means no code. */
+	/**
+	 * A QR the admin's camera reads straight into the check-in page — no token means no code.
+	 *
+	 * The picture is attached to the letter and shown by `cid:`, not linked and not embedded as
+	 * a `data:` address: Gmail and Outlook drop the second kind, and the first needs a public
+	 * address that a letter opened from a development machine cannot reach.
+	 */
 	private async buildCheckinQrBlock(
 		checkinToken: string | null | undefined,
 		brandHost: string | undefined,
 		label: string,
-	): Promise<string> {
-		if (!checkinToken) return '';
+	): Promise<{ block: string; inlineImages: { filename: string; content: Buffer; cid: string }[] }> {
+		if (!checkinToken) return { block: '', inlineImages: [] };
 
 		const siteUrl = this.brandFor(brandHost).siteUrl.replace(/\/+$/, '');
 		const checkinUrl = `${siteUrl}/admin/checkin?token=${encodeURIComponent(checkinToken)}`;
 
-		// Gmail and Outlook do not draw images embedded in the letter, so the code is a picture
-		// the server serves, and the embedded one is only for a deployment without a public API
-		// address (local development).
-		const apiBase = (this.config.get<string>(EnvKey.API_URL) ?? '').replace(/\/+$/, '');
-		const hostParam = brandHost ? `&host=${encodeURIComponent(brandHost.split(':')[0])}` : '';
-
 		try {
-			const source = apiBase
-				? `${apiBase}/bookings/checkin-qr?token=${encodeURIComponent(checkinToken)}${hostParam}`
-				: await QRCode.toDataURL(checkinUrl, { margin: 1, width: 240 });
-			return (
-				'<mj-image width="160px" padding="8px 0px 4px 0px" src="' +
-				escapeHtml(source) +
-				'" alt="QR" />' +
-				`<mj-text align="center" font-size="12px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${escapeHtml(label)}</mj-text>`
-			);
+			const content = await QRCode.toBuffer(checkinUrl, { margin: 1, width: 240 });
+			return {
+				block:
+					'<mj-image width="160px" padding="8px 0px 4px 0px" src="cid:checkin-qr" alt="QR" />' +
+					`<mj-text align="center" font-size="12px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${escapeHtml(label)}</mj-text>`,
+				inlineImages: [{ filename: 'checkin-qr.png', content, cid: 'checkin-qr' }],
+			};
 		} catch {
-			return '';
+			return { block: '', inlineImages: [] };
 		}
 	}
 

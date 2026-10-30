@@ -11,6 +11,7 @@ import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { formatBookingReference } from '@/utils/booking';
 import { useCurrentUser } from '@/features/users';
+import GuestBookingNotice from '../GuestBookingNotice';
 import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import type { BrandSkin } from '@event-space/shared';
@@ -150,11 +151,21 @@ export default function BookingSuccessModal() {
 					</div>
 				) : null}
 
-				{confirmationEmail && (
-					<p className="mt-4 flex items-center justify-center gap-2 text-center text-sm text-gray-500 dark:text-gray-400">
-						<Mail className="h-4 w-4 shrink-0" />
-						{translate('booking.successEmailSent').replace('{email}', confirmationEmail)}
-					</p>
+				{accessToken ? (
+					<div className="mt-4">
+						<GuestBookingNotice
+							bookingId={booking.id}
+							accessToken={accessToken}
+							email={confirmationEmail}
+						/>
+					</div>
+				) : (
+					confirmationEmail && (
+						<p className="mt-4 flex items-center justify-center gap-2 text-center text-sm text-gray-500 dark:text-gray-400">
+							<Mail className="h-4 w-4 shrink-0" />
+							{translate('booking.successEmailSent').replace('{email}', confirmationEmail)}
+						</p>
+					)
 				)}
 
 				<div className="mt-6 flex flex-col gap-3 sm:flex-row">

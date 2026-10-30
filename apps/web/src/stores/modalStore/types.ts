@@ -104,6 +104,8 @@ export interface UpdateBookingModalData {
 
 export interface ChangeQuantityModalData {
 	booking: BookingWithEstimate;
+	/** The link from the booking's email, when the guest has no account to sign in with. */
+	accessToken?: string;
 }
 
 export interface BookingDetailsModalData {

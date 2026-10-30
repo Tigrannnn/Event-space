@@ -8,8 +8,6 @@ import {
 	Body,
 	UseGuards,
 	Ip,
-	Header,
-	StreamableFile,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
@@ -125,16 +123,6 @@ export class BookingController {
 		return this.bookingService.createGuest(data, locale, brandHost);
 	}
 
-	@Get('checkin-qr')
-	@Header('Content-Type', 'image/png')
-	@Header('Cache-Control', 'public, max-age=86400')
-	@ApiOperation({ summary: 'The check-in QR as a picture, for the confirmation email' })
-	@ApiQuery({ name: 'token', required: true, description: 'The signed check-in token' })
-	@ApiQuery({ name: 'host', required: false, description: 'The brand site the code points at' })
-	async checkinQr(@Query('token') token: string, @Query('host') host?: string) {
-		return new StreamableFile(await this.bookingService.checkinQrPng(token, host));
-	}
-
 	@Get('my')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)
@@ -222,36 +210,62 @@ export class BookingController {
 		return this.bookingService.cancel(actorId, id, locale);
 	}
 
+	@Post(':id/resend-confirmation')
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiOperation({ summary: 'Send the confirmation letter again' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
+	@ApiResponse({ status: 201, description: 'Whether the letter went out' })
+	@ApiResponse({ status: 429, description: 'Too many attempts' })
+	async resendConfirmation(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('id') id: string,
+		@GetLocale() locale: Locale | undefined,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		// A letter costs money and can be aimed at someone's inbox, so it is rationed per booking.
+		await this.rateLimiter.consumePerUser(`${BOOKING_CONFIG.KEY_PREFIX}:resend`, id, 3, 3600);
+		return this.bookingService.resendConfirmation(actorId, id, locale);
+	}
+
 	@Patch(':id/accept-reschedule')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiOperation({ summary: 'Confirm the moved tour date suits the client' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiResponse({ status: 200, description: 'The extra refund right is given up' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
-	acceptReschedule(@GetCurrentUserId() userId: string, @Param('id') id: string) {
-		return this.bookingService.acceptReschedule(userId, id);
+	async acceptReschedule(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('id') id: string,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		return this.bookingService.acceptReschedule(actorId, id);
 	}
 
 	@Post(':id/quantity/quote')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiOperation({ summary: 'Show what changing the number of guests would refund' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiBody(getReference('QuantityQuoteRequestSchema'))
 	@ApiResponse({ status: 200, description: 'The refund for the new number of guests' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
 	async quoteQuantity(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(QuantityQuoteRequestSchema)) data: QuantityQuoteRequest,
+		@Query('t') token?: string,
 	) {
-		return this.bookingService.quoteQuantity({ kind: 'client', userId }, id, data);
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		return this.bookingService.quoteQuantity({ kind: 'client', userId: actorId }, id, data);
 	}
 
 	@Patch(':id/quantity')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiOperation({ summary: 'Change the number of guests and get the refund for the removed ones' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiBody(getReference('ChangeQuantitySchema'))
@@ -263,22 +277,24 @@ export class BookingController {
 	})
 	@ApiResponse({ status: 429, description: 'Too many attempts' })
 	async changeQuantity(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(ChangeQuantitySchema)) data: ChangeQuantityData,
+		@Query('t') token?: string,
 	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
 		await this.rateLimiter.consumePerUser(
 			`${BOOKING_CONFIG.KEY_PREFIX}:quantity`,
-			userId,
+			actorId,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
-		return this.bookingService.changeQuantity({ kind: 'client', userId }, id, data);
+		return this.bookingService.changeQuantity({ kind: 'client', userId: actorId }, id, data);
 	}
 
 	@Post(':id/quantity/payment')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiOperation({ summary: 'Start paying for more guests in a booking' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiBody(getReference('QuantityQuoteRequestSchema'))
@@ -286,31 +302,35 @@ export class BookingController {
 	@ApiResponse({ status: 403, description: 'Not your booking' })
 	@ApiResponse({ status: 429, description: 'Too many attempts' })
 	async startQuantityPayment(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@Body(new ZodValidationPipe(QuantityQuoteRequestSchema)) data: QuantityQuoteRequest,
+		@Query('t') token?: string,
 	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
 		await this.rateLimiter.consumePerUser(
 			`${BOOKING_CONFIG.KEY_PREFIX}:quantity-payment`,
-			userId,
+			actorId,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
-		return this.bookingService.startQuantityPayment(userId, id, data);
+		return this.bookingService.startQuantityPayment(actorId, id, data);
 	}
 
 	@Post(':id/quantity/payments/:paymentIntentId/reconcile')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiOperation({ summary: 'Check whether the payment for more guests went through' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiParam({ name: 'paymentIntentId', description: 'Stripe payment for the added guests' })
 	async reconcileQuantityPayment(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@Param('paymentIntentId') paymentIntentId: string,
+		@Query('t') token?: string,
 	) {
-		return this.bookingService.reconcileQuantityPayment(userId, id, paymentIntentId);
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		return this.bookingService.reconcileQuantityPayment(actorId, id, paymentIntentId);
 	}
 
 	@Post(':id/reconcile-payment')

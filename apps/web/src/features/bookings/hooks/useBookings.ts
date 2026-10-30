@@ -112,10 +112,15 @@ export const useBookingView = (bookingId: string, token?: string) => {
 	});
 };
 
-export const useQuantityQuote = (bookingId: string | undefined, quantity: number, enabled = true) => {
+export const useQuantityQuote = (
+	bookingId: string | undefined,
+	quantity: number,
+	enabled = true,
+	token?: string,
+) => {
 	return useQuery({
 		queryKey: ['quantity-quote', bookingId, quantity],
-		queryFn: () => bookingApi.quoteQuantity(bookingId as string, { quantity }),
+		queryFn: () => bookingApi.quoteQuantity(bookingId as string, { quantity }, token),
 		enabled: enabled && Boolean(bookingId),
 		retry: false,
 		staleTime: 0,
@@ -144,20 +149,20 @@ export const usePromoCodeQuote = (
 	});
 };
 
-export const useStartQuantityPayment = () => {
+export const useStartQuantityPayment = (token?: string) => {
 	const { addToast } = useToastStore();
 	const apiError = useApiError();
 
 	return useMutation({
 		mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
-			bookingApi.startQuantityPayment(id, { quantity }),
+			bookingApi.startQuantityPayment(id, { quantity }, token),
 		onError: (error) => {
 			addToast(apiError(error, 'booking.updateFailed'), ToastType.ERROR);
 		},
 	});
 };
 
-export const useChangeQuantity = () => {
+export const useChangeQuantity = (token?: string) => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -166,12 +171,13 @@ export const useChangeQuantity = () => {
 
 	return useMutation({
 		mutationFn: ({ id, data }: { id: string; data: ChangeQuantityData }) =>
-			bookingApi.changeQuantity(id, data),
+			bookingApi.changeQuantity(id, data, token),
 		onSuccess: async () => {
 			addToast(translate('booking.updateSuccess'), ToastType.SUCCESS);
 			closeModal();
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['booking-view'] }),
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),
 			]);
@@ -183,17 +189,20 @@ export const useChangeQuantity = () => {
 	});
 };
 
-export const useAcceptReschedule = () => {
+export const useAcceptReschedule = (token?: string) => {
 	const { addToast } = useToastStore();
 	const queryClient = useQueryClient();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: (id: string) => bookingApi.acceptReschedule(id),
+		mutationFn: (id: string) => bookingApi.acceptReschedule(id, token),
 		onSuccess: async () => {
 			addToast(translate('booking.dateAcceptedToast'), ToastType.SUCCESS);
-			await queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['booking-view'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'booking.dateAcceptFailed'), ToastType.ERROR);

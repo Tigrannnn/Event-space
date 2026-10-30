@@ -113,3 +113,53 @@ describe('booking as a guest', () => {
 		expect(bookings).toHaveLength(0);
 	});
 });
+
+describe('sending the confirmation again', () => {
+	function buildResend(booking: { userId: string; status: string } | null) {
+		const sent: string[] = [];
+		const prisma = { booking: { findUnique: () => Promise.resolve(booking) } };
+		const notifications = {
+			resendConfirmation: (id: string) => {
+				sent.push(id);
+				return Promise.resolve(true);
+			},
+		};
+		const service = new BookingCreationService(
+			prisma as never,
+			{} as never,
+			notifications as never,
+			{} as never,
+			{} as never,
+			{} as never,
+			fakeConfig,
+		);
+
+		return { service, sent };
+	}
+
+	it('sends the letter again for a confirmed booking of that person', async () => {
+		const { service, sent } = buildResend({ userId: 'u1', status: 'CONFIRMED' });
+
+		await expect(service.resendConfirmation('u1', 'b1', 'ru')).resolves.toEqual({ sent: true });
+		expect(sent).toEqual(['b1']);
+	});
+
+	it('does not send it for somebody else, an unpaid or a missing booking', async () => {
+		const stranger = buildResend({ userId: 'u1', status: 'CONFIRMED' });
+		await expect(stranger.service.resendConfirmation('u2', 'b1', 'ru')).rejects.toMatchObject({
+			code: AppErrorCode.NOT_YOUR_BOOKING,
+		});
+
+		const unpaid = buildResend({ userId: 'u1', status: 'PENDING' });
+		await expect(unpaid.service.resendConfirmation('u1', 'b1', 'ru')).rejects.toMatchObject({
+			code: AppErrorCode.BOOKING_NOT_CONFIRMED,
+		});
+
+		const missing = buildResend(null);
+		await expect(missing.service.resendConfirmation('u1', 'b1', 'ru')).rejects.toMatchObject({
+			code: AppErrorCode.BOOKING_NOT_FOUND,
+		});
+
+		expect([stranger.sent, unpaid.sent, missing.sent]).toEqual([[], [], []]);
+	});
+});

@@ -48,6 +48,10 @@ export class BookingService {
 		return this.creation.createGuest(data, locale, brandHost);
 	}
 
+	resendConfirmation(userId: string, bookingId: string, locale: Locale = DEFAULT_LOCALE) {
+		return this.creation.resendConfirmation(userId, bookingId, locale);
+	}
+
 	createManualBooking(
 		adminId: string,
 		data: CreateManualBookingData,
@@ -102,10 +106,6 @@ export class BookingService {
 
 	resolveActor(bookingId: string, userId?: string, token?: string) {
 		return this.queries.resolveActor(bookingId, userId, token);
-	}
-
-	checkinQrPng(token: string, host?: string) {
-		return this.queries.checkinQrPng(token, host);
 	}
 
 	findOneDetailed(userId: string, bookingId: string) {

@@ -44,7 +44,7 @@ export default function BookingCard({ booking, accessToken }: BookingCardProps) 
 	const event = occurrence?.event;
 
 	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking(accessToken);
-	const acceptReschedule = useAcceptReschedule();
+	const acceptReschedule = useAcceptReschedule(accessToken);
 	const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
 	const confirm = useConfirm();
@@ -68,9 +68,7 @@ export default function BookingCard({ booking, accessToken }: BookingCardProps) 
 		occurrenceIsAvailable &&
 		booking.paymentMethod !== 'SITE_PAYMENT' &&
 		getBookingDisplayStatus(booking) === 'CONFIRMED';
-	// Changing the number of guests and accepting a moved date both need a signed-in account.
 	const canChangeQuantity =
-		!isGuestView &&
 		occurrenceIsAvailable &&
 		booking.paymentMethod === 'SITE_PAYMENT' &&
 		getBookingDisplayStatus(booking) === 'CONFIRMED';
@@ -333,22 +331,20 @@ export default function BookingCard({ booking, accessToken }: BookingCardProps) 
 									variant="secondary"
 									size="sm"
 									className="w-full"
-									onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
+									onClick={() => openModal(ModalType.ChangeQuantity, { booking, accessToken })}
 								>
 									{translate('booking.changeQuantity')}
 								</Button>
 							)}
 							<div className="flex gap-2">
-								{!isGuestView && (
-									<Button
-										size="sm"
-										className="flex-1"
-										onClick={handleAcceptDate}
-										disabled={acceptReschedule.isPending}
-									>
-										{translate('booking.dateSuitsMe')}
-									</Button>
-								)}
+								<Button
+									size="sm"
+									className="flex-1"
+									onClick={handleAcceptDate}
+									disabled={acceptReschedule.isPending}
+								>
+									{translate('booking.dateSuitsMe')}
+								</Button>
 								<Button
 									variant="danger"
 									size="sm"
@@ -362,15 +358,14 @@ export default function BookingCard({ booking, accessToken }: BookingCardProps) 
 						</>
 					) : (
 						<>
-						{!isGuestView &&
-							occurrenceIsAvailable &&
+						{occurrenceIsAvailable &&
 							booking.paymentMethod === 'SITE_PAYMENT' &&
 							displayStatus === 'CONFIRMED' && (
 								<Button
 									variant="secondary"
 									size="sm"
 									className="w-full"
-									onClick={() => openModal(ModalType.ChangeQuantity, { booking })}
+									onClick={() => openModal(ModalType.ChangeQuantity, { booking, accessToken })}
 								>
 									{translate('booking.changeQuantity')}
 								</Button>
