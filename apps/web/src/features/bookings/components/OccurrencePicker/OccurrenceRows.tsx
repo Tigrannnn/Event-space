@@ -2,6 +2,7 @@
 
 import { quoteBooking, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
+import { ScrollFade } from '@/components/ui/ScrollFade';
 import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/utils/cn';
 import type { OccurrencePickerProps } from './OccurrencePicker';
@@ -35,9 +36,9 @@ export function OccurrenceRows({
 	const { formatDateShort, formatTime } = useFormatDate();
 
 	return (
-		<div
+		<ScrollFade
 			role="radiogroup"
-			className="max-h-72 divide-y divide-gray-200 overflow-y-auto rounded-md border border-gray-300 dark:divide-neutral-800 dark:border-neutral-700"
+			className="max-h-72 divide-y divide-gray-200 rounded-md border border-gray-300 dark:divide-neutral-800 dark:border-neutral-700"
 		>
 			{occurrences.map((occurrence) => {
 				const spots = spotsOf(occurrence);
@@ -110,6 +111,6 @@ export function OccurrenceRows({
 					</button>
 				);
 			})}
-		</div>
+		</ScrollFade>
 	);
 }

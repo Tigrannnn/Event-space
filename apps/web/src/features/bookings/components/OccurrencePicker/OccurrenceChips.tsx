@@ -4,6 +4,7 @@ import { quoteBooking, type EventOccurrence } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useTranslation } from '@/hooks/translation';
 import { cn } from '@/utils/cn';
+import { ScrollFade } from '@/components/ui/ScrollFade';
 import type { OccurrencePickerProps } from './OccurrencePicker';
 
 interface OccurrenceChipsProps extends OccurrencePickerProps {
@@ -32,7 +33,7 @@ export function OccurrenceChips({
 	const { formatDateShort, formatTime } = useFormatDate();
 
 	return (
-		<div role="radiogroup" className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto p-0.5">
+		<ScrollFade role="radiogroup" className="grid max-h-72 grid-cols-2 gap-2 p-0.5">
 			{occurrences.map((occurrence) => {
 				const spots = spotsOf(occurrence);
 				const isSoldOut = spots === 0;
@@ -86,6 +87,6 @@ export function OccurrenceChips({
 					</button>
 				);
 			})}
-		</div>
+		</ScrollFade>
 	);
 }
