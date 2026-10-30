@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
-import { Skeleton } from '@/components/ui/Skeleton';
+import BookingLinkSkeleton from './BookingLinkSkeleton';
 import BookingCard from '@/features/bookings/components/BookingCard';
 import GuestBookingNotice, {
 	recallGuestEmail,
@@ -62,12 +62,7 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 	}, [isAwaitingPayment, refetch]);
 
 	if (isLoading) {
-		return (
-			<div className="mx-auto w-full max-w-xl px-4 py-8">
-				<Skeleton className="mb-6 h-9 w-56 rounded" />
-				<Skeleton className="h-96 w-full rounded-2xl" />
-			</div>
-		);
+		return <BookingLinkSkeleton />;
 	}
 
 	if (isError || !booking) {
