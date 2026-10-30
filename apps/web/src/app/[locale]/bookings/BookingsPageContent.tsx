@@ -7,7 +7,7 @@ import { useBookingView, useMyBookings } from '../../../features/bookings/hooks/
 import BookingCard from '../../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import EmptyState from '@/components/ui/EmptyState/EmptyState';
-import { CalendarX, Filter, Ticket } from 'lucide-react';
+import { CalendarX, ChevronDown, Filter, Ticket } from 'lucide-react';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useTranslation } from '@/hooks/translation';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -181,7 +181,7 @@ export default function BookingsPageContent() {
 					<select
 						value={statusFilter}
 						onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-						className="w-full cursor-pointer rounded-[inherit] bg-transparent py-2 pr-3 pl-9 text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
+						className="w-full cursor-pointer appearance-none rounded-[inherit] bg-transparent py-2 pr-10 pl-9 text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
 					>
 						<option value="ALL">{translate('booking.filterAll')}</option>
 						<option value="CONFIRMED">{translate('booking.filterConfirmed')}</option>
@@ -189,6 +189,7 @@ export default function BookingsPageContent() {
 						<option value="PENDING">{translate('booking.filterPending')}</option>
 						<option value="CANCELLED">{translate('booking.filterCancelled')}</option>
 					</select>
+					<ChevronDown className="pointer-events-none absolute right-4 h-4 w-4 text-gray-500 dark:text-gray-400" />
 				</div>
 			</div>
 
