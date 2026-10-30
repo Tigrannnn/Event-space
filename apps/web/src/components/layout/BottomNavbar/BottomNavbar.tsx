@@ -18,6 +18,20 @@ import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
 import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 
+/** Tab-shaped placeholders for the entries that depend on who is signed in. */
+function NavSkeleton({ count, className }: { count: number; className: string }) {
+	return (
+		<>
+			{Array.from({ length: count }).map((_, index) => (
+				<div key={index} aria-hidden className={className}>
+					<Skeleton className="size-6 rounded-full" />
+					<Skeleton className="h-2.5 w-10" />
+				</div>
+			))}
+		</>
+	);
+}
+
 export default function BottomNavbar() {
 	const pathname = usePathname();
 	const isAdminPage = isRouteActive(pathname, '/admin');
@@ -123,6 +137,8 @@ export default function BottomNavbar() {
 					);
 				})}
 
+				{isUserLoading && <NavSkeleton count={3} className={itemClassName(false)} />}
+
 				{!isUserLoading &&
 					(user ? (
 						<Link
@@ -172,6 +188,8 @@ export default function BottomNavbar() {
 				<HomeIcon height={16} />
 				<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.home')}</span>
 			</Link>
+
+			{isUserLoading && <NavSkeleton count={3} className={linkClassName} />}
 
 			{!isUserLoading && user && (
 				<Link
