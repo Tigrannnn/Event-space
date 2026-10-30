@@ -210,6 +210,7 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 		activeIndex,
 		setActiveIndex,
 		choose,
+		close,
 		onKeyDown,
 		forgetHistory: (id: string) => forget.mutate(id),
 		isLoading: typing ? suggestions.isFetching && !suggestions.data : false,

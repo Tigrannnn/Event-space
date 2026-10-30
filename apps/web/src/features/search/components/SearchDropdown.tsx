@@ -1,6 +1,7 @@
 'use client';
 
 import { Clock, Search, Tag, X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 import type { BrandSkin, SearchSuggestedEvent } from '@event-space/shared';
 import { useSkin } from '@/providers/BrandProvider';
@@ -96,7 +97,8 @@ const LOOK: Record<BrandSkin, Look> = {
 		icon: 'text-gray-400',
 		remove:
 			'rounded-full p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-neutral-700 dark:hover:text-white',
-	},	drawer: {
+	},
+	drawer: {
 		panel:
 			'overflow-hidden rounded-3xl border border-gray-200 bg-white py-1 shadow-xl dark:border-neutral-700 dark:bg-neutral-900',
 		heading: 'px-4 pt-3 pb-1 text-base font-bold text-gray-900 dark:text-white',
@@ -111,6 +113,41 @@ const LOOK: Record<BrandSkin, Look> = {
 			'rounded-full p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-neutral-700 dark:hover:text-white',
 	},
 };
+
+/** The field's own corner radius, so the dimmed area wraps it without bright corners. */
+const SPOTLIGHT_RADIUS: Record<BrandSkin, string> = {
+	classic: 'rounded-full',
+	minimal: 'rounded-full',
+	listing: 'rounded-md',
+	soft: 'rounded-full',
+	market: 'rounded-xl',
+	drawer: 'rounded-full',
+};
+
+/**
+ * Darkens everything but the search field and its suggestions. The field casts a shadow far
+ * wider than the screen, which dims whatever lies around it without needing a layer of its
+ * own between the field and the rest of the header. A second, invisible layer sits under the
+ * header and takes the clicks meant for the page, so nothing behind the search can be used
+ * until it is closed.
+ */
+function SearchSpotlight({ box, skin }: { box: SearchBox; skin: BrandSkin }) {
+	return (
+		<>
+			<span
+				aria-hidden
+				className={cn(
+					'pointer-events-none absolute inset-0 z-10 shadow-[0_0_0_100vmax_rgb(0_0_0/0.55)]',
+					SPOTLIGHT_RADIUS[skin],
+				)}
+			/>
+			{createPortal(
+				<div aria-hidden className="fixed inset-0 z-40" onMouseDown={box.close} />,
+				document.body,
+			)}
+		</>
+	);
+}
 
 function pickName<T extends { locale: string }>(
 	items: T[],
@@ -144,7 +181,8 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 	const formatCurrency = useFormatCurrency();
 	const { formatDateShort } = useFormatDate();
 
-	if (!box.open || box.items.length === 0) return null;
+	if (!box.open) return null;
+	if (box.items.length === 0) return <SearchSpotlight box={box} skin={skin} />;
 
 	const eventRow = (item: Extract<SearchItem, { kind: 'event' }>, index: number) => {
 		const event: SearchSuggestedEvent = item.event;
@@ -234,26 +272,29 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 	});
 
 	return (
-		<div
-			role="listbox"
-			aria-label={translate('search.listLabel')}
-			className={cn(
-				'absolute top-full right-0 left-0 z-50 mt-2 max-h-[45dvh] overflow-y-auto text-left sm:max-h-[70dvh]',
-				look.panel,
-			)}
-		>
-			{box.nothingFound && (
-				<p className={cn('px-5 py-3', look.meta)}>
-					{translate('search.nothingFound', { query: box.text })}
-				</p>
-			)}
-			{sections.map((section, index) => (
-				<div key={`${section.heading ?? 'tail'}-${index}`}>
-					{section.heading && <p className={look.heading}>{section.heading}</p>}
-					{section.rows}
-				</div>
-			))}
-		</div>
+		<>
+			<SearchSpotlight box={box} skin={skin} />
+			<div
+				role="listbox"
+				aria-label={translate('search.listLabel')}
+				className={cn(
+					'absolute top-full right-0 left-0 z-50 mt-2 max-h-[45dvh] overflow-y-auto text-left sm:max-h-[70dvh]',
+					look.panel,
+				)}
+			>
+				{box.nothingFound && (
+					<p className={cn('px-5 py-3', look.meta)}>
+						{translate('search.nothingFound', { query: box.text })}
+					</p>
+				)}
+				{sections.map((section, index) => (
+					<div key={`${section.heading ?? 'tail'}-${index}`}>
+						{section.heading && <p className={look.heading}>{section.heading}</p>}
+						{section.rows}
+					</div>
+				))}
+			</div>
+		</>
 	);
 }
 
