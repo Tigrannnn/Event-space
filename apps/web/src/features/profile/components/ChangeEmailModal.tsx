@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { EmailSchema } from '@event-space/shared';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Input from '@/components/ui/Inputs/Input';
+import PasswordInput from '@/components/ui/Inputs/PasswordInput';
 import Button from '@/components/ui/Buttons/Button';
 import { useModalStore } from '@/stores';
 import { useCurrentUser } from '@/features/users';
@@ -120,9 +121,9 @@ export default function ChangeEmailModal() {
 						/>
 
 						{hasPassword && (
-							<Input
+							<PasswordInput
+								id="change-email-password"
 								label={translate('profile.currentPassword')}
-								type="password"
 								autoComplete="current-password"
 								value={password}
 								onChange={(changeEvent) => setPassword(changeEvent.target.value)}
