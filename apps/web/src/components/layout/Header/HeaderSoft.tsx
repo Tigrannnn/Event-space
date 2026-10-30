@@ -28,6 +28,7 @@ export default function HeaderSoft() {
 		user,
 		isUserLoading,
 		isHydrated,
+		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -61,7 +62,7 @@ export default function HeaderSoft() {
 					<nav className="ml-auto hidden shrink-0 items-center gap-1.5 md:flex">
 						<ContactIcons onDark className="mr-1" />
 						<LanguagePill onDark className="mr-1" />
-						{!isHydrated || isUserLoading ? <AuthSkeleton count={3} onDark /> : user ? (
+						{!isHydrated || isUserLoading ? <AuthSkeleton hint={authHint} onDark /> : user ? (
 							<>
 								<Link href={localizePath('/favorites', navigation.locale)} className={pill}>
 									<span className="relative">

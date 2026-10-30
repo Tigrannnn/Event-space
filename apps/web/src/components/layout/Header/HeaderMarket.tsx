@@ -26,6 +26,7 @@ export default function HeaderMarket() {
 		user,
 		isUserLoading,
 		isHydrated,
+		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -99,7 +100,7 @@ export default function HeaderMarket() {
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:ml-0 md:flex">
 					<ContactTile />
 					<LanguageTile className="mr-1" />
-					{!isHydrated || isUserLoading ? <AuthSkeleton count={3} /> : user ? (
+					{!isHydrated || isUserLoading ? <AuthSkeleton hint={authHint} /> : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
 								<span className="relative">

@@ -15,6 +15,7 @@ import { isRouteActive } from '@/utils/route';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useActiveBookingsCount } from '@/features/bookings/hooks/useBookings';
 import { useFavoritesCount } from '@/features/favorites/hooks/useFavorites';
+import { useAuthHint } from '@/hooks/authHint/useAuthHint';
 import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 
@@ -42,6 +43,8 @@ export default function BottomNavbar() {
 	const myBookingsCount = useActiveBookingsCount();
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
+	const authHint = useAuthHint();
+	const skeletonCount = authHint === 'user' ? 3 : 1;
 	const skin = useSkin();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
@@ -137,7 +140,7 @@ export default function BottomNavbar() {
 					);
 				})}
 
-				{isUserLoading && <NavSkeleton count={3} className={itemClassName(false)} />}
+				{isUserLoading && <NavSkeleton count={skeletonCount} className={itemClassName(false)} />}
 
 				{!isUserLoading &&
 					(user ? (
@@ -189,7 +192,7 @@ export default function BottomNavbar() {
 				<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.home')}</span>
 			</Link>
 
-			{isUserLoading && <NavSkeleton count={3} className={linkClassName} />}
+			{isUserLoading && <NavSkeleton count={skeletonCount} className={linkClassName} />}
 
 			{!isUserLoading && user && (
 				<Link
