@@ -38,6 +38,7 @@ export default function BookingsPageContent() {
 	const {
 		data,
 		isLoading,
+		isFetching,
 		fetchNextPage,
 		hasNextPage,
 		isFetchingNextPage,
@@ -62,10 +63,14 @@ export default function BookingsPageContent() {
 	// When the booking is not in the page that has loaded, it is fetched on its own and shown
 	// above the list, instead of paging through the whole list to find it.
 	const isTargetLoaded = targetId ? loadedBookings.some((entry) => entry.id === targetId) : false;
+	// Not until the list has finished (re)loading: a booking made a moment ago is missing from
+	// the copy kept from the last visit, and pinning it only to have it jump into the list
+	// a second later would be worse than waiting.
+	const isListSettled = !isLoading && !(isFetching && !isFetchingNextPage);
 	const { data: pinnedBooking, isError: isPinFailed } = useBookingView(
 		targetId ?? '',
 		undefined,
-		Boolean(targetId) && !isLoading && !isTargetLoaded,
+		Boolean(targetId) && isListSettled && !isTargetLoaded,
 	);
 	const pinned = targetId && !isTargetLoaded && pinnedBooking?.id === targetId ? pinnedBooking : null;
 	const bookings = useMemo(
