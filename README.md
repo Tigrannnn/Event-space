@@ -10,6 +10,7 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 
 ### Public experience
 - Event catalog with search, filters (price, dates, guest count, difficulty), and infinite-scroll pagination
+- Search suggestions while typing, recommended queries, and a per-user search history that can be cleared entry by entry
 - Event detail pages with media, pricing, duration, location, and cancellation policy
 - Occurrence-based scheduling: each event can have several dates, each with its own capacity
 - Per-date discounts: an occurrence can carry a percent off the event's base price (up to 100%, i.e. a free booking), shown as a struck-through price and badge everywhere the price appears
@@ -17,7 +18,8 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 - Booking flow with quantity selection, capacity locking, and conflict handling for sold-out slots
 - Stripe checkout and payment confirmation flow, including webhook fallback reconciliation; a 100%-discounted booking confirms without touching Stripe at all
 - Changing the quantity on a confirmed booking (top-up charge or partial refund, by the cancellation policy or in full)
-- Self-service cancellation with a refund estimate shown before confirming
+- Self-service cancellation with a refund estimate shown before confirming. The refund follows the event's cancellation rules (a percentage by hours before the tour), the Stripe fee is withheld from it, and anyone whose tour was moved can walk away with a full refund, fee included, until the window the admin set closes
+- Promo codes: the customer enters a code in the booking form and sees the price recalculated before paying; the server has the final word and uses whichever is better, the code or the tour's own discount
 - Booking without an account: a guest gives a name, an email (typed twice, with a hint for slips like `gmial.com`) and a phone, pays through Stripe and lands on a booking page behind a signed link that is also in the confirmation email. The link works without signing in: the check-in QR, cancellation with a refund estimate, changing the number of guests, accepting a moved date and leaving a review. Registering later with the same email picks the guest bookings up; an email that belongs to a confirmed account is refused, so nobody can book under someone else's name. The form tells the guest why the email matters and suggests an account first
 - A home-page banner carousel the admin curates, with per-locale images and optional link to an event
 - Favorites list
@@ -47,12 +49,16 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 - Review moderation queue (publish/reject with a reason) and replying to a review as the company
 - User management: role changes, and editing the guest profiles an admin creates for walk-in/manual bookings (name, phone, email) — a real account's email can only be changed by its owner
 - Category CRUD
+- Promo codes: percent off, total and per-customer usage limits, validity dates, restriction to one tour or one category, an on/off switch and an admin-only note
+- Check-in: scanning the QR from the confirmation email opens the booking on the check-in page, where it is marked as attended
 - Cancellation-policy rules per event (refund percentage by hours before the tour)
 
 ### Platform infrastructure
 - Swagger/OpenAPI docs at the API endpoint
 - Prisma migrations and generated shared schema artifacts
 - MJML email templates (verification, booking confirmation with the check-in QR attached inline and a link to manage the booking, reminder, cancellation, reschedule, review invite/pending/reply, email-changed notice), sent over SMTP or Resend's HTTP API
+- Money ledger: every payment, top-up, refund and the Stripe fee of a booking is recorded as its own entry, so what was charged and what is still owed back can always be worked out, and failed refunds are queued and retried
+- Brand preview hosts (subdomains of the main domain) are closed to search engines, so the copies of one site under one domain are not taken for a duplicate farm
 - Background jobs: booking reminders, payment reconciliation and retry, refund retry, review invitations, and dashboard snapshotting
 - Docker-based local development; Dockerfiles per app for platform deployment (the project runs in production on Railway, one deployment per brand/customer, sharing one codebase)
 - E2E tests covering auth and booking behavior, including concurrent booking scenarios
@@ -150,6 +156,7 @@ Key variables:
 | `STRIPE_WEBHOOK_SECRET` | For webhooks | Stripe webhook signing secret |
 | `BOOKING_RESERVATION_TTL_SECONDS` | No | How long a pending booking holds its spot before releasing it; defaults to 120 |
 | `API_URL` | Yes | Usually `http://localhost:5000` |
+| `UMAMI_WEBSITE_ID` | No | Turns on Umami analytics (cookie-less, so no consent banner); without it runs are simply not tracked |
 | `FRONTEND_URL` | Yes | Usually `http://localhost:3000` |
 | `NEXT_PUBLIC_APP_URL` | Recommended | Public frontend base URL |
 
