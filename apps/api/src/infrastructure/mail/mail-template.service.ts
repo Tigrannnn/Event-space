@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import mjml2html from 'mjml';
+import { CLASSIC_MAIL_VARIABLES } from './mail-skin';
 
 @Injectable()
 export class MailTemplateService {
@@ -72,7 +73,8 @@ export class MailTemplateService {
 
 		let fullMjml = this.baseTemplate.replace('{{ CONTENT }}', contentMjml);
 
-		for (const [key, value] of Object.entries(variables)) {
+		// A letter rendered without a brand (a test, a preview) falls back to the classic frame.
+		for (const [key, value] of Object.entries({ ...CLASSIC_MAIL_VARIABLES, ...variables })) {
 			const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
 			fullMjml = fullMjml.replace(regex, value);
 		}

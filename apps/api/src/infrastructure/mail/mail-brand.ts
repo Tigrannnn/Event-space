@@ -1,4 +1,5 @@
-import { getBrandForHost, type Brand } from '@event-space/shared';
+import { getBrandForHost, type Brand, type BrandSkin } from '@event-space/shared';
+import { mailSkinTokens, resolveMailSkin } from './mail-skin';
 import { escapeHtml } from './mail-strings';
 
 export interface MailBrand {
@@ -11,6 +12,7 @@ export interface MailBrand {
 	address?: string;
 	colorPrimary: string;
 	colorAccent: string;
+	skin: BrandSkin;
 }
 
 export function resolveMailBrand(
@@ -35,15 +37,18 @@ export function resolveMailBrand(
 		address: brand.contact.location?.address,
 		colorPrimary: brand.colorPrimary,
 		colorAccent: brand.colorAccent,
+		skin: resolveMailSkin(brand.skin),
 	};
 }
 
 export function buildBrandLogoBlock(brand: MailBrand): string {
 	if (!brand.logoUrl) return '';
 
+	const look = mailSkinTokens(brand.skin);
+
 	return (
 		`<mj-image src="${escapeHtml(brand.logoUrl)}" alt="${escapeHtml(brand.name)}" width="72px" ` +
-		'padding="0px 0px 12px 0px" align="center" border-radius="36px" />'
+		`padding="0px 0px 12px 0px" align="${look.headerAlign}" border-radius="${look.logoRadius}" />`
 	);
 }
 

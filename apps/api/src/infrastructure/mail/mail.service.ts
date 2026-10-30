@@ -13,6 +13,7 @@ import {
 	resolveMailBrand,
 	type MailBrand,
 } from './mail-brand';
+import { mailSkinVariables } from './mail-skin';
 import {
 	BOOKING_CANCELLED_STRINGS,
 	BOOKING_NO_SEATS_STRINGS,
@@ -83,6 +84,7 @@ export class MailService implements OnModuleInit {
 			BRAND_TITLE: buildBrandTitle(brand),
 			BRAND_FOOTER: buildBrandFooter(brand),
 			BRAND_PRIMARY: brand.colorPrimary,
+			...mailSkinVariables(brand.skin, brand.colorPrimary),
 		};
 	}
 

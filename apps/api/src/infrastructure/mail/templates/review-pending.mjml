@@ -1,16 +1,18 @@
 <mj-wrapper padding="0px 20px 40px 20px">
 	<mj-section
 		background-color="#ffffff"
-		border-radius="40px"
-		padding="40px"
+		border-radius="{{ CARD_RADIUS }}"
+		border="{{ CARD_BORDER }}"
+		padding="{{ CARD_PADDING }}"
 		css-class="card-bg shadow-card"
 	>
 		<mj-column>
 			<mj-text
 				align="center"
 				font-size="22px"
-				font-weight="900"
-				color="#1b4c00"
+				font-weight="{{ HEADING_WEIGHT }}"
+				font-family="{{ HEADING_FONT }}"
+				color="{{ TITLE_COLOR }}"
 				padding="0px 0px 8px 0px"
 				css-class="text-main"
 			>
@@ -39,7 +41,7 @@
 				href="{{ QUEUE_URL }}"
 				background-color="{{ BRAND_PRIMARY }}"
 				color="#ffffff"
-				border-radius="999px"
+				border-radius="{{ BUTTON_RADIUS }}"
 				font-size="15px"
 				font-weight="700"
 				padding="8px 0px 24px 0px"

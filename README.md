@@ -56,6 +56,7 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 ### Platform infrastructure
 - Swagger/OpenAPI docs at the API endpoint
 - Prisma migrations and generated shared schema artifacts
+- Letters follow the brand's skin: the same twelve templates, with the card's corners and outline, the headings' typeface, the header alignment, a colour strip on top and the buttons set per skin (see `apps/api/src/infrastructure/mail/mail-skin.ts`)
 - MJML email templates (verification, booking confirmation with the check-in QR attached inline and a link to manage the booking, reminder, cancellation, reschedule, review invite/pending/reply, email-changed notice), sent over SMTP or Resend's HTTP API
 - Money ledger: every payment, top-up, refund and the Stripe fee of a booking is recorded as its own entry, so what was charged and what is still owed back can always be worked out, and failed refunds are queued and retried
 - Brand preview hosts (subdomains of the main domain) are closed to search engines, so the copies of one site under one domain are not taken for a duplicate farm

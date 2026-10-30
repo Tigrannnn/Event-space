@@ -18,7 +18,7 @@
 				}
 				.card-bg > table {
 					background-color: #1f2937 !important;
-					border-radius: 40px !important;
+					border-radius: {{ CARD_RADIUS }} !important;
 				}
 				.text-main div {
 					color: #f3f4f6 !important;
@@ -35,11 +35,19 @@
 			}
 		</mj-style>
 	</mj-head>
-	<mj-body background-color="#F9FAFB" css-class="body-bg">
+	<mj-body background-color="{{ PAGE_BG }}" css-class="body-bg">
+		{{ TOP_BAND }}
 		<mj-section padding="40px 20px 24px 20px">
 			<mj-column>
 				{{ BRAND_LOGO }}
-				<mj-text align="center" font-size="28px" font-weight="900" letter-spacing="-1px" padding="0px">
+				<mj-text
+					align="{{ HEADER_ALIGN }}"
+					font-size="28px"
+					font-weight="{{ HEADING_WEIGHT }}"
+					font-family="{{ HEADING_FONT }}"
+					letter-spacing="{{ TITLE_SPACING }}"
+					padding="0px"
+				>
 					{{ BRAND_TITLE }}
 				</mj-text>
 			</mj-column>
