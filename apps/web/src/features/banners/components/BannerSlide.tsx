@@ -98,6 +98,8 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 			<div
 				className={cn(
 					'absolute inset-0 flex flex-col justify-center gap-2 p-5 sm:gap-3 sm:p-10 lg:p-14',
+					// The soft skin's arrows sit over the edges, so its text keeps clear of them.
+					isSoft && 'px-16 sm:px-20 lg:px-24',
 					ALIGNMENT[banner.textAlign],
 				)}
 			>
