@@ -6,7 +6,6 @@ import { Menu, Search, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import { SearchDropdown } from '@/features/search';
-import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 import MenuDrawer from './MenuDrawer';
 
@@ -88,7 +87,6 @@ export default function HeaderDrawer() {
 				</div>
 
 				<div className="order-3 hidden items-center gap-2 md:flex">
-					{!isHydrated || isUserLoading ? <AuthSkeleton /> : null}
 					{isHydrated && !isUserLoading && !user && (
 						<>
 							<button

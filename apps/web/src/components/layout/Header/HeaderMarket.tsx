@@ -7,7 +7,6 @@ import { ModalType } from '@/stores';
 import LanguageTile from '@/components/ui/LanguageSwitcher/LanguageTile';
 import ContactTile from './ContactTile';
 import { SearchDropdown } from '@/features/search';
-import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -99,7 +98,7 @@ export default function HeaderMarket() {
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:ml-0 md:flex">
 					<ContactTile />
 					<LanguageTile className="mr-1" />
-					{!isHydrated || isUserLoading ? <AuthSkeleton count={3} /> : user ? (
+					{!isHydrated || isUserLoading ? null : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
 								<span className="relative">

@@ -7,7 +7,6 @@ import Button from '@/components/ui/Buttons/Button';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { SearchDropdown } from '@/features/search';
 import { ModalType } from '@/stores';
-import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
 import { SearchIcon } from 'lucide-react';
@@ -91,7 +90,7 @@ export default function Header() {
 					{/* Auth buttons */}
 					<nav className="hidden shrink-0 items-center gap-3 md:flex">
 						{!isHydrated || isUserLoading ? (
-							<AuthSkeleton count={3} onDark />
+							<></>
 						) : user ? (
 							// Links so Next prefetches the route before the click is made.
 							<>
