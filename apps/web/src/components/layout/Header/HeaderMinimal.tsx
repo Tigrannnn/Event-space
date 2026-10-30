@@ -7,6 +7,7 @@ import { ModalType } from '@/stores';
 import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
 import ContactIcons from './ContactIcons';
 import { SearchDropdown } from '@/features/search';
+import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
 const countBadge =
@@ -96,7 +97,7 @@ export default function HeaderMinimal() {
 				<nav className="hidden shrink-0 items-center gap-1 md:flex">
 					<ContactIcons className="mr-1 hidden xl:flex" />
 					<LanguageMenu className="mr-1" />
-					{!isHydrated || isUserLoading ? null : user ? (
+					{!isHydrated || isUserLoading ? <AuthSkeleton count={3} /> : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
 								<span className="relative">
