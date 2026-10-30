@@ -18,20 +18,21 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 - Stripe checkout and payment confirmation flow, including webhook fallback reconciliation; a 100%-discounted booking confirms without touching Stripe at all
 - Changing the quantity on a confirmed booking (top-up charge or partial refund, by the cancellation policy or in full)
 - Self-service cancellation with a refund estimate shown before confirming
+- Booking without an account: a guest gives a name, an email (typed twice, with a hint for slips like `gmial.com`) and a phone, pays through Stripe and lands on a booking page behind a signed link that is also in the confirmation email. The link works without signing in: the check-in QR, cancellation with a refund estimate, changing the number of guests, accepting a moved date and leaving a review. Registering later with the same email picks the guest bookings up; an email that belongs to a confirmed account is refused, so nobody can book under someone else's name. The form tells the guest why the email matters and suggests an account first
 - A home-page banner carousel the admin curates, with per-locale images and optional link to an event
 - Favorites list
 - Per-brand sites: the brand (name, colours, logo, contacts, "About" texts, language texts and **skin**) is resolved from the request host, so one codebase serves a separate-looking site per customer; see [Brands and skins](#brands-and-skins)
 - Six interchangeable site skins (`classic`, `minimal`, `listing`, `soft`, `market`, `drawer`) that change the layout and not just the colours: header, event cards, catalog grid, banner, event page, booking panel, profile, modals, footer and navigation. One of them (`drawer`) moves the account, company pages, contacts and language into a side menu in the header's corner
 - Catalog loads in steps of whole rows (three rows on desktop, six cards on a phone, whatever the column count of the skin) with infinite scroll
 - Company contacts (Instagram, phone, email, map) shown as a list of direct links, a header tile or a side menu depending on the skin
-- Reviews: star rating plus optional text, open only in the eligible window after the tour ends, editable for 48 hours; the author's own review is pinned at the top of the event page (with a "pending moderation" notice while it waits), review invitations are emailed automatically, and a signed link lets a booking made by an admin leave a review without an account
+- Reviews: star rating plus optional text, open only in the eligible window after the tour ends, editable for 48 hours; the author's own review is pinned at the top of the event page (with a "pending moderation" notice while it waits), review invitations are emailed automatically, and a signed link lets a guest (booked by an admin or on the site) leave a review without an account
 - User dashboard with bookings, booking history, and favorites, both using keyset pagination with infinite scroll
 - Changing your own email address (code sent to the new address, notice sent to the old one) and basic profile fields
 - Live-updating event and booking-modal data: spots left and price refresh in the background every ~20–30s, so a seat that filled up on another device shows up before checkout rather than failing only at submit
 
 ### Authentication and security
 - Email/password registration with OTP verification
-- Login, password reset, and Google OAuth
+- Login with a password, sign-in by a one-time code from the email (setting a password is optional there), changing the password from the profile, and Google OAuth. A code proves the mailbox, so it also confirms the address; other devices are signed out only when the password actually changes
 - JWT access tokens with refresh-token rotation and httpOnly cookies
 - Redis-backed rate limiting for authentication and sensitive endpoints
 - Zod-based validation and shared contracts between API and web
@@ -51,7 +52,7 @@ Event Space is a monorepo built around a Next.js frontend, a NestJS API, Prisma,
 ### Platform infrastructure
 - Swagger/OpenAPI docs at the API endpoint
 - Prisma migrations and generated shared schema artifacts
-- MJML email templates (verification, booking confirmation/reminder/cancellation, reschedule, review invite/pending/reply, email-changed notice), sent over SMTP or Resend's HTTP API
+- MJML email templates (verification, booking confirmation with the check-in QR attached inline and a link to manage the booking, reminder, cancellation, reschedule, review invite/pending/reply, email-changed notice), sent over SMTP or Resend's HTTP API
 - Background jobs: booking reminders, payment reconciliation and retry, refund retry, review invitations, and dashboard snapshotting
 - Docker-based local development; Dockerfiles per app for platform deployment (the project runs in production on Railway, one deployment per brand/customer, sharing one codebase)
 - E2E tests covering auth and booking behavior, including concurrent booking scenarios
@@ -138,7 +139,7 @@ Key variables:
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `REDIS_URL` | Yes | Example: `redis://localhost:6379` |
 | `JWT_ACCESS_SECRET` | Yes | Strong random secret for JWT signing |
-| `REVIEW_TOKEN_SECRET` | No | Signs guest review links; derived from `JWT_ACCESS_SECRET` if unset |
+| `REVIEW_TOKEN_SECRET` | No | Signs the links guests get by email (booking, review) and the check-in QR; each kind is signed under its own label, derived from `JWT_ACCESS_SECRET` if unset |
 | `ALLOWED_ORIGINS` | Yes | Comma-separated list, including `http://localhost:3000` |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | For OAuth | Google Cloud Console credentials |
 | `SMTP_*` / `MAIL_DEV_MODE` | For email | Set `MAIL_DEV_MODE=true` to log OTPs and other emails in the API console |
