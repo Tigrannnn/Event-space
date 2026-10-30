@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useBookingView, useMyBookings } from '../../../features/bookings/hooks/useBookings';
@@ -47,52 +47,52 @@ export default function BookingsPageContent() {
 	const loadedBookings = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
 
 	// The booking a button or an email pointed at. It is kept in state because the address is
-	// cleaned up straight away, so a refresh does not light the card up all over again.
-	const [targetId, setTargetId] = useState<string | null>(null);
+	// cleaned up straight away, so a refresh does not light the card up all over again. It stays
+	// for as long as the page does: the card pinned above the list is drawn from it, so letting
+	// go of it after the scroll would take the card away again.
+	const [focusId, setFocusId] = useState<string | null>(null);
 	const [highlightedId, setHighlightedId] = useState<string | null>(null);
+	const scrolledForRef = useRef<string | null>(null);
 
 	useEffect(() => {
 		const id = searchParams.get('booking');
 		if (!id) return;
 
-		setTargetId(id);
+		setFocusId(id);
+		scrolledForRef.current = null;
 		setStatusFilter('ALL');
 		window.history.replaceState(null, '', window.location.pathname);
 	}, [searchParams]);
 
 	// When the booking is not in the page that has loaded, it is fetched on its own and shown
 	// above the list, instead of paging through the whole list to find it.
-	const isTargetLoaded = targetId ? loadedBookings.some((entry) => entry.id === targetId) : false;
+	const isFocusLoaded = focusId ? loadedBookings.some((entry) => entry.id === focusId) : false;
 	// Not until the list has finished (re)loading: a booking made a moment ago is missing from
 	// the copy kept from the last visit, and pinning it only to have it jump into the list
 	// a second later would be worse than waiting.
 	const isListSettled = !isLoading && !(isFetching && !isFetchingNextPage);
-	const { data: pinnedBooking, isError: isPinFailed } = useBookingView(
-		targetId ?? '',
+	const { data: pinnedBooking } = useBookingView(
+		focusId ?? '',
 		undefined,
-		Boolean(targetId) && isListSettled && !isTargetLoaded,
+		Boolean(focusId) && isListSettled && !isFocusLoaded,
 	);
-	const pinned = targetId && !isTargetLoaded && pinnedBooking?.id === targetId ? pinnedBooking : null;
+	const pinned = focusId && !isFocusLoaded && pinnedBooking?.id === focusId ? pinnedBooking : null;
 	const bookings = useMemo(
 		() => (pinned ? loadedBookings.filter((entry) => entry.id !== pinned.id) : loadedBookings),
 		[loadedBookings, pinned],
 	);
 
 	useEffect(() => {
-		if (!targetId) return;
-		if (isPinFailed) {
-			setTargetId(null);
-			return;
-		}
+		if (!focusId || scrolledForRef.current === focusId) return;
 
-		const card = document.getElementById(`booking-${targetId}`);
+		const card = document.getElementById(`booking-${focusId}`);
 		if (!card) return;
 
+		scrolledForRef.current = focusId;
 		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		card.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
-		setHighlightedId(targetId);
-		setTargetId(null);
-	}, [targetId, isTargetLoaded, pinned, isPinFailed]);
+		setHighlightedId(focusId);
+	}, [focusId, isFocusLoaded, pinned]);
 
 	useEffect(() => {
 		if (!highlightedId) return;
