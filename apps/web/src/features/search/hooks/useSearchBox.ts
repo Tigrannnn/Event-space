@@ -129,6 +129,23 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 		return () => document.removeEventListener('mousedown', closeOnOutsideClick);
 	}, [open]);
 
+	// While the search is in use the page behind it is not: scrolling it would leave the
+	// suggestions hanging over content the visitor has stopped looking at.
+	useEffect(() => {
+		if (!open) return;
+
+		const { overflow, paddingRight } = document.body.style;
+		const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+
+		document.body.style.overflow = 'hidden';
+		if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
+
+		return () => {
+			document.body.style.overflow = overflow;
+			document.body.style.paddingRight = paddingRight;
+		};
+	}, [open]);
+
 	const close = useCallback(() => {
 		setOpen(false);
 		setActiveIndex(-1);
