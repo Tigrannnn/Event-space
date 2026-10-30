@@ -56,6 +56,11 @@ export const useHasBookingForOccurrence = () => {
 		isLoading,
 		hasBooking: (occurrenceId?: string | null) =>
 			Boolean(occurrenceId && booked?.includes(occurrenceId)),
+		/** The booking held for this date, so a button can lead to it and not just to the list. */
+		bookingIdFor: (occurrenceId?: string | null) =>
+			occurrenceId
+				? data?.confirmedBookings?.find((entry) => entry.occurrenceId === occurrenceId)?.id
+				: undefined,
 	};
 };
 
@@ -104,10 +109,11 @@ export const useCreateGuestBooking = () => {
 };
 
 /** One booking behind the link in its email (or behind the sign-in, when there is no link). */
-export const useBookingView = (bookingId: string, token?: string) => {
+export const useBookingView = (bookingId: string, token?: string, enabled = true) => {
 	return useQuery({
 		queryKey: ['booking-view', bookingId],
 		queryFn: () => bookingApi.getBookingView(bookingId, token),
+		enabled: enabled && Boolean(bookingId),
 		retry: false,
 	});
 };

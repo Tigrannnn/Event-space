@@ -37,4 +37,6 @@ export function countActiveBookings(
 export interface MyBookingsSummary {
 	activeCount: number;
 	confirmedOccurrenceIds: string[];
+	/** The same bookings by id, so a button can lead straight to the one it is about. */
+	confirmedBookings: { id: string; occurrenceId: string }[];
 }

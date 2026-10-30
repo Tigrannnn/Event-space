@@ -31,13 +31,15 @@ interface BookingCardProps {
 	booking: BookingWithEstimate;
 	/** The link from the booking's email: the card then works for someone with no account. */
 	accessToken?: string;
+	/** Rings the card for a few seconds: the visitor was sent here to this very booking. */
+	highlighted?: boolean;
 }
 
 function centsToDollars(cents: number) {
 	return (cents / 100).toFixed(2);
 }
 
-export default function BookingCard({ booking, accessToken }: BookingCardProps) {
+export default function BookingCard({ booking, accessToken, highlighted = false }: BookingCardProps) {
 	const isGuestView = Boolean(accessToken);
 	const { occurrence, quantity, status, refundPercentage, estimatedRefundInCents } = booking;
 	const quote = quoteFromBooking(booking);
@@ -141,7 +143,10 @@ export default function BookingCard({ booking, accessToken }: BookingCardProps) 
 	const eventTranslation = getEventTranslation(event, locale);
 
 	return (
-		<div className="group flex h-full flex-col in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:sm:rounded-3xl in-data-[skin=soft]:p-3 in-data-[skin=listing]:sm:flex-row overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:sm:rounded-lg in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent in-data-[skin=market]:rounded-2xl in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:border-gray-200 in-data-[skin=market]:shadow-none in-data-[skin=market]:hover:translate-y-0 in-data-[skin=market]:hover:shadow-md in-data-[skin=market]:dark:border-neutral-800 in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-[2rem] in-data-[skin=drawer]:sm:rounded-[2rem] in-data-[skin=drawer]:border-0 in-data-[skin=drawer]:p-3 in-data-[skin=drawer]:shadow-none in-data-[skin=drawer]:hover:translate-y-0 in-data-[skin=drawer]:hover:shadow-lg in-data-[skin=drawer]:dark:bg-neutral-900">
+		<div
+			id={`booking-${booking.id}`}
+			className={`${highlighted ? 'booking-highlight ' : ''}scroll-mt-32 group flex h-full flex-col in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:sm:rounded-3xl in-data-[skin=soft]:p-3 in-data-[skin=listing]:sm:flex-row overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-3xl dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20 in-data-[skin=minimal]:overflow-visible in-data-[skin=minimal]:border-0 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:sm:rounded-lg in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=listing]:shadow-none in-data-[skin=minimal]:hover:translate-y-0 in-data-[skin=listing]:hover:translate-y-0 in-data-[skin=minimal]:hover:shadow-none in-data-[skin=listing]:hover:shadow-none in-data-[skin=minimal]:dark:bg-transparent in-data-[skin=market]:rounded-2xl in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:border-gray-200 in-data-[skin=market]:shadow-none in-data-[skin=market]:hover:translate-y-0 in-data-[skin=market]:hover:shadow-md in-data-[skin=market]:dark:border-neutral-800 in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-[2rem] in-data-[skin=drawer]:sm:rounded-[2rem] in-data-[skin=drawer]:border-0 in-data-[skin=drawer]:p-3 in-data-[skin=drawer]:shadow-none in-data-[skin=drawer]:hover:translate-y-0 in-data-[skin=drawer]:hover:shadow-lg in-data-[skin=drawer]:dark:bg-neutral-900`}
+		>
 			{/* Event Image */}
 			<div className="relative aspect-video w-full overflow-hidden bg-gray-100 dark:bg-gray-900 in-data-[skin=minimal]:rounded-2xl in-data-[skin=soft]:rounded-2xl in-data-[skin=drawer]:rounded-3xl in-data-[skin=listing]:sm:aspect-auto in-data-[skin=listing]:sm:w-60 in-data-[skin=listing]:sm:shrink-0">
 				<EventImageWithFallback

@@ -443,3 +443,29 @@
 			radial-gradient(64rem 38rem at 50% 112%, color-mix(in srgb, var(--color-primary) 24%, transparent), transparent 70%);
 	}
 }
+
+/*
+ * The booking the visitor was sent to from a button or an email: the card rings in the brand
+ * colour and breathes for a few seconds. The ring is a shadow, so it follows each skin's own
+ * corner radius.
+ */
+@keyframes booking-highlight {
+	0%,
+	100% {
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 90%, transparent);
+	}
+	50% {
+		box-shadow: 0 0 0 9px color-mix(in srgb, var(--color-primary) 28%, transparent);
+	}
+}
+
+.booking-highlight {
+	animation: booking-highlight 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.booking-highlight {
+		animation: none;
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 90%, transparent);
+	}
+}

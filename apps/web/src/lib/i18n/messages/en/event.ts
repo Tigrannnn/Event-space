@@ -11,7 +11,7 @@ export const event = {
 	aboutTour: 'About this tour',
 	whatsIncluded: "What's included",
 	eventEnded: 'This event has ended',
-	viewMyBooking: 'View My Booking',
+	viewMyBooking: 'Go to booking',
 	bookTour: 'Book Tour',
 	bookAnotherSpot: 'Book another spot',
 	secureBooking: 'Secure booking',

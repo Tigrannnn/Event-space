@@ -9,7 +9,7 @@ import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
-import { formatBookingReference } from '@/utils/booking';
+import { bookingPath, formatBookingReference } from '@/utils/booking';
 import { useCurrentUser } from '@/features/users';
 import GuestBookingNotice from '../GuestBookingNotice';
 import { useSkin } from '@/providers/BrandProvider';
@@ -51,7 +51,7 @@ export default function BookingSuccessModal() {
 
 	const handleViewBookings = () => {
 		// For a guest the page behind the modal already is the booking.
-		if (!accessToken) navigation.push('/bookings');
+		if (!accessToken) navigation.push(bookingPath(booking.id));
 		closeModal();
 	};
 
@@ -170,7 +170,7 @@ export default function BookingSuccessModal() {
 						{translate('booking.close')}
 					</Button>
 					<Button variant="primary" onClick={handleViewBookings} className="flex-1">
-						{accessToken ? translate('event.viewMyBooking') : translate('booking.viewMyBookings')}
+						{accessToken ? translate('event.viewMyBooking') : translate('booking.goToBooking')}
 					</Button>
 				</div>
 			</div>

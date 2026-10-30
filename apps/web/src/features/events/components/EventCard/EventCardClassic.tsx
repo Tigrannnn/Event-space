@@ -30,6 +30,7 @@ export default function EventCardClassic({ event }: EventCardProps) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		myBookingPath,
 		handleBookClick,
 	} = useEventCardState(event);
 
@@ -115,7 +116,7 @@ export default function EventCardClassic({ event }: EventCardProps) {
 							role="group"
 						>
 							<Link
-								href={localizePath('/bookings', locale)}
+								href={localizePath(myBookingPath, locale)}
 								onClick={(e) => e.stopPropagation()}
 								className="focus-visible:ring-primary bg-primary/6 text-primary hover:bg-primary/12 dark:bg-primary/10 dark:text-primary-foreground dark:hover:bg-primary/20 flex flex-1 items-center justify-center gap-2 rounded-l-[11px] px-4 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
 							>

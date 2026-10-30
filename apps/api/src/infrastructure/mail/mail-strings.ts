@@ -452,7 +452,7 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		cancellationNone: 'Cancellation is not refundable.',
 		bringCash: (amount) => `Payment on arrival: please bring ${amount}.`,
 		checkinQrLabel: 'Show this QR code at check-in',
-		manageButton: 'Manage booking',
+		manageButton: 'Go to booking',
 		outro: 'We look forward to seeing you there.',
 		signature: 'The Event Space Team',
 		paymentMethodLabels: {
@@ -485,7 +485,7 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		cancellationNone: 'Возврат при отмене не предусмотрен.',
 		bringCash: (amount) => `Оплата при встрече: возьмите с собой ${amount}.`,
 		checkinQrLabel: 'Покажите этот QR-код на регистрации',
-		manageButton: 'Управлять бронью',
+		manageButton: 'Перейти к брони',
 		outro: 'Будем рады видеть вас на мероприятии.',
 		signature: 'Команда Event Space',
 		paymentMethodLabels: {
@@ -519,7 +519,7 @@ export const BOOKING_CONFIRMATION_STRINGS: Record<Locale, BookingConfirmationStr
 		cancellationNone: 'Չեղարկման դեպքում գումարը չի վերադարձվում։',
 		bringCash: (amount) => `Վճարում ժամանելուն պես՝ վերցրեք ${amount}։`,
 		checkinQrLabel: 'Ցույց տվեք այս QR կոդը գրանցման ժամանակ',
-		manageButton: 'Կառավարել ամրագրումը',
+		manageButton: 'Անցնել ամրագրմանը',
 		outro: 'Կսպասենք ձեզ միջոցառմանը:',
 		signature: 'Event Space թիմ',
 		paymentMethodLabels: {

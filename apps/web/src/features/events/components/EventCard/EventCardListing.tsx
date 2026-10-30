@@ -30,6 +30,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		myBookingPath,
 		ratingCount,
 		handleBookClick,
 	} = useEventCardState(event);
@@ -45,7 +46,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 	) : hasBooking ? (
 		<div className="relative z-20 flex w-full items-center gap-2">
 			<Link
-				href={localizePath('/bookings', locale)}
+				href={localizePath(myBookingPath, locale)}
 				onClick={(e) => e.stopPropagation()}
 				className="text-primary border-primary hover:bg-primary/5 flex flex-1 items-center justify-center gap-1.5 rounded-md border px-3 py-2.5 text-sm font-semibold transition-colors"
 			>

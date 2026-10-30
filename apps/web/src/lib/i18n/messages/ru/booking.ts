@@ -89,6 +89,7 @@ export const booking: Messages['booking'] = {
 	paymentMethodOffline: 'Оплачено офлайн',
 	paymentMethodOnArrival: 'Оплата на месте',
 	viewMyBookings: 'Мои бронирования',
+	goToBooking: 'Перейти к брони',
 	refCopied: 'Код брони скопирован',
 	updateFailed: 'Не удалось обновить бронь',
 	cancelFailed: 'Не удалось отменить бронь',

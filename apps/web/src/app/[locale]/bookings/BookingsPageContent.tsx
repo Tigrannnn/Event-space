@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { useMyBookings } from '../../../features/bookings/hooks/useBookings';
+import { useBookingView, useMyBookings } from '../../../features/bookings/hooks/useBookings';
 import BookingCard from '../../../features/bookings/components/BookingCard';
 import BookingsSkeleton from './BookingsSkeleton';
 import EmptyState from '@/components/ui/EmptyState/EmptyState';
@@ -17,6 +17,9 @@ import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
 
 type StatusFilter = 'ALL' | BookingDisplayStatus;
+
+/** How long the booking someone was sent to stays lit. */
+const HIGHLIGHT_MS = 5000;
 
 export default function BookingsPageContent() {
 	const translate = useTranslation();
@@ -40,7 +43,58 @@ export default function BookingsPageContent() {
 		isFetchingNextPage,
 	} = useMyBookings(statusFilter === 'ALL' ? undefined : statusFilter);
 
-	const bookings = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+	const loadedBookings = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
+
+	// The booking a button or an email pointed at. It is kept in state because the address is
+	// cleaned up straight away, so a refresh does not light the card up all over again.
+	const [targetId, setTargetId] = useState<string | null>(null);
+	const [highlightedId, setHighlightedId] = useState<string | null>(null);
+
+	useEffect(() => {
+		const id = searchParams.get('booking');
+		if (!id) return;
+
+		setTargetId(id);
+		setStatusFilter('ALL');
+		window.history.replaceState(null, '', window.location.pathname);
+	}, [searchParams]);
+
+	// When the booking is not in the page that has loaded, it is fetched on its own and shown
+	// above the list, instead of paging through the whole list to find it.
+	const isTargetLoaded = targetId ? loadedBookings.some((entry) => entry.id === targetId) : false;
+	const { data: pinnedBooking, isError: isPinFailed } = useBookingView(
+		targetId ?? '',
+		undefined,
+		Boolean(targetId) && !isLoading && !isTargetLoaded,
+	);
+	const pinned = targetId && !isTargetLoaded && pinnedBooking?.id === targetId ? pinnedBooking : null;
+	const bookings = useMemo(
+		() => (pinned ? loadedBookings.filter((entry) => entry.id !== pinned.id) : loadedBookings),
+		[loadedBookings, pinned],
+	);
+
+	useEffect(() => {
+		if (!targetId) return;
+		if (isPinFailed) {
+			setTargetId(null);
+			return;
+		}
+
+		const card = document.getElementById(`booking-${targetId}`);
+		if (!card) return;
+
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		card.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+		setHighlightedId(targetId);
+		setTargetId(null);
+	}, [targetId, isTargetLoaded, pinned, isPinFailed]);
+
+	useEffect(() => {
+		if (!highlightedId) return;
+
+		const timer = window.setTimeout(() => setHighlightedId(null), HIGHLIGHT_MS);
+		return () => window.clearTimeout(timer);
+	}, [highlightedId]);
 
 	const loadMoreRef = useIntersectionObserver(
 		useCallback(() => {
@@ -163,8 +217,19 @@ export default function BookingsPageContent() {
 									: 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 					}
 				>
+					{pinned && (
+						<BookingCard
+							key={pinned.id}
+							booking={pinned}
+							highlighted={highlightedId === pinned.id}
+						/>
+					)}
 					{bookings.map((booking) => (
-						<BookingCard key={booking.id} booking={booking} />
+						<BookingCard
+							key={booking.id}
+							booking={booking}
+							highlighted={highlightedId === booking.id}
+						/>
 					))}
 
 					<LoadMoreTrigger

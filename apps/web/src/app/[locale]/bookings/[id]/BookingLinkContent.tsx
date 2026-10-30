@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
 import Button from '@/components/ui/Buttons/Button';
+import { bookingPath } from '@/utils/booking';
 import BookingLinkSkeleton from './BookingLinkSkeleton';
 import BookingCard from '@/features/bookings/components/BookingCard';
 import GuestBookingNotice, {
@@ -31,7 +32,7 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 	const navigation = useLocalizedNavigation();
 	const queryClient = useQueryClient();
 	const { openModal } = useModalStore();
-	const { data: user } = useCurrentUser();
+	const { data: user, isLoading: isUserLoading } = useCurrentUser();
 	const [guestEmail] = useState(() => recallGuestEmail(bookingId));
 	const {
 		data: booking,
@@ -42,6 +43,16 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 	} = useBookingView(bookingId, token);
 
 	const isAwaitingPayment = isReturningFromPayment && booking?.status === 'PENDING';
+
+	// Someone signed in to the account the booking belongs to has the full list: take them
+	// there, onto this booking, rather than leaving them on the single page meant for a link.
+	const isOwnerSignedIn = Boolean(user && booking && booking.userId === user.id);
+
+	useEffect(() => {
+		if (isOwnerSignedIn && !isReturningFromPayment) {
+			navigation.replace(bookingPath(bookingId));
+		}
+	}, [isOwnerSignedIn, isReturningFromPayment, navigation, bookingId]);
 
 	// A card that sent the guest away to confirm the payment brings them back here before the
 	// server has heard about it: ask once, then keep looking until it is confirmed.
@@ -61,7 +72,7 @@ export default function BookingLinkContent({ bookingId }: { bookingId: string })
 		return () => window.clearInterval(timer);
 	}, [isAwaitingPayment, refetch]);
 
-	if (isLoading) {
+	if (isLoading || isUserLoading || (isOwnerSignedIn && !isReturningFromPayment)) {
 		return <BookingLinkSkeleton />;
 	}
 

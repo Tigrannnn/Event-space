@@ -13,7 +13,7 @@ export const event: Messages['event'] = {
 	aboutTour: 'Տուրի մասին',
 	whatsIncluded: 'Ինչ է ներառված',
 	eventEnded: 'Միջոցառումն ավարտվել է',
-	viewMyBooking: 'Դիտել իմ ամրագրումը',
+	viewMyBooking: 'Անցնել ամրագրմանը',
 	bookTour: 'Ամրագրել տուրը',
 	bookAnotherSpot: 'Ավելին ամրագրել',
 	secureBooking: 'Անվտանգ ամրագում',

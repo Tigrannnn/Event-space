@@ -6,6 +6,11 @@ import type { BookingDisplayStatus } from '@event-space/shared';
  * @param ref - The reference number to format
  * @returns Formatted reference string or "—" if null/undefined
  */
+/** The bookings page opened on one booking: it scrolls there and lights the card up. */
+export function bookingPath(bookingId?: string | null): string {
+	return bookingId ? `/bookings?booking=${encodeURIComponent(bookingId)}` : '/bookings';
+}
+
 export function formatBookingReference(ref: number | null | undefined): string {
 	if (!ref) return '—';
 	return `#${String(ref).padStart(6, '0')}`;

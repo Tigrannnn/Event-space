@@ -89,6 +89,7 @@ export const booking: Messages['booking'] = {
 	paymentMethodOffline: 'Վճարված է օֆլայն',
 	paymentMethodOnArrival: 'Վճարում տեղում',
 	viewMyBookings: 'Իմ ամրագրումները',
+	goToBooking: 'Անցնել ամրագրմանը',
 	refCopied: 'Ամրագրման կոդը պատճենվեց',
 	updateFailed: 'Չհաջողվեց թարմացնել ամրագրումը',
 	cancelFailed: 'Չհաջողվեց չեղարկել ամրագրումը',

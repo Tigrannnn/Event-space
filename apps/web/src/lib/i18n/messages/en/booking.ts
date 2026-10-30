@@ -86,6 +86,7 @@ export const booking = {
 	paymentMethodOffline: 'Paid offline',
 	paymentMethodOnArrival: 'Pay on arrival',
 	viewMyBookings: 'My bookings',
+	goToBooking: 'Go to booking',
 	refCopied: 'Booking code copied',
 	updateFailed: 'Could not update the booking',
 	cancelFailed: 'Could not cancel the booking',

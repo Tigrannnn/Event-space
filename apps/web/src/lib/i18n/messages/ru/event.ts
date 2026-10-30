@@ -13,7 +13,7 @@ export const event: Messages['event'] = {
 	aboutTour: 'О туре',
 	whatsIncluded: 'Что включено',
 	eventEnded: 'Событие завершено',
-	viewMyBooking: 'Моя бронь',
+	viewMyBooking: 'Перейти к брони',
 	bookTour: 'Забронировать тур',
 	bookAnotherSpot: 'Забронировать ещё место',
 	secureBooking: 'Безопасное бронирование',

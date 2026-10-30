@@ -209,6 +209,7 @@ export class BookingQueryService {
 		const bookings = await this.prisma.booking.findMany({
 			where: { userId, status: 'CONFIRMED' },
 			select: {
+				id: true,
 				occurrenceId: true,
 				status: true,
 				checkedInAt: true,
@@ -219,6 +220,10 @@ export class BookingQueryService {
 		return {
 			activeCount: countActiveBookings(bookings, Date.now()),
 			confirmedOccurrenceIds: bookings.map((booking) => booking.occurrenceId),
+			confirmedBookings: bookings.map((booking) => ({
+				id: booking.id,
+				occurrenceId: booking.occurrenceId,
+			})),
 		};
 	}
 

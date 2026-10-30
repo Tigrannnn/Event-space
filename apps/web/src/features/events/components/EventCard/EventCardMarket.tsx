@@ -29,6 +29,7 @@ export default function EventCardMarket({ event }: EventCardProps) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		myBookingPath,
 		handleBookClick,
 	} = useEventCardState(event);
 	const formatCurrency = useFormatCurrency();
@@ -45,7 +46,7 @@ export default function EventCardMarket({ event }: EventCardProps) {
 	) : hasBooking ? (
 		<div className="relative z-20 flex items-center gap-2">
 			<Link
-				href={localizePath('/bookings', locale)}
+				href={localizePath(myBookingPath, locale)}
 				onClick={(e) => e.stopPropagation()}
 				className="text-primary bg-primary/10 hover:bg-primary/15 flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-colors"
 			>

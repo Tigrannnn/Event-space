@@ -32,6 +32,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		myBookingPath,
 		handleBookClick,
 	} = useEventCardState(event);
 	const formatCurrency = useFormatCurrency();
@@ -66,7 +67,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 			return (
 				<div className="flex items-center gap-2">
 					<Link
-						href={localizePath('/bookings', locale)}
+						href={localizePath(myBookingPath, locale)}
 						onClick={(e) => e.stopPropagation()}
 						aria-label={translate('event.viewMyBooking')}
 						title={translate('event.viewMyBooking')}

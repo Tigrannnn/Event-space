@@ -15,6 +15,7 @@ import {
 	quoteBooking,
 } from '@event-space/shared';
 import { useCurrentUser } from '@/features/users';
+import { bookingPath } from '@/utils/booking';
 import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -71,7 +72,11 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const isSoldOut = maxParticipants > 0 && currentParticipants >= maxParticipants;
 
 	const { isLoading: isUserLoading } = useCurrentUser();
-	const { hasBooking: isOccurrenceBooked, isLoading: isMyBookingsLoading } =
+	const {
+		hasBooking: isOccurrenceBooked,
+		bookingIdFor,
+		isLoading: isMyBookingsLoading,
+	} =
 		useHasBookingForOccurrence();
 
 	const hasBooking = isOccurrenceBooked(selectedOccurrence?.id);
@@ -104,7 +109,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const handleViewBooking = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		navigation.push('/bookings');
+		navigation.push(bookingPath(bookingIdFor(selectedOccurrence?.id)));
 	};
 
 	const eventIsAvailable = isEventAvailable(event);

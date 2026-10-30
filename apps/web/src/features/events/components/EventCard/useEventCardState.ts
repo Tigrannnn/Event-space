@@ -12,6 +12,7 @@ import {
 } from '@event-space/shared';
 import { ModalType, useModalStore } from '@/stores';
 import { useCurrentUser } from '@/features/users';
+import { bookingPath } from '@/utils/booking';
 import { useHasBookingForOccurrence } from '@/features/bookings/hooks/useBookings';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
@@ -27,8 +28,11 @@ export function useEventCardState(event: Event) {
 	const locale = translate.locale;
 	const { formatDateTime } = useFormatDate();
 	const { data: user, isLoading: isUserLoading } = useCurrentUser();
-	const { hasBooking: isOccurrenceBooked, isLoading: isMyBookingsLoading } =
-		useHasBookingForOccurrence();
+	const {
+		hasBooking: isOccurrenceBooked,
+		bookingIdFor,
+		isLoading: isMyBookingsLoading,
+	} = useHasBookingForOccurrence();
 
 	const eventIsAvailable = isEventAvailable(event);
 	const pricing = eventPricing(event);
@@ -55,6 +59,16 @@ export function useEventCardState(event: Event) {
 		isOccurrenceBooked(occurrence.id),
 	);
 
+	// The soonest date the visitor holds a booking for: that is the one worth jumping to.
+	const bookedOccurrence = [...(event.occurrences ?? [])]
+		.filter((occurrence) => isOccurrenceBooked(occurrence.id))
+		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+		.find((occurrence) => new Date(occurrence.date).getTime() > Date.now());
+	const fallbackOccurrence = (event.occurrences ?? []).find((occurrence) =>
+		isOccurrenceBooked(occurrence.id),
+	);
+	const myBookingPath = bookingPath(bookingIdFor((bookedOccurrence ?? fallbackOccurrence)?.id));
+
 	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
@@ -73,6 +87,7 @@ export function useEventCardState(event: Event) {
 		eventTranslation,
 		occurrenceLabel,
 		hasBooking,
+		myBookingPath,
 		spotsLeft,
 		ratingCount,
 		handleBookClick,
