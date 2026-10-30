@@ -1,10 +1,11 @@
 'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useRef, useState } from 'react';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Buttons/Button';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ModalHeader } from '@/components/ui/Modal';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { ModalType, useModalStore } from '@/stores/modalStore';
@@ -63,13 +64,18 @@ function StripePaymentFormContent({
 	const { openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
 	const [isProcessing, setIsProcessing] = useState(false);
+	// A second press while the first is still being worked out would only be refused by the server.
+	const isSubmittingRef = useRef(false);
+	// The card fields come from Stripe's own frame, which takes a moment to appear.
+	const [isPaymentReady, setIsPaymentReady] = useState(false);
 	const eventTitle = getEventTranslation(event, locale).title;
 
 	const occurrenceDate = selectedOccurrence?.date;
 
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			// The payment was just reconciled, so the first look needs no pause.
+			if (i > 0) await new Promise((resolve) => setTimeout(resolve, 1000));
 			const updated = await bookingApi.getBooking(booking.id, guestAccess?.token);
 
 			if (updated.status === 'CONFIRMED') {
@@ -94,10 +100,11 @@ function StripePaymentFormContent({
 	const handleSubmit = async (formEvent: FormEvent) => {
 		formEvent.preventDefault();
 
-		if (!stripe || !elements) {
+		if (!stripe || !elements || !isPaymentReady || isSubmittingRef.current) {
 			return;
 		}
 
+		isSubmittingRef.current = true;
 		setIsProcessing(true);
 
 		const { error } = await stripe.confirmPayment({
@@ -111,6 +118,7 @@ function StripePaymentFormContent({
 		});
 
 		if (error) {
+			isSubmittingRef.current = false;
 			setIsProcessing(false);
 			addToast(apiError(error, 'booking.paymentFailed'), ToastType.ERROR);
 			return;
@@ -123,11 +131,13 @@ function StripePaymentFormContent({
 		});
 
 		const result = await waitForConfirmation();
-		setIsProcessing(false);
 
+		// The button stays busy until the window has actually changed. Refreshing the lists
+		// takes seconds (the bookings list prices a refund per booking), so it runs behind the
+		// next screen instead of in front of it.
 		switch (result.status) {
 			case 'confirmed':
-				await invalidateAfterResolution();
+				void invalidateAfterResolution();
 				addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 
 				openModal(ModalType.BookingSuccess, {
@@ -148,7 +158,7 @@ function StripePaymentFormContent({
 
 			case 'cancelled':
 				addToast(translate('booking.paymentCancelled'), ToastType.ERROR);
-				await invalidateAfterResolution();
+				void invalidateAfterResolution();
 				onClose();
 				break;
 
@@ -156,6 +166,9 @@ function StripePaymentFormContent({
 				addToast(translate('booking.paymentTimeout'), ToastType.INFO);
 				break;
 		}
+
+		isSubmittingRef.current = false;
+		setIsProcessing(false);
 	};
 
 	// Closing the modal leaves the booking PENDING so the user can come back and pay later.
@@ -188,8 +201,11 @@ function StripePaymentFormContent({
 				booking={booking}
 			/>
 
-			<div className="rounded-md border border-gray-200 p-3 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-gray-300 in-data-[skin=market]:rounded-xl in-data-[skin=drawer]:rounded-xl in-data-[skin=market]:border-gray-300 in-data-[skin=drawer]:border-gray-300 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:border-gray-300 in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:border-0 in-data-[skin=soft]:bg-white in-data-[skin=soft]:p-4 in-data-[skin=soft]:shadow-sm in-data-[skin=soft]:ring-1 in-data-[skin=soft]:ring-black/5 dark:border-gray-700 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=soft]:dark:ring-white/10">
-				<PaymentElement />
+			<div className="relative min-h-40 rounded-md border border-gray-200 p-3 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-gray-300 in-data-[skin=market]:rounded-xl in-data-[skin=drawer]:rounded-xl in-data-[skin=market]:border-gray-300 in-data-[skin=drawer]:border-gray-300 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:border-gray-300 in-data-[skin=soft]:rounded-3xl in-data-[skin=soft]:border-0 in-data-[skin=soft]:bg-white in-data-[skin=soft]:p-4 in-data-[skin=soft]:shadow-sm in-data-[skin=soft]:ring-1 in-data-[skin=soft]:ring-black/5 dark:border-gray-700 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=soft]:dark:ring-white/10">
+				{!isPaymentReady && <Skeleton className="absolute inset-3 rounded-lg" />}
+				<div className={isPaymentReady ? '' : 'opacity-0'}>
+					<PaymentElement onReady={() => setIsPaymentReady(true)} />
+				</div>
 			</div>
 
 			<div className="flex gap-3">
@@ -205,7 +221,7 @@ function StripePaymentFormContent({
 				<Button
 					type="submit"
 					isLoading={isProcessing}
-					disabled={!stripe || !elements || isProcessing}
+					disabled={!stripe || !elements || !isPaymentReady || isProcessing}
 					className="flex-1"
 				>
 					{isProcessing ? translate('booking.confirming') : translate('booking.payNow')}
