@@ -96,11 +96,11 @@ const ARROW: Record<
 	},
 	soft: {
 		base:
-			'size-10 rounded-full bg-white text-primary shadow-lg ring-4 ring-white/40 hover:scale-105 dark:bg-gray-800',
+			'size-11 rounded-full bg-white text-primary shadow-lg ring-4 ring-white/40 hover:scale-105 dark:bg-gray-800',
 		prev: 'left-3',
 		next: 'right-3',
 		arrows: true,
-		icon: 'h-4 w-4',
+		icon: 'h-5 w-5',
 	},
 	market: {
 		base:
