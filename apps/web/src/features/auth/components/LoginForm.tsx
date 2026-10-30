@@ -32,7 +32,7 @@ export default function LoginForm() {
 	};
 
 	const onForgotPassword = () => {
-		openModal(ModalType.ForgotPassword, null);
+		openModal(ModalType.ForgotPassword, { mode: 'signIn' });
 	};
 
 	return (

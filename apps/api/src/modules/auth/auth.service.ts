@@ -310,7 +310,8 @@ export class AuthService {
 	}
 
 	async resendCode(data: ResendCodeData, locale?: Locale, brandHost?: string): Promise<void> {
-		const { action, email } = data;
+		const { action } = data;
+		const email = data.email.trim().toLowerCase();
 
 		await this.rateLimiter.validate(action, email, undefined, { checkCooldown: true });
 
@@ -495,7 +496,7 @@ export class AuthService {
 		locale?: Locale,
 		brandHost?: string,
 	): Promise<void> {
-		const { email } = data;
+		const email = data.email.trim().toLowerCase();
 		const action = AuthAction.RESET_PASSWORD;
 
 		await this.rateLimiter.validate(action, email, ip, { checkCooldown: true });
@@ -514,8 +515,18 @@ export class AuthService {
 		return;
 	}
 
+	/**
+	 * Signs in with the code from the email, and sets a new password when one is given.
+	 *
+	 * The code proves the mailbox is theirs, which is also all that registration proves, so it
+	 * confirms the address (and ends a guest profile's "shadow" state). Other devices are only
+	 * signed out when the password actually changes: someone who just used the code to get in
+	 * should not lose their session on the phone.
+	 */
 	async resetPassword(data: ResetPasswordData, ip: string): Promise<AuthServiceResponse> {
-		const { email, code, newPassword } = data;
+		const { code, newPassword } = data;
+		// Phones capitalise the first letter of an address; sign-in by code has to survive that.
+		const email = data.email.trim().toLowerCase();
 		const action = AuthAction.RESET_PASSWORD;
 
 		await this.rateLimiter.validate(action, email, ip, { checkCooldown: false });
@@ -529,19 +540,27 @@ export class AuthService {
 			throw new AppException(AppErrorCode.INVALID_RESET_CODE);
 		}
 
-		const hashedPassword = await bcrypt.hash(newPassword, AUTH_CONFIG.STRATEGY.BCRYPT_SALT_ROUNDS);
+		const hashedPassword = newPassword
+			? await bcrypt.hash(newPassword, AUTH_CONFIG.STRATEGY.BCRYPT_SALT_ROUNDS)
+			: undefined;
 
 		return this.prisma.$transaction(async (tx) => {
 			const user = await tx.user.update({
 				where: { email },
-				data: { passwordHash: hashedPassword },
+				data: {
+					...(hashedPassword ? { passwordHash: hashedPassword } : {}),
+					emailVerified: true,
+					isShadow: false,
+				},
 			});
 
 			await this.redis.del(this.getOtpKey(action, email));
 
 			await this.rateLimiter.clean(action, email, ip);
 
-			await tx.refreshToken.deleteMany({ where: { userId: user.id } });
+			if (hashedPassword) {
+				await tx.refreshToken.deleteMany({ where: { userId: user.id } });
+			}
 
 			const tokens = await this.generateAndSaveTokens(user.id, user.email, user.role, tx);
 

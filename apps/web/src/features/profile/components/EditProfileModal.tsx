@@ -62,7 +62,7 @@ export default function EditProfileModal() {
 
 	const handleChangePassword = () => {
 		sendCode({ email: user?.email || '' });
-		openModal(ModalType.ForgotPassword, { email: user?.email || '' });
+		openModal(ModalType.ForgotPassword, { email: user?.email || '', mode: 'changePassword' });
 	};
 
 	return (

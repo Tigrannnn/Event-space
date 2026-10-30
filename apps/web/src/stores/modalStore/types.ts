@@ -70,6 +70,11 @@ export interface VerifyEmailModalData {
 
 export interface ForgotPasswordModalData {
 	email?: string;
+	/**
+	 * `signIn`: the code lets the person in and a new password is optional.
+	 * `changePassword`: opened from the profile, the new password is the point of it.
+	 */
+	mode?: 'signIn' | 'changePassword';
 }
 
 export interface ConfirmModalData {

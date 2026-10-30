@@ -66,7 +66,8 @@ export type ForgotPasswordData = z.infer<typeof ForgotPasswordSchema>;
 // === RESET PASSWORD ===
 export const ResetPasswordSchema = z.object({
 	email: EmailSchema,
-	newPassword: PasswordSchema,
+	/** Without it the code is a sign-in and the password stays as it was (or absent). */
+	newPassword: PasswordSchema.optional(),
 	code: CodeSchema,
 });
 

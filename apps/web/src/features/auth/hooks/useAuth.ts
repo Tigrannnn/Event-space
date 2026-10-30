@@ -176,17 +176,20 @@ export const useResetPassword = () => {
 
 	return useMutation({
 		mutationFn: (data: ResetPasswordData) => authApi.resetPassword(data),
-		onSuccess: ({ data }) => {
+		onSuccess: ({ data }, variables) => {
 			queryClient.setQueryData(['me'], data.user);
 			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event'] });
-			addToast(translate('auth.resetPasswordSuccess'), ToastType.SUCCESS);
+			addToast(translate(variables.newPassword ? 'auth.resetPasswordSuccess' : 'auth.loginSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
-		onError: (error: unknown) => {
-			const message = apiError(error, 'auth.resetPasswordFailed');
+		onError: (error: unknown, variables) => {
+			const message = apiError(
+				error,
+				variables.newPassword ? 'auth.resetPasswordFailed' : 'auth.loginFailed',
+			);
 			addToast(message, ToastType.ERROR);
 		},
 	});

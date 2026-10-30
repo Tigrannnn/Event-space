@@ -6,6 +6,7 @@ import { ModalDivider, ModalFooter, ModalHeader } from '@/components/ui/Modal';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import { ModalType, useModalStore } from '@/stores';
+import { useModalData } from '@/stores/modalStore';
 import VerifyEmailForm from './VerifyEmailForm';
 import { authModalConfig } from './authModalConfig';
 import ForgotPasswordForm from './ForgotPasswordForm';
@@ -29,7 +30,20 @@ export default function AuthModal() {
 	const isDrawer = skin === 'drawer';
 	const isSwitchable = activeModal === ModalType.Login || activeModal === ModalType.Register;
 
-	const config = authModalConfig[activeModal as ModalType];
+	const forgotMode = useModalData(ModalType.ForgotPassword)?.mode ?? 'signIn';
+	const baseConfig = authModalConfig[activeModal as ModalType];
+	// Opened from the profile the window is about the password, and "remember your password? log
+	// in" makes no sense to someone who is already signed in.
+	const config =
+		baseConfig && activeModal === ModalType.ForgotPassword && forgotMode === 'changePassword'
+			? {
+					...baseConfig,
+					title: 'auth.changePasswordTitle' as const,
+					subtitle: 'auth.changePasswordSubtitle' as const,
+					footerQuestion: '' as const,
+					footerAction: '' as const,
+				}
+			: baseConfig;
 
 	return (
 		<Modal

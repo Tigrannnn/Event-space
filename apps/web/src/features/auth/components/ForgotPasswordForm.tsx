@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Resolver } from 'react-hook-form';
 import { LoaderCircle } from 'lucide-react';
 import Input from '@/components/ui/Inputs/Input';
 import PasswordInput from '@/components/ui/Inputs/PasswordInput';
@@ -12,6 +13,7 @@ import {
 	AuthAction,
 	ForgotPasswordData,
 	ForgotPasswordSchema,
+	PasswordSchema,
 	ResetPasswordSchema,
 } from '@event-space/shared';
 import z from 'zod';
@@ -20,13 +22,23 @@ import { useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import { useTranslation } from '@/hooks/translation';
 
-const ResetStepSchema = ResetPasswordSchema.omit({ email: true });
-type ResetStepData = z.infer<typeof ResetStepSchema>;
+const CodeStepSchema = ResetPasswordSchema.omit({ email: true, newPassword: true });
+
+/** Signing in by code: the password may be left empty, which keeps whatever there was. */
+const SignInStepSchema = CodeStepSchema.extend({
+	newPassword: z.union([z.literal(''), PasswordSchema]).optional(),
+});
+
+/** Changing the password from the profile: the new password is what the window is for. */
+const ChangeStepSchema = CodeStepSchema.extend({ newPassword: PasswordSchema });
+
+type ResetStepData = z.infer<typeof SignInStepSchema>;
 
 export default function ForgotPasswordForm() {
 	const modalData = useModalData(ModalType.ForgotPassword);
 	const translate = useTranslation();
 
+	const isChange = modalData?.mode === 'changePassword';
 	const initialEmail = modalData?.email ?? '';
 	const [email, setEmail] = useState(initialEmail);
 	const [step, setStep] = useState<'email' | 'code'>(modalData?.email ? 'code' : 'email');
@@ -41,7 +53,7 @@ export default function ForgotPasswordForm() {
 	});
 
 	const resetPasswordForm = useForm<ResetStepData>({
-		resolver: zodResolver(ResetStepSchema),
+		resolver: zodResolver(isChange ? ChangeStepSchema : SignInStepSchema) as Resolver<ResetStepData>,
 		defaultValues: { code: '', newPassword: '' },
 	});
 
@@ -65,7 +77,11 @@ export default function ForgotPasswordForm() {
 	};
 
 	const onResetSubmit = (data: ResetStepData) => {
-		resetPassword({ email, ...data });
+		resetPassword({
+			email,
+			code: data.code,
+			...(data.newPassword ? { newPassword: data.newPassword } : {}),
+		});
 	};
 
 	const onResendCode = (email: string) => {
@@ -136,17 +152,21 @@ export default function ForgotPasswordForm() {
 							{...resetPasswordForm.register('code')}
 						/>
 
+						<p className="text-sm text-gray-500 dark:text-gray-400">
+							{translate(isChange ? 'auth.newPasswordHintRequired' : 'auth.newPasswordHintOptional')}
+						</p>
+
 						<PasswordInput
 							id="new-password"
 							autoComplete="new-password"
-							label={translate('auth.newPassword')}
+							label={translate(isChange ? 'auth.newPassword' : 'auth.newPasswordOptional')}
 							error={resetPasswordForm.formState.errors.newPassword?.message}
 							placeholder={translate('auth.enterNewPassword')}
 							{...resetPasswordForm.register('newPassword')}
 						/>
 
 						<Button className="w-full" variant="primary" type="submit" isLoading={isResetting}>
-							{translate('auth.resetPassword')}
+							{translate(isChange ? 'auth.resetPassword' : 'auth.signInWithCode')}
 						</Button>
 					</form>
 					<div className="text-center">
