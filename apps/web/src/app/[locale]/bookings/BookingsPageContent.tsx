@@ -106,7 +106,7 @@ export default function BookingsPageContent() {
 					{translate('booking.myBookings')}
 				</h1>
 				<div
-					className={`flex items-center gap-2 border px-3 py-2 ${
+					className={`relative flex items-center border ${
 						isListing
 							? 'rounded-md border-gray-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
 							: isDrawer
@@ -118,11 +118,11 @@ export default function BookingsPageContent() {
 									: 'rounded-full border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800'
 					}`}
 				>
-					<Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+					<Filter className="pointer-events-none absolute left-3 h-4 w-4 text-gray-500 dark:text-gray-400" />
 					<select
 						value={statusFilter}
 						onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-						className="cursor-pointer bg-transparent text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
+						className="w-full cursor-pointer rounded-[inherit] bg-transparent py-2 pr-3 pl-9 text-sm font-medium text-gray-700 outline-none dark:text-gray-200"
 					>
 						<option value="ALL">{translate('booking.filterAll')}</option>
 						<option value="CONFIRMED">{translate('booking.filterConfirmed')}</option>
