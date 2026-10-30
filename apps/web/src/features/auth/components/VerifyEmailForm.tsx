@@ -68,6 +68,8 @@ export default function VerifyEmailForm() {
 			<form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
 				<Input
 					id="code"
+					autoComplete="one-time-code"
+					inputMode="numeric"
 					label={translate('auth.verificationCode')}
 					placeholder={translate('auth.enterSixDigitCode')}
 					error={errors.code?.message}

@@ -91,6 +91,7 @@ export default function ForgotPasswordForm() {
 						id="reset-email"
 						label={translate('auth.email')}
 						type="email"
+						autoComplete="username"
 						error={forgotPasswordForm.formState.errors.email?.message}
 						placeholder={translate('auth.enterEmail')}
 						{...forgotPasswordForm.register('email')}
@@ -110,10 +111,25 @@ export default function ForgotPasswordForm() {
 							{translate('auth.codeSentTo')} <strong className="dark:text-gray-300">{email}</strong>
 						</p>
 
+						{/* The password manager saves the field just before the password as the login. Without
+						    this it takes the one-time code, so the address is handed over under its own name. */}
+						<input
+							type="text"
+							name="username"
+							autoComplete="username"
+							value={email}
+							readOnly
+							tabIndex={-1}
+							aria-hidden
+							className="sr-only"
+						/>
+
 						<Input
 							id="reset-code"
 							label={translate('auth.resetCode')}
 							type="text"
+							autoComplete="one-time-code"
+							inputMode="numeric"
 							maxLength={6}
 							error={resetPasswordForm.formState.errors.code?.message}
 							placeholder="123456"
@@ -122,6 +138,7 @@ export default function ForgotPasswordForm() {
 
 						<PasswordInput
 							id="new-password"
+							autoComplete="new-password"
 							label={translate('auth.newPassword')}
 							error={resetPasswordForm.formState.errors.newPassword?.message}
 							placeholder={translate('auth.enterNewPassword')}

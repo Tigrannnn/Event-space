@@ -41,6 +41,7 @@ export default function LoginForm() {
 				id="email"
 				label={translate('auth.email')}
 				type="email"
+				autoComplete="username"
 				error={errors.email?.message}
 				placeholder={translate('auth.enterEmail')}
 				{...register('email')}
@@ -48,6 +49,7 @@ export default function LoginForm() {
 
 			<PasswordInput
 				id="password"
+				autoComplete="current-password"
 				label={translate('auth.password')}
 				error={errors.password?.message}
 				placeholder={translate('auth.enterPassword')}

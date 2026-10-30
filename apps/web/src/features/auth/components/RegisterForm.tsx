@@ -36,6 +36,7 @@ export default function RegisterForm() {
 				id="name"
 				label={translate('auth.name')}
 				type="text"
+				autoComplete="name"
 				error={errors.name?.message}
 				placeholder={translate('auth.enterName')}
 				{...register('name')}
@@ -45,6 +46,7 @@ export default function RegisterForm() {
 				id="email"
 				label={translate('auth.email')}
 				type="email"
+				autoComplete="username"
 				error={errors.email?.message}
 				placeholder={translate('auth.enterEmail')}
 				{...register('email')}
@@ -52,6 +54,7 @@ export default function RegisterForm() {
 
 			<PasswordInput
 				id="password"
+				autoComplete="new-password"
 				label={translate('auth.password')}
 				error={errors.password?.message}
 				placeholder={translate('auth.createPassword')}
