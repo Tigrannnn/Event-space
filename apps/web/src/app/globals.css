@@ -447,39 +447,46 @@
 /*
  * The booking the visitor was sent to from a button or an email: the card rings in the brand
  * colour, fades in, breathes gently and fades out again over five seconds (the same time the
- * page keeps the class on it, so the ring is already gone when it is taken off). The ring is a
- * shadow, so it follows each skin's own corner radius.
+ * page keeps the class on it, so the ring is already gone when it is taken off). The ring is an
+ * outline held a little away from the card, so it never touches a card that has no frame of its
+ * own, and it follows each skin's corner radius.
  */
 @keyframes booking-highlight {
 	0% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 0%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 0%, transparent);
+		outline-width: 3px;
 	}
 	10%,
 	50%,
 	90% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 90%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
+		outline-width: 3px;
 	}
 	30%,
 	70% {
-		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 40%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+		outline-width: 4px;
 	}
 	100% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 0%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 0%, transparent);
+		outline-width: 3px;
 	}
 }
 
 @keyframes booking-highlight-still {
 	0%,
 	100% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 0%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 0%, transparent);
 	}
 	12%,
 	88% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 90%, transparent);
+		outline-color: color-mix(in srgb, var(--color-primary) 90%, transparent);
 	}
 }
 
 .booking-highlight {
+	outline-style: solid;
+	outline-offset: 5px;
 	animation: booking-highlight 5s ease-in-out forwards;
 }
 
