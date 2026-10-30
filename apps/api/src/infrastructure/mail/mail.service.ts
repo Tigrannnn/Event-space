@@ -339,11 +339,21 @@ export class MailService implements OnModuleInit {
 		cancellationRules?: { hoursBeforeEvent: number; refundPercentage: number }[];
 		brandHost?: string;
 		checkinToken?: string | null;
+		bookingId?: string;
+		bookingLinkToken?: string | null;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
 		const siteBase = brand.siteUrl.replace(/\/+$/, '');
-		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const { homeUrl, bookingsUrl: memberBookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		// The link to this one booking works without signing in, so a guest can cancel, show the
+		// QR and leave a review from the letter alone.
+		const manageUrl =
+			siteBase && params.bookingId && params.bookingLinkToken
+				? `${siteBase}/${params.locale}/bookings/${encodeURIComponent(params.bookingId)}?t=${encodeURIComponent(params.bookingLinkToken)}`
+				: undefined;
+		const bookingsUrl = manageUrl ?? memberBookingsUrl;
+		const actions = manageUrl ? { ...strings, myBookingsButton: strings.manageButton } : strings;
 		const eventUrl = siteBase
 			? `${siteBase}/${params.locale}/events/${encodeURIComponent(params.eventId)}`
 			: undefined;
@@ -402,7 +412,7 @@ export class MailService implements OnModuleInit {
 				: []),
 			...(cancellationLines.length ? ['', `${strings.cancellationTitle}:`, ...cancellationLines] : []),
 			...(homeUrl || bookingsUrl ? [''] : []),
-			...this.buildBookingActionText(strings, homeUrl, bookingsUrl),
+			...this.buildBookingActionText(actions, homeUrl, bookingsUrl),
 			'',
 			strings.outro,
 			brand.name,
@@ -431,7 +441,7 @@ export class MailService implements OnModuleInit {
 						: '',
 				INCLUDED_BLOCK: this.buildListBlock(strings.included, params.whatsIncluded ?? []),
 				CANCELLATION_BLOCK: this.buildListBlock(strings.cancellationTitle, cancellationLines),
-				ACTIONS_BLOCK: this.buildBookingActionButtons(strings, brand, homeUrl, bookingsUrl),
+				ACTIONS_BLOCK: this.buildBookingActionButtons(actions, brand, homeUrl, bookingsUrl),
 				OUTRO: strings.outro,
 				SIGNATURE: brand.name,
 			});
@@ -1205,11 +1215,19 @@ export class MailService implements OnModuleInit {
 		const siteUrl = this.brandFor(brandHost).siteUrl.replace(/\/+$/, '');
 		const checkinUrl = `${siteUrl}/admin/checkin?token=${encodeURIComponent(checkinToken)}`;
 
+		// Gmail and Outlook do not draw images embedded in the letter, so the code is a picture
+		// the server serves, and the embedded one is only for a deployment without a public API
+		// address (local development).
+		const apiBase = (this.config.get<string>(EnvKey.API_URL) ?? '').replace(/\/+$/, '');
+		const hostParam = brandHost ? `&host=${encodeURIComponent(brandHost.split(':')[0])}` : '';
+
 		try {
-			const dataUri = await QRCode.toDataURL(checkinUrl, { margin: 1, width: 240 });
+			const source = apiBase
+				? `${apiBase}/bookings/checkin-qr?token=${encodeURIComponent(checkinToken)}${hostParam}`
+				: await QRCode.toDataURL(checkinUrl, { margin: 1, width: 240 });
 			return (
 				'<mj-image width="160px" padding="8px 0px 4px 0px" src="' +
-				dataUri +
+				escapeHtml(source) +
 				'" alt="QR" />' +
 				`<mj-text align="center" font-size="12px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">${escapeHtml(label)}</mj-text>`
 			);

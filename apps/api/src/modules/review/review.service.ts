@@ -20,6 +20,7 @@ import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { applyRatingDelta } from './review-rating';
 import { reviewQueueUrl, siteUrlFor } from './review-urls';
 import { reviewTokenSecret, signReviewToken, verifyReviewToken } from './review-token';
+import { bookingLinkSecret, verifyBookingLinkToken } from '../booking/booking-link-token';
 
 const REVIEW_AUTHOR = {
 	user: { select: { id: true, name: true, image: true } },
@@ -71,6 +72,11 @@ export class ReviewService {
 			if (booking && verifyReviewToken(bookingId, token, this.tokenSecret())) {
 				return booking.userId;
 			}
+
+			// The link to one's own booking opens the review form too: it is the same person.
+			if (booking && verifyBookingLinkToken(bookingId, token, this.bookingLinkKey())) {
+				return booking.userId;
+			}
 		}
 
 		if (!userId) {
@@ -85,6 +91,13 @@ export class ReviewService {
 		const lifetimeMs = (REVIEW_CONFIG.WINDOW_DAYS + 1) * 24 * 60 * 60 * 1000;
 
 		return signReviewToken(bookingId, now + lifetimeMs, this.tokenSecret());
+	}
+
+	private bookingLinkKey(): string {
+		return bookingLinkSecret(
+			this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		);
 	}
 
 	private tokenSecret(): string {

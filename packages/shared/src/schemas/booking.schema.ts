@@ -7,7 +7,7 @@ import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { LocaleEnum } from './locale.schema';
 import { SafeUserSchema } from './user.schema';
 import { BookingAdjustmentSchema } from './booking-adjustment.schema';
-import { PhoneSchema, EmailSchema } from './atoms';
+import { PhoneSchema, EmailSchema, NameSchema } from './atoms';
 import { DateOnlySchema, TimeFilterSchema } from './common.schema';
 import { PaymentMethodSchema } from '../generated/inputTypeSchemas/PaymentMethodSchema';
 
@@ -96,6 +96,16 @@ export const CreateBookingSchema = z.object({
 });
 
 export type CreateBookingData = z.infer<typeof CreateBookingSchema>;
+
+export const CreateGuestBookingSchema = CreateBookingSchema.extend({
+	name: NameSchema.openapi({ description: 'Name of the guest', example: 'Anna' }),
+	email: EmailSchema.openapi({
+		description: 'Where the confirmation and the link to the booking are sent',
+		example: 'anna@example.com',
+	}),
+});
+
+export type CreateGuestBookingData = z.infer<typeof CreateGuestBookingSchema>;
 
 export const UpdateBookingSchema = z.object({
 	quantity: z.number().int().min(1).openapi({
@@ -310,6 +320,11 @@ export type CreateBookingResponse = {
 	booking: BookingWithOccurrence;
 	clientSecret: string | null;
 	paymentUrl?: string | null;
+};
+
+/** What a guest gets back: the same as a member, plus the key to their own booking. */
+export type CreateGuestBookingResponse = CreateBookingResponse & {
+	accessToken: string;
 };
 
 export const BookingWithEstimateSchema = BookingWithDetailsSchema.extend({

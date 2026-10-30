@@ -1,5 +1,11 @@
 import type { Prisma } from '@prisma/client';
-import { CHECKIN_CONFIG, quoteBooking, type CancellationPolicyRule } from '@event-space/shared';
+import {
+	CHECKIN_CONFIG,
+	REVIEW_CONFIG,
+	quoteBooking,
+	type CancellationPolicyRule,
+} from '@event-space/shared';
+import { bookingLinkSecret, signBookingLinkToken } from './booking-link-token';
 import { checkinTokenSecret, signCheckinToken } from './checkin-token';
 
 /**
@@ -20,6 +26,25 @@ export function buildCheckinToken(
 
 	const secret = checkinTokenSecret(config.reviewTokenSecret, config.jwtSecret);
 	return signCheckinToken(booking.id, expiresAt, secret);
+}
+
+/**
+ * The key to the booking page for someone with no account. It lives until the review window
+ * of the tour closes, so one link serves for cancelling before the tour and rating it after.
+ */
+export function buildBookingLinkToken(
+	bookingId: string,
+	occurrenceDate: Date | string,
+	config: { reviewTokenSecret?: string; jwtSecret: string },
+): string {
+	const dayMs = 24 * 60 * 60 * 1000;
+	const expiresAt = new Date(occurrenceDate).getTime() + (REVIEW_CONFIG.WINDOW_DAYS + 1) * dayMs;
+
+	return signBookingLinkToken(
+		bookingId,
+		expiresAt,
+		bookingLinkSecret(config.reviewTokenSecret, config.jwtSecret),
+	);
 }
 
 export function nullableNumber(value: Prisma.Decimal | number | null | undefined): number | null {

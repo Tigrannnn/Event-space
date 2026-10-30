@@ -1,4 +1,16 @@
-import { Controller, Post, Get, Patch, Param, Query, Body, UseGuards } from '@nestjs/common';
+import {
+	Controller,
+	Post,
+	Get,
+	Patch,
+	Param,
+	Query,
+	Body,
+	UseGuards,
+	Ip,
+	Header,
+	StreamableFile,
+} from '@nestjs/common';
 import { BookingService } from './booking.service';
 import {
 	ApiTags,
@@ -10,11 +22,13 @@ import {
 	ApiQuery,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
+import { OptionalAccessTokenGuard } from '../auth/guards/optional-access-token.guard';
 import {
 	AppException,
 	GetBrandHost,
 	GetCurrentUserId,
 	GetLocale,
+	GetOptionalUserId,
 	ZodValidationPipe,
 	parseOptionalQueryInt,
 } from '@shared';
@@ -23,6 +37,7 @@ import {
 	BookingDisplayStatusEnum,
 	ChangeQuantitySchema,
 	CreateBookingSchema,
+	CreateGuestBookingSchema,
 	QuantityQuoteRequestSchema,
 } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
@@ -30,6 +45,7 @@ import type {
 	BookingDisplayStatus,
 	ChangeQuantityData,
 	CreateBookingData,
+	CreateGuestBookingData,
 	QuantityQuoteRequest,
 } from '@event-space/shared';
 import type { Locale } from '@prisma/client';
@@ -79,6 +95,46 @@ export class BookingController {
 		return this.bookingService.create(userId, data, locale, brandHost);
 	}
 
+	@Post('guest')
+	@ApiOperation({ summary: 'Book an event without an account' })
+	@ApiResponse({ status: 201, description: 'Booking created, with the key to it' })
+	@ApiResponse({ status: 409, description: 'The email belongs to an account, or already booked, or event full' })
+	@ApiResponse({ status: 429, description: 'Too many booking attempts' })
+	@ApiBody(getReference('CreateGuestBookingSchema'))
+	async createGuest(
+		@Body(new ZodValidationPipe(CreateGuestBookingSchema)) data: CreateGuestBookingData,
+		@Ip() ip: string,
+		@GetLocale() locale: Locale | undefined,
+		@GetBrandHost() brandHost: string | undefined,
+	) {
+		// There is no account to count against, so the address and the email are the keys.
+		await Promise.all([
+			this.rateLimiter.consumePerUser(
+				`${BOOKING_CONFIG.KEY_PREFIX}:guest-ip`,
+				ip,
+				BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
+				BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
+			),
+			this.rateLimiter.consumePerUser(
+				`${BOOKING_CONFIG.KEY_PREFIX}:guest-email`,
+				data.email,
+				BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
+				BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
+			),
+		]);
+		return this.bookingService.createGuest(data, locale, brandHost);
+	}
+
+	@Get('checkin-qr')
+	@Header('Content-Type', 'image/png')
+	@Header('Cache-Control', 'public, max-age=86400')
+	@ApiOperation({ summary: 'The check-in QR as a picture, for the confirmation email' })
+	@ApiQuery({ name: 'token', required: true, description: 'The signed check-in token' })
+	@ApiQuery({ name: 'host', required: false, description: 'The brand site the code points at' })
+	async checkinQr(@Query('token') token: string, @Query('host') host?: string) {
+		return new StreamableFile(await this.bookingService.checkinQrPng(token, host));
+	}
+
 	@Get('my')
 	@ApiBearerAuth()
 	@UseGuards(AccessTokenGuard)
@@ -108,40 +164,62 @@ export class BookingController {
 		return this.bookingService.summaryForUser(userId);
 	}
 
+	@Get(':id/view')
+	@UseGuards(OptionalAccessTokenGuard)
+	@ApiOperation({ summary: 'A booking in full, by sign-in or by the link from its email' })
+	@ApiParam({ name: 'id', description: 'Booking ID' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
+	@ApiResponse({ status: 200, description: 'Booking with the refund it would get today' })
+	async view(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('id') id: string,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		return this.bookingService.findOneDetailed(actorId, id);
+	}
+
 	@Get(':id')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'Get booking by ID' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiResponse({ status: 200, description: 'Booking details' })
 	@ApiResponse({ status: 404, description: 'Booking not found' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
-	async findOne(@GetCurrentUserId() userId: string, @Param('id') id: string) {
-		return this.bookingService.findOneForUser(userId, id);
+	async findOne(
+		@GetOptionalUserId() userId: string | undefined,
+		@Param('id') id: string,
+		@Query('t') token?: string,
+	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		return this.bookingService.findOneForUser(actorId, id);
 	}
 
 	@Patch(':id/cancel')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'Cancel booking' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiResponse({ status: 200, description: 'Booking cancelled successfully' })
 	@ApiResponse({ status: 404, description: 'Booking not found' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
 	@ApiResponse({ status: 429, description: 'Too many cancellation attempts' })
 	async cancel(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@GetLocale() locale: Locale | undefined,
+		@Query('t') token?: string,
 	) {
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
 		// Rate limit: max 30 cancellation attempts per hour
 		await this.rateLimiter.consumePerUser(
 			`${BOOKING_CONFIG.KEY_PREFIX}:cancel`,
-			userId,
+			actorId,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_MAX_PER_HOUR,
 			BOOKING_CONFIG.RATE_LIMITS.CANCEL_WINDOW_SEC,
 		);
-		return this.bookingService.cancel(userId, id, locale);
+		return this.bookingService.cancel(actorId, id, locale);
 	}
 
 	@Patch(':id/accept-reschedule')
@@ -236,20 +314,22 @@ export class BookingController {
 	}
 
 	@Post(':id/reconcile-payment')
-	@ApiBearerAuth()
-	@UseGuards(AccessTokenGuard)
+	@UseGuards(OptionalAccessTokenGuard)
 	@ApiOperation({ summary: 'Reconcile booking payment status' })
+	@ApiQuery({ name: 't', required: false, description: 'Signed link from the booking email' })
 	@ApiParam({ name: 'id', description: 'Booking ID' })
 	@ApiResponse({ status: 200, description: 'Booking payment reconciled successfully' })
 	@ApiResponse({ status: 400, description: 'Booking has no payment intent to reconcile' })
 	@ApiResponse({ status: 404, description: 'Booking not found' })
 	@ApiResponse({ status: 403, description: 'Not your booking' })
 	async reconcilePayment(
-		@GetCurrentUserId() userId: string,
+		@GetOptionalUserId() userId: string | undefined,
 		@Param('id') id: string,
 		@GetLocale() locale: Locale | undefined,
+		@Query('t') token?: string,
 	) {
-		const booking = await this.bookingService.findOneForUser(userId, id);
+		const actorId = await this.bookingService.resolveActor(id, userId, token);
+		const booking = await this.bookingService.findOneForUser(actorId, id);
 		if (!booking.paymentIntentId) {
 			throw new AppException(AppErrorCode.BOOKING_NO_PAYMENT_INTENT);
 		}

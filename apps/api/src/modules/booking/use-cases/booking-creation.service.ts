@@ -8,6 +8,7 @@ import {
 	BookingWithEstimate,
 	estimateStripeFeeInCents,
 	CreateBookingData,
+	CreateGuestBookingData,
 	ConfirmBookingManuallyData,
 	CreateManualBookingData,
 	EnvKey,
@@ -26,6 +27,7 @@ import {
 	nullableNumber,
 	priceBooking,
 	buildCheckinToken,
+	buildBookingLinkToken,
 } from '../booking.utils';
 import { BookingLedgerService } from '../money/booking-ledger.service';
 import { BookingNotificationService } from './booking-notification.service';
@@ -321,6 +323,59 @@ export class BookingCreationService {
 			await this.cancelPendingBooking(booking.id);
 			this.rethrowStripeError(error);
 		}
+	}
+
+	/**
+	 * A booking by someone with no account: the same booking, made for a guest profile that the
+	 * email address leads to. An email that already belongs to a confirmed account is refused,
+	 * since anyone could otherwise book on someone else's name. A guest or half-registered row is
+	 * reused, which is also how a guest's bookings are waiting for them once they register.
+	 */
+	async createGuest(
+		data: CreateGuestBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
+	) {
+		const { name, email, ...bookingData } = data;
+
+		const existing = await this.prisma.user.findUnique({
+			where: { email },
+			select: { id: true, emailVerified: true },
+		});
+
+		if (existing?.emailVerified) {
+			throw new AppException(AppErrorCode.EMAIL_ALREADY_EXISTS, { email });
+		}
+
+		const guest = existing
+			? await this.prisma.user.update({
+					where: { id: existing.id },
+					data: { name, phone: bookingData.phone, locale },
+					select: { id: true },
+				})
+			: await this.prisma.user.create({
+					data: {
+						email,
+						name,
+						phone: bookingData.phone,
+						isShadow: true,
+						emailVerified: false,
+						locale,
+					},
+					select: { id: true },
+				});
+
+		const result = await this.create(guest.id, bookingData, locale, brandHost);
+
+		const occurrence = await this.prisma.eventOccurrence.findUniqueOrThrow({
+			where: { id: bookingData.occurrenceId },
+			select: { date: true },
+		});
+
+		return {
+			...result,
+			accessToken: buildBookingLinkToken(result.booking.id, occurrence.date, this.tokenConfig()),
+		};
 	}
 
 	async createManualBooking(

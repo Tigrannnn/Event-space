@@ -9,6 +9,7 @@ import {
 	ChangeQuantityData,
 	ConfirmBookingManuallyData,
 	CreateBookingData,
+	CreateGuestBookingData,
 	CreateManualBookingData,
 	QuantityQuoteRequest,
 } from '@event-space/shared';
@@ -37,6 +38,14 @@ export class BookingService {
 		brandHost?: string,
 	) {
 		return this.creation.create(userId, data, locale, brandHost);
+	}
+
+	createGuest(
+		data: CreateGuestBookingData,
+		locale: Locale = DEFAULT_LOCALE,
+		brandHost?: string,
+	) {
+		return this.creation.createGuest(data, locale, brandHost);
 	}
 
 	createManualBooking(
@@ -89,6 +98,18 @@ export class BookingService {
 
 	summaryForUser(userId: string): Promise<MyBookingsSummary> {
 		return this.queries.summaryForUser(userId);
+	}
+
+	resolveActor(bookingId: string, userId?: string, token?: string) {
+		return this.queries.resolveActor(bookingId, userId, token);
+	}
+
+	checkinQrPng(token: string, host?: string) {
+		return this.queries.checkinQrPng(token, host);
+	}
+
+	findOneDetailed(userId: string, bookingId: string) {
+		return this.queries.findOneDetailed(userId, bookingId);
 	}
 
 	findOneForUser(userId: string, bookingId: string) {

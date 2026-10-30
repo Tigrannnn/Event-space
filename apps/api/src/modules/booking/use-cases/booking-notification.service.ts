@@ -5,7 +5,7 @@ import { EnvKey } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
-import { buildCheckinToken } from '../booking.utils';
+import { buildBookingLinkToken, buildCheckinToken } from '../booking.utils';
 
 const UNSENT_MIN_AGE_MS = 5 * 60 * 1000;
 const UNSENT_WINDOW_MS = 6 * 60 * 60 * 1000;
@@ -140,6 +140,11 @@ export class BookingNotificationService {
 			locale: mailLocale,
 			referenceNumber: booking.referenceNumber ?? 0,
 			checkinToken,
+			bookingId: booking.id,
+			bookingLinkToken: buildBookingLinkToken(booking.id, booking.occurrence.date, {
+				reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+				jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+			}),
 			userName: booking.user.name,
 			bookedAt: booking.createdAt,
 			eventId: event.id,

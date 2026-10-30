@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Prisma } from '@prisma/client';
-import { EnvKey } from '@event-space/shared';
+import * as QRCode from 'qrcode';
+import { EnvKey, getBrandForHost } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import {
 	AppErrorCode,
@@ -14,6 +15,9 @@ import {
 	type PaginatedCursorResponse,
 } from '@event-space/shared';
 import { AppException } from '@shared';
+import { bookingLinkSecret, verifyBookingLinkToken } from '../booking-link-token';
+import { checkinTokenSecret, verifyCheckinToken } from '../checkin-token';
+import { siteUrlFor } from '../../review/review-urls';
 import {
 	resolveRefundPolicy,
 	mapOccurrenceForBookingResponse,
@@ -118,63 +122,7 @@ export class BookingQueryService {
 		const last = hasMore ? rows[limit - 1] : undefined;
 
 		const now = new Date();
-		const enrichedBookings = bookings.map((row) => {
-			// The ledger is read for the fee and then dropped: it is the company's accounting,
-			// not something the client's own booking list should carry.
-			const { adjustments, ...booking } = row;
-			const occurrence = booking.occurrence;
-			const event = occurrence?.event;
-			if (!event || !booking.paymentIntentId || Number(booking.amount) === 0) {
-				return {
-					...booking,
-					amount: Number(booking.amount),
-					baseAmount: nullableNumber(booking.baseAmount),
-					occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
-					refundPercentage: 0,
-					refundReason: 'RULES' as const,
-					estimatedStripeFeeInCents: 0,
-					estimatedRefundInCents: 0,
-					checkinToken: buildCheckinToken(booking, occurrence?.date, this.tokenConfig()),
-				};
-			}
-
-			// The fee Stripe actually charged is already in our own ledger: `recordChargeFee`
-			// writes it onto the CHARGE row the moment the payment settles. Asking Stripe
-			// again here cost two API calls per booking on every read of this list.
-			const payments = readPayments(toLedgerRows(adjustments ?? []));
-			const feeFromLedgerInCents = payments.cards.reduce((total, card) => total + card.feeInCents, 0);
-
-			const policy = resolveRefundPolicy({
-				now,
-				occurrenceDate: new Date(occurrence.date),
-				rules: event.cancellationRules,
-				rescheduleRefundUntil: booking.rescheduleRefundUntil,
-			});
-			const baseAmountInCents = Math.round(Number(booking.amount) * 100);
-			const calculatedRefundInCents = Math.round((baseAmountInCents * policy.percentage) / 100);
-
-			// Every card charge counts, top-ups included: the amount being refunded is the
-			// whole booking, so the fee withheld has to cover the whole booking too.
-			const estimatedStripeFeeInCents =
-				feeFromLedgerInCents > 0
-					? feeFromLedgerInCents
-					: estimateStripeFeeInCents(Number(booking.amount));
-
-			const withheldInCents = policy.withholdStripeFee ? estimatedStripeFeeInCents : 0;
-			const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - withheldInCents);
-
-			return {
-				...booking,
-				amount: Number(booking.amount),
-				baseAmount: nullableNumber(booking.baseAmount),
-				occurrence: mapOccurrenceForBookingResponse(occurrence),
-				refundPercentage: policy.percentage,
-				refundReason: policy.reason,
-				estimatedStripeFeeInCents,
-				estimatedRefundInCents,
-				checkinToken: buildCheckinToken(booking, occurrence.date, this.tokenConfig()),
-			};
-		});
+		const enrichedBookings = bookings.map((row) => this.enrich(row, now));
 
 		return {
 			data: enrichedBookings,
@@ -187,6 +135,68 @@ export class BookingQueryService {
 					})
 				: null,
 			hasMore,
+		};
+	}
+
+	/**
+	 * A booking as the client sees it: the refund they would get today and the check-in code.
+	 * The ledger is read for the fee and then dropped, it is the company's accounting.
+	 */
+	private enrich(row: MyBookingRow, now: Date): BookingWithEstimate {
+		// The ledger is read for the fee and then dropped: it is the company's accounting,
+		// not something the client's own booking list should carry.
+		const { adjustments, ...booking } = row;
+		const occurrence = booking.occurrence;
+		const event = occurrence?.event;
+		if (!event || !booking.paymentIntentId || Number(booking.amount) === 0) {
+			return {
+				...booking,
+				amount: Number(booking.amount),
+				baseAmount: nullableNumber(booking.baseAmount),
+				occurrence: occurrence ? mapOccurrenceForBookingResponse(occurrence) : undefined,
+				refundPercentage: 0,
+				refundReason: 'RULES' as const,
+				estimatedStripeFeeInCents: 0,
+				estimatedRefundInCents: 0,
+				checkinToken: buildCheckinToken(booking, occurrence?.date, this.tokenConfig()),
+			};
+		}
+
+		// The fee Stripe actually charged is already in our own ledger: `recordChargeFee`
+		// writes it onto the CHARGE row the moment the payment settles. Asking Stripe
+		// again here cost two API calls per booking on every read of this list.
+		const payments = readPayments(toLedgerRows(adjustments ?? []));
+		const feeFromLedgerInCents = payments.cards.reduce((total, card) => total + card.feeInCents, 0);
+
+		const policy = resolveRefundPolicy({
+			now,
+			occurrenceDate: new Date(occurrence.date),
+			rules: event.cancellationRules,
+			rescheduleRefundUntil: booking.rescheduleRefundUntil,
+		});
+		const baseAmountInCents = Math.round(Number(booking.amount) * 100);
+		const calculatedRefundInCents = Math.round((baseAmountInCents * policy.percentage) / 100);
+
+		// Every card charge counts, top-ups included: the amount being refunded is the
+		// whole booking, so the fee withheld has to cover the whole booking too.
+		const estimatedStripeFeeInCents =
+			feeFromLedgerInCents > 0
+				? feeFromLedgerInCents
+				: estimateStripeFeeInCents(Number(booking.amount));
+
+		const withheldInCents = policy.withholdStripeFee ? estimatedStripeFeeInCents : 0;
+		const estimatedRefundInCents = Math.max(0, calculatedRefundInCents - withheldInCents);
+
+		return {
+			...booking,
+			amount: Number(booking.amount),
+			baseAmount: nullableNumber(booking.baseAmount),
+			occurrence: mapOccurrenceForBookingResponse(occurrence),
+			refundPercentage: policy.percentage,
+			refundReason: policy.reason,
+			estimatedStripeFeeInCents,
+			estimatedRefundInCents,
+			checkinToken: buildCheckinToken(booking, occurrence.date, this.tokenConfig()),
 		};
 	}
 
@@ -227,6 +237,69 @@ export class BookingQueryService {
 		});
 
 		return { accepted: true };
+	}
+
+	/**
+	 * Who is acting on a booking: the signed-in visitor, or whoever holds the link from the
+	 * booking's own email. The link is checked against the booking in the path, so one link opens
+	 * one booking and nothing else. Without either there is nobody to act as.
+	 */
+	async resolveActor(bookingId: string, userId?: string, token?: string): Promise<string> {
+		if (token) {
+			const booking = await this.prisma.booking.findUnique({
+				where: { id: bookingId },
+				select: { userId: true },
+			});
+
+			const secret = bookingLinkSecret(
+				this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+				this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+			);
+
+			if (booking && verifyBookingLinkToken(bookingId, token, secret)) {
+				return booking.userId;
+			}
+		}
+
+		if (!userId) throw new AppException(AppErrorCode.UNAUTHORIZED);
+
+		return userId;
+	}
+
+	/**
+	 * The check-in QR as a picture. Mail clients drop images that are embedded in the letter, so
+	 * the letter links to this one instead. Only a code the server itself signed gets drawn, and a
+	 * host that is not one of the brands falls back to the main site, so the endpoint is no
+	 * general-purpose QR generator and cannot point a code at someone else's site.
+	 */
+	async checkinQrPng(token: string, host?: string): Promise<Buffer> {
+		const secret = checkinTokenSecret(
+			this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		);
+
+		if (!verifyCheckinToken(token, secret)) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+
+		const knownHost = host && getBrandForHost(host).name !== getBrandForHost(null).name ? host : undefined;
+		const siteUrl = siteUrlFor(knownHost, this.config.get<string>(EnvKey.FRONTEND_URL) ?? '');
+
+		return QRCode.toBuffer(`${siteUrl}/admin/checkin?token=${encodeURIComponent(token)}`, {
+			margin: 1,
+			width: 240,
+		});
+	}
+
+	/** One booking in full, the way the list shows it, for the page behind a link in an email. */
+	async findOneDetailed(userId: string, bookingId: string): Promise<BookingWithEstimate> {
+		const row = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
+			include: MY_BOOKING_INCLUDE,
+		});
+
+		if (!row) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (row.userId !== userId) throw new AppException(AppErrorCode.NOT_YOUR_BOOKING);
+
+		return this.enrich(row, new Date());
 	}
 
 	async findOneForUser(userId: string, bookingId: string) {
