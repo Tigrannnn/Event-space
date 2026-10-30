@@ -78,12 +78,15 @@ export default function EditProfileModal() {
 				<form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
 					<Input
 						label={translate('profile.fullName')}
+						autoComplete="name"
+						autoCapitalize="words"
 						{...register('name')}
 						error={errors.name?.message}
 					/>
 					<Input
 						label={translate('profile.phone')}
 						type="tel"
+						autoComplete="tel"
 						{...register('phone')}
 						error={errors.phone?.message}
 					/>

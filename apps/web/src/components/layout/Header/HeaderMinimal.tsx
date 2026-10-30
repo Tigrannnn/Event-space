@@ -6,7 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageMenu from '@/components/ui/LanguageSwitcher/LanguageMenu';
 import ContactIcons from './ContactIcons';
-import { SEARCH_FIELD_DIM, SearchDropdown } from '@/features/search';
+import { SEARCH_FIELD_DIM, SEARCH_INPUT_PROPS, SearchDropdown } from '@/features/search';
 import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -60,14 +60,13 @@ export default function HeaderMinimal() {
 						className={`focus-within:border-primary flex w-full items-center rounded-full border border-gray-300 bg-white py-1 pr-1 pl-5 transition-shadow focus-within:shadow-md dark:border-neutral-700 dark:bg-neutral-900 ${searchBox.open ? SEARCH_FIELD_DIM : ''}`}
 					>
 						<input
-							type="text"
+							{...SEARCH_INPUT_PROPS}
 							value={inputValue}
 							onChange={(event) => {
 								setInputValue(event.target.value);
 								searchBox.setOpen(true);
 							}}
 							onFocus={() => searchBox.setOpen(true)}
-							autoComplete="off"
 							onKeyDown={handleKeyDown}
 							placeholder={translate('header.searchPlaceholder')}
 							className="min-w-0 flex-1 bg-transparent py-1.5 text-sm text-gray-900 placeholder-gray-500 focus:outline-none dark:text-white dark:placeholder-gray-400"

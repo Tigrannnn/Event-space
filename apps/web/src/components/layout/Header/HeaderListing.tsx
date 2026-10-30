@@ -6,7 +6,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
 import LanguageCode from '@/components/ui/LanguageSwitcher/LanguageCode';
 import ContactIcons from './ContactIcons';
-import { SearchDropdown } from '@/features/search';
+import { SEARCH_INPUT_PROPS, SearchDropdown } from '@/features/search';
 import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 
@@ -108,14 +108,13 @@ export default function HeaderListing() {
 				>
 					<Search className="my-auto ml-3 size-5 shrink-0 text-gray-500" />
 					<input
-						type="text"
+						{...SEARCH_INPUT_PROPS}
 						value={inputValue}
 						onChange={(event) => {
 							setInputValue(event.target.value);
 							searchBox.setOpen(true);
 						}}
 						onFocus={() => searchBox.setOpen(true)}
-						autoComplete="off"
 						onKeyDown={handleKeyDown}
 						placeholder={translate('header.searchPlaceholder')}
 						className="min-w-0 flex-1 bg-transparent px-3 py-3 text-[15px] text-gray-900 placeholder-gray-500 focus:outline-none"

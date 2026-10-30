@@ -495,3 +495,24 @@
 		animation-name: booking-highlight-still;
 	}
 }
+
+/*
+ * A phone zooms the page in when a field with text smaller than 16px is focused, and leaves it
+ * zoomed. Every field on a touch screen is held to 16px rather than chasing each one, whatever
+ * size its own classes ask for.
+ */
+@media (pointer: coarse) {
+	input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']):not([type='button']):not([type='submit']),
+	textarea,
+	select {
+		font-size: 16px !important;
+	}
+}
+
+/* The search fields draw their own clear button; the browser's would sit on top of it. */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+	-webkit-appearance: none;
+	appearance: none;
+	display: none;
+}

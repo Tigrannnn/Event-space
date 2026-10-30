@@ -5,6 +5,7 @@ import { SearchBarProps } from './types';
 import { XIcon } from 'lucide-react';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { SEARCH_FIELD_DIM } from '@/features/search/components/searchFieldDim';
+import { SEARCH_INPUT_PROPS } from '@/features/search/components/searchInputProps';
 
 /**
  * Search input component for filtering events
@@ -22,12 +23,11 @@ export const SearchBar = ({
 	return (
 		<div className="relative w-full">
 			<input
-				type="text"
+				{...SEARCH_INPUT_PROPS}
 				value={value ?? ''}
 				onChange={(e) => onChange(e.target.value)}
 				onKeyDown={onKeyDown}
 				onFocus={onFocus}
-				autoComplete="off"
 				placeholder={placeholder}
 				className={`text-primary focus:ring-primary/20 focus:border-primary w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-8 text-sm placeholder-gray-400 transition-all duration-200 focus:ring-2 focus:outline-none lg:rounded-2xl lg:px-5 lg:py-3.5 lg:pr-11 lg:text-base dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 ${dimmed ? SEARCH_FIELD_DIM : ''}`}
 			/>

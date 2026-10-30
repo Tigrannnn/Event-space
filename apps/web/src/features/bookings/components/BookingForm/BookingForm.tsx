@@ -309,6 +309,7 @@ export default function BookingForm({
 								value={guestName}
 								onChange={(event) => setGuestName(event.target.value)}
 								autoComplete="name"
+								autoCapitalize="words"
 								required
 							/>
 							<Input
@@ -321,6 +322,8 @@ export default function BookingForm({
 								}}
 								error={guestEmailError}
 								autoComplete="email"
+								autoCapitalize="none"
+								autoCorrect="off"
 								required
 							/>
 							{emailSuggestion && (
@@ -348,6 +351,8 @@ export default function BookingForm({
 									guestEmailRepeat && !emailsMatch ? translate('booking.guestEmailMismatch') : undefined
 								}
 								autoComplete="off"
+								autoCapitalize="none"
+								autoCorrect="off"
 								required
 							/>
 						</div>
@@ -357,6 +362,7 @@ export default function BookingForm({
 						<Input
 							label={translate('booking.phone')}
 							type="tel"
+							autoComplete="tel"
 							value={phone}
 							onChange={handlePhoneChange}
 							error={phoneError}
@@ -403,6 +409,10 @@ export default function BookingForm({
 										label={translate('booking.promoCode')}
 										value={promoCodeInput}
 										onChange={(event) => setPromoCodeInput(event.target.value)}
+										autoCapitalize="characters"
+										autoCorrect="off"
+										autoComplete="off"
+										spellCheck={false}
 									/>
 								</div>
 								<Button
