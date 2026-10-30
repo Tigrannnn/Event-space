@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Menu, Search, X } from 'lucide-react';
 import { localizePath } from '@/lib/i18n/config';
 import { ModalType } from '@/stores';
-import { SearchDropdown } from '@/features/search';
+import { SEARCH_FIELD_DIM, SearchDropdown } from '@/features/search';
 import { AuthSkeleton } from './AuthSkeleton';
 import { useHeaderControls } from './useHeaderControls';
 import MenuDrawer from './MenuDrawer';
@@ -48,7 +48,7 @@ export default function HeaderDrawer() {
 
 				<div
 					ref={searchBox.containerRef}
-					className="relative order-last flex w-full items-center rounded-full border-2 border-gray-200 bg-white transition-colors focus-within:border-gray-900 md:order-2 md:w-auto md:min-w-0 md:flex-1 dark:border-neutral-700 dark:bg-neutral-900 dark:focus-within:border-white"
+					className={`relative order-last flex w-full items-center rounded-full border-2 border-gray-200 bg-white transition-colors focus-within:border-gray-900 md:order-2 md:w-auto md:min-w-0 md:flex-1 dark:border-neutral-700 dark:bg-neutral-900 dark:focus-within:border-white ${searchBox.open ? SEARCH_FIELD_DIM : ''}`}
 				>
 					<Search className="ml-4 size-5 shrink-0 text-gray-400" />
 					<input

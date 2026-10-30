@@ -76,6 +76,7 @@ export default function Header() {
 								onKeyDown={handleKeyDown}
 								onFocus={() => searchBox.setOpen(true)}
 								placeholder={translate('header.searchPlaceholder')}
+								dimmed={searchBox.open}
 							/>
 							<SearchDropdown box={searchBox} />
 						</div>

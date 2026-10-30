@@ -114,38 +114,15 @@ const LOOK: Record<BrandSkin, Look> = {
 	},
 };
 
-/** The field's own corner radius, so the dimmed area wraps it without bright corners. */
-const SPOTLIGHT_RADIUS: Record<BrandSkin, string> = {
-	classic: 'rounded-full',
-	minimal: 'rounded-full',
-	listing: 'rounded-md',
-	soft: 'rounded-full',
-	market: 'rounded-xl',
-	drawer: 'rounded-full',
-};
-
 /**
- * Darkens everything but the search field and its suggestions. The field casts a shadow far
- * wider than the screen, which dims whatever lies around it without needing a layer of its
- * own between the field and the rest of the header. A second, invisible layer sits under the
- * header and takes the clicks meant for the page, so nothing behind the search can be used
- * until it is closed.
+ * Takes the clicks meant for the page behind the search while it is open: the page is darkened
+ * (by the field itself, see SEARCH_FIELD_DIM) and nothing in it can be used until the search is
+ * closed. It sits under the header, so the logo and the language switch still answer.
  */
-function SearchSpotlight({ box, skin }: { box: SearchBox; skin: BrandSkin }) {
-	return (
-		<>
-			<span
-				aria-hidden
-				className={cn(
-					'pointer-events-none absolute inset-0 z-10 shadow-[0_0_0_100vmax_rgb(0_0_0/0.55)]',
-					SPOTLIGHT_RADIUS[skin],
-				)}
-			/>
-			{createPortal(
-				<div aria-hidden className="fixed inset-0 z-40" onMouseDown={box.close} />,
-				document.body,
-			)}
-		</>
+function SearchClickCatcher({ box }: { box: SearchBox }) {
+	return createPortal(
+		<div aria-hidden className="fixed inset-0 z-40" onMouseDown={box.close} />,
+		document.body,
 	);
 }
 
@@ -182,7 +159,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 	const { formatDateShort } = useFormatDate();
 
 	if (!box.open) return null;
-	if (box.items.length === 0) return <SearchSpotlight box={box} skin={skin} />;
+	if (box.items.length === 0) return <SearchClickCatcher box={box} />;
 
 	const eventRow = (item: Extract<SearchItem, { kind: 'event' }>, index: number) => {
 		const event: SearchSuggestedEvent = item.event;
@@ -273,7 +250,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 
 	return (
 		<>
-			<SearchSpotlight box={box} skin={skin} />
+			<SearchClickCatcher box={box} />
 			<div
 				role="listbox"
 				aria-label={translate('search.listLabel')}
