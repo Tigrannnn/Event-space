@@ -67,14 +67,12 @@ export const useVerifyEmail = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const navigation = useLocalizedNavigation();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
 	return useMutation({
 		mutationFn: (data: VerifyEmailData) => authApi.verifyEmail(data),
 		onSuccess: ({ data }) => {
-			navigation.push('/profile');
 			queryClient.setQueryData(['me'], data.user);
 			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
@@ -94,7 +92,6 @@ export const useLogin = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const navigation = useLocalizedNavigation();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
@@ -106,7 +103,6 @@ export const useLogin = () => {
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event'] });
-			navigation.push('/profile');
 			addToast(translate('auth.loginSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
@@ -175,7 +171,6 @@ export const useResetPassword = () => {
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
-	const navigation = useLocalizedNavigation();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
@@ -187,7 +182,6 @@ export const useResetPassword = () => {
 			queryClient.invalidateQueries({ queryKey: ['favorites'] });
 			queryClient.invalidateQueries({ queryKey: ['events'] });
 			queryClient.invalidateQueries({ queryKey: ['event'] });
-			navigation.push('/profile');
 			addToast(translate('auth.resetPasswordSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
