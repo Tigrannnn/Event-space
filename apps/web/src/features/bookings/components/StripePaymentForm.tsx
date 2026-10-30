@@ -130,20 +130,20 @@ function StripePaymentFormContent({
 				await invalidateAfterResolution();
 				addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 
-				// A guest has no list of bookings to land on: take them to the booking itself, on
-				// the link they will find in the letter, so the page they keep is the page they see.
-				if (guestAccess) {
-					rememberGuestEmail(booking.id, guestAccess.email);
-					onClose();
-					navigation.push(`/bookings/${booking.id}?t=${encodeURIComponent(guestAccess.token)}`);
-					break;
-				}
-
 				openModal(ModalType.BookingSuccess, {
 					booking: result.booking,
 					event,
 					occurrence: selectedOccurrence,
+					accessToken: guestAccess?.token,
+					guestEmail: guestAccess?.email,
 				});
+
+				// A guest has no list of bookings to land on: the page behind the modal is the
+				// booking itself, on the link they will find in the letter.
+				if (guestAccess) {
+					rememberGuestEmail(booking.id, guestAccess.email);
+					navigation.push(`/bookings/${booking.id}?t=${encodeURIComponent(guestAccess.token)}`);
+				}
 				break;
 
 			case 'cancelled':

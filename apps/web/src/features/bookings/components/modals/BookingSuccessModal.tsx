@@ -50,11 +50,8 @@ export default function BookingSuccessModal() {
 	};
 
 	const handleViewBookings = () => {
-		navigation.push(
-			accessToken
-				? `/bookings/${booking.id}?t=${encodeURIComponent(accessToken)}`
-				: '/bookings',
-		);
+		// For a guest the page behind the modal already is the booking.
+		if (!accessToken) navigation.push('/bookings');
 		closeModal();
 	};
 

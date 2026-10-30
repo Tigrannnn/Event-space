@@ -18,7 +18,7 @@ import { useEventById } from '@/features/events';
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isMemberLoading } = useCreateBooking();
 	const { mutate: createGuestBooking, isPending: isGuestLoading } = useCreateGuestBooking();
-	const { closeModal } = useModalStore();
+	const { closeModal, openModal } = useModalStore();
 	const navigation = useLocalizedNavigation();
 	const { addToast } = useToastStore();
 	const translate = useTranslation();
@@ -90,7 +90,13 @@ export default function CreateBookingModal() {
 						if (!data.clientSecret) {
 							addToast(translate('booking.paymentConfirmed'), ToastType.SUCCESS);
 							rememberGuestEmail(data.booking.id, access.email);
-							handleClose();
+							openModal(ModalType.BookingSuccess, {
+								booking: data.booking,
+								event,
+								occurrence: selectedOccurrence,
+								accessToken: access.token,
+								guestEmail: access.email,
+							});
 							navigation.push(`/bookings/${data.booking.id}?t=${encodeURIComponent(access.token)}`);
 							return;
 						}
