@@ -12,6 +12,7 @@ import {
 	type Event,
 } from '@event-space/shared';
 import { EventImage, EventImageFallback, useEventById } from '@/features/events';
+import { PhotoStrip } from '@/components/ui/PhotoStrip';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -141,7 +142,10 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 					<EventImageFallback alt={eventTranslation.title} />
 				</div>
 			) : (
-				<div className="scrollbar-hide w-full snap-x snap-mandatory overflow-x-auto rounded-3xl bg-white p-2 shadow-lg sm:h-[26rem] dark:bg-gray-800">
+				<PhotoStrip
+					className="sm:h-[26rem]"
+					scrollerClassName="rounded-3xl bg-white p-2 shadow-lg dark:bg-gray-800"
+				>
 					<div className="flex h-full items-center">
 						{imageUrls.map((src, index) => (
 							<button
@@ -160,7 +164,7 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 							</button>
 						))}
 					</div>
-				</div>
+				</PhotoStrip>
 			)}
 
 			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">

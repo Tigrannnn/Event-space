@@ -20,6 +20,7 @@ import {
 	getCategoryTranslation,
 } from '@event-space/shared';
 import { EventImageFallback } from '@/features/events';
+import { PhotoStrip } from '@/components/ui/PhotoStrip';
 import { IncludedItem } from '@/components/ui/IncludedItem';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
@@ -72,7 +73,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 				{allImagesFailed ? (
 					<EventImageFallback alt={eventTranslation.title} />
 				) : (
-					<div className="scrollbar-hide h-full w-full snap-x snap-mandatory overflow-x-auto">
+					<PhotoStrip className="h-full w-full">
 						<div className="flex h-full items-center">
 							{imageUrls.map((imgSrc, index) => (
 								<button
@@ -94,7 +95,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 								</button>
 							))}
 						</div>
-					</div>
+					</PhotoStrip>
 				)}
 
 				{/* Sticky Controls */}
