@@ -457,11 +457,11 @@
 	10%,
 	50%,
 	90% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 75%, transparent);
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 100%, transparent);
 	}
 	30%,
 	70% {
-		box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-primary) 45%, transparent);
+		box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-primary) 82%, transparent);
 	}
 	100% {
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 0%, transparent);
@@ -475,7 +475,7 @@
 	}
 	12%,
 	88% {
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 75%, transparent);
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 100%, transparent);
 	}
 }
 
