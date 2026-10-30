@@ -117,7 +117,7 @@ export class BookingController {
 			),
 			this.rateLimiter.consumePerUser(
 				`${BOOKING_CONFIG.KEY_PREFIX}:guest-email`,
-				data.email,
+				data.email.trim().toLowerCase(),
 				BOOKING_CONFIG.RATE_LIMITS.CREATE_MAX_PER_MINUTE,
 				BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
 			),

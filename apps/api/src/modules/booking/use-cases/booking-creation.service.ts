@@ -336,7 +336,10 @@ export class BookingCreationService {
 		locale: Locale = DEFAULT_LOCALE,
 		brandHost?: string,
 	) {
-		const { name, email, ...bookingData } = data;
+		const { name, email: rawEmail, ...bookingData } = data;
+		// Registration lowercases addresses; without the same here a different capital letter
+		// would slip past the check for an existing account.
+		const email = rawEmail.trim().toLowerCase();
 
 		const existing = await this.prisma.user.findUnique({
 			where: { email },

@@ -4,6 +4,8 @@ import type {
 	BookingQuantityChange,
 	CreateBookingData,
 	CreateBookingResponse,
+	CreateGuestBookingData,
+	CreateGuestBookingResponse,
 	ChangeQuantityData,
 	QuantityPaymentResult,
 	QuantityQuote,
@@ -37,18 +39,33 @@ export const bookingApi = {
 	getMyBookingsSummary: () =>
 		clientApi.get<MyBookingsSummary>('/bookings/my/summary').then((res) => res.data),
 
-	getBooking: (id: string) => clientApi.get<Booking>(`/bookings/${id}`).then((res) => res.data),
+	createGuestBooking: (data: CreateGuestBookingData) =>
+		clientApi.post<CreateGuestBookingResponse>('/bookings/guest', data).then((res) => res.data),
 
-	cancelBooking: (id: string) =>
-		clientApi.patch<Booking>(`/bookings/${id}/cancel`).then((res) => res.data),
+	/** `token` is the link from the booking's email: the way in for someone with no account. */
+	getBooking: (id: string, token?: string) =>
+		clientApi.get<Booking>(`/bookings/${id}`, { params: { t: token } }).then((res) => res.data),
+
+	/** One booking in full, with the refund it would get today. */
+	getBookingView: (id: string, token?: string) =>
+		clientApi
+			.get<BookingWithEstimate>(`/bookings/${id}/view`, { params: { t: token } })
+			.then((res) => res.data),
+
+	cancelBooking: (id: string, token?: string) =>
+		clientApi
+			.patch<Booking>(`/bookings/${id}/cancel`, undefined, { params: { t: token } })
+			.then((res) => res.data),
 
 	acceptReschedule: (id: string) =>
 		clientApi
 			.patch<{ accepted: boolean }>(`/bookings/${id}/accept-reschedule`)
 			.then((res) => res.data),
 
-	reconcilePayment: (id: string) =>
-		clientApi.post<Booking>(`/bookings/${id}/reconcile-payment`).then((res) => res.data),
+	reconcilePayment: (id: string, token?: string) =>
+		clientApi
+			.post<Booking>(`/bookings/${id}/reconcile-payment`, undefined, { params: { t: token } })
+			.then((res) => res.data),
 
 	quoteQuantity: (id: string, data: QuantityQuoteRequest) =>
 		clientApi.post<QuantityQuote>(`/bookings/${id}/quantity/quote`, data).then((res) => res.data),

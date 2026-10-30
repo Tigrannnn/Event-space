@@ -58,11 +58,7 @@ export function useEventCardState(event: Event) {
 	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		if (user) {
-			openModal(ModalType.CreateBooking, { event });
-		} else {
-			openModal(ModalType.Register);
-		}
+		openModal(ModalType.CreateBooking, { event });
 	};
 
 	return {

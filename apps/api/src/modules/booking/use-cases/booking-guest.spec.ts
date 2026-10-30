@@ -74,6 +74,14 @@ describe('booking as a guest', () => {
 		expect(result.clientSecret).toBe('secret');
 	});
 
+	it('looks the email up in lower case, as registration stores it', async () => {
+		const { service, created } = build();
+
+		await service.createGuest({ ...guest, email: '  Anna@Example.COM ' }, 'ru');
+
+		expect(created[0]).toMatchObject({ email: 'anna@example.com' });
+	});
+
 	it('hands back a key that opens this booking and no other', async () => {
 		const { service } = build();
 

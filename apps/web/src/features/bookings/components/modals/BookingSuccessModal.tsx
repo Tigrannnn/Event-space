@@ -33,7 +33,8 @@ export default function BookingSuccessModal() {
 		return null;
 	}
 
-	const { booking, event, occurrence } = modalData;
+	const { booking, event, occurrence, accessToken, guestEmail } = modalData;
+	const confirmationEmail = user?.email ?? guestEmail;
 	const eventTranslation = getEventTranslation(event, locale);
 	const reference = formatBookingReference(booking.referenceNumber);
 
@@ -48,7 +49,11 @@ export default function BookingSuccessModal() {
 	};
 
 	const handleViewBookings = () => {
-		navigation.push('/bookings');
+		navigation.push(
+			accessToken
+				? `/bookings/${booking.id}?t=${encodeURIComponent(accessToken)}`
+				: '/bookings',
+		);
 		closeModal();
 	};
 
@@ -145,10 +150,10 @@ export default function BookingSuccessModal() {
 					</div>
 				) : null}
 
-				{user?.email && (
+				{confirmationEmail && (
 					<p className="mt-4 flex items-center justify-center gap-2 text-center text-sm text-gray-500 dark:text-gray-400">
 						<Mail className="h-4 w-4 shrink-0" />
-						{translate('booking.successEmailSent').replace('{email}', user.email)}
+						{translate('booking.successEmailSent').replace('{email}', confirmationEmail)}
 					</p>
 				)}
 
@@ -157,7 +162,7 @@ export default function BookingSuccessModal() {
 						{translate('booking.close')}
 					</Button>
 					<Button variant="primary" onClick={handleViewBookings} className="flex-1">
-						{translate('booking.viewMyBookings')}
+						{accessToken ? translate('event.viewMyBooking') : translate('booking.viewMyBookings')}
 					</Button>
 				</div>
 			</div>

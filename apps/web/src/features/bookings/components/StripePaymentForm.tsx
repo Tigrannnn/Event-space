@@ -34,6 +34,8 @@ interface StripePaymentFormProps {
 	onClose: () => void;
 	clientSecret: string;
 	selectedOccurrence: EventOccurrence | null;
+	/** Someone paying without an account: the key to their booking, and the email it went to. */
+	guestAccess?: { token: string; email: string };
 }
 
 type ConfirmationResult =
@@ -44,6 +46,7 @@ function StripePaymentFormContent({
 	booking,
 	onClose,
 	selectedOccurrence,
+	guestAccess,
 }: Omit<StripePaymentFormProps, 'clientSecret'>) {
 	const stripe = useStripe();
 	const elements = useElements();
@@ -64,7 +67,7 @@ function StripePaymentFormContent({
 	const waitForConfirmation = async (): Promise<ConfirmationResult> => {
 		for (let i = 0; i < 15; i++) {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			const updated = await bookingApi.getBooking(booking.id);
+			const updated = await bookingApi.getBooking(booking.id, guestAccess?.token);
 
 			if (updated.status === 'CONFIRMED') {
 				return { status: 'confirmed', booking: updated };
@@ -97,7 +100,9 @@ function StripePaymentFormContent({
 		const { error } = await stripe.confirmPayment({
 			elements,
 			confirmParams: {
-				return_url: `${window.location.origin}${localizePath('/bookings', locale)}?payment=success`,
+				return_url: guestAccess
+					? `${window.location.origin}${localizePath(`/bookings/${booking.id}`, locale)}?t=${encodeURIComponent(guestAccess.token)}&payment=success`
+					: `${window.location.origin}${localizePath('/bookings', locale)}?payment=success`,
 			},
 			redirect: 'if_required',
 		});
@@ -110,7 +115,7 @@ function StripePaymentFormContent({
 
 		addToast(translate('booking.paymentSubmitted'), ToastType.INFO);
 
-		await bookingApi.reconcilePayment(booking.id).catch(() => {
+		await bookingApi.reconcilePayment(booking.id, guestAccess?.token).catch(() => {
 			// best-effort reconcile; webhook or polling can still complete later
 		});
 
@@ -125,6 +130,8 @@ function StripePaymentFormContent({
 					booking: result.booking,
 					event,
 					occurrence: selectedOccurrence,
+					accessToken: guestAccess?.token,
+					guestEmail: guestAccess?.email,
 				});
 				break;
 
@@ -203,6 +210,7 @@ export default function StripePaymentForm({
 	onClose,
 	clientSecret,
 	selectedOccurrence,
+	guestAccess,
 }: StripePaymentFormProps) {
 	const theme = useSystemTheme();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
@@ -235,6 +243,7 @@ export default function StripePaymentForm({
 				booking={booking}
 				onClose={onClose}
 				selectedOccurrence={selectedOccurrence}
+				guestAccess={guestAccess}
 			/>
 		</Elements>
 	);

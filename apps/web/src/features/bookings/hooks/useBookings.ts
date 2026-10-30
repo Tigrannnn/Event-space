@@ -4,6 +4,7 @@ import {
 	type BookingDisplayStatus,
 	ChangeQuantityData,
 	CreateBookingData,
+	CreateGuestBookingData,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
@@ -79,6 +80,35 @@ export const useCreateBooking = () => {
 				queryClient.invalidateQueries({ queryKey: ['me'] }),
 			]);
 		},
+	});
+};
+
+/** A booking without an account: the same as above, for someone who gave a name and an email. */
+export const useCreateGuestBooking = () => {
+	const { addToast } = useToastStore();
+	const queryClient = useQueryClient();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: (data: CreateGuestBookingData) => bookingApi.createGuestBooking(data),
+		onError: (error) => {
+			addToast(apiError(error, 'booking.createFailed'), ToastType.ERROR);
+		},
+		onSuccess: async () => {
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['events'] }),
+				queryClient.invalidateQueries({ queryKey: ['event'] }),
+			]);
+		},
+	});
+};
+
+/** One booking behind the link in its email (or behind the sign-in, when there is no link). */
+export const useBookingView = (bookingId: string, token?: string) => {
+	return useQuery({
+		queryKey: ['booking-view', bookingId],
+		queryFn: () => bookingApi.getBookingView(bookingId, token),
+		retry: false,
 	});
 };
 
@@ -171,18 +201,19 @@ export const useAcceptReschedule = () => {
 	});
 };
 
-export const useCancelBooking = () => {
+export const useCancelBooking = (token?: string) => {
 	const { addToast } = useToastStore();
 	const queryClient = useQueryClient();
 	const apiError = useApiError();
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: (id: string) => bookingApi.cancelBooking(id),
-		onSuccess: async (result) => {
+		mutationFn: (id: string) => bookingApi.cancelBooking(id, token),
+		onSuccess: async () => {
 			addToast(translate('booking.cancelSuccess'), ToastType.SUCCESS);
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['booking-view'] }),
 				// event id may not be present on response; invalidate event queries broadly
 				queryClient.invalidateQueries({ queryKey: ['event'] }),
 				queryClient.invalidateQueries({ queryKey: ['events'] }),

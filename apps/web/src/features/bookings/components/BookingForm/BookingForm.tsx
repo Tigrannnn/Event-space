@@ -10,7 +10,9 @@ import QuantitySelector from '../QuantitySelector';
 import type { BookingFormProps } from './types';
 import { useTranslation } from '@/hooks/translation';
 import {
+	EmailSchema,
 	getEventTranslation,
+	NameSchema,
 	PhoneSchema,
 	quoteBooking,
 	type EventOccurrence,
@@ -39,12 +41,16 @@ export default function BookingForm({
 	title,
 	onClose,
 	userPhone,
+	isGuest = false,
 }: BookingFormProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const [phone, setPhone] = useState(userPhone || '');
 	const [phoneError, setPhoneError] = useState('');
+	const [guestName, setGuestName] = useState('');
+	const [guestEmail, setGuestEmail] = useState('');
+	const [guestEmailError, setGuestEmailError] = useState('');
 	const [promoCodeInput, setPromoCodeInput] = useState('');
 	const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 	const formatCurrency = useFormatCurrency();
@@ -95,6 +101,9 @@ export default function BookingForm({
 		: baseQuote;
 	const t = getEventTranslation(event, locale);
 	const isPhoneValid = phone.trim() ? PhoneSchema.safeParse(phone.trim()).success : false;
+	const isGuestValid =
+		!isGuest ||
+		(NameSchema.safeParse(guestName.trim()).success && EmailSchema.safeParse(guestEmail.trim()).success);
 
 	const handleApplyPromoCode = () => {
 		const trimmed = promoCodeInput.trim();
@@ -127,8 +136,18 @@ export default function BookingForm({
 			return;
 		}
 
+		if (isGuest && !EmailSchema.safeParse(guestEmail.trim()).success) {
+			setGuestEmailError(translate('booking.guestEmailInvalid'));
+			return;
+		}
+
 		setPhoneError('');
-		onSubmit(quantity, trimmedPhone, promoQuote.isSuccess ? (appliedPromoCode ?? undefined) : undefined);
+		onSubmit(
+			quantity,
+			trimmedPhone,
+			promoQuote.isSuccess ? (appliedPromoCode ?? undefined) : undefined,
+			isGuest ? { name: guestName.trim(), email: guestEmail.trim() } : undefined,
+		);
 	};
 
 	return (
@@ -225,6 +244,33 @@ export default function BookingForm({
 						disabled={isLoading}
 						label={translate('booking.selectSpots')}
 					/>
+
+					{isGuest && (
+						<div className="mt-4 space-y-4">
+							<p className="text-xs text-gray-500 dark:text-gray-400">
+								{translate('booking.guestHint')}
+							</p>
+							<Input
+								label={translate('booking.guestName')}
+								value={guestName}
+								onChange={(event) => setGuestName(event.target.value)}
+								autoComplete="name"
+								required
+							/>
+							<Input
+								label={translate('booking.guestEmail')}
+								type="email"
+								value={guestEmail}
+								onChange={(event) => {
+									setGuestEmail(event.target.value);
+									setGuestEmailError('');
+								}}
+								error={guestEmailError}
+								autoComplete="email"
+								required
+							/>
+						</div>
+					)}
 
 					<div className="mt-4">
 						<Input
@@ -353,7 +399,7 @@ export default function BookingForm({
 					variant="primary"
 					onClick={handleSubmitClick}
 					isLoading={isLoading}
-					disabled={!selectedOccurrence || !isPhoneValid || isLoading}
+					disabled={!selectedOccurrence || !isPhoneValid || !isGuestValid || isLoading}
 					className="flex-1"
 				>
 					{submitLabel}

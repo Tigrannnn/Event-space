@@ -29,18 +29,21 @@ import { ModalType } from '@/stores/modalStore';
 
 interface BookingCardProps {
 	booking: BookingWithEstimate;
+	/** The link from the booking's email: the card then works for someone with no account. */
+	accessToken?: string;
 }
 
 function centsToDollars(cents: number) {
 	return (cents / 100).toFixed(2);
 }
 
-export default function BookingCard({ booking }: BookingCardProps) {
+export default function BookingCard({ booking, accessToken }: BookingCardProps) {
+	const isGuestView = Boolean(accessToken);
 	const { occurrence, quantity, status, refundPercentage, estimatedRefundInCents } = booking;
 	const quote = quoteFromBooking(booking);
 	const event = occurrence?.event;
 
-	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
+	const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking(accessToken);
 	const acceptReschedule = useAcceptReschedule();
 	const { openModal } = useModalStore();
 	const formatCurrency = useFormatCurrency();
@@ -65,7 +68,9 @@ export default function BookingCard({ booking }: BookingCardProps) {
 		occurrenceIsAvailable &&
 		booking.paymentMethod !== 'SITE_PAYMENT' &&
 		getBookingDisplayStatus(booking) === 'CONFIRMED';
+	// Changing the number of guests and accepting a moved date both need a signed-in account.
 	const canChangeQuantity =
+		!isGuestView &&
 		occurrenceIsAvailable &&
 		booking.paymentMethod === 'SITE_PAYMENT' &&
 		getBookingDisplayStatus(booking) === 'CONFIRMED';
@@ -153,7 +158,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 					variant={getBookingStatusBadgeVariant(displayStatus)}
 					className="absolute top-3 left-3 text-xs font-bold uppercase"
 				></Badge>
-				<FavoriteButton eventId={event.id} className="absolute top-3 right-3" />
+				{!isGuestView && <FavoriteButton eventId={event.id} className="absolute top-3 right-3" />}
 			</div>
 
 			{/* Content */}
@@ -320,7 +325,7 @@ export default function BookingCard({ booking }: BookingCardProps) {
 
 				{/* Actions */}
 				<div className="flex flex-col gap-2">
-					<BookingReviewAction booking={booking} />
+					<BookingReviewAction booking={booking} accessToken={accessToken} />
 					{awaitingAnswer ? (
 						<>
 							{canChangeQuantity && (
@@ -334,14 +339,16 @@ export default function BookingCard({ booking }: BookingCardProps) {
 								</Button>
 							)}
 							<div className="flex gap-2">
-								<Button
-									size="sm"
-									className="flex-1"
-									onClick={handleAcceptDate}
-									disabled={acceptReschedule.isPending}
-								>
-									{translate('booking.dateSuitsMe')}
-								</Button>
+								{!isGuestView && (
+									<Button
+										size="sm"
+										className="flex-1"
+										onClick={handleAcceptDate}
+										disabled={acceptReschedule.isPending}
+									>
+										{translate('booking.dateSuitsMe')}
+									</Button>
+								)}
 								<Button
 									variant="danger"
 									size="sm"
@@ -355,7 +362,8 @@ export default function BookingCard({ booking }: BookingCardProps) {
 						</>
 					) : (
 						<>
-						{occurrenceIsAvailable &&
+						{!isGuestView &&
+							occurrenceIsAvailable &&
 							booking.paymentMethod === 'SITE_PAYMENT' &&
 							displayStatus === 'CONFIRMED' && (
 								<Button

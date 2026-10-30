@@ -93,6 +93,9 @@ export interface BookingSuccessModalData {
 	booking: Booking;
 	event: Event;
 	occurrence: EventOccurrence | null;
+	/** Set for a booking made without an account: the key to its page and where the link went. */
+	accessToken?: string;
+	guestEmail?: string;
 }
 
 export interface UpdateBookingModalData {

@@ -16,7 +16,14 @@ import { StarRating } from './StarRating';
  * the tour's length and the review itself, and a card that asked the server would mean a dozen
  * requests to draw a dozen buttons.
  */
-export function BookingReviewAction({ booking }: { booking: BookingWithEstimate }) {
+export function BookingReviewAction({
+	booking,
+	accessToken,
+}: {
+	booking: BookingWithEstimate;
+	/** The link from the booking's email, which carries a guest to the review form. */
+	accessToken?: string;
+}) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const review = booking.review;
@@ -27,7 +34,7 @@ export function BookingReviewAction({ booking }: { booking: BookingWithEstimate 
 
 	if (!review) {
 		return (
-			<Link href={localizePath(`/bookings/${booking.id}/review`, locale)} className="w-full">
+			<Link href={`${localizePath(`/bookings/${booking.id}/review`, locale)}${accessToken ? `?t=${encodeURIComponent(accessToken)}` : ''}`} className="w-full">
 				<Button variant="secondary" size="sm" className="w-full">
 					<Star className="h-4 w-4" />
 					{translate('review.rateTour')}
@@ -54,8 +61,8 @@ export function BookingReviewAction({ booking }: { booking: BookingWithEstimate 
 			</span>
 
 			<div className="flex items-center gap-3">
-				<DeleteReviewButton bookingId={booking.id} showLabel={false} />
-				<Link href={localizePath(`/bookings/${booking.id}/review`, locale)}>
+				{!accessToken && <DeleteReviewButton bookingId={booking.id} showLabel={false} />}
+				<Link href={`${localizePath(`/bookings/${booking.id}/review`, locale)}${accessToken ? `?t=${encodeURIComponent(accessToken)}` : ''}`}>
 					<Button variant="secondary" size="xs">
 						{translate('review.change')}
 					</Button>

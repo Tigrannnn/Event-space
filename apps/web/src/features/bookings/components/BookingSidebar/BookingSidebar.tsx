@@ -70,7 +70,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const spotsLeft = Math.max(0, maxParticipants - currentParticipants);
 	const isSoldOut = maxParticipants > 0 && currentParticipants >= maxParticipants;
 
-	const { data: user, isLoading: isUserLoading } = useCurrentUser();
+	const { isLoading: isUserLoading } = useCurrentUser();
 	const { hasBooking: isOccurrenceBooked, isLoading: isMyBookingsLoading } =
 		useHasBookingForOccurrence();
 
@@ -95,14 +95,10 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const handleBookClick = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		if (user) {
-			openModal(ModalType.CreateBooking, {
-				event,
-				selectedOccurrence: canBook ? selectedOccurrence : undefined,
-			});
-		} else {
-			openModal(ModalType.Register);
-		}
+		openModal(ModalType.CreateBooking, {
+			event,
+			selectedOccurrence: canBook ? selectedOccurrence : undefined,
+		});
 	};
 
 	const handleViewBooking = (e: React.MouseEvent) => {
