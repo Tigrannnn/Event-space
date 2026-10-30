@@ -20,13 +20,23 @@ import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 
 /** Tab-shaped placeholders for the entries that depend on who is signed in. */
-function NavSkeleton({ count, className }: { count: number; className: string }) {
+function NavSkeleton({
+	count,
+	className,
+	iconClassName = 'size-6 rounded-full',
+	labelClassName = 'h-2.5 w-10',
+}: {
+	count: number;
+	className: string;
+	iconClassName?: string;
+	labelClassName?: string;
+}) {
 	return (
 		<>
 			{Array.from({ length: count }).map((_, index) => (
 				<div key={index} aria-hidden className={className}>
-					<Skeleton className="size-6 rounded-full" />
-					<Skeleton className="h-2.5 w-10" />
+					<Skeleton className={iconClassName} />
+					<Skeleton className={labelClassName} />
 				</div>
 			))}
 		</>
@@ -192,7 +202,14 @@ export default function BottomNavbar() {
 				<span className="mt-1 text-[10px] font-medium sm:text-xs">{translate('header.home')}</span>
 			</Link>
 
-			{isUserLoading && <NavSkeleton count={skeletonCount} className={linkClassName} />}
+			{isUserLoading && (
+				<NavSkeleton
+					count={skeletonCount}
+					className={linkClassName}
+					iconClassName="size-4 rounded-full"
+					labelClassName="mt-1.5 h-2.5 w-10"
+				/>
+			)}
 
 			{!isUserLoading && user && (
 				<Link
