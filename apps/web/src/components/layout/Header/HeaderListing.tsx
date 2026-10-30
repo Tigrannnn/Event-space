@@ -26,6 +26,7 @@ export default function HeaderListing() {
 		user,
 		isUserLoading,
 		isHydrated,
+		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -53,7 +54,7 @@ export default function HeaderListing() {
 				<nav className="ml-auto hidden shrink-0 items-center gap-1 md:flex">
 					<ContactIcons onDark className="mr-2 hidden gap-1.5 xl:flex" />
 					<LanguageCode onDark className="mr-2" />
-					{!isHydrated || isUserLoading ? <AuthSkeleton count={3} onDark /> : user ? (
+					{!isHydrated || isUserLoading ? <AuthSkeleton hint={authHint} onDark /> : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
 								<span className="relative">

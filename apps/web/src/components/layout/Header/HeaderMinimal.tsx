@@ -27,6 +27,7 @@ export default function HeaderMinimal() {
 		user,
 		isUserLoading,
 		isHydrated,
+		authHint,
 		myBookingsCount,
 		myFavoritesCount,
 		inputValue,
@@ -97,7 +98,7 @@ export default function HeaderMinimal() {
 				<nav className="hidden shrink-0 items-center gap-1 md:flex">
 					<ContactIcons className="mr-1 hidden xl:flex" />
 					<LanguageMenu className="mr-1" />
-					{!isHydrated || isUserLoading ? <AuthSkeleton count={3} /> : user ? (
+					{!isHydrated || isUserLoading ? <AuthSkeleton hint={authHint} /> : user ? (
 						<>
 							<Link href={localizePath('/favorites', navigation.locale)} className={actionLink}>
 								<span className="relative">
