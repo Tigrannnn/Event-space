@@ -12,7 +12,7 @@ import { EventImage, useEventById } from '@/features/events';
 import { InfoCard } from '@/components/ui/InfoCard';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 
-import { useCopyToClipboard } from '@/hooks/clipboard';
+import { useShare } from '@/hooks/share';
 import {
 	Event,
 	getEventImageUrls,
@@ -44,7 +44,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 	const router = useRouter();
 	const { openModal } = useModalStore();
 	const [failedImages, setFailedImages] = useState<number>(0);
-	const copyToClipboard = useCopyToClipboard();
+	const share = useShare();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDuration } = useFormatDate();
@@ -60,10 +60,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 	const imageUrls = getEventImageUrls(event.images);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
 
-	const handleShareClick = async () => {
-		const url = typeof window !== 'undefined' ? window.location.href : '';
-		await copyToClipboard(url, 'event.linkCopied', 'event.copyFailed');
-	};
+	const handleShareClick = () => share(eventTranslation.title);
 
 	return (
 		<div className="min-h-full">

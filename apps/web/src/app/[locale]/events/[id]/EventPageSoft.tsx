@@ -16,7 +16,7 @@ import { PhotoStrip } from '@/components/ui/PhotoStrip';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
-import { useCopyToClipboard } from '@/hooks/clipboard';
+import { useShare } from '@/hooks/share';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -38,7 +38,7 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 	const event = data ?? initialEvent;
 	const router = useRouter();
 	const { openModal } = useModalStore();
-	const copyToClipboard = useCopyToClipboard();
+	const share = useShare();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDuration } = useFormatDate();
@@ -55,10 +55,7 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 	const openPreview = (index: number) =>
 		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
 
-	const handleShareClick = async () => {
-		const url = typeof window !== 'undefined' ? window.location.href : '';
-		await copyToClipboard(url, 'event.linkCopied', 'event.copyFailed');
-	};
+	const handleShareClick = () => share(eventTranslation.title);
 
 	const pill =
 		'flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm transition-colors hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700';

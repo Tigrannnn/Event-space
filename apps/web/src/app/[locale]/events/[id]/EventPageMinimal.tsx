@@ -14,7 +14,7 @@ import { EventImage, EventImageFallback, useEventById } from '@/features/events'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
-import { useCopyToClipboard } from '@/hooks/clipboard';
+import { useShare } from '@/hooks/share';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -37,7 +37,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 	const event = data ?? initialEvent;
 	const router = useRouter();
 	const { openModal } = useModalStore();
-	const copyToClipboard = useCopyToClipboard();
+	const share = useShare();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDuration } = useFormatDate();
@@ -53,10 +53,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 	const openPreview = (index: number) =>
 		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
 
-	const handleShareClick = async () => {
-		const url = typeof window !== 'undefined' ? window.location.href : '';
-		await copyToClipboard(url, 'event.linkCopied', 'event.copyFailed');
-	};
+	const handleShareClick = () => share(eventTranslation.title);
 
 	const textButton =
 		'flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium text-gray-800 underline-offset-4 transition-colors hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-neutral-800';

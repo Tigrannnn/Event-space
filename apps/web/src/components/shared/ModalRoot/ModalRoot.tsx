@@ -1,6 +1,6 @@
 'use client';
 
-import { ConfirmModal, ImagePreviewModal, ContactModal } from '@/components/ui/Modal';
+import { ConfirmModal, ImagePreviewModal, ContactModal, ShareModal } from '@/components/ui/Modal';
 import { AuthModal } from '@/features/auth';
 import { ModalType, useModalStore } from '@/stores/modalStore';
 import { AnimatePresence } from 'framer-motion';
@@ -72,6 +72,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.CreateEvent && <CreateEventModal key="create-event" />}
 					{activeModal === ModalType.UpdateEvent && <UpdateEventModal key="edit-event" />}
 					{activeModal === ModalType.ContactInfo && <ContactModal key="contact-info" />}
+					{activeModal === ModalType.Share && <ShareModal key="share" />}
 					{activeModal === ModalType.CreateCategory && <CreateCategoryModal key="create-category" />}
 					{activeModal === ModalType.UpdateCategory && <UpdateCategoryModal key="update-category" />}
 					{activeModal === ModalType.CategoryDetails && <CategoryDetailsModal key="category-details" />}

@@ -5,6 +5,8 @@ export const event: Messages['event'] = {
 	share: 'Поделиться',
 	linkCopied: 'Ссылка скопирована',
 	copyFailed: 'Не удалось скопировать ссылку',
+	shareTitle: 'Поделиться туром',
+	copyLink: 'Копировать ссылку',
 	duration: 'Длительность',
 	hours: 'ч.',
 	difficulty: 'Сложность',

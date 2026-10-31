@@ -3,6 +3,8 @@ export const event = {
 	share: 'Share',
 	linkCopied: 'Link copied to clipboard!',
 	copyFailed: 'Failed to copy link',
+	shareTitle: 'Share this tour',
+	copyLink: 'Copy link',
 	duration: 'Duration',
 	hours: 'hours',
 	difficulty: 'Difficulty',

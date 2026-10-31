@@ -14,7 +14,7 @@ import { EventImage, EventImageFallback, useEventById } from '@/features/events'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
-import { useCopyToClipboard } from '@/hooks/clipboard';
+import { useShare } from '@/hooks/share';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -37,7 +37,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 	const event = data ?? initialEvent;
 	const router = useRouter();
 	const { openModal } = useModalStore();
-	const copyToClipboard = useCopyToClipboard();
+	const share = useShare();
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const { formatDuration } = useFormatDate();
@@ -54,10 +54,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 	const openPreview = (index: number) =>
 		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
 
-	const handleShareClick = async () => {
-		const url = typeof window !== 'undefined' ? window.location.href : '';
-		await copyToClipboard(url, 'event.linkCopied', 'event.copyFailed');
-	};
+	const handleShareClick = () => share(eventTranslation.title);
 
 	const average = averageRating(event);
 	const ratingCount = event.ratingCount ?? 0;

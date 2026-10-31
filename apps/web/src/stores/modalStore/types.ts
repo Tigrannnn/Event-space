@@ -43,6 +43,7 @@ export enum ModalType {
 	CreateEvent = 'create-event',
 	UpdateEvent = 'update-event',
 	ContactInfo = 'contact-info',
+	Share = 'share',
 	CreateCategory = 'create-category',
 	UpdateCategory = 'update-category',
 	CategoryDetails = 'category-details',
@@ -57,6 +58,11 @@ export enum ModalType {
 export interface ContactInfoModalData {
 	type: ContactType;
 	value: string;
+}
+
+export interface ShareModalData {
+	title: string;
+	url: string;
 }
 
 export interface ImagePreviewData {
@@ -178,6 +184,7 @@ export interface ModalDataMap {
 	[ModalType.CreateEvent]: null;
 	[ModalType.UpdateEvent]: UpdateEventModalData;
 	[ModalType.ContactInfo]: ContactInfoModalData;
+	[ModalType.Share]: ShareModalData;
 	[ModalType.CreateCategory]: null;
 	[ModalType.UpdateCategory]: UpdateCategoryModalData;
 	[ModalType.CategoryDetails]: CategoryDetailsModalData;
