@@ -183,6 +183,9 @@ function wordsMatch(query: string, word: string): boolean {
 	const prefix = commonPrefixLength(query, word);
 	if (prefix >= 3 && ENDING.test(query.slice(prefix))) return true;
 
+	// An extra letter in front: "hazdahak" for "azdahak".
+	if (query.length >= 6 && word.startsWith(query.slice(1))) return true;
+
 	// The first letter is the one people miss by a neighbouring key: "baxpat" for "haxpat". Safe
 	// only for a longer word with everything after it intact, where nothing else fits that gap.
 	if (query.length >= 6 && query.length === word.length && query.slice(1) === word.slice(1)) {

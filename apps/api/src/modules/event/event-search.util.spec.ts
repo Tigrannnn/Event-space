@@ -100,6 +100,7 @@ describe('eventMatchesSearch', () => {
 		expect(finds('azdahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 		expect(finds('adahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 		expect(finds('adhak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
+		expect(finds('hazdahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 	});
 
 	it('finds a place when the first letter is a neighbouring key', () => {
