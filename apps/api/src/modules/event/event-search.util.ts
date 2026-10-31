@@ -203,8 +203,8 @@ function wordsMatch(query: string, word: string): boolean {
 		return true;
 	}
 
-	// Up to two letters skipped anywhere after the first: "azdhak" and "adahk" are both "azdahak".
-	if (query.length >= 6 && word.length - query.length <= 2 && isSubsequence(query, word)) {
+	// Up to two letters skipped anywhere after the first: "adhak", "azdak" and "adahk" are all "azdahak".
+	if (query.length >= 5 && word.length - query.length <= 2 && isSubsequence(query, word)) {
 		return true;
 	}
 

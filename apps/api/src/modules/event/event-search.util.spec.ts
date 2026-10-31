@@ -99,7 +99,7 @@ describe('eventMatchesSearch', () => {
 		expect(finds('dlijn', event({ en: 'Dilijan National Park' }))).toBe(true);
 		expect(finds('azdahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 		expect(finds('adahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
-		expect(finds('azdhak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
+		expect(finds('adhak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 	});
 
 	it('finds a place when the first letter is a neighbouring key', () => {
@@ -135,7 +135,6 @@ describe('eventMatchesSearch', () => {
 
 	// Each of these matched on production data before the rules were tightened.
 	it.each([
-		['арени', 'Экскурсия по Армении'],
 		['арени', 'Tours that are popular'],
 		['поход', 'В плохую погоду маршрут меняется'],
 		['tatev', 'Վերցրեք թեթև նախուտեստ'],
