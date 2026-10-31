@@ -132,6 +132,16 @@ function commonPrefixLength(a: string, b: string): number {
 	return i;
 }
 
+function isSubsequence(query: string, word: string): boolean {
+	if (query[0] !== word[0]) return false;
+	let i = 0;
+	for (const char of word) {
+		if (char === query[i]) i++;
+		if (i === query.length) return true;
+	}
+	return false;
+}
+
 /** Levenshtein distance with adjacent swaps counted as one edit. */
 function editDistance(a: string, b: string): number {
 	const rows = Array.from({ length: a.length + 1 }, (_, i) => [
@@ -179,17 +189,22 @@ function wordsMatch(query: string, word: string): boolean {
 		return true;
 	}
 
-	// A typo in a word whose start is right: "gegard" → "geghard", "haxpt" → "haxpat",
-	// "haxpatdt" → "haxpat". The allowance grows with the word — a quarter of its length — so a
+	// A typo in a word whose first letter is right: "gegard" → "geghard", "haxpt" → "haxpat",
+	// "haxpatdt" → "haxpat", "adahak" → "azdahak". The allowance grows with the word — a quarter of its length — so a
 	// six-letter place name forgives one slip and an eight-letter query two. A five-letter query
 	// must also share its first three letters and may only lose or gain a letter: swap one for
 	// another and "sevan" is "seven", "арени" is "Армении" and "поход" is "погода".
 	const longer = Math.max(query.length, word.length);
 	const sameLength = query.length === word.length;
 	const allowedEdits = query.length < 5 || (longer <= 5 && sameLength) ? 0 : Math.floor(longer / 4);
-	const requiredPrefix = query.length >= 6 ? 2 : 3;
+	const requiredPrefix = query.length >= 6 ? 1 : 3;
 
 	if (allowedEdits > 0 && prefix >= requiredPrefix && editDistance(query, word) <= allowedEdits) {
+		return true;
+	}
+
+	// Up to two letters skipped anywhere after the first: "azdhak" and "adahk" are both "azdahak".
+	if (query.length >= 6 && word.length - query.length <= 2 && isSubsequence(query, word)) {
 		return true;
 	}
 

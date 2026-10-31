@@ -98,6 +98,8 @@ describe('eventMatchesSearch', () => {
 		expect(finds('hxpt', event({ en: 'Haxpat Monastery' }))).toBe(true);
 		expect(finds('dlijn', event({ en: 'Dilijan National Park' }))).toBe(true);
 		expect(finds('azdahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
+		expect(finds('adahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
+		expect(finds('azdhak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 	});
 
 	it('finds a place when the first letter is a neighbouring key', () => {
