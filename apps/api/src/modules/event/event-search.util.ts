@@ -84,15 +84,15 @@ const ARMENIAN: Record<string, string> = {
 
 /**
  * Spellings that name the same sound in different transliterations — Tsaghkadzor, Tsakhkadzor
- * and Tsaxkadzor all end up as "cahkadzor", Kobuleti and Cobuleti as "kobuleti". A plain "c" is
+ * and Tsaxkadzor all end up as "cahkadzor", Kobuleti and Cobuleti as "kobuleti", Azhdahak and
+ * Azdahak as "azdahak". A plain "c" is
  * folded into "k" before "ts" and "ch" claim the letter "c" for themselves. Applied in order, so
  * the longer groups go first.
  * Collisions this creates only ever widen a match; they never hide one.
  */
 const SOUND_FOLDS: Array<[RegExp, string]> = [
 	[/shch/g, 'sh'],
-	[/dzh/g, 'j'],
-	[/zh/g, 'j'],
+	[/dzh|zh|j/g, 'z'],
 	[/[kg]h|x/g, 'h'],
 	[/c(?!h)/g, 'k'],
 	[/ts|tz|ch/g, 'c'],

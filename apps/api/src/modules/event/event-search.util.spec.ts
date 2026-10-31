@@ -28,6 +28,7 @@ describe('normalizeForSearch', () => {
 		['Tsaghkadzor', 'Tsakhkadzor', 'Tsaxkadzor', 'Цахкадзор', 'Ծաղկաձոր'],
 		['Yerevan', 'Ереван', 'Երևան'],
 		['Dilijan', 'Дилижан', 'Դիլիջան'],
+		['Azhdahak', 'Azdahak', 'Аждахак'],
 	])('spells %s the same in every alphabet and transliteration', (...spellings) => {
 		const normalized = spellings.map(normalizeForSearch);
 		expect(new Set(normalized).size).toBe(1);
@@ -96,6 +97,7 @@ describe('eventMatchesSearch', () => {
 	it('finds a name typed without its vowels', () => {
 		expect(finds('hxpt', event({ en: 'Haxpat Monastery' }))).toBe(true);
 		expect(finds('dlijn', event({ en: 'Dilijan National Park' }))).toBe(true);
+		expect(finds('azdahak', event({ en: 'Azhdahak Peak hike' }))).toBe(true);
 	});
 
 	it('finds a place when the first letter is a neighbouring key', () => {
