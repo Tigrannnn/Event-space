@@ -4,6 +4,8 @@ export const cancellation: Messages['cancellation'] = {
 	title: 'Условия отмены',
 	description:
 		'Чем ближе дата события, тем больше расходов уже могло быть понесено, поэтому процент возврата уменьшается. Комиссия обработки в скобках не возвращается и вычитается из суммы.',
+	forDate: 'Для даты',
+	exampleForDate: 'Пример для даты',
 	noRefundAfter: 'Возврата нет после',
 	cancelBefore: 'Отмените до',
 	cancelBetween: 'Отмените между',

@@ -965,6 +965,7 @@ export default function EventForm({
 						eventDate={zonedLocalInputToDate(watchedDate) ?? ''}
 						price={Number(watchedPrice) || 0}
 						cancellationRules={watchedRules ?? []}
+						example
 					/>
 				)}
 

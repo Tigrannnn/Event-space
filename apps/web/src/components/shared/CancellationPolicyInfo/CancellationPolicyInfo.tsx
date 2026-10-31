@@ -11,6 +11,7 @@ export interface CancellationPolicyInfoProps {
 	price: number;
 	cancellationRules: { id?: string; hoursBeforeEvent: number; refundPercentage: number }[];
 	booking?: BookingWithEstimate;
+	example?: boolean;
 }
 
 export default function CancellationPolicyInfo({
@@ -18,6 +19,7 @@ export default function CancellationPolicyInfo({
 	price,
 	cancellationRules,
 	booking,
+	example = false,
 }: CancellationPolicyInfoProps) {
 	const translate = useTranslation();
 
@@ -86,6 +88,10 @@ export default function CancellationPolicyInfo({
 		<div className="rounded-md border border-gray-200 p-3 text-sm text-gray-600 dark:border-gray-700 dark:text-gray-400">
 			<p className="mb-1 font-medium text-gray-800 dark:text-white">{translate('cancellation.title')}</p>
 			<p className="mb-2 text-xs">{translate('cancellation.description')}</p>
+			<p className="mb-2 font-medium text-gray-800 dark:text-gray-200">
+				{translate(example ? 'cancellation.exampleForDate' : 'cancellation.forDate')}{' '}
+				{formatDateTime(date)}
+			</p>
 			<ul className="space-y-1">
 				{lines.map((line, i) => (
 					<li key={i}>{line}</li>
