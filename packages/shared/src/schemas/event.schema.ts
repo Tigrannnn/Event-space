@@ -128,6 +128,8 @@ export type EventFilters = z.infer<typeof EventFiltersSchema>;
 export const CreateEventSchema = EventSchema.omit({
 	id: true,
 	userId: true,
+	ratingSum: true,
+	ratingCount: true,
 	createdAt: true,
 	updatedAt: true,
 	images: true,
