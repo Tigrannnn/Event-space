@@ -1,7 +1,8 @@
 'use client';
 
-import type { ComponentType } from 'react';
-import { Facebook, Mail, MessageCircle, Send, Twitter } from 'lucide-react';
+import type { ComponentType, CSSProperties } from 'react';
+import { Mail } from 'lucide-react';
+import { FaFacebook, FaTelegram, FaViber, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
 import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import { useCopyToClipboard } from '@/hooks/clipboard';
@@ -11,35 +12,42 @@ import Button from '../../Buttons/Button';
 
 interface ShareTarget {
 	name: string;
-	icon: ComponentType<{ className?: string }>;
+	icon: ComponentType<{ className?: string; style?: CSSProperties }>;
+	color?: string;
+	tone?: string;
 	href: (url: string, title: string) => string;
 }
 
 const TARGETS: ShareTarget[] = [
 	{
 		name: 'Telegram',
-		icon: Send,
+		icon: FaTelegram,
+		color: '#26A5E4',
 		href: (url, title) =>
 			`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
 	},
 	{
 		name: 'WhatsApp',
-		icon: MessageCircle,
+		icon: FaWhatsapp,
+		color: '#25D366',
 		href: (url, title) => `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
 	},
 	{
 		name: 'Viber',
-		icon: MessageCircle,
+		icon: FaViber,
+		color: '#7360F2',
 		href: (url, title) => `viber://forward?text=${encodeURIComponent(`${title} ${url}`)}`,
 	},
 	{
 		name: 'Facebook',
-		icon: Facebook,
+		icon: FaFacebook,
+		color: '#1877F2',
 		href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
 	},
 	{
 		name: 'X',
-		icon: Twitter,
+		icon: FaXTwitter,
+		tone: 'text-gray-900 dark:text-white',
 		href: (url, title) =>
 			`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
 	},
@@ -67,7 +75,7 @@ export default function ShareModal() {
 				<p className="mb-5 truncate text-center text-sm text-gray-600 dark:text-gray-300">{data.title}</p>
 
 				<div className="mb-5 grid grid-cols-3 gap-2">
-					{TARGETS.map(({ name, icon: Icon, href }) => (
+					{TARGETS.map(({ name, icon: Icon, color, tone, href }) => (
 						<a
 							key={name}
 							href={href(data.url, data.title)}
@@ -76,7 +84,7 @@ export default function ShareModal() {
 							onClick={closeModal}
 							className="hover:border-primary flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 px-2 py-3 text-xs font-medium text-gray-700 transition-colors dark:border-gray-700 dark:text-gray-200 neutral:rounded-lg neutral:border-gray-300 neutral:dark:border-neutral-700"
 						>
-							<Icon className="text-primary size-5" />
+							<Icon className={`size-6 ${color ? '' : (tone ?? 'text-primary')}`} style={color ? { color } : undefined} />
 							{name}
 						</a>
 					))}
