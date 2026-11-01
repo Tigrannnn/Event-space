@@ -5,6 +5,8 @@ export const event: Messages['event'] = {
 	share: 'Կիսվել',
 	linkCopied: 'Հղումը պատճենվեց',
 	copyFailed: 'Չհաջողվեց պատճենել հղումը',
+	video: 'Տեսանյութ',
+	playVideo: 'Դիտել տեսանյութը',
 	shareTitle: 'Կիսվեք այս տուրով',
 	copyLink: 'Պատճենել հղումը',
 	duration: 'Տեւողություն',

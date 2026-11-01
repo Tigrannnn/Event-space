@@ -105,6 +105,7 @@ model Event {
   id                 String           @id @default(uuid())
   locationUrl        String           @map("location_url") @db.VarChar(1000)
   meetingLocationUrl String           @map("meeting_location_url") @db.VarChar(1000)
+  videoUrl           String?          @map("video_url") @db.VarChar(1000)
   difficulty         EventDifficulty  @default(NONE)
   price              Decimal          @db.Decimal(10, 2)
   duration           Int // Minutes

@@ -15,6 +15,7 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useShare } from '@/hooks/share';
+import { EventVideo } from '@/features/events/components/EventVideo';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -186,6 +187,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 							{eventTranslation.description}
 						</p>
 					</section>
+					<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 					{eventTranslation.whatsIncluded.length > 0 && (
 						<section>

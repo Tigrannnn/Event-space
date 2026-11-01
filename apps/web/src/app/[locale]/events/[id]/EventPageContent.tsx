@@ -13,6 +13,7 @@ import { InfoCard } from '@/components/ui/InfoCard';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 
 import { useShare } from '@/hooks/share';
+import { EventVideo } from '@/features/events/components/EventVideo';
 import {
 	Event,
 	getEventImageUrls,
@@ -183,6 +184,8 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 								<p>{eventTranslation.description}</p>
 							</div>
 						</div>
+
+						<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 						{/* What's Included */}
 						<div>

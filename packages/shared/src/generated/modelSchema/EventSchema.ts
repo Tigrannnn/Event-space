@@ -13,6 +13,7 @@ export const EventSchema = z.object({
   id: z.uuid(),
   locationUrl: z.string(),
   meetingLocationUrl: z.string(),
+  videoUrl: z.string().nullable(),
   price: z.instanceof(Prisma.Decimal, { message: "Field 'price' must be a Decimal. Location: ['Models', 'Event']"}),
   duration: z.number().int(),
   /**

@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { EventOccurrenceStatusEnum, LocaleEnum, MAX_EVENT_IMAGES } from '@event-space/shared';
+import {
+	EventOccurrenceStatusEnum,
+	LocaleEnum,
+	MAX_EVENT_IMAGES,
+	parseVideoUrl,
+} from '@event-space/shared';
 import { EventDifficultyEnum, EventStatusEnum } from '@event-space/shared';
 
 const browserFileSchema = z.custom<File>(
@@ -62,6 +67,9 @@ export const EventFormSchema = z.object({
 		.max(MAX_EVENT_IMAGES),
 	locationUrl: z.string().url('admin.validation.invalidUrl'),
 	meetingLocationUrl: z.string().url('admin.validation.invalidUrl'),
+	videoUrl: z
+		.string()
+		.refine((value) => !value.trim() || parseVideoUrl(value) !== null, 'admin.validation.invalidVideoUrl'),
 	date: z.string().optional(),
 	difficulty: EventDifficultyEnum,
 	price: z.string().min(1, 'admin.validation.priceRequired'),

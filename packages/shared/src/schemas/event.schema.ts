@@ -4,6 +4,7 @@ import { EventStatusSchema } from '../generated/inputTypeSchemas/EventStatusSche
 import { EventDifficultySchema } from '../generated/inputTypeSchemas/EventDifficultySchema';
 import { SpotsFilterSchema, TimeFilterSchema } from './common.schema';
 import { SafeUserSchema } from './user.schema';
+import { parseVideoUrl } from '../utils/video-url.utils';
 import {
 	CancellationPolicyRuleInputSchema,
 	CancellationPolicyRuleSchema,
@@ -35,6 +36,7 @@ export type EventImage = z.infer<typeof EventImageSchema>;
 
 export const EventSchema = GeneratedEventSchema.extend({
 	price: z.number(),
+	videoUrl: z.string().nullish(),
 	images: z.array(EventImageSchema).optional(),
 	organizer: SafeUserSchema.optional(),
 	cancellationRules: z.array(CancellationPolicyRuleSchema).default([]),
@@ -137,6 +139,15 @@ export const CreateEventSchema = EventSchema.omit({
 	category: true,
 	occurrences: true,
 }).extend({
+	videoUrl: z
+		.string()
+		.trim()
+		.max(1000)
+		.refine((value) => value === '' || parseVideoUrl(value) !== null, {
+			message: 'Use a YouTube, Vimeo or Instagram link',
+		})
+		.transform((value) => value || null)
+		.nullish(),
 	cancellationRules: z.array(CancellationPolicyRuleInputSchema).default([]),
 	translations: z.array(CreateEventTranslationSchema).min(1, 'At least one translation is required'),
 	categoryId: z.string().uuid(),

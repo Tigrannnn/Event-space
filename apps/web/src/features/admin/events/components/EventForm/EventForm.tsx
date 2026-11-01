@@ -575,6 +575,17 @@ export default function EventForm({
 					</label>
 				</div>
 
+				<label className="block space-y-1.5">
+					<span className="text-sm font-semibold">{translate('admin.videoUrl')}</span>
+					<input
+						{...register('videoUrl')}
+						className={fieldClassName}
+						disabled={isPending}
+						placeholder={translate('admin.videoUrlPlaceholder')}
+					/>
+					{errors.videoUrl && <p className="text-xs text-red-500">{errorText(errors.videoUrl.message)}</p>}
+				</label>
+
 				<div className="space-y-3 rounded-lg border border-gray-200 p-3 sm:p-4 dark:border-gray-700">
 					{/* Squeezing the description into the space left by the button shreds it
 					    on a phone, so the button drops to its own row instead. */}
