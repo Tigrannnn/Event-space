@@ -2,7 +2,7 @@
 
 import type { ComponentType, CSSProperties } from 'react';
 import { Mail } from 'lucide-react';
-import { FaFacebook, FaInstagram, FaTelegram, FaViber, FaWhatsapp } from 'react-icons/fa6';
+import { FaFacebook, FaTelegram, FaViber, FaWhatsapp, FaXTwitter } from 'react-icons/fa6';
 import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import { useCopyToClipboard } from '@/hooks/clipboard';
@@ -14,7 +14,7 @@ interface ShareTarget {
 	name: string;
 	icon: ComponentType<{ className?: string; style?: CSSProperties }>;
 	color?: string;
-	copiesLink?: boolean;
+	tone?: string;
 	href: (url: string, title: string) => string;
 }
 
@@ -45,11 +45,11 @@ const TARGETS: ShareTarget[] = [
 		href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
 	},
 	{
-		name: 'Instagram',
-		icon: FaInstagram,
-		color: '#E4405F',
-		copiesLink: true,
-		href: () => 'https://www.instagram.com/direct/inbox/',
+		name: 'X',
+		icon: FaXTwitter,
+		tone: 'text-gray-900 dark:text-white',
+		href: (url, title) =>
+			`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
 	},
 	{
 		name: 'Email',
@@ -75,19 +75,16 @@ export default function ShareModal() {
 				<p className="mb-5 truncate text-center text-sm text-gray-600 dark:text-gray-300">{data.title}</p>
 
 				<div className="mb-5 grid grid-cols-3 gap-2">
-					{TARGETS.map(({ name, icon: Icon, color, copiesLink, href }) => (
+					{TARGETS.map(({ name, icon: Icon, color, tone, href }) => (
 						<a
 							key={name}
 							href={href(data.url, data.title)}
 							target="_blank"
 							rel="noopener noreferrer"
-							onClick={() => {
-								if (copiesLink) void copyToClipboard(data.url, 'event.linkCopiedForInstagram', 'event.copyFailed');
-								closeModal();
-							}}
+							onClick={closeModal}
 							className="hover:border-primary flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 px-2 py-3 text-xs font-medium text-gray-700 transition-colors dark:border-gray-700 dark:text-gray-200 neutral:rounded-lg neutral:border-gray-300 neutral:dark:border-neutral-700"
 						>
-							<Icon className={`size-6 ${color ? '' : 'text-primary'}`} style={color ? { color } : undefined} />
+							<Icon className={`size-6 ${color ? '' : (tone ?? 'text-primary')}`} style={color ? { color } : undefined} />
 							{name}
 						</a>
 					))}

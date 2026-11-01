@@ -5,7 +5,6 @@ export const event: Messages['event'] = {
 	share: 'Поделиться',
 	linkCopied: 'Ссылка скопирована',
 	copyFailed: 'Не удалось скопировать ссылку',
-	linkCopiedForInstagram: 'Ссылка скопирована — вставьте её в сообщение в Instagram',
 	shareTitle: 'Поделиться туром',
 	copyLink: 'Копировать ссылку',
 	duration: 'Длительность',
