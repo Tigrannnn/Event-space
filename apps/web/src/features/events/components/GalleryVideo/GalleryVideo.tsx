@@ -17,12 +17,21 @@ export function useGallerySlides(videoUrl: string | null | undefined, imageUrls:
 
 /**
  * What the tile does while the pointer is on its background, to match the pictures of the same
- * skin. It does not happen while the pointer is on the play button, which has its own.
+ * skin down to the 700 ms the picture component gives every such change. It does not happen
+ * while the pointer is on the play button, which has its own, nor once the video is playing.
  */
 const BACKGROUND_HOVER = {
-	scale: 'scale-98 transition-transform duration-100 [&:hover:not(:has(button:hover))]:scale-100',
-	fade: '[&:hover:not(:has(button:hover))>img]:opacity-90',
-	none: '',
+	scale: {
+		base: 'scale-98 transition-transform duration-700',
+		hover: '[&:hover:not(:has(button:hover))]:scale-100',
+		poster: '',
+	},
+	fade: {
+		base: '',
+		hover: '[&:hover:not(:has(button:hover))>img]:opacity-90',
+		poster: 'transition-opacity duration-700',
+	},
+	none: { base: '', hover: '', poster: '' },
 } as const;
 
 const PLAY_BUTTON =
@@ -132,7 +141,8 @@ export function VideoTile({
 			aria-label={title}
 			className={cn(
 				'relative cursor-pointer overflow-hidden bg-black',
-				!isPlaying && BACKGROUND_HOVER[hover],
+				BACKGROUND_HOVER[hover].base,
+				!isPlaying && BACKGROUND_HOVER[hover].hover,
 				className,
 			)}
 		>
@@ -152,7 +162,7 @@ export function VideoTile({
 					<img
 						src={video.thumbnailUrl}
 						alt=""
-						className="absolute inset-0 size-full object-cover transition-opacity"
+						className={cn('absolute inset-0 size-full object-cover', BACKGROUND_HOVER[hover].poster)}
 					/>
 					<PlayButton
 						label={`${translate('event.playVideo')}: ${title}`}
