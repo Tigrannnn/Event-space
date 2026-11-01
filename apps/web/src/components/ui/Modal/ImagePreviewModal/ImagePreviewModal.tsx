@@ -6,8 +6,8 @@ import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Image from 'next/image';
-import { autoplayEmbedUrl, parseVideoUrl } from '@event-space/shared';
-import { GALLERY_VIDEO_SLIDE } from '@/features/events/components/GalleryVideo';
+import { parseVideoUrl } from '@event-space/shared';
+import { GALLERY_VIDEO_SLIDE, VideoPlayer } from '@/features/events/components/GalleryVideo';
 
 export default function ImagePreviewModal() {
 	const { activeModal, closeModal } = useModalStore();
@@ -116,19 +116,17 @@ export default function ImagePreviewModal() {
 						<div className="relative flex h-full w-full items-center justify-center">
 							{isVideoSlide && video ? (
 								<div
-									className={`relative max-h-full max-w-full overflow-hidden rounded-2xl bg-black ${
+									className={`relative max-h-full max-w-full ${
 										video.isVertical ? 'aspect-9/16 h-full' : 'aspect-video w-full'
 									}`}
 									onClick={(e) => e.stopPropagation()}
 								>
-									<iframe
+									<VideoPlayer
 										key={currentIndex}
-										src={autoplayEmbedUrl(video)}
+										video={video}
 										title="Video"
-										className="absolute inset-0 size-full border-0"
-										allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-										allowFullScreen
-										referrerPolicy="strict-origin-when-cross-origin"
+										startPlaying={Boolean(modalData?.autoplayVideo) && currentIndex === initialIndex}
+										className="size-full rounded-2xl"
 									/>
 								</div>
 							) : (

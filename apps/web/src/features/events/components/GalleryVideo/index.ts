@@ -1,1 +1,1 @@
-export { GALLERY_VIDEO_SLIDE, VideoTile, VideoThumb, useGallerySlides } from './GalleryVideo';
+export { GALLERY_VIDEO_SLIDE, VideoPlayer, VideoTile, VideoThumb, useGallerySlides } from './GalleryVideo';

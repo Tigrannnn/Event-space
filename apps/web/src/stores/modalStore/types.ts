@@ -69,6 +69,8 @@ export interface ImagePreviewData {
 	/** The pictures, with GALLERY_VIDEO_SLIDE standing where the video goes. */
 	images: string[];
 	videoUrl?: string | null;
+	/** Start the video as soon as the view opens on it, because the play button was what opened it. */
+	autoplayVideo?: boolean;
 	initialIndex?: number;
 }
 

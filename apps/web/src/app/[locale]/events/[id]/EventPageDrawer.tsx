@@ -58,11 +58,12 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 	const thumbnails = slides.slice(0, MAX_THUMBNAILS);
 	const [activeImage, setActiveImage] = useState(0);
 
-	const openPreview = (index: number) =>
+	const openPreview = (index: number, autoplayVideo = false) =>
 		openModal(ModalType.ImagePreview, {
 			images: slides,
 			videoUrl: event.videoUrl,
 			initialIndex: index,
+			autoplayVideo,
 		});
 
 	const handleShareClick = () => share(eventTranslation.title);
@@ -84,7 +85,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 								video={video}
 								title={eventTranslation.title}
 								playInModal
-								onOpen={() => openPreview(activeImage)}
+								onOpen={(autoplay) => openPreview(activeImage, autoplay)}
 								className="block size-full"
 							/>
 						) : (

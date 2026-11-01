@@ -141,6 +141,7 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 								<VideoTile
 									key="video"
 									video={video}
+									hover="fade"
 									title={eventTranslation.title}
 									onOpen={() => openPreview(index)}
 									className={`${index === 0 && shown.length >= 3 ? 'sm:col-span-2 sm:row-span-2' : ''} ${index > 0 ? 'hidden sm:block' : ''}`}
