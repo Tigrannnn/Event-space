@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ImagePlus, X } from 'lucide-react';
+import { useDropzone } from 'react-dropzone';
 import { REVIEW_CONFIG, type ReviewImage } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 
@@ -49,12 +50,12 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const pick = (list: FileList | null) => {
-		if (!list?.length) return;
+	const pick = (list: File[]) => {
+		if (!list.length) return;
 		setError(null);
 
 		const room = REVIEW_CONFIG.MAX_IMAGES - count;
-		const images = Array.from(list).filter((file) => file.type.startsWith('image/'));
+		const images = list.filter((file) => file.type.startsWith('image/'));
 		const fitting = images.filter((file) => file.size <= MAX_BYTES);
 
 		if (fitting.length < images.length) setError(translate('review.photoTooLarge'));
@@ -67,6 +68,14 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 
 		if (inputRef.current) inputRef.current.value = '';
 	};
+
+	const { getRootProps, isDragActive } = useDropzone({
+		onDrop: pick,
+		accept: { 'image/png': [], 'image/jpeg': [], 'image/webp': [], 'image/avif': [] },
+		noClick: true,
+		noKeyboard: true,
+		disabled: disabled || count >= REVIEW_CONFIG.MAX_IMAGES,
+	});
 
 	const tile =
 		'relative size-24 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800';
@@ -82,7 +91,12 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 				{translate('review.photosHint', { count: REVIEW_CONFIG.MAX_IMAGES })}
 			</span>
 
-			<div className="flex flex-wrap gap-3">
+			<div
+				{...getRootProps()}
+				className={`flex flex-wrap gap-3 rounded-xl p-1 transition-colors ${
+					isDragActive ? 'bg-primary/10 ring-primary ring-dashed ring-2' : ''
+				}`}
+			>
 				{kept.map((image) => (
 					<div key={image.id} className={tile}>
 						{/* eslint-disable-next-line @next/next/no-img-element */}
@@ -126,7 +140,7 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 						className="hover:border-primary flex size-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-300 text-xs font-medium text-gray-500 transition-colors dark:border-gray-600 dark:text-gray-400"
 					>
 						<ImagePlus className="text-primary size-6" />
-						{translate('review.addPhoto')}
+						{isDragActive ? translate('review.dropHere') : translate('review.addPhoto')}
 					</button>
 				)}
 			</div>
@@ -137,7 +151,7 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 				accept="image/png,image/jpeg,image/webp,image/avif"
 				multiple
 				hidden
-				onChange={(event) => pick(event.target.files)}
+				onChange={(event) => pick(Array.from(event.target.files ?? []))}
 			/>
 
 			{error && <p className="text-xs text-red-500">{error}</p>}

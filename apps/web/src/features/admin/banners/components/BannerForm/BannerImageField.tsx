@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRef } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { ImagePlus, X } from 'lucide-react';
 import { optimizeImageUrl } from '@event-space/shared';
 import type { BannerFormImage } from './banner-form.schema';
@@ -18,6 +19,13 @@ interface BannerImageFieldProps {
 }
 
 const ACCEPTED = 'image/png,image/jpeg,image/webp,image/avif';
+
+const ACCEPTED_TYPES = {
+	'image/png': ['.png'],
+	'image/jpeg': ['.jpg', '.jpeg'],
+	'image/webp': ['.webp'],
+	'image/avif': ['.avif'],
+} as const;
 
 export default function BannerImageField({
 	label,
@@ -44,6 +52,16 @@ export default function BannerImageField({
 		replaceWith({ kind: 'file', file, previewUrl: URL.createObjectURL(file) });
 	};
 
+	// The button and the hidden input keep doing the clicking; this adds only the dropping.
+	const { getRootProps, isDragActive } = useDropzone({
+		onDrop: (files) => handleFile(files[0]),
+		accept: ACCEPTED_TYPES,
+		multiple: false,
+		noClick: true,
+		noKeyboard: true,
+		disabled,
+	});
+
 	const source = value?.kind === 'existing' ? optimizeImageUrl(value.url) : previewUrl;
 
 	return (
@@ -52,8 +70,10 @@ export default function BannerImageField({
 			<span className="block text-xs text-gray-500">{hint}</span>
 
 			<div
+				{...getRootProps()}
 				className={cn(
-					'relative overflow-hidden rounded-xl border border-dashed border-gray-400 bg-gray-50 dark:bg-gray-950',
+					'relative overflow-hidden rounded-xl border border-dashed border-gray-400 bg-gray-50 transition-colors dark:bg-gray-950',
+					isDragActive && 'border-primary bg-primary/10 ring-primary ring-2',
 					aspectClassName,
 				)}
 			>
