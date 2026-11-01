@@ -17,18 +17,18 @@ export function useGallerySlides(videoUrl: string | null | undefined, imageUrls:
 
 /**
  * What the tile does while the pointer is on its background, to match the pictures of the same
- * skin down to the 700 ms the picture component gives every such change. It does not happen
- * while the pointer is on the play button, which has its own, nor once the video is playing.
+ * skin down to the 700 ms the picture component gives every such change. It stays while the
+ * pointer is on the play button, which grows on its own, and stops once the video is playing.
  */
 const BACKGROUND_HOVER = {
 	scale: {
 		base: 'scale-98 transition-transform duration-700',
-		hover: '[&:hover:not(:has(button:hover))]:scale-100',
+		hover: 'hover:scale-100',
 		poster: '',
 	},
 	fade: {
 		base: '',
-		hover: '[&:hover:not(:has(button:hover))>img]:opacity-90',
+		hover: '[&:hover>img]:opacity-90',
 		poster: 'transition-opacity duration-700',
 	},
 	none: { base: '', hover: '', poster: '' },
