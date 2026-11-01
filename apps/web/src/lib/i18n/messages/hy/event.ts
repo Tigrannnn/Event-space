@@ -5,6 +5,7 @@ export const event: Messages['event'] = {
 	share: 'Կիսվել',
 	linkCopied: 'Հղումը պատճենվեց',
 	copyFailed: 'Չհաջողվեց պատճենել հղումը',
+	linkCopiedForInstagram: 'Հղումը պատճենվեց․ տեղադրեք այն Instagram-ի հաղորդագրության մեջ',
 	shareTitle: 'Կիսվեք այս տուրով',
 	copyLink: 'Պատճենել հղումը',
 	duration: 'Տեւողություն',

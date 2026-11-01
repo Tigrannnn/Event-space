@@ -3,6 +3,7 @@ export const event = {
 	share: 'Share',
 	linkCopied: 'Link copied to clipboard!',
 	copyFailed: 'Failed to copy link',
+	linkCopiedForInstagram: 'Link copied — paste it into an Instagram message',
 	shareTitle: 'Share this tour',
 	copyLink: 'Copy link',
 	duration: 'Duration',
