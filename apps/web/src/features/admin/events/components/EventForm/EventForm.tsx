@@ -18,7 +18,7 @@ import {
 } from '@event-space/shared';
 import { EventFormSchema, type EventFormValues } from './event-form.schema';
 import { mapEventToFormValues, nextOccurrenceDraft } from './form-mappers';
-import DateTimeField from '@/components/ui/DateTimeField';
+import DateTimeField, { DATE_TIME_INPUT_CLASS_NAME } from '@/components/ui/DateTimeField';
 import CancellationReasonField from './CancellationReasonField';
 import Button from '@/components/ui/Buttons/Button';
 import Select from '@/components/ui/Select';
@@ -59,9 +59,7 @@ const fieldClassName =
 // iOS Safari keeps a native date input at its own intrinsic width whatever `width` says,
 // so on a phone it juts out of the card. Dropping the native appearance makes it obey
 // w-full; the value is then left-aligned to match the other fields.
-const dateTimeInputClassName =
-	fieldClassName +
-	' min-w-0 cursor-pointer [color-scheme:light] dark:[color-scheme:dark] max-sm:appearance-none [&::-webkit-date-and-time-value]:text-left';
+const dateTimeInputClassName = DATE_TIME_INPUT_CLASS_NAME;
 
 const textareaClassName =
 	'focus:border-primary w-full resize-y rounded-md border border-gray-500 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-gray-400 text-gray-900 dark:text-gray-100 min-h-[100px]';

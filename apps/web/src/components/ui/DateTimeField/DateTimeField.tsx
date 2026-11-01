@@ -2,11 +2,20 @@
 
 import { useRef } from 'react';
 
+/**
+ * How the date and the time boxes look wherever a date is picked: the event form, the banner
+ * and the promo code. One string, so the three cannot drift apart.
+ */
+export const DATE_TIME_INPUT_CLASS_NAME =
+	'focus:border-primary h-10 w-full rounded-md border border-gray-500 bg-transparent px-3 text-sm outline-none text-gray-900 dark:text-gray-100 ' +
+	'[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none' +
+	' min-w-0 cursor-pointer [color-scheme:light] dark:[color-scheme:dark] max-sm:appearance-none [&::-webkit-date-and-time-value]:text-left';
+
 interface DateTimeFieldProps {
 	value: string;
 	onChange: (value: string) => void;
 	disabled?: boolean;
-	inputClassName: string;
+	inputClassName?: string;
 }
 
 function splitDateTime(value: string): { date: string; time: string } {
@@ -28,7 +37,7 @@ export default function DateTimeField({
 	value,
 	onChange,
 	disabled,
-	inputClassName,
+	inputClassName = DATE_TIME_INPUT_CLASS_NAME,
 }: DateTimeFieldProps) {
 	const { date, time } = splitDateTime(value);
 

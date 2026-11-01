@@ -287,7 +287,6 @@ export default function BannerForm({
 								value={field.value ?? ''}
 								onChange={field.onChange}
 								disabled={isPending}
-								inputClassName={fieldClassName}
 							/>
 						)}
 					/>
@@ -303,7 +302,6 @@ export default function BannerForm({
 								value={field.value ?? ''}
 								onChange={field.onChange}
 								disabled={isPending}
-								inputClassName={fieldClassName}
 							/>
 						)}
 					/>

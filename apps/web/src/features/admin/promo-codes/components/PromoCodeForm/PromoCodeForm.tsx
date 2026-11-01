@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
+import DateTimeField from '@/components/ui/DateTimeField';
 import Select from '@/components/ui/Select';
 import {
 	Command,
@@ -16,7 +17,12 @@ import {
 import { useTranslation } from '@/hooks/translation';
 import { useAdminCategories, useAdminEvents } from '@/features/admin/hooks/useAdmin';
 import { useEventById } from '@/features/events';
-import { getCategoryTranslation, getEventTranslation } from '@event-space/shared';
+import {
+	getCategoryTranslation,
+	getEventTranslation,
+	toZonedLocalInput,
+	zonedLocalInputToDate,
+} from '@event-space/shared';
 import type { CreatePromoCodeData, PromoCode } from '@event-space/shared';
 
 interface PromoCodeFormProps {
@@ -29,12 +35,14 @@ interface PromoCodeFormProps {
 
 type PromoScope = 'all' | 'event' | 'category';
 
-/** `type="date"` inputs hand back `''` when cleared — that must become "omit this field",
- *  not a string the API's date parser will choke on. */
-function dateInputValue(value: string | Date | null | undefined): string {
-	if (!value) return '';
-	const date = value instanceof Date ? value : new Date(value);
-	return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+/** A stored moment as the date box shows it, in the company's own time. */
+function toLocalInput(value: string | Date | null | undefined): string {
+	return value ? toZonedLocalInput(value) : '';
+}
+
+/** What the date box holds back as a moment, or nothing when it was cleared. */
+function fromLocalInput(value: string): Date | null {
+	return value ? (zonedLocalInputToDate(value) ?? new Date(value)) : null;
 }
 
 export default function PromoCodeForm({
@@ -53,8 +61,8 @@ export default function PromoCodeForm({
 	const [maxUsesPerUser, setMaxUsesPerUser] = useState(
 		promoCode?.maxUsesPerUser != null ? String(promoCode.maxUsesPerUser) : '',
 	);
-	const [validFrom, setValidFrom] = useState(dateInputValue(promoCode?.validFrom));
-	const [validUntil, setValidUntil] = useState(dateInputValue(promoCode?.validUntil));
+	const [validFrom, setValidFrom] = useState(toLocalInput(promoCode?.validFrom));
+	const [validUntil, setValidUntil] = useState(toLocalInput(promoCode?.validUntil));
 	const [active, setActive] = useState(promoCode?.active ?? true);
 	const [note, setNote] = useState(promoCode?.note ?? '');
 
@@ -115,8 +123,8 @@ export default function PromoCodeForm({
 			// to empty on an edit would otherwise see it silently stay at its old value.
 			maxUses: maxUses.trim() ? Number(maxUses) : null,
 			maxUsesPerUser: maxUsesPerUser.trim() ? Number(maxUsesPerUser) : null,
-			validFrom: validFrom ? new Date(validFrom) : null,
-			validUntil: validUntil ? new Date(validUntil) : null,
+			validFrom: fromLocalInput(validFrom),
+			validUntil: fromLocalInput(validUntil),
 			active,
 			note: note.trim() || null,
 			eventId: scope === 'event' ? eventId : null,
@@ -270,19 +278,15 @@ export default function PromoCodeForm({
 					/>
 				</div>
 
-				<div className="grid grid-cols-2 gap-4">
-					<Input
-						label={translate('admin.promoCodeValidFrom')}
-						type="date"
-						value={validFrom}
-						onChange={(event) => setValidFrom(event.target.value)}
-					/>
-					<Input
-						label={translate('admin.promoCodeValidUntil')}
-						type="date"
-						value={validUntil}
-						onChange={(event) => setValidUntil(event.target.value)}
-					/>
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<div className="space-y-1.5">
+						<span className="text-sm font-semibold">{translate('admin.promoCodeValidFrom')}</span>
+						<DateTimeField value={validFrom} onChange={setValidFrom} disabled={isPending} />
+					</div>
+					<div className="space-y-1.5">
+						<span className="text-sm font-semibold">{translate('admin.promoCodeValidUntil')}</span>
+						<DateTimeField value={validUntil} onChange={setValidUntil} disabled={isPending} />
+					</div>
 				</div>
 
 				<Input
