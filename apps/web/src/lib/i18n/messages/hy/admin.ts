@@ -319,7 +319,7 @@ export const admin: Messages['admin'] = {
 	noBannersFound: 'Բաններներ դեռ չկան',
 	bannerUntitled: 'Առանց վերնագրի բաններ',
 	bannerImage: 'Նկար',
-	bannerImageHint: 'Լայն նկար՝ 1600 px-ից։ Տեքստի կողմը թող ավելի հանգիստ լինի։',
+	bannerImageHint: 'Լայն նկար՝ 1600 px-ից։',
 	bannerRemoveImage: 'Հեռացնել նկարը',
 	bannerTitle: 'Վերնագիր',
 	bannerSubtitle: 'Ենթավերնագիր',

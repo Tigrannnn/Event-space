@@ -319,7 +319,7 @@ export const admin: Messages['admin'] = {
 	noBannersFound: 'Баннеров пока нет',
 	bannerUntitled: 'Баннер без заголовка',
 	bannerImage: 'Картинка',
-	bannerImageHint: 'Широкая картинка от 1600 px. Пусть сторона под текстом будет поспокойнее.',
+	bannerImageHint: 'Широкая картинка от 1600 px.',
 	bannerRemoveImage: 'Убрать картинку',
 	bannerTitle: 'Заголовок',
 	bannerSubtitle: 'Подзаголовок',

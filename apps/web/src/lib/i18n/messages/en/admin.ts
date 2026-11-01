@@ -317,7 +317,7 @@ export const admin = {
 	noBannersFound: 'No banners yet',
 	bannerUntitled: 'Untitled banner',
 	bannerImage: 'Picture',
-	bannerImageHint: 'Wide picture, 1600 px or more. Keep the busy half away from the text.',
+	bannerImageHint: 'Wide picture, 1600 px or more.',
 	bannerRemoveImage: 'Remove picture',
 	bannerTitle: 'Headline',
 	bannerSubtitle: 'Subtitle',
