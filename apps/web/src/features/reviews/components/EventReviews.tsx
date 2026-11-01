@@ -11,6 +11,7 @@ import { useFormatDate } from '@/hooks/format';
 import { localizePath } from '@/lib/i18n/config';
 import { useEventReviews } from '../hooks/useReviews';
 import { DeleteReviewButton } from './DeleteReviewButton';
+import { ReviewPhotos } from './ReviewPhotos';
 import { StarRating } from './StarRating';
 
 export function EventReviews({ event }: { event: Event }) {
@@ -86,6 +87,8 @@ export function EventReviews({ event }: { event: Event }) {
 								</p>
 							)}
 
+							<ReviewPhotos images={review.images} />
+
 							{review.status === 'PENDING' && (
 								<p className="mt-2 flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400">
 									<Clock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -137,6 +140,8 @@ export function EventReviews({ event }: { event: Event }) {
 								{review.text}
 							</p>
 						)}
+
+						<ReviewPhotos images={review.images} />
 
 						{review.adminReply && (
 							<div className="mt-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-l-4 in-data-[skin=listing]:border-primary in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border-l-4 in-data-[skin=market]:border-primary in-data-[skin=market]:bg-white in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-2xl in-data-[skin=drawer]:bg-white in-data-[skin=drawer]:dark:bg-neutral-900">

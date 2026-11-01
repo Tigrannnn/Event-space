@@ -3,5 +3,7 @@ export { BookingReviewAction } from './components/BookingReviewAction';
 export { EventReviews } from './components/EventReviews';
 export { useDeleteMyReview, useEventReviews, useMyReview, useSaveReview } from './hooks/useReviews';
 export { reviewsApi } from './api/reviews.api';
+export { ReviewPhotos } from './components/ReviewPhotos';
+export { ReviewPhotoPicker, type ReviewPhotoSelection } from './components/ReviewPhotoPicker';
 export { DeleteReviewButton } from './components/DeleteReviewButton';
 export { WriteReviewButton } from './components/WriteReviewButton';

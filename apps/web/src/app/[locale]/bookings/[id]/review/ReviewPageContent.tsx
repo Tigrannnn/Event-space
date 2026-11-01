@@ -6,7 +6,9 @@ import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import { getEventTranslation, REVIEW_CONFIG } from '@event-space/shared';
 import {
 	DeleteReviewButton,
+	ReviewPhotoPicker,
 	StarRatingInput,
+	type ReviewPhotoSelection,
 	useMyReview,
 	useSaveReview,
 } from '@/features/reviews';
@@ -44,6 +46,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 	);
 	const [text, setText] = useState('');
 	const [isStarted, setIsStarted] = useState(false);
+	const [photos, setPhotos] = useState<ReviewPhotoSelection>({ keptIds: [], files: [] });
 
 	if (isLoading) {
 		return <ReviewFormSkeleton />;
@@ -161,7 +164,15 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 							if (rating === 0) return;
 
 							saveReview.mutate(
-								{ isUpdate: Boolean(existing), data: { rating, text: text.trim() || null } },
+								{
+									isUpdate: Boolean(existing),
+									data: {
+										rating,
+										text: text.trim() || null,
+										keepImageIds: existing ? photos.keptIds : undefined,
+									},
+									files: photos.files,
+								},
 								{
 								// Back to the tour that was just reviewed, where the review now shows.
 								onSuccess: () =>
@@ -196,6 +207,12 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 								disabled={saveReview.isPending}
 							/>
 						</label>
+
+						<ReviewPhotoPicker
+							existing={existing?.images}
+							onChange={setPhotos}
+							disabled={saveReview.isPending}
+						/>
 
 						<div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 							<Button

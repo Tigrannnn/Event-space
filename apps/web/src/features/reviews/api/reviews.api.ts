@@ -14,6 +14,16 @@ export type ReviewsPage = PaginatedCursorResponse<Review> & {
 	reviewableBookingId?: string | null;
 };
 
+/** Plain JSON for a review without new photos, a form with the JSON in `payload` when there are some. */
+function toBody(data: CreateReviewData, files: File[]): CreateReviewData | FormData {
+	if (!files.length) return data;
+
+	const form = new FormData();
+	form.append('payload', JSON.stringify(data));
+	for (const file of files) form.append('files', file);
+	return form;
+}
+
 export const reviewsApi = {
 	getForEvent: (eventId: string, params: { cursor?: string; limit?: number } = {}) =>
 		clientApi
@@ -26,16 +36,18 @@ export const reviewsApi = {
 			.get<MyReview>(`/bookings/${bookingId}/review`, { params: { t: token } })
 			.then((res) => res.data),
 
-	create: (bookingId: string, data: CreateReviewData, token?: string) =>
+	create: (bookingId: string, data: CreateReviewData, token?: string, files: File[] = []) =>
 		clientApi
-			.post<Review>(`/bookings/${bookingId}/review`, data, { params: { t: token } })
+			.post<Review>(`/bookings/${bookingId}/review`, toBody(data, files), { params: { t: token } })
 			.then((res) => res.data),
 
 	remove: (bookingId: string, token?: string) =>
 		clientApi.delete(`/bookings/${bookingId}/review`, { params: { t: token } }).then(() => undefined),
 
-	update: (bookingId: string, data: UpdateReviewData, token?: string) =>
+	update: (bookingId: string, data: UpdateReviewData, token?: string, files: File[] = []) =>
 		clientApi
-			.patch<Review>(`/bookings/${bookingId}/review`, data, { params: { t: token } })
+			.patch<Review>(`/bookings/${bookingId}/review`, toBody(data, files), {
+				params: { t: token },
+			})
 			.then((res) => res.data),
 };

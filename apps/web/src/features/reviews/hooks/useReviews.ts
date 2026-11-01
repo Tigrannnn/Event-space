@@ -34,10 +34,18 @@ export const useSaveReview = (bookingId: string, token?: string) => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ isUpdate, data }: { isUpdate: boolean; data: CreateReviewData }) =>
+		mutationFn: ({
+			isUpdate,
+			data,
+			files,
+		}: {
+			isUpdate: boolean;
+			data: CreateReviewData;
+			files?: File[];
+		}) =>
 			isUpdate
-				? reviewsApi.update(bookingId, data, token)
-				: reviewsApi.create(bookingId, data, token),
+				? reviewsApi.update(bookingId, data, token, files)
+				: reviewsApi.create(bookingId, data, token, files),
 		onSuccess: async (review) => {
 			addToast(
 				translate(review.status === 'PUBLISHED' ? 'review.savedLive' : 'review.savedPending'),

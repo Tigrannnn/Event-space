@@ -14,6 +14,7 @@ import {
 	useReplyToReview,
 } from '@/features/admin/hooks/useAdmin';
 import { cn } from '@/utils/cn';
+import { ReviewPhotos } from '@/features/reviews';
 
 const STATUS_STYLE: Record<ReviewStatus, string> = {
 	PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
@@ -85,6 +86,8 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 			) : (
 				<p className="text-sm text-gray-400 italic">{translate('admin.reviewNoText')}</p>
 			)}
+
+			<ReviewPhotos images={review.images} className="mt-0" />
 
 			{review.rejectReason && (
 				<p className="text-xs text-red-500">{review.rejectReason}</p>
