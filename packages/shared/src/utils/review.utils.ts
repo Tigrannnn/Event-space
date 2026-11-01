@@ -50,9 +50,12 @@ export function reviewWindow(booking: ReviewableBooking, now: number = Date.now(
 	return 'OPEN';
 }
 
-/** A review with text goes to a human; a bare rating has nothing to moderate. */
-export function initialReviewStatus(text?: string | null): 'PENDING' | 'PUBLISHED' {
-	return text?.trim() ? 'PENDING' : 'PUBLISHED';
+/** A review with text or photos goes to a human; a bare rating has nothing to moderate. */
+export function initialReviewStatus(
+	text?: string | null,
+	imageCount = 0,
+): 'PENDING' | 'PUBLISHED' {
+	return text?.trim() || imageCount > 0 ? 'PENDING' : 'PUBLISHED';
 }
 
 /** The average as the page shows it: one decimal, and nothing at all before the first review. */

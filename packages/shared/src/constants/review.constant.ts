@@ -5,6 +5,12 @@ export const REVIEW_CONFIG = {
 	REJECT_REASON_MAX: 500,
 	ADMIN_REPLY_MAX: 1000,
 
+	/** Photos a guest may attach to a review. */
+	MAX_IMAGES: 3,
+
+	/** Size of one photo (5 MiB), as for the pictures of an event. */
+	MAX_IMAGE_FILE_SIZE_BYTES: 5 * 1024 * 1024,
+
 	/**
 	 * How long after a tour ends before its guests may rate it.
 	 *

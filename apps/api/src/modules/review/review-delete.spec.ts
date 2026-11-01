@@ -14,10 +14,22 @@ function build(existing: unknown) {
 		$transaction: (run: (client: typeof tx) => Promise<void>) => run(tx),
 	};
 
-	return { service: new ReviewService(prisma as never, {} as never, {} as never), calls };
+	return { service: new ReviewService(
+			prisma as never,
+			{} as never,
+			{} as never,
+			{ deleteMultipleByPublicId: () => Promise.resolve() } as never,
+		), calls };
 }
 
-const published = { id: 'r1', userId: 'u1', eventId: 'e1', status: 'PUBLISHED', rating: 4 };
+const published = {
+	id: 'r1',
+	userId: 'u1',
+	eventId: 'e1',
+	status: 'PUBLISHED',
+	rating: 4,
+	images: [],
+};
 
 describe('ReviewService.deleteForBooking', () => {
 	it('removes the review and takes its rating out of the event', async () => {

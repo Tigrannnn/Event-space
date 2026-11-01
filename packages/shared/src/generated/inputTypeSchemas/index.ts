@@ -18,6 +18,7 @@ export { DashboardSnapshotScalarFieldEnumSchema } from './DashboardSnapshotScala
 export { BannerScalarFieldEnumSchema } from './BannerScalarFieldEnumSchema';
 export { BannerTranslationScalarFieldEnumSchema } from './BannerTranslationScalarFieldEnumSchema';
 export { ReviewScalarFieldEnumSchema } from './ReviewScalarFieldEnumSchema';
+export { ReviewImageScalarFieldEnumSchema } from './ReviewImageScalarFieldEnumSchema';
 export { SearchQueryScalarFieldEnumSchema } from './SearchQueryScalarFieldEnumSchema';
 export { SortOrderSchema } from './SortOrderSchema';
 export { QueryModeSchema } from './QueryModeSchema';

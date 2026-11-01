@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { REVIEW_IMAGES } from '../../review/review-images.select';
 import { ConfigService } from '@nestjs/config';
 import type { Prisma } from '@prisma/client';
 import { EnvKey } from '@event-space/shared';
@@ -33,7 +34,7 @@ import {
 
 const MY_BOOKING_INCLUDE = {
 	adjustments: true,
-	review: true,
+	review: { include: { images: REVIEW_IMAGES } },
 	occurrence: {
 		include: {
 			event: {

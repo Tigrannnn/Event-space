@@ -514,10 +514,26 @@ model Review {
   booking Booking @relation("booking_review", fields: [bookingId], references: [id], onDelete: Cascade)
   event   Event   @relation("event_reviews", fields: [eventId], references: [id], onDelete: Cascade)
   user    User    @relation("user_reviews", fields: [userId], references: [id], onDelete: Cascade)
+  images  ReviewImage[] @relation("review_images")
 
   @@index([eventId, status, createdAt])
   @@index([status, createdAt])
   @@map("reviews")
+}
+
+/// Фото к отзыву. Показываются вместе с ним, после проверки.
+model ReviewImage {
+  id        String   @id @default(uuid())
+  reviewId  String   @map("review_id")
+  url       String   @db.VarChar(1000)
+  publicId  String   @unique @map("public_id") @db.VarChar(500)
+  order     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  review Review @relation("review_images", fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@map("review_images")
 }
 
 /// Запрос, который вошедший посетитель отправил в поиск. Строки не склеиваются: по ним потом

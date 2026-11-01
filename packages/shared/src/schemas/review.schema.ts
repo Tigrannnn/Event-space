@@ -14,8 +14,18 @@ export const ReviewAuthorSchema = z.object({
 	image: z.string().nullish(),
 });
 
+/** A photo of a review as the page shows it: where to find it, never how it is stored. */
+export const ReviewImageSchema = z.object({
+	id: z.string(),
+	url: z.string(),
+	order: z.number().int(),
+});
+
+export type ReviewImage = z.infer<typeof ReviewImageSchema>;
+
 export const ReviewSchema = GeneratedReviewSchema.extend({
 	user: ReviewAuthorSchema.nullish(),
+	images: z.array(ReviewImageSchema).default([]),
 });
 
 export type Review = z.infer<typeof ReviewSchema>;
@@ -30,8 +40,10 @@ export const CreateReviewSchema = z
 	.object({
 		rating: RatingSchema,
 		text: z.string().trim().max(REVIEW_CONFIG.TEXT_MAX).nullish(),
+		/** On an edit: the photos already on the review that stay. The rest are removed. */
+		keepImageIds: z.array(z.string()).max(REVIEW_CONFIG.MAX_IMAGES).optional(),
 	})
-	.openapi({ description: 'A rating, and optionally a few words' });
+	.openapi({ description: 'A rating, and optionally a few words and photos' });
 
 export type CreateReviewData = z.infer<typeof CreateReviewSchema>;
 

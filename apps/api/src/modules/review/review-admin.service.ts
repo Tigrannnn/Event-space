@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { MailService } from '@infra/mail/mail.service';
+import { UploadService } from '@infra/upload/upload.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import {
 	AppErrorCode,
@@ -16,8 +17,10 @@ import {
 import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
 import { applyRatingDelta } from './review-rating';
 import { eventUrl, siteUrlFor } from './review-urls';
+import { REVIEW_IMAGES } from './review-images.select';
 
 const REVIEW_FOR_ADMIN = {
+	images: REVIEW_IMAGES,
 	user: { select: { id: true, name: true, email: true, image: true, locale: true } },
 	event: { select: { id: true, translations: true } },
 	booking: {
@@ -38,6 +41,7 @@ export class ReviewAdminService {
 		private readonly prisma: PrismaService,
 		private readonly config: ConfigService,
 		private readonly mailService: MailService,
+		private readonly uploadService: UploadService,
 	) {}
 
 	async findAll(params: { status?: ReviewStatus; cursor?: string; limit?: number } = {}) {
@@ -151,10 +155,12 @@ export class ReviewAdminService {
 			await tx.review.delete({ where: { id } });
 			await applyRatingDelta(tx, existing.eventId, existing, null);
 		});
+
+		await this.uploadService.deleteMultipleByPublicId(existing.images.map((image) => image.publicId));
 	}
 
 	private async findOne(id: string) {
-		const review = await this.prisma.review.findUnique({ where: { id } });
+		const review = await this.prisma.review.findUnique({ where: { id }, include: { images: true } });
 
 		if (!review) {
 			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { id });

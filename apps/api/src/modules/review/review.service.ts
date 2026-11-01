@@ -16,14 +16,17 @@ import {
 } from '@event-space/shared';
 import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
 import { MailService } from '@infra/mail/mail.service';
+import { UploadService } from '@infra/upload/upload.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { applyRatingDelta } from './review-rating';
+import { REVIEW_IMAGES } from './review-images.select';
 import { reviewQueueUrl, siteUrlFor } from './review-urls';
 import { reviewTokenSecret, signReviewToken, verifyReviewToken } from './review-token';
 import { bookingLinkSecret, verifyBookingLinkToken } from '../booking/booking-link-token';
 
 const REVIEW_AUTHOR = {
 	user: { select: { id: true, name: true, image: true } },
+	images: REVIEW_IMAGES,
 } satisfies Prisma.ReviewInclude;
 
 const BOOKING_FOR_REVIEW = {
@@ -41,7 +44,7 @@ const BOOKING_FOR_REVIEW = {
 			},
 		},
 	},
-	review: true,
+	review: { include: { images: REVIEW_IMAGES } },
 	user: { select: { name: true } },
 } satisfies Prisma.BookingInclude;
 
@@ -53,6 +56,7 @@ export class ReviewService {
 		private readonly prisma: PrismaService,
 		private readonly config: ConfigService,
 		private readonly mailService: MailService,
+		private readonly uploadService: UploadService,
 	) {}
 
 	/**
@@ -199,7 +203,12 @@ export class ReviewService {
 		};
 	}
 
-	async create(userId: string, bookingId: string, data: CreateReviewData) {
+	async create(
+		userId: string,
+		bookingId: string,
+		data: CreateReviewData,
+		files: Express.Multer.File[] = [],
+	) {
 		const booking = await this.loadBooking(userId, bookingId);
 
 		this.assertWindowOpen(booking);
@@ -214,18 +223,39 @@ export class ReviewService {
 		}
 
 		const text = data.text?.trim() || null;
-		const status = initialReviewStatus(text);
+		const status = initialReviewStatus(text, files.length);
+		const uploads = await this.uploadService.uploadImages(files);
 
-		const review = await this.prisma.$transaction(async (tx) => {
-			const created = await tx.review.create({
-				data: { bookingId, eventId, userId, rating: data.rating, text, status },
-				include: REVIEW_AUTHOR,
+		let review;
+		try {
+			review = await this.prisma.$transaction(async (tx) => {
+				const created = await tx.review.create({
+					data: {
+						bookingId,
+						eventId,
+						userId,
+						rating: data.rating,
+						text,
+						status,
+						images: {
+							create: uploads.map((upload, order) => ({
+								url: upload.url,
+								publicId: upload.publicId,
+								order,
+							})),
+						},
+					},
+					include: REVIEW_AUTHOR,
+				});
+
+				await applyRatingDelta(tx, eventId, null, created);
+
+				return created;
 			});
-
-			await applyRatingDelta(tx, eventId, null, created);
-
-			return created;
-		});
+		} catch (error) {
+			await this.uploadService.deleteMultipleByPublicId(uploads.map((upload) => upload.publicId));
+			throw error;
+		}
 
 		if (review.status === 'PENDING') {
 			await this.notifyPending(booking, review);
@@ -269,8 +299,16 @@ export class ReviewService {
 		}
 	}
 
-	async updateForBooking(userId: string, bookingId: string, data: UpdateReviewData) {
-		const existing = await this.prisma.review.findUnique({ where: { bookingId } });
+	async updateForBooking(
+		userId: string,
+		bookingId: string,
+		data: UpdateReviewData,
+		files: Express.Multer.File[] = [],
+	) {
+		const existing = await this.prisma.review.findUnique({
+			where: { bookingId },
+			include: { images: { orderBy: { order: 'asc' } } },
+		});
 
 		if (!existing || existing.userId !== userId) {
 			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { bookingId });
@@ -279,32 +317,70 @@ export class ReviewService {
 		const reviewId = existing.id;
 
 		const text = data.text?.trim() || null;
-		// An edited review is judged again from scratch: adding a sentence to a bare rating
-		// turns it back into something a person has to read.
-		const status = initialReviewStatus(text);
 
-		return this.prisma.$transaction(async (tx) => {
-			const review = await tx.review.update({
-				where: { id: reviewId },
-				data: {
-					rating: data.rating,
-					text,
-					status,
-					moderatedAt: null,
-					moderatedByAdminId: null,
-					rejectReason: null,
-				},
-				include: REVIEW_AUTHOR,
+		// Without the list the photos stay as they are: an old client that knows nothing of them
+		// must not wipe them by saving a corrected sentence.
+		const kept =
+			data.keepImageIds === undefined
+				? existing.images
+				: existing.images.filter((image) => data.keepImageIds?.includes(image.id));
+		const removed = existing.images.filter((image) => !kept.includes(image));
+
+		if (kept.length + files.length > REVIEW_CONFIG.MAX_IMAGES) {
+			throw new AppException(AppErrorCode.VALIDATION_FAILED);
+		}
+
+		// An edited review is judged again from scratch: adding a sentence to a bare rating, or
+		// a photo, turns it back into something a person has to look at.
+		const status = initialReviewStatus(text, kept.length + files.length);
+		const uploads = await this.uploadService.uploadImages(files);
+
+		let updated;
+		try {
+			updated = await this.prisma.$transaction(async (tx) => {
+				if (removed.length) {
+					await tx.reviewImage.deleteMany({ where: { id: { in: removed.map((image) => image.id) } } });
+				}
+
+				const review = await tx.review.update({
+					where: { id: reviewId },
+					data: {
+						rating: data.rating,
+						text,
+						status,
+						moderatedAt: null,
+						moderatedByAdminId: null,
+						rejectReason: null,
+						images: {
+							create: uploads.map((upload, index) => ({
+								url: upload.url,
+								publicId: upload.publicId,
+								order: kept.length + index,
+							})),
+						},
+					},
+					include: REVIEW_AUTHOR,
+				});
+
+				await applyRatingDelta(tx, existing.eventId, existing, review);
+
+				return review;
 			});
+		} catch (error) {
+			await this.uploadService.deleteMultipleByPublicId(uploads.map((upload) => upload.publicId));
+			throw error;
+		}
 
-			await applyRatingDelta(tx, existing.eventId, existing, review);
+		await this.uploadService.deleteMultipleByPublicId(removed.map((image) => image.publicId));
 
-			return review;
-		});
+		return updated;
 	}
 
 	async deleteForBooking(userId: string, bookingId: string): Promise<void> {
-		const existing = await this.prisma.review.findUnique({ where: { bookingId } });
+		const existing = await this.prisma.review.findUnique({
+			where: { bookingId },
+			include: { images: true },
+		});
 
 		if (!existing || existing.userId !== userId) {
 			throw new AppException(AppErrorCode.REVIEW_NOT_FOUND, { bookingId });
@@ -314,6 +390,8 @@ export class ReviewService {
 			await tx.review.delete({ where: { id: existing.id } });
 			await applyRatingDelta(tx, existing.eventId, existing, null);
 		});
+
+		await this.uploadService.deleteMultipleByPublicId(existing.images.map((image) => image.publicId));
 	}
 
 	private assertWindowOpen(booking: Parameters<typeof reviewWindow>[0]): void {

@@ -7,10 +7,14 @@ import {
 	Patch,
 	Post,
 	Query,
+	UploadedFiles,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
 	ApiBearerAuth,
+	ApiConsumes,
 	ApiOperation,
 	ApiParam,
 	ApiQuery,
@@ -19,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import {
 	CreateReviewSchema,
+	REVIEW_CONFIG,
 	ModerateReviewSchema,
 	ReplyToReviewSchema,
 	ReviewStatusEnum,
@@ -46,6 +51,8 @@ import { OptionalAccessTokenGuard } from '@modules/auth/guards/optional-access-t
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
 import { ReviewService } from './review.service';
 import { ReviewAdminService } from './review-admin.service';
+import { parseReviewBody } from './review-multipart';
+import { reviewImageUploadOptions } from './review-upload.options';
 
 /** An unknown status is dropped rather than refused: the queue simply comes back unfiltered. */
 function parseReviewStatus(value?: string): ReviewStatus | undefined {
@@ -98,15 +105,19 @@ export class ReviewController {
 
 	@Post('bookings/:bookingId/review')
 	@UseGuards(OptionalAccessTokenGuard)
-	@ApiOperation({ summary: 'Rate the tour this booking was for' })
+	@UseInterceptors(FilesInterceptor('files', REVIEW_CONFIG.MAX_IMAGES, reviewImageUploadOptions))
+	@ApiConsumes('application/json', 'multipart/form-data')
+	@ApiOperation({ summary: 'Rate the tour this booking was for, with up to three photos' })
 	@ApiResponse({ status: 201, description: 'Review saved' })
 	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
 	async create(
 		@GetOptionalUserId() userId: string | undefined,
 		@Param('bookingId') bookingId: string,
-		@Body(new ZodValidationPipe(CreateReviewSchema)) data: CreateReviewData,
+		@Body() body: unknown,
+		@UploadedFiles() files?: Express.Multer.File[],
 		@Query('t') token?: string,
 	) {
+		const data: CreateReviewData = parseReviewBody(CreateReviewSchema, body);
 		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
 
 		// Keyed by the booking rather than the person: a guest arriving by link has no account
@@ -118,22 +129,26 @@ export class ReviewController {
 			BOOKING_CONFIG.RATE_LIMITS.CREATE_WINDOW_SEC,
 		);
 
-		return this.reviewService.create(actorId, bookingId, data);
+		return this.reviewService.create(actorId, bookingId, data, files ?? []);
 	}
 
 	@Patch('bookings/:bookingId/review')
 	@UseGuards(OptionalAccessTokenGuard)
+	@UseInterceptors(FilesInterceptor('files', REVIEW_CONFIG.MAX_IMAGES, reviewImageUploadOptions))
+	@ApiConsumes('application/json', 'multipart/form-data')
 	@ApiOperation({ summary: 'Change my own review, within two days of writing it' })
 	@ApiQuery({ name: 't', required: false, description: 'Signed link from the invitation email' })
 	async update(
 		@GetOptionalUserId() userId: string | undefined,
 		@Param('bookingId') bookingId: string,
-		@Body(new ZodValidationPipe(UpdateReviewSchema)) data: UpdateReviewData,
+		@Body() body: unknown,
+		@UploadedFiles() files?: Express.Multer.File[],
 		@Query('t') token?: string,
 	) {
+		const data: UpdateReviewData = parseReviewBody(UpdateReviewSchema, body);
 		const actorId = await this.reviewService.resolveActor(bookingId, userId, token);
 
-		return this.reviewService.updateForBooking(actorId, bookingId, data);
+		return this.reviewService.updateForBooking(actorId, bookingId, data, files ?? []);
 	}
 
 	@Delete('bookings/:bookingId/review')
