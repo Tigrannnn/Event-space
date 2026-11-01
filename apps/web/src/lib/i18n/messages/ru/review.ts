@@ -7,8 +7,6 @@ export const review: Messages['review'] = {
 	textHint: 'Необязательно — одной оценки уже достаточно.',
 	photosLabel: 'Фото',
 	photosHint: 'Необязательно, до {count}. Отзыв с фото сначала проверяется.',
-	addPhoto: 'Добавить или перетащить',
-	dropHere: 'Отпустите здесь',
 	removePhoto: 'Убрать фото',
 	photoTooLarge: 'Фото больше 5 МБ пропущено.',
 	photoLimit: 'Не больше 3 фото: остальные пропущены.',

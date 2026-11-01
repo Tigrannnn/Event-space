@@ -3,10 +3,11 @@
 import Image from 'next/image';
 import { useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { ImagePlus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { optimizeImageUrl } from '@event-space/shared';
 import type { BannerFormImage } from './banner-form.schema';
 import { cn } from '@/utils/cn';
+import { useTranslation } from '@/hooks/translation';
 
 interface BannerImageFieldProps {
 	label: string;
@@ -36,6 +37,7 @@ export default function BannerImageField({
 	aspectClassName,
 	disabled,
 }: BannerImageFieldProps) {
+	const translate = useTranslation();
 	const inputRef = useRef<HTMLInputElement>(null);
 	const previewUrl = value?.kind === 'file' ? value.previewUrl : null;
 
@@ -73,7 +75,7 @@ export default function BannerImageField({
 				{...getRootProps()}
 				className={cn(
 					'relative overflow-hidden rounded-xl border border-dashed border-gray-400 bg-gray-50 transition-colors dark:bg-gray-950',
-					isDragActive && 'border-primary bg-primary/10 ring-primary ring-2',
+					isDragActive && 'bg-primary/10 ring-primary ring-dashed ring-2',
 					aspectClassName,
 				)}
 			>
@@ -86,8 +88,10 @@ export default function BannerImageField({
 						onClick={() => inputRef.current?.click()}
 						className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-2 text-gray-500 transition hover:text-gray-700 dark:hover:text-gray-300"
 					>
-						<ImagePlus className="h-6 w-6" />
-						<span className="text-xs">{hint}</span>
+						<Plus className="text-primary h-8 w-8" />
+						<span className="px-2 text-center text-xs font-medium">
+							{isDragActive ? translate('admin.dropHere') : translate('admin.addOrDrop')}
+						</span>
 					</button>
 				)}
 

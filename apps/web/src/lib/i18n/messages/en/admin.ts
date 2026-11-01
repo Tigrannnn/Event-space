@@ -482,7 +482,7 @@ export const admin = {
 		'No custom rules set. By default, users get a 100% refund up until the event starts.',
 	cover: 'Cover',
 	dropHere: 'Drop here',
-	addOrDrop: 'Add or drop',
+	addOrDrop: 'Add image',
 	dropImagesHintReorder:
 		'Drop images from your computer, or click + to browse. Drag thumbnails to reorder — first is the cover.',
 	dropImagesHint: 'Drop images from your computer here, or click + to browse.',

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ImagePlus, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { REVIEW_CONFIG, type ReviewImage } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
@@ -78,7 +78,7 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 	});
 
 	const tile =
-		'relative size-24 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-neutral-800';
+		'relative h-32 w-32 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-100 shadow-sm dark:border-gray-700 dark:bg-gray-800';
 	const remove =
 		'absolute top-1 right-1 flex size-6 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80';
 
@@ -137,10 +137,14 @@ export function ReviewPhotoPicker({ existing = [], onChange, disabled }: ReviewP
 						type="button"
 						disabled={disabled}
 						onClick={() => inputRef.current?.click()}
-						className="hover:border-primary flex size-24 shrink-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-300 text-xs font-medium text-gray-500 transition-colors dark:border-gray-600 dark:text-gray-400"
+						className={`hover:border-primary flex h-32 w-32 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
+							isDragActive ? 'border-primary bg-primary/5' : 'border-gray-300 dark:border-gray-600'
+						}`}
 					>
-						<ImagePlus className="text-primary size-6" />
-						{isDragActive ? translate('review.dropHere') : translate('review.addPhoto')}
+						<Plus className="text-primary mb-1 h-8 w-8" />
+						<span className="px-2 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
+							{isDragActive ? translate('admin.dropHere') : translate('admin.addOrDrop')}
+						</span>
 					</button>
 				)}
 			</div>
