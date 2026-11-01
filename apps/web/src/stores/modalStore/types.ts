@@ -66,7 +66,9 @@ export interface ShareModalData {
 }
 
 export interface ImagePreviewData {
+	/** The pictures, with GALLERY_VIDEO_SLIDE standing where the video goes. */
 	images: string[];
+	videoUrl?: string | null;
 	initialIndex?: number;
 }
 

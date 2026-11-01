@@ -6,6 +6,8 @@ import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Image from 'next/image';
+import { autoplayEmbedUrl, parseVideoUrl } from '@event-space/shared';
+import { GALLERY_VIDEO_SLIDE } from '@/features/events/components/GalleryVideo';
 
 export default function ImagePreviewModal() {
 	const { activeModal, closeModal } = useModalStore();
@@ -14,6 +16,7 @@ export default function ImagePreviewModal() {
 	// Memoised so the preload effect below doesn't re-run on every render.
 	const images = useMemo(() => modalData?.images ?? [], [modalData]);
 	const initialIndex = modalData?.initialIndex ?? 0;
+	const video = useMemo(() => parseVideoUrl(modalData?.videoUrl), [modalData]);
 
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 	const [loadedSrcs, setLoadedSrcs] = useState<Set<string>>(new Set());
@@ -30,12 +33,14 @@ export default function ImagePreviewModal() {
 	 * its own download, and the picture only changes once that download finishes.
 	 */
 	useEffect(() => {
-		const loaders = images.map((src) => {
-			const loader = new window.Image();
-			loader.onload = () => markLoaded(src);
-			loader.src = src;
-			return loader;
-		});
+		const loaders = images
+			.filter((src) => src !== GALLERY_VIDEO_SLIDE)
+			.map((src) => {
+				const loader = new window.Image();
+				loader.onload = () => markLoaded(src);
+				loader.src = src;
+				return loader;
+			});
 
 		return () => {
 			for (const loader of loaders) {
@@ -69,7 +74,8 @@ export default function ImagePreviewModal() {
 
 	// Guard against empty images or invalid index to prevent Next.js Image errors
 	const currentImage = images[currentIndex];
-	const isLoading = Boolean(currentImage) && !loadedSrcs.has(currentImage);
+	const isVideoSlide = currentImage === GALLERY_VIDEO_SLIDE && video !== null;
+	const isLoading = Boolean(currentImage) && !isVideoSlide && !loadedSrcs.has(currentImage);
 
 	return (
 		<Modal
@@ -107,21 +113,40 @@ export default function ImagePreviewModal() {
 
 					{/* Image */}
 					<div className="relative h-[95dvh] w-full p-2">
-						<div className="relative h-full w-full">
-							<Image
-								src={currentImage}
-								alt={`Preview ${currentIndex + 1}`}
-								fill
-								// Same URL the page itself loaded: the optimizer would turn it into a
-								// different one, which means a second download of a picture already on
-								// screen — plus a wait while the server resizes it.
-								unoptimized={currentImage.startsWith('http')}
-								className={`rounded-2xl object-contain transition-opacity duration-200 ${
-									isLoading ? 'opacity-40' : 'opacity-100'
-								}`}
-								onClick={(e) => e.stopPropagation()}
-								onLoad={() => markLoaded(currentImage)}
-							/>
+						<div className="relative flex h-full w-full items-center justify-center">
+							{isVideoSlide && video ? (
+								<div
+									className={`relative max-h-full max-w-full overflow-hidden rounded-2xl bg-black ${
+										video.isVertical ? 'aspect-9/16 h-full' : 'aspect-video w-full'
+									}`}
+									onClick={(e) => e.stopPropagation()}
+								>
+									<iframe
+										key={currentIndex}
+										src={autoplayEmbedUrl(video)}
+										title="Video"
+										className="absolute inset-0 size-full border-0"
+										allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+										allowFullScreen
+										referrerPolicy="strict-origin-when-cross-origin"
+									/>
+								</div>
+							) : (
+								<Image
+									src={currentImage}
+									alt={`Preview ${currentIndex + 1}`}
+									fill
+									// Same URL the page itself loaded: the optimizer would turn it into a
+									// different one, which means a second download of a picture already on
+									// screen — plus a wait while the server resizes it.
+									unoptimized={currentImage.startsWith('http')}
+									className={`rounded-2xl object-contain transition-opacity duration-200 ${
+										isLoading ? 'opacity-40' : 'opacity-100'
+									}`}
+									onClick={(e) => e.stopPropagation()}
+									onLoad={() => markLoaded(currentImage)}
+								/>
+							)}
 							{/* The <img> keeps painting the previous picture until the next one decodes,
 							    so without this the counter changes and nothing else does. */}
 							{isLoading && (

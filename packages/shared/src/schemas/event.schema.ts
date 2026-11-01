@@ -144,7 +144,7 @@ export const CreateEventSchema = EventSchema.omit({
 		.trim()
 		.max(1000)
 		.refine((value) => value === '' || parseVideoUrl(value) !== null, {
-			message: 'Use a YouTube, Vimeo or Instagram link',
+			message: 'Use a YouTube link',
 		})
 		.transform((value) => value || null)
 		.nullish(),

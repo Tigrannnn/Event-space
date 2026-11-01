@@ -13,7 +13,11 @@ import { InfoCard } from '@/components/ui/InfoCard';
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 
 import { useShare } from '@/hooks/share';
-import { EventVideo } from '@/features/events/components/EventVideo';
+import {
+	GALLERY_VIDEO_SLIDE,
+	VideoTile,
+	useGallerySlides,
+} from '@/features/events/components/GalleryVideo';
 import {
 	Event,
 	getEventImageUrls,
@@ -59,6 +63,7 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 	};
 
 	const imageUrls = getEventImageUrls(event.images);
+	const { video, slides } = useGallerySlides(event.videoUrl, imageUrls);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
 
 	const handleShareClick = () => share(eventTranslation.title);
@@ -73,25 +78,46 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 				) : (
 					<PhotoStrip className="h-full w-full">
 						<div className="flex h-full items-center">
-							{imageUrls.map((imgSrc, index) => (
-								<button
-									key={`${imgSrc}-${index}`}
-									onClick={() =>
-										openModal(ModalType.ImagePreview, {
-											images: imageUrls,
-											initialIndex: index,
-										})
-									}
-									className="flex w-full shrink-0 snap-center items-center justify-center px-2 sm:h-full sm:w-auto sm:px-0"
-								>
-									<EventImage
-										src={imgSrc}
-										alt={eventTranslation.title}
-										onError={handleImageError}
-										className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 sm:h-full sm:w-auto"
-									/>
-								</button>
-							))}
+							{slides.map((imgSrc, index) =>
+								imgSrc === GALLERY_VIDEO_SLIDE && video ? (
+									<div
+										key="video"
+										className="flex w-full shrink-0 snap-center items-center justify-center px-2 sm:h-full sm:w-auto sm:px-0"
+									>
+										<VideoTile
+											video={video}
+											title={eventTranslation.title}
+											onOpen={() =>
+												openModal(ModalType.ImagePreview, {
+													images: slides,
+													videoUrl: event.videoUrl,
+													initialIndex: index,
+												})
+											}
+											className="aspect-video w-full scale-98 rounded-2xl border border-gray-400 shadow-sm sm:h-full sm:w-auto"
+										/>
+									</div>
+								) : (
+									<button
+										key={`${imgSrc}-${index}`}
+										onClick={() =>
+											openModal(ModalType.ImagePreview, {
+												images: slides,
+												videoUrl: event.videoUrl,
+												initialIndex: index,
+											})
+										}
+										className="flex w-full shrink-0 snap-center items-center justify-center px-2 sm:h-full sm:w-auto sm:px-0"
+									>
+										<EventImage
+											src={imgSrc}
+											alt={eventTranslation.title}
+											onError={handleImageError}
+											className="h-auto max-h-[70vh] w-full scale-98 cursor-pointer rounded-2xl border border-gray-400 object-contain shadow-sm transition-transform duration-100 hover:scale-100 sm:h-full sm:w-auto"
+										/>
+									</button>
+								),
+							)}
 						</div>
 					</PhotoStrip>
 				)}
@@ -171,7 +197,11 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 								value={formatDuration(event.duration)}
 							/>
 							{event.difficulty !== 'NONE' && (
-								<InfoCard icon={Mountain} label={translate('event.difficulty')} value={EVENT_DIFFICULTY_LABELS[event.difficulty]} />
+								<InfoCard
+									icon={Mountain}
+									label={translate('event.difficulty')}
+									value={EVENT_DIFFICULTY_LABELS[event.difficulty]}
+								/>
 							)}
 						</div>
 
@@ -184,8 +214,6 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 								<p>{eventTranslation.description}</p>
 							</div>
 						</div>
-
-						<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 						{/* What's Included */}
 						<div>

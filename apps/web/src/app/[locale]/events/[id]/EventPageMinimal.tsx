@@ -15,7 +15,11 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useShare } from '@/hooks/share';
-import { EventVideo } from '@/features/events/components/EventVideo';
+import {
+	GALLERY_VIDEO_SLIDE,
+	VideoTile,
+	useGallerySlides,
+} from '@/features/events/components/GalleryVideo';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -48,11 +52,16 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const imageUrls = getEventImageUrls(event.images);
+	const { video, slides } = useGallerySlides(event.videoUrl, imageUrls);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
-	const shown = imageUrls.slice(0, MAX_GALLERY_IMAGES);
+	const shown = slides.slice(0, MAX_GALLERY_IMAGES);
 
 	const openPreview = (index: number) =>
-		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
+		openModal(ModalType.ImagePreview, {
+			images: slides,
+			videoUrl: event.videoUrl,
+			initialIndex: index,
+		});
 
 	const handleShareClick = () => share(eventTranslation.title);
 
@@ -127,33 +136,43 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 									: 'grid-cols-1'
 						}`}
 					>
-						{shown.map((src, index) => (
-							<button
-								key={`${src}-${index}`}
-								type="button"
-								onClick={() => openPreview(index)}
-								className={`relative cursor-pointer overflow-hidden bg-gray-100 dark:bg-neutral-900 ${
-									index === 0 && shown.length >= 3 ? 'sm:col-span-2 sm:row-span-2' : ''
-								} ${index > 0 ? 'hidden sm:block' : ''}`}
-							>
-								<EventImage
-									src={src}
-									alt={eventTranslation.title}
-									onError={() => setFailedImages((count) => count + 1)}
-									fallback={<EventImageFallback alt={eventTranslation.title} />}
-									className="size-full object-cover transition-opacity hover:opacity-90"
+						{shown.map((src, index) =>
+							src === GALLERY_VIDEO_SLIDE && video ? (
+								<VideoTile
+									key="video"
+									video={video}
+									title={eventTranslation.title}
+									onOpen={() => openPreview(index)}
+									className={`${index === 0 && shown.length >= 3 ? 'sm:col-span-2 sm:row-span-2' : ''} ${index > 0 ? 'hidden sm:block' : ''}`}
 								/>
-							</button>
-						))}
+							) : (
+								<button
+									key={`${src}-${index}`}
+									type="button"
+									onClick={() => openPreview(index)}
+									className={`relative cursor-pointer overflow-hidden bg-gray-100 dark:bg-neutral-900 ${
+										index === 0 && shown.length >= 3 ? 'sm:col-span-2 sm:row-span-2' : ''
+									} ${index > 0 ? 'hidden sm:block' : ''}`}
+								>
+									<EventImage
+										src={src}
+										alt={eventTranslation.title}
+										onError={() => setFailedImages((count) => count + 1)}
+										fallback={<EventImageFallback alt={eventTranslation.title} />}
+										className="size-full object-cover transition-opacity hover:opacity-90"
+									/>
+								</button>
+							),
+						)}
 					</div>
-					{imageUrls.length > 1 && (
+					{slides.length > 1 && (
 						<button
 							type="button"
 							onClick={() => openPreview(0)}
 							className="absolute right-3 bottom-3 flex items-center gap-2 rounded-lg border border-gray-900 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm transition-colors hover:bg-gray-50"
 						>
 							<Images className="size-4" />
-							{imageUrls.length}
+							{slides.length}
 						</button>
 					)}
 				</div>
@@ -184,7 +203,6 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 							{eventTranslation.description}
 						</p>
 					</section>
-					<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} className="border-t border-gray-200 pt-8 dark:border-neutral-800" />
 
 					{eventTranslation.whatsIncluded.length > 0 && (
 						<section className={hairline}>

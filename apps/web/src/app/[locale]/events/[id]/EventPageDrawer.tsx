@@ -15,7 +15,12 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useShare } from '@/hooks/share';
-import { EventVideo } from '@/features/events/components/EventVideo';
+import {
+	GALLERY_VIDEO_SLIDE,
+	VideoThumb,
+	VideoTile,
+	useGallerySlides,
+} from '@/features/events/components/GalleryVideo';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -48,12 +53,17 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const imageUrls = getEventImageUrls(event.images);
+	const { video, slides } = useGallerySlides(event.videoUrl, imageUrls);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
-	const thumbnails = imageUrls.slice(0, MAX_THUMBNAILS);
+	const thumbnails = slides.slice(0, MAX_THUMBNAILS);
 	const [activeImage, setActiveImage] = useState(0);
 
 	const openPreview = (index: number) =>
-		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
+		openModal(ModalType.ImagePreview, {
+			images: slides,
+			videoUrl: event.videoUrl,
+			initialIndex: index,
+		});
 
 	const handleShareClick = () => share(eventTranslation.title);
 
@@ -69,20 +79,30 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 			<div className="relative isolate aspect-4/5 max-h-[38rem] w-full overflow-hidden rounded-[2rem] bg-gray-200 sm:aspect-21/9 sm:rounded-[2.5rem] dark:bg-neutral-800">
 				<div className="absolute inset-0 -z-10">
 					{hasImages ? (
-						<button
-							type="button"
-							onClick={() => openPreview(activeImage)}
-							className="block size-full cursor-zoom-in"
-							aria-label={eventTranslation.title}
-						>
-							<EventImage
-								src={imageUrls[activeImage] ?? imageUrls[0]}
-								alt={eventTranslation.title}
-								onError={() => setFailedImages((count) => count + 1)}
-								fallback={<EventImageFallback alt={eventTranslation.title} />}
-								className="size-full object-cover"
+						slides[activeImage] === GALLERY_VIDEO_SLIDE && video ? (
+							<VideoTile
+								video={video}
+								title={eventTranslation.title}
+								playInModal
+								onOpen={() => openPreview(activeImage)}
+								className="block size-full"
 							/>
-						</button>
+						) : (
+							<button
+								type="button"
+								onClick={() => openPreview(activeImage)}
+								className="block size-full cursor-zoom-in"
+								aria-label={eventTranslation.title}
+							>
+								<EventImage
+									src={slides[activeImage] ?? slides[0]}
+									alt={eventTranslation.title}
+									onError={() => setFailedImages((count) => count + 1)}
+									fallback={<EventImageFallback alt={eventTranslation.title} />}
+									className="size-full object-cover"
+								/>
+							</button>
+						)
 					) : (
 						<EventImageFallback alt={eventTranslation.title} />
 					)}
@@ -151,12 +171,16 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 								index === activeImage ? 'border-primary' : 'border-transparent opacity-70 hover:opacity-100'
 							}`}
 						>
-							<EventImage
-								src={src}
-								alt=""
-								fallback={<EventImageFallback alt="" />}
-								className="size-full object-cover"
-							/>
+							{src === GALLERY_VIDEO_SLIDE && video ? (
+								<VideoThumb video={video} />
+							) : (
+								<EventImage
+									src={src}
+									alt=""
+									fallback={<EventImageFallback alt="" />}
+									className="size-full object-cover"
+								/>
+							)}
 						</button>
 					))}
 				</div>
@@ -187,7 +211,6 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 							{eventTranslation.description}
 						</p>
 					</section>
-					<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 					{eventTranslation.whatsIncluded.length > 0 && (
 						<section>

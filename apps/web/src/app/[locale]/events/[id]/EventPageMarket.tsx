@@ -16,7 +16,12 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useShare } from '@/hooks/share';
-import { EventVideo } from '@/features/events/components/EventVideo';
+import {
+	GALLERY_VIDEO_SLIDE,
+	VideoThumb,
+	VideoTile,
+	useGallerySlides,
+} from '@/features/events/components/GalleryVideo';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -50,12 +55,17 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const imageUrls = getEventImageUrls(event.images);
+	const { video, slides } = useGallerySlides(event.videoUrl, imageUrls);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
-	const thumbnails = imageUrls.slice(0, MAX_THUMBNAILS);
+	const thumbnails = slides.slice(0, MAX_THUMBNAILS);
 	const [activeImage, setActiveImage] = useState(0);
 
 	const openPreview = (index: number) =>
-		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
+		openModal(ModalType.ImagePreview, {
+			images: slides,
+			videoUrl: event.videoUrl,
+			initialIndex: index,
+		});
 
 	const handleShareClick = () => share(eventTranslation.title);
 
@@ -134,19 +144,28 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 						</div>
 					) : (
 						<div className="space-y-2">
-							<button
-								type="button"
-								onClick={() => openPreview(activeImage)}
-								className="relative block aspect-4/3 max-h-[34rem] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-gray-100 sm:aspect-16/10 dark:bg-neutral-900"
-							>
-								<EventImage
-									src={imageUrls[activeImage] ?? imageUrls[0]}
-									alt={eventTranslation.title}
-									onError={() => setFailedImages((count) => count + 1)}
-									fallback={<EventImageFallback alt={eventTranslation.title} />}
-									className="size-full object-cover"
+							{slides[activeImage] === GALLERY_VIDEO_SLIDE && video ? (
+								<VideoTile
+									video={video}
+									title={eventTranslation.title}
+									onOpen={() => openPreview(activeImage)}
+									className="block aspect-4/3 max-h-[34rem] w-full rounded-2xl sm:aspect-16/10"
 								/>
-							</button>
+							) : (
+								<button
+									type="button"
+									onClick={() => openPreview(activeImage)}
+									className="relative block aspect-4/3 max-h-[34rem] w-full cursor-zoom-in overflow-hidden rounded-2xl bg-gray-100 sm:aspect-16/10 dark:bg-neutral-900"
+								>
+									<EventImage
+										src={slides[activeImage] ?? slides[0]}
+										alt={eventTranslation.title}
+										onError={() => setFailedImages((count) => count + 1)}
+										fallback={<EventImageFallback alt={eventTranslation.title} />}
+										className="size-full object-cover"
+									/>
+								</button>
+							)}
 							{thumbnails.length > 1 && (
 								<div className="flex [scrollbar-width:none] gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
 									{thumbnails.map((src, index) => (
@@ -161,12 +180,16 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 													: 'border-transparent opacity-80 hover:opacity-100'
 											}`}
 										>
-											<EventImage
-												src={src}
-												alt=""
-												fallback={<EventImageFallback alt="" />}
-												className="size-full object-cover"
-											/>
+											{src === GALLERY_VIDEO_SLIDE && video ? (
+												<VideoThumb video={video} />
+											) : (
+												<EventImage
+													src={src}
+													alt=""
+													fallback={<EventImageFallback alt="" />}
+													className="size-full object-cover"
+												/>
+											)}
 										</button>
 									))}
 								</div>
@@ -197,7 +220,6 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 							{eventTranslation.description}
 						</p>
 					</section>
-					<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 					{eventTranslation.whatsIncluded.length > 0 && (
 						<section className={card}>

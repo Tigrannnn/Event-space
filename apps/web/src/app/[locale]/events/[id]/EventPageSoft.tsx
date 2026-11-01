@@ -17,7 +17,11 @@ import { FavoriteButton } from '@/features/favorites/components/FavoriteButton';
 import { EventReviews, WriteReviewButton } from '@/features/reviews';
 import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useShare } from '@/hooks/share';
-import { EventVideo } from '@/features/events/components/EventVideo';
+import {
+	GALLERY_VIDEO_SLIDE,
+	VideoTile,
+	useGallerySlides,
+} from '@/features/events/components/GalleryVideo';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useTranslation } from '@/hooks/translation';
@@ -49,12 +53,17 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 	const eventTranslation = getEventTranslation(event, locale);
 	const categoryTranslation = getCategoryTranslation(event.category, locale);
 	const imageUrls = getEventImageUrls(event.images);
+	const { video, slides } = useGallerySlides(event.videoUrl, imageUrls);
 	const allImagesFailed = imageUrls.length > 0 && failedImages >= imageUrls.length;
 	const average = averageRating(event);
 	const hasIncluded = eventTranslation.whatsIncluded.length > 0;
 
 	const openPreview = (index: number) =>
-		openModal(ModalType.ImagePreview, { images: imageUrls, initialIndex: index });
+		openModal(ModalType.ImagePreview, {
+			images: slides,
+			videoUrl: event.videoUrl,
+			initialIndex: index,
+		});
 
 	const handleShareClick = () => share(eventTranslation.title);
 
@@ -145,22 +154,36 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 					scrollerClassName="rounded-3xl bg-white p-2 shadow-lg dark:bg-gray-800"
 				>
 					<div className="flex h-full items-center">
-						{imageUrls.map((src, index) => (
-							<button
-								key={`${src}-${index}`}
-								type="button"
-								onClick={() => openPreview(index)}
-								className="flex w-full shrink-0 snap-center items-center justify-center px-1 sm:h-full sm:w-auto"
-							>
-								<EventImage
-									src={src}
-									alt={eventTranslation.title}
-									onError={() => setFailedImages((count) => count + 1)}
-									fallback={<EventImageFallback alt={eventTranslation.title} />}
-									className="h-auto max-h-[70vh] w-full cursor-pointer rounded-2xl object-contain sm:h-full sm:w-auto"
-								/>
-							</button>
-						))}
+						{slides.map((src, index) =>
+							src === GALLERY_VIDEO_SLIDE && video ? (
+								<div
+									key="video"
+									className="flex w-full shrink-0 snap-center items-center justify-center px-1 sm:h-full sm:w-auto"
+								>
+									<VideoTile
+										video={video}
+										title={eventTranslation.title}
+										onOpen={() => openPreview(index)}
+										className="aspect-video w-full rounded-2xl sm:h-full sm:w-auto"
+									/>
+								</div>
+							) : (
+								<button
+									key={`${src}-${index}`}
+									type="button"
+									onClick={() => openPreview(index)}
+									className="flex w-full shrink-0 snap-center items-center justify-center px-1 sm:h-full sm:w-auto"
+								>
+									<EventImage
+										src={src}
+										alt={eventTranslation.title}
+										onError={() => setFailedImages((count) => count + 1)}
+										fallback={<EventImageFallback alt={eventTranslation.title} />}
+										className="h-auto max-h-[70vh] w-full cursor-pointer rounded-2xl object-contain sm:h-full sm:w-auto"
+									/>
+								</button>
+							),
+						)}
 					</div>
 				</PhotoStrip>
 			)}
@@ -190,7 +213,6 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 							{eventTranslation.description}
 						</p>
 					</section>
-					<EventVideo videoUrl={event.videoUrl} title={eventTranslation.title} posterUrl={imageUrls[0]} />
 
 					{hasIncluded && (
 						<section className={card}>

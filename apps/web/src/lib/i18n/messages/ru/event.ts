@@ -5,7 +5,6 @@ export const event: Messages['event'] = {
 	share: 'Поделиться',
 	linkCopied: 'Ссылка скопирована',
 	copyFailed: 'Не удалось скопировать ссылку',
-	video: 'Видео',
 	playVideo: 'Смотреть видео',
 	shareTitle: 'Поделиться туром',
 	copyLink: 'Копировать ссылку',
