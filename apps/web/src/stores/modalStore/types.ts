@@ -51,6 +51,7 @@ export enum ModalType {
 	UpdateBanner = 'update-banner',
 	CreatePromoCode = 'create-promo-code',
 	UpdatePromoCode = 'update-promo-code',
+	ImportReview = 'import-review',
 	CompensateBooking = 'compensate-booking',
 	TransferBooking = 'transfer-booking',
 }
@@ -196,6 +197,7 @@ export interface ModalDataMap {
 	[ModalType.UpdateBanner]: UpdateBannerModalData;
 	[ModalType.CreatePromoCode]: null;
 	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
+	[ModalType.ImportReview]: null;
 	[ModalType.CompensateBooking]: BookingDetailsModalData;
 	[ModalType.TransferBooking]: BookingDetailsModalData;
 }

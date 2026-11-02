@@ -1,8 +1,17 @@
 import { z } from './openapi';
 import { ReviewSchema as GeneratedReviewSchema } from '../generated/modelSchema/ReviewSchema';
 import { ReviewStatusSchema } from '../generated/inputTypeSchemas/ReviewStatusSchema';
+import { ReviewSourceSchema } from '../generated/inputTypeSchemas/ReviewSourceSchema';
 import { REVIEW_CONFIG } from '../constants/review.constant';
 import { EventTranslationSchema } from './event-translation.schema';
+
+export const ReviewSourceEnum = ReviewSourceSchema;
+export type ReviewSource = z.infer<typeof ReviewSourceEnum>;
+
+/** The places a review can be brought in from; our own is not among them. */
+export const IMPORTABLE_REVIEW_SOURCES = ReviewSourceEnum.options.filter(
+	(source) => source !== 'PLATFORM',
+);
 
 export const ReviewStatusEnum = ReviewStatusSchema;
 export type ReviewStatus = z.infer<typeof ReviewStatusEnum>;
@@ -68,6 +77,21 @@ export const MyReviewSchema = z.object({
 });
 
 export type MyReview = z.infer<typeof MyReviewSchema>;
+
+/** A review written somewhere else, entered by hand with where it came from. */
+export const ImportReviewSchema = z
+	.object({
+		eventId: z.string().min(1),
+		authorName: z.string().trim().min(1).max(REVIEW_CONFIG.AUTHOR_NAME_MAX),
+		rating: RatingSchema,
+		text: z.string().trim().max(REVIEW_CONFIG.TEXT_MAX).nullish(),
+		source: z.enum(IMPORTABLE_REVIEW_SOURCES as [ReviewSource, ...ReviewSource[]]),
+		/** When it was written there. Today when left out. */
+		reviewedAt: z.coerce.date().nullish(),
+	})
+	.openapi({ description: 'A review brought in by hand from another site' });
+
+export type ImportReviewData = z.infer<typeof ImportReviewSchema>;
 
 export const ModerateReviewSchema = z
 	.object({

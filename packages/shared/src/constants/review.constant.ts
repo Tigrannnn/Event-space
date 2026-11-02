@@ -4,6 +4,7 @@ export const REVIEW_CONFIG = {
 	TEXT_MAX: 1000,
 	REJECT_REASON_MAX: 500,
 	ADMIN_REPLY_MAX: 1000,
+	AUTHOR_NAME_MAX: 120,
 
 	/** Photos a guest may attach to a review. */
 	MAX_IMAGES: 3,

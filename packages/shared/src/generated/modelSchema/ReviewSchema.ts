@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ReviewSourceSchema } from '../inputTypeSchemas/ReviewSourceSchema'
 import { ReviewStatusSchema } from '../inputTypeSchemas/ReviewStatusSchema'
 
 /////////////////////////////////////////
@@ -6,15 +7,21 @@ import { ReviewStatusSchema } from '../inputTypeSchemas/ReviewStatusSchema'
 /////////////////////////////////////////
 
 export const ReviewSchema = z.object({
+  source: ReviewSourceSchema,
   status: ReviewStatusSchema,
   id: z.uuid(),
   /**
    * Одна бронь — один отзыв. Здесь вся защита от накрутки: чтобы написать,
    * надо было купить и съездить.
+   * У отзыва, внесённого вручную со стороннего сайта, нет ни брони, ни автора-пользователя.
    */
-  bookingId: z.string(),
+  bookingId: z.string().nullable(),
   eventId: z.string(),
-  userId: z.string(),
+  userId: z.string().nullable(),
+  /**
+   * Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.
+   */
+  authorName: z.string().nullable(),
   rating: z.number().int(),
   text: z.string().nullable(),
   moderatedAt: z.coerce.date().nullable(),

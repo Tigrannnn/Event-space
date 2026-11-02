@@ -12,6 +12,7 @@ import { localizePath } from '@/lib/i18n/config';
 import { useEventReviews } from '../hooks/useReviews';
 import { DeleteReviewButton } from './DeleteReviewButton';
 import { ReviewPhotos } from './ReviewPhotos';
+import { ReviewSourceBadge } from './ReviewSourceBadge';
 import { StarRating } from './StarRating';
 
 export function EventReviews({ event }: { event: Event }) {
@@ -72,13 +73,13 @@ export function EventReviews({ event }: { event: Event }) {
 									{formatDateShort(review.createdAt)}
 								</span>
 								<Link
-									href={localizePath(`/bookings/${review.bookingId}/review`, translate.locale)}
+									href={localizePath(`/bookings/${review.bookingId ?? ''}/review`, translate.locale)}
 									className="text-primary ml-auto flex items-center gap-1 text-xs font-semibold hover:underline"
 								>
 									<Pencil className="h-3.5 w-3.5" />
 									{translate('review.editAction')}
 								</Link>
-								<DeleteReviewButton bookingId={review.bookingId} />
+								{review.bookingId && <DeleteReviewButton bookingId={review.bookingId} />}
 							</div>
 
 							{review.text && (
@@ -126,13 +127,14 @@ export function EventReviews({ event }: { event: Event }) {
 					>
 						<div className="flex flex-wrap items-center gap-2">
 							<span className="bg-primary hidden size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white uppercase in-data-[skin=market]:flex in-data-[skin=drawer]:flex in-data-[skin=drawer]:size-10">
-								{(review.user?.name ?? '?').trim().charAt(0)}
+								{(review.authorName ?? review.user?.name ?? '?').trim().charAt(0)}
 							</span>
 							<span className="font-semibold text-gray-900 dark:text-gray-100">
-								{review.user?.name}
+								{review.authorName ?? review.user?.name}
 							</span>
 							<StarRating value={review.rating} />
 							<span className="text-xs text-gray-500">{formatDateShort(review.createdAt)}</span>
+							<ReviewSourceBadge source={review.source} />
 						</div>
 
 						{review.text && (

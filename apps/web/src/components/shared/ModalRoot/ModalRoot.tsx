@@ -17,6 +17,7 @@ import {
 } from '@/features/admin/categories';
 import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import { CreatePromoCodeModal, UpdatePromoCodeModal } from '@/features/admin/promo-codes';
+import ImportReviewModal from '@/features/admin/reviews/ImportReviewModal';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EditGuestModal from '@/features/admin/user/components/EditGuestModal';
 import { BookingQrCodeModal } from '@/features/bookings/components/BookingQrCode';
@@ -84,6 +85,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.UpdatePromoCode && (
 						<UpdatePromoCodeModal key="update-promo-code" />
 					)}
+					{activeModal === ModalType.ImportReview && <ImportReviewModal key="import-review" />}
 				</>
 			)}
 		</AnimatePresence>

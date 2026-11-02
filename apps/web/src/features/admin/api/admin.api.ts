@@ -34,6 +34,7 @@ import type {
 	PaginatedCursorResponse,
 	ReplyToReviewData,
 	Review,
+	ImportReviewData,
 	ReviewStatus,
 	CreateCategoryData,
 	UpdateCategoryData,
@@ -204,6 +205,8 @@ export const adminApi = {
 		clientApi.patch<AdminReview>(`/admin/reviews/${id}/moderate`, data).then((res) => res.data),
 	replyToReview: (id: string, data: ReplyToReviewData) =>
 		clientApi.patch<AdminReview>(`/admin/reviews/${id}/reply`, data).then((res) => res.data),
+	importReview: (data: ImportReviewData) =>
+		clientApi.post<AdminReview>('/admin/reviews/import', data).then((res) => res.data),
 	deleteReview: (id: string) =>
 		clientApi.delete<{ message: string }>(`/admin/reviews/${id}`).then((res) => res.data),
 };

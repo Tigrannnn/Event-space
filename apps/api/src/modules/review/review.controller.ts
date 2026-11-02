@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import {
 	CreateReviewSchema,
+	ImportReviewSchema,
 	REVIEW_CONFIG,
 	ModerateReviewSchema,
 	ReplyToReviewSchema,
@@ -32,6 +33,7 @@ import {
 } from '@event-space/shared';
 import type {
 	CreateReviewData,
+	ImportReviewData,
 	ModerateReviewData,
 	ReplyToReviewData,
 	ReviewStatus,
@@ -192,6 +194,20 @@ export class ReviewController {
 	@ApiOperation({ summary: 'How many reviews are waiting to be read (admin only)' })
 	async pendingCount() {
 		return { count: await this.reviewAdminService.pendingCount() };
+	}
+
+	@Post('admin/reviews/import')
+	@ApiBearerAuth()
+	@Roles(UserRoleSchema.enum.ADMIN)
+	@UseGuards(AccessTokenGuard, RolesGuard)
+	@ApiOperation({ summary: 'Add a review written on another site, with where it came from (admin only)' })
+	async importReview(
+		@GetCurrentUserId() adminId: string,
+		@Body(new ZodValidationPipe(ImportReviewSchema)) data: ImportReviewData,
+	) {
+		await this.consumeAdminLimit(adminId);
+
+		return this.reviewAdminService.createImported(adminId, data);
 	}
 
 	@Patch('admin/reviews/:id/moderate')

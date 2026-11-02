@@ -45,6 +45,19 @@ enum Locale {
   hy
 }
 
+/// Откуда отзыв. PLATFORM — написан у нас гостем после брони; остальные внесены вручную
+/// со сторонней площадки.
+enum ReviewSource {
+  PLATFORM
+  GETYOURGUIDE
+  TRIPADVISOR
+  VIATOR
+  GOOGLE
+  INSTAGRAM
+  FACEBOOK
+  OTHER
+}
+
 enum ReviewStatus {
   PENDING
   PUBLISHED
@@ -492,9 +505,14 @@ model Review {
 
   /// Одна бронь — один отзыв. Здесь вся защита от накрутки: чтобы написать,
   /// надо было купить и съездить.
-  bookingId String @unique @map("booking_id")
-  eventId   String @map("event_id")
-  userId    String @map("user_id")
+  /// У отзыва, внесённого вручную со стороннего сайта, нет ни брони, ни автора-пользователя.
+  bookingId String? @unique @map("booking_id")
+  eventId   String  @map("event_id")
+  userId    String? @map("user_id")
+
+  source     ReviewSource @default(PLATFORM)
+  /// Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.
+  authorName String?      @map("author_name") @db.VarChar(120)
 
   rating Int
   text   String? @db.VarChar(1000)
@@ -511,9 +529,9 @@ model Review {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  booking Booking @relation("booking_review", fields: [bookingId], references: [id], onDelete: Cascade)
-  event   Event   @relation("event_reviews", fields: [eventId], references: [id], onDelete: Cascade)
-  user    User    @relation("user_reviews", fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation("booking_review", fields: [bookingId], references: [id], onDelete: Cascade)
+  event   Event    @relation("event_reviews", fields: [eventId], references: [id], onDelete: Cascade)
+  user    User?    @relation("user_reviews", fields: [userId], references: [id], onDelete: Cascade)
   images  ReviewImage[] @relation("review_images")
 
   @@index([eventId, status, createdAt])

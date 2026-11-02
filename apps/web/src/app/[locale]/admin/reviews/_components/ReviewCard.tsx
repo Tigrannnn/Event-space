@@ -14,7 +14,7 @@ import {
 	useReplyToReview,
 } from '@/features/admin/hooks/useAdmin';
 import { cn } from '@/utils/cn';
-import { ReviewPhotos } from '@/features/reviews';
+import { ReviewPhotos, ReviewSourceBadge } from '@/features/reviews';
 
 const STATUS_STYLE: Record<ReviewStatus, string> = {
 	PENDING: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300',
@@ -75,8 +75,9 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 				<span className="text-xs text-gray-500">{formatDateTime(review.createdAt)}</span>
 			</div>
 
-			<p className="text-xs text-gray-500">
-				{review.user?.name}
+			<p className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+				<ReviewSourceBadge source={review.source} />
+				{review.authorName ?? review.user?.name}
 				{review.user?.email ? ` · ${review.user.email}` : ''}
 				{review.booking?.referenceNumber ? ` · #${review.booking.referenceNumber}` : ''}
 			</p>

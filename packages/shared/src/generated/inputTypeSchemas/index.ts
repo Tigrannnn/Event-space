@@ -27,6 +27,7 @@ export { EventDifficultySchema } from './EventDifficultySchema';
 export { EventStatusSchema } from './EventStatusSchema';
 export { PaymentMethodSchema } from './PaymentMethodSchema';
 export { LocaleSchema } from './LocaleSchema';
+export { ReviewSourceSchema } from './ReviewSourceSchema';
 export { ReviewStatusSchema } from './ReviewStatusSchema';
 export { BannerStatusSchema } from './BannerStatusSchema';
 export { BannerTargetTypeSchema } from './BannerTargetTypeSchema';

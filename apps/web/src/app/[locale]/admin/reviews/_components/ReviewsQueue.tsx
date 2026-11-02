@@ -5,6 +5,9 @@ import type { ReviewStatus } from '@event-space/shared';
 import Select from '@/components/ui/Select';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
+import Button from '@/components/ui/Buttons/Button';
+import { useModalStore } from '@/stores';
+import { ModalType } from '@/stores/modalStore/types';
 import { useTranslation } from '@/hooks/translation';
 import { useAdminReviews, usePendingReviewsCountQuery } from '@/features/admin/hooks/useAdmin';
 import ReviewCard from './ReviewCard';
@@ -13,6 +16,7 @@ type StatusFilter = 'ALL' | ReviewStatus;
 
 export default function ReviewsQueue() {
 	const translate = useTranslation();
+	const { openModal } = useModalStore();
 	const [statusFilter, setStatusFilter] = useState<StatusFilter | null>(null);
 	const { data: pending } = usePendingReviewsCountQuery();
 
@@ -50,18 +54,23 @@ export default function ReviewsQueue() {
 					<p className="text-xs text-gray-500 sm:text-sm">{translate('admin.reviewsHint')}</p>
 				</div>
 
-				<Select
-					variant="filter"
-					size="sm"
-					value={statusFilter ?? 'PENDING'}
-					onValueChange={(value) => setStatusFilter(value as StatusFilter)}
-					options={[
-						{ value: 'PENDING', label: translate('admin.reviewsQueue') },
-						{ value: 'PUBLISHED', label: translate('admin.reviewsPublished') },
-						{ value: 'REJECTED', label: translate('admin.reviewsRejected') },
-						{ value: 'ALL', label: translate('admin.reviewsAll') },
-					]}
-				/>
+				<div className="flex flex-wrap items-center gap-2">
+					<Button size="sm" onClick={() => openModal(ModalType.ImportReview)}>
+						{translate('admin.importReview')}
+					</Button>
+					<Select
+						variant="filter"
+						size="sm"
+						value={statusFilter ?? 'PENDING'}
+						onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+						options={[
+							{ value: 'PENDING', label: translate('admin.reviewsQueue') },
+							{ value: 'PUBLISHED', label: translate('admin.reviewsPublished') },
+							{ value: 'REJECTED', label: translate('admin.reviewsRejected') },
+							{ value: 'ALL', label: translate('admin.reviewsAll') },
+						]}
+					/>
+				</div>
 			</div>
 
 			{statusFilter === null ? null : reviews.length === 0 ? (

@@ -19,6 +19,7 @@ import {
 	type CreatePromoCodeData,
 	type UpdatePromoCodeData,
 	type UpdateShadowUserData,
+	type ImportReviewData,
 	type ModerateReviewData,
 	type ReplyToReviewData,
 	type ReviewStatus,
@@ -799,6 +800,23 @@ export const useModerateReview = () => {
 				translate(review.status === 'PUBLISHED' ? 'admin.reviewPublished' : 'admin.reviewRejected'),
 				ToastType.SUCCESS,
 			);
+			await callbacks.onSuccess();
+		},
+	});
+};
+
+export const useImportReview = () => {
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const translate = useTranslation();
+	const callbacks = useReviewMutationCallbacks('admin.reviewActionFailed');
+
+	return useMutation({
+		mutationFn: (data: ImportReviewData) => adminApi.importReview(data),
+		...callbacks,
+		onSuccess: async () => {
+			addToast(translate('admin.importReviewSuccess'), ToastType.SUCCESS);
+			closeModal();
 			await callbacks.onSuccess();
 		},
 	});

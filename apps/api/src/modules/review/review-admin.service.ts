@@ -10,6 +10,7 @@ import {
 	EnvKey,
 	getEventTranslation,
 	REVIEW_CONFIG,
+	type ImportReviewData,
 	type ModerateReviewData,
 	type ReplyToReviewData,
 	type ReviewStatus,
@@ -66,6 +67,44 @@ export class ReviewAdminService {
 			nextCursor: hasMore && last ? encodeKeysetCursor(last) : null,
 			hasMore,
 		};
+	}
+
+	/**
+	 * A review written on another site, put here by hand.
+	 *
+	 * Published at once: the person entering it is the company, who vouches for it by doing so. It
+	 * has no booking and no account behind it, only the name it was written under and where.
+	 */
+	async createImported(adminId: string, data: ImportReviewData) {
+		const event = await this.prisma.event.findUnique({
+			where: { id: data.eventId },
+			select: { id: true },
+		});
+
+		if (!event) {
+			throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id: data.eventId });
+		}
+
+		return this.prisma.$transaction(async (tx) => {
+			const created = await tx.review.create({
+				data: {
+					eventId: data.eventId,
+					source: data.source,
+					authorName: data.authorName.trim(),
+					rating: data.rating,
+					text: data.text?.trim() || null,
+					status: 'PUBLISHED',
+					moderatedAt: new Date(),
+					moderatedByAdminId: adminId,
+					createdAt: data.reviewedAt ?? undefined,
+				},
+				include: REVIEW_FOR_ADMIN,
+			});
+
+			await applyRatingDelta(tx, data.eventId, null, created);
+
+			return created;
+		});
 	}
 
 	/** How many are waiting — the number on the tab in the sidebar. */
