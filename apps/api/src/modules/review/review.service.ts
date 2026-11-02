@@ -131,8 +131,12 @@ export class ReviewService {
 				where: {
 					eventId,
 					status: 'PUBLISHED',
-					...(userId ? { NOT: { userId } } : {}),
-					...(keysetAfter(params.cursor) ?? {}),
+					AND: [
+						// A review written elsewhere has no author here: `NOT userId = x` is unknown for
+						// it, and unknown drops the row, so it is asked for by name.
+						...(userId ? [{ OR: [{ userId: null }, { userId: { not: userId } }] }] : []),
+						...(keysetAfter(params.cursor) ? [keysetAfter(params.cursor)!] : []),
+					],
 				},
 				include: REVIEW_AUTHOR,
 				take: limit + 1,
