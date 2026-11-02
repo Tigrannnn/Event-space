@@ -2,6 +2,5 @@ CREATE TYPE "ReviewSource" AS ENUM ('PLATFORM', 'GETYOURGUIDE', 'TRIPADVISOR', '
 
 ALTER TABLE "reviews" ADD COLUMN "source" "ReviewSource" NOT NULL DEFAULT 'PLATFORM';
 ALTER TABLE "reviews" ADD COLUMN "author_name" VARCHAR(120);
-ALTER TABLE "reviews" ADD COLUMN "source_name" VARCHAR(80);
 ALTER TABLE "reviews" ALTER COLUMN "booking_id" DROP NOT NULL;
 ALTER TABLE "reviews" ALTER COLUMN "user_id" DROP NOT NULL;
