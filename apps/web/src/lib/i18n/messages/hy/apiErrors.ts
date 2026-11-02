@@ -79,6 +79,7 @@ export const apiErrors: Messages['apiErrors'] = {
 
 	[AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING]: 'Այս միջոցառումն ամրագրման համար հասանելի չէ։',
 	[AppErrorCode.ALREADY_BOOKED]: 'Դուք արդեն ունեք ամրագրում այս ամսաթվին։',
+	[AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN]: 'Այս հարթակի այդ համարով ամրագրումն արդեն մուտքագրված է։',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'Այս ամսաթվին տեղեր չեն մնացել։',
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: 'Այս ամսաթվին մնացել է ընդամենը {spotsLeft} տեղ։',
 	[AppErrorCode.BOOKING_USER_OR_NAME_REQUIRED]: 'Նշեք օգտատեր կամ անուն ամրագրման համար։',

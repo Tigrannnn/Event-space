@@ -85,6 +85,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 
 	[AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING]: 'This event is not available for booking.',
 	[AppErrorCode.ALREADY_BOOKED]: 'You already have a booking for this date.',
+	[AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN]: 'A booking with this number from this platform is already entered.',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'No spots are left for this date.',
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: 'Only {spotsLeft} spot(s) left for this date.',
 	[AppErrorCode.BOOKING_USER_OR_NAME_REQUIRED]: 'Provide either a user or a name for the booking.',

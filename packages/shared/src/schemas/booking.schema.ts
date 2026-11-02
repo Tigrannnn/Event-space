@@ -2,6 +2,7 @@ import { z } from './openapi';
 import { ReviewSchema } from './review.schema';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
+import { BookingChannelSchema } from '../generated/inputTypeSchemas/BookingChannelSchema';
 import { EventSchema } from './event.schema';
 import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { LocaleEnum } from './locale.schema';
@@ -124,6 +125,11 @@ export const CancelBookingSchema = z.object({
 
 export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
 
+export const BookingChannelEnum = BookingChannelSchema;
+export type BookingChannel = z.infer<typeof BookingChannelEnum>;
+
+export const BOOKING_EXTERNAL_ID_MAX = 120;
+
 export const CreateManualBookingSchema = z
 	.object({
 		occurrenceId: z.string().uuid().openapi({ description: 'Event occurrence ID to book' }),
@@ -139,6 +145,15 @@ export const CreateManualBookingSchema = z
 		locale: LocaleEnum.optional().openapi({
 			description: 'Language for the emails of this booking; a client who already has one keeps it',
 		}),
+		channel: BookingChannelEnum.default('DIRECT').openapi({
+			description: 'Where the booking was sold: here, or on another platform',
+		}),
+		externalId: z
+			.string()
+			.trim()
+			.max(BOOKING_EXTERNAL_ID_MAX)
+			.nullish()
+			.openapi({ description: "The booking's number on that platform" }),
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',

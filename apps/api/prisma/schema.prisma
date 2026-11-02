@@ -33,6 +33,15 @@ enum EventStatus {
   CANCELLED
 }
 
+/// Где продана бронь. DIRECT — на нашем сайте или напрямую (телефон, на месте);
+/// остальные — площадки-посредники, у которых своя оплата и свои гости.
+enum BookingChannel {
+  DIRECT
+  GETYOURGUIDE
+  VIATOR
+  OTHER
+}
+
 enum PaymentMethod {
   SITE_PAYMENT
   OFFLINE_PAID
@@ -263,6 +272,10 @@ model Booking {
 
   paymentMethod PaymentMethod @default(SITE_PAYMENT) @map("payment_method")
 
+  channel BookingChannel @default(DIRECT)
+  /// Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
+  externalId String? @map("external_id") @db.VarChar(120)
+
   createdByAdminId String? @map("created_by_admin_id")
 
   rescheduleRefundUntil DateTime? @map("reschedule_refund_until")
@@ -289,6 +302,7 @@ model Booking {
   promoCode     PromoCode?             @relation("booking_promo_code", fields: [promoCodeId], references: [id])
 
   @@unique([userId, occurrenceId])
+  @@unique([channel, externalId])
   @@index([userId])
   @@index([occurrenceId])
   @@index([promoCodeId])

@@ -11,7 +11,12 @@ import Select from '@/components/ui/Select';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
-import type { CreateManualBookingData, Event, EventOccurrence } from '@event-space/shared';
+import {
+	BookingChannelEnum,
+	type CreateManualBookingData,
+	type Event,
+	type EventOccurrence,
+} from '@event-space/shared';
 import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
@@ -39,6 +44,8 @@ export default function CreateManualBookingModal() {
 		email: undefined,
 		paymentMethod: 'OFFLINE_PAID',
 		locale: undefined,
+		channel: 'DIRECT',
+		externalId: undefined,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
 	const [errors, setErrors] = useState<ManualBookingErrors>({});
@@ -108,6 +115,8 @@ export default function CreateManualBookingModal() {
 			email: formState.email,
 			paymentMethod: formState.paymentMethod,
 			locale: clientLocale ?? formState.locale,
+			channel: formState.channel,
+			externalId: formState.externalId,
 		};
 
 		const nextErrors = validateManualBooking(draft);
@@ -216,6 +225,31 @@ export default function CreateManualBookingModal() {
 							/>
 							{renderError('email')}
 						</>
+					)}
+
+					<div className="space-y-1.5">
+						<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
+							{translate('admin.bookingChannel')}
+						</label>
+						<Select
+							value={formState.channel}
+							onValueChange={(value) => handleChange('channel', value)}
+							className="w-full font-medium"
+							options={BookingChannelEnum.options.map((channel) => ({
+								value: channel,
+								label: translate(`admin.channel.${channel}`),
+							}))}
+						/>
+					</div>
+
+					{formState.channel !== 'DIRECT' && (
+						<Input
+							label={translate('admin.bookingExternalId')}
+							value={formState.externalId ?? ''}
+							onChange={(e) => handleChange('externalId', e.target.value)}
+							placeholder={translate('admin.bookingExternalIdPlaceholder')}
+							className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+						/>
 					)}
 
 					<Select

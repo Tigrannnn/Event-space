@@ -25,6 +25,7 @@ export { QueryModeSchema } from './QueryModeSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';
 export { EventDifficultySchema } from './EventDifficultySchema';
 export { EventStatusSchema } from './EventStatusSchema';
+export { BookingChannelSchema } from './BookingChannelSchema';
 export { PaymentMethodSchema } from './PaymentMethodSchema';
 export { LocaleSchema } from './LocaleSchema';
 export { ReviewSourceSchema } from './ReviewSourceSchema';

@@ -440,6 +440,12 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
 								<TableCell>
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
+									{booking.channel !== 'DIRECT' && (
+										<p className="mt-1 text-xs text-gray-500">
+											{translate(`admin.channel.${booking.channel}`)}
+											{booking.externalId ? ` · ${booking.externalId}` : ''}
+										</p>
+									)}
 								</TableCell>
 								<TableCell>
 									{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client'
 import { BookingStatusSchema } from '../inputTypeSchemas/BookingStatusSchema'
 import { PaymentMethodSchema } from '../inputTypeSchemas/PaymentMethodSchema'
+import { BookingChannelSchema } from '../inputTypeSchemas/BookingChannelSchema'
 
 /////////////////////////////////////////
 // BOOKING SCHEMA
@@ -10,6 +11,7 @@ import { PaymentMethodSchema } from '../inputTypeSchemas/PaymentMethodSchema'
 export const BookingSchema = z.object({
   status: BookingStatusSchema,
   paymentMethod: PaymentMethodSchema,
+  channel: BookingChannelSchema,
   id: z.uuid(),
   userId: z.string(),
   occurrenceId: z.string(),
@@ -20,6 +22,10 @@ export const BookingSchema = z.object({
   baseAmount: z.instanceof(Prisma.Decimal, { message: "Field 'baseAmount' must be a Decimal. Location: ['Models', 'Booking']"}).nullable(),
   discountPercent: z.number().int().nullable(),
   promoCodeId: z.string().nullable(),
+  /**
+   * Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
+   */
+  externalId: z.string().nullable(),
   createdByAdminId: z.string().nullable(),
   rescheduleRefundUntil: z.coerce.date().nullable(),
   rescheduleAcceptedAt: z.coerce.date().nullable(),

@@ -15,6 +15,8 @@ export interface ManualBookingDraft {
 	email?: string;
 	paymentMethod: CreateManualBookingData['paymentMethod'];
 	locale?: CreateManualBookingData['locale'];
+	channel: CreateManualBookingData['channel'];
+	externalId?: string | null;
 }
 
 /**
@@ -67,6 +69,9 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		quantity: draft.quantity,
 		paymentMethod: draft.paymentMethod,
 		locale: draft.locale,
+		channel: draft.channel,
+		// A number only means something on a platform; for our own bookings there is none.
+		externalId: draft.channel === 'DIRECT' ? null : draft.externalId?.trim() || null,
 	};
 
 	if (draft.userId) {

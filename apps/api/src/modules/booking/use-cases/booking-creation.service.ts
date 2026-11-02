@@ -410,9 +410,21 @@ export class BookingCreationService {
 			email,
 			phone,
 			locale: mailLocale,
+			channel,
 		} = data;
+		const externalId = data.externalId?.trim() || null;
 
 		const result = await this.prisma.$transaction(async (tx) => {
+			// The same booking of a platform cannot be entered twice: the second would take seats
+			// for guests that are already counted.
+			if (externalId) {
+				const taken = await tx.booking.findUnique({
+					where: { channel_externalId: { channel, externalId } },
+					select: { id: true },
+				});
+				if (taken) throw new AppException(AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN);
+			}
+
 			const occurrence = await tx.eventOccurrence.findUnique({
 				where: { id: occurrenceId },
 				include: {
@@ -521,6 +533,8 @@ export class BookingCreationService {
 				...pricing,
 				paymentIntentId: null,
 				paymentMethod,
+				channel,
+				externalId,
 				createdByAdminId: adminId,
 				referenceNumber,
 				brandHost,

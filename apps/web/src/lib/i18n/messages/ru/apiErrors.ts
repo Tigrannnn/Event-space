@@ -79,6 +79,7 @@ export const apiErrors: Messages['apiErrors'] = {
 
 	[AppErrorCode.EVENT_NOT_AVAILABLE_FOR_BOOKING]: 'Это событие недоступно для бронирования.',
 	[AppErrorCode.ALREADY_BOOKED]: 'У вас уже есть бронь на эту дату.',
+	[AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN]: 'Бронь с таким номером с этой площадки уже внесена.',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'На эту дату не осталось мест.',
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: 'На эту дату осталось всего {spotsLeft} мест.',
 	[AppErrorCode.BOOKING_USER_OR_NAME_REQUIRED]: 'Укажите пользователя или имя для брони.',

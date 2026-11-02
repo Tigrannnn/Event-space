@@ -214,6 +214,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		message: 'Event is not available for booking',
 	},
 	[AppErrorCode.ALREADY_BOOKED]: { status: HttpStatus.CONFLICT, message: 'Already booked' },
+	[AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A booking with this number from this platform is already entered',
+	},
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: { status: HttpStatus.CONFLICT, message: 'No spots available' },
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: {
 		status: HttpStatus.CONFLICT,

@@ -423,6 +423,28 @@ describe('creating a booking by an admin', () => {
 		]);
 	});
 
+	it('records the platform the booking came from and its number there', async () => {
+		const { service, upserts } = build();
+		await service.createManualBooking(
+			'admin1',
+			manual({ channel: 'GETYOURGUIDE', externalId: ' GYG123 ' }) as never,
+		);
+
+		expect(upserts[0].create).toMatchObject({ channel: 'GETYOURGUIDE', externalId: 'GYG123' });
+	});
+
+	it('refuses a booking number of a platform that is already entered', async () => {
+		const { service, upserts } = build({ existing: { status: 'CONFIRMED', paymentIntentId: null } });
+
+		await expect(
+			service.createManualBooking(
+				'admin1',
+				manual({ channel: 'VIATOR', externalId: 'BR-1' }) as never,
+			),
+		).rejects.toMatchObject({ code: 'BOOKING_EXTERNAL_ID_TAKEN' });
+		expect(upserts).toHaveLength(0);
+	});
+
 	it('keeps the reference number of a booking that already had one', async () => {
 		const { service, upserts } = build({
 			existing: { status: 'PENDING', paymentIntentId: null, referenceNumber: 31 },
