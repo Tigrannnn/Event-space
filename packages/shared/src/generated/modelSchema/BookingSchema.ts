@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client'
 import { BookingStatusSchema } from '../inputTypeSchemas/BookingStatusSchema'
 import { PaymentMethodSchema } from '../inputTypeSchemas/PaymentMethodSchema'
-import { BookingChannelSchema } from '../inputTypeSchemas/BookingChannelSchema'
 
 /////////////////////////////////////////
 // BOOKING SCHEMA
@@ -11,7 +10,6 @@ import { BookingChannelSchema } from '../inputTypeSchemas/BookingChannelSchema'
 export const BookingSchema = z.object({
   status: BookingStatusSchema,
   paymentMethod: PaymentMethodSchema,
-  channel: BookingChannelSchema,
   id: z.uuid(),
   userId: z.string(),
   occurrenceId: z.string(),
@@ -23,9 +21,9 @@ export const BookingSchema = z.object({
   discountPercent: z.number().int().nullable(),
   promoCodeId: z.string().nullable(),
   /**
-   * Название площадки, когда она не из списка (channel = OTHER).
+   * Где продана бронь: наш сайт или другая площадка. По умолчанию наш сайт (системный канал DIRECT).
    */
-  channelName: z.string().nullable(),
+  channelId: z.string(),
   /**
    * Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
    */

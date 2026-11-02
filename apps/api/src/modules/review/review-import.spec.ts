@@ -1,6 +1,6 @@
 import { ReviewAdminService } from './review-admin.service';
 
-function build(eventExists = true) {
+function build(eventExists = true, channel: { isActive?: boolean; forReviews?: boolean } | null = {}) {
 	const calls: { create: Array<{ data: Record<string, unknown> }>; eventUpdate: unknown[] } = {
 		create: [],
 		eventUpdate: [],
@@ -15,6 +15,10 @@ function build(eventExists = true) {
 		event: { update: (args: unknown) => Promise.resolve(calls.eventUpdate.push(args)) },
 	};
 	const prisma = {
+		channel: {
+			findUnique: (args: { where: { id: string } }) =>
+				Promise.resolve(channel === null ? null : { id: args.where.id, isActive: true, forReviews: true, ...channel }),
+		},
 		event: { findUnique: () => Promise.resolve(eventExists ? { id: 'e1' } : null) },
 		$transaction: (run: (client: typeof tx) => Promise<unknown>) => run(tx),
 	};
@@ -32,19 +36,19 @@ const data = {
 	authorName: '  Anna  ',
 	rating: 5,
 	text: ' Great ',
-	source: 'GETYOURGUIDE' as const,
+	channelId: 'gyg',
 	reviewedAt: new Date('2026-08-01T10:00:00Z'),
 };
 
 describe('ReviewAdminService.createImported', () => {
-	it('publishes at once, under the name and source given, and counts toward the rating', async () => {
+	it('publishes at once, under the name and channel given, and counts toward the rating', async () => {
 		const { service, calls } = build();
 
 		await service.createImported('admin1', data);
 
 		expect(calls.create[0].data).toMatchObject({
 			eventId: 'e1',
-			source: 'GETYOURGUIDE',
+			channelId: 'gyg',
 			authorName: 'Anna',
 			text: 'Great',
 			status: 'PUBLISHED',
@@ -59,14 +63,13 @@ describe('ReviewAdminService.createImported', () => {
 		]);
 	});
 
-	it('keeps the name of a site that is not on the list, and drops it for one that is', async () => {
-		const { service, calls } = build();
+	it('refuses a channel that does not exist, is archived, or is not for reviews', async () => {
+		for (const channel of [null, { isActive: false }, { forReviews: false }]) {
+			const { service, calls } = build(true, channel);
 
-		await service.createImported('admin1', { ...data, source: 'OTHER', sourceName: ' Yelp ' });
-		await service.createImported('admin1', { ...data, sourceName: 'Yelp' });
-
-		expect(calls.create[0].data).toMatchObject({ source: 'OTHER', sourceName: 'Yelp' });
-		expect(calls.create[1].data).toMatchObject({ source: 'GETYOURGUIDE', sourceName: null });
+			await expect(service.createImported('admin1', data)).rejects.toBeDefined();
+			expect(calls.create).toEqual([]);
+		}
 	});
 
 	it('refuses a tour that does not exist', async () => {

@@ -1,17 +1,9 @@
 import { z } from './openapi';
 import { ReviewSchema as GeneratedReviewSchema } from '../generated/modelSchema/ReviewSchema';
 import { ReviewStatusSchema } from '../generated/inputTypeSchemas/ReviewStatusSchema';
-import { ReviewSourceSchema } from '../generated/inputTypeSchemas/ReviewSourceSchema';
+import { ChannelRefSchema } from './channel.schema';
 import { REVIEW_CONFIG } from '../constants/review.constant';
 import { EventTranslationSchema } from './event-translation.schema';
-
-export const ReviewSourceEnum = ReviewSourceSchema;
-export type ReviewSource = z.infer<typeof ReviewSourceEnum>;
-
-/** The places a review can be brought in from; our own is not among them. */
-export const IMPORTABLE_REVIEW_SOURCES = ReviewSourceEnum.options.filter(
-	(source) => source !== 'PLATFORM',
-);
 
 export const ReviewStatusEnum = ReviewStatusSchema;
 export type ReviewStatus = z.infer<typeof ReviewStatusEnum>;
@@ -33,6 +25,7 @@ export const ReviewImageSchema = z.object({
 export type ReviewImage = z.infer<typeof ReviewImageSchema>;
 
 export const ReviewSchema = GeneratedReviewSchema.extend({
+	channel: ChannelRefSchema.nullish(),
 	user: ReviewAuthorSchema.nullish(),
 	images: z.array(ReviewImageSchema).default([]),
 });
@@ -85,15 +78,9 @@ export const ImportReviewSchema = z
 		authorName: z.string().trim().min(1).max(REVIEW_CONFIG.AUTHOR_NAME_MAX),
 		rating: RatingSchema,
 		text: z.string().trim().max(REVIEW_CONFIG.TEXT_MAX).nullish(),
-		source: z.enum(IMPORTABLE_REVIEW_SOURCES as [ReviewSource, ...ReviewSource[]]),
-		/** The name of the site, for a source that is not on the list. */
-		sourceName: z.string().trim().max(REVIEW_CONFIG.SOURCE_NAME_MAX).nullish(),
+		channelId: z.string().min(1),
 		/** When it was written there. Today when left out. */
 		reviewedAt: z.coerce.date().nullish(),
-	})
-	.refine((data) => data.source !== 'OTHER' || Boolean(data.sourceName), {
-		path: ['sourceName'],
-		message: 'Name the site the review was written on',
 	})
 	.openapi({ description: 'A review brought in by hand from another site' });
 

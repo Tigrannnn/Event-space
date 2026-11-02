@@ -1,3 +1,4 @@
+export * from './ChannelSchema';
 export * from './CategorySchema';
 export * from './CategoryTranslationSchema';
 export * from './EventSchema';

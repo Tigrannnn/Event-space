@@ -18,9 +18,12 @@ import {
 import { AppException, encodeKeysetCursor, keysetAfter, KEYSET_ORDER } from '@shared';
 import { applyRatingDelta } from './review-rating';
 import { eventUrl, siteUrlFor } from './review-urls';
+import { CHANNEL_REF } from '@modules/channel/channel-ref.select';
+import { requireChannelFor } from '@modules/channel/channel-access';
 import { REVIEW_IMAGES } from './review-images.select';
 
 const REVIEW_FOR_ADMIN = {
+	channel: CHANNEL_REF,
 	images: REVIEW_IMAGES,
 	user: { select: { id: true, name: true, email: true, image: true, locale: true } },
 	event: { select: { id: true, translations: true } },
@@ -89,6 +92,8 @@ export class ReviewAdminService {
 			throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id: data.eventId });
 		}
 
+		await requireChannelFor(this.prisma, data.channelId, 'reviews');
+
 		const uploads = await this.uploadService.uploadImages(files);
 
 		try {
@@ -96,8 +101,7 @@ export class ReviewAdminService {
 				const created = await tx.review.create({
 					data: {
 						eventId: data.eventId,
-						source: data.source,
-						sourceName: data.source === 'OTHER' ? data.sourceName?.trim() || null : null,
+						channelId: data.channelId,
 						authorName: data.authorName.trim(),
 						rating: data.rating,
 						text: data.text?.trim() || null,

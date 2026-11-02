@@ -3,6 +3,8 @@ import { AdminUsersService } from './users/admin-users.service';
 import { AdminBookingsService } from './bookings/admin-bookings.service';
 import { AdminBookingCancellationService } from './bookings/admin-booking-cancellation.service';
 import { AdminEventsService } from './events/admin-events.service';
+import { AdminChannelsController } from './channels/admin-channels.controller';
+import { AdminChannelsService } from './channels/admin-channels.service';
 import { AdminCategoriesService } from './categories/admin-categories.service';
 import { AdminPromoCodesService } from './promo-codes/admin-promo-codes.service';
 import { DashboardStatsService } from './dashboard/dashboard-stats.service';
@@ -17,13 +19,14 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 
 @Module({
 	imports: [EventModule, BookingModule, StripeModule],
-	controllers: [AdminController],
+	controllers: [AdminController, AdminChannelsController],
 	providers: [
 		AdminUsersService,
 		AdminBookingsService,
 		AdminBookingCancellationService,
 		AdminEventsService,
 		AdminCategoriesService,
+		AdminChannelsService,
 		AdminPromoCodesService,
 		DashboardStatsService,
 		DashboardSnapshotService,

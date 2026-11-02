@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
+import { requireChannelFor } from '@modules/channel/channel-access';
 import {
 	AppErrorCode,
 	BookingWithEstimate,
@@ -410,16 +411,18 @@ export class BookingCreationService {
 			email,
 			phone,
 			locale: mailLocale,
-			channel,
+			channelId,
 		} = data;
 		const externalId = data.externalId?.trim() || null;
 
 		const result = await this.prisma.$transaction(async (tx) => {
+			await requireChannelFor(tx, channelId, 'bookings');
+
 			// The same booking of a platform cannot be entered twice: the second would take seats
 			// for guests that are already counted.
 			if (externalId) {
 				const taken = await tx.booking.findUnique({
-					where: { channel_externalId: { channel, externalId } },
+					where: { channelId_externalId: { channelId, externalId } },
 					select: { id: true },
 				});
 				if (taken) throw new AppException(AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN);
@@ -533,8 +536,7 @@ export class BookingCreationService {
 				...pricing,
 				paymentIntentId: null,
 				paymentMethod,
-				channel,
-				channelName: channel === 'OTHER' ? data.channelName?.trim() || null : null,
+				channelId,
 				externalId,
 				createdByAdminId: adminId,
 				referenceNumber,

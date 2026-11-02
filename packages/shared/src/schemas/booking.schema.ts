@@ -2,7 +2,7 @@ import { z } from './openapi';
 import { ReviewSchema } from './review.schema';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
-import { BookingChannelSchema } from '../generated/inputTypeSchemas/BookingChannelSchema';
+import { ChannelRefSchema, SYSTEM_CHANNEL_IDS } from './channel.schema';
 import { EventSchema } from './event.schema';
 import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { LocaleEnum } from './locale.schema';
@@ -36,6 +36,7 @@ export type PaymentMethod = z.infer<typeof PaymentMethodEnum>;
 export const BookingSchema = GeneratedBookingSchema.extend({
 	amount: z.number(),
 	baseAmount: z.number().nullable(),
+	channel: ChannelRefSchema.nullish(),
 }).openapi({
 	description: 'Booking base information',
 	example: {
@@ -125,11 +126,7 @@ export const CancelBookingSchema = z.object({
 
 export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
 
-export const BookingChannelEnum = BookingChannelSchema;
-export type BookingChannel = z.infer<typeof BookingChannelEnum>;
-
 export const BOOKING_EXTERNAL_ID_MAX = 120;
-export const BOOKING_CHANNEL_NAME_MAX = 80;
 
 export const CreateManualBookingSchema = z
 	.object({
@@ -146,25 +143,15 @@ export const CreateManualBookingSchema = z
 		locale: LocaleEnum.optional().openapi({
 			description: 'Language for the emails of this booking; a client who already has one keeps it',
 		}),
-		channel: BookingChannelEnum.default('DIRECT').openapi({
+		channelId: z.string().min(1).default(SYSTEM_CHANNEL_IDS.DIRECT).openapi({
 			description: 'Where the booking was sold: here, or on another platform',
 		}),
-		channelName: z
-			.string()
-			.trim()
-			.max(BOOKING_CHANNEL_NAME_MAX)
-			.nullish()
-			.openapi({ description: 'The name of the platform, when it is not one of the listed' }),
 		externalId: z
 			.string()
 			.trim()
 			.max(BOOKING_EXTERNAL_ID_MAX)
 			.nullish()
 			.openapi({ description: "The booking's number on that platform, when it has one" }),
-	})
-	.refine((data) => data.channel !== 'OTHER' || Boolean(data.channelName), {
-		path: ['channelName'],
-		message: 'Name the platform the booking came from',
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',

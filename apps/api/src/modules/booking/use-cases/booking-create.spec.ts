@@ -15,6 +15,7 @@ interface World {
 	pastDate?: boolean;
 	userByEmail?: { id: string; emailVerified: boolean } | null;
 	discountPercent?: number | null;
+	channel?: { isActive?: boolean; forBookings?: boolean } | null;
 }
 
 function build(world: World = {}) {
@@ -53,6 +54,14 @@ function build(world: World = {}) {
 		eventOccurrence: {
 			findUnique: () => Promise.resolve(occurrence),
 			updateMany: () => Promise.resolve({ count: (world.spotsFree ?? 5) >= 1 ? 1 : 0 }),
+		},
+		channel: {
+			findUnique: (args: { where: { id: string } }) =>
+				Promise.resolve(
+					world.channel === null
+						? null
+						: { id: args.where.id, isActive: true, forBookings: true, ...world.channel },
+				),
 		},
 		booking: {
 			findUnique: () => Promise.resolve(existing),
@@ -319,6 +328,7 @@ describe('creating a booking by an admin', () => {
 		quantity: 2,
 		userId: 'u1',
 		paymentMethod: 'OFFLINE_PAID',
+		channelId: 'direct',
 		...over,
 	});
 
@@ -423,39 +433,30 @@ describe('creating a booking by an admin', () => {
 		]);
 	});
 
-	it('records the platform the booking came from and its number there', async () => {
+	it('records the channel the booking came from and its number there', async () => {
 		const { service, upserts } = build();
 		await service.createManualBooking(
 			'admin1',
-			manual({ channel: 'GETYOURGUIDE', externalId: ' GYG123 ' }) as never,
+			manual({ channelId: 'gyg', externalId: ' GYG123 ' }) as never,
 		);
 
-		expect(upserts[0].create).toMatchObject({ channel: 'GETYOURGUIDE', externalId: 'GYG123' });
+		expect(upserts[0].create).toMatchObject({ channelId: 'gyg', externalId: 'GYG123' });
 	});
 
-	it('keeps the name of a platform that is not on the list, and only then', async () => {
-		const { service, upserts } = build();
-		await service.createManualBooking(
-			'admin1',
-			manual({ channel: 'OTHER', channelName: ' Klook ' }) as never,
-		);
-		await service.createManualBooking(
-			'admin1',
-			manual({ channel: 'VIATOR', channelName: 'Klook' }) as never,
-		);
+	it('refuses a channel that does not exist, is archived, or is not for bookings', async () => {
+		for (const channel of [null, { isActive: false }, { forBookings: false }]) {
+			const { service, upserts } = build({ channel });
 
-		expect(upserts[0].create).toMatchObject({ channel: 'OTHER', channelName: 'Klook', externalId: null });
-		expect(upserts[1].create).toMatchObject({ channel: 'VIATOR', channelName: null });
+			await expect(service.createManualBooking('admin1', manual() as never)).rejects.toBeDefined();
+			expect(upserts).toHaveLength(0);
+		}
 	});
 
-	it('refuses a booking number of a platform that is already entered', async () => {
+	it('refuses a booking number of a channel that is already entered', async () => {
 		const { service, upserts } = build({ existing: { status: 'CONFIRMED', paymentIntentId: null } });
 
 		await expect(
-			service.createManualBooking(
-				'admin1',
-				manual({ channel: 'VIATOR', externalId: 'BR-1' }) as never,
-			),
+			service.createManualBooking('admin1', manual({ channelId: 'viator', externalId: 'BR-1' }) as never),
 		).rejects.toMatchObject({ code: 'BOOKING_EXTERNAL_ID_TAKEN' });
 		expect(upserts).toHaveLength(0);
 	});

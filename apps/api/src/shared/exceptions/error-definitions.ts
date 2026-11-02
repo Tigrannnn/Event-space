@@ -218,6 +218,19 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'A booking with this number from this platform is already entered',
 	},
+	[AppErrorCode.CHANNEL_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Channel not found' },
+	[AppErrorCode.CHANNEL_NOT_AVAILABLE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This channel cannot be used here',
+	},
+	[AppErrorCode.CHANNEL_NAME_TAKEN]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A channel with this name already exists',
+	},
+	[AppErrorCode.CHANNEL_SYSTEM_LOCKED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A system channel cannot be changed',
+	},
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: { status: HttpStatus.CONFLICT, message: 'No spots available' },
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: {
 		status: HttpStatus.CONFLICT,

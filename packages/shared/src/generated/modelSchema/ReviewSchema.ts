@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ReviewSourceSchema } from '../inputTypeSchemas/ReviewSourceSchema'
 import { ReviewStatusSchema } from '../inputTypeSchemas/ReviewStatusSchema'
 
 /////////////////////////////////////////
@@ -7,7 +6,6 @@ import { ReviewStatusSchema } from '../inputTypeSchemas/ReviewStatusSchema'
 /////////////////////////////////////////
 
 export const ReviewSchema = z.object({
-  source: ReviewSourceSchema,
   status: ReviewStatusSchema,
   id: z.uuid(),
   /**
@@ -19,13 +17,13 @@ export const ReviewSchema = z.object({
   eventId: z.string(),
   userId: z.string().nullable(),
   /**
+   * Откуда отзыв. По умолчанию наш сайт (системный канал PLATFORM): написан гостем после брони.
+   */
+  channelId: z.string(),
+  /**
    * Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.
    */
   authorName: z.string().nullable(),
-  /**
-   * Название площадки, когда она не из списка (source = OTHER).
-   */
-  sourceName: z.string().nullable(),
   rating: z.number().int(),
   text: z.string().nullable(),
   moderatedAt: z.coerce.date().nullable(),

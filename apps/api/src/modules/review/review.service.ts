@@ -19,12 +19,14 @@ import { MailService } from '@infra/mail/mail.service';
 import { UploadService } from '@infra/upload/upload.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { applyRatingDelta } from './review-rating';
+import { CHANNEL_REF } from '@modules/channel/channel-ref.select';
 import { REVIEW_IMAGES } from './review-images.select';
 import { reviewQueueUrl, siteUrlFor } from './review-urls';
 import { reviewTokenSecret, signReviewToken, verifyReviewToken } from './review-token';
 import { bookingLinkSecret, verifyBookingLinkToken } from '../booking/booking-link-token';
 
 const REVIEW_AUTHOR = {
+	channel: CHANNEL_REF,
 	user: { select: { id: true, name: true, image: true } },
 	images: REVIEW_IMAGES,
 } satisfies Prisma.ReviewInclude;
