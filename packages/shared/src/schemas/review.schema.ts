@@ -86,8 +86,14 @@ export const ImportReviewSchema = z
 		rating: RatingSchema,
 		text: z.string().trim().max(REVIEW_CONFIG.TEXT_MAX).nullish(),
 		source: z.enum(IMPORTABLE_REVIEW_SOURCES as [ReviewSource, ...ReviewSource[]]),
+		/** The name of the site, for a source that is not on the list. */
+		sourceName: z.string().trim().max(REVIEW_CONFIG.SOURCE_NAME_MAX).nullish(),
 		/** When it was written there. Today when left out. */
 		reviewedAt: z.coerce.date().nullish(),
+	})
+	.refine((data) => data.source !== 'OTHER' || Boolean(data.sourceName), {
+		path: ['sourceName'],
+		message: 'Name the site the review was written on',
 	})
 	.openapi({ description: 'A review brought in by hand from another site' });
 

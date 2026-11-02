@@ -22,6 +22,10 @@ export const ReviewSchema = z.object({
    * Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.
    */
   authorName: z.string().nullable(),
+  /**
+   * Название площадки, когда она не из списка (source = OTHER).
+   */
+  sourceName: z.string().nullable(),
   rating: z.number().int(),
   text: z.string().nullable(),
   moderatedAt: z.coerce.date().nullable(),

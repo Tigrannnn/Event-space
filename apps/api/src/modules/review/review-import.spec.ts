@@ -19,7 +19,12 @@ function build(eventExists = true) {
 		$transaction: (run: (client: typeof tx) => Promise<unknown>) => run(tx),
 	};
 
-	return { service: new ReviewAdminService(prisma as never, {} as never, {} as never, {} as never), calls };
+	return { service: new ReviewAdminService(
+			prisma as never,
+			{} as never,
+			{} as never,
+			{ uploadImages: () => Promise.resolve([]), deleteMultipleByPublicId: () => Promise.resolve() } as never,
+		), calls };
 }
 
 const data = {
@@ -52,6 +57,16 @@ describe('ReviewAdminService.createImported', () => {
 				data: { ratingSum: { increment: 5 }, ratingCount: { increment: 1 } },
 			},
 		]);
+	});
+
+	it('keeps the name of a site that is not on the list, and drops it for one that is', async () => {
+		const { service, calls } = build();
+
+		await service.createImported('admin1', { ...data, source: 'OTHER', sourceName: ' Yelp ' });
+		await service.createImported('admin1', { ...data, sourceName: 'Yelp' });
+
+		expect(calls.create[0].data).toMatchObject({ source: 'OTHER', sourceName: 'Yelp' });
+		expect(calls.create[1].data).toMatchObject({ source: 'GETYOURGUIDE', sourceName: null });
 	});
 
 	it('refuses a tour that does not exist', async () => {

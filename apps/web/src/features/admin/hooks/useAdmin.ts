@@ -812,7 +812,8 @@ export const useImportReview = () => {
 	const callbacks = useReviewMutationCallbacks('admin.reviewActionFailed');
 
 	return useMutation({
-		mutationFn: (data: ImportReviewData) => adminApi.importReview(data),
+		mutationFn: ({ data, files }: { data: ImportReviewData; files: File[] }) =>
+			adminApi.importReview(data, files),
 		...callbacks,
 		onSuccess: async () => {
 			addToast(translate('admin.importReviewSuccess'), ToastType.SUCCESS);

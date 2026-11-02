@@ -75,7 +75,11 @@ export class ReviewAdminService {
 	 * Published at once: the person entering it is the company, who vouches for it by doing so. It
 	 * has no booking and no account behind it, only the name it was written under and where.
 	 */
-	async createImported(adminId: string, data: ImportReviewData) {
+	async createImported(
+		adminId: string,
+		data: ImportReviewData,
+		files: Express.Multer.File[] = [],
+	) {
 		const event = await this.prisma.event.findUnique({
 			where: { id: data.eventId },
 			select: { id: true },
@@ -85,26 +89,41 @@ export class ReviewAdminService {
 			throw new AppException(AppErrorCode.EVENT_NOT_FOUND, { id: data.eventId });
 		}
 
-		return this.prisma.$transaction(async (tx) => {
-			const created = await tx.review.create({
-				data: {
-					eventId: data.eventId,
-					source: data.source,
-					authorName: data.authorName.trim(),
-					rating: data.rating,
-					text: data.text?.trim() || null,
-					status: 'PUBLISHED',
-					moderatedAt: new Date(),
-					moderatedByAdminId: adminId,
-					createdAt: data.reviewedAt ?? undefined,
-				},
-				include: REVIEW_FOR_ADMIN,
+		const uploads = await this.uploadService.uploadImages(files);
+
+		try {
+			return await this.prisma.$transaction(async (tx) => {
+				const created = await tx.review.create({
+					data: {
+						eventId: data.eventId,
+						source: data.source,
+						sourceName: data.source === 'OTHER' ? data.sourceName?.trim() || null : null,
+						authorName: data.authorName.trim(),
+						rating: data.rating,
+						text: data.text?.trim() || null,
+						status: 'PUBLISHED',
+						moderatedAt: new Date(),
+						moderatedByAdminId: adminId,
+						createdAt: data.reviewedAt ?? undefined,
+						images: {
+							create: uploads.map((upload, order) => ({
+								url: upload.url,
+								publicId: upload.publicId,
+								order,
+							})),
+						},
+					},
+					include: REVIEW_FOR_ADMIN,
+				});
+
+				await applyRatingDelta(tx, data.eventId, null, created);
+
+				return created;
 			});
-
-			await applyRatingDelta(tx, data.eventId, null, created);
-
-			return created;
-		});
+		} catch (error) {
+			await this.uploadService.deleteMultipleByPublicId(uploads.map((upload) => upload.publicId));
+			throw error;
+		}
 	}
 
 	/** How many are waiting — the number on the tab in the sidebar. */

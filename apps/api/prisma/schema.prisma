@@ -513,6 +513,8 @@ model Review {
   source     ReviewSource @default(PLATFORM)
   /// Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.
   authorName String?      @map("author_name") @db.VarChar(120)
+  /// Название площадки, когда она не из списка (source = OTHER).
+  sourceName String?      @map("source_name") @db.VarChar(80)
 
   rating Int
   text   String? @db.VarChar(1000)

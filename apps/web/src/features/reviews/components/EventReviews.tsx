@@ -134,7 +134,7 @@ export function EventReviews({ event }: { event: Event }) {
 							</span>
 							<StarRating value={review.rating} />
 							<span className="text-xs text-gray-500">{formatDateShort(review.createdAt)}</span>
-							<ReviewSourceBadge source={review.source} />
+							<ReviewSourceBadge source={review.source} sourceName={review.sourceName} />
 						</div>
 
 						{review.text && (

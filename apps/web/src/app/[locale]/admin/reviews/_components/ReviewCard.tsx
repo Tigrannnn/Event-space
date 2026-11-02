@@ -76,7 +76,7 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 			</div>
 
 			<p className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-				<ReviewSourceBadge source={review.source} />
+				<ReviewSourceBadge source={review.source} sourceName={review.sourceName} />
 				{review.authorName ?? review.user?.name}
 				{review.user?.email ? ` · ${review.user.email}` : ''}
 				{review.booking?.referenceNumber ? ` · #${review.booking.referenceNumber}` : ''}

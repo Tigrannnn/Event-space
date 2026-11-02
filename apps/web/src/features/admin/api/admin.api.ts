@@ -205,8 +205,13 @@ export const adminApi = {
 		clientApi.patch<AdminReview>(`/admin/reviews/${id}/moderate`, data).then((res) => res.data),
 	replyToReview: (id: string, data: ReplyToReviewData) =>
 		clientApi.patch<AdminReview>(`/admin/reviews/${id}/reply`, data).then((res) => res.data),
-	importReview: (data: ImportReviewData) =>
-		clientApi.post<AdminReview>('/admin/reviews/import', data).then((res) => res.data),
+	importReview: (data: ImportReviewData, files: File[] = []) => {
+		const body = new FormData();
+		body.append('payload', JSON.stringify(data));
+		for (const file of files) body.append('files', file);
+
+		return clientApi.post<AdminReview>('/admin/reviews/import', body).then((res) => res.data);
+	},
 	deleteReview: (id: string) =>
 		clientApi.delete<{ message: string }>(`/admin/reviews/${id}`).then((res) => res.data),
 };

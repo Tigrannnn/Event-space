@@ -13,7 +13,7 @@ import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
 import Select from '@/components/ui/Select';
 import DateTimeField from '@/components/ui/DateTimeField';
-import { StarRatingInput } from '@/features/reviews';
+import { ReviewPhotoPicker, StarRatingInput, type ReviewPhotoSelection } from '@/features/reviews';
 import { useAdminEvents, useImportReview } from '@/features/admin/hooks/useAdmin';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
@@ -33,10 +33,17 @@ export default function ImportReviewModal() {
 	const [authorName, setAuthorName] = useState('');
 	const [rating, setRating] = useState(0);
 	const [source, setSource] = useState<ReviewSource>(IMPORTABLE_REVIEW_SOURCES[0]);
+	const [sourceName, setSourceName] = useState('');
 	const [reviewedAt, setReviewedAt] = useState('');
+	const [photos, setPhotos] = useState<ReviewPhotoSelection>({ keptIds: [], files: [] });
 	const [text, setText] = useState('');
 
-	const canSubmit = eventId !== '' && authorName.trim() !== '' && rating > 0;
+	const isOtherSource = source === 'OTHER';
+	const canSubmit =
+		eventId !== '' &&
+		authorName.trim() !== '' &&
+		rating > 0 &&
+		(!isOtherSource || sourceName.trim() !== '');
 
 	return (
 		<Modal
@@ -47,18 +54,22 @@ export default function ImportReviewModal() {
 			disableEscapeClose={isPending}
 		>
 			<form
-				className="space-y-4"
+				className="space-y-5 p-4 sm:p-6"
 				onSubmit={(event) => {
 					event.preventDefault();
 					if (!canSubmit) return;
 
 					importReview({
-						eventId,
-						authorName: authorName.trim(),
-						rating,
-						text: text.trim() || null,
-						source,
-						reviewedAt: reviewedAt ? zonedLocalInputToDate(reviewedAt) : null,
+						data: {
+							eventId,
+							authorName: authorName.trim(),
+							rating,
+							text: text.trim() || null,
+							source,
+							sourceName: isOtherSource ? sourceName.trim() : null,
+							reviewedAt: reviewedAt ? zonedLocalInputToDate(reviewedAt) : null,
+						},
+						files: photos.files,
 					});
 				}}
 			>
@@ -95,6 +106,17 @@ export default function ImportReviewModal() {
 					/>
 				</div>
 
+				{isOtherSource && (
+					<Input
+						label={translate('admin.importReviewSourceName')}
+						value={sourceName}
+						onChange={(event) => setSourceName(event.target.value)}
+						maxLength={REVIEW_CONFIG.SOURCE_NAME_MAX}
+						placeholder={translate('admin.importReviewSourceNamePlaceholder')}
+						disabled={isPending}
+					/>
+				)}
+
 				<Input
 					label={translate('admin.importReviewAuthor')}
 					value={authorName}
@@ -130,6 +152,8 @@ export default function ImportReviewModal() {
 						disabled={isPending}
 					/>
 				</label>
+
+				<ReviewPhotoPicker onChange={setPhotos} disabled={isPending} />
 
 				<div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 					<Button type="button" variant="secondary" onClick={closeModal} disabled={isPending}>

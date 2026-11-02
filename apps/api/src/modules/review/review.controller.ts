@@ -200,14 +200,19 @@ export class ReviewController {
 	@ApiBearerAuth()
 	@Roles(UserRoleSchema.enum.ADMIN)
 	@UseGuards(AccessTokenGuard, RolesGuard)
+	@UseInterceptors(FilesInterceptor('files', REVIEW_CONFIG.MAX_IMAGES, reviewImageUploadOptions))
+	@ApiConsumes('application/json', 'multipart/form-data')
 	@ApiOperation({ summary: 'Add a review written on another site, with where it came from (admin only)' })
 	async importReview(
 		@GetCurrentUserId() adminId: string,
-		@Body(new ZodValidationPipe(ImportReviewSchema)) data: ImportReviewData,
+		@Body() body: unknown,
+		@UploadedFiles() files?: Express.Multer.File[],
 	) {
+		const data: ImportReviewData = parseReviewBody(ImportReviewSchema, body);
+
 		await this.consumeAdminLimit(adminId);
 
-		return this.reviewAdminService.createImported(adminId, data);
+		return this.reviewAdminService.createImported(adminId, data, files ?? []);
 	}
 
 	@Patch('admin/reviews/:id/moderate')
