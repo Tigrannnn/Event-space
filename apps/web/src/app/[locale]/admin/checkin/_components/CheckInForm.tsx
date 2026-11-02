@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/features/admin/api/admin.api';
 import Button from '@/components/ui/Buttons/Button';
 import { useTranslation } from '@/hooks/translation';
-import { useApiError } from '@/hooks/apiError';
 import { formatDateTime, formatDateTimeZone } from '@/utils/date';
 import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
+import { useModalStore } from '@/stores/modalStore';
+import { ModalType } from '@/stores';
+import { useCheckInBooking, useUndoBookingCheckIn } from '@/features/admin/hooks/useAdmin';
 import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search, CreditCard } from 'lucide-react';
 import { getEventTranslation } from '@event-space/shared';
 import { localeIntl } from '@/lib/i18n/config';
@@ -17,12 +19,10 @@ import { useConfirm } from '@/hooks/confirmModal';
 
 export default function CheckInForm() {
 	const translate = useTranslation();
-	const apiError = useApiError();
 	const locale = translate.locale;
 	const [input, setInput] = useState('');
 	const [ref, setRef] = useState<number | null>(null);
 	const { addToast } = useToastStore();
-	const queryClient = useQueryClient();
 	const searchParams = useSearchParams();
 	const [token, setToken] = useState<string | null>(null);
 
@@ -48,52 +48,44 @@ export default function CheckInForm() {
 
 	const { data: booking, isLoading, isError } = token !== null ? byToken : byReference;
 
-	const { mutate: checkIn, isPending: isCheckingIn } = useMutation({
-		mutationFn: ({ id, all }: { id: string; all: boolean }) => adminApi.checkInBooking(id, all),
-		onSuccess: () => {
-			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
-			queryClient.invalidateQueries({ queryKey: ['checkin-booking'] });
-		},
-		onError: (error) => {
-			addToast(apiError(error, 'admin.failedToCheckIn'), ToastType.ERROR);
-		},
-	});
-
-	const { mutate: undoCheckIn, isPending: isUndoingCheckIn } = useMutation({
-		mutationFn: (id: string) => adminApi.undoBookingCheckIn(id),
-		onSuccess: () => {
-			addToast(translate('admin.checkInUndone'), ToastType.SUCCESS);
-			queryClient.invalidateQueries({ queryKey: ['checkin-booking'] });
-		},
-		onError: (error) => {
-			addToast(apiError(error, 'admin.failedToUndoCheckIn'), ToastType.ERROR);
-		},
-	});
+	const { mutate: checkIn, isPending: isCheckingIn } = useCheckInBooking();
+	const { mutate: undoCheckIn, isPending: isUndoingCheckIn } = useUndoBookingCheckIn();
+	const { openModal } = useModalStore();
 
 	const confirm = useConfirm();
 
-	const handleCheckIn = async (all: boolean) => {
+	const handleCheckIn = async () => {
+		if (!booking) return;
+
+		if (booking.quantity > 1) {
+			openModal(ModalType.BookingCheckIn, { booking, mode: 'in' });
+			return;
+		}
+
 		const confirmed = await confirm({
 			variant: 'primary',
-			title: translate(all ? 'admin.checkInAll' : 'admin.confirmCheckIn'),
-			message: translate(all ? 'admin.checkInAllMessage' : 'admin.confirmCheckInMessage'),
+			title: translate('admin.confirmCheckIn'),
+			message: translate('admin.confirmCheckInMessage'),
 		});
 
-		if (confirmed && booking) {
-			checkIn({ id: booking.id, all });
-		}
+		if (confirmed) checkIn({ id: booking.id });
 	};
 
 	const handleUndoCheckIn = async () => {
+		if (!booking) return;
+
+		if (booking.checkedInCount > 1) {
+			openModal(ModalType.BookingCheckIn, { booking, mode: 'out' });
+			return;
+		}
+
 		const confirmed = await confirm({
 			variant: 'danger',
 			title: translate('admin.undoCheckIn'),
 			message: translate('admin.undoCheckInMessage'),
 		});
 
-		if (confirmed && booking) {
-			undoCheckIn(booking.id);
-		}
+		if (confirmed) undoCheckIn({ id: booking.id });
 	};
 
 	const handleSearch = () => {
@@ -108,7 +100,6 @@ export default function CheckInForm() {
 	const checkedInCount = booking?.checkedInCount ?? 0;
 	const isCheckedIn = checkedInCount > 0;
 	const isFullyCheckedIn = !!booking && checkedInCount >= booking.quantity;
-	const remaining = booking ? booking.quantity - checkedInCount : 0;
 	const isCancelled = booking?.status === 'CANCELLED';
 	const eventTranslation = booking?.occurrence?.event ? getEventTranslation(booking.occurrence.event, locale) : null;
 	const paymentMethodLabel = (() => {
@@ -254,26 +245,14 @@ export default function CheckInForm() {
 									{formatDateTime(booking.checkedInAt!, localeIntl[locale])}
 								</div>
 								{!isCancelled && !isFullyCheckedIn && (
-									<div className="flex flex-col gap-2 sm:flex-row">
-										<Button
-											variant="primary"
-											className="h-11 w-full text-sm font-bold"
-											onClick={() => handleCheckIn(false)}
-											isLoading={isCheckingIn}
-										>
-											{translate('admin.checkInOne')}
-										</Button>
-										{remaining > 1 && (
-											<Button
-												variant="secondary"
-												className="h-11 w-full text-sm font-bold"
-												onClick={() => handleCheckIn(true)}
-												isLoading={isCheckingIn}
-											>
-												{translate('admin.checkInAll')}
-											</Button>
-										)}
-									</div>
+									<Button
+										variant="primary"
+										className="h-11 w-full text-sm font-bold"
+										onClick={handleCheckIn}
+										isLoading={isCheckingIn}
+									>
+										{translate('admin.checkInGuests')}
+									</Button>
 								)}
 								<Button
 									variant="secondary"
@@ -287,26 +266,14 @@ export default function CheckInForm() {
 						)}
 
 						{!isCancelled && !isCheckedIn && (
-							<div className="flex flex-col gap-2 sm:flex-row">
-								<Button
-									variant="primary"
-									className="h-11 w-full text-sm font-bold"
-									onClick={() => handleCheckIn(false)}
-									isLoading={isCheckingIn}
-								>
-									{booking.quantity > 1 ? translate('admin.checkInOne') : translate('admin.confirmCheckIn')}
-								</Button>
-								{booking.quantity > 1 && (
-									<Button
-										variant="secondary"
-										className="h-11 w-full text-sm font-bold"
-										onClick={() => handleCheckIn(true)}
-										isLoading={isCheckingIn}
-									>
-										{translate('admin.checkInAll')}
-									</Button>
-								)}
-							</div>
+							<Button
+								variant="primary"
+								className="h-11 w-full text-sm font-bold"
+								onClick={handleCheckIn}
+								isLoading={isCheckingIn}
+							>
+								{booking.quantity > 1 ? translate('admin.checkInGuests') : translate('admin.confirmCheckIn')}
+							</Button>
 						)}
 					</div>
 				</div>

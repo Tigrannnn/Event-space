@@ -219,8 +219,8 @@ export type ChangeQuantityData = z.infer<typeof ChangeQuantitySchema>;
 
 export const CheckInSchema = z
 	.object({
-		all: z.boolean().optional().openapi({
-			description: 'Check in every remaining guest of the booking instead of one',
+		count: z.number().int().min(1).optional().openapi({
+			description: 'How many guests of the booking to check in or to take back, one by default',
 		}),
 	})
 	.default({});

@@ -152,24 +152,34 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 		openModal(ModalType.BookingDetails, { booking });
 	};
 
-	const handleCheckIn = async (bookingId: string) => {
+	const handleCheckIn = async (booking: BookingWithDetails) => {
+		if (booking.quantity > 1) {
+			openModal(ModalType.BookingCheckIn, { booking, mode: 'in' });
+			return;
+		}
+
 		const confirmed = await confirm({
 			variant: 'primary',
 			title: translate('admin.confirmCheckIn'),
 			message: translate('admin.confirmCheckInMessage'),
 		});
 
-		if (confirmed) checkIn({ id: bookingId });
+		if (confirmed) checkIn({ id: booking.id });
 	};
 
-	const handleUndoCheckIn = async (bookingId: string) => {
+	const handleUndoCheckIn = async (booking: BookingWithDetails) => {
+		if (booking.checkedInCount > 1) {
+			openModal(ModalType.BookingCheckIn, { booking, mode: 'out' });
+			return;
+		}
+
 		const confirmed = await confirm({
 			variant: 'danger',
 			title: translate('admin.undoCheckIn'),
 			message: translate('admin.undoCheckInMessage'),
 		});
 
-		if (confirmed) undoCheckIn(bookingId);
+		if (confirmed) undoCheckIn({ id: booking.id });
 	};
 
 	const handleOpenBookingAction = (booking: BookingWithDetails) => {
@@ -485,7 +495,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												title={translate('admin.checkInBooking')}
 												aria-label={translate('admin.checkInBooking')}
 												disabled={isCheckingIn}
-												onClick={() => handleCheckIn(booking.id)}
+												onClick={() => handleCheckIn(booking)}
 											>
 												<UserCheck className="h-4 w-4" />
 											</Button>
@@ -499,7 +509,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												title={translate('admin.undoCheckIn')}
 												aria-label={translate('admin.undoCheckIn')}
 												disabled={isUndoingCheckIn}
-												onClick={() => handleUndoCheckIn(booking.id)}
+												onClick={() => handleUndoCheckIn(booking)}
 											>
 												<Undo2 className="h-4 w-4" />
 											</Button>

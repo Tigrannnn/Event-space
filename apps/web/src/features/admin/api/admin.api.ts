@@ -96,10 +96,10 @@ export const adminApi = {
 		clientApi
 			.get<BookingWithDetails>(`/admin/bookings/by-checkin-token/${encodeURIComponent(token)}`)
 			.then((res) => res.data),
-	checkInBooking: (id: string, all = false) =>
-		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`, { all }).then((res) => res.data),
-	undoBookingCheckIn: (id: string) =>
-		clientApi.delete<Booking>(`/admin/bookings/${id}/checkin`).then((res) => res.data),
+	checkInBooking: (id: string, count = 1) =>
+		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`, { count }).then((res) => res.data),
+	undoBookingCheckIn: (id: string, count = 1) =>
+		clientApi.delete<Booking>(`/admin/bookings/${id}/checkin`, { data: { count } }).then((res) => res.data),
 	quoteBookingQuantity: (id: string, data: QuantityQuoteRequest) =>
 		clientApi.post<QuantityQuote>(`/admin/bookings/${id}/quantity/quote`, data).then((res) => res.data),
 	updateBooking: (id: string, data: ChangeQuantityData) =>

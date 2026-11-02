@@ -30,6 +30,7 @@ export enum ModalType {
 	CreateBooking = 'create-booking',
 	BookingSuccess = 'booking-success',
 	UpdateBooking = 'update-booking',
+	BookingCheckIn = 'booking-check-in',
 	CreateManualBooking = 'create-manual-booking',
 	BookingDetails = 'booking-details',
 	BookingCancel = 'booking-cancel',
@@ -114,6 +115,11 @@ export interface BookingSuccessModalData {
 	guestEmail?: string;
 }
 
+export interface BookingCheckInModalData {
+	booking: Booking;
+	mode: 'in' | 'out';
+}
+
 export interface UpdateBookingModalData {
 	booking: Booking & { event?: Event };
 }
@@ -176,6 +182,7 @@ export interface ModalDataMap {
 	[ModalType.CreateBooking]: CreateBookingModalData;
 	[ModalType.BookingSuccess]: BookingSuccessModalData;
 	[ModalType.UpdateBooking]: UpdateBookingModalData;
+	[ModalType.BookingCheckIn]: BookingCheckInModalData;
 	[ModalType.CreateManualBooking]: null;
 	[ModalType.BookingDetails]: BookingDetailsModalData;
 	[ModalType.BookingCancel]: BookingDetailsModalData;

@@ -288,10 +288,22 @@ describe('admin: check-in', () => {
 		});
 	});
 
-	it('checks in everyone left when asked', async () => {
-		const world = fakePrisma({ 'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: new Date() }) });
-		await admin(world).checkInBooking('b1', true);
-		expect(world.argsOf('booking.updateMany')[0]).toMatchObject({ data: { checkedInCount: 2 } });
+	it('checks in several guests at once and never past the booking', async () => {
+		const several = fakePrisma({ 'booking.findUnique': bookingRow({ quantity: 11 }) });
+		await admin(several).checkInBooking('b1', 10);
+		expect(several.argsOf('booking.updateMany')[0]).toMatchObject({ data: { checkedInCount: 10 } });
+
+		const over = fakePrisma({ 'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: new Date() }) });
+		await admin(over).checkInBooking('b1', 5);
+		expect(over.argsOf('booking.updateMany')[0]).toMatchObject({ data: { checkedInCount: 2 } });
+	});
+
+	it('takes back several check-ins at once', async () => {
+		const world = fakePrisma({
+			'booking.findUnique': bookingRow({ quantity: 10, checkedInCount: 10, checkedInAt: new Date() }),
+		});
+		await admin(world).undoBookingCheckIn('b1', 9);
+		expect(world.argsOf('booking.updateMany')[0]).toMatchObject({ data: { checkedInCount: 1 } });
 	});
 
 	it('refuses once every guest is in, and for unconfirmed or missing bookings', async () => {

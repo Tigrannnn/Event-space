@@ -129,8 +129,8 @@ export function createAdmin(prisma: never, stripe: never) {
 		findBookingByReference: (reference: number) => bookings.findByReference(reference),
 		findAllBookings: (params?: Parameters<AdminBookingsService['findAll']>[0]) =>
 			bookings.findAll(params),
-		checkInBooking: (id: string, all?: boolean) => bookings.checkIn(id, 'admin-1', all),
-		undoBookingCheckIn: (id: string) => bookings.undoCheckIn(id, 'admin-1'),
+		checkInBooking: (id: string, count?: number) => bookings.checkIn(id, 'admin-1', count),
+		undoBookingCheckIn: (id: string, count?: number) => bookings.undoCheckIn(id, 'admin-1', count),
 		transferBooking: (id: string, data: Parameters<AdminBookingsService['transferOccurrence']>[1]) =>
 			bookings.transferOccurrence(id, data),
 		adminCancelBooking: (

@@ -372,7 +372,7 @@ export class AdminController {
 	}
 
 	@Post('bookings/:id/checkin')
-	@ApiOperation({ summary: 'Check in one guest of a booking, or all of them' })
+	@ApiOperation({ summary: 'Check in a number of guests of a booking' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
 	async checkInBooking(
 		@GetCurrentUserId() adminId: string,
@@ -385,20 +385,24 @@ export class AdminController {
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.bookingsAdminService.checkIn(id, adminId, data.all);
+		return this.bookingsAdminService.checkIn(id, adminId, data.count);
 	}
 
 	@Delete('bookings/:id/checkin')
-	@ApiOperation({ summary: 'Undo the check-in of one guest' })
+	@ApiOperation({ summary: 'Take back the check-in of a number of guests' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	async undoBookingCheckIn(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+	async undoBookingCheckIn(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(CheckInSchema)) data: CheckInData,
+	) {
 		await this.rateLimiter.consumePerUser(
 			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
 			adminId,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.bookingsAdminService.undoCheckIn(id, adminId);
+		return this.bookingsAdminService.undoCheckIn(id, adminId, data.count);
 	}
 
 	@Get('events/:id')

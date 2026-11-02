@@ -111,13 +111,13 @@ export class AdminBookingsService {
 		return booking;
 	}
 
-	async checkIn(bookingId: string, adminId: string, all = false) {
+	async checkIn(bookingId: string, adminId: string, count = 1) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
 		if (booking.checkedInCount >= booking.quantity) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
-		const checkedInCount = all ? booking.quantity : booking.checkedInCount + 1;
+		const checkedInCount = Math.min(booking.quantity, booking.checkedInCount + count);
 
 		const result = await this.prisma.booking.updateMany({
 			where: { id: bookingId, checkedInCount: booking.checkedInCount },
@@ -132,12 +132,12 @@ export class AdminBookingsService {
 		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });
 	}
 
-	async undoCheckIn(bookingId: string, adminId: string) {
+	async undoCheckIn(bookingId: string, adminId: string, count = 1) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (booking.checkedInCount === 0) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
 
-		const checkedInCount = booking.checkedInCount - 1;
+		const checkedInCount = Math.max(0, booking.checkedInCount - count);
 
 		const result = await this.prisma.booking.updateMany({
 			where: { id: bookingId, checkedInCount: booking.checkedInCount },
@@ -146,7 +146,7 @@ export class AdminBookingsService {
 		if (result.count === 0) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
 
 		this.logger.log(
-			`Admin ${adminId} undid one check-in of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
+			`Admin ${adminId} undid ${booking.checkedInCount - checkedInCount} check-in(s) of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
 		);
 
 		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });

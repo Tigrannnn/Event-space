@@ -238,7 +238,7 @@ export const useCheckInBooking = () => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: ({ id, all }: { id: string; all?: boolean }) => adminApi.checkInBooking(id, all),
+		mutationFn: ({ id, count }: { id: string; count?: number }) => adminApi.checkInBooking(id, count),
 		onSuccess: async () => {
 			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
 			await Promise.all([
@@ -246,6 +246,7 @@ export const useCheckInBooking = () => {
 				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
 				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['checkin-booking'] }),
 			]);
 		},
 		onError: (error) => {
@@ -262,7 +263,7 @@ export const useUndoBookingCheckIn = () => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: (id: string) => adminApi.undoBookingCheckIn(id),
+		mutationFn: ({ id, count }: { id: string; count?: number }) => adminApi.undoBookingCheckIn(id, count),
 		onSuccess: async () => {
 			addToast(translate('admin.checkInUndone'), ToastType.SUCCESS);
 			await Promise.all([
@@ -270,6 +271,7 @@ export const useUndoBookingCheckIn = () => {
 				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
 				queryClient.invalidateQueries({ queryKey: ['bookings'] }),
 				queryClient.invalidateQueries({ queryKey: ['my-bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['checkin-booking'] }),
 			]);
 		},
 		onError: (error) => {
