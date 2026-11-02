@@ -143,7 +143,7 @@ export const CreateManualBookingSchema = z
 		locale: LocaleEnum.optional().openapi({
 			description: 'Language for the emails of this booking; a client who already has one keeps it',
 		}),
-		channelId: z.string().min(1).default(SYSTEM_CHANNEL_IDS.DIRECT).openapi({
+		channelId: z.string().min(1).default(SYSTEM_CHANNEL_IDS.UNSPECIFIED).openapi({
 			description: 'Where the booking was sold: here, or on another platform',
 		}),
 		externalId: z

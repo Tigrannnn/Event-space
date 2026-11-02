@@ -38,7 +38,7 @@ enum EventStatus {
 model Channel {
   id String @id @default(uuid())
 
-  /// Неизменяемый идентификатор для кода: DIRECT, PLATFORM, GETYOURGUIDE…
+  /// Неизменяемый идентификатор для кода: SITE, UNSPECIFIED, GETYOURGUIDE…
   code String @unique @db.VarChar(60)
   name String @db.VarChar(80)
   /// Название в нижнем регистре без лишних пробелов: по нему не заводятся дубли вроде «Klook» и «klook».
@@ -275,8 +275,8 @@ model Booking {
 
   paymentMethod PaymentMethod @default(SITE_PAYMENT) @map("payment_method")
 
-  /// Где продана бронь: наш сайт или другая площадка. По умолчанию наш сайт (системный канал DIRECT).
-  channelId String  @default("00000000-0000-4000-8000-000000000001") @map("channel_id")
+  /// Где продана бронь. По умолчанию наш сайт (системный канал SITE); ручная бронь выбирает канал сама.
+  channelId String  @default("00000000-0000-4000-8000-000000000002") @map("channel_id")
   channel   Channel @relation("channel_bookings", fields: [channelId], references: [id], onDelete: Restrict)
 
   /// Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
@@ -533,7 +533,7 @@ model Review {
   eventId   String  @map("event_id")
   userId    String? @map("user_id")
 
-  /// Откуда отзыв. По умолчанию наш сайт (системный канал PLATFORM): написан гостем после брони.
+  /// Откуда отзыв. По умолчанию наш сайт (системный канал SITE): написан гостем после брони.
   channelId  String  @default("00000000-0000-4000-8000-000000000002") @map("channel_id")
   channel    Channel @relation("channel_reviews", fields: [channelId], references: [id], onDelete: Restrict)
   /// Имя автора там, где отзыв был написан: у такого отзыва нет аккаунта у нас.

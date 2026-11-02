@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { REVIEW_CONFIG, zonedLocalInputToDate } from '@event-space/shared';
+import { REVIEW_CONFIG, SYSTEM_CHANNEL_IDS, zonedLocalInputToDate } from '@event-space/shared';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
@@ -25,7 +25,7 @@ export default function ImportReviewModal() {
 	const [eventId, setEventId] = useState('');
 	const [authorName, setAuthorName] = useState('');
 	const [rating, setRating] = useState(0);
-	const [channelId, setChannelId] = useState('');
+	const [channelId, setChannelId] = useState<string>(SYSTEM_CHANNEL_IDS.UNSPECIFIED);
 	const [reviewedAt, setReviewedAt] = useState('');
 	const [photos, setPhotos] = useState<ReviewPhotoSelection>({ keptIds: [], files: [] });
 	const [text, setText] = useState('');

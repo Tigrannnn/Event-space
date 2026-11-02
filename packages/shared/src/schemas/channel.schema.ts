@@ -3,10 +3,13 @@ import { ChannelSchema as GeneratedChannelSchema } from '../generated/modelSchem
 
 export const CHANNEL_NAME_MAX = 80;
 
-/** The two channels the code relies on; they exist in every database and cannot be removed. */
+/**
+ * The two channels the code relies on; they exist in every database and cannot be changed.
+ * SITE takes what is booked or written on the site; UNSPECIFIED is the default of a hand-made entry.
+ */
 export const SYSTEM_CHANNEL_IDS = {
-	DIRECT: '00000000-0000-4000-8000-000000000001',
-	PLATFORM: '00000000-0000-4000-8000-000000000002',
+	UNSPECIFIED: '00000000-0000-4000-8000-000000000001',
+	SITE: '00000000-0000-4000-8000-000000000002',
 } as const;
 
 export const ChannelSchema = GeneratedChannelSchema.extend({

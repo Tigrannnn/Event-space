@@ -45,7 +45,7 @@ export default function CreateManualBookingModal() {
 		email: undefined,
 		paymentMethod: 'OFFLINE_PAID',
 		locale: undefined,
-		channelId: SYSTEM_CHANNEL_IDS.DIRECT,
+		channelId: SYSTEM_CHANNEL_IDS.UNSPECIFIED,
 		externalId: undefined,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
@@ -235,7 +235,7 @@ export default function CreateManualBookingModal() {
 						label={translate('admin.bookingChannel')}
 					/>
 
-					{formState.channelId !== SYSTEM_CHANNEL_IDS.DIRECT && (
+					{formState.channelId !== SYSTEM_CHANNEL_IDS.UNSPECIFIED && (
 						<Input
 							label={translate('admin.bookingExternalId')}
 							value={formState.externalId ?? ''}

@@ -15,6 +15,7 @@ export const review = {
 	savedLive: 'Thank you! Your rating is on the tour page.',
 	savedPending: 'Thank you! Your review will appear once we have read it.',
 	writtenIn: 'Written on {source}',
+	writtenElsewhere: 'Review from another site',
 	saveFailed: 'Could not save the review',
 	rateTour: 'Rate the tour',
 	writeReview: 'Write a review',

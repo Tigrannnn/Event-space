@@ -179,8 +179,8 @@ export const admin = {
 	bookingExternalId: 'Booking number on the platform (optional)',
 	bookingExternalIdPlaceholder: 'For example, GYG12345',
 	channel: {
-		DIRECT: 'Direct (site, phone, in person)',
-		PLATFORM: 'Our site',
+		SITE: 'Our site',
+		UNSPECIFIED: 'Not specified',
 	},
 	channels: 'Channels',
 	channelsHint: 'Where bookings are sold and reviews are written. You can also add one right in the booking or review form.',

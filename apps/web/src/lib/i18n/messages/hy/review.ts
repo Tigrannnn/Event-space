@@ -17,6 +17,7 @@ export const review: Messages['review'] = {
 	savedLive: 'Շնորհակալություն։ Ձեր գնահատականն արդեն շրջագայության էջում է։',
 	savedPending: 'Շնորհակալություն։ Կարծիքը կհայտնվի ստուգումից հետո։',
 	writtenIn: 'Գրված է {source}-ում',
+	writtenElsewhere: 'Կարծիք այլ կայքից',
 	saveFailed: 'Չհաջողվեց պահպանել կարծիքը',
 	rateTour: 'Գնահատել շրջագայությունը',
 	writeReview: 'Գրել կարծիք',

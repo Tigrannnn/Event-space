@@ -17,6 +17,7 @@ export const review: Messages['review'] = {
 	savedLive: 'Спасибо! Ваша оценка уже на странице тура.',
 	savedPending: 'Спасибо! Отзыв появится после проверки.',
 	writtenIn: 'Написано в {source}',
+	writtenElsewhere: 'Отзыв с другого сайта',
 	saveFailed: 'Не удалось сохранить отзыв',
 	rateTour: 'Оценить тур',
 	writeReview: 'Написать отзыв',

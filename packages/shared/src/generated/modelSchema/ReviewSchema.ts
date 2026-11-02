@@ -17,7 +17,7 @@ export const ReviewSchema = z.object({
   eventId: z.string(),
   userId: z.string().nullable(),
   /**
-   * Откуда отзыв. По умолчанию наш сайт (системный канал PLATFORM): написан гостем после брони.
+   * Откуда отзыв. По умолчанию наш сайт (системный канал SITE): написан гостем после брони.
    */
   channelId: z.string(),
   /**

@@ -21,7 +21,7 @@ export const BookingSchema = z.object({
   discountPercent: z.number().int().nullable(),
   promoCodeId: z.string().nullable(),
   /**
-   * Где продана бронь: наш сайт или другая площадка. По умолчанию наш сайт (системный канал DIRECT).
+   * Где продана бронь. По умолчанию наш сайт (системный канал SITE); ручная бронь выбирает канал сама.
    */
   channelId: z.string(),
   /**

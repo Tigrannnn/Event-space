@@ -75,8 +75,8 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		paymentMethod: draft.paymentMethod,
 		locale: draft.locale,
 		channelId: draft.channelId,
-		// A number only means something on a platform; for our own bookings there is none.
-		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.DIRECT ? null : draft.externalId?.trim() || null,
+		// A number only means something on a platform; with no channel named there is none.
+		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED ? null : draft.externalId?.trim() || null,
 	};
 
 	if (draft.userId) {

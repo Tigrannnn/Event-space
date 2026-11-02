@@ -79,6 +79,9 @@ interface BookingsTableProps {
 	initialBookings: PaginatedResponse<BookingWithDetails>;
 }
 
+const isPlainChannel = (channelId: string) =>
+	channelId === SYSTEM_CHANNEL_IDS.SITE || channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED;
+
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
@@ -451,7 +454,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
 								<TableCell>
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
-									{booking.channel && booking.channelId !== SYSTEM_CHANNEL_IDS.DIRECT && (
+									{booking.channel && !isPlainChannel(booking.channelId) && (
 										<p className="mt-1 text-xs text-gray-500">
 											{channelLabel(booking.channel)}
 											{booking.externalId ? ` · ${booking.externalId}` : ''}

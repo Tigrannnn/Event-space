@@ -11,7 +11,7 @@ import { z } from 'zod';
 export const ChannelSchema = z.object({
   id: z.uuid(),
   /**
-   * Неизменяемый идентификатор для кода: DIRECT, PLATFORM, GETYOURGUIDE…
+   * Неизменяемый идентификатор для кода: SITE, UNSPECIFIED, GETYOURGUIDE…
    */
   code: z.string(),
   name: z.string(),

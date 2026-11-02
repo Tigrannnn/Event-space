@@ -181,8 +181,8 @@ export const admin: Messages['admin'] = {
 	bookingExternalId: 'Ամրագրման համարը հարթակում (ըստ ցանկության)',
 	bookingExternalIdPlaceholder: 'Օրինակ՝ GYG12345',
 	channel: {
-		DIRECT: 'Ուղիղ (կայք, հեռախոս, անձամբ)',
-		PLATFORM: 'Մեր կայքը',
+		SITE: 'Մեր կայքը',
+		UNSPECIFIED: 'Նշված չէ',
 	},
 	channels: 'Ալիքներ',
 	channelsHint: 'Որտեղ են վաճառվում ամրագրումները և գրվում կարծիքները։ Նոր ալիք կարելի է ավելացնել նաև անմիջապես ամրագրման կամ կարծիքի ձևում։',

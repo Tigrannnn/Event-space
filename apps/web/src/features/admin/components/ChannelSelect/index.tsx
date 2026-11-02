@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CHANNEL_NAME_MAX } from '@event-space/shared';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
@@ -28,10 +28,6 @@ export default function ChannelSelect({ use, value, onChange, label, disabled }:
 
 	const [adding, setAdding] = useState(false);
 	const [name, setName] = useState('');
-
-	useEffect(() => {
-		if (!value && channels.length > 0) onChange(channels[0].id);
-	}, [value, channels, onChange]);
 
 	const save = () => {
 		const trimmed = name.trim();

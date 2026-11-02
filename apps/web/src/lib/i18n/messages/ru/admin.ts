@@ -181,8 +181,8 @@ export const admin: Messages['admin'] = {
 	bookingExternalId: 'Номер брони на площадке (необязательно)',
 	bookingExternalIdPlaceholder: 'Например, GYG12345',
 	channel: {
-		DIRECT: 'Прямая (сайт, телефон, лично)',
-		PLATFORM: 'Наш сайт',
+		SITE: 'Наш сайт',
+		UNSPECIFIED: 'Не указан',
 	},
 	channels: 'Каналы',
 	channelsHint: 'Где продаются брони и пишутся отзывы. Новый канал можно добавить и прямо в форме брони или отзыва.',
