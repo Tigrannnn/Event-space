@@ -81,7 +81,7 @@ export default function ImportReviewModal() {
 					label={translate('admin.eventField')}
 				/>
 
-				<div className="space-y-1.5">
+				<div className="flex flex-col gap-1.5">
 					<span className="text-sm font-semibold">{translate('admin.importReviewSource')}</span>
 					<Select
 						value={source}
@@ -113,7 +113,7 @@ export default function ImportReviewModal() {
 					disabled={isPending}
 				/>
 
-				<div className="space-y-1.5">
+				<div className="flex flex-col gap-1.5">
 					<span className="text-sm font-semibold">{translate('review.ratingLabel')}</span>
 					<StarRatingInput
 						value={rating}
@@ -123,13 +123,13 @@ export default function ImportReviewModal() {
 					/>
 				</div>
 
-				<div className="space-y-1.5">
+				<div className="flex flex-col gap-1.5">
 					<span className="text-sm font-semibold">{translate('admin.importReviewDate')}</span>
 					<DateTimeField value={reviewedAt} onChange={setReviewedAt} disabled={isPending} />
 					<span className="block text-xs text-gray-500">{translate('admin.importReviewDateHint')}</span>
 				</div>
 
-				<label className="block space-y-1.5">
+				<label className="flex flex-col gap-1.5">
 					<span className="text-sm font-semibold">{translate('review.textLabel')}</span>
 					<textarea
 						value={text}
