@@ -64,7 +64,7 @@ import { useLabels } from '@/hooks/labels/useLabels';
 import type { DateRangePreset } from '@/components/filters';
 import { ModalType } from '@/stores';
 import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
-import { useFormatDate, useFormatCurrency } from '@/hooks/format';
+import { useFormatCurrency } from '@/hooks/format';
 import Badge from '@/components/ui/Badge';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
@@ -80,7 +80,6 @@ interface BookingsTableProps {
 export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
-	const { formatDateTime } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseBookingsFilters,
@@ -375,14 +374,13 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableHead>{translate('admin.qty')}</TableHead>
 						<TableHead>{translate('admin.total')}</TableHead>
 						<TableHead>{translate('admin.reference')}</TableHead>
-						<TableHead>{translate('admin.checkedAt')}</TableHead>
 						<TableHead>{translate('admin.actions')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{bookingsResponse.data.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={8} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+							<TableCell colSpan={7} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noBookingsFound')}
 							</TableCell>
 						</TableRow>
@@ -457,23 +455,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												: translate(`admin.channel.${booking.channel}`)}
 											{booking.externalId ? ` · ${booking.externalId}` : ''}
 										</p>
-									)}
-								</TableCell>
-								<TableCell>
-									{booking.checkedInAt ? (
-										<>
-											<p>{formatDateTime(booking.checkedInAt)}</p>
-											{booking.quantity > 1 && (
-												<p className="mt-1 text-xs text-gray-500">
-													{translate('admin.checkedInProgress', {
-														checked: booking.checkedInCount,
-														total: booking.quantity,
-													})}
-												</p>
-											)}
-										</>
-									) : (
-										'—'
 									)}
 								</TableCell>
 								<TableCell>
