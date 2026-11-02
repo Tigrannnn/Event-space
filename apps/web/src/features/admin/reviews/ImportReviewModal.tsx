@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-	getEventTranslation,
 	IMPORTABLE_REVIEW_SOURCES,
 	REVIEW_CONFIG,
 	type ReviewSource,
@@ -14,7 +13,8 @@ import Input from '@/components/ui/Inputs/Input';
 import Select from '@/components/ui/Select';
 import DateTimeField from '@/components/ui/DateTimeField';
 import { ReviewPhotoPicker, StarRatingInput, type ReviewPhotoSelection } from '@/features/reviews';
-import { useAdminEvents, useImportReview } from '@/features/admin/hooks/useAdmin';
+import { useImportReview } from '@/features/admin/hooks/useAdmin';
+import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 
@@ -26,8 +26,6 @@ export default function ImportReviewModal() {
 	const translate = useTranslation();
 	const { closeModal } = useModalStore();
 	const { mutate: importReview, isPending } = useImportReview();
-	const { data: eventsResponse } = useAdminEvents({ limit: 100 });
-	const events = eventsResponse?.data ?? [];
 
 	const [eventId, setEventId] = useState('');
 	const [authorName, setAuthorName] = useState('');
@@ -48,7 +46,7 @@ export default function ImportReviewModal() {
 	return (
 		<Modal
 			onClose={closeModal}
-			size="md"
+			size="lg"
 			ariaLabel={translate('admin.importReview')}
 			disableBackdropClose={isPending}
 			disableEscapeClose={isPending}
@@ -77,21 +75,11 @@ export default function ImportReviewModal() {
 
 				<p className="text-xs text-gray-500">{translate('admin.importReviewHint')}</p>
 
-				<div className="space-y-1.5">
-					<span className="text-sm font-semibold">{translate('admin.importReviewEvent')}</span>
-					<Select
-						value={eventId}
-						onValueChange={setEventId}
-						disabled={isPending}
-						options={[
-							{ value: '', label: translate('admin.importReviewSelectEvent'), disabled: true },
-							...events.map((event) => ({
-								value: event.id,
-								label: getEventTranslation(event, translate.locale).title,
-							})),
-						]}
-					/>
-				</div>
+				<EventSearchSelect
+					value={eventId}
+					onChange={(id) => setEventId(id)}
+					label={translate('admin.eventField')}
+				/>
 
 				<div className="space-y-1.5">
 					<span className="text-sm font-semibold">{translate('admin.importReviewSource')}</span>

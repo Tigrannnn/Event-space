@@ -368,8 +368,6 @@ export const admin: Messages['admin'] = {
 	reviewReplySaved: 'Ответ сохранён',
 	importReview: 'Добавить отзыв',
 	importReviewHint: 'Отзыв, написанный в другом месте, например на GetYourGuide. Публикуется сразу и помечается тем, откуда он.',
-	importReviewEvent: 'Тур',
-	importReviewSelectEvent: 'Выберите тур',
 	importReviewSource: 'Где написан',
 	importReviewSourceName: 'Название источника',
 	importReviewSourceNamePlaceholder: 'Например, Yelp',

@@ -368,8 +368,6 @@ export const admin: Messages['admin'] = {
 	reviewReplySaved: 'Պատասխանը պահպանվեց',
 	importReview: 'Ավելացնել կարծիք',
 	importReviewHint: 'Այլ տեղ գրված կարծիք, օրինակ՝ GetYourGuide-ում։ Հրապարակվում է անմիջապես և նշվում է, թե որտեղից է։',
-	importReviewEvent: 'Տուր',
-	importReviewSelectEvent: 'Ընտրեք տուրը',
 	importReviewSource: 'Որտեղ է գրվել',
 	importReviewSourceName: 'Աղբյուրի անունը',
 	importReviewSourceNamePlaceholder: 'Օրինակ՝ Yelp',

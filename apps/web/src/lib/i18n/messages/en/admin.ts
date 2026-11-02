@@ -366,8 +366,6 @@ export const admin = {
 	reviewReplySaved: 'Answer saved',
 	importReview: 'Add review',
 	importReviewHint: 'A review written elsewhere, for example on GetYourGuide. It is published at once and marked with where it came from.',
-	importReviewEvent: 'Tour',
-	importReviewSelectEvent: 'Choose a tour',
 	importReviewSource: 'Where it was written',
 	importReviewSourceName: 'Name of the source',
 	importReviewSourceNamePlaceholder: 'For example, Yelp',
