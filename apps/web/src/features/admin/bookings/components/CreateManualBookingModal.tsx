@@ -45,6 +45,7 @@ export default function CreateManualBookingModal() {
 		paymentMethod: 'OFFLINE_PAID',
 		locale: undefined,
 		channel: 'DIRECT',
+		channelName: undefined,
 		externalId: undefined,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
@@ -116,6 +117,7 @@ export default function CreateManualBookingModal() {
 			paymentMethod: formState.paymentMethod,
 			locale: clientLocale ?? formState.locale,
 			channel: formState.channel,
+			channelName: formState.channelName,
 			externalId: formState.externalId,
 		};
 
@@ -241,6 +243,22 @@ export default function CreateManualBookingModal() {
 							}))}
 						/>
 					</div>
+
+					{formState.channel === 'OTHER' && (
+						<>
+							<Input
+								label={translate('admin.bookingChannelName')}
+								value={formState.channelName ?? ''}
+								onChange={(e) => {
+									handleChange('channelName', e.target.value);
+									clearErrors('channelName');
+								}}
+								placeholder={translate('admin.bookingChannelNamePlaceholder')}
+								className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+							/>
+							{renderError('channelName')}
+						</>
+					)}
 
 					{formState.channel !== 'DIRECT' && (
 						<Input

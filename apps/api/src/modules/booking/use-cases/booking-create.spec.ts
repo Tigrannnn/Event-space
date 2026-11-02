@@ -433,6 +433,21 @@ describe('creating a booking by an admin', () => {
 		expect(upserts[0].create).toMatchObject({ channel: 'GETYOURGUIDE', externalId: 'GYG123' });
 	});
 
+	it('keeps the name of a platform that is not on the list, and only then', async () => {
+		const { service, upserts } = build();
+		await service.createManualBooking(
+			'admin1',
+			manual({ channel: 'OTHER', channelName: ' Klook ' }) as never,
+		);
+		await service.createManualBooking(
+			'admin1',
+			manual({ channel: 'VIATOR', channelName: 'Klook' }) as never,
+		);
+
+		expect(upserts[0].create).toMatchObject({ channel: 'OTHER', channelName: 'Klook', externalId: null });
+		expect(upserts[1].create).toMatchObject({ channel: 'VIATOR', channelName: null });
+	});
+
 	it('refuses a booking number of a platform that is already entered', async () => {
 		const { service, upserts } = build({ existing: { status: 'CONFIRMED', paymentIntentId: null } });
 

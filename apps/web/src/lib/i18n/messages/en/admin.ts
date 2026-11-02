@@ -176,7 +176,9 @@ export const admin = {
 	userDetails: 'User details',
 	accountInformation: 'Account information',
 	bookingChannel: 'Where the booking came from',
-	bookingExternalId: 'Booking number on the platform',
+	bookingChannelName: 'Name of the platform',
+	bookingChannelNamePlaceholder: 'For example, Klook',
+	bookingExternalId: 'Booking number on the platform (optional)',
 	bookingExternalIdPlaceholder: 'For example, GYG12345',
 	channel: {
 		DIRECT: 'Direct (site, phone, in person)',
@@ -397,6 +399,7 @@ export const admin = {
 		translationRequired: 'Add at least one language: Ru, En or Hy',
 		imageRequired: 'Add at least one photo',
 		invalidUrl: 'Enter a valid link starting with https://',
+		channelNameRequired: 'Enter the name of the platform',
 		invalidVideoUrl: 'Use a link to a YouTube video',
 		priceRequired: 'Enter a price',
 		durationRequired: 'Enter a duration',

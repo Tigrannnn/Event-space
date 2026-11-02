@@ -442,7 +442,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
 									{booking.channel !== 'DIRECT' && (
 										<p className="mt-1 text-xs text-gray-500">
-											{translate(`admin.channel.${booking.channel}`)}
+											{booking.channel === 'OTHER' && booking.channelName
+												? booking.channelName
+												: translate(`admin.channel.${booking.channel}`)}
 											{booking.externalId ? ` · ${booking.externalId}` : ''}
 										</p>
 									)}

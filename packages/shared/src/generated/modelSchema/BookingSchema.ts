@@ -23,6 +23,10 @@ export const BookingSchema = z.object({
   discountPercent: z.number().int().nullable(),
   promoCodeId: z.string().nullable(),
   /**
+   * Название площадки, когда она не из списка (channel = OTHER).
+   */
+  channelName: z.string().nullable(),
+  /**
    * Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
    */
   externalId: z.string().nullable(),

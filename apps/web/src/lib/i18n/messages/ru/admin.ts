@@ -178,7 +178,9 @@ export const admin: Messages['admin'] = {
 	userDetails: 'Детали пользователя',
 	accountInformation: 'Информация об аккаунте',
 	bookingChannel: 'Откуда бронь',
-	bookingExternalId: 'Номер брони на площадке',
+	bookingChannelName: 'Название площадки',
+	bookingChannelNamePlaceholder: 'Например, Klook',
+	bookingExternalId: 'Номер брони на площадке (необязательно)',
 	bookingExternalIdPlaceholder: 'Например, GYG12345',
 	channel: {
 		DIRECT: 'Напрямую (сайт, телефон, на месте)',
@@ -399,6 +401,7 @@ export const admin: Messages['admin'] = {
 		translationRequired: 'Добавьте хотя бы один язык: Ru, En или Hy',
 		imageRequired: 'Добавьте хотя бы одно фото',
 		invalidUrl: 'Введите корректную ссылку, начиная с https://',
+		channelNameRequired: 'Укажите название площадки',
 		invalidVideoUrl: 'Нужна ссылка на видео YouTube',
 		priceRequired: 'Введите цену',
 		durationRequired: 'Введите длительность',

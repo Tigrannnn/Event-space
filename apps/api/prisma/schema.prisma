@@ -273,6 +273,8 @@ model Booking {
   paymentMethod PaymentMethod @default(SITE_PAYMENT) @map("payment_method")
 
   channel BookingChannel @default(DIRECT)
+  /// Название площадки, когда она не из списка (channel = OTHER).
+  channelName String? @map("channel_name") @db.VarChar(80)
   /// Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
   externalId String? @map("external_id") @db.VarChar(120)
 

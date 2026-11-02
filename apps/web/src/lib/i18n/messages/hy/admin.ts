@@ -178,7 +178,9 @@ export const admin: Messages['admin'] = {
 	userDetails: 'Օգտատերի մանրամասներ',
 	accountInformation: 'Հաշվի տեղեկատվություն',
 	bookingChannel: 'Որտեղից է ամրագրումը',
-	bookingExternalId: 'Ամրագրման համարը հարթակում',
+	bookingChannelName: 'Հարթակի անունը',
+	bookingChannelNamePlaceholder: 'Օրինակ՝ Klook',
+	bookingExternalId: 'Ամրագրման համարը հարթակում (ըստ ցանկության)',
 	bookingExternalIdPlaceholder: 'Օրինակ՝ GYG12345',
 	channel: {
 		DIRECT: 'Ուղղակի (կայք, հեռախոս, տեղում)',
@@ -399,6 +401,7 @@ export const admin: Messages['admin'] = {
 		translationRequired: 'Ավելացրեք առնվազն մեկ լեզու՝ Ru, En կամ Hy',
 		imageRequired: 'Ավելացրեք առնվազն մեկ լուսանկար',
 		invalidUrl: 'Մուտքագրեք ճիշտ հղում՝ https://-ով սկսվող',
+		channelNameRequired: 'Նշեք հարթակի անունը',
 		invalidVideoUrl: 'Անհրաժեշտ է YouTube տեսանյութի հղում',
 		priceRequired: 'Մուտքագրեք գինը',
 		durationRequired: 'Մուտքագրեք տևողությունը',

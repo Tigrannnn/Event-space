@@ -534,6 +534,7 @@ export class BookingCreationService {
 				paymentIntentId: null,
 				paymentMethod,
 				channel,
+				channelName: channel === 'OTHER' ? data.channelName?.trim() || null : null,
 				externalId,
 				createdByAdminId: adminId,
 				referenceNumber,

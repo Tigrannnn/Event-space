@@ -129,6 +129,7 @@ export const BookingChannelEnum = BookingChannelSchema;
 export type BookingChannel = z.infer<typeof BookingChannelEnum>;
 
 export const BOOKING_EXTERNAL_ID_MAX = 120;
+export const BOOKING_CHANNEL_NAME_MAX = 80;
 
 export const CreateManualBookingSchema = z
 	.object({
@@ -148,12 +149,22 @@ export const CreateManualBookingSchema = z
 		channel: BookingChannelEnum.default('DIRECT').openapi({
 			description: 'Where the booking was sold: here, or on another platform',
 		}),
+		channelName: z
+			.string()
+			.trim()
+			.max(BOOKING_CHANNEL_NAME_MAX)
+			.nullish()
+			.openapi({ description: 'The name of the platform, when it is not one of the listed' }),
 		externalId: z
 			.string()
 			.trim()
 			.max(BOOKING_EXTERNAL_ID_MAX)
 			.nullish()
-			.openapi({ description: "The booking's number on that platform" }),
+			.openapi({ description: "The booking's number on that platform, when it has one" }),
+	})
+	.refine((data) => data.channel !== 'OTHER' || Boolean(data.channelName), {
+		path: ['channelName'],
+		message: 'Name the platform the booking came from',
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',
