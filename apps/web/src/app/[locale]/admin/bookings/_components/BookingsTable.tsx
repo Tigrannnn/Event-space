@@ -159,7 +159,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 			message: translate('admin.confirmCheckInMessage'),
 		});
 
-		if (confirmed) checkIn(bookingId);
+		if (confirmed) checkIn({ id: bookingId });
 	};
 
 	const handleUndoCheckIn = async (bookingId: string) => {
@@ -450,7 +450,21 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 									)}
 								</TableCell>
 								<TableCell>
-									{booking.checkedInAt ? formatDateTime(booking.checkedInAt) : '—'}
+									{booking.checkedInAt ? (
+										<>
+											<p>{formatDateTime(booking.checkedInAt)}</p>
+											{booking.quantity > 1 && (
+												<p className="mt-1 text-xs text-gray-500">
+													{translate('admin.checkedInProgress', {
+														checked: booking.checkedInCount,
+														total: booking.quantity,
+													})}
+												</p>
+											)}
+										</>
+									) : (
+										'—'
+									)}
 								</TableCell>
 								<TableCell>
 									<div className="flex gap-2">
@@ -463,7 +477,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											<Eye className="h-4 w-4" />
 										</Button>
 
-										{getBookingDisplayStatus(booking) === 'CONFIRMED' && (
+										{booking.status === 'CONFIRMED' && booking.checkedInCount < booking.quantity && (
 											<Button
 												type="button"
 												size="xs"
@@ -477,7 +491,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											</Button>
 										)}
 
-										{booking.checkedInAt && (
+										{booking.checkedInCount > 0 && (
 											<Button
 												type="button"
 												size="xs"

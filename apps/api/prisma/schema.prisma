@@ -290,6 +290,8 @@ model Booking {
   paymentIntentId    String?   @unique @map("payment_intent_id")
   referenceNumber    Int?      @unique @map("reference_number")
   checkedInAt        DateTime? @map("checked_in_at")
+  /// Сколько гостей из брони уже пришло; checkedInAt ставится при первом.
+  checkedInCount     Int       @default(0) @map("checked_in_count")
   confirmationSentAt DateTime? @map("receipt_sent_at")
   reminderSentAt     DateTime? @map("reminder_sent_at")
   reviewInviteSentAt DateTime? @map("review_invite_sent_at")

@@ -217,6 +217,16 @@ export const ChangeQuantitySchema = QuantityQuoteRequestSchema.extend({
 
 export type ChangeQuantityData = z.infer<typeof ChangeQuantitySchema>;
 
+export const CheckInSchema = z
+	.object({
+		all: z.boolean().optional().openapi({
+			description: 'Check in every remaining guest of the booking instead of one',
+		}),
+	})
+	.default({});
+
+export type CheckInData = z.infer<typeof CheckInSchema>;
+
 export const QuantityQuoteSchema = z.object({
 	bookingId: z.string(),
 	currentQuantity: z.number().int(),

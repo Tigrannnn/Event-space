@@ -49,7 +49,7 @@ export default function CheckInForm() {
 	const { data: booking, isLoading, isError } = token !== null ? byToken : byReference;
 
 	const { mutate: checkIn, isPending: isCheckingIn } = useMutation({
-		mutationFn: (id: string) => adminApi.checkInBooking(id),
+		mutationFn: ({ id, all }: { id: string; all: boolean }) => adminApi.checkInBooking(id, all),
 		onSuccess: () => {
 			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
 			queryClient.invalidateQueries({ queryKey: ['checkin-booking'] });
@@ -72,15 +72,15 @@ export default function CheckInForm() {
 
 	const confirm = useConfirm();
 
-	const handleCheckIn = async () => {
+	const handleCheckIn = async (all: boolean) => {
 		const confirmed = await confirm({
 			variant: 'primary',
-			title: translate('admin.confirmCheckIn'),
-			message: translate('admin.confirmCheckInMessage'),
+			title: translate(all ? 'admin.checkInAll' : 'admin.confirmCheckIn'),
+			message: translate(all ? 'admin.checkInAllMessage' : 'admin.confirmCheckInMessage'),
 		});
 
 		if (confirmed && booking) {
-			checkIn(booking.id);
+			checkIn({ id: booking.id, all });
 		}
 	};
 
@@ -105,7 +105,10 @@ export default function CheckInForm() {
 		setRef(num);
 	};
 
-	const isCheckedIn = !!booking?.checkedInAt;
+	const checkedInCount = booking?.checkedInCount ?? 0;
+	const isCheckedIn = checkedInCount > 0;
+	const isFullyCheckedIn = !!booking && checkedInCount >= booking.quantity;
+	const remaining = booking ? booking.quantity - checkedInCount : 0;
 	const isCancelled = booking?.status === 'CANCELLED';
 	const eventTranslation = booking?.occurrence?.event ? getEventTranslation(booking.occurrence.event, locale) : null;
 	const paymentMethodLabel = (() => {
@@ -222,6 +225,9 @@ export default function CheckInForm() {
 									<Users className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
 									<span className="font-bold text-gray-900 dark:text-white">
 										{booking.quantity} {translate('admin.numberOfSpots')}
+										{booking.quantity > 1 && isCheckedIn
+											? ` · ${translate('admin.checkedInProgress', { checked: checkedInCount, total: booking.quantity })}`
+											: ''}
 									</span>
 								</div>
 								<div className="flex items-center gap-2 border-t border-gray-200 pt-2 sm:col-span-2 dark:border-zinc-700">
@@ -242,8 +248,33 @@ export default function CheckInForm() {
 						{isCheckedIn && (
 							<>
 								<div className="rounded-lg bg-blue-50 p-3 text-center text-xs font-semibold text-blue-700 dark:bg-blue-950/20 dark:text-blue-400">
-									{translate('admin.alreadyCheckedIn')} {formatDateTime(booking.checkedInAt!, localeIntl[locale])}
+									{isFullyCheckedIn
+										? translate('admin.alreadyCheckedIn')
+										: translate('admin.checkedInProgress', { checked: checkedInCount, total: booking.quantity })}{' '}
+									{formatDateTime(booking.checkedInAt!, localeIntl[locale])}
 								</div>
+								{!isCancelled && !isFullyCheckedIn && (
+									<div className="flex flex-col gap-2 sm:flex-row">
+										<Button
+											variant="primary"
+											className="h-11 w-full text-sm font-bold"
+											onClick={() => handleCheckIn(false)}
+											isLoading={isCheckingIn}
+										>
+											{translate('admin.checkInOne')}
+										</Button>
+										{remaining > 1 && (
+											<Button
+												variant="secondary"
+												className="h-11 w-full text-sm font-bold"
+												onClick={() => handleCheckIn(true)}
+												isLoading={isCheckingIn}
+											>
+												{translate('admin.checkInAll')}
+											</Button>
+										)}
+									</div>
+								)}
 								<Button
 									variant="secondary"
 									className="h-11 w-full text-sm font-bold"
@@ -256,14 +287,26 @@ export default function CheckInForm() {
 						)}
 
 						{!isCancelled && !isCheckedIn && (
-							<Button
-								variant="primary"
-								className="h-11 w-full text-sm font-bold"
-								onClick={handleCheckIn}
-								isLoading={isCheckingIn}
-							>
-								{translate('admin.confirmCheckIn')}
-							</Button>
+							<div className="flex flex-col gap-2 sm:flex-row">
+								<Button
+									variant="primary"
+									className="h-11 w-full text-sm font-bold"
+									onClick={() => handleCheckIn(false)}
+									isLoading={isCheckingIn}
+								>
+									{booking.quantity > 1 ? translate('admin.checkInOne') : translate('admin.confirmCheckIn')}
+								</Button>
+								{booking.quantity > 1 && (
+									<Button
+										variant="secondary"
+										className="h-11 w-full text-sm font-bold"
+										onClick={() => handleCheckIn(true)}
+										isLoading={isCheckingIn}
+									>
+										{translate('admin.checkInAll')}
+									</Button>
+								)}
+							</div>
 						)}
 					</div>
 				</div>

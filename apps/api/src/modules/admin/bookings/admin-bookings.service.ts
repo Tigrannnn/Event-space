@@ -111,41 +111,45 @@ export class AdminBookingsService {
 		return booking;
 	}
 
-	async checkIn(bookingId: string, adminId: string) {
+	async checkIn(bookingId: string, adminId: string, all = false) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
-		if (booking.checkedInAt) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
+		if (booking.checkedInCount >= booking.quantity) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
-		const checkedIn = await this.prisma.booking.update({
-			where: { id: bookingId },
-			data: { checkedInAt: new Date() },
-			include: bookingInclude,
+		const checkedInCount = all ? booking.quantity : booking.checkedInCount + 1;
+
+		const result = await this.prisma.booking.updateMany({
+			where: { id: bookingId, checkedInCount: booking.checkedInCount },
+			data: { checkedInCount, checkedInAt: booking.checkedInAt ?? new Date() },
 		});
+		if (result.count === 0) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
 		this.logger.log(
-			`Admin ${adminId} checked in booking ${bookingId} at ${checkedIn.checkedInAt?.toISOString()}`,
+			`Admin ${adminId} checked in ${checkedInCount - booking.checkedInCount} of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
 		);
 
-		return checkedIn;
+		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });
 	}
 
 	async undoCheckIn(bookingId: string, adminId: string) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-		if (!booking.checkedInAt) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
+		if (booking.checkedInCount === 0) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
 
-		const reverted = await this.prisma.booking.update({
-			where: { id: bookingId },
-			data: { checkedInAt: null },
-			include: bookingInclude,
+		const checkedInCount = booking.checkedInCount - 1;
+
+		const result = await this.prisma.booking.updateMany({
+			where: { id: bookingId, checkedInCount: booking.checkedInCount },
+			data: { checkedInCount, ...(checkedInCount === 0 ? { checkedInAt: null } : {}) },
 		});
+		if (result.count === 0) throw new AppException(AppErrorCode.NOT_CHECKED_IN);
 
 		this.logger.log(
-			`Admin ${adminId} undid the check-in of booking ${bookingId}, made at ${booking.checkedInAt.toISOString()}`,
+			`Admin ${adminId} undid one check-in of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
 		);
 
-		return reverted;
+		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });
 	}
 
 	/**

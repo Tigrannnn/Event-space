@@ -238,7 +238,7 @@ export const useCheckInBooking = () => {
 	const translate = useTranslation();
 
 	return useMutation({
-		mutationFn: (id: string) => adminApi.checkInBooking(id),
+		mutationFn: ({ id, all }: { id: string; all?: boolean }) => adminApi.checkInBooking(id, all),
 		onSuccess: async () => {
 			addToast(translate('admin.checkedInSuccessfully'), ToastType.SUCCESS);
 			await Promise.all([

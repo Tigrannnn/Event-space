@@ -40,6 +40,10 @@ export const BookingSchema = z.object({
   paymentIntentId: z.string().nullable(),
   referenceNumber: z.number().int().nullable(),
   checkedInAt: z.coerce.date().nullable(),
+  /**
+   * Сколько гостей из брони уже пришло; checkedInAt ставится при первом.
+   */
+  checkedInCount: z.number().int(),
   confirmationSentAt: z.coerce.date().nullable(),
   reminderSentAt: z.coerce.date().nullable(),
   reviewInviteSentAt: z.coerce.date().nullable(),

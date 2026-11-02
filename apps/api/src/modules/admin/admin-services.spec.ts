@@ -20,6 +20,7 @@ function bookingRow(over: Record<string, unknown> = {}) {
 		amount: '20000',
 		paymentIntentId: 'pi_1',
 		checkedInAt: null,
+		checkedInCount: 0,
 		occurrence: {
 			id: 'o1',
 			date: new Date(Date.now() + 10 * 24 * HOUR),
@@ -266,49 +267,77 @@ describe('admin: reading bookings', () => {
 });
 
 describe('admin: check-in', () => {
-	it('checks a confirmed guest in once', async () => {
-		const ok = fakePrisma({ 'booking.findUnique': bookingRow(), 'booking.update': bookingRow() });
-		await createAdmin(ok.prisma, fakeStripe().stripe).checkInBooking('b1');
-		expect(ok.argsOf('booking.update')[0]).toMatchObject({
-			where: { id: 'b1' },
-			data: { checkedInAt: anyDate() },
+	const admin = (world: ReturnType<typeof fakePrisma>) => createAdmin(world.prisma, fakeStripe().stripe);
+
+	it('checks guests in one at a time and stamps the first arrival', async () => {
+		const first = fakePrisma({ 'booking.findUnique': bookingRow({ checkedInCount: 0 }) });
+		await admin(first).checkInBooking('b1');
+		expect(first.argsOf('booking.updateMany')[0]).toMatchObject({
+			where: { id: 'b1', checkedInCount: 0 },
+			data: { checkedInCount: 1, checkedInAt: anyDate() },
 		});
 
-		const again = fakePrisma({ 'booking.findUnique': bookingRow({ checkedInAt: new Date() }) });
-		await expect(
-			createAdmin(again.prisma, fakeStripe().stripe).checkInBooking('b1'),
-		).rejects.toBeDefined();
-
-		const pending = fakePrisma({ 'booking.findUnique': bookingRow({ status: 'PENDING' }) });
-		await expect(
-			createAdmin(pending.prisma, fakeStripe().stripe).checkInBooking('b1'),
-		).rejects.toBeDefined();
-
-		const missing = fakePrisma({ 'booking.findUnique': null });
-		await expect(
-			createAdmin(missing.prisma, fakeStripe().stripe).checkInBooking('b1'),
-		).rejects.toBeDefined();
+		const arrival = new Date('2026-11-02T10:00:00Z');
+		const second = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: arrival }),
+		});
+		await admin(second).checkInBooking('b1');
+		expect(second.argsOf('booking.updateMany')[0]).toMatchObject({
+			where: { id: 'b1', checkedInCount: 1 },
+			data: { checkedInCount: 2, checkedInAt: arrival },
+		});
 	});
 
-	it('undoes a check-in made by mistake, so the guest is confirmed again', async () => {
-		const world = fakePrisma({
-			'booking.findUnique': bookingRow({ checkedInAt: new Date() }),
-			'booking.update': bookingRow(),
-		});
-		await createAdmin(world.prisma, fakeStripe().stripe).undoBookingCheckIn('b1');
+	it('checks in everyone left when asked', async () => {
+		const world = fakePrisma({ 'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: new Date() }) });
+		await admin(world).checkInBooking('b1', true);
+		expect(world.argsOf('booking.updateMany')[0]).toMatchObject({ data: { checkedInCount: 2 } });
+	});
 
-		expect(world.argsOf('booking.update')[0]).toMatchObject({
-			where: { id: 'b1' },
-			data: { checkedInAt: null },
+	it('refuses once every guest is in, and for unconfirmed or missing bookings', async () => {
+		const full = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInCount: 2, checkedInAt: new Date() }),
+		});
+		await expect(admin(full).checkInBooking('b1')).rejects.toMatchObject({ code: 'ALREADY_CHECKED_IN' });
+		expect(full.argsOf('booking.updateMany')).toHaveLength(0);
+
+		const pending = fakePrisma({ 'booking.findUnique': bookingRow({ status: 'PENDING' }) });
+		await expect(admin(pending).checkInBooking('b1')).rejects.toBeDefined();
+
+		const missing = fakePrisma({ 'booking.findUnique': null });
+		await expect(admin(missing).checkInBooking('b1')).rejects.toBeDefined();
+	});
+
+	it('does not count a guest twice when two scans race', async () => {
+		const world = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: new Date() }),
+			'booking.updateMany': { count: 0 },
+		});
+		await expect(admin(world).checkInBooking('b1')).rejects.toMatchObject({ code: 'ALREADY_CHECKED_IN' });
+	});
+
+	it('undoes one check-in and clears the arrival only when nobody is left in', async () => {
+		const some = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInCount: 2, checkedInAt: new Date() }),
+		});
+		await admin(some).undoBookingCheckIn('b1');
+		const [someArgs] = some.argsOf('booking.updateMany') as { data: Record<string, unknown> }[];
+		expect(someArgs).toMatchObject({ where: { id: 'b1', checkedInCount: 2 }, data: { checkedInCount: 1 } });
+		expect(someArgs.data).not.toHaveProperty('checkedInAt');
+
+		const last = fakePrisma({
+			'booking.findUnique': bookingRow({ checkedInCount: 1, checkedInAt: new Date() }),
+		});
+		await admin(last).undoBookingCheckIn('b1');
+		expect(last.argsOf('booking.updateMany')[0]).toMatchObject({
+			data: { checkedInCount: 0, checkedInAt: null },
 		});
 	});
 
 	it('refuses to undo a check-in that was never made', async () => {
 		const world = fakePrisma({ 'booking.findUnique': bookingRow() });
-		await expect(
-			createAdmin(world.prisma, fakeStripe().stripe).undoBookingCheckIn('b1'),
-		).rejects.toMatchObject({ code: 'NOT_CHECKED_IN' });
-		expect(world.argsOf('booking.update')).toHaveLength(0);
+		await expect(admin(world).undoBookingCheckIn('b1')).rejects.toMatchObject({ code: 'NOT_CHECKED_IN' });
+		expect(world.argsOf('booking.updateMany')).toHaveLength(0);
 	});
 });
 

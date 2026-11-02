@@ -65,6 +65,7 @@ import {
 	TransferBookingSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
+	CheckInSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
 import { AppErrorCode } from '@event-space/shared';
@@ -88,6 +89,7 @@ import type {
 	TransferBookingData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
+	CheckInData,
 	PaymentMethod,
 } from '@event-space/shared';
 import { BookingService } from '@modules/booking/booking.service';
@@ -370,20 +372,24 @@ export class AdminController {
 	}
 
 	@Post('bookings/:id/checkin')
-	@ApiOperation({ summary: 'Check in a booking' })
+	@ApiOperation({ summary: 'Check in one guest of a booking, or all of them' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
-	async checkInBooking(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+	async checkInBooking(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(CheckInSchema)) data: CheckInData,
+	) {
 		await this.rateLimiter.consumePerUser(
 			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
 			adminId,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
 			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
 		);
-		return this.bookingsAdminService.checkIn(id, adminId);
+		return this.bookingsAdminService.checkIn(id, adminId, data.all);
 	}
 
 	@Delete('bookings/:id/checkin')
-	@ApiOperation({ summary: 'Undo a check-in made by mistake' })
+	@ApiOperation({ summary: 'Undo the check-in of one guest' })
 	@ApiResponse({ status: 429, description: 'Too many admin actions' })
 	async undoBookingCheckIn(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
 		await this.rateLimiter.consumePerUser(
