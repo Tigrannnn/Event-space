@@ -83,7 +83,7 @@ export const booking = {
 	paid: 'Paid',
 	paymentMethod: 'Payment method',
 	paymentMethodSite: 'Paid online',
-	paymentMethodOffline: 'Paid offline',
+	paymentMethodOffline: 'Already paid',
 	paymentMethodOnArrival: 'Pay on arrival',
 	viewMyBookings: 'My bookings',
 	goToBooking: 'Go to booking',

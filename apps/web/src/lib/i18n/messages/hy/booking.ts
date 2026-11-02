@@ -86,7 +86,7 @@ export const booking: Messages['booking'] = {
 	paid: 'Վճարված է',
 	paymentMethod: 'Վճարման եղանակ',
 	paymentMethodSite: 'Վճարված է առցանց',
-	paymentMethodOffline: 'Վճարված է օֆլայն',
+	paymentMethodOffline: 'Արդեն վճարված է',
 	paymentMethodOnArrival: 'Վճարում տեղում',
 	viewMyBookings: 'Իմ ամրագրումները',
 	goToBooking: 'Անցնել ամրագրմանը',

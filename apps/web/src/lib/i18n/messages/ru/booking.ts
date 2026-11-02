@@ -86,7 +86,7 @@ export const booking: Messages['booking'] = {
 	paid: 'Оплачено',
 	paymentMethod: 'Способ оплаты',
 	paymentMethodSite: 'Оплата на сайте',
-	paymentMethodOffline: 'Оплачено офлайн',
+	paymentMethodOffline: 'Уже оплачено',
 	paymentMethodOnArrival: 'Оплата на месте',
 	viewMyBookings: 'Мои бронирования',
 	goToBooking: 'Перейти к брони',
