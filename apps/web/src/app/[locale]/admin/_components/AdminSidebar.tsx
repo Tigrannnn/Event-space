@@ -12,6 +12,7 @@ import {
 	CheckCircle,
 	X,
 	Tag,
+	Globe,
 	Image as ImageIcon,
 	Star,
 	Percent,
@@ -42,6 +43,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		{ href: '/admin/banners', label: translate('admin.banners'), icon: ImageIcon },
 		{ href: '/admin/reviews', label: translate('admin.reviews'), icon: Star, badge: pendingReviews },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
+		{ href: '/admin/channels', label: translate('admin.channels'), icon: Globe },
 		{ href: '/admin/checkin', label: translate('admin.checkIn'), icon: CheckCircle },
 		{ href: '/admin/users', label: translate('admin.users'), icon: Users },
 	];

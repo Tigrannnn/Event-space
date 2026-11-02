@@ -54,6 +54,7 @@ import {
 	BookingAuthorSchema,
 	BookingDisplayStatusEnum,
 	getBookingDisplayStatus,
+	SYSTEM_CHANNEL_IDS,
 	PaymentMethodEnum,
 	TimeFilterSchema,
 	getEventTranslation,
@@ -65,6 +66,7 @@ import type { DateRangePreset } from '@/components/filters';
 import { ModalType } from '@/stores';
 import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { useFormatCurrency } from '@/hooks/format';
+import { useChannelLabel } from '@/hooks/labels/useChannelLabel';
 import Badge from '@/components/ui/Badge';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
@@ -81,6 +83,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const translate = useTranslation();
 	const locale = translate.locale;
 	const formatCurrency = useFormatCurrency();
+	const channelLabel = useChannelLabel();
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseBookingsFilters,
 		serialize: serializeBookingsFilters,
@@ -448,11 +451,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
 								<TableCell>
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
-									{booking.channel !== 'DIRECT' && (
+									{booking.channel && booking.channelId !== SYSTEM_CHANNEL_IDS.DIRECT && (
 										<p className="mt-1 text-xs text-gray-500">
-											{booking.channel === 'OTHER' && booking.channelName
-												? booking.channelName
-												: translate(`admin.channel.${booking.channel}`)}
+											{channelLabel(booking.channel)}
 											{booking.externalId ? ` · ${booking.externalId}` : ''}
 										</p>
 									)}

@@ -15,6 +15,8 @@ import {
 	type UserRoleType,
 	type UserFilters,
 	type CreateCategoryData,
+	type CreateChannelData,
+	type UpdateChannelData,
 	type UpdateCategoryData,
 	type CreatePromoCodeData,
 	type UpdatePromoCodeData,
@@ -847,5 +849,49 @@ export const useDeleteReview = () => {
 	return useMutation({
 		mutationFn: (id: string) => adminApi.deleteReview(id),
 		...callbacks,
+	});
+};
+
+export interface ChannelListParams {
+	forBookings?: boolean;
+	forReviews?: boolean;
+	includeArchived?: boolean;
+}
+
+export const useAdminChannels = (params?: ChannelListParams) => {
+	return useQuery({
+		queryKey: ['admin', 'channels', params],
+		queryFn: () => adminApi.getChannels(params),
+	});
+};
+
+export const useCreateChannel = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: (data: CreateChannelData) => adminApi.createChannel(data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'channels'] }),
+		onError: (error) => {
+			addToast(apiError(error, 'admin.channelSaveFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateChannel = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateChannelData }) =>
+			adminApi.updateChannel(id, data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'channels'] }),
+		onError: (error) => {
+			addToast(apiError(error, 'admin.channelSaveFailed'), ToastType.ERROR);
+		},
 	});
 };

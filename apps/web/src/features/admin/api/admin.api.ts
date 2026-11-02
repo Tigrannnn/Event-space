@@ -37,6 +37,10 @@ import type {
 	ImportReviewData,
 	ReviewStatus,
 	CreateCategoryData,
+	Channel,
+	ChannelWithUsage,
+	CreateChannelData,
+	UpdateChannelData,
 	UpdateCategoryData,
 	BookingWithOccurrence,
 	PromoCode,
@@ -167,6 +171,12 @@ export const adminApi = {
 		clientApi.patch<Category>(`/admin/categories/${id}`, data).then((res) => res.data),
 	deleteCategory: (id: string) =>
 		clientApi.delete<{ message: string }>(`/admin/categories/${id}`).then((res) => res.data),
+	getChannels: (params?: { forBookings?: boolean; forReviews?: boolean; includeArchived?: boolean }) =>
+		clientApi.get<ChannelWithUsage[]>('/admin/channels', { params }).then((res) => res.data),
+	createChannel: (data: CreateChannelData) =>
+		clientApi.post<Channel>('/admin/channels', data).then((res) => res.data),
+	updateChannel: (id: string, data: UpdateChannelData) =>
+		clientApi.patch<Channel>(`/admin/channels/${id}`, data).then((res) => res.data),
 	getPromoCodeById: (id: string) =>
 		clientApi.get<PromoCode>(`/admin/promo-codes/${id}`).then((res) => res.data),
 	getPromoCodes: (params?: { skip?: number; limit?: number; search?: string }) =>

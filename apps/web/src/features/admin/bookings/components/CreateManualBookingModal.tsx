@@ -12,7 +12,7 @@ import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 import { useCreateManualBooking } from '@/features/admin/hooks/useAdmin';
 import {
-	BookingChannelEnum,
+	SYSTEM_CHANNEL_IDS,
 	type CreateManualBookingData,
 	type Event,
 	type EventOccurrence,
@@ -20,6 +20,7 @@ import {
 import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
+import ChannelSelect from '@/features/admin/components/ChannelSelect';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 import {
 	buildManualBookingData,
@@ -44,8 +45,7 @@ export default function CreateManualBookingModal() {
 		email: undefined,
 		paymentMethod: 'OFFLINE_PAID',
 		locale: undefined,
-		channel: 'DIRECT',
-		channelName: undefined,
+		channelId: SYSTEM_CHANNEL_IDS.DIRECT,
 		externalId: undefined,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
@@ -116,8 +116,7 @@ export default function CreateManualBookingModal() {
 			email: formState.email,
 			paymentMethod: formState.paymentMethod,
 			locale: clientLocale ?? formState.locale,
-			channel: formState.channel,
-			channelName: formState.channelName,
+			channelId: formState.channelId,
 			externalId: formState.externalId,
 		};
 
@@ -229,38 +228,14 @@ export default function CreateManualBookingModal() {
 						</>
 					)}
 
-					<div className="space-y-1.5">
-						<label className="text-sm font-medium text-gray-700 dark:text-gray-200">
-							{translate('admin.bookingChannel')}
-						</label>
-						<Select
-							value={formState.channel}
-							onValueChange={(value) => handleChange('channel', value)}
-							className="w-full font-medium"
-							options={BookingChannelEnum.options.map((channel) => ({
-								value: channel,
-								label: translate(`admin.channel.${channel}`),
-							}))}
-						/>
-					</div>
+					<ChannelSelect
+						use="bookings"
+						value={formState.channelId}
+						onChange={(channelId) => handleChange('channelId', channelId)}
+						label={translate('admin.bookingChannel')}
+					/>
 
-					{formState.channel === 'OTHER' && (
-						<>
-							<Input
-								label={translate('admin.bookingChannelName')}
-								value={formState.channelName ?? ''}
-								onChange={(e) => {
-									handleChange('channelName', e.target.value);
-									clearErrors('channelName');
-								}}
-								placeholder={translate('admin.bookingChannelNamePlaceholder')}
-								className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
-							/>
-							{renderError('channelName')}
-						</>
-					)}
-
-					{formState.channel !== 'DIRECT' && (
+					{formState.channelId !== SYSTEM_CHANNEL_IDS.DIRECT && (
 						<Input
 							label={translate('admin.bookingExternalId')}
 							value={formState.externalId ?? ''}

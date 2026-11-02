@@ -1,20 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import {
-	IMPORTABLE_REVIEW_SOURCES,
-	REVIEW_CONFIG,
-	type ReviewSource,
-	zonedLocalInputToDate,
-} from '@event-space/shared';
+import { REVIEW_CONFIG, zonedLocalInputToDate } from '@event-space/shared';
 import { Modal, ModalHeader } from '@/components/ui/Modal';
 import Button from '@/components/ui/Buttons/Button';
 import Input from '@/components/ui/Inputs/Input';
-import Select from '@/components/ui/Select';
 import DateTimeField from '@/components/ui/DateTimeField';
 import { ReviewPhotoPicker, StarRatingInput, type ReviewPhotoSelection } from '@/features/reviews';
 import { useImportReview } from '@/features/admin/hooks/useAdmin';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
+import ChannelSelect from '@/features/admin/components/ChannelSelect';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
 
@@ -30,18 +25,16 @@ export default function ImportReviewModal() {
 	const [eventId, setEventId] = useState('');
 	const [authorName, setAuthorName] = useState('');
 	const [rating, setRating] = useState(0);
-	const [source, setSource] = useState<ReviewSource>(IMPORTABLE_REVIEW_SOURCES[0]);
-	const [sourceName, setSourceName] = useState('');
+	const [channelId, setChannelId] = useState('');
 	const [reviewedAt, setReviewedAt] = useState('');
 	const [photos, setPhotos] = useState<ReviewPhotoSelection>({ keptIds: [], files: [] });
 	const [text, setText] = useState('');
 
-	const isOtherSource = source === 'OTHER';
 	const canSubmit =
 		eventId !== '' &&
 		authorName.trim() !== '' &&
 		rating > 0 &&
-		(!isOtherSource || sourceName.trim() !== '');
+		channelId !== '';
 
 	return (
 		<Modal
@@ -63,8 +56,7 @@ export default function ImportReviewModal() {
 							authorName: authorName.trim(),
 							rating,
 							text: text.trim() || null,
-							source,
-							sourceName: isOtherSource ? sourceName.trim() : null,
+							channelId,
 							reviewedAt: reviewedAt ? zonedLocalInputToDate(reviewedAt) : null,
 						},
 						files: photos.files,
@@ -81,29 +73,13 @@ export default function ImportReviewModal() {
 					label={translate('admin.eventField')}
 				/>
 
-				<div className="flex flex-col gap-1.5">
-					<span className="text-sm font-semibold">{translate('admin.importReviewSource')}</span>
-					<Select
-						value={source}
-						onValueChange={(value) => setSource(value as ReviewSource)}
-						disabled={isPending}
-						options={IMPORTABLE_REVIEW_SOURCES.map((value) => ({
-							value,
-							label: translate(`review.source.${value}`),
-						}))}
-					/>
-				</div>
-
-				{isOtherSource && (
-					<Input
-						label={translate('admin.importReviewSourceName')}
-						value={sourceName}
-						onChange={(event) => setSourceName(event.target.value)}
-						maxLength={REVIEW_CONFIG.SOURCE_NAME_MAX}
-						placeholder={translate('admin.importReviewSourceNamePlaceholder')}
-						disabled={isPending}
-					/>
-				)}
+				<ChannelSelect
+					use="reviews"
+					value={channelId}
+					onChange={setChannelId}
+					label={translate('admin.importReviewSource')}
+					disabled={isPending}
+				/>
 
 				<Input
 					label={translate('admin.importReviewAuthor')}

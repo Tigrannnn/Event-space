@@ -17,6 +17,7 @@ import {
 } from '@/features/admin/categories';
 import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import { CreatePromoCodeModal, UpdatePromoCodeModal } from '@/features/admin/promo-codes';
+import ChannelFormModal from '@/features/admin/channels/ChannelFormModal';
 import ImportReviewModal from '@/features/admin/reviews/ImportReviewModal';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EditGuestModal from '@/features/admin/user/components/EditGuestModal';
@@ -87,6 +88,7 @@ export default function ModalRoot() {
 					{activeModal === ModalType.UpdatePromoCode && (
 						<UpdatePromoCodeModal key="update-promo-code" />
 					)}
+					{activeModal === ModalType.ChannelForm && <ChannelFormModal key="channel-form" />}
 					{activeModal === ModalType.ImportReview && <ImportReviewModal key="import-review" />}
 				</>
 			)}

@@ -6,6 +6,7 @@ import {
 	BookingWithEstimate,
 	SafeUserData,
 	Category,
+	Channel,
 	EventOccurrence,
 	PromoCode,
 } from '@event-space/shared';
@@ -53,6 +54,7 @@ export enum ModalType {
 	CreatePromoCode = 'create-promo-code',
 	UpdatePromoCode = 'update-promo-code',
 	ImportReview = 'import-review',
+	ChannelForm = 'channel-form',
 	CompensateBooking = 'compensate-booking',
 	TransferBooking = 'transfer-booking',
 }
@@ -167,6 +169,10 @@ export interface UpdateBannerModalData {
 	banner: Banner;
 }
 
+export interface ChannelFormModalData {
+	channel?: Channel;
+}
+
 export interface UpdatePromoCodeModalData {
 	promoCode: PromoCode;
 }
@@ -205,6 +211,7 @@ export interface ModalDataMap {
 	[ModalType.CreatePromoCode]: null;
 	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
 	[ModalType.ImportReview]: null;
+	[ModalType.ChannelForm]: ChannelFormModalData | null;
 	[ModalType.CompensateBooking]: BookingDetailsModalData;
 	[ModalType.TransferBooking]: BookingDetailsModalData;
 }

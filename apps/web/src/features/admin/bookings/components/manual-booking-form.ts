@@ -1,4 +1,4 @@
-import { EmailSchema, PhoneSchema, type CreateManualBookingData } from '@event-space/shared';
+import { EmailSchema, PhoneSchema, SYSTEM_CHANNEL_IDS, type CreateManualBookingData } from '@event-space/shared';
 import type { MessageKey } from '@/lib/i18n/messages';
 
 export type ManualBookingField =
@@ -6,8 +6,7 @@ export type ManualBookingField =
 	| 'occurrence'
 	| 'user'
 	| 'phone'
-	| 'email'
-	| 'channelName';
+	| 'email';
 export type ManualBookingErrors = Partial<Record<ManualBookingField, MessageKey>>;
 
 export interface ManualBookingDraft {
@@ -21,8 +20,7 @@ export interface ManualBookingDraft {
 	email?: string;
 	paymentMethod: CreateManualBookingData['paymentMethod'];
 	locale?: CreateManualBookingData['locale'];
-	channel: CreateManualBookingData['channel'];
-	channelName?: string | null;
+	channelId: string;
 	externalId?: string | null;
 }
 
@@ -39,10 +37,6 @@ export function validateManualBooking(draft: ManualBookingDraft): ManualBookingE
 		errors.occurrence = 'admin.validation.noAvailableDates';
 	} else if (!draft.occurrenceId) {
 		errors.occurrence = 'admin.validation.dateRequired';
-	}
-
-	if (draft.channel === 'OTHER' && !draft.channelName?.trim()) {
-		errors.channelName = 'admin.validation.channelNameRequired';
 	}
 
 	const newUserName = draft.name?.trim();
@@ -80,10 +74,9 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		quantity: draft.quantity,
 		paymentMethod: draft.paymentMethod,
 		locale: draft.locale,
-		channel: draft.channel,
-		channelName: draft.channel === 'OTHER' ? draft.channelName?.trim() || null : null,
+		channelId: draft.channelId,
 		// A number only means something on a platform; for our own bookings there is none.
-		externalId: draft.channel === 'DIRECT' ? null : draft.externalId?.trim() || null,
+		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.DIRECT ? null : draft.externalId?.trim() || null,
 	};
 
 	if (draft.userId) {
