@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReviewStatus } from '@event-space/shared';
+import { Skeleton } from '@/components/ui/Skeleton';
 import Select from '@/components/ui/Select';
 import LoadMoreTrigger from '@/components/ui/LoadMoreTrigger';
 import { useIntersectionObserver } from '@/hooks/observer/useIntersectionObserver';
@@ -11,6 +12,7 @@ import { ModalType } from '@/stores/modalStore/types';
 import { useTranslation } from '@/hooks/translation';
 import { useAdminReviews, usePendingReviewsCountQuery } from '@/features/admin/hooks/useAdmin';
 import ReviewCard from './ReviewCard';
+import ReviewsSkeletonRows from './ReviewsSkeletonRows';
 
 type StatusFilter = 'ALL' | ReviewStatus;
 
@@ -28,9 +30,10 @@ export default function ReviewsQueue() {
 		}
 	}, [statusFilter, pending]);
 
-	const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useAdminReviews(
+	// The list starts loading together with the count rather than after it. Until the filter is
+	// settled it is the full list, which is also what shows when nothing is waiting.
+	const { data, isPending, fetchNextPage, hasNextPage, isFetchingNextPage } = useAdminReviews(
 		statusFilter === 'ALL' || statusFilter === null ? undefined : statusFilter,
-		statusFilter !== null,
 	);
 
 	const reviews = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
@@ -58,22 +61,28 @@ export default function ReviewsQueue() {
 					<Button size="sm" onClick={() => openModal(ModalType.ImportReview)}>
 						{translate('admin.importReview')}
 					</Button>
-					<Select
-						variant="filter"
-						size="sm"
-						value={statusFilter ?? 'PENDING'}
-						onValueChange={(value) => setStatusFilter(value as StatusFilter)}
-						options={[
-							{ value: 'PENDING', label: translate('admin.reviewsQueue') },
-							{ value: 'PUBLISHED', label: translate('admin.reviewsPublished') },
-							{ value: 'REJECTED', label: translate('admin.reviewsRejected') },
-							{ value: 'ALL', label: translate('admin.reviewsAll') },
-						]}
-					/>
+					{statusFilter === null ? (
+						<Skeleton className="h-9 w-48 rounded-lg" />
+					) : (
+						<Select
+							variant="filter"
+							size="sm"
+							value={statusFilter}
+							onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+							options={[
+								{ value: 'PENDING', label: translate('admin.reviewsQueue') },
+								{ value: 'PUBLISHED', label: translate('admin.reviewsPublished') },
+								{ value: 'REJECTED', label: translate('admin.reviewsRejected') },
+								{ value: 'ALL', label: translate('admin.reviewsAll') },
+							]}
+						/>
+					)}
 				</div>
 			</div>
 
-			{statusFilter === null ? null : reviews.length === 0 ? (
+			{statusFilter === null || isPending ? (
+				<ReviewsSkeletonRows />
+			) : reviews.length === 0 ? (
 				<p className="px-3 py-8 text-center text-gray-500 sm:px-5">
 					{translate('admin.noReviewsFound')}
 				</p>

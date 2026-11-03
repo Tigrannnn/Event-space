@@ -68,7 +68,9 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 					<Star className="h-4 w-4 fill-amber-400 text-amber-400" />
 					{review.rating}
 				</span>
-				<span className={cn('rounded-full px-2 py-0.5 text-xs font-semibold', STATUS_STYLE[review.status])}>
+				<span
+					className={cn('rounded-full px-2 py-0.5 text-xs font-semibold', STATUS_STYLE[review.status])}
+				>
 					{statusLabel[review.status]}
 				</span>
 				<span className="truncate text-sm text-gray-700 dark:text-gray-300">{eventTitle}</span>
@@ -90,9 +92,7 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 
 			<ReviewPhotos images={review.images} className="mt-0" />
 
-			{review.rejectReason && (
-				<p className="text-xs text-red-500">{review.rejectReason}</p>
-			)}
+			{review.rejectReason && <p className="text-xs text-red-500">{review.rejectReason}</p>}
 
 			{review.adminReply && !isReplyOpen && (
 				<p className="rounded-xl bg-gray-100 p-3 text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300">
