@@ -10,6 +10,8 @@ import { buildOccurrenceDateFilter } from '@modules/event/event.utils';
 
 export interface EventFilters {
 	search?: string;
+	/** Events the fuzzy catalogue matcher found for `search`; matched alongside the plain substring. */
+	searchEventIds?: string[];
 	status?: EventStatus;
 	difficulty?: EventDifficulty;
 	time?: TimeFilterType;
@@ -31,7 +33,7 @@ export function buildEventsWhere(
 	now: Date,
 	hasFreeSpot: { lt: Prisma.IntFieldRefInput<'EventOccurrence'> },
 ): Prisma.EventWhereInput {
-	const { search, status, difficulty, time, minPrice, maxPrice, category } = filters;
+	const { search, searchEventIds, status, difficulty, time, minPrice, maxPrice, category } = filters;
 	const { startDate, endDate, spots } = filters;
 
 	// `time` and the date range both constrain the same `occurrences` relation, so they are
@@ -96,6 +98,7 @@ export function buildEventsWhere(
 			? {
 					OR: [
 						...(isUuid(search) ? [{ id: search }] : []),
+						...(searchEventIds?.length ? [{ id: { in: searchEventIds } }] : []),
 						{
 							translations: {
 								some: {

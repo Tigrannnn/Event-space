@@ -9,6 +9,7 @@ import { verifyCheckinToken, checkinTokenSecret } from '@modules/booking/checkin
 import type { BookingWithDetails, PaginatedParams, TransferBookingData } from '@event-space/shared';
 import { bookingInclude } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
+import { findMatchingEventIds } from '../common/matching-event-ids';
 import { toPage } from '../common/query-helpers';
 import { buildBookingsWhere, type BookingFilters } from './booking-filters';
 import { reserveSeats, releaseSeats } from '@modules/booking/occurrence-seats';
@@ -29,7 +30,8 @@ export class AdminBookingsService {
 	) {}
 
 	async findAll({ skip = 0, limit = 20, ...filters }: FindAllBookingsParams = {}) {
-		const where = buildBookingsWhere(filters, new Date());
+		const searchEventIds = await findMatchingEventIds(this.prisma, filters.search);
+		const where = buildBookingsWhere({ ...filters, searchEventIds }, new Date());
 
 		const [bookings, total] = await Promise.all([
 			this.prisma.booking.findMany({

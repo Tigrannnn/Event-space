@@ -11,6 +11,7 @@ import { bookingDisplayStatusWhere } from '@modules/booking/my-bookings-filters'
 
 export interface BookingFilters {
 	search?: string;
+	searchEventIds?: string[];
 	status?: BookingDisplayStatus;
 	time?: TimeFilterType;
 	eventId?: string;
@@ -25,7 +26,7 @@ export interface BookingFilters {
 }
 
 export function buildBookingsWhere(filters: BookingFilters, now: Date) {
-	const { search, status, time, eventId, occurrenceId, createdFrom, createdTo } = filters;
+	const { search, searchEventIds, status, time, eventId, occurrenceId, createdFrom, createdTo } = filters;
 	const { tourFrom, tourTo, paymentMethod, createdBy } = filters;
 
 	const createdAt = buildDayRangeFilter(createdFrom, createdTo);
@@ -52,6 +53,7 @@ export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 						...(isUuid(search) ? [{ id: search }] : []),
 						{ user: { name: { contains: search, mode: 'insensitive' as const } } },
 						{ user: { email: { contains: search, mode: 'insensitive' as const } } },
+						...(searchEventIds?.length ? [{ occurrence: { eventId: { in: searchEventIds } } }] : []),
 						{
 							occurrence: {
 								event: {

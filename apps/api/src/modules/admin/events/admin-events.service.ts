@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { PaginatedParams } from '@event-space/shared';
+import { findMatchingEventIds } from '../common/matching-event-ids';
 import { toPage } from '../common/query-helpers';
 import { attachBookingStats } from './event-booking-stats';
 import { buildEventsWhere, type EventFilters } from './event-filters';
@@ -17,7 +18,8 @@ export class AdminEventsService {
 		// keeps `total` and `hasMore` honest: a filter applied after `take` would report counts
 		// that don't match the rows the table actually shows.
 		const hasFreeSpot = { lt: this.prisma.eventOccurrence.fields.maxParticipants };
-		const where = buildEventsWhere(filters, new Date(), hasFreeSpot);
+		const searchEventIds = await findMatchingEventIds(this.prisma, filters.search);
+		const where = buildEventsWhere({ ...filters, searchEventIds }, new Date(), hasFreeSpot);
 
 		const [events, total] = await Promise.all([
 			this.prisma.event.findMany({

@@ -35,6 +35,17 @@ describe('buildBookingsWhere', () => {
 		expect(searchBranches('Татев').some((branch) => 'id' in branch)).toBe(false);
 	});
 
+	it('also takes the tours the catalogue search matched, so a transliterated query finds their bookings', () => {
+		const branches = (
+			buildBookingsWhere(
+				{ search: 'haragats', searchEventIds: ['event-1'] },
+				NOW,
+			) as unknown as SearchBranch
+		).OR;
+
+		expect(branches).toContainEqual({ occurrence: { eventId: { in: ['event-1'] } } });
+	});
+
 	it('adds nothing when there is no search', () => {
 		expect(buildBookingsWhere({}, NOW)).not.toHaveProperty('OR');
 	});
