@@ -7,14 +7,12 @@ import { LoaderCircle } from 'lucide-react';
 import { authApi } from '@/features/auth';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
-import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { useApiError } from '@/hooks/apiError';
 
 export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
-	const navigation = useLocalizedNavigation();
 	const translate = useTranslation();
 	const apiError = useApiError();
 	const { addToast } = useToastStore();
@@ -27,7 +25,6 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 			try {
 				await authApi.googleLogin({ token: credentialResponse.code });
 				await queryClient.invalidateQueries({ queryKey: ['me'] });
-				navigation.push('/profile');
 				closeModal();
 			} catch (error: unknown) {
 				addToast(apiError(error, 'auth.googleLoginFailed'), ToastType.ERROR);
