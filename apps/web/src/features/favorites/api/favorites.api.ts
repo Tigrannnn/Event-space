@@ -9,10 +9,11 @@ export interface FavoriteToggleResponse {
 export type FavoritesPage = PaginatedCursorResponse<Event>;
 
 export const favoritesApi = {
-	getFavorites: ({ cursor, limit = FAVORITES_PAGE_SIZE }: { cursor?: string; limit?: number } = {}) =>
-		clientApi
-			.get<FavoritesPage>('/favorites', { params: { cursor, limit } })
-			.then((res) => res.data),
+	getFavorites: ({
+		cursor,
+		limit = FAVORITES_PAGE_SIZE,
+	}: { cursor?: string; limit?: number } = {}) =>
+		clientApi.get<FavoritesPage>('/favorites', { params: { cursor, limit } }).then((res) => res.data),
 
 	getFavoriteIds: () => clientApi.get<string[]>('/favorites/ids').then((res) => res.data),
 

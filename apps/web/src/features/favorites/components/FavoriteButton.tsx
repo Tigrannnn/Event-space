@@ -53,7 +53,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 					'relative z-20 flex size-10 items-center justify-center transition-transform hover:scale-110 active:scale-95',
 					className,
 				)}
-				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+				disabled={isUserLoading || isFavoritesLoading}
 			>
 				{isUserLoading || (isFavoritesLoading && user) ? (
 					<Skeleton className="size-5 rounded-full" />
@@ -88,7 +88,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 						: 'border-gray-300 text-gray-700 dark:border-neutral-700 dark:text-gray-200',
 					className,
 				)}
-				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+				disabled={isUserLoading || isFavoritesLoading}
 			>
 				{isUserLoading || (isFavoritesLoading && user) ? (
 					<Skeleton className="size-4 rounded" />
@@ -109,12 +109,10 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 				aria-pressed={isFavorite}
 				className={cn(
 					'relative z-20 flex size-10 items-center justify-center rounded-full backdrop-blur-md transition-transform hover:scale-110 active:scale-95',
-					variant === 'plain'
-						? 'bg-gray-100 dark:bg-neutral-800'
-						: 'bg-black/30 hover:bg-black/45',
+					variant === 'plain' ? 'bg-gray-100 dark:bg-neutral-800' : 'bg-black/30 hover:bg-black/45',
 					className,
 				)}
-				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+				disabled={isUserLoading || isFavoritesLoading}
 			>
 				{isUserLoading || (isFavoritesLoading && user) ? (
 					<Skeleton className="size-4 rounded-full" />
@@ -151,7 +149,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 						: 'bg-white/95 shadow-sm dark:bg-neutral-900/90',
 					className,
 				)}
-				disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+				disabled={isUserLoading || isFavoritesLoading}
 			>
 				{isUserLoading || (isFavoritesLoading && user) ? (
 					<Skeleton className="size-4 rounded-full" />
@@ -183,7 +181,7 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 					'border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-900/60 dark:hover:text-rose-500',
 				className,
 			)}
-			disabled={isUserLoading || isFavoritesLoading || toggleFavorite.isPending}
+			disabled={isUserLoading || isFavoritesLoading}
 		>
 			{isUserLoading || (isFavoritesLoading && user) ? (
 				<Skeleton className="h-5 w-5 rounded-full" />
