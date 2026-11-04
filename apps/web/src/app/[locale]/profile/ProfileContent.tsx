@@ -141,7 +141,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 		];
 		if (isDrawer) {
 			return (
-				<div className="mx-auto max-w-3xl px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-12">
+				<div className="mx-auto w-full max-w-3xl px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-12">
 					<div className="bg-primary rounded-[2rem] p-6 text-white sm:rounded-[2.5rem] sm:p-10">
 						<div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
 							<div className="text-primary flex size-20 shrink-0 items-center justify-center rounded-full bg-white text-4xl font-black sm:size-24 sm:text-5xl">
@@ -211,7 +211,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 
 		if (isMarket) {
 			return (
-				<div className="mx-auto max-w-[1400px] px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-10 lg:px-8">
+				<div className="mx-auto w-full max-w-[1400px] px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-10 lg:px-8">
 					<div className="grid grid-cols-1 gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
 						<div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
 							<div className="flex items-center gap-4 lg:flex-col lg:items-start">
@@ -275,7 +275,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 
 		if (isSoft) {
 			return (
-				<div className="mx-auto max-w-5xl px-4 py-8 pb-24 sm:py-12 md:pb-14">
+				<div className="mx-auto w-full max-w-5xl px-4 py-8 pb-24 sm:py-12 md:pb-14">
 					<div className="relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-md sm:p-8 dark:bg-gray-800">
 						<div
 							aria-hidden
@@ -410,7 +410,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 			'flex w-full cursor-pointer items-center justify-between gap-4 py-4 text-left transition-colors hover:bg-gray-50 sm:py-5 dark:hover:bg-neutral-900';
 
 		return (
-			<div className="mx-auto max-w-2xl px-4 py-6 pb-24 sm:py-14 md:pb-14">
+			<div className="mx-auto w-full max-w-2xl px-4 py-6 pb-24 sm:py-14 md:pb-14">
 				<div className="mb-8 flex items-center gap-4 sm:mb-10 sm:gap-5">
 					<div className="bg-primary flex size-16 shrink-0 items-center justify-center rounded-full text-2xl font-semibold text-white sm:size-20 sm:text-3xl">
 						{initial}
