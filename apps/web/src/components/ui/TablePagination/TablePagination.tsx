@@ -36,7 +36,7 @@ export default function TablePagination({
 			)}
 		>
 			<p className="text-xs text-gray-500 sm:text-sm">
-				Page {currentPage}
+				{translate('common.page', { page: currentPage })}
 				{isLoading ? ` · ${translate('common.updating')}` : ''}
 			</p>
 			<div className="flex gap-2 sm:justify-end">
@@ -48,7 +48,7 @@ export default function TablePagination({
 					onClick={onPreviousPage}
 					disabled={!canGoPrevious || isLoading}
 				>
-					Previous
+					{translate('common.previousPage')}
 				</Button>
 				<Button
 					type="button"
@@ -58,7 +58,7 @@ export default function TablePagination({
 					onClick={onNextPage}
 					disabled={!canGoNext || isLoading}
 				>
-					Next
+					{translate('common.nextPage')}
 				</Button>
 			</div>
 		</div>
