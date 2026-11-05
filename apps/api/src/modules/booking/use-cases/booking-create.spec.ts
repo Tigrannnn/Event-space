@@ -404,6 +404,29 @@ describe('creating a booking by an admin', () => {
 		expect(ledger).toHaveLength(0);
 	});
 
+	it('takes the amount the admin agreed on instead of the tour price, and records that money', async () => {
+		const { service, upserts, ledger } = build();
+		await service.createManualBooking('admin1', manual({ amount: 15000 }) as never);
+
+		expect(upserts[0].create).toMatchObject({ amount: 15000, baseAmount: 20000, discountPercent: null });
+		expect(Number((ledger[0] as { data: { amount: unknown } }).data.amount)).toBe(15000);
+	});
+
+	it('lets a booking be free', async () => {
+		const { service, upserts, ledger } = build();
+		await service.createManualBooking('admin1', manual({ amount: 0 }) as never);
+
+		expect(upserts[0].create).toMatchObject({ amount: 0 });
+		expect(ledger).toHaveLength(0);
+	});
+
+	it('keeps the tour price when the agreed amount is the same', async () => {
+		const { service, upserts } = build();
+		await service.createManualBooking('admin1', manual({ amount: 20000 }) as never);
+
+		expect(upserts[0].create).toMatchObject({ amount: 20000 });
+	});
+
 	it('refuses when the seats are gone', async () => {
 		const { service } = build({ spotsFree: 0 });
 		await expect(service.createManualBooking('admin1', manual() as never)).rejects.toBeDefined();

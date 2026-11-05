@@ -180,6 +180,9 @@ export const admin: Messages['admin'] = {
 	bookingChannel: 'Откуда бронь',
 	bookingExternalId: 'Номер брони на площадке (необязательно)',
 	bookingExternalIdPlaceholder: 'Например, GYG12345',
+	manualBookingAmount: 'Сумма брони (необязательно)',
+	bookingAmountHint: 'Оставь пустым — будет цена тура. Впиши, сколько гости платят на самом деле, например цену на площадке.',
+	bookingAmountListed: 'По цене тура',
 	channel: {
 		SITE: 'Наш сайт',
 		UNSPECIFIED: 'Не указан',
@@ -428,6 +431,7 @@ export const admin: Messages['admin'] = {
 		userRequired: 'Выберите пользователя или введите имя нового',
 		noAvailableDates: 'У этого события нет будущих дат для бронирования',
 		invalidPhone: 'Введите корректный номер телефона',
+		invalidAmount: 'Введите корректную сумму',
 		invalidEmail: 'Введите корректный email',
 		targetRequired: 'Выберите, куда ведёт баннер',
 		endBeforeStart: 'Дата окончания не может быть раньше начала',

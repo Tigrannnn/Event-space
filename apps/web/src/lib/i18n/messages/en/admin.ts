@@ -178,6 +178,9 @@ export const admin = {
 	bookingChannel: 'Where the booking came from',
 	bookingExternalId: 'Booking number on the platform (optional)',
 	bookingExternalIdPlaceholder: 'For example, GYG12345',
+	manualBookingAmount: 'Booking amount (optional)',
+	bookingAmountHint: 'Leave empty to charge the tour price. Enter what the guests actually pay, for example the price on the platform.',
+	bookingAmountListed: 'By the tour price',
 	channel: {
 		SITE: 'Our site',
 		UNSPECIFIED: 'Not specified',
@@ -426,6 +429,7 @@ export const admin = {
 		userRequired: 'Choose a user or enter a new user\'s name',
 		noAvailableDates: 'This event has no upcoming dates open for booking',
 		invalidPhone: 'Enter a valid phone number',
+		invalidAmount: 'Enter a valid amount',
 		invalidEmail: 'Enter a valid email',
 		targetRequired: 'Choose where the banner leads',
 		endBeforeStart: 'The end date can\'t be earlier than the start',

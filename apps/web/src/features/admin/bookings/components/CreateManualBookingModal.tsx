@@ -17,6 +17,8 @@ import {
 	type Event,
 	type EventOccurrence,
 } from '@event-space/shared';
+import { quoteBooking } from '@event-space/shared';
+import { useFormatCurrency } from '@/hooks/format/useFormatCurrency';
 import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
@@ -32,6 +34,7 @@ import {
 export default function CreateManualBookingModal() {
 	const { formatDateTime } = useFormatDate();
 	const translate = useTranslation();
+	const formatCurrency = useFormatCurrency();
 	const { closeModal } = useModalStore();
 	const { mutate: createManualBooking, isPending } = useCreateManualBooking();
 	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -49,6 +52,7 @@ export default function CreateManualBookingModal() {
 		externalId: undefined,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
+	const [amount, setAmount] = useState('');
 	const [errors, setErrors] = useState<ManualBookingErrors>({});
 
 	const mailLocale = clientLocale ?? formState.locale ?? translate.locale;
@@ -104,6 +108,13 @@ export default function CreateManualBookingModal() {
 		? Math.max(0, selectedOccurrence.maxParticipants - selectedOccurrence.currentParticipants)
 		: 0;
 
+	const listedTotal = selectedEvent
+		? quoteBooking(
+				{ price: selectedEvent.price, discountPercent: selectedOccurrence?.discountPercent },
+				{ quantity: Number(formState.quantity) },
+			).total
+		: null;
+
 	const handleSubmit = () => {
 		const draft = {
 			eventId: selectedEvent?.id,
@@ -118,6 +129,7 @@ export default function CreateManualBookingModal() {
 			locale: clientLocale ?? formState.locale,
 			channelId: formState.channelId,
 			externalId: formState.externalId,
+			amount,
 		};
 
 		const nextErrors = validateManualBooking(draft);
@@ -244,6 +256,24 @@ export default function CreateManualBookingModal() {
 							className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
 						/>
 					)}
+
+					<Input
+						label={translate('admin.manualBookingAmount')}
+						inputMode="decimal"
+						value={amount}
+						onChange={(e) => {
+							setAmount(e.target.value);
+							clearErrors('amount');
+						}}
+						placeholder={listedTotal === null ? '' : String(listedTotal)}
+						className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+					/>
+					{renderError('amount')}
+					<p className="-mt-2 text-xs text-gray-500 dark:text-gray-400">
+						{listedTotal === null
+							? translate('admin.bookingAmountHint')
+							: `${translate('admin.bookingAmountListed')}: ${formatCurrency(listedTotal)}. ${translate('admin.bookingAmountHint')}`}
+					</p>
 
 					<Select
 						value={formState.paymentMethod}

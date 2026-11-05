@@ -65,6 +65,15 @@ export function priceBooking(
 	};
 }
 
+export function agreeBookingAmount(
+	listed: { amount: number; baseAmount: number; discountPercent: number | null },
+	agreed: number | undefined,
+): { amount: number; baseAmount: number; discountPercent: number | null } {
+	if (agreed === undefined || Math.round(agreed * 100) === Math.round(listed.amount * 100)) return listed;
+
+	return { amount: Math.round(agreed * 100) / 100, baseAmount: listed.baseAmount, discountPercent: null };
+}
+
 export function mapOccurrenceForBookingResponse(
 	occurrence: Prisma.EventOccurrenceGetPayload<{
 		include: {

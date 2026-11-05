@@ -1,4 +1,10 @@
-import { EmailSchema, PhoneSchema, SYSTEM_CHANNEL_IDS, type CreateManualBookingData } from '@event-space/shared';
+import {
+	EmailSchema,
+	MANUAL_BOOKING_AMOUNT_MAX,
+	PhoneSchema,
+	SYSTEM_CHANNEL_IDS,
+	type CreateManualBookingData,
+} from '@event-space/shared';
 import type { MessageKey } from '@/lib/i18n/messages';
 
 export type ManualBookingField =
@@ -6,7 +12,8 @@ export type ManualBookingField =
 	| 'occurrence'
 	| 'user'
 	| 'phone'
-	| 'email';
+	| 'email'
+	| 'amount';
 export type ManualBookingErrors = Partial<Record<ManualBookingField, MessageKey>>;
 
 export interface ManualBookingDraft {
@@ -22,6 +29,7 @@ export interface ManualBookingDraft {
 	locale?: CreateManualBookingData['locale'];
 	channelId: string;
 	externalId?: string | null;
+	amount?: string;
 }
 
 /**
@@ -60,7 +68,17 @@ export function validateManualBooking(draft: ManualBookingDraft): ManualBookingE
 		}
 	}
 
+	const amount = parseAmount(draft.amount);
+	if (amount !== undefined && (Number.isNaN(amount) || amount < 0 || amount > MANUAL_BOOKING_AMOUNT_MAX)) {
+		errors.amount = 'admin.validation.invalidAmount';
+	}
+
 	return errors;
+}
+
+function parseAmount(value: string | undefined): number | undefined {
+	const text = value?.trim().replace(',', '.');
+	return text ? Number(text) : undefined;
 }
 
 /**
@@ -77,6 +95,7 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		channelId: draft.channelId,
 		// A number only means something on a platform; with no channel named there is none.
 		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED ? null : draft.externalId?.trim() || null,
+		amount: parseAmount(draft.amount),
 	};
 
 	if (draft.userId) {

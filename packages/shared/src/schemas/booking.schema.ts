@@ -127,6 +127,7 @@ export const CancelBookingSchema = z.object({
 export type CancelBookingData = z.infer<typeof CancelBookingSchema>;
 
 export const BOOKING_EXTERNAL_ID_MAX = 120;
+export const MANUAL_BOOKING_AMOUNT_MAX = 99_999_999;
 
 export const CreateManualBookingSchema = z
 	.object({
@@ -152,6 +153,9 @@ export const CreateManualBookingSchema = z
 			.max(BOOKING_EXTERNAL_ID_MAX)
 			.nullish()
 			.openapi({ description: "The booking's number on that platform, when it has one" }),
+		amount: z.number().min(0).max(MANUAL_BOOKING_AMOUNT_MAX).optional().openapi({
+			description: 'What the whole booking costs, when it is not the tour price: a platform price, a deal',
+		}),
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',

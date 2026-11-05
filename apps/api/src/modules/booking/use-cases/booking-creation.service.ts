@@ -27,6 +27,7 @@ import {
 	mapOccurrenceForBookingResponse,
 	nullableNumber,
 	priceBooking,
+	agreeBookingAmount,
 	buildCheckinToken,
 	buildBookingLinkToken,
 } from '../booking.utils';
@@ -412,6 +413,7 @@ export class BookingCreationService {
 			phone,
 			locale: mailLocale,
 			channelId,
+			amount: agreedAmount,
 		} = data;
 		const externalId = data.externalId?.trim() || null;
 
@@ -526,7 +528,10 @@ export class BookingCreationService {
 					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 			}
 
-			const pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
+			const pricing = agreeBookingAmount(
+				priceBooking(event.price, occurrence.discountPercent, quantity),
+				agreedAmount,
+			);
 
 			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
 
