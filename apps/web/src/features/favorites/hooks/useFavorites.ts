@@ -1,3 +1,4 @@
+import { useIsSignedIn } from '@/features/users/hooks/useUsers';
 import {
 	type InfiniteData,
 	useInfiniteQuery,
@@ -31,7 +32,11 @@ export const useGetFavorites = () => {
  * above drags in each event with its pictures, translations and dates.
  */
 export const useFavoriteIds = () => {
+	const isSignedIn = useIsSignedIn();
+
 	return useQuery({
+		enabled: isSignedIn,
+		retry: false,
 		queryKey: FAVORITE_IDS_KEY,
 		queryFn: () => favoritesApi.getFavoriteIds(),
 		staleTime: 60 * 1000,

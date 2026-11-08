@@ -2,4 +2,4 @@
 export { usersApi } from './api/users.api';
 
 // Hooks
-export { useCurrentUser, useUpdateCurrentUser } from './hooks/useUsers';
+export { useCurrentUser, useIsSignedIn, useUpdateCurrentUser } from './hooks/useUsers';

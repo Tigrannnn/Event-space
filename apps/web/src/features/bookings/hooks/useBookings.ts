@@ -1,3 +1,4 @@
+import { useIsSignedIn } from '@/features/users/hooks/useUsers';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { bookingApi } from '../api/bookings.api';
 import {
@@ -19,7 +20,11 @@ import { useTranslation } from '@/hooks/translation';
  * chosen status, while later pages still have plenty.
  */
 export const useMyBookings = (status?: BookingDisplayStatus) => {
+	const isSignedIn = useIsSignedIn();
+
 	return useInfiniteQuery({
+		enabled: isSignedIn,
+		retry: false,
 		queryKey: ['my-bookings', 'list', status ?? 'ALL'],
 		queryFn: ({ pageParam }) => bookingApi.getMyBookings({ cursor: pageParam, status }),
 		initialPageParam: undefined as string | undefined,
@@ -34,7 +39,11 @@ export const useMyBookings = (status?: BookingDisplayStatus) => {
  * refund estimate, and nothing outside the bookings page has any use for that.
  */
 export const useMyBookingsSummary = () => {
+	const isSignedIn = useIsSignedIn();
+
 	return useQuery({
+		enabled: isSignedIn,
+		retry: false,
 		queryKey: ['my-bookings', 'summary'],
 		queryFn: () => bookingApi.getMyBookingsSummary(),
 		staleTime: 60 * 1000,
