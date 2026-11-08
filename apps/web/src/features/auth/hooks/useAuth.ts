@@ -16,7 +16,9 @@ import {
 import { useToastStore } from '@/stores/toastStore';
 import { ToastType } from '@/stores/toastStore/types';
 import { ModalType, useModalStore } from '@/stores';
+import { useRouter } from 'next/navigation';
 import { useCooldown } from './useCooldown';
+import { useAccountRefresh } from './useAccountRefresh';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useApiError } from '@/hooks/apiError';
 import { useTranslation } from '@/hooks/translation';
@@ -64,6 +66,7 @@ export const useResendCode = () => {
 };
 
 export const useVerifyEmail = () => {
+	const refreshAccount = useAccountRefresh();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -73,11 +76,7 @@ export const useVerifyEmail = () => {
 	return useMutation({
 		mutationFn: (data: VerifyEmailData) => authApi.verifyEmail(data),
 		onSuccess: ({ data }) => {
-			queryClient.setQueryData(['me'], data.user);
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['favorites'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
-			queryClient.invalidateQueries({ queryKey: ['event'] });
+			refreshAccount(data.user);
 			addToast(translate('auth.verifySuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
@@ -89,6 +88,7 @@ export const useVerifyEmail = () => {
 };
 
 export const useLogin = () => {
+	const refreshAccount = useAccountRefresh();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -98,11 +98,7 @@ export const useLogin = () => {
 	return useMutation({
 		mutationFn: (data: LoginData) => authApi.login(data),
 		onSuccess: ({ data }) => {
-			queryClient.setQueryData(['me'], data.user);
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['favorites'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
-			queryClient.invalidateQueries({ queryKey: ['event'] });
+			refreshAccount(data.user);
 			addToast(translate('auth.loginSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
@@ -168,6 +164,7 @@ export const useConfirmEmailChange = () => {
 };
 
 export const useResetPassword = () => {
+	const refreshAccount = useAccountRefresh();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -177,11 +174,7 @@ export const useResetPassword = () => {
 	return useMutation({
 		mutationFn: (data: ResetPasswordData) => authApi.resetPassword(data),
 		onSuccess: ({ data }, variables) => {
-			queryClient.setQueryData(['me'], data.user);
-			queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-			queryClient.invalidateQueries({ queryKey: ['favorites'] });
-			queryClient.invalidateQueries({ queryKey: ['events'] });
-			queryClient.invalidateQueries({ queryKey: ['event'] });
+			refreshAccount(data.user);
 			addToast(translate(variables.newPassword ? 'auth.resetPasswordSuccess' : 'auth.loginSuccess'), ToastType.SUCCESS);
 			closeModal();
 		},
@@ -196,6 +189,7 @@ export const useResetPassword = () => {
 };
 
 export const useLogout = () => {
+	const router = useRouter();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -208,6 +202,7 @@ export const useLogout = () => {
 		onSuccess: async () => {
 			navigation.push('/');
 			queryClient.setQueryData(['me'], null);
+			router.refresh();
 			await Promise.all([
 				queryClient.removeQueries({ queryKey: ['my-bookings'] }),
 				queryClient.removeQueries({ queryKey: ['favorites'] }),
