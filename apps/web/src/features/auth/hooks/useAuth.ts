@@ -16,7 +16,6 @@ import {
 import { useToastStore } from '@/stores/toastStore';
 import { ToastType } from '@/stores/toastStore/types';
 import { ModalType, useModalStore } from '@/stores';
-import { useRouter } from 'next/navigation';
 import { useCooldown } from './useCooldown';
 import { useAccountRefresh } from './useAccountRefresh';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
@@ -189,7 +188,6 @@ export const useResetPassword = () => {
 };
 
 export const useLogout = () => {
-	const router = useRouter();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
 	const queryClient = useQueryClient();
@@ -202,7 +200,6 @@ export const useLogout = () => {
 		onSuccess: async () => {
 			navigation.push('/');
 			queryClient.setQueryData(['me'], null);
-			router.refresh();
 			await Promise.all([
 				queryClient.removeQueries({ queryKey: ['my-bookings'] }),
 				queryClient.removeQueries({ queryKey: ['favorites'] }),
