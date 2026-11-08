@@ -9,6 +9,7 @@ export const booking: Messages['booking'] = {
 	bookingRef: 'Код брони',
 	bookingRefTip: 'Сохраните код — с его помощью вы сможете найти вашу бронь',
 	showQrCode: 'QR-код для входа',
+	downloadQrCode: 'Скачать QR-код',
 	qrCodeHint: 'Покажите этот код на входе — администратор отсканирует его и подтвердит вашу бронь',
 	dateMoved: 'Дата тура изменена. Раньше было:',
 	dateMovedFullRefund: 'Если новая дата не подходит, вернём всю сумму без удержаний — до',
