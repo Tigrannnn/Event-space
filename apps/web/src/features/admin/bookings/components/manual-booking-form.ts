@@ -13,7 +13,8 @@ export type ManualBookingField =
 	| 'user'
 	| 'phone'
 	| 'email'
-	| 'amount';
+	| 'amount'
+	| 'promoCode';
 export type ManualBookingErrors = Partial<Record<ManualBookingField, MessageKey>>;
 
 export interface ManualBookingDraft {
@@ -30,6 +31,7 @@ export interface ManualBookingDraft {
 	channelId: string;
 	externalId?: string | null;
 	amount?: string;
+	promoCode?: string;
 }
 
 /**
@@ -73,6 +75,10 @@ export function validateManualBooking(draft: ManualBookingDraft): ManualBookingE
 		errors.amount = 'admin.validation.invalidAmount';
 	}
 
+	if (draft.promoCode?.trim() && amount !== undefined) {
+		errors.promoCode = 'admin.validation.promoCodeWithAmount';
+	}
+
 	return errors;
 }
 
@@ -96,6 +102,7 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		// A number only means something on a platform; with no channel named there is none.
 		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED ? null : draft.externalId?.trim() || null,
 		amount: parseAmount(draft.amount),
+		promoCode: draft.promoCode?.trim() || undefined,
 	};
 
 	if (draft.userId) {

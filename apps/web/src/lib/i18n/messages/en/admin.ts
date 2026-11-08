@@ -181,6 +181,7 @@ export const admin = {
 	manualBookingAmount: 'Booking amount (optional)',
 	bookingAmountHint: 'Leave empty to charge the tour price. Enter what the guests actually pay, for example the price on the platform.',
 	bookingAmountListed: 'By the tour price',
+	promoCodeAmountHint: 'A promo code and a custom amount cannot be combined: pick one. The promo code needs a date selected.',
 	channel: {
 		SITE: 'Our site',
 		UNSPECIFIED: 'Not specified',
@@ -430,6 +431,7 @@ export const admin = {
 		noAvailableDates: 'This event has no upcoming dates open for booking',
 		invalidPhone: 'Enter a valid phone number',
 		invalidAmount: 'Enter a valid amount',
+		promoCodeWithAmount: 'A promo code and an amount cannot be combined',
 		invalidEmail: 'Enter a valid email',
 		targetRequired: 'Choose where the banner leads',
 		endBeforeStart: 'The end date can\'t be earlier than the start',

@@ -183,6 +183,7 @@ export const admin: Messages['admin'] = {
 	manualBookingAmount: 'Сумма брони (необязательно)',
 	bookingAmountHint: 'Оставь пустым — будет цена тура. Впиши, сколько гости платят на самом деле, например цену на площадке.',
 	bookingAmountListed: 'По цене тура',
+	promoCodeAmountHint: 'Промокод и своя сумма не сочетаются: выбери одно. Для промокода нужна выбранная дата.',
 	channel: {
 		SITE: 'Наш сайт',
 		UNSPECIFIED: 'Не указан',
@@ -432,6 +433,7 @@ export const admin: Messages['admin'] = {
 		noAvailableDates: 'У этого события нет будущих дат для бронирования',
 		invalidPhone: 'Введите корректный номер телефона',
 		invalidAmount: 'Введите корректную сумму',
+		promoCodeWithAmount: 'Нельзя указать и промокод, и сумму',
 		invalidEmail: 'Введите корректный email',
 		targetRequired: 'Выберите, куда ведёт баннер',
 		endBeforeStart: 'Дата окончания не может быть раньше начала',

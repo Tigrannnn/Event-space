@@ -16,6 +16,7 @@ interface World {
 	userByEmail?: { id: string; emailVerified: boolean } | null;
 	discountPercent?: number | null;
 	channel?: { isActive?: boolean; forBookings?: boolean } | null;
+	promo?: { discountPercent: number; maxUses?: number | null; usageCount?: number } | null;
 }
 
 function build(world: World = {}) {
@@ -27,6 +28,7 @@ function build(world: World = {}) {
 	const ledger: unknown[] = [];
 	const emails: unknown[] = [];
 	const txBookingUpdates: Record<string, unknown>[] = [];
+	let promoRedeemed = 0;
 	let upserted: Record<string, unknown> = {};
 
 	const occurrence = {
@@ -54,6 +56,30 @@ function build(world: World = {}) {
 		eventOccurrence: {
 			findUnique: () => Promise.resolve(occurrence),
 			updateMany: () => Promise.resolve({ count: (world.spotsFree ?? 5) >= 1 ? 1 : 0 }),
+		},
+		promoCode: {
+			findUnique: () =>
+				Promise.resolve(
+					world.promo
+						? {
+								id: 'p1',
+								code: 'SUMMER',
+								active: true,
+								validFrom: null,
+								validUntil: null,
+								eventId: null,
+								categoryId: null,
+								maxUses: null,
+								usageCount: 0,
+								maxUsesPerUser: null,
+								...world.promo,
+							}
+						: null,
+				),
+			updateMany: () => {
+				promoRedeemed += 1;
+				return Promise.resolve({ count: 1 });
+			},
 		},
 		channel: {
 			findUnique: (args: { where: { id: string } }) =>
@@ -179,6 +205,7 @@ function build(world: World = {}) {
 
 	const service = createBookingService(prisma as never, stripe as never, mail as never);
 	return {
+		promoUses: () => promoRedeemed,
 		service,
 		stripeCalls,
 		upserts,
@@ -425,6 +452,31 @@ describe('creating a booking by an admin', () => {
 		await service.createManualBooking('admin1', manual({ amount: 20000 }) as never);
 
 		expect(upserts[0].create).toMatchObject({ amount: 20000 });
+	});
+
+	it('applies a promo code to the price, remembers it and spends one use', async () => {
+		const { service, upserts, ledger, promoUses } = build({ promo: { discountPercent: 10 } });
+		await service.createManualBooking('admin1', manual({ promoCode: 'summer' }) as never);
+
+		expect(upserts[0].create).toMatchObject({ amount: 18000, baseAmount: 20000, promoCodeId: 'p1' });
+		expect(Number((ledger[0] as { data: { amount: unknown } }).data.amount)).toBe(18000);
+		expect(promoUses()).toBe(1);
+	});
+
+	it('refuses a promo code that does not exist', async () => {
+		const { service, upserts } = build({ promo: null });
+		await expect(
+			service.createManualBooking('admin1', manual({ promoCode: 'NOPE' }) as never),
+		).rejects.toMatchObject({ code: 'PROMO_CODE_NOT_FOUND' });
+		expect(upserts).toHaveLength(0);
+	});
+
+	it('leaves the promo empty when none is given', async () => {
+		const { service, upserts, promoUses } = build({ promo: { discountPercent: 10 } });
+		await service.createManualBooking('admin1', manual() as never);
+
+		expect(upserts[0].create).toMatchObject({ amount: 20000, promoCodeId: null });
+		expect(promoUses()).toBe(0);
 	});
 
 	it('refuses when the seats are gone', async () => {

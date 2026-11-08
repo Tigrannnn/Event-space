@@ -528,10 +528,26 @@ export class BookingCreationService {
 					: new AppException(AppErrorCode.NOT_ENOUGH_SPOTS, { spotsLeft });
 			}
 
-			const pricing = agreeBookingAmount(
+			let pricing = agreeBookingAmount(
 				priceBooking(event.price, occurrence.discountPercent, quantity),
 				agreedAmount,
 			);
+			let promoCodeId: string | null = null;
+
+			if (data.promoCode) {
+				const promoCode = await this.promoCodes.findApplicable(data.promoCode, event, tx);
+				await this.promoCodes.assertWithinUserLimit(promoCode, targetUserId, tx);
+
+				const alreadyRedeemedByThisBooking =
+					existing?.status === 'PENDING' && existing.promoCodeId === promoCode.id;
+
+				if (!alreadyRedeemedByThisBooking) {
+					await this.promoCodes.redeem(tx, promoCode);
+				}
+
+				pricing = this.promoCodes.quote(promoCode, event.price, quantity, occurrence.discountPercent);
+				promoCodeId = promoCode.id;
+			}
 
 			const referenceNumber = existing?.referenceNumber ?? (await getNextBookingReference(tx));
 
@@ -539,6 +555,7 @@ export class BookingCreationService {
 				status: 'CONFIRMED' as const,
 				quantity,
 				...pricing,
+				promoCodeId,
 				paymentIntentId: null,
 				paymentMethod,
 				channelId,

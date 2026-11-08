@@ -156,6 +156,9 @@ export const CreateManualBookingSchema = z
 		amount: z.number().min(0).max(MANUAL_BOOKING_AMOUNT_MAX).optional().openapi({
 			description: 'What the whole booking costs, when it is not the tour price: a platform price, a deal',
 		}),
+		promoCode: z.string().trim().min(1).optional().openapi({
+			description: 'A promo code to apply to the price; cannot be combined with an agreed amount',
+		}),
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',
@@ -163,7 +166,10 @@ export const CreateManualBookingSchema = z
 	.refine((data) => {
 		if (data.name) return !!data.phone;
 		return true;
-	}, { message: 'Phone is required when creating a shadow user' });
+	}, { message: 'Phone is required when creating a shadow user' })
+	.refine((data) => !(data.promoCode && data.amount !== undefined), {
+		message: 'Provide either a promo code or an amount, not both',
+	});
 
 export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;
 

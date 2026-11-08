@@ -18,6 +18,8 @@ import {
 	type EventOccurrence,
 } from '@event-space/shared';
 import { quoteBooking } from '@event-space/shared';
+import { usePromoCodeQuote } from '@/features/bookings/hooks/useBookings';
+import { useApiError } from '@/hooks/apiError';
 import { useFormatCurrency } from '@/hooks/format/useFormatCurrency';
 import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
@@ -35,6 +37,7 @@ export default function CreateManualBookingModal() {
 	const { formatDateTime } = useFormatDate();
 	const translate = useTranslation();
 	const formatCurrency = useFormatCurrency();
+	const apiError = useApiError();
 	const { closeModal } = useModalStore();
 	const { mutate: createManualBooking, isPending } = useCreateManualBooking();
 	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -53,6 +56,8 @@ export default function CreateManualBookingModal() {
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
 	const [amount, setAmount] = useState('');
+	const [promoCodeInput, setPromoCodeInput] = useState('');
+	const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 	const [errors, setErrors] = useState<ManualBookingErrors>({});
 
 	const mailLocale = clientLocale ?? formState.locale ?? translate.locale;
@@ -115,6 +120,24 @@ export default function CreateManualBookingModal() {
 			).total
 		: null;
 
+	const promoQuote = usePromoCodeQuote(
+		selectedOccurrence?.id,
+		Number(formState.quantity),
+		appliedPromoCode,
+	);
+
+	const handleApplyPromoCode = () => {
+		const trimmed = promoCodeInput.trim();
+		if (!trimmed) return;
+		setAppliedPromoCode(trimmed);
+		clearErrors('promoCode');
+	};
+
+	const handleRemovePromoCode = () => {
+		setAppliedPromoCode(null);
+		setPromoCodeInput('');
+	};
+
 	const handleSubmit = () => {
 		const draft = {
 			eventId: selectedEvent?.id,
@@ -130,6 +153,7 @@ export default function CreateManualBookingModal() {
 			channelId: formState.channelId,
 			externalId: formState.externalId,
 			amount,
+			promoCode: promoQuote.isSuccess ? (appliedPromoCode ?? undefined) : undefined,
 		};
 
 		const nextErrors = validateManualBooking(draft);
@@ -266,6 +290,7 @@ export default function CreateManualBookingModal() {
 							clearErrors('amount');
 						}}
 						placeholder={listedTotal === null ? '' : String(listedTotal)}
+						disabled={Boolean(appliedPromoCode)}
 						className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
 					/>
 					{renderError('amount')}
@@ -273,6 +298,76 @@ export default function CreateManualBookingModal() {
 						{listedTotal === null
 							? translate('admin.bookingAmountHint')
 							: `${translate('admin.bookingAmountListed')}: ${formatCurrency(listedTotal)}. ${translate('admin.bookingAmountHint')}`}
+					</p>
+
+					{appliedPromoCode ? (
+						<div className="space-y-1">
+							<div className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700">
+								<span className="text-sm text-gray-700 dark:text-gray-200">
+									{promoQuote.isLoading
+										? `${appliedPromoCode}…`
+										: promoQuote.isSuccess
+											? `${translate('booking.promoCodeApplied', { code: promoQuote.data.code })}: ${formatCurrency(promoQuote.data.amount)}`
+											: appliedPromoCode}
+								</span>
+								<button
+									type="button"
+									onClick={handleRemovePromoCode}
+									aria-label={translate('booking.promoCodeRemove')}
+									className="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+								>
+									✕
+								</button>
+							</div>
+							{promoQuote.isError && (
+								<p className="text-xs text-red-500">{apiError(promoQuote.error)}</p>
+							)}
+							{!selectedOccurrence && (
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+									{translate('admin.pickDateForSpots')}
+								</p>
+							)}
+							{promoQuote.isSuccess &&
+								promoQuote.data.discountPercent !== promoQuote.data.promoCodeDiscountPercent && (
+									<p className="text-xs text-amber-600 dark:text-amber-400">
+										{translate('booking.promoCodeNotBetter', {
+											percent: promoQuote.data.discountPercent,
+										})}
+									</p>
+								)}
+						</div>
+					) : (
+						<div className="flex items-end gap-2">
+							<div className="flex-1">
+								<Input
+									label={translate('booking.promoCode')}
+									value={promoCodeInput}
+									onChange={(e) => {
+										setPromoCodeInput(e.target.value);
+										clearErrors('promoCode');
+									}}
+									disabled={Boolean(amount.trim())}
+									autoCapitalize="characters"
+									autoCorrect="off"
+									autoComplete="off"
+									spellCheck={false}
+									className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
+								/>
+							</div>
+							<Button
+								type="button"
+								variant="secondary"
+								size="md"
+								onClick={handleApplyPromoCode}
+								disabled={!promoCodeInput.trim() || !selectedOccurrence}
+							>
+								{translate('booking.promoCodeApply')}
+							</Button>
+						</div>
+					)}
+					{renderError('promoCode')}
+					<p className="-mt-2 text-xs text-gray-500 dark:text-gray-400">
+						{translate('admin.promoCodeAmountHint')}
 					</p>
 
 					<Select

@@ -183,6 +183,7 @@ export const admin: Messages['admin'] = {
 	manualBookingAmount: 'Ամրագրման գումար (ըստ ցանկության)',
 	bookingAmountHint: 'Թողեք դատարկ՝ կլինի տուրի գինը։ Գրեք, թե իրականում որքան են վճարում հյուրերը, օրինակ՝ հարթակի գինը։',
 	bookingAmountListed: 'Ըստ տուրի գնի',
+	promoCodeAmountHint: 'Պրոմոկոդը և սեփական գումարը չեն համատեղվում․ ընտրեք մեկը։ Պրոմոկոդի համար պետք է ընտրված ամսաթիվ։',
 	channel: {
 		SITE: 'Մեր կայքը',
 		UNSPECIFIED: 'Նշված չէ',
@@ -432,6 +433,7 @@ export const admin: Messages['admin'] = {
 		noAvailableDates: 'Այս միջոցառումը ամրագրման համար բաց ապագա ամսաթվեր չունի',
 		invalidPhone: 'Մուտքագրեք ճիշտ հեռախոսահամար',
 		invalidAmount: 'Մուտքագրեք ճիշտ գումար',
+		promoCodeWithAmount: 'Պրոմոկոդը և գումարը միասին չեն կարող',
 		invalidEmail: 'Մուտքագրեք ճիշտ էլ. փոստ',
 		targetRequired: 'Ընտրեք, թե ուր է տանում բաները',
 		endBeforeStart: 'Ավարտի ամսաթիվը չի կարող սկզբից շուտ լինել',
