@@ -309,7 +309,7 @@ export class BookingTopUpService {
 		if (!booking?.occurrence) return;
 
 		const common = {
-			booking: { referenceNumber: booking.referenceNumber, brandHost: booking.brandHost },
+			booking: { id: booking.id, referenceNumber: booking.referenceNumber, brandHost: booking.brandHost },
 			event: { translations: booking.occurrence.event?.translations ?? [] },
 			occurrence: { date: booking.occurrence.date },
 			user: { email: booking.user.email, name: booking.user.name, locale: booking.user.locale },

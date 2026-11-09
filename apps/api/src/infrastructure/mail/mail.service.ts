@@ -508,11 +508,18 @@ export class MailService implements OnModuleInit {
 		offlinePaid?: boolean;
 		currency: string;
 		brandHost?: string;
+		bookingId?: string;
+		bookingLinkToken?: string | null;
+		quantity?: number;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_CANCELLED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
-		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
-		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const { actions, homeUrl, bookingsUrl } = this.bookingLetterActions(
+			brand,
+			params.locale,
+			params.bookingId,
+			params.bookingLinkToken,
+		);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const body = strings.body(
 			params.eventTitle,
@@ -540,6 +547,14 @@ export class MailService implements OnModuleInit {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				GREETING: strings.greeting(params.userName),
+				DETAILS_ROWS: params.referenceNumber
+					? this.bookingLetterDetails(params.locale, {
+						referenceNumber: params.referenceNumber,
+						eventTitle: params.eventTitle,
+						occurrenceDate: params.occurrenceDate,
+						quantity: params.quantity,
+					})
+					: '',
 				BODY: body,
 				REFUND: refundLine,
 				SUPPORT: strings.support,
@@ -582,11 +597,18 @@ export class MailService implements OnModuleInit {
 		refundFailed?: boolean;
 		currency: string;
 		brandHost?: string;
+		bookingId?: string;
+		bookingLinkToken?: string | null;
+		referenceNumber?: number;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_NO_SEATS_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
-		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
-		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const { actions, homeUrl, bookingsUrl } = this.bookingLetterActions(
+			brand,
+			params.locale,
+			params.bookingId,
+			params.bookingLinkToken,
+		);
 		const body = strings.body(
 			params.eventTitle,
 			formatMailDate(params.occurrenceDate, params.locale),
@@ -600,6 +622,13 @@ export class MailService implements OnModuleInit {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				GREETING: strings.greeting(params.userName),
+				DETAILS_ROWS: params.referenceNumber
+					? this.bookingLetterDetails(params.locale, {
+						referenceNumber: params.referenceNumber,
+						eventTitle: params.eventTitle,
+						occurrenceDate: params.occurrenceDate,
+					})
+					: '',
 				BODY: body,
 				REFUND: refundLine,
 				SUPPORT: strings.support,
@@ -649,11 +678,17 @@ export class MailService implements OnModuleInit {
 		extra?: { kind: 'paidByCard'; amount: number };
 		currency: string;
 		brandHost?: string;
+		bookingId?: string;
+		bookingLinkToken?: string | null;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
-		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
-		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const { actions, homeUrl, bookingsUrl } = this.bookingLetterActions(
+			brand,
+			params.locale,
+			params.bookingId,
+			params.bookingLinkToken,
+		);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const money = (amount: number) => formatMailAmount(amount, params.currency, params.locale);
 
@@ -680,6 +715,14 @@ export class MailService implements OnModuleInit {
 				...this.brandVariables(brand),
 				TITLE: strings.title,
 				GREETING: strings.greeting(params.userName),
+				DETAILS_ROWS: params.referenceNumber
+					? this.bookingLetterDetails(params.locale, {
+						referenceNumber: params.referenceNumber,
+						eventTitle: params.eventTitle,
+						occurrenceDate: params.occurrenceDate,
+						quantity: params.newQuantity,
+					})
+					: '',
 				BODY: body,
 				MONEY_BLOCKS: moneyLines
 					.map(
@@ -727,11 +770,17 @@ export class MailService implements OnModuleInit {
 		refundAmount: number;
 		currency: string;
 		brandHost?: string;
+		bookingId?: string;
+		bookingLinkToken?: string | null;
 	}): Promise<boolean> {
 		const strings = pickLocale(BOOKING_QUANTITY_CHANGED_STRINGS, params.locale);
 		const brand = this.brandFor(params.brandHost);
-		const actions = pickLocale(BOOKING_CONFIRMATION_STRINGS, params.locale);
-		const { homeUrl, bookingsUrl } = this.buildBookingPageUrls(brand, params.locale);
+		const { actions, homeUrl, bookingsUrl } = this.bookingLetterActions(
+			brand,
+			params.locale,
+			params.bookingId,
+			params.bookingLinkToken,
+		);
 		const referenceLabel = `#${String(params.referenceNumber).padStart(6, '0')}`;
 		const body = strings.notAddedBody(
 			params.eventTitle,
@@ -747,6 +796,13 @@ export class MailService implements OnModuleInit {
 				...this.brandVariables(brand),
 				TITLE: strings.notAddedTitle,
 				GREETING: strings.greeting(params.userName),
+				DETAILS_ROWS: params.referenceNumber
+					? this.bookingLetterDetails(params.locale, {
+						referenceNumber: params.referenceNumber,
+						eventTitle: params.eventTitle,
+						occurrenceDate: params.occurrenceDate,
+					})
+					: '',
 				BODY: body,
 				MONEY_BLOCKS:
 					'<mj-text align="left" font-size="15px" color="#6b7280" padding="0px 0px 20px 0px" css-class="text-muted">' +
@@ -1176,6 +1232,52 @@ export class MailService implements OnModuleInit {
 			`<strong>${escapeHtml(strings.meetingPoint)}:</strong> ${location}` +
 			'</mj-text>'
 		);
+	}
+
+	/**
+	 * The buttons under a letter about one booking. With the booking's own link a guest can open
+	 * it straight from the letter; without it the buttons fall back to the member's list.
+	 */
+	private bookingLetterActions(
+		brand: MailBrand,
+		locale: Locale,
+		bookingId?: string,
+		bookingLinkToken?: string | null,
+	) {
+		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, locale);
+		const siteBase = brand.siteUrl.replace(/\/+$/, '');
+		const { homeUrl, bookingsUrl: memberBookingsUrl } = this.buildBookingPageUrls(brand, locale);
+		const manageUrl =
+			siteBase && bookingId && bookingLinkToken
+				? `${siteBase}/${locale}/bookings/${encodeURIComponent(bookingId)}?t=${encodeURIComponent(bookingLinkToken)}`
+				: undefined;
+
+		return {
+			actions: manageUrl ? { ...strings, myBookingsButton: strings.manageButton } : strings,
+			homeUrl,
+			bookingsUrl: manageUrl ?? memberBookingsUrl,
+		};
+	}
+
+	/** What the letter is about, as the confirmation lists it, so the two read alike. */
+	private bookingLetterDetails(
+		locale: Locale,
+		details: {
+			referenceNumber: number;
+			eventTitle: string;
+			occurrenceDate: Date;
+			quantity?: number;
+		},
+	): string {
+		const strings = pickLocale(BOOKING_CONFIRMATION_STRINGS, locale);
+		const rows: [string, string][] = [
+			[strings.reference, `#${String(details.referenceNumber).padStart(6, '0')}`],
+			[strings.event, details.eventTitle],
+			[strings.date, formatMailDate(details.occurrenceDate, locale)],
+			...(details.quantity ? ([[strings.quantity, String(details.quantity)]] as [string, string][]) : []),
+		];
+
+		return this.buildDetailRows(rows);
 	}
 
 	private buildBookingActionButtons(

@@ -42,6 +42,7 @@ describe('booking changed email template', () => {
 			TITLE: 'Booking updated',
 			GREETING: 'Dear Ani,',
 			BODY: 'Booking #000042 was changed: 3 → 2 guests.',
+			DETAILS_ROWS: '<tr><td>Reference</td><td>#000042</td></tr>',
 			MONEY_BLOCKS:
 				'<mj-text>The new total for the booking is 20 000 AMD.</mj-text><mj-text>A refund of 9 700 AMD is on its way.</mj-text>',
 			SUPPORT: 'Reply to this email.',

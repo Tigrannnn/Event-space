@@ -86,6 +86,8 @@ export class BookingNotificationService {
 
 			await this.mail.sendBookingNoSeatsEmail({
 				to: booking.user.email,
+				...this.linkFor(booking.id, booking.occurrence.date),
+				referenceNumber: booking.referenceNumber ?? undefined,
 				locale: mailLocale,
 				userName: booking.user.name,
 				eventTitle: translation?.title ?? '',
@@ -184,8 +186,20 @@ export class BookingNotificationService {
 		});
 	}
 
+	private linkFor(bookingId: string | undefined, occurrenceDate: Date) {
+		if (!bookingId) return {};
+
+		return {
+			bookingId,
+			bookingLinkToken: buildBookingLinkToken(bookingId, occurrenceDate, {
+				reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+				jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+			}),
+		};
+	}
+
 	async sendCancellation(params: {
-		booking: { referenceNumber: number | null; brandHost: string | null };
+		booking: { id?: string; referenceNumber: number | null; brandHost: string | null; quantity?: number };
 		event?: { translations: { locale: Locale; title: string }[] } | null;
 		occurrence?: { date: Date } | null;
 		user: { email: string | null; name: string; locale: Locale | null };
@@ -212,6 +226,8 @@ export class BookingNotificationService {
 				locale: mailLocale,
 				userName: user.name,
 				referenceNumber: booking.referenceNumber ?? 0,
+				quantity: booking.quantity,
+				...this.linkFor(booking.id, occurrence.date),
 				eventTitle: translation?.title ?? '',
 				occurrenceDate: occurrence.date,
 				refundAmount: params.refundAmount,
@@ -228,7 +244,7 @@ export class BookingNotificationService {
 	}
 
 	async sendQuantityChanged(params: {
-		booking: { referenceNumber: number | null; brandHost: string | null };
+		booking: { id?: string; referenceNumber: number | null; brandHost: string | null; quantity?: number };
 		event?: { translations: { locale: Locale; title: string }[] } | null;
 		occurrence?: { date: Date } | null;
 		user: { email: string | null; name: string; locale: Locale | null };
@@ -260,6 +276,7 @@ export class BookingNotificationService {
 				locale: mailLocale,
 				userName: user.name,
 				referenceNumber: booking.referenceNumber ?? 0,
+				...this.linkFor(booking.id, occurrence.date),
 				eventTitle: translation?.title ?? '',
 				occurrenceDate: occurrence.date,
 				oldQuantity: params.oldQuantity,
@@ -277,7 +294,7 @@ export class BookingNotificationService {
 	}
 
 	async sendQuantityNotAdded(params: {
-		booking: { referenceNumber: number | null; brandHost: string | null };
+		booking: { id?: string; referenceNumber: number | null; brandHost: string | null; quantity?: number };
 		event?: { translations: { locale: Locale; title: string }[] } | null;
 		occurrence?: { date: Date } | null;
 		user: { email: string | null; name: string; locale: Locale | null };
@@ -299,6 +316,7 @@ export class BookingNotificationService {
 				locale: mailLocale,
 				userName: user.name,
 				referenceNumber: booking.referenceNumber ?? 0,
+				...this.linkFor(booking.id, occurrence.date),
 				eventTitle: translation?.title ?? '',
 				occurrenceDate: occurrence.date,
 				refundAmount: params.refundAmount,

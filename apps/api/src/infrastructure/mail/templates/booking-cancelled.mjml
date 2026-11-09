@@ -42,6 +42,9 @@
 			>
 				{{ BODY }}
 			</mj-text>
+			<mj-table css-class="text-muted" font-size="14px" color="#6b7280" padding="0px 0px 20px 0px">
+				{{ DETAILS_ROWS }}
+			</mj-table>
 			<mj-text
 				align="left"
 				font-size="15px"
