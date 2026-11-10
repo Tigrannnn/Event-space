@@ -895,3 +895,13 @@ export const useUpdateChannel = () => {
 		},
 	});
 };
+
+export const useBookingLinks = (bookingId: string | undefined) => {
+	return useQuery({
+		queryKey: ['admin', 'booking-links', bookingId],
+		queryFn: () => adminApi.getBookingLinks(bookingId as string),
+		enabled: Boolean(bookingId),
+		staleTime: 5 * 60 * 1000,
+		retry: false,
+	});
+};

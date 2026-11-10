@@ -16,6 +16,7 @@ import { summarizePayments } from '../payments-summary';
 import { movedFromDate } from '@/utils/booking';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
+import { BookingLinksSection } from './BookingLinksSection';
 
 function CopyRow({
 	label,
@@ -126,6 +127,8 @@ export default function BookingDetailsModal() {
 								)}
 							</div>
 						</section>
+
+						<BookingLinksSection bookingId={booking.id} />
 
 						{movedFrom && (
 							<section className="rounded-3xl border border-amber-500 bg-amber-50 p-5 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-200">

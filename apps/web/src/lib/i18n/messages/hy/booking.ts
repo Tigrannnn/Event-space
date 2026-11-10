@@ -150,4 +150,11 @@ export const booking: Messages['booking'] = {
 	guestResend: 'Նորից ուղարկել նամակը',
 	guestResent: 'Նամակն ուղարկվել է',
 	guestResendFailed: 'Չհաջողվեց ուղարկել նամակը, փորձեք ավելի ուշ',
+	adminLinksTitle: 'Հղումներ հաճախորդի համար',
+	adminBookingLink: 'Ամրագրման հղում',
+	adminReviewLink: 'Կարծիքի հղում',
+	adminBookingLinkCopied: 'Ամրագրման հղումը պատճենվեց',
+	adminReviewLinkCopied: 'Կարծիքի հղումը պատճենվեց',
+	adminCopyLink: 'Պատճենել հղումը',
+	adminLinksHint: 'Փոստ պետք չէ. ուղարկեք հղումը ցանկացած մեսենջերով',
 };

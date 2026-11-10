@@ -147,4 +147,11 @@ export const booking = {
 	guestResend: 'Send the letter again',
 	guestResent: 'Letter sent',
 	guestResendFailed: 'Could not send the letter, please try later',
+	adminLinksTitle: 'Links for the customer',
+	adminBookingLink: 'Booking link',
+	adminReviewLink: 'Review link',
+	adminBookingLinkCopied: 'Booking link copied',
+	adminReviewLinkCopied: 'Review link copied',
+	adminCopyLink: 'Copy link',
+	adminLinksHint: 'No email needed: send the link through any messenger',
 };

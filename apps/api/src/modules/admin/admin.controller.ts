@@ -280,6 +280,12 @@ export class AdminController {
 		return booking;
 	}
 
+	@Get('bookings/:id/links')
+	@ApiOperation({ summary: 'Links to the booking page and the review form, to send by any channel' })
+	async getBookingLinks(@Param('id') id: string) {
+		return this.bookingsAdminService.getLinks(id);
+	}
+
 	@Get('bookings')
 	@ApiOperation({ summary: 'Get all bookings with pagination (admin only)' })
 	@ApiQuery({ name: 'skip', required: false, description: 'Items to skip', type: Number })

@@ -13,6 +13,8 @@ import { findMatchingEventIds } from '../common/matching-event-ids';
 import { toPage } from '../common/query-helpers';
 import { buildBookingsWhere, type BookingFilters } from './booking-filters';
 import { reserveSeats, releaseSeats } from '@modules/booking/occurrence-seats';
+import { buildBookingLinkToken } from '@modules/booking/booking.utils';
+import { reviewFormUrl, siteUrlFor } from '@modules/review/review-urls';
 
 type FindAllBookingsParams = PaginatedParams & BookingFilters;
 
@@ -92,6 +94,40 @@ export class AdminBookingsService {
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 
 		return booking;
+	}
+
+	/**
+	 * The links a customer would get by email, for passing on through any other channel.
+	 *
+	 * One booking-link token opens both the booking page and the review form, so no second key
+	 * is minted. The review link is offered only while the booking can still be rated.
+	 */
+	async getLinks(bookingId: string) {
+		const booking = await this.prisma.booking.findUnique({
+			where: { id: bookingId },
+			select: {
+				id: true,
+				status: true,
+				brandHost: true,
+				user: { select: { locale: true } },
+				occurrence: { select: { date: true } },
+			},
+		});
+		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+		if (!booking.occurrence) return { bookingUrl: null, reviewUrl: null };
+
+		const locale = booking.user.locale ?? DEFAULT_LOCALE;
+		const base = siteUrlFor(booking.brandHost, this.config.get<string>(EnvKey.FRONTEND_URL) ?? '');
+		const token = buildBookingLinkToken(booking.id, booking.occurrence.date, {
+			reviewTokenSecret: this.config.get<string>(EnvKey.REVIEW_TOKEN_SECRET),
+			jwtSecret: this.config.getOrThrow<string>(EnvKey.JWT_ACCESS_SECRET),
+		});
+
+		return {
+			bookingUrl: `${base}/${locale}/bookings/${encodeURIComponent(booking.id)}?t=${encodeURIComponent(token)}`,
+			reviewUrl:
+				booking.status === 'CONFIRMED' ? reviewFormUrl(base, locale, booking.id, token) : null,
+		};
 	}
 
 	/** Resolves a scanned QR: the signature and expiry are the only gate — the mutation itself

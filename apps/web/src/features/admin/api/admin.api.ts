@@ -100,6 +100,10 @@ export const adminApi = {
 		clientApi
 			.get<BookingWithDetails>(`/admin/bookings/by-checkin-token/${encodeURIComponent(token)}`)
 			.then((res) => res.data),
+	getBookingLinks: (id: string) =>
+		clientApi
+			.get<{ bookingUrl: string | null; reviewUrl: string | null }>(`/admin/bookings/${id}/links`)
+			.then((res) => res.data),
 	checkInBooking: (id: string, count = 1) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/checkin`, { count }).then((res) => res.data),
 	undoBookingCheckIn: (id: string, count = 1) =>

@@ -150,4 +150,11 @@ export const booking: Messages['booking'] = {
 	guestResend: 'Отправить письмо ещё раз',
 	guestResent: 'Письмо отправлено',
 	guestResendFailed: 'Не удалось отправить письмо, попробуйте позже',
+	adminLinksTitle: 'Ссылки для клиента',
+	adminBookingLink: 'Ссылка на бронь',
+	adminReviewLink: 'Ссылка на отзыв',
+	adminBookingLinkCopied: 'Ссылка на бронь скопирована',
+	adminReviewLinkCopied: 'Ссылка на отзыв скопирована',
+	adminCopyLink: 'Скопировать ссылку',
+	adminLinksHint: 'Клиенту не нужна почта: отправьте ссылку в любом мессенджере',
 };
