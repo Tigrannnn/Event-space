@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type {
 	SearchHistoryItem,
 	SearchSuggestedCategory,
@@ -10,9 +10,13 @@ import type {
 import { useCurrentUser } from '@/features/users';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { searchApi } from '../api/search.api';
+import { SEARCH_HISTORY_KEY, useForgetSearchQuery } from './useSearchHistory';
 
 const MIN_QUERY_LENGTH = 2;
 const TYPING_DELAY_MS = 200;
+const HISTORY_MATCHES_SHOWN = 3;
+
+const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
 
 export type SearchItem =
 	| { kind: 'history'; key: string; history: SearchHistoryItem }
@@ -44,7 +48,6 @@ interface UseSearchBoxParams {
  */
 export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 	const navigation = useLocalizedNavigation();
-	const queryClient = useQueryClient();
 	const { data: user } = useCurrentUser();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
@@ -70,16 +73,28 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 	});
 
 	const history = useQuery({
-		queryKey: ['search', 'history'],
+		queryKey: SEARCH_HISTORY_KEY,
 		queryFn: () => searchApi.getHistory(),
-		enabled: open && !typing && Boolean(user),
-		staleTime: 0,
+		enabled: open && Boolean(user),
+		staleTime: 60 * 1000,
 	});
 
-	const forget = useMutation({
-		mutationFn: (id: string) => searchApi.forgetQuery(id),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['search', 'history'] }),
-	});
+	const forget = useForgetSearchQuery();
+
+	// What was searched before and contains what is being typed: "Привет" answers "При" even
+	// when no tour or category has that name. The exact same words are left out, the
+	// "search for" row already does that.
+	const matchingHistory = useMemo(() => {
+		if (!typing || !user) return [];
+		const needle = normalize(text);
+
+		return (history.data ?? [])
+			.filter((entry) => {
+				const known = normalize(entry.query);
+				return known !== needle && known.includes(needle);
+			})
+			.slice(0, HISTORY_MATCHES_SHOWN);
+	}, [typing, user, history.data, text]);
 
 	const items = useMemo<SearchItem[]>(() => {
 		if (!typing) {
@@ -98,6 +113,11 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 		}
 
 		return [
+			...matchingHistory.map((entry): SearchItem => ({
+				kind: 'history',
+				key: `h-${entry.id}`,
+				history: entry,
+			})),
 			...(suggestions.data?.events ?? []).map((event): SearchItem => ({
 				kind: 'event',
 				key: `e-${event.id}`,
@@ -110,7 +130,7 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 			})),
 			{ kind: 'submit', key: 'submit', query: text },
 		];
-	}, [typing, user, history.data, recommended.data, suggestions.data, text]);
+	}, [typing, user, history.data, matchingHistory, recommended.data, suggestions.data, text]);
 
 	useEffect(() => {
 		setActiveIndex(-1);
@@ -214,7 +234,12 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 		onKeyDown,
 		forgetHistory: (id: string) => forget.mutate(id),
 		isLoading: typing ? suggestions.isFetching && !suggestions.data : false,
-		nothingFound: typing && suggestions.isSuccess && items.length === 1,
+		nothingFound:
+			typing &&
+			suggestions.isSuccess &&
+			matchingHistory.length === 0 &&
+			!suggestions.data?.events.length &&
+			!suggestions.data?.categories.length,
 	};
 }
 

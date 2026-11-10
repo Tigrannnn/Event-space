@@ -11,7 +11,7 @@ import { useAuthHint } from '@/hooks/authHint/useAuthHint';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
-import { searchApi, useSearchBox } from '@/features/search';
+import { useRecordSearchQuery, useSearchBox } from '@/features/search';
 
 /** What every header variant needs: the search box, the signed-in visitor and their counters. */
 export function useHeaderControls() {
@@ -27,6 +27,7 @@ export function useHeaderControls() {
 	const myFavoritesCount = useFavoritesCount();
 	const isHydrated = useHydrated();
 	const authHint = useAuthHint();
+	const { mutate: recordSearch } = useRecordSearchQuery();
 
 	const submitSearch = useCallback(
 		(value: string) => {
@@ -41,10 +42,10 @@ export function useHeaderControls() {
 			navigation.push(query ? `/?${query}` : '/', { scroll: false });
 
 			if (user && text.length >= 2) {
-				void searchApi.recordQuery(text).catch(() => undefined);
+				recordSearch(text);
 			}
 		},
-		[navigation, searchParams, user],
+		[navigation, searchParams, user, recordSearch],
 	);
 
 	const handleSubmitSearch = useCallback(() => submitSearch(inputValue), [submitSearch, inputValue]);

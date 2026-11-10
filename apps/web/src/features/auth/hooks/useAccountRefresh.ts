@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { SafeUserData } from '@event-space/shared';
 
-const ACCOUNT_QUERY_KEYS = [['my-bookings'], ['favorites'], ['booking-view'], ['admin']];
+const ACCOUNT_QUERY_KEYS = [['my-bookings'], ['favorites'], ['booking-view'], ['admin'], ['search', 'history']];
 
 /**
  * Everything that belongs to the signed-in person, redone at once: the profile goes into the

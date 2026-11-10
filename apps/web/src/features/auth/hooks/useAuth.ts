@@ -207,6 +207,7 @@ export const useLogout = () => {
 				queryClient.removeQueries({ queryKey: ['event'] }),
 				queryClient.removeQueries({ queryKey: ['admin'] }),
 				queryClient.removeQueries({ queryKey: ['categories'] }),
+				queryClient.removeQueries({ queryKey: ['search', 'history'] }),
 			]);
 			addToast(translate('auth.logoutSuccess'), ToastType.SUCCESS);
 			closeModal();

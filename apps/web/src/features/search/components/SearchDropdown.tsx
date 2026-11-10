@@ -209,7 +209,9 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 				translate('search.recent'),
 				<Row key={item.key} look={look} box={box} item={item} index={index}>
 					<Clock className={cn('size-4 shrink-0', look.icon)} />
-					<span className={cn('min-w-0 flex-1 truncate', look.title)}>{item.history.query}</span>
+					<span className={cn('min-w-0 flex-1 truncate', look.title)}>
+						{box.typing ? highlight(item.history.query, box.text) : item.history.query}
+					</span>
 					<span
 						role="button"
 						tabIndex={-1}
