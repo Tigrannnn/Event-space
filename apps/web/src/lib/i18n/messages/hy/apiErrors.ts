@@ -94,6 +94,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Չհաջողվեց ազատել այս ամրագրման տեղերը։',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Այս ամրագրումը դեռ հաստատված չէ։',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Ձեռքով հաստատել կարելի է միայն սպասման մեջ գտնվող ամրագրումը։',
+	[AppErrorCode.BOOKING_NOT_PAY_ON_ARRIVAL]: 'Վճարված նշել կարելի է միայն ժամանելուն պես վճարվող հաստատված ամրագրումը։',
+	[AppErrorCode.BOOKING_NOT_MANUAL]: 'Վաճառքի ալիքը կարելի է փոխել միայն ձեռքով մուտքագրված ամրագրման համար։',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Հյուրեր ավելացնելու համար նախ պետք է վճարել հավելավճարը։',
 	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'Ադմինը չի կարող հյուրեր ավելացնել ամրագրմանը։ Ստեղծեք նոր ամրագրում։',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'Հյուրերի քանակը չի փոխվել։',

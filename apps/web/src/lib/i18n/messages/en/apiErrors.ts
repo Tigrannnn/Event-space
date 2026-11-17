@@ -100,6 +100,8 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Could not release the spots for this booking.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'This booking is not confirmed yet.',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Only a pending booking can be confirmed by hand.',
+	[AppErrorCode.BOOKING_NOT_PAY_ON_ARRIVAL]: 'Only a confirmed booking paid on arrival can be marked as paid.',
+	[AppErrorCode.BOOKING_NOT_MANUAL]: 'Only a booking entered by hand can change where it was sold.',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Adding guests has to be paid for first.',
 	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'An admin cannot add guests to a booking. Make a new booking instead.',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'The number of guests has not changed.',

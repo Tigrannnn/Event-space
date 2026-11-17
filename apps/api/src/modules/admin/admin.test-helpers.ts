@@ -105,7 +105,7 @@ export function createAdmin(prisma: never, stripe: never) {
 	const mail = { sendOccurrenceRescheduledEmail: () => Promise.resolve() } as never;
 	const users = new AdminUsersService(prisma);
 	const config = { get: () => undefined, getOrThrow: () => 'test-secret' } as never;
-	const bookings = new AdminBookingsService(prisma, mail, config);
+	const bookings = new AdminBookingsService(prisma, mail, config, new BookingLedgerService(prisma));
 	const cancellation = new AdminBookingCancellationService(
 		prisma,
 		stripe,
@@ -131,6 +131,9 @@ export function createAdmin(prisma: never, stripe: never) {
 			bookings.findAll(params),
 		checkInBooking: (id: string, count?: number) => bookings.checkIn(id, 'admin-1', count),
 		undoBookingCheckIn: (id: string, count?: number) => bookings.undoCheckIn(id, 'admin-1', count),
+		markBookingPaid: (id: string) => bookings.markPaid(id, 'admin-1'),
+		updateBookingChannel: (id: string, data: Parameters<AdminBookingsService['updateChannel']>[1]) =>
+			bookings.updateChannel(id, data),
 		transferBooking: (id: string, data: Parameters<AdminBookingsService['transferOccurrence']>[1]) =>
 			bookings.transferOccurrence(id, data),
 		adminCancelBooking: (

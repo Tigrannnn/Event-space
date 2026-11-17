@@ -17,6 +17,25 @@ import { movedFromDate } from '@/utils/booking';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { BookingLinksSection } from './BookingLinksSection';
+import BookingChannelForm from './BookingChannelForm';
+import MarkPaidControl from './MarkPaidControl';
+import GuestForm from '@/features/admin/user/components/GuestForm';
+import { useUpdateShadowUser } from '@/features/admin/hooks/useAdmin';
+import { useChannelLabel } from '@/hooks/labels/useChannelLabel';
+
+function EditLink({ onClick }: { onClick: () => void }) {
+	const translate = useTranslation();
+
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="text-primary cursor-pointer text-sm font-medium hover:underline"
+		>
+			{translate('admin.change')}
+		</button>
+	);
+}
 
 function CopyRow({
 	label,
@@ -63,7 +82,11 @@ export default function BookingDetailsModal() {
 	const locale = translate.locale;
 	const { formatDateTime, formatDateTimeZone, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
-	const { closeModal } = useModalStore();
+	const { closeModal, openModal } = useModalStore();
+	const channelLabel = useChannelLabel();
+	const { mutate: updateGuest, isPending: isSavingGuest } = useUpdateShadowUser({ stayOpen: true });
+	const [editingGuest, setEditingGuest] = useState(false);
+	const [editingChannel, setEditingChannel] = useState(false);
 	const copyToClipboard = useCopyToClipboard();
 	const [openedAt] = useState(() => Date.now());
 	const modalData = useModalData(ModalType.BookingDetails);
@@ -97,20 +120,46 @@ export default function BookingDetailsModal() {
 				<div className="grid grid-cols-1 gap-6">
 					<div className="space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
-							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-								{translate('admin.customer')}
-							</p>
+							<div className="flex items-center justify-between gap-3">
+								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+									{translate('admin.customer')}
+								</p>
+								{booking.user?.isShadow && !editingGuest && (
+									<EditLink onClick={() => setEditingGuest(true)} />
+								)}
+							</div>
 							<div className="mt-4 space-y-1">
-								<p className="text-lg font-semibold text-gray-900 dark:text-white">
-									{booking.user?.name ?? translate('admin.unknownCustomer')}
-								</p>
-								<p className="text-sm wrap-anywhere text-gray-500 dark:text-gray-400">
-									{booking.user?.email ?? translate('admin.noEmail')}
-								</p>
-								{booking.user?.phone && (
-									<p className="text-sm text-gray-500 dark:text-gray-400">
-										{booking.user.phone}
-									</p>
+								{editingGuest && booking.user ? (
+									<GuestForm
+										user={booking.user}
+										isPending={isSavingGuest}
+										onCancel={() => setEditingGuest(false)}
+										onSubmit={(data) =>
+											updateGuest(
+												{ id: booking.user!.id, data },
+												{
+													onSuccess: (user) => {
+														setEditingGuest(false);
+														openModal(ModalType.BookingDetails, { booking: { ...booking, user } });
+													},
+												},
+											)
+										}
+									/>
+								) : (
+									<>
+										<p className="text-lg font-semibold text-gray-900 dark:text-white">
+											{booking.user?.name ?? translate('admin.unknownCustomer')}
+										</p>
+										<p className="text-sm wrap-anywhere text-gray-500 dark:text-gray-400">
+											{booking.user?.email ?? translate('admin.noEmail')}
+										</p>
+										{booking.user?.phone && (
+											<p className="text-sm text-gray-500 dark:text-gray-400">
+												{booking.user.phone}
+											</p>
+										)}
+									</>
 								)}
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{translate('admin.booked')} {formatDateTime(booking.createdAt)}
@@ -215,7 +264,30 @@ export default function BookingDetailsModal() {
 										{translate('admin.paymentMethod')}
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{PAYMENT_METHOD_LABELS[booking.paymentMethod]}</p>
+									{booking.status === 'CONFIRMED' && booking.paymentMethod === 'PAY_ON_ARRIVAL' && (
+										<MarkPaidControl booking={booking} />
+									)}
 								</div>
+								{booking.channel && (
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<div className="flex items-center justify-between gap-3">
+											<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+												{translate('admin.bookingChannel')}
+											</p>
+											{booking.createdByAdminId && !editingChannel && (
+												<EditLink onClick={() => setEditingChannel(true)} />
+											)}
+										</div>
+										{editingChannel ? (
+											<BookingChannelForm booking={booking} onDone={() => setEditingChannel(false)} />
+										) : (
+											<p className="mt-1 font-medium text-gray-900 dark:text-white">
+												{channelLabel(booking.channel)}
+												{booking.externalId ? ` · ${booking.externalId}` : ''}
+											</p>
+										)}
+									</div>
+								)}
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.bookingAuthor')}

@@ -1,12 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { MailService } from '@infra/mail/mail.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { AppException } from '@shared';
 import { AppErrorCode, EnvKey } from '@event-space/shared';
 import { verifyCheckinToken, checkinTokenSecret } from '@modules/booking/checkin-token';
-import type { BookingWithDetails, PaginatedParams, TransferBookingData } from '@event-space/shared';
+import type {
+	BookingWithDetails,
+	PaginatedParams,
+	TransferBookingData,
+	UpdateBookingChannelData,
+} from '@event-space/shared';
 import { bookingInclude } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
 import { findMatchingEventIds } from '../common/matching-event-ids';
@@ -15,6 +21,8 @@ import { buildBookingsWhere, type BookingFilters } from './booking-filters';
 import { reserveSeats, releaseSeats } from '@modules/booking/occurrence-seats';
 import { buildBookingLinkToken } from '@modules/booking/booking.utils';
 import { reviewFormUrl, siteUrlFor } from '@modules/review/review-urls';
+import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
+import { requireChannelFor } from '@modules/channel/channel-access';
 
 type FindAllBookingsParams = PaginatedParams & BookingFilters;
 
@@ -29,6 +37,7 @@ export class AdminBookingsService {
 		private readonly prisma: PrismaService,
 		private readonly mailService: MailService,
 		private readonly config: ConfigService,
+		private readonly ledger: BookingLedgerService,
 	) {}
 
 	async findAll({ skip = 0, limit = 20, ...filters }: FindAllBookingsParams = {}) {
@@ -153,7 +162,8 @@ export class AdminBookingsService {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
 		if (booking.status !== 'CONFIRMED') throw new AppException(AppErrorCode.BOOKING_NOT_CONFIRMED);
-		if (booking.checkedInCount >= booking.quantity) throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
+		if (booking.checkedInCount >= booking.quantity)
+			throw new AppException(AppErrorCode.ALREADY_CHECKED_IN);
 
 		const checkedInCount = Math.min(booking.quantity, booking.checkedInCount + count);
 
@@ -167,7 +177,10 @@ export class AdminBookingsService {
 			`Admin ${adminId} checked in ${checkedInCount - booking.checkedInCount} of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
 		);
 
-		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });
+		return this.prisma.booking.findUniqueOrThrow({
+			where: { id: bookingId },
+			include: bookingInclude,
+		});
 	}
 
 	async undoCheckIn(bookingId: string, adminId: string, count = 1) {
@@ -187,7 +200,10 @@ export class AdminBookingsService {
 			`Admin ${adminId} undid ${booking.checkedInCount - checkedInCount} check-in(s) of booking ${bookingId}: ${checkedInCount}/${booking.quantity}`,
 		);
 
-		return this.prisma.booking.findUniqueOrThrow({ where: { id: bookingId }, include: bookingInclude });
+		return this.prisma.booking.findUniqueOrThrow({
+			where: { id: bookingId },
+			include: bookingInclude,
+		});
 	}
 
 	/**
@@ -269,6 +285,66 @@ export class AdminBookingsService {
 				refundUntil,
 				brandHost: booking.brandHost ?? undefined,
 			});
+		}
+
+		return this.findOne(bookingId);
+	}
+
+	async markPaid(bookingId: string, adminId: string) {
+		await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({ where: { id: bookingId } });
+			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+
+			const switched = await tx.booking.updateMany({
+				where: { id: bookingId, status: 'CONFIRMED', paymentMethod: 'PAY_ON_ARRIVAL' },
+				data: { paymentMethod: 'OFFLINE_PAID' },
+			});
+			if (switched.count === 0) throw new AppException(AppErrorCode.BOOKING_NOT_PAY_ON_ARRIVAL);
+
+			await this.ledger.recordOfflinePayment(tx, bookingId, Number(booking.amount));
+		});
+
+		this.logger.log(`Admin ${adminId} marked booking ${bookingId} as paid on site`);
+
+		return this.findOne(bookingId);
+	}
+
+	async updateChannel(bookingId: string, data: UpdateBookingChannelData) {
+		const externalId = data.externalId?.trim() || null;
+
+		try {
+			await this.prisma.$transaction(async (tx) => {
+				const booking = await tx.booking.findUnique({
+					where: { id: bookingId },
+					select: { channelId: true, createdByAdminId: true },
+				});
+				if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+				if (!booking.createdByAdminId) throw new AppException(AppErrorCode.BOOKING_NOT_MANUAL);
+
+				if (data.channelId !== booking.channelId) {
+					await requireChannelFor(tx, data.channelId, 'bookings');
+				}
+
+				if (externalId) {
+					const taken = await tx.booking.findUnique({
+						where: { channelId_externalId: { channelId: data.channelId, externalId } },
+						select: { id: true },
+					});
+					if (taken && taken.id !== bookingId) {
+						throw new AppException(AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN);
+					}
+				}
+
+				await tx.booking.update({
+					where: { id: bookingId },
+					data: { channelId: data.channelId, externalId },
+				});
+			});
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+				throw new AppException(AppErrorCode.BOOKING_EXTERNAL_ID_TAKEN);
+			}
+			throw error;
 		}
 
 		return this.findOne(bookingId);

@@ -322,6 +322,18 @@ export const TransferBookingSchema = z.object({
 
 export type TransferBookingData = z.infer<typeof TransferBookingSchema>;
 
+export const UpdateBookingChannelSchema = z.object({
+	channelId: z.string().min(1).openapi({ description: 'Where the booking was sold: here, or on another platform' }),
+	externalId: z
+		.string()
+		.trim()
+		.max(BOOKING_EXTERNAL_ID_MAX)
+		.nullish()
+		.openapi({ description: "The booking's number on that platform, when it has one" }),
+});
+
+export type UpdateBookingChannelData = z.infer<typeof UpdateBookingChannelSchema>;
+
 export const BookingAuthorSchema = z.enum(['client', 'admin']);
 
 export type BookingAuthor = z.infer<typeof BookingAuthorSchema>;

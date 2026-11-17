@@ -94,6 +94,8 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.UNABLE_TO_RELEASE_SPOTS]: 'Не удалось освободить места для этой брони.',
 	[AppErrorCode.BOOKING_NOT_CONFIRMED]: 'Эта бронь ещё не подтверждена.',
 	[AppErrorCode.BOOKING_NOT_PENDING]: 'Подтвердить вручную можно только бронь в ожидании.',
+	[AppErrorCode.BOOKING_NOT_PAY_ON_ARRIVAL]: 'Отметить оплаченной можно только подтверждённую бронь с оплатой при приезде.',
+	[AppErrorCode.BOOKING_NOT_MANUAL]: 'Канал продажи можно менять только у брони, внесённой вручную.',
 	[AppErrorCode.QUANTITY_PAYMENT_REQUIRED]: 'Чтобы добавить гостей, сначала нужно оплатить доплату.',
 	[AppErrorCode.QUANTITY_INCREASE_NOT_ALLOWED]: 'Админ не может добавлять гостей в бронь. Создайте новую бронь.',
 	[AppErrorCode.QUANTITY_UNCHANGED]: 'Количество гостей не изменилось.',

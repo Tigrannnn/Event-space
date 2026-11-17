@@ -16,6 +16,7 @@ import type {
 	PaginatedResponse,
 	SafeUserData,
 	UpdateShadowUserData,
+	UpdateBookingChannelData,
 	UserRoleType,
 	UserFilters,
 	EventStatus,
@@ -114,6 +115,10 @@ export const adminApi = {
 		clientApi.patch<BookingQuantityChange>(`/admin/bookings/${id}/quantity`, data).then((res) => res.data),
 	cancelBookingByAdmin: (id: string, data: AdminCancelBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),
+	markBookingPaid: (id: string) =>
+		clientApi.post<BookingWithDetails>(`/admin/bookings/${id}/mark-paid`).then((res) => res.data),
+	updateBookingChannel: (id: string, data: UpdateBookingChannelData) =>
+		clientApi.patch<BookingWithDetails>(`/admin/bookings/${id}/channel`, data).then((res) => res.data),
 	transferBooking: (id: string, data: TransferBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/transfer`, data).then((res) => res.data),
 	compensateBooking: (id: string, data: CompensateBookingData) =>

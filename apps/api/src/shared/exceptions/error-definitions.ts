@@ -285,6 +285,14 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'Only a pending booking can be confirmed by hand',
 	},
+	[AppErrorCode.BOOKING_NOT_PAY_ON_ARRIVAL]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Only a confirmed booking paid on arrival can be marked as paid',
+	},
+	[AppErrorCode.BOOKING_NOT_MANUAL]: {
+		status: HttpStatus.CONFLICT,
+		message: 'Only a booking entered by an admin can change where it was sold',
+	},
 	[AppErrorCode.PAYMENT_ALREADY_RECEIVED]: {
 		status: HttpStatus.CONFLICT,
 		message: 'A card payment for this booking is already in progress or received',

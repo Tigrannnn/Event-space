@@ -63,6 +63,7 @@ import {
 	AdminCancelBookingSchema,
 	CompensateBookingSchema,
 	TransferBookingSchema,
+	UpdateBookingChannelSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
 	CheckInSchema,
@@ -87,6 +88,7 @@ import type {
 	AdminCancelBookingData,
 	CompensateBookingData,
 	TransferBookingData,
+	UpdateBookingChannelData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
 	CheckInData,
@@ -632,6 +634,39 @@ export class AdminController {
 		);
 
 		return this.bookingsAdminService.transferOccurrence(id, data);
+	}
+
+	@Post('bookings/:id/mark-paid')
+	@ApiOperation({ summary: 'Mark a pay-on-arrival booking as paid on site (admin only)' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	async markBookingPaid(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingsAdminService.markPaid(id, adminId);
+	}
+
+	@Patch('bookings/:id/channel')
+	@ApiOperation({ summary: 'Fix where a manual booking was sold and its number there (admin only)' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	@ApiBody(getReference('UpdateBookingChannelSchema'))
+	async updateBookingChannel(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdateBookingChannelSchema)) data: UpdateBookingChannelData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingsAdminService.updateChannel(id, data);
 	}
 
 	@Post('bookings/manual')

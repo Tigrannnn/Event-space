@@ -12,7 +12,7 @@ function serviceFor(booking: unknown) {
 		getOrThrow: () => 'jwt-secret',
 	} as never;
 
-	return new AdminBookingsService(prisma, {} as never, config);
+	return new AdminBookingsService(prisma, {} as never, config, {} as never);
 }
 
 describe('AdminBookingsService.getLinks', () => {

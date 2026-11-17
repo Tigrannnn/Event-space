@@ -21,13 +21,15 @@ import {
 	type CreatePromoCodeData,
 	type UpdatePromoCodeData,
 	type UpdateShadowUserData,
+	type UpdateBookingChannelData,
+	type BookingWithDetails,
 	type ImportReviewData,
 	type ModerateReviewData,
 	type ReplyToReviewData,
 	type ReviewStatus,
 } from '@event-space/shared';
 import { ToastType, useToastStore } from '@/stores/toastStore';
-import { useModalStore } from '@/stores';
+import { ModalType, useModalStore } from '@/stores';
 import { adminApi } from '../api/admin.api';
 import { useApiError } from '@/hooks/apiError';
 import { useTranslation } from '@/hooks/translation';
@@ -173,6 +175,58 @@ export const useTransferBooking = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.transferBookingFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+const showFreshBookingDetails = (booking: BookingWithDetails | null) => {
+	const { activeModal, isExiting, openModal } = useModalStore.getState();
+	if (booking && activeModal === ModalType.BookingDetails && !isExiting) {
+		openModal(ModalType.BookingDetails, { booking });
+	}
+};
+
+export const useMarkBookingPaid = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.markBookingPaid(id),
+		onSuccess: async (booking) => {
+			addToast(translate('admin.markPaidSuccess'), ToastType.SUCCESS);
+			showFreshBookingDetails(booking);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.markPaidFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateBookingChannel = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateBookingChannelData }) =>
+			adminApi.updateBookingChannel(id, data),
+		onSuccess: async (booking) => {
+			addToast(translate('admin.bookingChannelSaved'), ToastType.SUCCESS);
+			showFreshBookingDetails(booking);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.bookingChannelSaveFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -475,7 +529,7 @@ export const useUpdateUserRole = () => {
 	});
 };
 
-export const useUpdateShadowUser = () => {
+export const useUpdateShadowUser = ({ stayOpen = false }: { stayOpen?: boolean } = {}) => {
 	const queryClient = useQueryClient();
 	const { addToast } = useToastStore();
 	const { closeModal } = useModalStore();
@@ -488,8 +542,11 @@ export const useUpdateShadowUser = () => {
 			adminApi.updateShadowUser(id, data),
 		onSuccess: async () => {
 			addToast(translate('admin.updateGuestSuccess'), ToastType.SUCCESS);
-			closeModal();
-			await queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
+			if (!stayOpen) closeModal();
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'users'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+			]);
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.updateGuestFailed'), ToastType.ERROR);
