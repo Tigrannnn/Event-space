@@ -142,6 +142,7 @@ function SortableThumbnail({
 				type="button"
 				disabled={disabled}
 				onClick={onRemove}
+				aria-label={translate('review.removePhoto')}
 				{...stopDragStart}
 				className="absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-colors hover:bg-black/70 disabled:opacity-50"
 			>

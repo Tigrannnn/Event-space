@@ -666,4 +666,6 @@ export const admin: Messages['admin'] = {
 	paidByCard: 'Оплачено картой',
 	paidInCash: 'Уже оплачено',
 	refundedTotal: 'Возвращено',
+	changeGuestCount: 'Изменить число гостей',
+	removeLanguage: 'Убрать язык',
 };

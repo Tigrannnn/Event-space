@@ -664,4 +664,6 @@ export const admin = {
 	paidByCard: 'Paid by card',
 	paidInCash: 'Already paid',
 	refundedTotal: 'Refunded',
+	changeGuestCount: 'Change number of guests',
+	removeLanguage: 'Remove language',
 };

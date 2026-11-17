@@ -183,6 +183,7 @@ export default function ReviewCard({ review }: { review: AdminReview }) {
 					variant="danger"
 					isLoading={deleteReview.isPending}
 					onClick={handleDelete}
+					aria-label={translate('admin.reviewDelete')}
 				>
 					<Trash2 className="h-4 w-4" />
 				</Button>

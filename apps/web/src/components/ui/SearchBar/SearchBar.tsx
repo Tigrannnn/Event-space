@@ -4,6 +4,7 @@ import React from 'react';
 import { SearchBarProps } from './types';
 import { XIcon } from 'lucide-react';
 import { useLocalizedNavigation } from '@/lib/i18n/navigation';
+import { useTranslation } from '@/hooks/translation';
 import { SEARCH_FIELD_DIM } from '@/features/search/components/searchFieldDim';
 import { SEARCH_INPUT_PROPS } from '@/features/search/components/searchInputProps';
 
@@ -19,6 +20,7 @@ export const SearchBar = ({
 	dimmed = false,
 }: SearchBarProps) => {
 	const router = useLocalizedNavigation();
+	const translate = useTranslation();
 
 	return (
 		<div className="relative w-full">
@@ -39,6 +41,7 @@ export const SearchBar = ({
 					}}
 					className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors lg:right-4 dark:text-gray-500 dark:hover:text-gray-300"
 					type="button"
+					aria-label={translate('common.clearSearch')}
 				>
 					<XIcon className="w-5 lg:w-7" />
 				</button>

@@ -131,6 +131,7 @@ export default function CategoryForm({
 										<button
 											type="button"
 											className="ml-1 rounded p-0.5 text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+											aria-label={translate('admin.removeLanguage')}
 											disabled={isPending}
 											onClick={(e) => {
 												e.stopPropagation();

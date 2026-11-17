@@ -36,4 +36,7 @@ export const common: Messages['common'] = {
 	scrollLeft: 'Ոլորել ձախ',
 	scrollRight: 'Ոլորել աջ',
 	timesInZone: 'Բոլոր ժամերը նշված են Երևանի ժամանակով ({offset})',
+	lessGuests: 'Ավելի քիչ հյուր',
+	moreGuests: 'Ավելի շատ հյուր',
+	clearSearch: 'Մաքրել որոնումը',
 };

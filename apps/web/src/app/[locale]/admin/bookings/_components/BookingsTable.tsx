@@ -468,6 +468,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											size="xs"
 											variant="secondary"
 											onClick={() => handleOpenBookingDetails(booking)}
+											aria-label={translate('admin.viewDetails')}
 										>
 											<Eye className="h-4 w-4" />
 										</Button>
@@ -518,6 +519,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											size="xs"
 											variant="secondary"
 											onClick={() => openModal(ModalType.UpdateBooking, { booking })}
+										aria-label={translate('admin.changeGuestCount')}
 											disabled={booking.status !== 'CONFIRMED' || booking.quantity < 2}
 										>
 											<Pencil className="h-4 w-4" />
@@ -552,6 +554,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											size="xs"
 											variant="danger"
 											onClick={() => handleOpenBookingAction(booking)}
+										aria-label={translate('admin.cancelBooking')}
 											disabled={booking.status === 'CANCELLED'}
 										>
 											<Ban className="h-4 w-4" />

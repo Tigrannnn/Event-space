@@ -36,4 +36,7 @@ export const common: Messages['common'] = {
 	scrollLeft: 'Прокрутить влево',
 	scrollRight: 'Прокрутить вправо',
 	timesInZone: 'Всё время указано по Еревану ({offset})',
+	lessGuests: 'Меньше гостей',
+	moreGuests: 'Больше гостей',
+	clearSearch: 'Очистить поиск',
 };

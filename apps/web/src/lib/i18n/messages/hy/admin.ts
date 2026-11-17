@@ -667,4 +667,6 @@ export const admin: Messages['admin'] = {
 	paidByCard: 'Վճարվել է քարտով',
 	paidInCash: 'Արդեն վճարված է',
 	refundedTotal: 'Վերադարձված',
+	changeGuestCount: 'Փոխել հյուրերի թիվը',
+	removeLanguage: 'Հեռացնել լեզուն',
 };

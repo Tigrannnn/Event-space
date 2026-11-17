@@ -7,6 +7,7 @@ import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
 import { ToastContainer } from '@/components/ui/Toast';
+import IconTooltips from '@/components/ui/IconTooltips';
 import GoogleProvider from '@/providers/GoogleProvider';
 import { BrandProvider } from '@/providers/BrandProvider';
 import { AuthHintProvider } from '@/providers/AuthHintProvider';
@@ -166,6 +167,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 								<ModalRoot />
 								<BottomNavbar />
 								<ToastContainer />
+								<IconTooltips />
 							</GoogleProvider>
 						</QueryProvider>
 					</AuthHintProvider>

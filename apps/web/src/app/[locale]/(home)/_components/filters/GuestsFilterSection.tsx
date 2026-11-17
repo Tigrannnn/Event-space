@@ -89,6 +89,7 @@ export function GuestsFilterSection({
 						size="icon-lg"
 						className="text-primary h-11 w-11 rounded-none"
 						onClick={handleDecrement}
+						aria-label={translate('common.lessGuests')}
 						disabled={draftGuests <= MIN_GUESTS}
 					>
 						<MinusIcon className="size-5" />
@@ -102,6 +103,7 @@ export function GuestsFilterSection({
 						size="icon-lg"
 						className="text-primary h-11 w-11 rounded-none"
 						onClick={handleIncrement}
+						aria-label={translate('common.moreGuests')}
 						disabled={draftGuests >= MAX_GUESTS}
 					>
 						<PlusIcon className="size-5" />
@@ -120,6 +122,7 @@ export function GuestsFilterSection({
 						variant="outline"
 						size={skin === 'minimal' ? 'icon-lg' : 'icon-sm'}
 						onClick={handleDecrement}
+						aria-label={translate('common.lessGuests')}
 						disabled={draftGuests <= MIN_GUESTS}
 					>
 						<MinusIcon className="size-4" />
@@ -138,6 +141,7 @@ export function GuestsFilterSection({
 						variant="outline"
 						size={skin === 'minimal' ? 'icon-lg' : 'icon-sm'}
 						onClick={handleIncrement}
+						aria-label={translate('common.moreGuests')}
 						disabled={draftGuests >= MAX_GUESTS}
 					>
 						<PlusIcon className="size-4" />

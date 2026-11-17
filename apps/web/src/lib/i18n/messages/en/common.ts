@@ -34,4 +34,7 @@ export const common = {
 	scrollLeft: 'Scroll left',
 	scrollRight: 'Scroll right',
 	timesInZone: 'All times are Yerevan time ({offset})',
+	lessGuests: 'Fewer guests',
+	moreGuests: 'More guests',
+	clearSearch: 'Clear search',
 };
