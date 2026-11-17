@@ -56,7 +56,6 @@ export enum ModalType {
 	ImportReview = 'import-review',
 	ChannelForm = 'channel-form',
 	CompensateBooking = 'compensate-booking',
-	AcceptBookingPayment = 'accept-booking-payment',
 	TransferBooking = 'transfer-booking',
 }
 
@@ -214,7 +213,6 @@ export interface ModalDataMap {
 	[ModalType.ImportReview]: null;
 	[ModalType.ChannelForm]: ChannelFormModalData | null;
 	[ModalType.CompensateBooking]: BookingDetailsModalData;
-	[ModalType.AcceptBookingPayment]: BookingDetailsModalData;
 	[ModalType.TransferBooking]: BookingDetailsModalData;
 }
 

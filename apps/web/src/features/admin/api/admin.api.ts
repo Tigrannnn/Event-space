@@ -47,7 +47,6 @@ import type {
 	CreatePromoCodeData,
 	UpdatePromoCodeData,
 	CompensateBookingData,
-	AcceptBookingPaymentData,
 	TransferBookingData,
 } from '@event-space/shared';
 
@@ -117,14 +116,6 @@ export const adminApi = {
 		clientApi.post<Booking>(`/admin/bookings/${id}/cancel`, data).then((res) => res.data),
 	transferBooking: (id: string, data: TransferBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/transfer`, data).then((res) => res.data),
-	acceptBookingPayment: (id: string, data: AcceptBookingPaymentData) =>
-		clientApi
-			.post<{ dueOnSite: number; paidInFull: boolean }>(`/admin/bookings/${id}/payments`, data)
-			.then((res) => res.data),
-	settleBookingCashRefunds: (id: string) =>
-		clientApi
-			.post<{ settled: number }>(`/admin/bookings/${id}/cash-refunds/settle`)
-			.then((res) => res.data),
 	compensateBooking: (id: string, data: CompensateBookingData) =>
 		clientApi
 			.post<{ compensatedAmount: number; failed: boolean; message: string }>(

@@ -414,7 +414,6 @@ export class BookingCreationService {
 			locale: mailLocale,
 			channelId,
 			amount: agreedAmount,
-			deposit,
 		} = data;
 		const externalId = data.externalId?.trim() || null;
 
@@ -578,9 +577,6 @@ export class BookingCreationService {
 
 			if (paymentMethod === 'OFFLINE_PAID') {
 				await this.ledger.recordOfflinePayment(tx, booking.id, pricing.amount);
-			} else if (deposit !== undefined) {
-				if (deposit >= pricing.amount) throw new AppException(AppErrorCode.BOOKING_DEPOSIT_INVALID);
-				await this.ledger.recordOfflinePayment(tx, booking.id, deposit);
 			}
 
 			return { booking, cancelledPaymentIntentId, event, occurrence };

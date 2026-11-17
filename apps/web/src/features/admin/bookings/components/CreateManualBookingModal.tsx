@@ -56,7 +56,6 @@ export default function CreateManualBookingModal() {
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
 	const [amount, setAmount] = useState('');
-	const [deposit, setDeposit] = useState('');
 	const [promoCodeInput, setPromoCodeInput] = useState('');
 	const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 	const [errors, setErrors] = useState<ManualBookingErrors>({});
@@ -154,8 +153,6 @@ export default function CreateManualBookingModal() {
 			channelId: formState.channelId,
 			externalId: formState.externalId,
 			amount,
-			deposit,
-			listedTotal,
 			promoCode: promoQuote.isSuccess ? (appliedPromoCode ?? undefined) : undefined,
 		};
 
@@ -381,25 +378,6 @@ export default function CreateManualBookingModal() {
 						<option value="OFFLINE_PAID">{translate('admin.payment.offline')}</option>
 						<option value="PAY_ON_ARRIVAL">{translate('admin.payment.onArrival')}</option>
 					</Select>
-
-					{formState.paymentMethod === 'PAY_ON_ARRIVAL' && (
-						<>
-							<Input
-								label={translate('admin.manualBookingDeposit')}
-								inputMode="decimal"
-								value={deposit}
-								onChange={(e) => {
-									setDeposit(e.target.value);
-									clearErrors('deposit');
-								}}
-								className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
-							/>
-							{renderError('deposit')}
-							<p className="-mt-2 text-xs text-gray-500 dark:text-gray-400">
-								{translate('admin.manualBookingDepositHint')}
-							</p>
-						</>
-					)}
 
 					<div className="space-y-1.5">
 						<label className="text-sm font-medium text-gray-700 dark:text-gray-200">

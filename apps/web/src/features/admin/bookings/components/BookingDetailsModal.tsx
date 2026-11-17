@@ -10,15 +10,13 @@ import { ModalType } from '@/stores';
 import { formatBookingReference } from '@/utils/booking';
 import { Copy } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/clipboard';
-import { cashToReturnOf, dueOnSiteOf, getBookingDisplayStatus, getEventTranslation, optimizeImageUrl } from '@event-space/shared';
+import { getBookingDisplayStatus, getEventTranslation, optimizeImageUrl } from '@event-space/shared';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { summarizePayments } from '../payments-summary';
 import { movedFromDate } from '@/utils/booking';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { BookingLinksSection } from './BookingLinksSection';
-import Button from '@/components/ui/Buttons/Button/Button';
-import { useSettleBookingCashRefunds } from '@/features/admin/hooks/useAdmin';
 
 function CopyRow({
 	label,
@@ -65,15 +63,12 @@ export default function BookingDetailsModal() {
 	const locale = translate.locale;
 	const { formatDateTime, formatDateTimeZone, formatDuration } = useFormatDate();
 	const formatCurrency = useFormatCurrency();
-	const { closeModal, openModal } = useModalStore();
-	const settleCashRefunds = useSettleBookingCashRefunds();
+	const { closeModal } = useModalStore();
 	const copyToClipboard = useCopyToClipboard();
 	const [openedAt] = useState(() => Date.now());
 	const modalData = useModalData(ModalType.BookingDetails);
 	const booking = modalData?.booking;
 	const event = booking?.occurrence?.event;
-	const dueOnSite = booking ? dueOnSiteOf(booking) : undefined;
-	const cashToReturn = booking ? cashToReturnOf(booking) : undefined;
 
 	if (!booking || !event) {
 		return null;
@@ -221,48 +216,6 @@ export default function BookingDetailsModal() {
 									</p>
 									<p className="mt-1 font-medium text-gray-900 dark:text-white">{PAYMENT_METHOD_LABELS[booking.paymentMethod]}</p>
 								</div>
-								{dueOnSite !== undefined && (
-									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.dueOnSite')}
-										</p>
-										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{formatCurrency(dueOnSite)}
-											{dueOnSite < Number(booking.amount) &&
-												` · ${translate('admin.paidInAdvance')}: ${formatCurrency(Number(booking.amount) - dueOnSite)}`}
-										</p>
-										<Button
-											type="button"
-											size="xs"
-											variant="secondary"
-											className="mt-2"
-											onClick={() => openModal(ModalType.AcceptBookingPayment, { booking })}
-										>
-											{translate('admin.acceptPayment')}
-										</Button>
-									</div>
-								)}
-								{cashToReturn !== undefined && (
-									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-											{translate('admin.cashToReturn')}
-										</p>
-										<p className="mt-1 font-medium text-gray-900 dark:text-white">
-											{formatCurrency(cashToReturn)}
-										</p>
-										<Button
-											type="button"
-											size="xs"
-											variant="secondary"
-											className="mt-2"
-											isLoading={settleCashRefunds.isPending}
-											disabled={settleCashRefunds.isPending}
-											onClick={() => settleCashRefunds.mutate(booking.id)}
-										>
-											{translate('admin.cashReturned')}
-										</Button>
-									</div>
-								)}
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 										{translate('admin.bookingAuthor')}

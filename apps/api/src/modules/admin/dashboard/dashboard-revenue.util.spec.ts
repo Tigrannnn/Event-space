@@ -143,31 +143,6 @@ describe('classifyBookingRevenue', () => {
 			expect(result).toMatchObject({ earned: 0, toCollectOnSite: 0 });
 		});
 
-		const deposit = {
-			type: 'CHARGE' as const,
-			amount: 5000,
-			feeAmount: null,
-			createdAt: new Date(now.getTime() - HOUR),
-		};
-
-		it('splits a deposit from the rest to collect before the tour', () => {
-			const result = classifyBookingRevenue(onArrival({ adjustments: [deposit] }), upcomingTour, now);
-			expect(result).toMatchObject({ expected: 5000, toCollectOnSite: 7000, earned: 0 });
-		});
-
-		it('earns the deposit and the rest after the tour when the guest came', () => {
-			const booking = onArrival({ adjustments: [deposit], checkedInAt: new Date(now.getTime() - 40 * HOUR) });
-			expect(classifyBookingRevenue(booking, finishedTour, now)).toMatchObject({
-				earned: 12000,
-				toCollectOnSite: 0,
-			});
-		});
-
-		it('earns only the deposit when the guest never showed up', () => {
-			const result = classifyBookingRevenue(onArrival({ adjustments: [deposit] }), finishedTour, now);
-			expect(result).toMatchObject({ earned: 5000, toCollectOnSite: 0 });
-		});
-
 		it('is nothing when the booking was cancelled', () => {
 			const result = classifyBookingRevenue(onArrival({ status: 'CANCELLED' }), upcomingTour, now);
 			expect(result.toCollectOnSite).toBe(0);

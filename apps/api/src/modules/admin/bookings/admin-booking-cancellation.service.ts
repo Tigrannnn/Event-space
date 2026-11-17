@@ -1,15 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, Logger } from '@nestjs/common';
-import { adminCancelReason, dueOnSiteOf } from '@event-space/shared';
+import { adminCancelReason } from '@event-space/shared';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { StripeService } from '@infra/stripe/stripe.service';
 import { AppException } from '@shared';
 import { AppErrorCode } from '@event-space/shared';
-import type {
-	AcceptBookingPaymentData,
-	AdminCancelBookingData,
-	CompensateBookingData,
-} from '@event-space/shared';
+import type { AdminCancelBookingData, CompensateBookingData } from '@event-space/shared';
 import { nullableNumber, resolveRefundPolicy } from '@modules/booking/booking.utils';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
 import { BookingRefundService } from '@modules/booking/money/booking-refund.service';
@@ -139,46 +135,6 @@ export class AdminBookingCancellationService {
 	 * refunded), spread across payments newest-first the same way a guest-removal refund is, so
 	 * it still works correctly for a booking that was topped up more than once.
 	 */
-	async acceptPayment(bookingId: string, data: AcceptBookingPaymentData) {
-		return this.prisma.$transaction(async (tx) => {
-			const booking = await tx.booking.findUnique({
-				where: { id: bookingId },
-				include: { adjustments: true },
-			});
-			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-
-			const due = dueOnSiteOf({
-				...booking,
-				amount: Number(booking.amount),
-				adjustments: booking.adjustments.map((row) => ({ ...row, amount: Number(row.amount) })),
-			});
-			if (due === undefined) throw new AppException(AppErrorCode.BOOKING_NOTHING_DUE);
-
-			const amountInCents = Math.round(data.amount * 100);
-			const dueInCents = Math.round(due * 100);
-			if (amountInCents > dueInCents) throw new AppException(AppErrorCode.BOOKING_PAYMENT_EXCEEDS_DUE);
-
-			await this.ledger.recordCashPayment(tx, bookingId, amountInCents);
-
-			const paidInFull = amountInCents === dueInCents;
-			if (paidInFull) {
-				await tx.booking.update({ where: { id: bookingId }, data: { paymentMethod: 'OFFLINE_PAID' } });
-			}
-
-			return { dueOnSite: (dueInCents - amountInCents) / 100, paidInFull };
-		});
-	}
-
-	async settleCashRefunds(bookingId: string) {
-		const booking = await this.prisma.booking.findUnique({
-			where: { id: bookingId },
-			select: { id: true },
-		});
-		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
-
-		return { settled: await this.ledger.settleCashRefunds(bookingId) };
-	}
-
 	async compensate(adminId: string, bookingId: string, data: CompensateBookingData) {
 		const booking = await this.prisma.booking.findUnique({ where: { id: bookingId } });
 		if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);

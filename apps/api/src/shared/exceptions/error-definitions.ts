@@ -218,18 +218,6 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'A booking with this number from this platform is already entered',
 	},
-	[AppErrorCode.BOOKING_DEPOSIT_INVALID]: {
-		status: HttpStatus.BAD_REQUEST,
-		message: 'The deposit must be less than the price of the booking',
-	},
-	[AppErrorCode.BOOKING_NOTHING_DUE]: {
-		status: HttpStatus.BAD_REQUEST,
-		message: 'Nothing is left to pay on this booking',
-	},
-	[AppErrorCode.BOOKING_PAYMENT_EXCEEDS_DUE]: {
-		status: HttpStatus.BAD_REQUEST,
-		message: 'The payment is more than what is left to pay',
-	},
 	[AppErrorCode.CHANNEL_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Channel not found' },
 	[AppErrorCode.CHANNEL_NOT_AVAILABLE]: {
 		status: HttpStatus.BAD_REQUEST,
