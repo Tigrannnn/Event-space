@@ -70,7 +70,6 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 						href={localizePath(myBookingPath, locale)}
 						onClick={(e) => e.stopPropagation()}
 						aria-label={translate('event.viewMyBooking')}
-						data-tooltip={translate('event.viewMyBooking')}
 						title={translate('event.viewMyBooking')}
 						className={`${ACTION} ${solid}`}
 					>
@@ -80,7 +79,6 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 						type="button"
 						onClick={handleBookClick}
 						aria-label={translate('event.bookAnotherSpot')}
-						data-tooltip={translate('event.bookAnotherSpot')}
 						title={translate('event.bookAnotherSpot')}
 						className={`${ACTION} bg-primary text-white`}
 					>
@@ -95,7 +93,6 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 				type="button"
 				onClick={handleBookClick}
 				aria-label={translate('event.bookTour')}
-				data-tooltip={translate('event.bookTour')}
 				title={translate('event.bookTour')}
 				className={`${ACTION} ${solid}`}
 			>

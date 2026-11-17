@@ -464,7 +464,6 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="secondary"
 												onClick={() => router.push(localizePath(`/admin/bookings?eventId=${event.id}`, locale))}
 												aria-label={`${translate('admin.viewBookings')}: ${eventTranslation.title}`}
-												data-tooltip={translate('admin.viewBookings')}
 												title={translate('admin.viewBookings')}
 											>
 												<Ticket className="h-4 w-4" />

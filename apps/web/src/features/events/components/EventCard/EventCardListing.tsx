@@ -57,7 +57,6 @@ export default function EventCardListing({ event }: EventCardProps) {
 				type="button"
 				onClick={handleBookClick}
 				aria-label={translate('event.bookAnotherSpot')}
-				data-tooltip={translate('event.bookAnotherSpot')}
 				title={translate('event.bookAnotherSpot')}
 				className="bg-primary flex size-10 shrink-0 items-center justify-center rounded-md text-white transition-colors hover:brightness-90"
 			>

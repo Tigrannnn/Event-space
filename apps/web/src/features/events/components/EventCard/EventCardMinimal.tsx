@@ -53,7 +53,6 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 				type="button"
 				onClick={handleBookClick}
 				aria-label={translate('event.bookAnotherSpot')}
-				data-tooltip={translate('event.bookAnotherSpot')}
 				title={translate('event.bookAnotherSpot')}
 				className="bg-primary hover:bg-primary/90 flex size-9 items-center justify-center rounded-full text-white transition-colors"
 			>

@@ -127,7 +127,6 @@ export default function EventCardClassic({ event }: EventCardProps) {
 								type="button"
 								onClick={handleBookClick}
 								aria-label={translate('event.bookAnotherSpot')}
-								data-tooltip={translate('event.bookAnotherSpot')}
 								title={translate('event.bookAnotherSpot')}
 								className="bg-primary shadow-primary/20 hover:bg-accent hover:shadow-accent/30 dark:shadow-primary/10 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 cursor-pointer items-center justify-center rounded-r-[11px] border-l text-white shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset active:scale-95 sm:w-14"
 							>

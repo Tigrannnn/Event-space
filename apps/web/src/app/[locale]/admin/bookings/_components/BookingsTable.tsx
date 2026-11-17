@@ -480,7 +480,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												variant="secondary"
 												title={translate('admin.checkInBooking')}
 												aria-label={translate('admin.checkInBooking')}
-												data-tooltip={translate('admin.checkInBooking')}
 												disabled={isCheckingIn}
 												onClick={() => handleCheckIn(booking)}
 											>
@@ -495,7 +494,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												variant="secondary"
 												title={translate('admin.undoCheckIn')}
 												aria-label={translate('admin.undoCheckIn')}
-												data-tooltip={translate('admin.undoCheckIn')}
 												disabled={isUndoingCheckIn}
 												onClick={() => handleUndoCheckIn(booking)}
 											>
@@ -510,7 +508,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 												variant="primary"
 												title={translate('admin.confirmBooking')}
 												aria-label={translate('admin.confirmBooking')}
-												data-tooltip={translate('admin.confirmBooking')}
 												onClick={() => openModal(ModalType.BookingConfirm, { booking })}
 											>
 												<CheckCircle className="h-4 w-4" />
@@ -523,7 +520,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											variant="secondary"
 											onClick={() => openModal(ModalType.UpdateBooking, { booking })}
 										aria-label={translate('admin.changeGuestCount')}
-										data-tooltip={translate('admin.changeGuestCount')}
 											disabled={booking.status !== 'CONFIRMED' || booking.quantity < 2}
 										>
 											<Pencil className="h-4 w-4" />
@@ -535,7 +531,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											variant="secondary"
 											title={translate('admin.compensateBooking')}
 											aria-label={translate('admin.compensateBooking')}
-											data-tooltip={translate('admin.compensateBooking')}
 											onClick={() => handleOpenCompensation(booking)}
 											disabled={Number(booking.amount) === 0}
 										>
@@ -548,7 +543,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											variant="secondary"
 											title={translate('admin.transferBooking')}
 											aria-label={translate('admin.transferBooking')}
-											data-tooltip={translate('admin.transferBooking')}
 											onClick={() => handleOpenTransfer(booking)}
 											disabled={booking.status !== 'CONFIRMED' || Boolean(booking.checkedInAt)}
 										>
@@ -561,7 +555,6 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 											variant="danger"
 											onClick={() => handleOpenBookingAction(booking)}
 										aria-label={translate('admin.cancelBooking')}
-										data-tooltip={translate('admin.cancelBooking')}
 											disabled={booking.status === 'CANCELLED'}
 										>
 											<Ban className="h-4 w-4" />
