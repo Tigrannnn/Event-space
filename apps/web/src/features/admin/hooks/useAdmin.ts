@@ -2,6 +2,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import {
 	type AdminCancelBookingData,
 	type CompensateBookingData,
+	type AcceptBookingPaymentData,
 	type TransferBookingData,
 	type DashboardStats,
 	type ChangeQuantityData,
@@ -199,6 +200,54 @@ export const useCompensateBooking = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.compensateBookingFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+const invalidateBookingMoney = (queryClient: ReturnType<typeof useQueryClient>) =>
+	Promise.all([
+		queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+		queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+		queryClient.invalidateQueries({ queryKey: ['checkin-booking'] }),
+	]);
+
+export const useAcceptBookingPayment = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: AcceptBookingPaymentData }) =>
+			adminApi.acceptBookingPayment(id, data),
+		onSuccess: async () => {
+			addToast(translate('admin.acceptPaymentSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await invalidateBookingMoney(queryClient);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.acceptPaymentFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useSettleBookingCashRefunds = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const { closeModal } = useModalStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: (id: string) => adminApi.settleBookingCashRefunds(id),
+		onSuccess: async () => {
+			addToast(translate('admin.cashReturnedSuccess'), ToastType.SUCCESS);
+			closeModal();
+			await invalidateBookingMoney(queryClient);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.cashReturnFailed'), ToastType.ERROR);
 		},
 	});
 };

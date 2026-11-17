@@ -431,6 +431,28 @@ describe('creating a booking by an admin', () => {
 		expect(ledger).toHaveLength(0);
 	});
 
+	it('records only the deposit for a pay-on-arrival booking', async () => {
+		const { service, ledger } = build();
+		await service.createManualBooking(
+			'admin1',
+			manual({ paymentMethod: 'PAY_ON_ARRIVAL', amount: 12000, deposit: 5000 }) as never,
+		);
+
+		expect(ledger).toHaveLength(1);
+		expect(Number((ledger[0] as { data: { amount: unknown } }).data.amount)).toBe(5000);
+	});
+
+	it('refuses a deposit that covers the whole price', async () => {
+		const { service, ledger } = build();
+		await expect(
+			service.createManualBooking(
+				'admin1',
+				manual({ paymentMethod: 'PAY_ON_ARRIVAL', amount: 12000, deposit: 12000 }) as never,
+			),
+		).rejects.toMatchObject({ code: 'BOOKING_DEPOSIT_INVALID' });
+		expect(ledger).toHaveLength(0);
+	});
+
 	it('takes the amount the admin agreed on instead of the tour price, and records that money', async () => {
 		const { service, upserts, ledger } = build();
 		await service.createManualBooking('admin1', manual({ amount: 15000 }) as never);

@@ -336,6 +336,47 @@ export class BookingLedgerService {
 		});
 	}
 
+	queueCashRefund(
+		tx: Prisma.TransactionClient,
+		params: { bookingId: string; amountInCents: number; reason: string; operationKey: string },
+	) {
+		return tx.bookingAdjustment.create({
+			data: {
+				bookingId: params.bookingId,
+				type: 'REFUND',
+				amount: toAmount(params.amountInCents),
+				currency: CURRENCY,
+				stripePaymentIntentId: null,
+				status: 'PENDING',
+				reason: params.reason,
+				operationKey: params.operationKey,
+			},
+		});
+	}
+
+	async settleCashRefunds(bookingId: string): Promise<number> {
+		const result = await this.prisma.bookingAdjustment.updateMany({
+			where: { bookingId, ...QUEUED, stripePaymentIntentId: null },
+			data: { status: 'SUCCEEDED' },
+		});
+
+		return result.count;
+	}
+
+	recordCashPayment(tx: Prisma.TransactionClient, bookingId: string, amountInCents: number) {
+		return tx.bookingAdjustment.create({
+			data: {
+				bookingId,
+				type: 'CHARGE',
+				amount: toAmount(amountInCents),
+				currency: CURRENCY,
+				stripePaymentIntentId: null,
+				status: 'SUCCEEDED',
+				reason: LEDGER_REASON.OFFLINE_PAID,
+			},
+		});
+	}
+
 	recordManualRefund(
 		tx: Prisma.TransactionClient,
 		params: {

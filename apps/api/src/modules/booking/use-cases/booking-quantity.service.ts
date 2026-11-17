@@ -326,7 +326,9 @@ export class BookingQuantityService {
 		state: QuantityState,
 		outcome: { refundedInCents: number | null; failed: boolean } | null,
 	) {
-		if (!quote.refund || state.booking.paymentMethod === 'PAY_ON_ARRIVAL') return undefined;
+		if (!quote.refund) return undefined;
+		if (state.booking.paymentMethod === 'PAY_ON_ARRIVAL' && quote.refund.netInCents === 0)
+			return undefined;
 		if (quote.refund.netInCents === 0) return { kind: 'notRefundable' as const };
 		if (quote.refund.method === 'MANUAL') {
 			return { kind: 'manual' as const, amount: quote.refund.netInCents / 100 };

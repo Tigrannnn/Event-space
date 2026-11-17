@@ -86,11 +86,18 @@ export function classifyBookingRevenue(
 	const settled = started || cancelled;
 	const keptFromCancellation = !started && cancelled && net > 0 ? net : 0;
 
+	const balance =
+		booking.paymentMethod === 'PAY_ON_ARRIVAL' && booking.status === 'CONFIRMED'
+			? Math.max(0, booking.amount - net)
+			: 0;
+	const balanceCollected = finished && booking.checkedInAt ? balance : 0;
+	const balanceToCollect = finished ? 0 : balance;
+
 	return {
-		earned: settled ? round2(net) : 0,
+		earned: settled ? round2(net + balanceCollected) : 0,
 		expected: settled ? 0 : round2(net),
 		refunded: round2(refunded),
-		toCollectOnSite: 0,
+		toCollectOnSite: round2(balanceToCollect),
 		corrections: round2(corrections),
 		kept: round2(keptFromCancellation),
 	};

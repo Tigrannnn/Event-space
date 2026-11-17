@@ -266,6 +266,7 @@ export class BookingRefundService {
 			unitPriceInCents: Math.round(amountInCents / params.quantity),
 			percentage: params.percentage,
 			withholdFee: params.withholdFee,
+			bookingAmountInCents: amountInCents,
 		});
 	}
 
@@ -352,9 +353,12 @@ export class BookingRefundService {
 		},
 	): Promise<QueuedCancellation | null> {
 		if (Number(booking.amount) <= 0) return null;
-		if (!booking.paymentIntentId && options.method === 'STRIPE') return null;
 
 		const operationKey = `cancel:${booking.id}`;
+
+		if (!booking.paymentIntentId && options.method === 'STRIPE') {
+			return this.queueCashCancellation(tx, booking, operationKey, options);
+		}
 		const plan = await this.planForBooking(tx, {
 			bookingId: booking.id,
 			amount: Number(booking.amount),
@@ -395,6 +399,50 @@ export class BookingRefundService {
 		}
 
 		return queued;
+	}
+
+	private async queueCashCancellation(
+		tx: Prisma.TransactionClient,
+		booking: { id: string; amount: Prisma.Decimal; quantity: number },
+		operationKey: string,
+		options: { percentage: number; withholdFee: boolean; reason: string },
+	): Promise<QueuedCancellation | null> {
+		const plan = await this.planForBooking(tx, {
+			bookingId: booking.id,
+			amount: Number(booking.amount),
+			quantity: booking.quantity,
+			guests: booking.quantity,
+			percentage: options.percentage,
+			withholdFee: options.withholdFee,
+		});
+		if (plan.paidByCard || plan.netInCents <= 0) return null;
+
+		for (const part of plan.parts) {
+			await this.ledger.queueCashRefund(tx, {
+				bookingId: booking.id,
+				amountInCents: part.amountInCents,
+				reason: options.reason,
+				operationKey,
+			});
+		}
+
+		return {
+			bookingId: booking.id,
+			paymentIntentId: null,
+			operationKey,
+			plan,
+			withholdFee: options.withholdFee,
+			reason: options.reason,
+			method: 'MANUAL',
+		};
+	}
+
+	async hasCashPayment(
+		db: Pick<Prisma.TransactionClient, 'bookingAdjustment'>,
+		bookingId: string,
+	): Promise<boolean> {
+		const rows = await this.ledger.listForBooking(db, bookingId);
+		return readPayments(toLedgerRows(rows)).cashInCents > 0;
 	}
 
 	async settleCancellation(

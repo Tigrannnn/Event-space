@@ -20,6 +20,7 @@ export function planGuestRefund(params: {
 	unitPriceInCents: number;
 	percentage: number;
 	withholdFee: boolean;
+	bookingAmountInCents?: number;
 }): GuestRefund {
 	const { payments, guests, unitPriceInCents, percentage, withholdFee } = params;
 
@@ -45,7 +46,9 @@ export function planGuestRefund(params: {
 			left -= amount;
 		}
 	} else {
-		const amount = Math.min(left, payments.cashInCents - payments.cashRefundedInCents);
+		const cashLeft = payments.cashInCents - payments.cashRefundedInCents;
+		const unpaid = Math.max(0, (params.bookingAmountInCents ?? cashLeft) - cashLeft);
+		const amount = Math.min(left - unpaid, cashLeft);
 		if (amount > 0) {
 			parts.push({ paymentIntentId: null, amountInCents: amount });
 			left -= amount;

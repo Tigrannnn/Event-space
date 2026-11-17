@@ -14,6 +14,7 @@ export type ManualBookingField =
 	| 'phone'
 	| 'email'
 	| 'amount'
+	| 'deposit'
 	| 'promoCode';
 export type ManualBookingErrors = Partial<Record<ManualBookingField, MessageKey>>;
 
@@ -31,6 +32,8 @@ export interface ManualBookingDraft {
 	channelId: string;
 	externalId?: string | null;
 	amount?: string;
+	deposit?: string;
+	listedTotal?: number | null;
 	promoCode?: string;
 }
 
@@ -75,6 +78,16 @@ export function validateManualBooking(draft: ManualBookingDraft): ManualBookingE
 		errors.amount = 'admin.validation.invalidAmount';
 	}
 
+	const deposit = draft.paymentMethod === 'PAY_ON_ARRIVAL' ? parseAmount(draft.deposit) : undefined;
+	if (deposit !== undefined) {
+		const total = amount ?? draft.listedTotal ?? null;
+		if (Number.isNaN(deposit) || deposit <= 0 || deposit > MANUAL_BOOKING_AMOUNT_MAX) {
+			errors.deposit = 'admin.validation.invalidDeposit';
+		} else if (total !== null && !draft.promoCode?.trim() && deposit >= total) {
+			errors.deposit = 'admin.validation.depositTooLarge';
+		}
+	}
+
 	if (draft.promoCode?.trim() && amount !== undefined) {
 		errors.promoCode = 'admin.validation.promoCodeWithAmount';
 	}
@@ -102,6 +115,7 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		// A number only means something on a platform; with no channel named there is none.
 		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED ? null : draft.externalId?.trim() || null,
 		amount: parseAmount(draft.amount),
+		deposit: draft.paymentMethod === 'PAY_ON_ARRIVAL' ? parseAmount(draft.deposit) : undefined,
 		promoCode: draft.promoCode?.trim() || undefined,
 	};
 

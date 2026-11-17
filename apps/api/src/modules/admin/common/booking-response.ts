@@ -1,4 +1,4 @@
-import type { BookingWithDetails } from '@event-space/shared';
+import { cashToReturnOf, dueOnSiteOf, type BookingWithDetails } from '@event-space/shared';
 
 type WithPrice = Record<string, unknown> & { price: unknown };
 
@@ -19,12 +19,16 @@ export function normalizeBookingResponse(booking: RawBooking): BookingWithDetail
 		? { ...booking.occurrence, event: event ?? undefined }
 		: undefined;
 
+	const adjustments = booking.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [];
+
 	return {
 		...booking,
 		amount: Number(booking.amount),
 		baseAmount: booking.baseAmount == null ? null : Number(booking.baseAmount),
 		event,
 		occurrence,
-		adjustments: booking.adjustments?.map((a) => ({ ...a, amount: Number(a.amount) })) ?? [],
+		adjustments,
+		dueOnSite: dueOnSiteOf({ ...booking, adjustments } as never),
+		cashToReturn: cashToReturnOf({ adjustments } as never),
 	} as unknown as BookingWithDetails;
 }

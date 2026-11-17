@@ -62,6 +62,49 @@ describe('readPayments', () => {
 });
 
 describe('planGuestRefund', () => {
+	const deposit = (amount: number) =>
+		readPayments([row({ type: 'CHARGE', amount, stripePaymentIntentId: null })]);
+
+	it('gives back the whole deposit when the company cancels the tour', () => {
+		const plan = planGuestRefund({
+			payments: deposit(5000),
+			guests: 2,
+			unitPriceInCents: 600_000,
+			percentage: 100,
+			withholdFee: false,
+			bookingAmountInCents: 1_200_000,
+		});
+
+		expect(plan.parts).toEqual([{ paymentIntentId: null, amountInCents: 500_000 }]);
+	});
+
+	it('keeps the deposit when the rules keep more than the guest has not paid yet', () => {
+		const plan = planGuestRefund({
+			payments: deposit(5000),
+			guests: 2,
+			unitPriceInCents: 600_000,
+			percentage: 50,
+			withholdFee: false,
+			bookingAmountInCents: 1_200_000,
+		});
+
+		expect(plan.netInCents).toBe(0);
+		expect(plan.parts).toEqual([]);
+	});
+
+	it('gives back only what was paid beyond the smaller booking when guests are removed', () => {
+		const plan = planGuestRefund({
+			payments: deposit(8000),
+			guests: 1,
+			unitPriceInCents: 600_000,
+			percentage: 100,
+			withholdFee: false,
+			bookingAmountInCents: 1_200_000,
+		});
+
+		expect(plan.parts).toEqual([{ paymentIntentId: null, amountInCents: 200_000 }]);
+	});
+
 	it('refunds one guest of five: unit price minus that guest share of the card fee', () => {
 		const plan = planGuestRefund({
 			payments: fiveGuestsByCard(),

@@ -137,6 +137,36 @@ describe('money paths: cancel by the client', () => {
 		expect(emails[0].payload).toMatchObject({ nothingPaid: true });
 	});
 
+	const withDeposit = () => [
+		booking({ id: 'b1', paymentIntentId: null, paymentMethod: 'PAY_ON_ARRIVAL', amount: 12000 }),
+	];
+
+	it('owes the deposit back in cash when the client cancels in time, and says so', async () => {
+		const { service, stripeCalls, table, emails } = createWorld({
+			bookings: withDeposit(),
+			payments: [{ paymentIntentId: null, amount: 5000 }],
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(stripeCalls).toHaveLength(0);
+		expect(table.filter((row) => row.type === 'REFUND')).toMatchObject([
+			{ status: 'PENDING', amount: 5000, stripePaymentIntentId: null, operationKey: 'cancel:b1' },
+		]);
+		expect(emails[0].payload).toMatchObject({ offlinePaid: true, nothingPaid: false });
+	});
+
+	it('keeps the deposit when the rules keep more than the client has not paid yet', async () => {
+		const { service, table, emails } = createWorld({
+			bookings: withDeposit(),
+			payments: [{ paymentIntentId: null, amount: 5000 }],
+			tourInHours: 30,
+		});
+		await service.cancel('u1', 'b1', 'ru');
+
+		expect(table.filter((row) => row.type === 'REFUND')).toHaveLength(0);
+		expect(emails[0].payload).toMatchObject({ offlinePaid: false, nothingPaid: false });
+	});
+
 	it('does nothing a second time for an already cancelled booking', async () => {
 		const { service, stripeCalls, table, emails } = createWorld({
 			bookings: [booking({ id: 'b1', status: 'CANCELLED' })],

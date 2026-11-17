@@ -62,6 +62,7 @@ import {
 	UpdatePromoCodeSchema,
 	AdminCancelBookingSchema,
 	CompensateBookingSchema,
+	AcceptBookingPaymentSchema,
 	TransferBookingSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
@@ -86,6 +87,7 @@ import type {
 	UpdatePromoCodeData,
 	AdminCancelBookingData,
 	CompensateBookingData,
+	AcceptBookingPaymentData,
 	TransferBookingData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
@@ -614,6 +616,37 @@ export class AdminController {
 		);
 
 		return this.bookingCancellationService.compensate(adminId, id, data);
+	}
+
+	@Post('bookings/:id/payments')
+	@ApiOperation({ summary: 'Record money paid by hand towards what is left to pay on arrival' })
+	@ApiBody(getReference('AcceptBookingPaymentSchema'))
+	async acceptBookingPayment(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(AcceptBookingPaymentSchema)) data: AcceptBookingPaymentData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingCancellationService.acceptPayment(id, data);
+	}
+
+	@Post('bookings/:id/cash-refunds/settle')
+	@ApiOperation({ summary: 'Mark the cash this booking is owed as handed back' })
+	async settleBookingCashRefunds(@GetCurrentUserId() adminId: string, @Param('id') id: string) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingCancellationService.settleCashRefunds(id);
 	}
 
 	@Post('bookings/:id/transfer')

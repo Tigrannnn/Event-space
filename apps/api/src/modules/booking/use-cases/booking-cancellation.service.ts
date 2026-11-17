@@ -132,8 +132,8 @@ export class BookingCancellationService {
 				occurrence,
 				user,
 				locale,
-				offlinePaid: booking.paymentMethod === 'OFFLINE_PAID',
-				nothingPaid: booking.paymentMethod !== 'OFFLINE_PAID',
+				offlinePaid: (queued?.plan.netInCents ?? 0) > 0,
+				nothingPaid: !(await this.refunds.hasCashPayment(this.prisma, booking.id)),
 			});
 
 			return booking;

@@ -11,9 +11,14 @@ import { formatBookingReference } from '@/utils/booking';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { useCheckInBooking, useUndoBookingCheckIn } from '@/features/admin/hooks/useAdmin';
+import {
+	useAcceptBookingPayment,
+	useCheckInBooking,
+	useUndoBookingCheckIn,
+} from '@/features/admin/hooks/useAdmin';
 import { Calendar, MapPin, Users, CheckCircle2, XCircle, AlertCircle, Search, CreditCard } from 'lucide-react';
-import { getEventTranslation } from '@event-space/shared';
+import { dueOnSiteOf, getEventTranslation } from '@event-space/shared';
+import { useFormatCurrency } from '@/hooks/format';
 import { localeIntl } from '@/lib/i18n/config';
 import { useConfirm } from '@/hooks/confirmModal';
 
@@ -71,6 +76,18 @@ export default function CheckInForm() {
 		if (confirmed) checkIn({ id: booking.id });
 	};
 
+	const handleAcceptRest = async (amount: number) => {
+		if (!booking) return;
+
+		const confirmed = await confirm({
+			variant: 'primary',
+			title: translate('admin.receivedRest'),
+			message: `${translate('admin.dueOnSite')}: ${formatCurrency(amount)}`,
+		});
+
+		if (confirmed) acceptPayment.mutate({ id: booking.id, data: { amount } });
+	};
+
 	const handleUndoCheckIn = async () => {
 		if (!booking) return;
 
@@ -97,6 +114,9 @@ export default function CheckInForm() {
 		setRef(num);
 	};
 
+	const formatCurrency = useFormatCurrency();
+	const acceptPayment = useAcceptBookingPayment();
+	const dueOnSite = booking ? dueOnSiteOf(booking) : undefined;
 	const checkedInCount = booking?.checkedInCount ?? 0;
 	const isCheckedIn = checkedInCount > 0;
 	const isFullyCheckedIn = !!booking && checkedInCount >= booking.quantity;
@@ -225,8 +245,24 @@ export default function CheckInForm() {
 									<CreditCard className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
 									<span className="font-bold text-gray-900 dark:text-white">
 										{paymentMethodLabel}
+										{dueOnSite !== undefined &&
+											` · ${translate('admin.dueOnSite')}: ${formatCurrency(dueOnSite)}`}
 									</span>
 								</div>
+								{dueOnSite !== undefined && !isCancelled && (
+									<div className="sm:col-span-2">
+										<Button
+											type="button"
+											size="sm"
+											variant="secondary"
+											isLoading={acceptPayment.isPending}
+											disabled={acceptPayment.isPending}
+											onClick={() => handleAcceptRest(dueOnSite)}
+										>
+											{`${translate('admin.receivedRest')}: ${formatCurrency(dueOnSite)}`}
+										</Button>
+									</div>
+								)}
 							</div>
 						</div>
 

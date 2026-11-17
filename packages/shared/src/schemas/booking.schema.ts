@@ -70,6 +70,10 @@ export const BookingWithDetailsSchema = BookingWithOccurrenceSchema.extend({
 	adjustments: z.array(BookingAdjustmentSchema).optional(),
 	/** The admin who entered the booking by hand, when there was one. */
 	createdByAdmin: z.object({ id: z.string(), name: z.string().nullable() }).nullable().optional(),
+	/** What is still to be paid on arrival; set only while that is the case. */
+	dueOnSite: z.number().optional(),
+	/** Money paid by hand that the company still has to give back in person. */
+	cashToReturn: z.number().optional(),
 });
 
 export type BookingWithDetails = z.infer<typeof BookingWithDetailsSchema>;
@@ -159,6 +163,9 @@ export const CreateManualBookingSchema = z
 		promoCode: z.string().trim().min(1).optional().openapi({
 			description: 'A promo code to apply to the price; cannot be combined with an agreed amount',
 		}),
+		deposit: z.number().positive().max(MANUAL_BOOKING_AMOUNT_MAX).optional().openapi({
+			description: 'Part of the price already paid in advance, for a booking whose rest is paid on arrival',
+		}),
 	})
 	.refine((data) => !!data.userId !== !!data.name, {
 		message: 'Provide either userId or name, not both',
@@ -169,6 +176,9 @@ export const CreateManualBookingSchema = z
 	}, { message: 'Phone is required when creating a shadow user' })
 	.refine((data) => !(data.promoCode && data.amount !== undefined), {
 		message: 'Provide either a promo code or an amount, not both',
+	})
+	.refine((data) => data.deposit === undefined || data.paymentMethod === 'PAY_ON_ARRIVAL', {
+		message: 'A deposit only goes with paying the rest on arrival',
 	});
 
 export type CreateManualBookingData = z.infer<typeof CreateManualBookingSchema>;
@@ -308,6 +318,15 @@ export const CompensateBookingSchema = z.object({
 });
 
 export type CompensateBookingData = z.infer<typeof CompensateBookingSchema>;
+
+export const AcceptBookingPaymentSchema = z.object({
+	amount: z.number().positive().max(MANUAL_BOOKING_AMOUNT_MAX).openapi({
+		description: 'Money the guest has just paid by hand towards what is left to pay on arrival',
+		example: 2500,
+	}),
+});
+
+export type AcceptBookingPaymentData = z.infer<typeof AcceptBookingPaymentSchema>;
 
 export const TransferBookingSchema = z.object({
 	occurrenceId: z.string().uuid().openapi({
