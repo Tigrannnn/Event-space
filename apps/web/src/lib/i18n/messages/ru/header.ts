@@ -30,4 +30,6 @@ export const header: Messages['header'] = {
 	contactLocationDescription: 'Вот здесь мы находимся',
 	contactLocationButton: 'Открыть на карте',
 	aboutUs: 'О нас',
+	callPhone: 'Позвонить: {phone}',
+	writeEmail: 'Написать: {email}',
 };

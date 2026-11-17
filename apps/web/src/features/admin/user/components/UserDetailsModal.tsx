@@ -59,7 +59,7 @@ export default function UserDetailsModal() {
 									type="button"
 									onClick={handleCopyId}
 									className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-									title="Copy ID"
+									title={translate('admin.copyId')}
 								>
 									<Copy className="h-3 w-3" />
 								</button>

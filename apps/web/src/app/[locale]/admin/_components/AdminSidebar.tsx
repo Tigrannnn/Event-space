@@ -62,7 +62,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 					type="button"
 					onClick={onNavigate}
 					className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-					aria-label="Close navigation menu"
+					aria-label={translate('admin.closeNavigationMenu')}
 				>
 					<X className="h-5 w-5" />
 				</button>

@@ -39,4 +39,11 @@ export const common: Messages['common'] = {
 	lessGuests: 'Ավելի քիչ հյուր',
 	moreGuests: 'Ավելի շատ հյուր',
 	clearSearch: 'Մաքրել որոնումը',
+	hidePassword: 'Թաքցնել գաղտնաբառը',
+	showPassword: 'Ցույց տալ գաղտնաբառը',
+	imagePreview: 'Լուսանկարի դիտում',
+	previousImage: 'Նախորդ լուսանկարը',
+	nextImage: 'Հաջորդ լուսանկարը',
+	video: 'Տեսանյութ',
+	photoNumber: 'Լուսանկար {number}',
 };

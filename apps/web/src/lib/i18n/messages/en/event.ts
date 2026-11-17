@@ -37,4 +37,5 @@ export const event = {
 	chooseDates: 'Choose dates',
 	reviewsCount: 'Reviews: {count}',
 	nextDeparture: 'Next departure',
+	viewDetailsFor: 'View details: {title}',
 };

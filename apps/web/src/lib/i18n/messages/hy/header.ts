@@ -30,4 +30,6 @@ export const header: Messages['header'] = {
 	contactLocationDescription: 'Ահա որտեղ կարող եք գտնել մեզ',
 	contactLocationButton: 'Բացել քարտեզի վրա',
 	aboutUs: 'Մեր Մասին',
+	callPhone: 'Զանգել՝ {phone}',
+	writeEmail: 'Գրել՝ {email}',
 };

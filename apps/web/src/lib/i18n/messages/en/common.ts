@@ -37,4 +37,11 @@ export const common = {
 	lessGuests: 'Fewer guests',
 	moreGuests: 'More guests',
 	clearSearch: 'Clear search',
+	hidePassword: 'Hide password',
+	showPassword: 'Show password',
+	imagePreview: 'Photo preview',
+	previousImage: 'Previous photo',
+	nextImage: 'Next photo',
+	video: 'Video',
+	photoNumber: 'Photo {number}',
 };

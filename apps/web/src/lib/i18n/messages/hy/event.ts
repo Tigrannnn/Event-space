@@ -39,4 +39,5 @@ export const event: Messages['event'] = {
 	chooseDates: 'Ընտրել ամսաթվերը',
 	reviewsCount: 'Կարծիքներ՝ {count}',
 	nextDeparture: 'Մոտակա մեկնարկ',
+	viewDetailsFor: 'Մանրամասներ՝ {title}',
 };

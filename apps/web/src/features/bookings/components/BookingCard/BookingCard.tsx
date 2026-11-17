@@ -197,6 +197,7 @@ export default function BookingCard({ booking, accessToken, highlighted = false 
 								})
 							}
 							aria-label={translate('booking.showQrCode')}
+							data-tooltip={translate('booking.showQrCode')}
 							className="hover:border-primary hover:text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors dark:border-gray-700 dark:text-gray-400"
 						>
 							<QrCode className="h-4 w-4" />
@@ -412,6 +413,7 @@ export default function BookingCard({ booking, accessToken, highlighted = false 
 									className="w-10 shrink-0 px-0"
 									onClick={handleBookAnotherDate}
 									aria-label={translate('event.bookAnotherSpot')}
+									data-tooltip={translate('event.bookAnotherSpot')}
 									title={translate('event.bookAnotherSpot')}
 								>
 									<Plus className="h-4 w-4" strokeWidth={2.5} />

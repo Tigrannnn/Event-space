@@ -6,6 +6,7 @@ import { Menu } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import AdminSidebar from './AdminSidebar';
 import { stripLocaleFromPathname } from '@/lib/i18n/config';
+import { useTranslation } from '@/hooks/translation';
 
 const PAGE_TITLES: Record<string, string> = {
 	'/admin/dashboard': 'Dashboard',
@@ -27,6 +28,7 @@ interface AdminShellProps {
 
 export default function AdminShell({ children }: AdminShellProps) {
 	const pathname = usePathname();
+	const translate = useTranslation();
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const pageTitle = getPageTitle(stripLocaleFromPathname(pathname));
 
@@ -53,7 +55,7 @@ export default function AdminShell({ children }: AdminShellProps) {
 					type="button"
 					className="fixed inset-0 z-40 bg-black/50 lg:hidden"
 					onClick={() => setMobileOpen(false)}
-					aria-label="Close navigation menu"
+					aria-label={translate('admin.closeNavigationMenu')}
 				/>
 			)}
 
@@ -65,7 +67,7 @@ export default function AdminShell({ children }: AdminShellProps) {
 						type="button"
 						onClick={() => setMobileOpen(true)}
 						className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
-						aria-label="Open navigation menu"
+						aria-label={translate('admin.openNavigationMenu')}
 						aria-expanded={mobileOpen}
 					>
 						<Menu className="h-5 w-5" />

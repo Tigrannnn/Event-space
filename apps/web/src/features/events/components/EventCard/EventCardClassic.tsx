@@ -38,7 +38,7 @@ export default function EventCardClassic({ event }: EventCardProps) {
 		<article className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl sm:rounded-4xl md:rounded-[2.5rem] dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/20">
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
-				aria-label={`View details for ${eventTranslation.title}`}
+				aria-label={translate('event.viewDetailsFor', { title: eventTranslation.title })}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
 			/>
 			{/* Media Section */}
@@ -127,6 +127,7 @@ export default function EventCardClassic({ event }: EventCardProps) {
 								type="button"
 								onClick={handleBookClick}
 								aria-label={translate('event.bookAnotherSpot')}
+								data-tooltip={translate('event.bookAnotherSpot')}
 								title={translate('event.bookAnotherSpot')}
 								className="bg-primary shadow-primary/20 hover:bg-accent hover:shadow-accent/30 dark:shadow-primary/10 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 cursor-pointer items-center justify-center rounded-r-[11px] border-l text-white shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset active:scale-95 sm:w-14"
 							>

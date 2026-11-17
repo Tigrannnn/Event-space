@@ -739,6 +739,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 							type="button"
 							onClick={handleBookClick}
 							aria-label={translate('event.bookAnotherSpot')}
+							data-tooltip={translate('event.bookAnotherSpot')}
 							title={translate('event.bookAnotherSpot')}
 							className="bg-primary hover:bg-primary/90 focus-visible:ring-primary border-primary/20 dark:border-primary/30 flex w-12 shrink-0 items-center justify-center border-l text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset sm:w-14"
 						>

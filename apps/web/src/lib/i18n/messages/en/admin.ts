@@ -666,4 +666,6 @@ export const admin = {
 	refundedTotal: 'Refunded',
 	changeGuestCount: 'Change number of guests',
 	removeLanguage: 'Remove language',
+	copyOrganizerId: 'Copy organizer ID',
+	exampleValue: 'e.g. {value}',
 };

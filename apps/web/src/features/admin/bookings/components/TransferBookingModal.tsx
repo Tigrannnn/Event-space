@@ -52,7 +52,7 @@ export default function TransferBookingModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="md" ariaLabel="Transfer booking">
+		<Modal onClose={closeModal} size="md" ariaLabel={translate('admin.transferBooking')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.transferBooking')} onClose={closeModal} />
 

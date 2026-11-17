@@ -39,4 +39,11 @@ export const common: Messages['common'] = {
 	lessGuests: 'Меньше гостей',
 	moreGuests: 'Больше гостей',
 	clearSearch: 'Очистить поиск',
+	hidePassword: 'Скрыть пароль',
+	showPassword: 'Показать пароль',
+	imagePreview: 'Просмотр фото',
+	previousImage: 'Предыдущее фото',
+	nextImage: 'Следующее фото',
+	video: 'Видео',
+	photoNumber: 'Фото {number}',
 };

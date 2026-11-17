@@ -57,6 +57,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 				type="button"
 				onClick={handleBookClick}
 				aria-label={translate('event.bookAnotherSpot')}
+				data-tooltip={translate('event.bookAnotherSpot')}
 				title={translate('event.bookAnotherSpot')}
 				className="bg-primary flex size-10 shrink-0 items-center justify-center rounded-md text-white transition-colors hover:brightness-90"
 			>
@@ -77,7 +78,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 		<article className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-md sm:flex-row dark:border-neutral-800 dark:bg-neutral-900">
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
-				aria-label={`View details for ${eventTranslation.title}`}
+				aria-label={translate('event.viewDetailsFor', { title: eventTranslation.title })}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2"
 			/>
 

@@ -53,7 +53,7 @@ export default function CompensateBookingModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="md" ariaLabel="Compensate booking">
+		<Modal onClose={closeModal} size="md" ariaLabel={translate('admin.compensateBooking')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.compensateBooking')} onClose={closeModal} />
 

@@ -28,4 +28,6 @@ export const header = {
 	contactLocationDescription: "Here's where you'll find us",
 	contactLocationButton: 'Open in Maps',
 	aboutUs: 'About Us',
+	callPhone: 'Call {phone}',
+	writeEmail: 'Email {email}',
 };

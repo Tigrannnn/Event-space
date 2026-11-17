@@ -334,6 +334,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 											)
 										}
 										aria-label={`${translate('admin.userBookings')}: ${user.name}`}
+										data-tooltip={translate('admin.userBookings')}
 										title={translate('admin.userBookings')}
 									>
 										<Ticket className="h-4 w-4" />

@@ -6,11 +6,13 @@ import { useModalStore, useModalData } from '@/stores/modalStore/modalStore';
 import { ModalType } from '@/stores/modalStore/types';
 import Modal from '../Modal';
 import Image from 'next/image';
+import { useTranslation } from '@/hooks/translation';
 import { parseVideoUrl } from '@event-space/shared';
 import { GALLERY_VIDEO_SLIDE, VideoPlayer } from '@/features/events/components/GalleryVideo';
 
 export default function ImagePreviewModal() {
 	const { activeModal, closeModal } = useModalStore();
+	const translate = useTranslation();
 	const modalData = useModalData(ModalType.ImagePreview);
 
 	// Memoised so the preload effect below doesn't re-run on every render.
@@ -84,7 +86,7 @@ export default function ImagePreviewModal() {
 			position="center"
 			contentClassName="bg-transparent shadow-none max-h-none overflow-visible"
 			backdropClassName="bg-black/95 backdrop-blur-sm"
-			ariaLabel="Image preview"
+			ariaLabel={translate('common.imagePreview')}
 		>
 			{currentImage && (
 				<div className="relative flex min-h-[90vh] items-center justify-center">
@@ -92,7 +94,7 @@ export default function ImagePreviewModal() {
 					<button
 						onClick={closeModal}
 						className="absolute top-3 right-3 z-50 cursor-pointer rounded-full bg-black/60 p-2 shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80 sm:top-4 sm:right-4"
-						aria-label="Close"
+						aria-label={translate('common.close')}
 					>
 						<X className="h-6 w-6 text-white sm:h-7 sm:w-7" />
 					</button>
@@ -105,7 +107,7 @@ export default function ImagePreviewModal() {
 								handlePrevious();
 							}}
 							className="absolute top-1/2 left-2 z-50 -translate-y-1/2 cursor-pointer rounded-full bg-black/60 p-2 shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80 sm:left-4 sm:p-3"
-							aria-label="Previous image"
+							aria-label={translate('common.previousImage')}
 						>
 							<ChevronLeft className="h-6 w-6 text-white sm:h-7 sm:w-7" />
 						</button>
@@ -124,7 +126,7 @@ export default function ImagePreviewModal() {
 									<VideoPlayer
 										key={currentIndex}
 										video={video}
-										title="Video"
+										title={translate('common.video')}
 										startPlaying={Boolean(modalData?.autoplayVideo) && currentIndex === initialIndex}
 										className="size-full rounded-2xl"
 									/>
@@ -132,7 +134,7 @@ export default function ImagePreviewModal() {
 							) : (
 								<Image
 									src={currentImage}
-									alt={`Preview ${currentIndex + 1}`}
+									alt={translate('common.photoNumber', { number: currentIndex + 1 })}
 									fill
 									// Same URL the page itself loaded: the optimizer would turn it into a
 									// different one, which means a second download of a picture already on
@@ -163,7 +165,7 @@ export default function ImagePreviewModal() {
 								handleNext();
 							}}
 							className="absolute top-1/2 right-2 z-50 -translate-y-1/2 cursor-pointer rounded-full bg-black/60 p-2 shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80 sm:right-4 sm:p-3"
-							aria-label="Next image"
+							aria-label={translate('common.nextImage')}
 						>
 							<ChevronRight className="h-6 w-6 text-white sm:h-7 sm:w-7" />
 						</button>

@@ -39,4 +39,5 @@ export const event: Messages['event'] = {
 	chooseDates: 'Выбрать даты',
 	reviewsCount: 'Отзывов: {count}',
 	nextDeparture: 'Ближайший выезд',
+	viewDetailsFor: 'Подробнее: {title}',
 };

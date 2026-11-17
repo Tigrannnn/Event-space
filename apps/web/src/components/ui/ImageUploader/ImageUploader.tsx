@@ -114,7 +114,7 @@ function SortableThumbnail({
 		>
 			<img
 				src={getPreviewUrl(item)}
-				alt={`Event image ${index + 1}`}
+				alt={translate('common.photoNumber', { number: index + 1 })}
 				className="pointer-events-none h-full w-full object-cover"
 				draggable={false}
 				onLoad={(event) => onMeasured(event.currentTarget.naturalWidth)}

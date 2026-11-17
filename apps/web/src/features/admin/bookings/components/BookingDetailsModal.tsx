@@ -113,7 +113,7 @@ export default function BookingDetailsModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="xl" ariaLabel="Booking details">
+		<Modal onClose={closeModal} size="xl" ariaLabel={translate('admin.bookingDetails')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.bookingDetails')} onClose={closeModal} />
 

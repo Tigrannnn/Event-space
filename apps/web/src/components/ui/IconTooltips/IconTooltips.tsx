@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-const TARGET = 'button, a, [role="button"]';
+const TARGET = '[data-tooltip]';
 const SHOW_DELAY_MS = 250;
 const GAP = 8;
 const EDGE = 8;
@@ -14,9 +14,7 @@ interface Tip {
 }
 
 function labelOf(element: HTMLElement): string | null {
-	if (element.textContent?.trim()) return null;
-	const label = element.getAttribute('aria-label') ?? element.dataset.tooltipTitle ?? element.getAttribute('title');
-	return label?.trim() || null;
+	return element.dataset.tooltip?.trim() || null;
 }
 
 function hideNativeTitle(element: HTMLElement) {

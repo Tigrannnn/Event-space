@@ -70,6 +70,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 						href={localizePath(myBookingPath, locale)}
 						onClick={(e) => e.stopPropagation()}
 						aria-label={translate('event.viewMyBooking')}
+						data-tooltip={translate('event.viewMyBooking')}
 						title={translate('event.viewMyBooking')}
 						className={`${ACTION} ${solid}`}
 					>
@@ -79,6 +80,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 						type="button"
 						onClick={handleBookClick}
 						aria-label={translate('event.bookAnotherSpot')}
+						data-tooltip={translate('event.bookAnotherSpot')}
 						title={translate('event.bookAnotherSpot')}
 						className={`${ACTION} bg-primary text-white`}
 					>
@@ -93,6 +95,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 				type="button"
 				onClick={handleBookClick}
 				aria-label={translate('event.bookTour')}
+				data-tooltip={translate('event.bookTour')}
 				title={translate('event.bookTour')}
 				className={`${ACTION} ${solid}`}
 			>
@@ -137,7 +140,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 		<article className="group @container relative isolate flex flex-col">
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
-				aria-label={`View details for ${eventTranslation.title}`}
+				aria-label={translate('event.viewDetailsFor', { title: eventTranslation.title })}
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-[1.75rem] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 			/>
 

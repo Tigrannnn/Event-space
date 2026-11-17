@@ -61,7 +61,7 @@ export default function BookingCancelModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="md" ariaLabel={'Cancel booking'}>
+		<Modal onClose={closeModal} size="md" ariaLabel={translate('admin.cancelBooking')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.cancelBooking')} onClose={closeModal} />
 

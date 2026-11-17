@@ -47,7 +47,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 						<button
 							onClick={() => handleOpenContact(ContactType.Phone, contact.phone as string)}
 							className="flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
-							aria-label={`Call ${contact.phone}`}
+							aria-label={translate('header.callPhone', { phone: contact.phone })}
 							type="button"
 						>
 							<Phone className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
@@ -58,7 +58,7 @@ export default function TopBar({ isTopBarVisible }: { isTopBarVisible: boolean }
 						<button
 							onClick={() => handleOpenContact(ContactType.Email, contact.email as string)}
 							className="flex shrink-0 items-center gap-1 text-white transition-all duration-200 hover:text-white/80 sm:gap-1.5"
-							aria-label={`Email ${contact.email}`}
+							aria-label={translate('header.writeEmail', { email: contact.email })}
 							type="button"
 						>
 							<Mail className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />

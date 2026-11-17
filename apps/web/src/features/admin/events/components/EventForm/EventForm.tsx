@@ -921,7 +921,7 @@ export default function EventForm({
 											{...register(`cancellationRules.${index}.hoursBeforeEvent`, { valueAsNumber: true })}
 											className={fieldClassName}
 											disabled={isPending}
-											placeholder="e.g. 48"
+											placeholder={translate('admin.exampleValue', { value: 48 })}
 											min="1"
 										/>
 										{errors.cancellationRules?.[index]?.hoursBeforeEvent && (
@@ -940,7 +940,7 @@ export default function EventForm({
 											{...register(`cancellationRules.${index}.refundPercentage`, { valueAsNumber: true })}
 											className={fieldClassName}
 											disabled={isPending}
-											placeholder="e.g. 100"
+											placeholder={translate('admin.exampleValue', { value: 100 })}
 											min="0"
 											max="100"
 										/>

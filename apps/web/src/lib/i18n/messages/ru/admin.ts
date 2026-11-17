@@ -668,4 +668,6 @@ export const admin: Messages['admin'] = {
 	refundedTotal: 'Возвращено',
 	changeGuestCount: 'Изменить число гостей',
 	removeLanguage: 'Убрать язык',
+	copyOrganizerId: 'Скопировать ID организатора',
+	exampleValue: 'Например, {value}',
 };
