@@ -220,7 +220,7 @@ const brands: Record<string, Brand> = {
 	// rather than simply going lighter, so the pair reads as two colours.
 	'yerivar.event-space.space': {
 		name: 'Yerivar',
-		skin: 'soft',
+		skin: 'classic',
 		colorPrimary: '#1E8F82',
 		colorAccent: '#227CA0',
 		description: siteConfig.description,

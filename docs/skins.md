@@ -2,7 +2,7 @@
 
 Скин — это то, как выглядит и как устроен сайт компании кроме цветов: шапка, карточки, страница тура, модалки. Нужен, чтобы сайты разных компаний-конкурентов не выглядели одним сайтом в разных красках. Админка скинов не имеет.
 
-Сейчас четыре скина: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour и One Day Tour, `listing` у Ampar и 1000+1 Travel, `soft` у Yerivar.
+Сейчас четыре скина: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour и One Day Tour, `listing` у Ampar и 1000+1 Travel, `classic` у Yerivar (как по умолчанию).
 
 ## Как это устроено
 
