@@ -180,6 +180,7 @@ export default function BannersList({ initialBanners }: BannersListProps) {
 										variant="secondary"
 										onClick={() => openModal(ModalType.UpdateBanner, { banner })}
 										aria-label={`${translate('admin.edit')}: ${text.title || translate('admin.bannerUntitled')}`}
+										data-tooltip={translate('admin.edit')}
 									>
 										<Pencil className="h-4 w-4" />
 									</Button>
@@ -190,6 +191,7 @@ export default function BannersList({ initialBanners }: BannersListProps) {
 										onClick={() => handleDelete(banner)}
 										isLoading={deleteBanner.isPending && deleteBanner.variables === banner.id}
 										aria-label={`${translate('admin.delete')}: ${text.title || translate('admin.bannerUntitled')}`}
+										data-tooltip={translate('admin.delete')}
 									>
 										<Trash2 className="h-4 w-4" />
 									</Button>

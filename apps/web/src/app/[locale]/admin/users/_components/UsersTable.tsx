@@ -285,6 +285,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 									disabled={updateUserRole.isPending}
 									size="sm"
 									aria-label={`${translate('admin.role')}: ${user.name}`}
+									data-tooltip={translate('admin.role')}
 									options={userRoleOptions}
 								/>
 							</TableCell>
@@ -309,6 +310,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 										variant="secondary"
 										onClick={() => openModal(ModalType.UserDetails, { user })}
 										aria-label={`${translate('admin.viewDetails')}: ${user.name}`}
+										data-tooltip={translate('admin.viewDetails')}
 									>
 										<Eye className="h-4 w-4" />
 									</Button>
@@ -319,6 +321,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 											variant="secondary"
 											onClick={() => openModal(ModalType.EditGuest, { user })}
 											aria-label={`${translate('admin.editGuest')}: ${user.name}`}
+											data-tooltip={translate('admin.editGuest')}
 											title={translate('admin.editGuest')}
 										>
 											<Pencil className="h-4 w-4" />
@@ -334,6 +337,7 @@ export default function UsersTable({ initialUsers }: UsersTableProps) {
 											)
 										}
 										aria-label={`${translate('admin.userBookings')}: ${user.name}`}
+										data-tooltip={translate('admin.userBookings')}
 										title={translate('admin.userBookings')}
 									>
 										<Ticket className="h-4 w-4" />

@@ -201,6 +201,7 @@ export default function PromoCodesTable({ initialPromoCodes }: PromoCodesTablePr
 										variant="secondary"
 										onClick={() => openModal(ModalType.UpdatePromoCode, { promoCode })}
 										aria-label={`${translate('admin.edit')}: ${promoCode.code}`}
+										data-tooltip={translate('admin.edit')}
 									>
 										<Pencil className="h-4 w-4" />
 									</Button>
@@ -211,6 +212,7 @@ export default function PromoCodesTable({ initialPromoCodes }: PromoCodesTablePr
 										onClick={() => handleDelete(promoCode)}
 										isLoading={deletingId === promoCode.id && deletePromoCode.isPending}
 										aria-label={`${translate('admin.delete')}: ${promoCode.code}`}
+										data-tooltip={translate('admin.delete')}
 									>
 										<Trash2 className="h-4 w-4" />
 									</Button>

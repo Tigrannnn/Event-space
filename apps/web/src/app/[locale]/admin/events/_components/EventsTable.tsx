@@ -446,6 +446,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="secondary"
 												onClick={() => openModal(ModalType.EventDetails, { event })}
 												aria-label={`${translate('admin.viewDetails')}: ${eventTranslation.title}`}
+												data-tooltip={translate('admin.viewDetails')}
 											>
 												<Eye className="h-4 w-4" />
 											</Button>
@@ -455,6 +456,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="secondary"
 												onClick={() => openModal(ModalType.UpdateEvent, { event })}
 												aria-label={`${translate('admin.edit')}: ${eventTranslation.title}`}
+												data-tooltip={translate('admin.edit')}
 											>
 												<Pencil className="h-4 w-4" />
 											</Button>
@@ -464,6 +466,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												variant="secondary"
 												onClick={() => router.push(localizePath(`/admin/bookings?eventId=${event.id}`, locale))}
 												aria-label={`${translate('admin.viewBookings')}: ${eventTranslation.title}`}
+												data-tooltip={translate('admin.viewBookings')}
 												title={translate('admin.viewBookings')}
 											>
 												<Ticket className="h-4 w-4" />
@@ -475,6 +478,7 @@ export default function EventsTable({ initialEvents }: EventsTableProps) {
 												onClick={() => handleDelete(event)}
 												isLoading={deletingId === event.id && deleteEvent.isPending}
 												aria-label={`${translate('admin.delete')}: ${eventTranslation.title}`}
+												data-tooltip={translate('admin.delete')}
 											>
 												<Trash2 className="h-4 w-4" />
 											</Button>

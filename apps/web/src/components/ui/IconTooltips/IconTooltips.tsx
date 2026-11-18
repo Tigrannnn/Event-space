@@ -14,8 +14,8 @@ interface Tip {
 }
 
 function labelOf(element: HTMLElement): string | null {
-	if (element.textContent?.trim()) return null;
-	const label = element.getAttribute('aria-label') ?? element.dataset.tooltipTitle ?? element.getAttribute('title');
+	if (element.hasAttribute('data-no-tooltip') || element.textContent?.trim()) return null;
+	const label = element.dataset.tooltip ?? element.getAttribute('aria-label') ?? element.dataset.tooltipTitle ?? element.getAttribute('title');
 	return label?.trim() || null;
 }
 

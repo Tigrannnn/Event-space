@@ -39,6 +39,7 @@ export default function EventCardClassic({ event }: EventCardProps) {
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
 				aria-label={translate('event.viewDetailsFor', { title: eventTranslation.title })}
+				data-no-tooltip
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:rounded-4xl md:rounded-[2.5rem]"
 			/>
 			{/* Media Section */}

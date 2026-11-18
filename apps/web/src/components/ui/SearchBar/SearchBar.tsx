@@ -39,7 +39,7 @@ export const SearchBar = ({
 						onChange('');
 						router.push('/');
 					}}
-					className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors lg:right-4 dark:text-gray-500 dark:hover:text-gray-300"
+					className="hover:text-primary absolute top-1/2 right-3 z-20 -translate-y-1/2 cursor-pointer text-gray-400 transition-colors lg:right-4 dark:text-gray-500 dark:hover:text-gray-300"
 					type="button"
 					aria-label={translate('common.clearSearch')}
 				>

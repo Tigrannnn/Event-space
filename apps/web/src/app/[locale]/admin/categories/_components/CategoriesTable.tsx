@@ -188,6 +188,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 												variant="secondary"
 												onClick={() => openModal(ModalType.CategoryDetails, { category })}
 												aria-label={`${translate('admin.viewDetails')}: ${categoryTranslation.name}`}
+												data-tooltip={translate('admin.viewDetails')}
 											>
 												<Eye className="h-4 w-4" />
 											</Button>
@@ -197,6 +198,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 												variant="secondary"
 												onClick={() => openModal(ModalType.UpdateCategory, { category })}
 												aria-label={`${translate('admin.edit')}: ${categoryTranslation.name}`}
+												data-tooltip={translate('admin.edit')}
 											>
 												<Pencil className="h-4 w-4" />
 											</Button>
@@ -207,6 +209,7 @@ export default function CategoriesTable({ initialCategories }: CategoriesTablePr
 												onClick={() => handleDelete(category)}
 												isLoading={deletingId === category.id && deleteCategory.isPending}
 												aria-label={`${translate('admin.delete')}: ${categoryTranslation.name}`}
+												data-tooltip={translate('admin.delete')}
 											>
 												<Trash2 className="h-4 w-4" />
 											</Button>

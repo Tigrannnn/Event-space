@@ -78,6 +78,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 			<Link
 				href={localizePath(`/events/${event.id}`, locale)}
 				aria-label={translate('event.viewDetailsFor', { title: eventTranslation.title })}
+				data-no-tooltip
 				className="focus-visible:ring-primary absolute inset-0 z-10 rounded-lg focus:outline-none focus-visible:ring-2"
 			/>
 
