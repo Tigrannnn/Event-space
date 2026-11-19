@@ -336,7 +336,7 @@ const brands: Record<string, Brand> = {
 		contact: {
 			phone: '+374 77 118393',
 			email: 'info@werelk.am',
-			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+			location: { address: 'Teghut, Dilijan, Armenia', mapsUrl: 'https://maps.google.com/?q=Teghut,+Dilijan,+Armenia' },
 		},
 		about: placeholderAbout('Werelk Hiking Club'),
 	},
