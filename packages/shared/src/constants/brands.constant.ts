@@ -326,6 +326,20 @@ const brands: Record<string, Brand> = {
 		},
 		about: placeholderAbout('Syunik Tour'),
 	},
+	'werelk.event-space.space': {
+		name: 'Werelk Hiking Club',
+		skin: 'minimal',
+		colorPrimary: '#A65A2A',
+		colorAccent: '#4F6B3A',
+		description: siteConfig.description,
+		ogImage: '/brands/werelkhikingclub-logo.jpg',
+		contact: {
+			phone: '+374 99 000 000',
+			email: 'info@werelk.am',
+			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
+		},
+		about: placeholderAbout('Werelk Hiking Club'),
+	},
 };
 
 /** The domain the demo subdomains hang off. */
