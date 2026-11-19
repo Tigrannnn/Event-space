@@ -314,6 +314,7 @@ const brands: Record<string, Brand> = {
 	},
 	'syuniktour.event-space.space': {
 		name: 'Syunik Tour',
+		skin: 'market',
 		colorPrimary: '#238B30',
 		colorAccent: '#978211',
 		description: siteConfig.description,
