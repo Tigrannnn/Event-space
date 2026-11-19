@@ -334,6 +334,7 @@ const brands: Record<string, Brand> = {
 		description: siteConfig.description,
 		ogImage: '/brands/werelkhikingclub-logo.jpg',
 		contact: {
+			instagram: 'https://www.instagram.com/werelk_hiking_club/',
 			phone: '+374 77 118393',
 			email: 'info@werelk.am',
 			location: { address: 'Teghut, Dilijan, Armenia', mapsUrl: 'https://maps.google.com/?q=Teghut,+Dilijan,+Armenia' },
