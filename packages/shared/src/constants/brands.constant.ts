@@ -314,7 +314,7 @@ const brands: Record<string, Brand> = {
 	},
 	'syuniktour.event-space.space': {
 		name: 'Syunik Tour',
-		skin: 'market',
+		skin: 'minimal',
 		colorPrimary: '#238B30',
 		colorAccent: '#978211',
 		description: siteConfig.description,
@@ -329,7 +329,7 @@ const brands: Record<string, Brand> = {
 	},
 	'werelk.event-space.space': {
 		name: 'Werelk Hiking Club',
-		skin: 'minimal',
+		skin: 'market',
 		colorPrimary: '#A65A2A',
 		colorAccent: '#4F6B3A',
 		description: siteConfig.description,
