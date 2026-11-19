@@ -71,7 +71,7 @@ export default function HeaderDrawer() {
 								navigation.push('/', { scroll: false });
 							}}
 							className="px-1 text-gray-400 hover:text-gray-700 dark:hover:text-white"
-							aria-label={translate('header.search')}
+							aria-label={translate('common.clearSearch')}
 						>
 							<X className="size-4" />
 						</button>

@@ -127,7 +127,7 @@ export default function HeaderListing() {
 								navigation.push('/', { scroll: false });
 							}}
 							className="px-2 text-gray-400 hover:text-gray-700"
-							aria-label={translate('header.search')}
+							aria-label={translate('common.clearSearch')}
 						>
 							<X className="size-4" />
 						</button>

@@ -132,7 +132,7 @@ export default function HeaderSoft() {
 								navigation.push('/', { scroll: false });
 							}}
 							className="mr-1 rounded-full p-1.5 text-gray-400 hover:text-gray-700"
-							aria-label={translate('header.search')}
+							aria-label={translate('common.clearSearch')}
 						>
 							<X className="size-4" />
 						</button>
