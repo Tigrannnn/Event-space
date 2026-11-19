@@ -334,7 +334,7 @@ const brands: Record<string, Brand> = {
 		description: siteConfig.description,
 		ogImage: '/brands/werelkhikingclub-logo.jpg',
 		contact: {
-			phone: '+374 99 000 000',
+			phone: '+374 77 118393',
 			email: 'info@werelk.am',
 			location: { address: 'Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Yerevan+Armenia' },
 		},
