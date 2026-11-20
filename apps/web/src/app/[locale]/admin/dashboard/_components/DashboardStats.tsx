@@ -18,6 +18,7 @@ import FlowChart from './widgets/FlowChart';
 import RevenueKpiCards from './widgets/RevenueKpiCards';
 import RevenueChart from './widgets/RevenueChart';
 import PaymentMixWidget from './widgets/PaymentMixWidget';
+import FlowPaymentMixWidget from './widgets/FlowPaymentMixWidget';
 import SourceSummaryWidget from './widgets/SourceSummaryWidget';
 import ExpectedTimeline from './widgets/ExpectedTimeline';
 import { useTranslation } from '@/hooks/translation';
@@ -120,6 +121,7 @@ export default function DashboardStats({ stats: initialStats }: DashboardStatsPr
 				<>
 					<FlowKpiCards flow={flow} cohort={cohort} isLoading={isFlowLoading} />
 					<FlowChart flow={flow} isLoading={isFlowLoading} />
+					<FlowPaymentMixWidget flow={flow} isLoading={isFlowLoading} />
 				</>
 			)}
 

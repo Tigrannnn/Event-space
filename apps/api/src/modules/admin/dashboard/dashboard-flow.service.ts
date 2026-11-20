@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import type { DashboardFlow, DashboardFlowPoint } from '@event-space/shared';
+import type { DashboardFlow, DashboardFlowPaymentMix, DashboardFlowPoint, PaymentMethod } from '@event-space/shared';
 import { endOfDay, startOfDay, toDateKey } from '../../../shared/utils/app-day.util';
+import { round2 } from './dashboard-revenue.util';
 
 interface FlowTotals {
 	bookingsCreated: number;
@@ -57,6 +58,7 @@ export class DashboardFlowService {
 			points: toDailyPoints(current, start, end),
 			totals: toTotals(current),
 			previousTotals: toTotals(previous),
+			paymentMix: toPaymentMix(current),
 		};
 	}
 
@@ -66,7 +68,7 @@ export class DashboardFlowService {
 		const [bookings, adjustments] = await Promise.all([
 			this.prisma.booking.findMany({
 				where: { createdAt },
-				select: { createdAt: true },
+				select: { createdAt: true, status: true, paymentMethod: true, quantity: true, amount: true },
 			}),
 			this.prisma.bookingAdjustment.findMany({
 				where: { status: 'SUCCEEDED', createdAt },
@@ -78,8 +80,16 @@ export class DashboardFlowService {
 	}
 }
 
+interface FlowBooking {
+	createdAt: Date;
+	status: string;
+	paymentMethod: PaymentMethod;
+	quantity: number;
+	amount: unknown;
+}
+
 interface FlowWindow {
-	bookings: { createdAt: Date }[];
+	bookings: FlowBooking[];
 	adjustments: { createdAt: Date; type: string; amount: unknown }[];
 }
 
@@ -136,4 +146,30 @@ function toTotals(window: FlowWindow): FlowTotals {
 		collected,
 		refunded: collected - revenue,
 	};
+}
+
+const PAYMENT_METHODS: PaymentMethod[] = ['SITE_PAYMENT', 'OFFLINE_PAID', 'PAY_ON_ARRIVAL'];
+
+export function toPaymentMix(window: Pick<FlowWindow, 'bookings'>): DashboardFlowPaymentMix {
+	const methods = PAYMENT_METHODS.map((method) => ({ method, bookings: 0, guests: 0, amount: 0 }));
+	const cancelled = { bookings: 0, amount: 0 };
+
+	for (const booking of window.bookings) {
+		const amount = Number(booking.amount);
+
+		if (booking.status === 'CANCELLED') {
+			cancelled.bookings += 1;
+			cancelled.amount = round2(cancelled.amount + amount);
+			continue;
+		}
+		if (booking.status !== 'CONFIRMED') continue;
+
+		const stat = methods.find((row) => row.method === booking.paymentMethod);
+		if (!stat) continue;
+		stat.bookings += 1;
+		stat.guests += booking.quantity;
+		stat.amount = round2(stat.amount + amount);
+	}
+
+	return { methods, cancelled };
 }

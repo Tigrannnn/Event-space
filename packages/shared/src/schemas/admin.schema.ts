@@ -101,6 +101,20 @@ export const DashboardFlowPointSchema = z.object({
 
 export type DashboardFlowPoint = z.infer<typeof DashboardFlowPointSchema>;
 
+export const DashboardFlowPaymentMixSchema = z.object({
+	methods: z.array(
+		z.object({
+			method: PaymentMethodEnum,
+			bookings: z.number().int(),
+			guests: z.number().int(),
+			amount: z.number(),
+		}),
+	),
+	cancelled: z.object({ bookings: z.number().int(), amount: z.number() }),
+});
+
+export type DashboardFlowPaymentMix = z.infer<typeof DashboardFlowPaymentMixSchema>;
+
 /**
  * Flow over a period, next to the same-length period immediately before it.
  *
@@ -121,6 +135,7 @@ export const DashboardFlowSchema = z.object({
 		collected: z.number(),
 		refunded: z.number(),
 	}),
+	paymentMix: DashboardFlowPaymentMixSchema,
 });
 
 export type DashboardFlow = z.infer<typeof DashboardFlowSchema>;
