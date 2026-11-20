@@ -422,6 +422,7 @@
 	--color-destructive: #dc2626;
 	--color-destructive-foreground: #ffffff;
 
+	--font-sans-armenian: 'Noto Sans Armenian Variable';
 	--font-heading: var(--font-sans);
 	--font-sans: var(--font-sans-latin), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 

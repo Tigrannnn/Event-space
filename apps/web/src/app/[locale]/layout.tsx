@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist_Mono, Manrope, Noto_Sans_Armenian } from 'next/font/google';
+import { Geist_Mono, Manrope } from 'next/font/google';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/fraunces';
+import '@fontsource-variable/noto-sans-armenian';
 import { cookies, headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
@@ -37,13 +38,6 @@ const fontSans = Manrope({
 	variable: '--font-sans-latin',
 	subsets: ['latin', 'cyrillic'],
 	weight: ['400', '500', '600', '700', '800'],
-	display: 'swap',
-});
-
-const fontArmenian = Noto_Sans_Armenian({
-	variable: '--font-sans-armenian',
-	subsets: ['armenian'],
-	weight: ['400', '500', '600', '700'],
 	display: 'swap',
 });
 
@@ -121,7 +115,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			className={`notranslate ${fontSans.variable} ${fontArmenian.variable} ${geistMono.variable}`}
+			className={`notranslate ${fontSans.variable} ${geistMono.variable}`}
 			suppressHydrationWarning
 		>
 			<head>
