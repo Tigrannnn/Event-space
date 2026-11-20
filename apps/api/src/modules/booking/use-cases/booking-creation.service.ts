@@ -160,7 +160,7 @@ export class BookingCreationService {
 						promoCodeId,
 						...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
 						...(brandHost ? { brandHost } : {}),
-						...(source ?? {}),
+						...source,
 					},
 					create: {
 						userId,
@@ -170,7 +170,7 @@ export class BookingCreationService {
 						...pricing,
 						promoCodeId,
 						brandHost,
-						...(source ?? {}),
+						...source,
 					},
 				});
 

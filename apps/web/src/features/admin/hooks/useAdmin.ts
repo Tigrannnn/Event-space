@@ -980,7 +980,7 @@ export const useUpdateChannel = () => {
 	});
 };
 
-export const useAdminSources = (params?: { includeArchived?: boolean }) => {
+export const useAdminSources = (params?: { includeArchived?: boolean; withPlatforms?: boolean }) => {
 	return useQuery({
 		queryKey: ['admin', 'sources', params],
 		queryFn: () => adminApi.getSources(params),
@@ -1020,10 +1020,10 @@ export const useUpdateSource = () => {
 	});
 };
 
-export const useTraffic = (from: string, to: string) => {
+export const useSourceStats = (from: string, to: string) => {
 	return useQuery({
-		queryKey: ['admin', 'stats', 'traffic', from, to],
-		queryFn: () => adminApi.getTraffic(from, to),
+		queryKey: ['admin', 'stats', 'sources', from, to],
+		queryFn: () => adminApi.getSourceStats(from, to),
 		...LIVE_QUERY_OPTIONS,
 	});
 };
@@ -1032,14 +1032,6 @@ export const useTourFunnel = (from: string, to: string, eventId?: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'tours', from, to, eventId],
 		queryFn: () => adminApi.getTourFunnel(from, to, eventId),
-		...LIVE_QUERY_OPTIONS,
-	});
-};
-
-export const useRevenueBySource = (from: string, to: string) => {
-	return useQuery({
-		queryKey: ['admin', 'stats', 'revenue-sources', from, to],
-		queryFn: () => adminApi.getRevenueBySource(from, to),
 		...LIVE_QUERY_OPTIONS,
 	});
 };

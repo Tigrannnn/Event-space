@@ -2,21 +2,27 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import clientApi from '@/lib/client.api';
+import { platformFromReferrer } from '@event-space/shared';
 import { stripLocaleFromPathname } from '@/lib/i18n/config';
 import { tourIdFromPath, trackAnalytics } from '@/utils/analytics';
-import { readSourceRef, refFromSearch, rememberSourceRef, withoutSourceParams } from '@/utils/sourceRef';
+import { refFromSearch, rememberSourceRef, withoutSourceParams } from '@/utils/sourceRef';
+
+let arrivalHandled = false;
+
+function rememberArrival() {
+	if (arrivalHandled) return;
+	arrivalHandled = true;
+
+	const source =
+		refFromSearch(window.location.search) ?? platformFromReferrer(document.referrer, window.location.hostname);
+	if (source) rememberSourceRef(source);
+}
 
 export default function SourceRefTracker() {
 	const pathname = usePathname();
 
 	useEffect(() => {
-		const ref = refFromSearch(window.location.search);
-		if (ref) {
-			const isNewVisit = readSourceRef() !== ref;
-			rememberSourceRef(ref);
-			if (isNewVisit) void clientApi.post('/sources/visit', { ref }).catch(() => undefined);
-		}
+		rememberArrival();
 
 		const cleanUrl = withoutSourceParams(window.location.href);
 		if (cleanUrl !== window.location.href) window.history.replaceState(null, '', cleanUrl);

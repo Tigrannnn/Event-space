@@ -179,7 +179,7 @@ export default function EventDetailsModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="xl" ariaLabel={translate('admin.eventDetails')}>
+		<Modal onClose={closeModal} size="4xl" ariaLabel={translate('admin.eventDetails')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.eventDetails')} onClose={closeModal} />
 
@@ -207,306 +207,309 @@ export default function EventDetailsModal() {
 						<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 							{translate('admin.eventInformation')}
 						</p>
-						<div className="mt-4 grid grid-cols-1 gap-4 text-sm text-gray-700 dark:text-gray-200">
-							<div>
-								<button
-									type="button"
-									onClick={() => {
-										closeModal();
-										router.push(`/events/${event.id}`);
-									}}
-									className="text-primary cursor-pointer text-left text-lg font-semibold transition hover:underline"
-								>
-									{eventTranslation.title}
-								</button>
-							</div>
-
-							<div className="flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
-								<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
-									{event.id}
-								</code>
-								<button
-									type="button"
-									onClick={handleCopyId}
-									className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-									title={translate('admin.copyId')}
-								>
-									<Copy className="h-3 w-3" />
-								</button>
-							</div>
-
-							<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-								<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.category')}
-									</p>
+						<div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6 text-sm text-gray-700 dark:text-gray-200">
+							<div className="min-w-0 space-y-4">
+								<div>
 									<button
 										type="button"
 										onClick={() => {
 											closeModal();
-											router.push(`/admin/categories?search=${event.category.id}`);
+											router.push(`/events/${event.id}`);
 										}}
-										className="text-primary mt-1 block text-left font-medium hover:underline"
+										className="text-primary cursor-pointer text-left text-lg font-semibold transition hover:underline"
 									>
-										{categoryTranslation.name ?? '—'}
+										{eventTranslation.title}
 									</button>
-							</div>
+								</div>
 
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
+								<div className="flex items-center gap-2 rounded-2xl bg-gray-100 p-3 dark:bg-gray-800">
+									<code className="flex-1 font-mono text-xs break-all text-gray-700 dark:text-gray-300">
+										{event.id}
+									</code>
+									<button
+										type="button"
+										onClick={handleCopyId}
+										className="shrink-0 cursor-pointer rounded px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+										title={translate('admin.copyId')}
+									>
+										<Copy className="h-3 w-3" />
+									</button>
+								</div>
+
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
 									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('event.date')}
-									</p>
-									{/* Only what still needs attention is listed; a year of run tours would
-									    otherwise bury the two dates the admin actually came here for. */}
-									<div className="mt-2 space-y-2">
-										{upcomingOccurrences.length > 0 ? (
-											upcomingOccurrences.map(renderOccurrence)
-										) : (
-											<p className="text-sm text-gray-500 dark:text-gray-400">
-												{occurrences.length > 0
-													? translate('admin.noUpcomingDates')
-													: '—'}
-											</p>
-										)}
+											{translate('admin.category')}
+										</p>
+										<button
+											type="button"
+											onClick={() => {
+												closeModal();
+												router.push(`/admin/categories?search=${event.category.id}`);
+											}}
+											className="text-primary mt-1 block text-left font-medium hover:underline"
+										>
+											{categoryTranslation.name ?? '—'}
+										</button>
+								</div>
 
-										{pastOccurrences.length > 0 && (
-											<>
-												<button
-													type="button"
-													onClick={() => setShowPast((shown) => !shown)}
-													className="text-primary cursor-pointer text-xs font-medium hover:underline"
-												>
-													{showPast
-														? translate('admin.hidePastDates')
-														: `${translate('admin.pastDates')} (${pastOccurrences.length})`}
-												</button>
-												{showPast && (
-													<div className="space-y-2">{pastOccurrences.map(renderOccurrence)}</div>
-												)}
-											</>
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('event.date')}
+										</p>
+										{/* Only what still needs attention is listed; a year of run tours would
+										    otherwise bury the two dates the admin actually came here for. */}
+										<div className="mt-2 space-y-2">
+											{upcomingOccurrences.length > 0 ? (
+												upcomingOccurrences.map(renderOccurrence)
+											) : (
+												<p className="text-sm text-gray-500 dark:text-gray-400">
+													{occurrences.length > 0
+														? translate('admin.noUpcomingDates')
+														: '—'}
+												</p>
+											)}
+
+											{pastOccurrences.length > 0 && (
+												<>
+													<button
+														type="button"
+														onClick={() => setShowPast((shown) => !shown)}
+														className="text-primary cursor-pointer text-xs font-medium hover:underline"
+													>
+														{showPast
+															? translate('admin.hidePastDates')
+															: `${translate('admin.pastDates')} (${pastOccurrences.length})`}
+													</button>
+													{showPast && (
+														<div className="space-y-2">{pastOccurrences.map(renderOccurrence)}</div>
+													)}
+												</>
+											)}
+										</div>
+									</div>
+								</div>
+
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('event.location')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.location}</p>
+										{event.locationUrl && (
+											<a
+												href={event.locationUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
+											>
+												{translate('admin.openLocation')}
+											</a>
+										)}
+									</div>
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.meetingLocation')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.meetingLocation}</p>
+										{event.meetingLocationUrl && (
+											<a
+												href={event.meetingLocationUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
+											>
+												{translate('admin.openMeetingLocation')}
+											</a>
 										)}
 									</div>
 								</div>
-							</div>
 
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('event.location')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.location}</p>
-									{event.locationUrl && (
-										<a
-											href={event.locationUrl}
-											target="_blank"
-											rel="noreferrer"
-											className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
-										>
-											{translate('admin.openLocation')}
-										</a>
-									)}
-								</div>
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.meetingLocation')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">{eventTranslation.meetingLocation}</p>
-									{event.meetingLocationUrl && (
-										<a
-											href={event.meetingLocationUrl}
-											target="_blank"
-											rel="noreferrer"
-											className="text-primary mt-1 inline-block text-xs font-medium hover:underline"
-										>
-											{translate('admin.openMeetingLocation')}
-										</a>
-									)}
-								</div>
-							</div>
-
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.price')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatCurrency(event.price)}
-									</p>
-								</div>
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('event.duration')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDuration(event.duration)}
-									</p>
-								</div>
-							</div>
-
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('event.difficulty')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{EVENT_DIFFICULTY_LABELS[event.difficulty]}
-									</p>
-								</div>
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.status')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{EVENT_STATUS_LABELS[event.status] ?? event.status}
-									</p>
-								</div>
-							</div>
-
-							{bookingStats && (
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.totalBookings')}
-									</p>
-									{bookingStats.total > 0 ? (
-										<>
-											<p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-												{bookingStats.total}
-											</p>
-											<BookingStatusBreakdown
-												stats={bookingStats}
-												labels={BOOKING_STATUS_LABELS}
-												className="mt-2"
-											/>
-										</>
-									) : (
-										<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-											{translate('admin.noBookingsYet')}
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.price')}
 										</p>
-									)}
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{formatCurrency(event.price)}
+										</p>
+									</div>
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('event.duration')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{formatDuration(event.duration)}
+										</p>
+									</div>
 								</div>
-							)}
 
-							<EventFunnelCard eventId={event.id} />
-
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.capacity')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{occurrences.length > 0 ? `${totalBooked}/${totalCapacity}` : '—'}
-									</p>
-									<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-										{translate('admin.acrossOccurrences')} ({occurrences.length})
-									</p>
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('event.difficulty')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{EVENT_DIFFICULTY_LABELS[event.difficulty]}
+										</p>
+									</div>
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.status')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{EVENT_STATUS_LABELS[event.status] ?? event.status}
+										</p>
+									</div>
 								</div>
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.organizer')}
-									</p>
-									<button
-										type="button"
-										onClick={() => {
-											closeModal();
-											router.push(`/admin/users?search=${event.organizer?.id}`);
-										}}
-										className="text-primary mt-1 block text-left font-medium hover:underline"
-									>
-										{event.organizer?.name ?? '—'}
-									</button>
-									{event.organizer?.email && (
-										<p className="mt-0.5 text-xs wrap-anywhere text-gray-500 dark:text-gray-400">{event.organizer.email}</p>
-									)}
-									{event.organizer?.phone && (
-										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.phone}</p>
-									)}
-									{event.organizer?.id && (
-										<div className="mt-2 flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
-											<code className="flex-1 font-mono text-[0.65rem] break-all text-gray-700 dark:text-gray-300">
-												{event.organizer.id}
-											</code>
-											<button
-												type="button"
-												onClick={handleCopyOrganizerId}
-												className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-												title={translate('admin.copyOrganizerId')}
-											>
-												<Copy className="h-3 w-3" />
-											</button>
-										</div>
-									)}
+
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.capacity')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{occurrences.length > 0 ? `${totalBooked}/${totalCapacity}` : '—'}
+										</p>
+										<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+											{translate('admin.acrossOccurrences')} ({occurrences.length})
+										</p>
+									</div>
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.organizer')}
+										</p>
+										<button
+											type="button"
+											onClick={() => {
+												closeModal();
+												router.push(`/admin/users?search=${event.organizer?.id}`);
+											}}
+											className="text-primary mt-1 block text-left font-medium hover:underline"
+										>
+											{event.organizer?.name ?? '—'}
+										</button>
+										{event.organizer?.email && (
+											<p className="mt-0.5 text-xs wrap-anywhere text-gray-500 dark:text-gray-400">{event.organizer.email}</p>
+										)}
+										{event.organizer?.phone && (
+											<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{event.organizer.phone}</p>
+										)}
+										{event.organizer?.id && (
+											<div className="mt-2 flex items-center gap-2 rounded-xl bg-gray-100 p-2 dark:bg-gray-800">
+												<code className="flex-1 font-mono text-[0.65rem] break-all text-gray-700 dark:text-gray-300">
+													{event.organizer.id}
+												</code>
+												<button
+													type="button"
+													onClick={handleCopyOrganizerId}
+													className="shrink-0 cursor-pointer rounded px-1.5 py-1 text-gray-600 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
+													title={translate('admin.copyOrganizerId')}
+												>
+													<Copy className="h-3 w-3" />
+												</button>
+											</div>
+										)}
+									</div>
+								</div>
+
+								<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.createdAt')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{formatDateTime(event.createdAt)}
+										</p>
+									</div>
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.updatedAt')}
+										</p>
+										<p className="mt-1 font-medium text-gray-900 dark:text-white">
+											{formatDateTime(event.updatedAt)}
+										</p>
+									</div>
 								</div>
 							</div>
+							<div className="min-w-0 space-y-4">
+								{bookingStats && (
+									<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.totalBookings')}
+										</p>
+										{bookingStats.total > 0 ? (
+											<>
+												<p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+													{bookingStats.total}
+												</p>
+												<BookingStatusBreakdown
+													stats={bookingStats}
+													labels={BOOKING_STATUS_LABELS}
+													className="mt-2"
+												/>
+											</>
+										) : (
+											<p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+												{translate('admin.noBookingsYet')}
+											</p>
+										)}
+									</div>
+								)}
 
-							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.createdAt')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDateTime(event.createdAt)}
-									</p>
-								</div>
-								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.updatedAt')}
-									</p>
-									<p className="mt-1 font-medium text-gray-900 dark:text-white">
-										{formatDateTime(event.updatedAt)}
-									</p>
-								</div>
+								<EventFunnelCard eventId={event.id} />
+
+								{eventTranslation.description && (
+									<div>
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.description')}
+										</p>
+										<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">{eventTranslation.description}</p>
+									</div>
+								)}
+
+								{eventTranslation.whatsIncluded?.length ? (
+									<div>
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.whatIncluded')}
+										</p>
+										<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
+											{eventTranslation.whatsIncluded.map((item) => (
+												<li
+													key={item}
+													className="rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900"
+												>
+													{item}
+												</li>
+											))}
+										</ul>
+									</div>
+								) : null}
+
+								{event.cancellationRules?.length ? (
+									<div>
+										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+											{translate('admin.cancellationRules')}
+										</p>
+										<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-1 dark:text-gray-200">
+											{event.cancellationRules.map((rule) => (
+												<li
+													key={rule.id}
+													className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+												>
+													<p className="font-semibold text-gray-900 dark:text-white">
+														{translate('admin.expiresHoursBefore')} {rule.hoursBeforeEvent}{' '}
+														{translate('cancellation.and')}
+													</p>
+													<p className="mt-1 text-sm text-gray-700 dark:text-gray-200">
+														{translate('admin.refund')}: {rule.refundPercentage}%
+													</p>
+												</li>
+											))}
+										</ul>
+									</div>
+								) : null}
 							</div>
-
-							{eventTranslation.description && (
-								<div>
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.description')}
-									</p>
-									<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">{eventTranslation.description}</p>
-								</div>
-							)}
-
-							{eventTranslation.whatsIncluded?.length ? (
-								<div>
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.whatIncluded')}
-									</p>
-									<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-gray-200">
-										{eventTranslation.whatsIncluded.map((item) => (
-											<li
-												key={item}
-												className="rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900"
-											>
-												{item}
-											</li>
-										))}
-									</ul>
-								</div>
-							) : null}
-
-							{event.cancellationRules?.length ? (
-								<div>
-									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-										{translate('admin.cancellationRules')}
-									</p>
-									<ul className="mt-2 grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-1 dark:text-gray-200">
-										{event.cancellationRules.map((rule) => (
-											<li
-												key={rule.id}
-												className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
-											>
-												<p className="font-semibold text-gray-900 dark:text-white">
-													{translate('admin.expiresHoursBefore')} {rule.hoursBeforeEvent}{' '}
-													{translate('cancellation.and')}
-												</p>
-												<p className="mt-1 text-sm text-gray-700 dark:text-gray-200">
-													{translate('admin.refund')}: {rule.refundPercentage}%
-												</p>
-											</li>
-										))}
-									</ul>
-								</div>
-							) : null}
 						</div>
 					</section>
 				</div>

@@ -117,12 +117,12 @@ export default function BookingDetailsModal() {
 	};
 
 	return (
-		<Modal onClose={closeModal} size="xl" ariaLabel={translate('admin.bookingDetails')}>
+		<Modal onClose={closeModal} size="4xl" ariaLabel={translate('admin.bookingDetails')}>
 			<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:p-6 dark:bg-gray-900 dark:shadow-black/50">
 				<ModalHeader title={translate('admin.bookingDetails')} onClose={closeModal} />
 
-				<div className="grid grid-cols-1 gap-6">
-					<div className="space-y-6">
+				<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+					<div className="min-w-0 space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<div className="flex items-center justify-between gap-3">
 								<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -474,7 +474,7 @@ export default function BookingDetailsModal() {
 						)}
 					</div>
 
-					<div className="space-y-6">
+					<div className="min-w-0 space-y-6">
 						<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
 							<p className="text-sm font-semibold tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
 								{translate('admin.eventDetails')}

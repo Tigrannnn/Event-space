@@ -21,7 +21,6 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { SearchModule } from './modules/search/search.module';
 import { BannerModule } from '@modules/banner/banner.module';
 import { ReviewModule } from '@modules/review/review.module';
-import { SourceModule } from '@modules/source/source.module';
 import { AnalyticsModule } from '@modules/analytics/analytics.module';
 
 @Module({
@@ -50,7 +49,6 @@ import { AnalyticsModule } from '@modules/analytics/analytics.module';
 		SearchModule,
 		BannerModule,
 		ReviewModule,
-		SourceModule,
 		AnalyticsModule,
 	],
 	controllers: [AppController],

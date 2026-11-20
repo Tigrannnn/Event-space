@@ -17,6 +17,7 @@ import {
 	Star,
 	Percent,
 	Megaphone,
+	ChartColumn,
 } from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -38,6 +39,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 
 	const navItems = [
 		{ href: '/admin/dashboard', label: translate('admin.dashboard'), icon: LayoutDashboard },
+		{ href: '/admin/statistics', label: translate('admin.statistics'), icon: ChartColumn },
 		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
 		{ href: '/admin/categories', label: translate('admin.categories'), icon: Tag },
 		{ href: '/admin/promo-codes', label: translate('admin.promoCodes'), icon: Percent },

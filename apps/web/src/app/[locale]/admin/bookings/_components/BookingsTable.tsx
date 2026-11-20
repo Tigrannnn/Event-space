@@ -68,8 +68,8 @@ import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/bo
 import { useFormatCurrency } from '@/hooks/format';
 import { useChannelLabel } from '@/hooks/labels/useChannelLabel';
 import { useSourceLabel } from '@/hooks/labels/useSourceLabel';
-import { useAdminSources } from '@/features/admin/hooks/useAdmin';
-import { SOURCE_FILTER_NONE, SOURCE_FILTER_UNKNOWN } from '@event-space/shared';
+import { useSourceOptions } from '@/features/admin/components/SourceSelect/useSourceOptions';
+import { SOURCE_FILTER_NONE } from '@event-space/shared';
 import Badge from '@/components/ui/Badge';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
@@ -91,7 +91,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const formatCurrency = useFormatCurrency();
 	const channelLabel = useChannelLabel();
 	const sourceLabel = useSourceLabel();
-	const { data: sourceList } = useAdminSources({ includeArchived: true });
+	const sourceOptions = useSourceOptions({ includeArchived: true });
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseBookingsFilters,
 		serialize: serializeBookingsFilters,
@@ -321,9 +321,8 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						onValueChange={(value) => applyFilter({ source: value || undefined })}
 						options={[
 							{ value: '', label: translate('admin.sourceAnyFilter') },
-							...(sourceList?.sources ?? []).map((item) => ({ value: item.id, label: item.name })),
+							...sourceOptions,
 							{ value: SOURCE_FILTER_NONE, label: translate('admin.sourceUnspecified') },
-							{ value: SOURCE_FILTER_UNKNOWN, label: translate('admin.sourceUnknownFilter') },
 						]}
 					/>
 

@@ -5,70 +5,22 @@ import {
 	AppErrorCode,
 	sourceNameKey,
 	type CreateSourceData,
-	type SourceList,
-	type SourceRevenueRow,
 	type UpdateSourceData,
 } from '@event-space/shared';
 import { AppException } from '@shared';
-import { endOfDay, startOfDay } from '../../../shared/utils/app-day.util';
-import {
-	addVisits,
-	emptyTotals,
-	NONE_KEY,
-	SOURCE_BOOKING_SELECT,
-	totalsBySource,
-	type SourceBookingRow,
-} from './source-totals';
 
 @Injectable()
 export class AdminSourcesService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll({ includeArchived = false }: { includeArchived?: boolean } = {}): Promise<SourceList> {
-		const [sources, rows, visits] = await Promise.all([
-			this.prisma.source.findMany({
-				where: includeArchived ? {} : { isActive: true },
-				orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
-			}),
-			this.loadBookings({ status: 'CONFIRMED' }),
-			this.prisma.sourceVisit.groupBy({ by: ['sourceId', 'ref'], _count: { _all: true } }),
-		]);
-
-		const totals = addVisits(
-			totalsBySource(rows, new Date()),
-			visits.map((row) => ({ sourceId: row.sourceId, ref: row.ref, visits: row._count._all })),
-		);
-
-		const unknown = [...totals.entries()]
-			.filter(([key]) => key.startsWith('ref:'))
-			.map(([key, sum]) => ({ ref: key.slice(4), totals: sum }))
-			.sort((a, b) => b.totals.bookings - a.totals.bookings || b.totals.visits - a.totals.visits);
-
-		return {
-			sources: sources.map((source) => ({ ...source, totals: totals.get(source.id) ?? emptyTotals() })),
-			unknown,
-			unspecified: totals.get(NONE_KEY) ?? emptyTotals(),
-		};
-	}
-
-	async revenue(from: string, to: string): Promise<SourceRevenueRow[]> {
-		const [rows, sources] = await Promise.all([
-			this.loadBookings({
-				status: 'CONFIRMED',
-				occurrence: { date: { gte: startOfDay(from), lte: endOfDay(to) } },
-			}),
-			this.prisma.source.findMany({ select: { id: true, name: true } }),
-		]);
-
-		const names = new Map(sources.map((source) => [source.id, source.name]));
-
-		return [...totalsBySource(rows, new Date()).entries()]
-			.map(([key, totals]) => {
-				if (key === NONE_KEY) return { sourceId: null, ref: null, name: null, totals };
-				if (key.startsWith('ref:')) return { sourceId: null, ref: key.slice(4), name: null, totals };
-				return { sourceId: key, ref: null, name: names.get(key) ?? null, totals };
-			})
-			.sort((a, b) => b.totals.amount - a.totals.amount);
+	findAll({ includeArchived = false, withPlatforms = false } = {}) {
+		return this.prisma.source.findMany({
+			where: {
+				...(withPlatforms ? {} : { kind: 'PARTNER' as const }),
+				...(includeArchived ? {} : { isActive: true }),
+			},
+			orderBy: [{ kind: 'desc' }, { isActive: 'desc' }, { name: 'asc' }],
+		});
 	}
 
 	async create(data: CreateSourceData) {
@@ -82,10 +34,6 @@ export class AdminSourcesService {
 					where: { sourceId: null, sourceRef: data.code },
 					data: { sourceId: source.id },
 				});
-				await tx.sourceVisit.updateMany({
-					where: { sourceId: null, ref: data.code },
-					data: { sourceId: source.id },
-				});
 				return source;
 			});
 		} catch (error) {
@@ -96,6 +44,7 @@ export class AdminSourcesService {
 	async update(id: string, data: UpdateSourceData) {
 		const source = await this.prisma.source.findUnique({ where: { id } });
 		if (!source) throw new AppException(AppErrorCode.SOURCE_NOT_FOUND);
+		if (source.kind === 'PLATFORM') throw new AppException(AppErrorCode.SOURCE_PLATFORM_LOCKED);
 
 		const name = data.name?.trim();
 
@@ -110,10 +59,6 @@ export class AdminSourcesService {
 		} catch (error) {
 			throw this.uniqueError(error);
 		}
-	}
-
-	private loadBookings(where: Prisma.BookingWhereInput): Promise<SourceBookingRow[]> {
-		return this.prisma.booking.findMany({ where, select: SOURCE_BOOKING_SELECT });
 	}
 
 	private uniqueError(error: unknown) {

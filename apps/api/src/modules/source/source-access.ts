@@ -1,23 +1,35 @@
-import type { Prisma } from '@prisma/client';
-import { AppErrorCode, normalizeSourceRef } from '@event-space/shared';
+import { Prisma } from '@prisma/client';
+import { AppErrorCode, autoSourceNameKey, DIRECT_SOURCE_CODE, normalizeSourceRef } from '@event-space/shared';
 import { AppException } from '@shared';
 
 type SourceDb = { source: Prisma.TransactionClient['source'] };
 
 export interface BookingSourceFields {
-	sourceId: string | null;
-	sourceRef: string | null;
+	sourceId: string;
+	sourceRef: string;
 }
 
 export async function resolveSourceRef(
 	db: SourceDb,
 	raw: string | null | undefined,
-): Promise<BookingSourceFields | null> {
-	const ref = normalizeSourceRef(raw);
-	if (!ref) return null;
+): Promise<BookingSourceFields> {
+	const code = normalizeSourceRef(raw) ?? DIRECT_SOURCE_CODE;
 
-	const source = await db.source.findUnique({ where: { code: ref }, select: { id: true } });
-	return { sourceId: source?.id ?? null, sourceRef: ref };
+	const existing = await db.source.findUnique({ where: { code }, select: { id: true } });
+	if (existing) return { sourceId: existing.id, sourceRef: code };
+
+	try {
+		const created = await db.source.create({
+			data: { code, name: code, nameKey: autoSourceNameKey(code) },
+			select: { id: true },
+		});
+		return { sourceId: created.id, sourceRef: code };
+	} catch (error) {
+		if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2002') throw error;
+		const raced = await db.source.findUnique({ where: { code }, select: { id: true } });
+		if (!raced) throw error;
+		return { sourceId: raced.id, sourceRef: code };
+	}
 }
 
 export async function requireActiveSource(db: SourceDb, sourceId: string) {

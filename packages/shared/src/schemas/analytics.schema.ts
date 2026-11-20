@@ -22,31 +22,6 @@ export const TrackAnalyticsSchema = z
 
 export type TrackAnalyticsData = z.infer<typeof TrackAnalyticsSchema>;
 
-export const TrafficPointSchema = z.object({
-	date: z.string(),
-	visitors: z.number().int(),
-});
-
-export type TrafficPoint = z.infer<typeof TrafficPointSchema>;
-
-export const TrafficSourceRowSchema = z.object({
-	sourceId: z.string().nullable(),
-	ref: z.string().nullable(),
-	name: z.string().nullable(),
-	visitors: z.number().int(),
-});
-
-export type TrafficSourceRow = z.infer<typeof TrafficSourceRowSchema>;
-
-export const TrafficReportSchema = z.object({
-	visitors: z.number().int(),
-	visits: z.number().int(),
-	points: z.array(TrafficPointSchema),
-	bySource: z.array(TrafficSourceRowSchema),
-});
-
-export type TrafficReport = z.infer<typeof TrafficReportSchema>;
-
 export const TourFunnelRowSchema = z.object({
 	eventId: z.string(),
 	titles: z.array(z.object({ locale: z.string(), title: z.string() })),

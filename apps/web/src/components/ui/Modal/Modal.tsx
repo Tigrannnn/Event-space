@@ -108,6 +108,7 @@ function getSizeClass(size: ModalSize): string {
 		md: 'max-w-[90vw] sm:max-w-md', // 448px
 		lg: 'max-w-[92vw] sm:max-w-lg', // 512px
 		xl: 'max-w-[92vw] sm:max-w-xl', // 576px
+		'4xl': 'max-w-[94vw] sm:max-w-4xl', // 896px
 		full: 'max-w-[95vw]', // 95% viewport width
 	};
 	return sizeMap[size];

@@ -1,16 +1,25 @@
 import { Prisma } from '@prisma/client';
 import { AnalyticsService } from './analytics.service';
 import { isBot } from './is-bot';
-import { daysBetween } from '../admin/analytics/analytics-days';
 
 const CHROME = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131.0 Safari/537.36';
 const VISITOR = '6f1c2a54-2b6e-4a3c-9d4e-1f2a3b4c5d6e';
 const TOUR = '6ac44830-fdd8-420b-96fb-1bdbbfbe409d';
 const NOW = new Date('2026-11-20T21:30:00Z');
 
-function setup(createMany = jest.fn().mockResolvedValue({ count: 1 })) {
-	const prisma = { analyticsEvent: { createMany } };
-	return { service: new AnalyticsService(prisma as never), createMany };
+function setup(createMany = jest.fn().mockResolvedValue({ count: 1 }), known = ['ardvi', 'direct']) {
+	const created: string[] = [];
+	const source = {
+		findUnique: jest.fn(({ where }: { where: { code: string } }) =>
+			Promise.resolve(known.includes(where.code) ? { id: `id-${where.code}` } : null),
+		),
+		create: jest.fn(({ data }: { data: { code: string } }) => {
+			created.push(data.code);
+			return Promise.resolve({ id: `id-${data.code}` });
+		}),
+	};
+	const prisma = { analyticsEvent: { createMany }, source };
+	return { service: new AnalyticsService(prisma as never), createMany, created };
 }
 
 describe('AnalyticsService.track', () => {
@@ -41,7 +50,22 @@ describe('AnalyticsService.track', () => {
 
 		await service.track({ type: 'TOUR_VIEW', visitorId: VISITOR, eventId: TOUR }, { userAgent: CHROME }, NOW);
 
-		expect(createMany.mock.calls[0][0].data[0]).toMatchObject({ targetKey: TOUR, eventId: TOUR, sourceRef: null });
+		expect(createMany.mock.calls[0][0].data[0]).toMatchObject({
+			targetKey: TOUR,
+			eventId: TOUR,
+			sourceRef: 'direct',
+		});
+	});
+
+	it('turns a platform alias into the platform and adds an unseen partner label as a new source', async () => {
+		const { service, createMany, created } = setup(undefined, ['instagram', 'direct']);
+
+		await service.track({ type: 'VISIT', visitorId: VISITOR, ref: 'ig' }, { userAgent: CHROME }, NOW);
+		await service.track({ type: 'VISIT', visitorId: VISITOR, ref: 'hotel-ani' }, { userAgent: CHROME }, NOW);
+
+		expect(createMany.mock.calls[0][0].data[0].sourceRef).toBe('instagram');
+		expect(createMany.mock.calls[1][0].data[0].sourceRef).toBe('hotel-ani');
+		expect(created).toEqual(['hotel-ani']);
 	});
 
 	it('reports a repeat of the same day as not recorded', async () => {
@@ -78,16 +102,5 @@ describe('isBot', () => {
 		expect(isBot('facebookexternalhit/1.1')).toBe(true);
 		expect(isBot('TelegramBot (like TwitterBot)')).toBe(true);
 		expect(isBot(undefined)).toBe(true);
-	});
-});
-
-describe('daysBetween', () => {
-	it('lists every day of the period, ends included', () => {
-		expect(daysBetween('2026-10-30', '2026-11-02')).toEqual([
-			'2026-10-30',
-			'2026-10-31',
-			'2026-11-01',
-			'2026-11-02',
-		]);
 	});
 });

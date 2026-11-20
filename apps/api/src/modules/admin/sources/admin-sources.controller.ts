@@ -31,14 +31,18 @@ export class AdminSourcesController {
 	) {}
 
 	@Get()
-	@ApiOperation({ summary: 'Where customers learn about the company, with what each brought (admin only)' })
+	@ApiOperation({ summary: 'Partners with their own links; platforms too when asked (admin only)' })
 	@ApiQuery({ name: 'includeArchived', required: false, type: Boolean })
-	findAll(@Query('includeArchived') includeArchived?: string) {
-		return this.sources.findAll({ includeArchived: parseOptionalQueryBoolean(includeArchived) });
+	@ApiQuery({ name: 'withPlatforms', required: false, type: Boolean })
+	findAll(@Query('includeArchived') includeArchived?: string, @Query('withPlatforms') withPlatforms?: string) {
+		return this.sources.findAll({
+			includeArchived: parseOptionalQueryBoolean(includeArchived),
+			withPlatforms: parseOptionalQueryBoolean(withPlatforms),
+		});
 	}
 
 	@Post()
-	@ApiOperation({ summary: 'Add a source with its link label (admin only)' })
+	@ApiOperation({ summary: 'Add a partner with its own link (admin only)' })
 	@ApiBody(getReference('CreateSourceSchema'))
 	async create(
 		@GetCurrentUserId() adminId: string,
@@ -49,7 +53,7 @@ export class AdminSourcesController {
 	}
 
 	@Patch(':id')
-	@ApiOperation({ summary: 'Rename, archive or restore a source (admin only)' })
+	@ApiOperation({ summary: 'Rename, archive or restore a partner (admin only)' })
 	@ApiBody(getReference('UpdateSourceSchema'))
 	async update(
 		@GetCurrentUserId() adminId: string,

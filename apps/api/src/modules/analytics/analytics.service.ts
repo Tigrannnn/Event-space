@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import { normalizeSourceRef, type TrackAnalyticsData } from '@event-space/shared';
+import type { TrackAnalyticsData } from '@event-space/shared';
+import { resolveSourceRef } from '@modules/source/source-access';
 import { toDateKey } from '../../shared/utils/app-day.util';
 import { isBot } from './is-bot';
 
@@ -19,6 +20,7 @@ export class AnalyticsService {
 		const eventId = data.type === 'VISIT' ? null : (data.eventId ?? null);
 
 		try {
+			const { sourceRef } = await resolveSourceRef(this.prisma, data.ref);
 			const { count } = await this.prisma.analyticsEvent.createMany({
 				data: [
 					{
@@ -27,7 +29,7 @@ export class AnalyticsService {
 						day: toDateKey(now),
 						targetKey: eventId ?? '',
 						eventId,
-						sourceRef: normalizeSourceRef(data.ref),
+						sourceRef,
 					},
 				],
 				skipDuplicates: true,

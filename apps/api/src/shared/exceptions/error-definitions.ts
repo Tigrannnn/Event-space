@@ -244,6 +244,10 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'A source with this link label already exists',
 	},
+	[AppErrorCode.SOURCE_PLATFORM_LOCKED]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A platform is recognised by itself and cannot be changed',
+	},
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: { status: HttpStatus.CONFLICT, message: 'No spots available' },
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: {
 		status: HttpStatus.CONFLICT,

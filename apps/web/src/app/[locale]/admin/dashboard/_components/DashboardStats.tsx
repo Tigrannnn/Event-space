@@ -18,9 +18,7 @@ import FlowChart from './widgets/FlowChart';
 import RevenueKpiCards from './widgets/RevenueKpiCards';
 import RevenueChart from './widgets/RevenueChart';
 import PaymentMixWidget from './widgets/PaymentMixWidget';
-import SourceRevenueWidget from './widgets/SourceRevenueWidget';
-import TrafficWidget from './widgets/TrafficWidget';
-import TourFunnelWidget from './widgets/TourFunnelWidget';
+import SourceSummaryWidget from './widgets/SourceSummaryWidget';
 import ExpectedTimeline from './widgets/ExpectedTimeline';
 import { useTranslation } from '@/hooks/translation';
 import BookingStateWidget from './widgets/BookingStateWidget';
@@ -116,7 +114,6 @@ export default function DashboardStats({ stats: initialStats }: DashboardStatsPr
 					/>
 					<RevenueChart revenue={revenue} isLoading={isRevenueLoading} />
 					<PaymentMixWidget revenue={revenue} isLoading={isRevenueLoading} />
-					<SourceRevenueWidget from={range.from} to={range.to} />
 					<ExpectedTimeline timeline={timeline} isLoading={isTimelineLoading} />
 				</>
 			) : (
@@ -126,8 +123,7 @@ export default function DashboardStats({ stats: initialStats }: DashboardStatsPr
 				</>
 			)}
 
-			<TrafficWidget from={range.from} to={range.to} />
-			<TourFunnelWidget from={range.from} to={range.to} />
+			<SourceSummaryWidget from={range.from} to={range.to} />
 
 			<NeedsAttention stats={stats} />
 

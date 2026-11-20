@@ -100,7 +100,6 @@ import { BookingService } from '@modules/booking/booking.service';
 import { UpdateShadowUserSchema } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { EventService } from '@modules/event/event.service';
-import { AdminSourcesService } from './sources/admin-sources.service';
 import { AdminAnalyticsService } from './analytics/admin-analytics.service';
 
 const MAX_REVENUE_RANGE_DAYS = 366;
@@ -129,7 +128,6 @@ export class AdminController {
 		private readonly promoCodesService: AdminPromoCodesService,
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardRevenueService: DashboardRevenueService,
-		private readonly sourcesService: AdminSourcesService,
 		private readonly analyticsService: AdminAnalyticsService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
@@ -180,30 +178,13 @@ export class AdminController {
 		return this.dashboardRevenueService.getRevenue(from, to);
 	}
 
-	@Get('stats/revenue/sources')
-	@ApiOperation({ summary: 'Confirmed bookings of tours in a period, grouped by where customers came from' })
+	@Get('stats/sources')
+	@ApiOperation({ summary: 'Per source over a period: visitors, tour views, started and confirmed bookings' })
 	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
 	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
-	async getDashboardRevenueBySource(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
-		const from = parseOptionalQueryDate(fromRaw, 'from');
-		const to = parseOptionalQueryDate(toRaw, 'to');
-
-		if (!from || !to) {
-			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
-		}
-
-		assertRevenueRange(from, to);
-
-		return this.sourcesService.revenue(from, to);
-	}
-
-	@Get('stats/traffic')
-	@ApiOperation({ summary: 'Visitors of the site over a period, by day and by source' })
-	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
-	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
-	async getTraffic(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
-		const { from, to } = this.revenueRange(fromRaw, toRaw);
-		return this.analyticsService.traffic(from, to);
+	async getSourceStats(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const { from, to } = this.statsRange(fromRaw, toRaw);
+		return this.analyticsService.sources(from, to);
 	}
 
 	@Get('stats/tours')
@@ -216,19 +197,19 @@ export class AdminController {
 		@Query('to') toRaw: string,
 		@Query('eventId') eventId?: string,
 	) {
-		const { from, to } = this.revenueRange(fromRaw, toRaw);
+		const { from, to } = this.statsRange(fromRaw, toRaw);
 		return this.analyticsService.tours(from, to, eventId && isUuid(eventId) ? eventId : undefined);
 	}
 
-	private revenueRange(fromRaw: string, toRaw: string) {
+	private statsRange(fromRaw: string, toRaw: string) {
 		const from = parseOptionalQueryDate(fromRaw, 'from');
 		const to = parseOptionalQueryDate(toRaw, 'to');
 
 		if (!from || !to) {
 			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
 		}
+		if (from > to) throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: 'to' });
 
-		assertRevenueRange(from, to);
 		return { from, to };
 	}
 
@@ -374,7 +355,7 @@ export class AdminController {
 	@ApiQuery({ name: 'tourTo', required: false, description: 'Tour date on or before (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
 	@ApiQuery({ name: 'createdBy', required: false, enum: BookingAuthorSchema.options })
-	@ApiQuery({ name: 'source', required: false, description: 'A source id, "none" or "unknown"' })
+	@ApiQuery({ name: 'source', required: false, description: 'A source id or "none"' })
 	async getAllBookings(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,

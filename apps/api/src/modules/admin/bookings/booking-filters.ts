@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { isUuid, SOURCE_FILTER_NONE, SOURCE_FILTER_UNKNOWN } from '@event-space/shared';
+import { isUuid, SOURCE_FILTER_NONE } from '@event-space/shared';
 import type {
 	BookingAuthor,
 	BookingDisplayStatus,
@@ -84,7 +84,6 @@ export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 
 function sourceWhere(source: string | undefined) {
 	if (!source) return {};
-	if (source === SOURCE_FILTER_NONE) return { sourceId: null, sourceRef: null };
-	if (source === SOURCE_FILTER_UNKNOWN) return { sourceId: null, sourceRef: { not: null } };
+	if (source === SOURCE_FILTER_NONE) return { sourceId: null };
 	return { sourceId: source };
 }

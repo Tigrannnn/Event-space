@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
  * Modal size options.
  * Determines the maximum width of the modal.
  */
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '4xl' | 'full';
 
 /**
  * Modal position options.

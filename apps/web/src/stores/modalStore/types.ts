@@ -178,7 +178,6 @@ export interface ChannelFormModalData {
 
 export interface SourceFormModalData {
 	source?: Source;
-	code?: string;
 }
 
 export interface SourceQrModalData {

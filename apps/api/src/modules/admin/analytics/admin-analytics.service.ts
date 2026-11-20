@@ -1,53 +1,101 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
-import type { TourFunnelRow, TrafficReport } from '@event-space/shared';
+import type { SourceStats, SourceStatsRow, TourFunnelRow } from '@event-space/shared';
 import { endOfDay, startOfDay } from '../../../shared/utils/app-day.util';
-import { daysBetween } from './analytics-days';
+import { round2 } from '../dashboard/dashboard-revenue.util';
+import { SOURCE_REF } from '@modules/source/source-ref.select';
 
-interface CountRow {
-	key: string | null;
+interface ActivityRow {
+	ref: string | null;
+	type: string;
 	count: bigint | number;
 }
+
+type Counts = Omit<SourceStatsRow, 'source'>;
+
+const NONE = '';
+
+function emptyCounts(): Counts {
+	return { visitors: 0, viewedTours: 0, startedBooking: 0, bookings: 0, siteBookings: 0, amount: 0 };
+}
+
+const ACTIVITY_FIELD: Record<string, 'visitors' | 'viewedTours' | 'startedBooking'> = {
+	VISIT: 'visitors',
+	TOUR_VIEW: 'viewedTours',
+	BOOKING_STARTED: 'startedBooking',
+};
 
 @Injectable()
 export class AdminAnalyticsService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async traffic(from: string, to: string): Promise<TrafficReport> {
-		const visitWhere = { type: 'VISIT' as const, day: { gte: from, lte: to } };
+	async sources(from: string, to: string): Promise<SourceStats> {
+		const createdAt = { gte: startOfDay(from), lte: endOfDay(to) };
 
-		const [visits, perDay, distinct, bySourceRows, sources] = await Promise.all([
-			this.prisma.analyticsEvent.count({ where: visitWhere }),
-			this.prisma.analyticsEvent.groupBy({ by: ['day'], where: visitWhere, _count: { _all: true } }),
-			this.prisma.$queryRaw<{ count: bigint }[]>(Prisma.sql`
-				SELECT COUNT(DISTINCT visitor_id) AS count FROM analytics_events
-				WHERE type = 'VISIT' AND day BETWEEN ${from} AND ${to}`),
-			this.prisma.$queryRaw<CountRow[]>(Prisma.sql`
-				SELECT source_ref AS key, COUNT(DISTINCT visitor_id) AS count FROM analytics_events
-				WHERE type = 'VISIT' AND day BETWEEN ${from} AND ${to}
-				GROUP BY source_ref`),
-			this.prisma.source.findMany({ select: { id: true, code: true, name: true } }),
+		const [byRef, overall, bookings, sources, partners] = await Promise.all([
+			this.prisma.$queryRaw<ActivityRow[]>(Prisma.sql`
+				SELECT source_ref AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
+				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
+				GROUP BY source_ref, type`),
+			this.prisma.$queryRaw<ActivityRow[]>(Prisma.sql`
+				SELECT NULL AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
+				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
+				GROUP BY type`),
+			this.prisma.booking.findMany({
+				where: { createdAt, status: 'CONFIRMED' },
+				select: { sourceId: true, createdByAdminId: true, amount: true },
+			}),
+			this.prisma.source.findMany(SOURCE_REF),
+			this.prisma.source.findMany({ where: { kind: 'PARTNER', isActive: true }, select: { id: true } }),
 		]);
 
-		const byDay = new Map(perDay.map((row) => [row.day, row._count._all]));
-		const byCode = new Map(sources.map((source) => [source.code, source]));
+		const sourceByCode = new Map(sources.map((source) => [source.code, source]));
+		const sourceById = new Map(sources.map((source) => [source.id, source]));
+		const rows = new Map<string, Counts>();
+		const counts = (key: string) => {
+			let current = rows.get(key);
+			if (!current) {
+				current = emptyCounts();
+				rows.set(key, current);
+			}
+			return current;
+		};
+
+		for (const row of byRef) {
+			const field = ACTIVITY_FIELD[row.type];
+			const source = row.ref ? sourceByCode.get(row.ref) : undefined;
+			if (!field || !source) continue;
+			counts(source.id)[field] += Number(row.count);
+		}
+
+		const totals = emptyCounts();
+		for (const row of overall) {
+			const field = ACTIVITY_FIELD[row.type];
+			if (field) totals[field] = Number(row.count);
+		}
+
+		for (const booking of bookings) {
+			const amount = Number(booking.amount);
+			for (const sum of [counts(booking.sourceId ?? NONE), totals]) {
+				sum.bookings += 1;
+				if (!booking.createdByAdminId) sum.siteBookings += 1;
+				sum.amount = round2(sum.amount + amount);
+			}
+		}
+
+		for (const partner of partners) counts(partner.id);
 
 		return {
-			visitors: Number(distinct[0]?.count ?? 0),
-			visits,
-			points: daysBetween(from, to).map((date) => ({ date, visitors: byDay.get(date) ?? 0 })),
-			bySource: bySourceRows
-				.map((row) => {
-					const source = row.key ? byCode.get(row.key) : undefined;
-					return {
-						sourceId: source?.id ?? null,
-						ref: source ? null : row.key,
-						name: source?.name ?? null,
-						visitors: Number(row.count),
-					};
-				})
-				.sort((a, b) => b.visitors - a.visitors),
+			totals,
+			rows: [...rows.entries()]
+				.map(([key, sum]) => ({ source: key === NONE ? null : (sourceById.get(key) ?? null), ...sum }))
+				.sort(
+					(a, b) =>
+						Number(a.source === null) - Number(b.source === null) ||
+						b.visitors - a.visitors ||
+						b.bookings - a.bookings,
+				),
 		};
 	}
 

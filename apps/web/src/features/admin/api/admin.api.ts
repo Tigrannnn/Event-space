@@ -51,12 +51,10 @@ import type {
 	TransferBookingData,
 	CreateSourceData,
 	Source,
-	SourceList,
-	SourceRevenueRow,
+	SourceStats,
 	UpdateBookingSourceData,
 	UpdateSourceData,
 	TourFunnelRow,
-	TrafficReport,
 } from '@event-space/shared';
 
 /** A review as the moderation queue needs it: who wrote it, about what, and for which booking. */
@@ -84,17 +82,12 @@ export const adminApi = {
 			.get<DashboardExpectedTimeline>('/admin/stats/revenue/timeline', { params: { from, to } })
 			.then((res) => res.data),
 
-	getTraffic: (from: string, to: string) =>
-		clientApi.get<TrafficReport>('/admin/stats/traffic', { params: { from, to } }).then((res) => res.data),
+	getSourceStats: (from: string, to: string) =>
+		clientApi.get<SourceStats>('/admin/stats/sources', { params: { from, to } }).then((res) => res.data),
 
 	getTourFunnel: (from: string, to: string, eventId?: string) =>
 		clientApi
 			.get<TourFunnelRow[]>('/admin/stats/tours', { params: { from, to, eventId } })
-			.then((res) => res.data),
-
-	getRevenueBySource: (from: string, to: string) =>
-		clientApi
-			.get<SourceRevenueRow[]>('/admin/stats/revenue/sources', { params: { from, to } })
 			.then((res) => res.data),
 
 	getDashboardSnapshots: (from: string, to: string) =>
@@ -209,8 +202,8 @@ export const adminApi = {
 		clientApi.post<Channel>('/admin/channels', data).then((res) => res.data),
 	updateChannel: (id: string, data: UpdateChannelData) =>
 		clientApi.patch<Channel>(`/admin/channels/${id}`, data).then((res) => res.data),
-	getSources: (params?: { includeArchived?: boolean }) =>
-		clientApi.get<SourceList>('/admin/sources', { params }).then((res) => res.data),
+	getSources: (params?: { includeArchived?: boolean; withPlatforms?: boolean }) =>
+		clientApi.get<Source[]>('/admin/sources', { params }).then((res) => res.data),
 	createSource: (data: CreateSourceData) =>
 		clientApi.post<Source>('/admin/sources', data).then((res) => res.data),
 	updateSource: (id: string, data: UpdateSourceData) =>

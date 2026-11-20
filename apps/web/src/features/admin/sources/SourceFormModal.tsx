@@ -22,7 +22,7 @@ export default function SourceFormModal() {
 	const isPending = create.isPending || update.isPending;
 
 	const [name, setName] = useState(source?.name ?? '');
-	const [code, setCode] = useState(source?.code ?? modalData?.code ?? '');
+	const [code, setCode] = useState(source?.code ?? '');
 
 	const normalizedCode = normalizeSourceRef(code);
 	const canSubmit = name.trim() !== '' && (source ? true : normalizedCode !== null);
