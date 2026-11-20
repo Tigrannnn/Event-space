@@ -15,27 +15,8 @@ export function useGallerySlides(videoUrl: string | null | undefined, imageUrls:
 	return { video, slides: video ? [GALLERY_VIDEO_SLIDE, ...imageUrls] : imageUrls };
 }
 
-/**
- * What the tile does while the pointer is on its background, to match the pictures of the same
- * skin down to the 700 ms the picture component gives every such change. It stays while the
- * pointer is on the play button, which grows on its own, and stops once the video is playing.
- */
-const BACKGROUND_HOVER = {
-	scale: {
-		base: 'scale-98 transition-transform duration-700',
-		hover: 'hover:scale-100',
-		poster: '',
-	},
-	fade: {
-		base: '',
-		hover: '[&:hover>img]:opacity-90',
-		poster: 'transition-opacity duration-700',
-	},
-	none: { base: '', hover: '', poster: '' },
-} as const;
-
 const PLAY_BUTTON =
-	'flex size-16 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg transition-transform hover:scale-105';
+	'flex size-16 cursor-pointer items-center justify-center rounded-full bg-white/90 text-gray-900 shadow-lg';
 
 function PlayButton({
 	label,
@@ -106,7 +87,6 @@ interface VideoTileProps {
 	onOpen: (autoplay: boolean) => void;
 	/** Opens the full-size view and plays there, for tiles with text laid over them. */
 	playInModal?: boolean;
-	hover?: keyof typeof BACKGROUND_HOVER;
 	className?: string;
 }
 
@@ -119,7 +99,6 @@ export function VideoTile({
 	title,
 	onOpen,
 	playInModal = false,
-	hover = 'none',
 	className,
 }: VideoTileProps) {
 	const translate = useTranslation();
@@ -139,12 +118,7 @@ export function VideoTile({
 			onClick={() => onOpen(false)}
 			onKeyDown={onKeyDown}
 			aria-label={title}
-			className={cn(
-				'relative cursor-pointer overflow-hidden bg-black',
-				BACKGROUND_HOVER[hover].base,
-				!isPlaying && BACKGROUND_HOVER[hover].hover,
-				className,
-			)}
+			className={cn('relative overflow-hidden bg-black', className)}
 		>
 			{isPlaying ? (
 				<iframe
@@ -159,11 +133,7 @@ export function VideoTile({
 			) : (
 				<>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img
-						src={video.thumbnailUrl}
-						alt=""
-						className={cn('absolute inset-0 size-full object-cover', BACKGROUND_HOVER[hover].poster)}
-					/>
+					<img src={video.thumbnailUrl} alt="" className="absolute inset-0 size-full object-cover" />
 					<PlayButton
 						label={`${translate('event.playVideo')}: ${title}`}
 						onPress={() => (playInModal ? onOpen(true) : setIsPlaying(true))}

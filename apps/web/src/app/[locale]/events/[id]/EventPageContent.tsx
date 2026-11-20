@@ -95,7 +95,6 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 												})
 											}
 											className="aspect-video w-full rounded-2xl border border-gray-400 shadow-sm sm:h-full sm:w-auto"
-											hover="scale"
 										/>
 									</div>
 								) : (

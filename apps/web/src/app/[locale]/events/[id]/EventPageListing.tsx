@@ -198,7 +198,6 @@ export default function EventPageListing({ initialEvent }: EventPageListingProps
 								<VideoTile
 									key="video"
 									video={video}
-									hover="fade"
 									title={eventTranslation.title}
 									onOpen={() => openPreview(index)}
 									className={`${
