@@ -20,24 +20,19 @@ function booking(overrides: object) {
 }
 
 describe('summarizeTourRevenue', () => {
-	it('sums what past dates earned, lists each date and keeps coming dates apart', () => {
+	it('tells for each date what it earned or is expected to bring', () => {
 		const past = tour('past', '2026-11-10T08:00:00Z', [
 			booking({ quantity: 2, amount: 20000, adjustments: [charge(20000, 600)] }),
 			booking({ paymentMethod: 'PAY_ON_ARRIVAL', adjustments: [], checkedInAt: new Date('2026-11-10T08:00:00Z') }),
 		]);
-		const empty = tour('empty', '2026-11-12T08:00:00Z', []);
 		const coming = tour('coming', '2026-11-25T08:00:00Z', [
 			booking({}),
 			booking({ paymentMethod: 'PAY_ON_ARRIVAL', adjustments: [], amount: 5000 }),
 		]);
 
-		const result = summarizeTourRevenue([coming, empty, past] as never, [coming] as never, NOW);
-
-		expect(result.earned).toBe(29400);
-		expect(result.dates.map((row) => [row.occurrenceId, row.finished, row.guests, row.earned, row.expected])).toEqual([
-			['coming', false, 2, 0, 10000],
-			['past', true, 3, 29400, 0],
+		expect(summarizeTourRevenue([past, coming] as never, NOW).dates).toEqual([
+			{ occurrenceId: 'past', finished: true, earned: 29400, expected: 0, toCollectOnSite: 0 },
+			{ occurrenceId: 'coming', finished: false, earned: 0, expected: 10000, toCollectOnSite: 5000 },
 		]);
-		expect(result.upcoming).toEqual({ dates: 1, expected: 10000, toCollectOnSite: 5000 });
 	});
 });

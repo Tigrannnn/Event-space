@@ -68,9 +68,9 @@ export type AdminReview = Review & {
 export const adminApi = {
 	getStats: () => clientApi.get<DashboardStats>('/admin/stats').then((res) => res.data),
 
-	getDashboardFlow: (from: string, to: string) =>
+	getDashboardFlow: (from: string, to: string, eventId?: string) =>
 		clientApi
-			.get<DashboardFlow>('/admin/stats/flow', { params: { from, to } })
+			.get<DashboardFlow>('/admin/stats/flow', { params: { from, to, eventId } })
 			.then((res) => res.data),
 
 	getDashboardRevenue: (from: string, to: string) =>
@@ -86,9 +86,9 @@ export const adminApi = {
 	getSourceStats: (from: string, to: string) =>
 		clientApi.get<SourceStats>('/admin/stats/sources', { params: { from, to } }).then((res) => res.data),
 
-	getTourRevenue: (eventId: string, from: string, to: string) =>
+	getTourRevenue: (eventId: string) =>
 		clientApi
-			.get<TourRevenue>(`/admin/stats/tours/${eventId}/revenue`, { params: { from, to } })
+			.get<TourRevenue>(`/admin/stats/tours/${eventId}/revenue`)
 			.then((res) => res.data),
 
 	getTourFunnel: (from: string, to: string, eventId?: string) =>

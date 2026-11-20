@@ -73,20 +73,13 @@ export class DashboardRevenueService {
 		};
 	}
 
-	async getTourRevenue(eventId: string, from: string, to: string, now: Date = new Date()): Promise<TourRevenue> {
-		const [inPeriod, ahead] = await Promise.all([
-			this.prisma.eventOccurrence.findMany({
-				where: { eventId, date: { gte: startOfDay(from), lte: endOfDay(to) } },
-				orderBy: { date: 'desc' },
-				select: { id: true, ...TOUR_SELECT },
-			}),
-			this.prisma.eventOccurrence.findMany({
-				where: { eventId, date: { gt: new Date(now.getTime() - UPCOMING_LOOKBACK_DAYS * DAY_MS) } },
-				select: TOUR_SELECT,
-			}),
-		]);
+	async getTourRevenue(eventId: string, now: Date = new Date()): Promise<TourRevenue> {
+		const tours = await this.prisma.eventOccurrence.findMany({
+			where: { eventId },
+			select: { id: true, ...TOUR_SELECT },
+		});
 
-		return summarizeTourRevenue(inPeriod, ahead, now);
+		return summarizeTourRevenue(tours, now);
 	}
 
 	async getUpcomingExpected(now: Date = new Date()): Promise<number> {
@@ -335,43 +328,17 @@ export function summarizeTours(
 	};
 }
 
-export function summarizeTourRevenue(
-	inPeriod: (TourRow & { id: string })[],
-	ahead: TourRow[],
-	now: Date,
-): TourRevenue {
-	let earned = 0;
-	const dates: TourRevenue['dates'] = [];
-
-	for (const tour of inPeriod) {
-		const revenue = revenueOfTour(tour, now);
-		const confirmed = tour.bookings.filter((booking) => booking.status === 'CONFIRMED');
-		const money = revenue.earned + revenue.expected + revenue.toCollectOnSite;
-		if (confirmed.length === 0 && money === 0) continue;
-
-		earned += revenue.earned;
-		dates.push({
-			occurrenceId: tour.id,
-			date: tour.date.toISOString(),
-			status: tour.status,
-			finished: tourEndsAt({ date: tour.date, durationMinutes: tour.event.duration }) <= now,
-			bookings: confirmed.length,
-			guests: confirmed.reduce((sum, booking) => sum + booking.quantity, 0),
-			earned: revenue.earned,
-			expected: revenue.expected,
-			toCollectOnSite: revenue.toCollectOnSite,
-		});
-	}
-
-	const upcoming = { dates: 0, expected: 0, toCollectOnSite: 0 };
-	for (const tour of ahead) {
-		if (tourEndsAt({ date: tour.date, durationMinutes: tour.event.duration }) <= now) continue;
-		const revenue = revenueOfTour(tour, now);
-		if (revenue.expected + revenue.toCollectOnSite === 0) continue;
-		upcoming.dates += 1;
-		upcoming.expected = round2(upcoming.expected + revenue.expected);
-		upcoming.toCollectOnSite = round2(upcoming.toCollectOnSite + revenue.toCollectOnSite);
-	}
-
-	return { earned: round2(earned), dates, upcoming };
+export function summarizeTourRevenue(tours: (TourRow & { id: string })[], now: Date): TourRevenue {
+	return {
+		dates: tours.map((tour) => {
+			const revenue = revenueOfTour(tour, now);
+			return {
+				occurrenceId: tour.id,
+				finished: tourEndsAt({ date: tour.date, durationMinutes: tour.event.duration }) <= now,
+				earned: revenue.earned,
+				expected: revenue.expected,
+				toCollectOnSite: revenue.toCollectOnSite,
+			};
+		}),
+	};
 }

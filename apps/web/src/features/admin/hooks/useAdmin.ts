@@ -47,10 +47,10 @@ export const useAdminStats = (initialData?: DashboardStats) => {
 	});
 };
 
-export const useDashboardFlow = (from: string, to: string) => {
+export const useDashboardFlow = (from: string, to: string, eventId?: string) => {
 	return useQuery({
-		queryKey: ['admin', 'stats', 'flow', from, to],
-		queryFn: () => adminApi.getDashboardFlow(from, to),
+		queryKey: ['admin', 'stats', 'flow', from, to, eventId],
+		queryFn: () => adminApi.getDashboardFlow(from, to, eventId),
 		...LIVE_QUERY_OPTIONS,
 	});
 };
@@ -1028,10 +1028,11 @@ export const useSourceStats = (from: string, to: string) => {
 	});
 };
 
-export const useTourRevenue = (eventId: string, from: string, to: string) => {
+export const useTourRevenue = (eventId: string, { enabled = true } = {}) => {
 	return useQuery({
-		queryKey: ['admin', 'stats', 'tour-revenue', eventId, from, to],
-		queryFn: () => adminApi.getTourRevenue(eventId, from, to),
+		queryKey: ['admin', 'stats', 'tour-revenue', eventId],
+		queryFn: () => adminApi.getTourRevenue(eventId),
+		enabled: enabled && eventId !== '',
 		...LIVE_QUERY_OPTIONS,
 	});
 };

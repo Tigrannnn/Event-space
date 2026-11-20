@@ -21,6 +21,7 @@ import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useState } from 'react';
 import EventStatsSection from '@/features/admin/analytics/EventStatsSection';
+import { useTourRevenue } from '@/features/admin/hooks/useAdmin';
 
 /** Attended first, then paid, then what still might convert, then what no longer counts. */
 const BOOKING_STATUS_ORDER = ['CHECKED_IN', 'CONFIRMED', 'PENDING', 'CANCELLED'] as const;
@@ -93,6 +94,8 @@ export default function EventDetailsModal() {
 		EVENT_DIFFICULTY_LABELS,
 	} = useLabels();
 	const [showPast, setShowPast] = useState(false);
+	const { data: tourRevenue } = useTourRevenue(event?.id ?? '', { enabled: Boolean(event) });
+	const revenueByDate = new Map((tourRevenue?.dates ?? []).map((row) => [row.occurrenceId, row]));
 
 	if (!event) {
 		return null;
@@ -103,6 +106,29 @@ export default function EventDetailsModal() {
 	const occurrences = event.occurrences ?? [];
 	const { upcoming: upcomingOccurrences, past: pastOccurrences } =
 		splitOccurrencesByTime(occurrences);
+
+	const renderOccurrenceMoney = (occurrenceId: string) => {
+		const money = revenueByDate.get(occurrenceId);
+		if (!money) return null;
+
+		if (money.finished) {
+			if (money.earned === 0) return null;
+			return (
+				<p className="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+					{translate('admin.occurrenceEarned', { amount: formatCurrency(money.earned) })}
+				</p>
+			);
+		}
+
+		if (money.expected + money.toCollectOnSite === 0) return null;
+		return (
+			<p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+				{translate('admin.occurrenceExpected', { amount: formatCurrency(money.expected + money.toCollectOnSite) })}
+				{money.toCollectOnSite > 0 &&
+					` · ${translate('admin.occurrenceOnSite', { amount: formatCurrency(money.toCollectOnSite) })}`}
+			</p>
+		);
+	};
 
 	const renderOccurrence = (occurrence: (typeof occurrences)[number]) => {
 		const state = getOccurrenceDisplayState(occurrence);
@@ -148,6 +174,7 @@ export default function EventDetailsModal() {
 						className="mt-1"
 					/>
 				)}
+				{renderOccurrenceMoney(occurrence.id)}
 				{occurrence.previousDate && (
 					<p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
 						{translate('admin.occurrenceMovedFrom')} {formatDateTimeZone(occurrence.previousDate)}
@@ -457,8 +484,6 @@ export default function EventDetailsModal() {
 									</div>
 								)}
 
-								<EventStatsSection eventId={event.id} />
-
 								{eventTranslation.description && (
 									<div>
 										<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
@@ -511,6 +536,10 @@ export default function EventDetailsModal() {
 								) : null}
 							</div>
 						</div>
+					</section>
+
+					<section className="rounded-3xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-950">
+						<EventStatsSection eventId={event.id} />
 					</section>
 				</div>
 			</div>

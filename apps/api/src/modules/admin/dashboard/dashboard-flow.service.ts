@@ -40,7 +40,7 @@ interface FlowTotals {
 export class DashboardFlowService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getFlow(from: string, to: string): Promise<DashboardFlow> {
+	async getFlow(from: string, to: string, eventId?: string): Promise<DashboardFlow> {
 		const start = startOfDay(from);
 		const end = endOfDay(to);
 
@@ -50,8 +50,8 @@ export class DashboardFlowService {
 		const previousStart = new Date(previousEnd.getTime() - spanMs);
 
 		const [current, previous] = await Promise.all([
-			this.loadWindow(start, end),
-			this.loadWindow(previousStart, previousEnd),
+			this.loadWindow(start, end, eventId),
+			this.loadWindow(previousStart, previousEnd, eventId),
 		]);
 
 		return {
@@ -62,16 +62,17 @@ export class DashboardFlowService {
 		};
 	}
 
-	private async loadWindow(from: Date, to: Date): Promise<FlowWindow> {
+	private async loadWindow(from: Date, to: Date, eventId?: string): Promise<FlowWindow> {
 		const createdAt = { gte: from, lte: to };
+		const ofTour = eventId ? { occurrence: { eventId } } : {};
 
 		const [bookings, adjustments] = await Promise.all([
 			this.prisma.booking.findMany({
-				where: { createdAt },
+				where: { createdAt, ...ofTour },
 				select: { createdAt: true, status: true, paymentMethod: true, quantity: true, amount: true },
 			}),
 			this.prisma.bookingAdjustment.findMany({
-				where: { status: 'SUCCEEDED', createdAt },
+				where: { status: 'SUCCEEDED', createdAt, ...(eventId ? { booking: ofTour } : {}) },
 				select: { createdAt: true, type: true, amount: true },
 			}),
 		]);

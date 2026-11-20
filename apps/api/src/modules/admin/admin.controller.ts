@@ -148,7 +148,12 @@ export class AdminController {
 	})
 	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
 	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
-	async getDashboardFlow(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+	@ApiQuery({ name: 'eventId', required: false, description: 'Only this tour' })
+	async getDashboardFlow(
+		@Query('from') fromRaw: string,
+		@Query('to') toRaw: string,
+		@Query('eventId') eventId?: string,
+	) {
 		const from = parseOptionalQueryDate(fromRaw, 'from');
 		const to = parseOptionalQueryDate(toRaw, 'to');
 
@@ -156,7 +161,7 @@ export class AdminController {
 			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
 		}
 
-		return this.dashboardFlowService.getFlow(from, to);
+		return this.dashboardFlowService.getFlow(from, to, eventId && isUuid(eventId) ? eventId : undefined);
 	}
 
 	@Get('stats/revenue')
@@ -202,17 +207,10 @@ export class AdminController {
 	}
 
 	@Get('stats/tours/:eventId/revenue')
-	@ApiOperation({ summary: 'What one tour earned over a period, date by date, and what its coming dates are expected to bring' })
-	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
-	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
-	async getTourRevenue(
-		@Param('eventId') eventId: string,
-		@Query('from') fromRaw: string,
-		@Query('to') toRaw: string,
-	) {
+	@ApiOperation({ summary: 'What each date of a tour earned, or is expected to bring' })
+	async getTourRevenue(@Param('eventId') eventId: string) {
 		if (!isUuid(eventId)) throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: 'eventId' });
-		const { from, to } = this.statsRange(fromRaw, toRaw);
-		return this.dashboardRevenueService.getTourRevenue(eventId, from, to);
+		return this.dashboardRevenueService.getTourRevenue(eventId);
 	}
 
 	private statsRange(fromRaw: string, toRaw: string) {

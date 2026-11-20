@@ -182,24 +182,14 @@ export type DashboardPaymentMix = z.infer<typeof DashboardPaymentMixSchema>;
 
 export const TourRevenueDateSchema = z.object({
 	occurrenceId: z.string(),
-	date: z.string(),
-	status: z.string(),
 	finished: z.boolean(),
-	bookings: z.number().int(),
-	guests: z.number().int(),
 	earned: z.number(),
 	expected: z.number(),
 	toCollectOnSite: z.number(),
 });
 
 export const TourRevenueSchema = z.object({
-	earned: z.number(),
 	dates: z.array(TourRevenueDateSchema),
-	upcoming: z.object({
-		dates: z.number().int(),
-		expected: z.number(),
-		toCollectOnSite: z.number(),
-	}),
 });
 
 export type TourRevenueDate = z.infer<typeof TourRevenueDateSchema>;
