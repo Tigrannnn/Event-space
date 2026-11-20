@@ -1,17 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { useTourFunnel } from '@/features/admin/hooks/useAdmin';
 import { useTranslation } from '@/hooks/translation';
-import StatsRangePicker from './StatsRangePicker';
-import { lastDaysRange } from './statsRange';
+import type { StatsRange } from './statsRange';
 import { percent } from './tourFunnel';
 
-const DEFAULT_DAYS = 30;
-
-export default function EventFunnelCard({ eventId }: { eventId: string }) {
+export default function EventFunnelCard({ eventId, range }: { eventId: string; range: StatsRange }) {
 	const translate = useTranslation();
-	const [range, setRange] = useState(() => lastDaysRange(DEFAULT_DAYS));
 	const { data } = useTourFunnel(range.from, range.to, eventId);
 	const row = data?.[0];
 
@@ -24,12 +19,9 @@ export default function EventFunnelCard({ eventId }: { eventId: string }) {
 
 	return (
 		<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
-			<div className="flex flex-wrap items-center justify-between gap-2">
-				<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
-					{translate('admin.tourFunnel')}
-				</p>
-				<StatsRangePicker value={range} onChange={setRange} />
-			</div>
+			<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+				{translate('admin.tourFunnel')}
+			</p>
 			<div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
 				{steps.map((step) => (
 					<div key={step.label}>

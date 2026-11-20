@@ -201,6 +201,20 @@ export class AdminController {
 		return this.analyticsService.tours(from, to, eventId && isUuid(eventId) ? eventId : undefined);
 	}
 
+	@Get('stats/tours/:eventId/revenue')
+	@ApiOperation({ summary: 'What one tour earned over a period, date by date, and what its coming dates are expected to bring' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getTourRevenue(
+		@Param('eventId') eventId: string,
+		@Query('from') fromRaw: string,
+		@Query('to') toRaw: string,
+	) {
+		if (!isUuid(eventId)) throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: 'eventId' });
+		const { from, to } = this.statsRange(fromRaw, toRaw);
+		return this.dashboardRevenueService.getTourRevenue(eventId, from, to);
+	}
+
 	private statsRange(fromRaw: string, toRaw: string) {
 		const from = parseOptionalQueryDate(fromRaw, 'from');
 		const to = parseOptionalQueryDate(toRaw, 'to');

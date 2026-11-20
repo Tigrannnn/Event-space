@@ -1028,6 +1028,14 @@ export const useSourceStats = (from: string, to: string) => {
 	});
 };
 
+export const useTourRevenue = (eventId: string, from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'tour-revenue', eventId, from, to],
+		queryFn: () => adminApi.getTourRevenue(eventId, from, to),
+		...LIVE_QUERY_OPTIONS,
+	});
+};
+
 export const useTourFunnel = (from: string, to: string, eventId?: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'tours', from, to, eventId],

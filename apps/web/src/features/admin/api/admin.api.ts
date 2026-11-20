@@ -52,6 +52,7 @@ import type {
 	CreateSourceData,
 	Source,
 	SourceStats,
+	TourRevenue,
 	UpdateBookingSourceData,
 	UpdateSourceData,
 	TourFunnelRow,
@@ -84,6 +85,11 @@ export const adminApi = {
 
 	getSourceStats: (from: string, to: string) =>
 		clientApi.get<SourceStats>('/admin/stats/sources', { params: { from, to } }).then((res) => res.data),
+
+	getTourRevenue: (eventId: string, from: string, to: string) =>
+		clientApi
+			.get<TourRevenue>(`/admin/stats/tours/${eventId}/revenue`, { params: { from, to } })
+			.then((res) => res.data),
 
 	getTourFunnel: (from: string, to: string, eventId?: string) =>
 		clientApi
