@@ -15,6 +15,16 @@ interface ActivityRow {
 type Counts = Omit<SourceStatsRow, 'source'>;
 
 const NONE = '';
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysBetween(from: string, to: string): string[] {
+	const days: string[] = [];
+	const end = Date.parse(`${to}T00:00:00Z`);
+	for (let time = Date.parse(`${from}T00:00:00Z`); time <= end; time += DAY_MS) {
+		days.push(new Date(time).toISOString().slice(0, 10));
+	}
+	return days;
+}
 
 function emptyCounts(): Counts {
 	return { visitors: 0, viewedTours: 0, startedBooking: 0, bookings: 0, siteBookings: 0, amount: 0 };
@@ -33,7 +43,7 @@ export class AdminAnalyticsService {
 	async sources(from: string, to: string): Promise<SourceStats> {
 		const createdAt = { gte: startOfDay(from), lte: endOfDay(to) };
 
-		const [byRef, overall, bookings, sources, partners] = await Promise.all([
+		const [byRef, overall, perDay, bookings, sources, partners] = await Promise.all([
 			this.prisma.$queryRaw<ActivityRow[]>(Prisma.sql`
 				SELECT source_ref AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
 				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
@@ -42,6 +52,11 @@ export class AdminAnalyticsService {
 				SELECT NULL AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
 				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
 				GROUP BY type`),
+			this.prisma.analyticsEvent.groupBy({
+				by: ['day'],
+				where: { type: 'VISIT', day: { gte: from, lte: to } },
+				_count: { _all: true },
+			}),
 			this.prisma.booking.findMany({
 				where: { createdAt, status: 'CONFIRMED' },
 				select: { sourceId: true, createdByAdminId: true, amount: true },
@@ -86,8 +101,11 @@ export class AdminAnalyticsService {
 
 		for (const partner of partners) counts(partner.id);
 
+		const visitorsByDay = new Map(perDay.map((row) => [row.day, row._count._all]));
+
 		return {
 			totals,
+			days: daysBetween(from, to).map((date) => ({ date, visitors: visitorsByDay.get(date) ?? 0 })),
 			rows: [...rows.entries()]
 				.map(([key, sum]) => ({ source: key === NONE ? null : (sourceById.get(key) ?? null), ...sum }))
 				.sort(

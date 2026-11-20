@@ -126,9 +126,15 @@ export const SourceStatsRowSchema = z.object({
 
 export type SourceStatsRow = z.infer<typeof SourceStatsRowSchema>;
 
+export const SourceStatsDaySchema = z.object({
+	date: z.string(),
+	visitors: z.number().int(),
+});
+
 export const SourceStatsSchema = z.object({
 	totals: SourceStatsRowSchema.omit({ source: true }),
 	rows: z.array(SourceStatsRowSchema),
+	days: z.array(SourceStatsDaySchema),
 });
 
 export type SourceStats = z.infer<typeof SourceStatsSchema>;

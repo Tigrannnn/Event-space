@@ -55,9 +55,9 @@ export default function SourceStatsTable() {
 			<div className="flex flex-col gap-3 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4">
 				<div>
 					<h1 className="text-sm font-semibold text-gray-900 sm:text-base dark:text-gray-100">
-						{translate('admin.statistics')}
+						{translate('admin.traffic')}
 					</h1>
-					<p className="text-xs text-gray-500 sm:text-sm">{translate('admin.statisticsHint')}</p>
+					<p className="text-xs text-gray-500 sm:text-sm">{translate('admin.trafficHint')}</p>
 				</div>
 				<StatsRangePicker value={range} onChange={setRange} />
 			</div>
