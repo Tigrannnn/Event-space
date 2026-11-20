@@ -50,6 +50,15 @@
 	*::after {
 		box-sizing: border-box;
 	}
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-gray-300) transparent;
+	}
+	@media (prefers-color-scheme: dark) {
+		* {
+			scrollbar-color: var(--color-gray-700) transparent;
+		}
+	}
 	body {
 		margin: 0;
 		padding: 0;
