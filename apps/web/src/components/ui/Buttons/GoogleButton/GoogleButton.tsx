@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useGoogleLogin } from '@react-oauth/google';
 import { LoaderCircle } from 'lucide-react';
 import { authApi } from '@/features/auth';
+import { useAccountRefresh } from '@/features/auth/hooks/useAccountRefresh';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { useModalStore } from '@/stores';
 import { useTranslation } from '@/hooks/translation';
@@ -12,7 +12,7 @@ import { useApiError } from '@/hooks/apiError';
 
 export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
 	const [isLoading, setIsLoading] = useState(false);
-	const queryClient = useQueryClient();
+	const refreshAccount = useAccountRefresh();
 	const translate = useTranslation();
 	const apiError = useApiError();
 	const { addToast } = useToastStore();
@@ -23,8 +23,9 @@ export default function GoogleButton(props: React.ButtonHTMLAttributes<HTMLButto
 		onSuccess: async (credentialResponse) => {
 			setIsLoading(true);
 			try {
-				await authApi.googleLogin({ token: credentialResponse.code });
-				await queryClient.invalidateQueries({ queryKey: ['me'] });
+				const { data } = await authApi.googleLogin({ token: credentialResponse.code });
+				refreshAccount(data.user);
+				addToast(translate('auth.loginSuccess'), ToastType.SUCCESS);
 				closeModal();
 			} catch (error: unknown) {
 				addToast(apiError(error, 'auth.googleLoginFailed'), ToastType.ERROR);
