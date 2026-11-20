@@ -12,6 +12,7 @@ import {
 import { AppException } from '@shared';
 import { endOfDay, startOfDay } from '../../../shared/utils/app-day.util';
 import {
+	addVisits,
 	emptyTotals,
 	NONE_KEY,
 	SOURCE_BOOKING_SELECT,
@@ -24,20 +25,24 @@ export class AdminSourcesService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async findAll({ includeArchived = false }: { includeArchived?: boolean } = {}): Promise<SourceList> {
-		const [sources, rows] = await Promise.all([
+		const [sources, rows, visits] = await Promise.all([
 			this.prisma.source.findMany({
 				where: includeArchived ? {} : { isActive: true },
 				orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
 			}),
 			this.loadBookings({ status: 'CONFIRMED' }),
+			this.prisma.sourceVisit.groupBy({ by: ['sourceId', 'ref'], _count: { _all: true } }),
 		]);
 
-		const totals = totalsBySource(rows, new Date());
+		const totals = addVisits(
+			totalsBySource(rows, new Date()),
+			visits.map((row) => ({ sourceId: row.sourceId, ref: row.ref, visits: row._count._all })),
+		);
 
 		const unknown = [...totals.entries()]
 			.filter(([key]) => key.startsWith('ref:'))
 			.map(([key, sum]) => ({ ref: key.slice(4), totals: sum }))
-			.sort((a, b) => b.totals.bookings - a.totals.bookings);
+			.sort((a, b) => b.totals.bookings - a.totals.bookings || b.totals.visits - a.totals.visits);
 
 		return {
 			sources: sources.map((source) => ({ ...source, totals: totals.get(source.id) ?? emptyTotals() })),
@@ -75,6 +80,10 @@ export class AdminSourcesService {
 				const source = await tx.source.create({ data: { code: data.code, name, nameKey } });
 				await tx.booking.updateMany({
 					where: { sourceId: null, sourceRef: data.code },
+					data: { sourceId: source.id },
+				});
+				await tx.sourceVisit.updateMany({
+					where: { sourceId: null, ref: data.code },
 					data: { sourceId: source.id },
 				});
 				return source;

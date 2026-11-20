@@ -4,6 +4,7 @@ import { classifyBookingRevenue, round2, type RevenueBooking } from '../dashboar
 export interface SourceBookingRow {
 	sourceId: string | null;
 	sourceRef: string | null;
+	createdByAdminId: string | null;
 	status: RevenueBooking['status'];
 	paymentMethod: RevenueBooking['paymentMethod'];
 	amount: unknown;
@@ -16,6 +17,7 @@ export interface SourceBookingRow {
 export const SOURCE_BOOKING_SELECT = {
 	sourceId: true,
 	sourceRef: true,
+	createdByAdminId: true,
 	status: true,
 	paymentMethod: true,
 	amount: true,
@@ -31,7 +33,7 @@ export const SOURCE_BOOKING_SELECT = {
 export const NONE_KEY = 'none';
 
 export function emptyTotals(): SourceTotals {
-	return { bookings: 0, guests: 0, amount: 0, paid: 0 };
+	return { visits: 0, siteBookings: 0, bookings: 0, guests: 0, amount: 0, paid: 0 };
 }
 
 export function sourceKey(row: Pick<SourceBookingRow, 'sourceId' | 'sourceRef'>): string {
@@ -69,11 +71,28 @@ export function totalsBySource(rows: SourceBookingRow[], now: Date): Map<string,
 		const key = sourceKey(row);
 		const sum = totals.get(key) ?? emptyTotals();
 		sum.bookings += 1;
+		if (!row.createdByAdminId) sum.siteBookings += 1;
 		sum.guests += row.quantity;
 		sum.amount = round2(sum.amount + Number(row.amount));
 		sum.paid = round2(sum.paid + paidOf(row, now));
 		totals.set(key, sum);
 	}
 
+	return totals;
+}
+
+export interface SourceVisitCount {
+	sourceId: string | null;
+	ref: string;
+	visits: number;
+}
+
+export function addVisits(totals: Map<string, SourceTotals>, counts: SourceVisitCount[]): Map<string, SourceTotals> {
+	for (const count of counts) {
+		const key = sourceKey({ sourceId: count.sourceId, sourceRef: count.ref });
+		const sum = totals.get(key) ?? emptyTotals();
+		sum.visits += count.visits;
+		totals.set(key, sum);
+	}
 	return totals;
 }

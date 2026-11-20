@@ -1,5 +1,6 @@
 export * from './ChannelSchema';
 export * from './SourceSchema';
+export * from './SourceVisitSchema';
 export * from './CategorySchema';
 export * from './CategoryTranslationSchema';
 export * from './EventSchema';

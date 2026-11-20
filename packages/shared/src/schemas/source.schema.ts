@@ -38,6 +38,8 @@ export const SourceRefSchema = z.object({
 export type SourceRef = z.infer<typeof SourceRefSchema>;
 
 export const SourceTotalsSchema = z.object({
+	visits: z.number().int(),
+	siteBookings: z.number().int(),
 	bookings: z.number().int(),
 	guests: z.number().int(),
 	amount: z.number(),
@@ -112,3 +114,16 @@ export const UpdateBookingSourceSchema = z
 	.openapi({ description: 'Where the customer learned about the company; null when unknown' });
 
 export type UpdateBookingSourceData = z.infer<typeof UpdateBookingSourceSchema>;
+
+export const RecordSourceVisitSchema = z
+	.object({
+		ref: z.string().max(200),
+	})
+	.openapi({ description: 'Someone opened the site by a link with this label for the first time' });
+
+export type RecordSourceVisitData = z.infer<typeof RecordSourceVisitSchema>;
+
+export function sourceConversion(totals: Pick<SourceTotals, 'visits' | 'siteBookings'>): number | null {
+	if (totals.visits <= 0) return null;
+	return Math.min(1, totals.siteBookings / totals.visits);
+}

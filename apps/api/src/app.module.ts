@@ -21,6 +21,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { SearchModule } from './modules/search/search.module';
 import { BannerModule } from '@modules/banner/banner.module';
 import { ReviewModule } from '@modules/review/review.module';
+import { SourceModule } from '@modules/source/source.module';
 
 @Module({
 	imports: [
@@ -48,6 +49,7 @@ import { ReviewModule } from '@modules/review/review.module';
 		SearchModule,
 		BannerModule,
 		ReviewModule,
+		SourceModule,
 	],
 	controllers: [AppController],
 })

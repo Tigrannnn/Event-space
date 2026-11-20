@@ -6,6 +6,7 @@ import { Archive, ArchiveRestore, Copy, Pencil, Plus, QrCode } from 'lucide-reac
 import {
 	SOURCE_FILTER_NONE,
 	SOURCE_FILTER_UNKNOWN,
+	sourceConversion,
 	type SourceTotals,
 	type SourceWithStats,
 } from '@event-space/shared';
@@ -51,8 +52,15 @@ export default function SourcesTable() {
 		);
 	};
 
-	const totalsCells = (totals: SourceTotals, filter: string) => (
+	const conversion = (totals: SourceTotals) => {
+		const share = sourceConversion(totals);
+		return share === null ? '—' : `${Math.round(share * 100)}%`;
+	};
+
+	const totalsCells = (totals: SourceTotals, filter: string, withVisits = true) => (
 		<>
+			<TableCell>{withVisits ? totals.visits : '—'}</TableCell>
+			<TableCell title={translate('admin.sourceConversionHint')}>{withVisits ? conversion(totals) : '—'}</TableCell>
 			<TableCell>
 				{totals.bookings > 0 ? (
 					<Link href={bookingsHref(filter, translate.locale)} className="text-primary hover:underline">
@@ -94,6 +102,8 @@ export default function SourcesTable() {
 						<TableRow>
 							<TableHead className="px-3 sm:px-5">{translate('admin.sourceName')}</TableHead>
 							<TableHead>{translate('admin.sourceLink')}</TableHead>
+							<TableHead>{translate('admin.sourceVisits')}</TableHead>
+							<TableHead>{translate('admin.sourceConversion')}</TableHead>
 							<TableHead>{translate('admin.sourceBookings')}</TableHead>
 							<TableHead>{translate('admin.sourceGuests')}</TableHead>
 							<TableHead>{translate('admin.sourceAmount')}</TableHead>
@@ -104,7 +114,7 @@ export default function SourcesTable() {
 					<TableBody>
 						{!isLoading && sources.length === 0 && (
 							<TableRow>
-								<TableCell colSpan={7} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+								<TableCell colSpan={9} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 									{translate('admin.noSources')}
 								</TableCell>
 							</TableRow>
@@ -176,7 +186,7 @@ export default function SourcesTable() {
 							<TableRow className="text-gray-500">
 								<TableCell className="px-3 italic sm:px-5">{translate('admin.sourceUnspecified')}</TableCell>
 								<TableCell>—</TableCell>
-								{totalsCells(data.unspecified, SOURCE_FILTER_NONE)}
+								{totalsCells(data.unspecified, SOURCE_FILTER_NONE, false)}
 								<TableCell />
 							</TableRow>
 						)}
@@ -199,6 +209,8 @@ export default function SourcesTable() {
 						<TableHeader>
 							<TableRow>
 								<TableHead className="px-3 sm:px-5">{translate('admin.sourceCode')}</TableHead>
+								<TableHead>{translate('admin.sourceVisits')}</TableHead>
+								<TableHead>{translate('admin.sourceConversion')}</TableHead>
 								<TableHead>{translate('admin.sourceBookings')}</TableHead>
 								<TableHead>{translate('admin.sourceGuests')}</TableHead>
 								<TableHead>{translate('admin.sourceAmount')}</TableHead>

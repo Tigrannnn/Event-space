@@ -70,9 +70,24 @@ model Source {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  bookings Booking[] @relation("source_bookings")
+  bookings Booking[]     @relation("source_bookings")
+  visits   SourceVisit[] @relation("source_visits")
 
   @@map("sources")
+}
+
+model SourceVisit {
+  id String @id @default(uuid())
+
+  sourceId String? @map("source_id")
+  source   Source? @relation("source_visits", fields: [sourceId], references: [id], onDelete: Restrict)
+  ref      String  @db.VarChar(60)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([sourceId])
+  @@index([ref])
+  @@map("source_visits")
 }
 
 enum PaymentMethod {

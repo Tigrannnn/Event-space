@@ -1,5 +1,5 @@
-import { normalizeSourceRef } from '@event-space/shared';
-import { NONE_KEY, sourceKey, totalsBySource, type SourceBookingRow } from './source-totals';
+import { normalizeSourceRef, sourceConversion } from '@event-space/shared';
+import { addVisits, NONE_KEY, sourceKey, totalsBySource, type SourceBookingRow } from './source-totals';
 import { buildBookingsWhere } from '../bookings/booking-filters';
 
 const NOW = new Date('2026-11-20T12:00:00Z');
@@ -10,6 +10,7 @@ function row(overrides: Partial<SourceBookingRow>): SourceBookingRow {
 	return {
 		sourceId: null,
 		sourceRef: null,
+		createdByAdminId: null,
 		status: 'CONFIRMED',
 		paymentMethod: 'SITE_PAYMENT',
 		amount: 10000,
@@ -63,7 +64,7 @@ describe('totalsBySource', () => {
 			NOW,
 		);
 
-		expect(totals.get('s1')).toEqual({ bookings: 2, guests: 5, amount: 25000, paid: 24700 });
+		expect(totals.get('s1')).toEqual({ visits: 0, siteBookings: 2, bookings: 2, guests: 5, amount: 25000, paid: 24700 });
 	});
 
 	it('counts pay-on-arrival as received only once the guest came', () => {
@@ -76,7 +77,7 @@ describe('totalsBySource', () => {
 			NOW,
 		);
 
-		expect(totals.get(NONE_KEY)).toEqual({ bookings: 3, guests: 6, amount: 30000, paid: 10000 });
+		expect(totals.get(NONE_KEY)).toEqual({ visits: 0, siteBookings: 3, bookings: 3, guests: 6, amount: 30000, paid: 10000 });
 	});
 
 	it('keeps unknown labels apart from each other', () => {
@@ -87,6 +88,30 @@ describe('totalsBySource', () => {
 
 		expect(totals.get('ref:ardvi')?.bookings).toBe(2);
 		expect(totals.get('ref:ani')?.bookings).toBe(1);
+	});
+});
+
+describe('visits and conversion', () => {
+	it('adds visits to sources and to unknown labels, and counts site bookings apart', () => {
+		const totals = addVisits(
+			totalsBySource(
+				[row({ sourceId: 's1' }), row({ sourceId: 's1', createdByAdminId: 'admin' })],
+				NOW,
+			),
+			[
+				{ sourceId: 's1', ref: 'ardvi', visits: 40 },
+				{ sourceId: null, ref: 'ani', visits: 7 },
+			],
+		);
+
+		expect(totals.get('s1')).toMatchObject({ visits: 40, siteBookings: 1, bookings: 2 });
+		expect(totals.get('ref:ani')).toMatchObject({ visits: 7, bookings: 0 });
+	});
+
+	it('reads conversion as site bookings over visits', () => {
+		expect(sourceConversion({ visits: 40, siteBookings: 6 })).toBeCloseTo(0.15);
+		expect(sourceConversion({ visits: 0, siteBookings: 3 })).toBeNull();
+		expect(sourceConversion({ visits: 2, siteBookings: 5 })).toBe(1);
 	});
 });
 
