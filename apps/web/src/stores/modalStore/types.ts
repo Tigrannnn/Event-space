@@ -7,6 +7,7 @@ import {
 	SafeUserData,
 	Category,
 	Channel,
+	Source,
 	EventOccurrence,
 	PromoCode,
 } from '@event-space/shared';
@@ -55,6 +56,8 @@ export enum ModalType {
 	UpdatePromoCode = 'update-promo-code',
 	ImportReview = 'import-review',
 	ChannelForm = 'channel-form',
+	SourceForm = 'source-form',
+	SourceQr = 'source-qr',
 	CompensateBooking = 'compensate-booking',
 	TransferBooking = 'transfer-booking',
 }
@@ -173,6 +176,15 @@ export interface ChannelFormModalData {
 	channel?: Channel;
 }
 
+export interface SourceFormModalData {
+	source?: Source;
+	code?: string;
+}
+
+export interface SourceQrModalData {
+	source: Source;
+}
+
 export interface UpdatePromoCodeModalData {
 	promoCode: PromoCode;
 }
@@ -212,6 +224,8 @@ export interface ModalDataMap {
 	[ModalType.UpdatePromoCode]: UpdatePromoCodeModalData;
 	[ModalType.ImportReview]: null;
 	[ModalType.ChannelForm]: ChannelFormModalData | null;
+	[ModalType.SourceForm]: SourceFormModalData | null;
+	[ModalType.SourceQr]: SourceQrModalData;
 	[ModalType.CompensateBooking]: BookingDetailsModalData;
 	[ModalType.TransferBooking]: BookingDetailsModalData;
 }

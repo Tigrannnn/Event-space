@@ -32,6 +32,7 @@ export interface AdminBookingsFilters {
 	paymentMethod?: PaymentMethod;
 	/** Who made the booking: the guest on the site, or an admin by hand. */
 	createdBy?: BookingAuthor;
+	source?: string;
 }
 
 export function emptyBookingsFilters(): AdminBookingsFilters {
@@ -53,6 +54,7 @@ export function parseBookingsFilters(params: URLSearchParams): AdminBookingsFilt
 		tourTo: readString(params, 'tourTo'),
 		paymentMethod: readEnum(params, 'paymentMethod', PaymentMethodEnum.options),
 		createdBy: readEnum(params, 'createdBy', BookingAuthorSchema.options),
+		source: readString(params, 'source'),
 	};
 }
 
@@ -73,6 +75,7 @@ export function serializeBookingsFilters(
 	writeParam(params, 'tourTo', filters.tourTo);
 	writeParam(params, 'paymentMethod', filters.paymentMethod);
 	writeParam(params, 'createdBy', filters.createdBy);
+	writeParam(params, 'source', filters.source);
 	return params;
 }
 
@@ -89,6 +92,7 @@ export function countActiveBookingsFilters(filters: AdminBookingsFilters): numbe
 			filters.occurrenceId,
 			filters.paymentMethod,
 			filters.createdBy,
+			filters.source,
 		].filter(
 			(value) => value !== undefined,
 		).length +

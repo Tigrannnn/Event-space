@@ -20,12 +20,13 @@ import type {
 	PromoCodeQuote,
 } from '@event-space/shared';
 import { MY_BOOKINGS_PAGE_SIZE } from '@event-space/shared';
+import { readSourceRef } from '@/utils/sourceRef';
 
 export type MyBookingsPage = PaginatedCursorResponse<BookingWithEstimate>;
 
 export const bookingApi = {
 	createBooking: (data: CreateBookingData) =>
-		clientApi.post<CreateBookingResponse>('/bookings', data).then((res) => res.data),
+		clientApi.post<CreateBookingResponse>('/bookings', { ...data, ref: readSourceRef() }).then((res) => res.data),
 
 	getMyBookings: ({
 		cursor,
@@ -40,7 +41,8 @@ export const bookingApi = {
 		clientApi.get<MyBookingsSummary>('/bookings/my/summary').then((res) => res.data),
 
 	createGuestBooking: (data: CreateGuestBookingData) =>
-		clientApi.post<CreateGuestBookingResponse>('/bookings/guest', data).then((res) => res.data),
+		clientApi
+			.post<CreateGuestBookingResponse>('/bookings/guest', { ...data, ref: readSourceRef() }).then((res) => res.data),
 
 	/** `token` is the link from the booking's email: the way in for someone with no account. */
 	getBooking: (id: string, token?: string) =>

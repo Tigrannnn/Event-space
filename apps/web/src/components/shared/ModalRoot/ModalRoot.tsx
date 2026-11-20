@@ -18,6 +18,8 @@ import {
 import { CreateBannerModal, UpdateBannerModal } from '@/features/admin/banners';
 import { CreatePromoCodeModal, UpdatePromoCodeModal } from '@/features/admin/promo-codes';
 import ChannelFormModal from '@/features/admin/channels/ChannelFormModal';
+import SourceFormModal from '@/features/admin/sources/SourceFormModal';
+import SourceQrModal from '@/features/admin/sources/SourceQrModal';
 import ImportReviewModal from '@/features/admin/reviews/ImportReviewModal';
 import UserDetailsModal from '@/features/admin/user/components/UserDetailsModal';
 import EditGuestModal from '@/features/admin/user/components/EditGuestModal';
@@ -89,6 +91,8 @@ export default function ModalRoot() {
 						<UpdatePromoCodeModal key="update-promo-code" />
 					)}
 					{activeModal === ModalType.ChannelForm && <ChannelFormModal key="channel-form" />}
+					{activeModal === ModalType.SourceForm && <SourceFormModal key="source-form" />}
+					{activeModal === ModalType.SourceQr && <SourceQrModal key="source-qr" />}
 					{activeModal === ModalType.ImportReview && <ImportReviewModal key="import-review" />}
 				</>
 			)}

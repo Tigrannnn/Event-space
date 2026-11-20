@@ -67,6 +67,9 @@ import { ModalType } from '@/stores';
 import { formatBookingReference, getBookingStatusBadgeVariant } from '@/utils/booking';
 import { useFormatCurrency } from '@/hooks/format';
 import { useChannelLabel } from '@/hooks/labels/useChannelLabel';
+import { useSourceLabel } from '@/hooks/labels/useSourceLabel';
+import { useAdminSources } from '@/features/admin/hooks/useAdmin';
+import { SOURCE_FILTER_NONE, SOURCE_FILTER_UNKNOWN } from '@event-space/shared';
 import Badge from '@/components/ui/Badge';
 import { TimeZoneNote } from '@/components/shared/TimeZoneNote';
 
@@ -87,14 +90,28 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 	const locale = translate.locale;
 	const formatCurrency = useFormatCurrency();
 	const channelLabel = useChannelLabel();
+	const sourceLabel = useSourceLabel();
+	const { data: sourceList } = useAdminSources({ includeArchived: true });
 	const { filters, setFilters, resetFilters, activeCount } = useUrlFilters({
 		parse: parseBookingsFilters,
 		serialize: serializeBookingsFilters,
 		empty: emptyBookingsFilters,
 		countActive: countActiveBookingsFilters,
 	});
-	const { skip, limit, status, time, eventId, createdFrom, createdTo, tourFrom, tourTo, paymentMethod, createdBy } =
-		filters;
+	const {
+		skip,
+		limit,
+		status,
+		time,
+		eventId,
+		createdFrom,
+		createdTo,
+		tourFrom,
+		tourTo,
+		paymentMethod,
+		createdBy,
+		source,
+	} = filters;
 
 	const [searchInput, setSearchInput] = useState(filters.search ?? '');
 	useEffect(() => {
@@ -299,6 +316,20 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 					<Select
 						variant="filter"
 						size="sm"
+						isActive={source !== undefined}
+						value={source ?? ''}
+						onValueChange={(value) => applyFilter({ source: value || undefined })}
+						options={[
+							{ value: '', label: translate('admin.sourceAnyFilter') },
+							...(sourceList?.sources ?? []).map((item) => ({ value: item.id, label: item.name })),
+							{ value: SOURCE_FILTER_NONE, label: translate('admin.sourceUnspecified') },
+							{ value: SOURCE_FILTER_UNKNOWN, label: translate('admin.sourceUnknownFilter') },
+						]}
+					/>
+
+					<Select
+						variant="filter"
+						size="sm"
 						isActive={paymentMethod !== undefined}
 						value={paymentMethod ?? ''}
 							onValueChange={(value) =>
@@ -379,6 +410,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 						<TableHead>{translate('admin.status')}</TableHead>
 						<TableHead>{translate('admin.qty')}</TableHead>
 						<TableHead>{translate('admin.total')}</TableHead>
+						<TableHead>{translate('admin.bookingSource')}</TableHead>
 						<TableHead>{translate('admin.reference')}</TableHead>
 						<TableHead>{translate('admin.actions')}</TableHead>
 					</TableRow>
@@ -386,7 +418,7 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 				<TableBody>
 					{bookingsResponse.data.length === 0 && (
 						<TableRow>
-							<TableCell colSpan={7} className="px-3 py-8 text-center text-gray-500 sm:px-5">
+							<TableCell colSpan={8} className="px-3 py-8 text-center text-gray-500 sm:px-5">
 								{translate('admin.noBookingsFound')}
 							</TableCell>
 						</TableRow>
@@ -452,6 +484,9 @@ export default function BookingsTable({ initialBookings }: BookingsTableProps) {
 								</TableCell>
 								<TableCell>{booking.quantity}</TableCell>
 								<TableCell>{formatCurrency(booking.amount)}</TableCell>
+								<TableCell className={booking.sourceId ? undefined : 'text-gray-400'}>
+									{sourceLabel(booking)}
+								</TableCell>
 								<TableCell>
 									<p>{formatBookingReference(booking.referenceNumber)}</p>
 									{booking.channel && !isPlainChannel(booking.channelId) && (

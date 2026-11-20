@@ -4,6 +4,7 @@ import { type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { requireChannelFor } from '@modules/channel/channel-access';
+import { requireActiveSource, resolveSourceRef } from '@modules/source/source-access';
 import {
 	AppErrorCode,
 	BookingWithEstimate,
@@ -148,6 +149,7 @@ export class BookingCreationService {
 				// carrying it into a new attempt would confirm this booking without payment.
 				// Only a still-PENDING booking is in the same cycle and may keep its intent.
 				const keepsPaymentIntent = existing?.status === 'PENDING';
+				const source = await resolveSourceRef(tx, data.ref);
 
 				const upserted = await tx.booking.upsert({
 					where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
@@ -158,6 +160,7 @@ export class BookingCreationService {
 						promoCodeId,
 						...(keepsPaymentIntent ? {} : { paymentIntentId: null }),
 						...(brandHost ? { brandHost } : {}),
+						...(source ?? {}),
 					},
 					create: {
 						userId,
@@ -167,6 +170,7 @@ export class BookingCreationService {
 						...pricing,
 						promoCodeId,
 						brandHost,
+						...(source ?? {}),
 					},
 				});
 
@@ -413,12 +417,14 @@ export class BookingCreationService {
 			phone,
 			locale: mailLocale,
 			channelId,
+			sourceId = null,
 			amount: agreedAmount,
 		} = data;
 		const externalId = data.externalId?.trim() || null;
 
 		const result = await this.prisma.$transaction(async (tx) => {
 			await requireChannelFor(tx, channelId, 'bookings');
+			if (sourceId) await requireActiveSource(tx, sourceId);
 
 			// The same booking of a platform cannot be entered twice: the second would take seats
 			// for guests that are already counted.
@@ -560,6 +566,8 @@ export class BookingCreationService {
 				paymentMethod,
 				channelId,
 				externalId,
+				sourceId,
+				sourceRef: null,
 				createdByAdminId: adminId,
 				referenceNumber,
 				brandHost,

@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client';
-import { isUuid } from '@event-space/shared';
+import { isUuid, SOURCE_FILTER_NONE, SOURCE_FILTER_UNKNOWN } from '@event-space/shared';
 import type {
 	BookingAuthor,
 	BookingDisplayStatus,
@@ -23,11 +23,12 @@ export interface BookingFilters {
 	tourTo?: string;
 	paymentMethod?: PaymentMethod;
 	createdBy?: BookingAuthor;
+	source?: string;
 }
 
 export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 	const { search, searchEventIds, status, time, eventId, occurrenceId, createdFrom, createdTo } = filters;
-	const { tourFrom, tourTo, paymentMethod, createdBy } = filters;
+	const { tourFrom, tourTo, paymentMethod, createdBy, source } = filters;
 
 	const createdAt = buildDayRangeFilter(createdFrom, createdTo);
 	const tourDate = buildDayRangeFilter(tourFrom, tourTo);
@@ -77,5 +78,13 @@ export function buildBookingsWhere(filters: BookingFilters, now: Date) {
 		...(paymentMethod ? { paymentMethod } : {}),
 		...(createdAt ? { createdAt } : {}),
 		...(createdBy ? { createdByAdminId: createdBy === 'admin' ? { not: null } : null } : {}),
+		...sourceWhere(source),
 	};
+}
+
+function sourceWhere(source: string | undefined) {
+	if (!source) return {};
+	if (source === SOURCE_FILTER_NONE) return { sourceId: null, sourceRef: null };
+	if (source === SOURCE_FILTER_UNKNOWN) return { sourceId: null, sourceRef: { not: null } };
+	return { sourceId: source };
 }

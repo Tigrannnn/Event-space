@@ -28,6 +28,8 @@ export const BookingSchema = z.object({
    * Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
    */
   externalId: z.string().nullable(),
+  sourceId: z.string().nullable(),
+  sourceRef: z.string().nullable(),
   createdByAdminId: z.string().nullable(),
   rescheduleRefundUntil: z.coerce.date().nullable(),
   rescheduleAcceptedAt: z.coerce.date().nullable(),

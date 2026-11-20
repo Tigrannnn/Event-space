@@ -22,6 +22,9 @@ import {
 	type UpdatePromoCodeData,
 	type UpdateShadowUserData,
 	type UpdateBookingChannelData,
+	type UpdateBookingSourceData,
+	type CreateSourceData,
+	type UpdateSourceData,
 	type BookingWithDetails,
 	type ImportReviewData,
 	type ModerateReviewData,
@@ -227,6 +230,30 @@ export const useUpdateBookingChannel = () => {
 		},
 		onError: (error) => {
 			addToast(apiError(error, 'admin.bookingChannelSaveFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateBookingSource = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+	const translate = useTranslation();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateBookingSourceData }) =>
+			adminApi.updateBookingSource(id, data),
+		onSuccess: async (booking) => {
+			addToast(translate('admin.bookingSourceSaved'), ToastType.SUCCESS);
+			showFreshBookingDetails(booking);
+			await Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'sources'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+			]);
+		},
+		onError: (error) => {
+			addToast(apiError(error, 'admin.bookingSourceSaveFailed'), ToastType.ERROR);
 		},
 	});
 };
@@ -950,6 +977,54 @@ export const useUpdateChannel = () => {
 		onError: (error) => {
 			addToast(apiError(error, 'admin.channelSaveFailed'), ToastType.ERROR);
 		},
+	});
+};
+
+export const useAdminSources = (params?: { includeArchived?: boolean }) => {
+	return useQuery({
+		queryKey: ['admin', 'sources', params],
+		queryFn: () => adminApi.getSources(params),
+	});
+};
+
+export const useCreateSource = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: (data: CreateSourceData) => adminApi.createSource(data),
+		onSuccess: () =>
+			Promise.all([
+				queryClient.invalidateQueries({ queryKey: ['admin', 'sources'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'bookings'] }),
+				queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] }),
+			]),
+		onError: (error) => {
+			addToast(apiError(error, 'admin.sourceSaveFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useUpdateSource = () => {
+	const queryClient = useQueryClient();
+	const { addToast } = useToastStore();
+	const apiError = useApiError();
+
+	return useMutation({
+		mutationFn: ({ id, data }: { id: string; data: UpdateSourceData }) => adminApi.updateSource(id, data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'sources'] }),
+		onError: (error) => {
+			addToast(apiError(error, 'admin.sourceSaveFailed'), ToastType.ERROR);
+		},
+	});
+};
+
+export const useRevenueBySource = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'revenue-sources', from, to],
+		queryFn: () => adminApi.getRevenueBySource(from, to),
+		...LIVE_QUERY_OPTIONS,
 	});
 };
 

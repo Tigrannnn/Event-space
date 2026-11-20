@@ -1,4 +1,5 @@
 import { CHANNEL_REF } from '@modules/channel/channel-ref.select';
+import { SOURCE_REF } from '@modules/source/source-ref.select';
 
 export const safeUserSelect = {
 	id: true,
@@ -16,6 +17,7 @@ export const safeUserSelect = {
 
 export const bookingInclude = {
 	channel: CHANNEL_REF,
+	source: SOURCE_REF,
 	user: {
 		select: safeUserSelect,
 	},

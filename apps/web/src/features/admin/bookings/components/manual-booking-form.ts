@@ -30,6 +30,7 @@ export interface ManualBookingDraft {
 	locale?: CreateManualBookingData['locale'];
 	channelId: string;
 	externalId?: string | null;
+	sourceId?: string | null;
 	amount?: string;
 	promoCode?: string;
 }
@@ -101,6 +102,7 @@ export function buildManualBookingData(draft: ManualBookingDraft): CreateManualB
 		channelId: draft.channelId,
 		// A number only means something on a platform; with no channel named there is none.
 		externalId: draft.channelId === SYSTEM_CHANNEL_IDS.UNSPECIFIED ? null : draft.externalId?.trim() || null,
+		sourceId: draft.sourceId ?? null,
 		amount: parseAmount(draft.amount),
 		promoCode: draft.promoCode?.trim() || undefined,
 	};

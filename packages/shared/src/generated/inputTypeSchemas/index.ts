@@ -1,5 +1,6 @@
 export { TransactionIsolationLevelSchema } from './TransactionIsolationLevelSchema';
 export { ChannelScalarFieldEnumSchema } from './ChannelScalarFieldEnumSchema';
+export { SourceScalarFieldEnumSchema } from './SourceScalarFieldEnumSchema';
 export { CategoryScalarFieldEnumSchema } from './CategoryScalarFieldEnumSchema';
 export { CategoryTranslationScalarFieldEnumSchema } from './CategoryTranslationScalarFieldEnumSchema';
 export { EventScalarFieldEnumSchema } from './EventScalarFieldEnumSchema';

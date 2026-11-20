@@ -3,6 +3,7 @@ import { ReviewSchema } from './review.schema';
 import { BookingSchema as GeneratedBookingSchema } from '../generated/modelSchema/BookingSchema';
 import { BookingStatusSchema } from '../generated/inputTypeSchemas/BookingStatusSchema';
 import { ChannelRefSchema, SYSTEM_CHANNEL_IDS } from './channel.schema';
+import { SourceRefSchema } from './source.schema';
 import { EventSchema } from './event.schema';
 import { EventOccurrenceSchema } from './event-occurrence.schema';
 import { LocaleEnum } from './locale.schema';
@@ -37,6 +38,7 @@ export const BookingSchema = GeneratedBookingSchema.extend({
 	amount: z.number(),
 	baseAmount: z.number().nullable(),
 	channel: ChannelRefSchema.nullish(),
+	source: SourceRefSchema.nullish(),
 }).openapi({
 	description: 'Booking base information',
 	example: {
@@ -94,6 +96,10 @@ export const CreateBookingSchema = z.object({
 	promoCode: z.string().trim().min(1).optional().openapi({
 		description: 'Promo code entered by the customer, if any',
 		example: 'SUMMER10',
+	}),
+	ref: z.string().max(200).optional().openapi({
+		description: 'The link label the customer came with (ref or utm_source); unreadable ones are ignored',
+		example: 'ardvi',
 	}),
 });
 
@@ -153,6 +159,9 @@ export const CreateManualBookingSchema = z
 			.max(BOOKING_EXTERNAL_ID_MAX)
 			.nullish()
 			.openapi({ description: "The booking's number on that platform, when it has one" }),
+		sourceId: z.string().min(1).nullish().openapi({
+			description: 'Where the customer learned about the company, when known',
+		}),
 		amount: z.number().min(0).max(MANUAL_BOOKING_AMOUNT_MAX).optional().openapi({
 			description: 'What the whole booking costs, when it is not the tour price: a platform price, a deal',
 		}),
@@ -357,6 +366,7 @@ export const BookingFiltersSchema = z.object({
 	paymentMethod: PaymentMethodSchema.optional(),
 	/** Who made the booking: the guest on the site, or an admin by hand. */
 	createdBy: BookingAuthorSchema.optional(),
+	source: z.string().optional(),
 });
 
 export type BookingFilters = z.infer<typeof BookingFiltersSchema>;

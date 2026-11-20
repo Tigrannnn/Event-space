@@ -14,7 +14,7 @@ const DOWNLOAD_SIZE = 1024;
 const DOWNLOAD_MARGIN = 64;
 
 /** Draws the code onto a white canvas with a quiet margin, which scanners need and a bare SVG lacks. */
-function downloadQrCode(svg: SVGSVGElement, fileName: string) {
+export function downloadQrCode(svg: SVGSVGElement, fileName: string) {
 	const sharp = svg.cloneNode(true) as SVGSVGElement;
 	sharp.setAttribute('width', String(DOWNLOAD_SIZE));
 	sharp.setAttribute('height', String(DOWNLOAD_SIZE));

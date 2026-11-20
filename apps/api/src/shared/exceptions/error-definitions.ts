@@ -231,6 +231,19 @@ export const ERROR_DEFINITIONS: Record<AppErrorCode, ErrorDefinition> = {
 		status: HttpStatus.CONFLICT,
 		message: 'A system channel cannot be changed',
 	},
+	[AppErrorCode.SOURCE_NOT_FOUND]: { status: HttpStatus.NOT_FOUND, message: 'Source not found' },
+	[AppErrorCode.SOURCE_NOT_AVAILABLE]: {
+		status: HttpStatus.BAD_REQUEST,
+		message: 'This source is archived',
+	},
+	[AppErrorCode.SOURCE_NAME_TAKEN]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A source with this name already exists',
+	},
+	[AppErrorCode.SOURCE_CODE_TAKEN]: {
+		status: HttpStatus.CONFLICT,
+		message: 'A source with this link label already exists',
+	},
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: { status: HttpStatus.CONFLICT, message: 'No spots available' },
 	[AppErrorCode.NOT_ENOUGH_SPOTS]: {
 		status: HttpStatus.CONFLICT,

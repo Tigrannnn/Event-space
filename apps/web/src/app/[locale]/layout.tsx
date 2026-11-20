@@ -6,6 +6,7 @@ import { cookies, headers } from 'next/headers';
 import QueryProvider from '@/providers/QueryProvider';
 import { BottomNavbar, Footer, HeaderWrapper, MainContent } from '@/components/layout';
 import ModalRoot from '@/components/shared/ModalRoot/ModalRoot';
+import SourceRefTracker from '@/components/shared/SourceRefTracker/SourceRefTracker';
 import { ToastContainer } from '@/components/ui/Toast';
 import IconTooltips from '@/components/ui/IconTooltips';
 import GoogleProvider from '@/providers/GoogleProvider';
@@ -168,6 +169,7 @@ export default async function Layout({ children, params }: LayoutProps) {
 								<BottomNavbar />
 								<ToastContainer />
 								<IconTooltips />
+								<SourceRefTracker />
 							</GoogleProvider>
 						</QueryProvider>
 					</AuthHintProvider>

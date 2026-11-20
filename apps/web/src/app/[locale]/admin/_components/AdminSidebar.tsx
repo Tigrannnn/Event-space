@@ -16,6 +16,7 @@ import {
 	Image as ImageIcon,
 	Star,
 	Percent,
+	Megaphone,
 } from 'lucide-react';
 import { localizePath, stripLocaleFromPathname } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
@@ -44,6 +45,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 		{ href: '/admin/reviews', label: translate('admin.reviews'), icon: Star, badge: pendingReviews },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
 		{ href: '/admin/channels', label: translate('admin.channels'), icon: Globe },
+		{ href: '/admin/sources', label: translate('admin.sources'), icon: Megaphone },
 		{ href: '/admin/checkin', label: translate('admin.checkIn'), icon: CheckCircle },
 		{ href: '/admin/users', label: translate('admin.users'), icon: Users },
 	];

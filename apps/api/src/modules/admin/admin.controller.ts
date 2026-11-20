@@ -64,6 +64,7 @@ import {
 	CompensateBookingSchema,
 	TransferBookingSchema,
 	UpdateBookingChannelSchema,
+	UpdateBookingSourceSchema,
 	ChangeQuantitySchema,
 	QuantityQuoteRequestSchema,
 	CheckInSchema,
@@ -89,6 +90,7 @@ import type {
 	CompensateBookingData,
 	TransferBookingData,
 	UpdateBookingChannelData,
+	UpdateBookingSourceData,
 	ChangeQuantityData,
 	QuantityQuoteRequest,
 	CheckInData,
@@ -98,6 +100,7 @@ import { BookingService } from '@modules/booking/booking.service';
 import { UpdateShadowUserSchema } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { EventService } from '@modules/event/event.service';
+import { AdminSourcesService } from './sources/admin-sources.service';
 
 const MAX_REVENUE_RANGE_DAYS = 366;
 
@@ -125,6 +128,7 @@ export class AdminController {
 		private readonly promoCodesService: AdminPromoCodesService,
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardRevenueService: DashboardRevenueService,
+		private readonly sourcesService: AdminSourcesService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
 		private readonly bookingService: BookingService,
@@ -172,6 +176,23 @@ export class AdminController {
 		assertRevenueRange(from, to);
 
 		return this.dashboardRevenueService.getRevenue(from, to);
+	}
+
+	@Get('stats/revenue/sources')
+	@ApiOperation({ summary: 'Confirmed bookings of tours in a period, grouped by where customers came from' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getDashboardRevenueBySource(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		assertRevenueRange(from, to);
+
+		return this.sourcesService.revenue(from, to);
 	}
 
 	@Get('stats/revenue/timeline')
@@ -316,6 +337,7 @@ export class AdminController {
 	@ApiQuery({ name: 'tourTo', required: false, description: 'Tour date on or before (YYYY-MM-DD)' })
 	@ApiQuery({ name: 'paymentMethod', required: false, enum: PaymentMethodEnum.options })
 	@ApiQuery({ name: 'createdBy', required: false, enum: BookingAuthorSchema.options })
+	@ApiQuery({ name: 'source', required: false, description: 'A source id, "none" or "unknown"' })
 	async getAllBookings(
 		@Query('skip', new DefaultValuePipe(0), ParseIntPipe) skip: number = 0,
 		@Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number = 20,
@@ -330,6 +352,7 @@ export class AdminController {
 		@Query('tourTo') tourToRaw?: string,
 		@Query('paymentMethod') paymentMethod?: PaymentMethod,
 		@Query('createdBy') createdBy?: BookingAuthor,
+		@Query('source') source?: string,
 	) {
 		const safeLimit = Math.min(limit, 100);
 		return this.bookingsAdminService.findAll({
@@ -346,6 +369,7 @@ export class AdminController {
 			tourTo: parseOptionalQueryDate(tourToRaw, 'tourTo'),
 			paymentMethod,
 			createdBy,
+			source,
 		});
 	}
 
@@ -667,6 +691,25 @@ export class AdminController {
 		);
 
 		return this.bookingsAdminService.updateChannel(id, data);
+	}
+
+	@Patch('bookings/:id/source')
+	@ApiOperation({ summary: 'Set where the customer learned about the company (admin only)' })
+	@ApiResponse({ status: 429, description: 'Too many admin actions' })
+	@ApiBody(getReference('UpdateBookingSourceSchema'))
+	async updateBookingSource(
+		@GetCurrentUserId() adminId: string,
+		@Param('id') id: string,
+		@Body(new ZodValidationPipe(UpdateBookingSourceSchema)) data: UpdateBookingSourceData,
+	) {
+		await this.rateLimiter.consumePerUser(
+			`${ADMIN_CONFIG.KEY_PREFIX}:action`,
+			adminId,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_MAX_PER_MINUTE,
+			ADMIN_CONFIG.RATE_LIMITS.ACTION_WINDOW_SEC,
+		);
+
+		return this.bookingsAdminService.updateSource(id, data);
 	}
 
 	@Post('bookings/manual')

@@ -49,6 +49,12 @@ import type {
 	UpdatePromoCodeData,
 	CompensateBookingData,
 	TransferBookingData,
+	CreateSourceData,
+	Source,
+	SourceList,
+	SourceRevenueRow,
+	UpdateBookingSourceData,
+	UpdateSourceData,
 } from '@event-space/shared';
 
 /** A review as the moderation queue needs it: who wrote it, about what, and for which booking. */
@@ -74,6 +80,11 @@ export const adminApi = {
 	getDashboardExpectedTimeline: (from: string, to: string) =>
 		clientApi
 			.get<DashboardExpectedTimeline>('/admin/stats/revenue/timeline', { params: { from, to } })
+			.then((res) => res.data),
+
+	getRevenueBySource: (from: string, to: string) =>
+		clientApi
+			.get<SourceRevenueRow[]>('/admin/stats/revenue/sources', { params: { from, to } })
 			.then((res) => res.data),
 
 	getDashboardSnapshots: (from: string, to: string) =>
@@ -119,6 +130,8 @@ export const adminApi = {
 		clientApi.post<BookingWithDetails>(`/admin/bookings/${id}/mark-paid`).then((res) => res.data),
 	updateBookingChannel: (id: string, data: UpdateBookingChannelData) =>
 		clientApi.patch<BookingWithDetails>(`/admin/bookings/${id}/channel`, data).then((res) => res.data),
+	updateBookingSource: (id: string, data: UpdateBookingSourceData) =>
+		clientApi.patch<BookingWithDetails>(`/admin/bookings/${id}/source`, data).then((res) => res.data),
 	transferBooking: (id: string, data: TransferBookingData) =>
 		clientApi.post<Booking>(`/admin/bookings/${id}/transfer`, data).then((res) => res.data),
 	compensateBooking: (id: string, data: CompensateBookingData) =>
@@ -186,6 +199,12 @@ export const adminApi = {
 		clientApi.post<Channel>('/admin/channels', data).then((res) => res.data),
 	updateChannel: (id: string, data: UpdateChannelData) =>
 		clientApi.patch<Channel>(`/admin/channels/${id}`, data).then((res) => res.data),
+	getSources: (params?: { includeArchived?: boolean }) =>
+		clientApi.get<SourceList>('/admin/sources', { params }).then((res) => res.data),
+	createSource: (data: CreateSourceData) =>
+		clientApi.post<Source>('/admin/sources', data).then((res) => res.data),
+	updateSource: (id: string, data: UpdateSourceData) =>
+		clientApi.patch<Source>(`/admin/sources/${id}`, data).then((res) => res.data),
 	getPromoCodeById: (id: string) =>
 		clientApi.get<PromoCode>(`/admin/promo-codes/${id}`).then((res) => res.data),
 	getPromoCodes: (params?: { skip?: number; limit?: number; search?: string }) =>

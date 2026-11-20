@@ -25,6 +25,7 @@ import QuantitySelector from '@/features/bookings/components/QuantitySelector';
 import EventSearchSelect from '@/features/admin/components/EventSearchSelect';
 import UserSearchSelect from '@/features/admin/components/UserSearchSelect';
 import ChannelSelect from '@/features/admin/components/ChannelSelect';
+import SourceSelect from '@/features/admin/components/SourceSelect';
 import { useFormatDate } from '@/hooks/format/useFormatDate';
 import {
 	buildManualBookingData,
@@ -53,6 +54,7 @@ export default function CreateManualBookingModal() {
 		locale: undefined,
 		channelId: SYSTEM_CHANNEL_IDS.UNSPECIFIED,
 		externalId: undefined,
+		sourceId: null,
 	});
 	const [clientLocale, setClientLocale] = useState<Locale | null>(null);
 	const [amount, setAmount] = useState('');
@@ -152,6 +154,7 @@ export default function CreateManualBookingModal() {
 			locale: clientLocale ?? formState.locale,
 			channelId: formState.channelId,
 			externalId: formState.externalId,
+			sourceId: formState.sourceId,
 			amount,
 			promoCode: promoQuote.isSuccess ? (appliedPromoCode ?? undefined) : undefined,
 		};
@@ -280,6 +283,12 @@ export default function CreateManualBookingModal() {
 							className="h-10 w-full rounded-md border bg-transparent px-3 text-sm font-medium outline-none"
 						/>
 					)}
+
+					<SourceSelect
+						value={formState.sourceId ?? null}
+						onChange={(sourceId) => setFormState((current) => ({ ...current, sourceId }))}
+						label={translate('admin.bookingSource')}
+					/>
 
 					<Input
 						label={translate('admin.manualBookingAmount')}

@@ -12,6 +12,7 @@ import type {
 	PaginatedParams,
 	TransferBookingData,
 	UpdateBookingChannelData,
+	UpdateBookingSourceData,
 } from '@event-space/shared';
 import { bookingInclude } from '../common/admin-selects';
 import { normalizeBookingResponse } from '../common/booking-response';
@@ -23,6 +24,7 @@ import { buildBookingLinkToken } from '@modules/booking/booking.utils';
 import { reviewFormUrl, siteUrlFor } from '@modules/review/review-urls';
 import { BookingLedgerService } from '@modules/booking/money/booking-ledger.service';
 import { requireChannelFor } from '@modules/channel/channel-access';
+import { requireActiveSource } from '@modules/source/source-access';
 
 type FindAllBookingsParams = PaginatedParams & BookingFilters;
 
@@ -346,6 +348,27 @@ export class AdminBookingsService {
 			}
 			throw error;
 		}
+
+		return this.findOne(bookingId);
+	}
+
+	async updateSource(bookingId: string, data: UpdateBookingSourceData) {
+		await this.prisma.$transaction(async (tx) => {
+			const booking = await tx.booking.findUnique({
+				where: { id: bookingId },
+				select: { sourceId: true },
+			});
+			if (!booking) throw new AppException(AppErrorCode.BOOKING_NOT_FOUND);
+
+			if (data.sourceId && data.sourceId !== booking.sourceId) {
+				await requireActiveSource(tx, data.sourceId);
+			}
+
+			await tx.booking.update({
+				where: { id: bookingId },
+				data: { sourceId: data.sourceId, sourceRef: null },
+			});
+		});
 
 		return this.findOne(bookingId);
 	}

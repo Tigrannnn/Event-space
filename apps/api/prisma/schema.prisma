@@ -58,6 +58,23 @@ model Channel {
   @@map("channels")
 }
 
+model Source {
+  id String @id @default(uuid())
+
+  code    String @unique @db.VarChar(60)
+  name    String @db.VarChar(80)
+  nameKey String @unique @map("name_key") @db.VarChar(80)
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  bookings Booking[] @relation("source_bookings")
+
+  @@map("sources")
+}
+
 enum PaymentMethod {
   SITE_PAYMENT
   OFFLINE_PAID
@@ -282,6 +299,10 @@ model Booking {
   /// Номер брони на площадке. Вместе с каналом не повторяется: одну и ту же бронь не внести дважды.
   externalId String? @map("external_id") @db.VarChar(120)
 
+  sourceId  String? @map("source_id")
+  source    Source? @relation("source_bookings", fields: [sourceId], references: [id], onDelete: Restrict)
+  sourceRef String? @map("source_ref") @db.VarChar(60)
+
   createdByAdminId String? @map("created_by_admin_id")
 
   rescheduleRefundUntil DateTime? @map("reschedule_refund_until")
@@ -312,6 +333,8 @@ model Booking {
   @@unique([userId, occurrenceId])
   @@unique([channelId, externalId])
   @@index([channelId])
+  @@index([sourceId])
+  @@index([sourceRef])
   @@index([userId])
   @@index([occurrenceId])
   @@index([promoCodeId])
