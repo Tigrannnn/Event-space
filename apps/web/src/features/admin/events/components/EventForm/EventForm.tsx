@@ -1,5 +1,6 @@
 'use client';
 
+import { useModuleEnabled } from '@/providers/BrandProvider';
 import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -72,6 +73,7 @@ export default function EventForm({
 	onSubmit,
 }: EventFormProps) {
 	const translate = useTranslation();
+	const dateDiscountsEnabled = useModuleEnabled('dateDiscounts');
 	const { EVENT_STATUS_LABELS, EVENT_DIFFICULTY_LABELS } = useLabels();
 
 	// Schema messages are translation keys, so validation reads in the admin's language.
@@ -241,7 +243,8 @@ export default function EventForm({
 	const isCancellingEvent = watchedStatus === 'CANCELLED' && event?.status !== 'CANCELLED';
 	const needsCancelReason =
 		occurrencesToCancel.length > 0 || (isCancellingEvent && hasBookedOccurrences);
-	const reasonMissing = needsCancelReason && !noCancelReason && !hasCancellationReason(cancelReasons);
+	const reasonMissing =
+		needsCancelReason && !noCancelReason && !hasCancellationReason(cancelReasons);
 	const reasonsToSend = needsCancelReason && !noCancelReason ? cancelReasons : undefined;
 
 	const handleConfirmCancel = async () => {
@@ -290,14 +293,14 @@ export default function EventForm({
 
 	return (
 		<form
-			onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6">
+			onSubmit={handleSubmit(handleFormSubmit)}
+			className="space-y-4 scroll-auto p-3 sm:space-y-5 sm:p-6"
+		>
 			{reschedulingIndex !== null && (
 				<RescheduleOccurrenceDialog
 					occurrenceId={occurrenceFields[reschedulingIndex]?.id ?? ''}
 					currentDate={
-						watchedOccurrences[reschedulingIndex]?.date ??
-						occurrenceFields[reschedulingIndex]?.date ??
-						''
+						watchedOccurrences[reschedulingIndex]?.date ?? occurrenceFields[reschedulingIndex]?.date ?? ''
 					}
 					eventTitle={watchedTranslations[activeTabIndex]?.title}
 					activeBookingsCount={occurrenceFields[reschedulingIndex]?.activeBookingsCount ?? 0}
@@ -542,7 +545,9 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.categoryId && <p className="text-xs text-red-500">{errorText(errors.categoryId.message)}</p>}
+						{errors.categoryId && (
+							<p className="text-xs text-red-500">{errorText(errors.categoryId.message)}</p>
+						)}
 					</div>
 				</div>
 
@@ -555,13 +560,13 @@ export default function EventForm({
 							disabled={isPending}
 							placeholder={translate('admin.googleMapsUrlPlaceholder')}
 						/>
-						{errors.locationUrl && <p className="text-xs text-red-500">{errorText(errors.locationUrl.message)}</p>}
+						{errors.locationUrl && (
+							<p className="text-xs text-red-500">{errorText(errors.locationUrl.message)}</p>
+						)}
 					</label>
 
 					<label className="space-y-1.5">
-						<span className="text-sm font-semibold">
-							{translate('admin.meetingLocationUrl')}
-						</span>
+						<span className="text-sm font-semibold">{translate('admin.meetingLocationUrl')}</span>
 						<input
 							{...register('meetingLocationUrl')}
 							className={fieldClassName}
@@ -582,7 +587,9 @@ export default function EventForm({
 						disabled={isPending}
 						placeholder={translate('admin.videoUrlPlaceholder')}
 					/>
-					{errors.videoUrl && <p className="text-xs text-red-500">{errorText(errors.videoUrl.message)}</p>}
+					{errors.videoUrl && (
+						<p className="text-xs text-red-500">{errorText(errors.videoUrl.message)}</p>
+					)}
 				</label>
 
 				<div className="space-y-3 rounded-lg border border-gray-200 p-3 sm:p-4 dark:border-gray-700">
@@ -594,9 +601,9 @@ export default function EventForm({
 								{translate('admin.occurrences')}
 							</h3>
 							<p className="text-xs text-gray-500">{translate('admin.occurrencesDescription')}</p>
-							<p className="text-xs text-gray-500">
-								{translate('admin.occurrenceDiscountHint')}
-							</p>
+							{dateDiscountsEnabled && (
+								<p className="text-xs text-gray-500">{translate('admin.occurrenceDiscountHint')}</p>
+							)}
 							<TimeZoneNote messageKey="admin.timeZoneHint" className="mt-1.5" />
 						</div>
 						<Button
@@ -699,29 +706,29 @@ export default function EventForm({
 											/>
 										</label>
 
-										<label className="w-full space-y-1.5 md:max-w-32">
-											<span className="text-xs font-medium text-gray-500">
-												{translate('admin.occurrenceDiscount')}
-											</span>
-											<input
-												type="number"
-												min={DISCOUNT_PERCENT_MIN}
-												max={DISCOUNT_PERCENT_MAX}
-												placeholder="0"
-												{...register(`occurrences.${index}.discountPercent`)}
-												className={fieldClassName}
-												disabled={isPending || isCancelled || finished}
-											/>
-										</label>
+										{dateDiscountsEnabled && (
+											<label className="w-full space-y-1.5 md:max-w-32">
+												<span className="text-xs font-medium text-gray-500">
+													{translate('admin.occurrenceDiscount')}
+												</span>
+												<input
+													type="number"
+													min={DISCOUNT_PERCENT_MIN}
+													max={DISCOUNT_PERCENT_MAX}
+													placeholder="0"
+													{...register(`occurrences.${index}.discountPercent`)}
+													className={fieldClassName}
+													disabled={isPending || isCancelled || finished}
+												/>
+											</label>
+										)}
 
 										{activeBookingsCount > 0 &&
 											(event && field.id ? (
 												<button
 													type="button"
 													onClick={() =>
-														router.push(
-															`/admin/bookings?eventId=${event.id}&occurrenceId=${field.id}`,
-														)
+														router.push(`/admin/bookings?eventId=${event.id}&occurrenceId=${field.id}`)
 													}
 													className="text-primary cursor-pointer text-xs font-medium hover:underline md:mt-[22px] md:flex md:h-10 md:items-center"
 												>
@@ -753,9 +760,7 @@ export default function EventForm({
 												disabled={isPending}
 												onClick={() => {
 													setOccurrencesToCancel((prev) => prev.filter((id) => id !== field.id));
-													setOccurrencesToDelete((prev) =>
-														prev.filter((fieldId) => fieldId !== field.fieldId),
-													);
+													setOccurrencesToDelete((prev) => prev.filter((fieldId) => fieldId !== field.fieldId));
 												}}
 											>
 												{translate('admin.reactivateOccurrence')}
@@ -828,7 +833,9 @@ export default function EventForm({
 								/>
 							)}
 						/>
-						{errors.difficulty && <p className="text-xs text-red-500">{errorText(errors.difficulty.message)}</p>}
+						{errors.difficulty && (
+							<p className="text-xs text-red-500">{errorText(errors.difficulty.message)}</p>
+						)}
 					</div>
 					<div className="space-y-1.5">
 						<span className="text-sm font-semibold">{translate('admin.status')}</span>
@@ -875,7 +882,9 @@ export default function EventForm({
 							<p className="text-xs text-red-500">{errorText(errors.duration.message)}</p>
 						) : (
 							watchedDuration > 0 && (
-								<p className="text-xs text-gray-500 dark:text-gray-400">= {formatDuration(watchedDuration)}</p>
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+									= {formatDuration(watchedDuration)}
+								</p>
 							)
 						)}
 					</label>
@@ -908,10 +917,7 @@ export default function EventForm({
 								// Two number fields plus a button never fit one phone-width row —
 								// "Процент возврата (%)" alone shredded into three lines. Stacked,
 								// every label gets the full width and stays on one.
-								<div
-									key={field.id}
-									className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4"
-								>
+								<div key={field.id} className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
 									<label className="space-y-1 sm:flex-1">
 										<span className="text-xs font-medium text-gray-500">
 											{translate('admin.hoursBeforeEvent')}

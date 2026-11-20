@@ -26,7 +26,7 @@ import { VerticalScroll } from '@/components/ui/VerticalScroll';
 import { OccurrencePrice } from '../OccurrencePrice';
 import { OccurrenceChips } from '../OccurrencePicker/OccurrenceChips';
 import { OccurrenceRows } from '../OccurrencePicker/OccurrenceRows';
-import { useSkin } from '@/providers/BrandProvider';
+import { useModuleEnabled, useSkin } from '@/providers/BrandProvider';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { useApiError } from '@/hooks/apiError';
 import { useModalStore } from '@/stores/modalStore/modalStore';
@@ -47,6 +47,7 @@ export default function BookingForm({
 	isGuest = false,
 }: BookingFormProps) {
 	const translate = useTranslation();
+	const promoCodesEnabled = useModuleEnabled('promoCodes');
 	const locale = translate.locale;
 	const [quantity, setQuantity] = useState(initialQuantity);
 	const [phone, setPhone] = useState(userPhone || '');
@@ -370,62 +371,64 @@ export default function BookingForm({
 						/>
 					</div>
 
-					<div className="mt-4">
-						{appliedPromoCode ? (
-							<div className="space-y-1">
-								<div className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700">
-									<span className="text-sm text-gray-700 dark:text-gray-200">
-										{promoQuote.isLoading
-											? `${appliedPromoCode}…`
-											: promoQuote.isSuccess
-												? translate('booking.promoCodeApplied', { code: promoQuote.data.code })
-												: appliedPromoCode}
-									</span>
-									<button
-										type="button"
-										onClick={handleRemovePromoCode}
-										aria-label={translate('booking.promoCodeRemove')}
-										className="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
-									>
-										✕
-									</button>
-								</div>
-								{promoQuote.isError && (
-									<p className="text-xs text-red-500">{apiError(promoQuote.error)}</p>
-								)}
-								{promoQuote.isSuccess &&
-									promoQuote.data.discountPercent !== promoQuote.data.promoCodeDiscountPercent && (
-										<p className="text-xs text-amber-600 dark:text-amber-400">
-											{translate('booking.promoCodeNotBetter', {
-												percent: promoQuote.data.discountPercent,
-											})}
-										</p>
+					{promoCodesEnabled && (
+						<div className="mt-4">
+							{appliedPromoCode ? (
+								<div className="space-y-1">
+									<div className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700">
+										<span className="text-sm text-gray-700 dark:text-gray-200">
+											{promoQuote.isLoading
+												? `${appliedPromoCode}…`
+												: promoQuote.isSuccess
+													? translate('booking.promoCodeApplied', { code: promoQuote.data.code })
+													: appliedPromoCode}
+										</span>
+										<button
+											type="button"
+											onClick={handleRemovePromoCode}
+											aria-label={translate('booking.promoCodeRemove')}
+											className="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+										>
+											✕
+										</button>
+									</div>
+									{promoQuote.isError && (
+										<p className="text-xs text-red-500">{apiError(promoQuote.error)}</p>
 									)}
-							</div>
-						) : (
-							<div className="flex items-end gap-2">
-								<div className="flex-1">
-									<Input
-										label={translate('booking.promoCode')}
-										value={promoCodeInput}
-										onChange={(event) => setPromoCodeInput(event.target.value)}
-										autoCapitalize="characters"
-										autoCorrect="off"
-										autoComplete="off"
-										spellCheck={false}
-									/>
+									{promoQuote.isSuccess &&
+										promoQuote.data.discountPercent !== promoQuote.data.promoCodeDiscountPercent && (
+											<p className="text-xs text-amber-600 dark:text-amber-400">
+												{translate('booking.promoCodeNotBetter', {
+													percent: promoQuote.data.discountPercent,
+												})}
+											</p>
+										)}
 								</div>
-								<Button
-									type="button"
-									variant="secondary"
-									onClick={handleApplyPromoCode}
-									disabled={!promoCodeInput.trim()}
-								>
-									{translate('booking.promoCodeApply')}
-								</Button>
-							</div>
-						)}
-					</div>
+							) : (
+								<div className="flex items-end gap-2">
+									<div className="flex-1">
+										<Input
+											label={translate('booking.promoCode')}
+											value={promoCodeInput}
+											onChange={(event) => setPromoCodeInput(event.target.value)}
+											autoCapitalize="characters"
+											autoCorrect="off"
+											autoComplete="off"
+											spellCheck={false}
+										/>
+									</div>
+									<Button
+										type="button"
+										variant="secondary"
+										onClick={handleApplyPromoCode}
+										disabled={!promoCodeInput.trim()}
+									>
+										{translate('booking.promoCodeApply')}
+									</Button>
+								</div>
+							)}
+						</div>
+					)}
 
 					<div className="mt-4 space-y-1">
 						{quote.discountPercent > 0 && (
@@ -435,17 +438,13 @@ export default function BookingForm({
 									<span className="line-through">{formatCurrency(quote.baseTotal)}</span>
 								</div>
 								<div className="flex items-center justify-between text-sm font-semibold text-red-500">
-									<span>
-										{translate('event.discountOff', { percent: quote.discountPercent })}
-									</span>
+									<span>{translate('event.discountOff', { percent: quote.discountPercent })}</span>
 									<span>{formatCurrency(quote.total - quote.baseTotal)}</span>
 								</div>
 							</>
 						)}
 						<div className="flex items-center justify-between">
-							<span className="text-gray-600 dark:text-gray-400">
-								{translate('booking.totalPrice')}
-							</span>
+							<span className="text-gray-600 dark:text-gray-400">{translate('booking.totalPrice')}</span>
 							<span className="text-primary text-2xl font-bold">{formatCurrency(quote.total)}</span>
 						</div>
 					</div>

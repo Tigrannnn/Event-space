@@ -24,6 +24,7 @@ import { useTranslation } from '@/hooks/translation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher/LanguageSwitcher';
 import { usePendingReviewsCount } from '@/features/admin/hooks/useAdmin';
 import { FlashValue } from '@/components/ui/FlashValue';
+import { useModuleEnabled } from '@/providers/BrandProvider';
 
 interface AdminSidebarProps {
 	mobileOpen?: boolean;
@@ -34,15 +35,19 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 	const pathname = usePathname();
 	const pendingReviews = usePendingReviewsCount();
 	const translate = useTranslation();
-	const locale = translate.locale
+	const locale = translate.locale;
 	const internalPathname = stripLocaleFromPathname(pathname);
+
+	const promoCodesEnabled = useModuleEnabled('promoCodes');
 
 	const navItems = [
 		{ href: '/admin/dashboard', label: translate('admin.dashboard'), icon: LayoutDashboard },
 		{ href: '/admin/traffic', label: translate('admin.traffic'), icon: ChartColumn },
 		{ href: '/admin/events', label: translate('admin.events'), icon: Calendar },
 		{ href: '/admin/categories', label: translate('admin.categories'), icon: Tag },
-		{ href: '/admin/promo-codes', label: translate('admin.promoCodes'), icon: Percent },
+		...(promoCodesEnabled
+			? [{ href: '/admin/promo-codes', label: translate('admin.promoCodes'), icon: Percent }]
+			: []),
 		{ href: '/admin/banners', label: translate('admin.banners'), icon: ImageIcon },
 		{ href: '/admin/reviews', label: translate('admin.reviews'), icon: Star, badge: pendingReviews },
 		{ href: '/admin/bookings', label: translate('admin.bookings'), icon: Ticket },
@@ -61,7 +66,9 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 			)}
 		>
 			<div className="flex items-center justify-between border-b border-gray-300 p-4 lg:hidden dark:border-gray-700">
-				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{translate('admin.adminPanel')}</p>
+				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+					{translate('admin.adminPanel')}
+				</p>
 				<button
 					type="button"
 					onClick={onNavigate}
@@ -114,7 +121,7 @@ export default function AdminSidebar({ mobileOpen = false, onNavigate }: AdminSi
 					<LogOut className="h-5 w-5 shrink-0" />
 					{translate('admin.exitToSite')}
 				</Link>
-				<LanguageSwitcher className="mt-4" variant='admin'/>
+				<LanguageSwitcher className="mt-4" variant="admin" />
 			</div>
 		</aside>
 	);

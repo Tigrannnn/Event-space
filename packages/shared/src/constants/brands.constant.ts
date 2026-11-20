@@ -28,9 +28,16 @@ export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market' | 
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
 
+export type BrandModule = 'promoCodes' | 'dateDiscounts';
+
+export function isBrandModuleEnabled(brand: Brand, module: BrandModule): boolean {
+	return !brand.disabledModules?.includes(module);
+}
+
 export interface Brand {
 	name: string;
 	skin?: BrandSkin;
+	disabledModules?: BrandModule[];
 	colorPrimary: string;
 	colorAccent: string;
 	description: string;
@@ -221,6 +228,7 @@ const brands: Record<string, Brand> = {
 	'yerivar.event-space.space': {
 		name: 'Yerivar',
 		skin: 'classic',
+		disabledModules: ['promoCodes', 'dateDiscounts'],
 		colorPrimary: '#1E8F82',
 		colorAccent: '#227CA0',
 		description: siteConfig.description,

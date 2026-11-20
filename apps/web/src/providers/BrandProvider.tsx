@@ -1,7 +1,12 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import { DEFAULT_BRAND_SKIN, type BrandSkin } from '@event-space/shared';
+import {
+	DEFAULT_BRAND_SKIN,
+	isBrandModuleEnabled,
+	type BrandModule,
+	type BrandSkin,
+} from '@event-space/shared';
 import type { Brand } from '@/config/brands';
 
 const BrandContext = createContext<Brand | null>(null);
@@ -20,4 +25,8 @@ export function useBrand(): Brand {
 
 export function useSkin(): BrandSkin {
 	return useBrand().skin ?? DEFAULT_BRAND_SKIN;
+}
+
+export function useModuleEnabled(module: BrandModule): boolean {
+	return isBrandModuleEnabled(useBrand(), module);
 }
