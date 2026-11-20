@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type KeyboardEvent } from 'react';
+import { useId, useState, type KeyboardEvent } from 'react';
 import { Play } from 'lucide-react';
 import { autoplayEmbedUrl, parseVideoUrl, type ParsedVideo } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
@@ -53,10 +53,10 @@ function PlayButton({
 				event.stopPropagation();
 				onPress();
 			}}
-			aria-label={label}
 			className={cn(PLAY_BUTTON, className)}
 		>
 			<Play className="ml-1 size-7 fill-current" />
+			<span className="sr-only">{label}</span>
 		</button>
 	);
 }
@@ -123,6 +123,7 @@ export function VideoTile({
 	className,
 }: VideoTileProps) {
 	const translate = useTranslation();
+	const labelId = useId();
 	const [isPlaying, setIsPlaying] = useState(false);
 
 	const onKeyDown = (event: KeyboardEvent) => {
@@ -138,7 +139,7 @@ export function VideoTile({
 			tabIndex={0}
 			onClick={() => onOpen(false)}
 			onKeyDown={onKeyDown}
-			aria-label={title}
+			aria-labelledby={labelId}
 			className={cn(
 				'relative cursor-pointer overflow-hidden bg-black',
 				BACKGROUND_HOVER[hover].base,
@@ -146,6 +147,9 @@ export function VideoTile({
 				className,
 			)}
 		>
+			<span id={labelId} className="sr-only">
+				{title}
+			</span>
 			{isPlaying ? (
 				<iframe
 					src={autoplayEmbedUrl(video)}
