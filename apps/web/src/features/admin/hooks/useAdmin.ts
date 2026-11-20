@@ -1020,6 +1020,22 @@ export const useUpdateSource = () => {
 	});
 };
 
+export const useTraffic = (from: string, to: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'traffic', from, to],
+		queryFn: () => adminApi.getTraffic(from, to),
+		...LIVE_QUERY_OPTIONS,
+	});
+};
+
+export const useTourFunnel = (from: string, to: string, eventId?: string) => {
+	return useQuery({
+		queryKey: ['admin', 'stats', 'tours', from, to, eventId],
+		queryFn: () => adminApi.getTourFunnel(from, to, eventId),
+		...LIVE_QUERY_OPTIONS,
+	});
+};
+
 export const useRevenueBySource = (from: string, to: string) => {
 	return useQuery({
 		queryKey: ['admin', 'stats', 'revenue-sources', from, to],

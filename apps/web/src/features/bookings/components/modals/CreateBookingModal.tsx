@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { useModalStore, ModalType, useModalData } from '@/stores/modalStore';
 import { ToastType, useToastStore } from '@/stores/toastStore';
@@ -14,6 +14,7 @@ import { BookingWithEstimate, type EventOccurrence } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
 import { useCurrentUser } from '@/features/users';
 import { useEventById } from '@/features/events';
+import { trackAnalytics } from '@/utils/analytics';
 
 export default function CreateBookingModal() {
 	const { mutate: createBooking, isPending: isMemberLoading } = useCreateBooking();
@@ -36,6 +37,10 @@ export default function CreateBookingModal() {
 		enabled: Boolean(cardEvent),
 	});
 	const defaultOccurrence = modalData?.selectedOccurrence || null;
+
+	useEffect(() => {
+		if (cardEvent?.id) trackAnalytics('BOOKING_STARTED', cardEvent.id);
+	}, [cardEvent?.id]);
 
 	const [clientSecret, setClientSecret] = useState<string | null>(null);
 	const [booking, setBooking] = useState<BookingWithEstimate | null>(null);

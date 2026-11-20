@@ -55,6 +55,8 @@ import type {
 	SourceRevenueRow,
 	UpdateBookingSourceData,
 	UpdateSourceData,
+	TourFunnelRow,
+	TrafficReport,
 } from '@event-space/shared';
 
 /** A review as the moderation queue needs it: who wrote it, about what, and for which booking. */
@@ -80,6 +82,14 @@ export const adminApi = {
 	getDashboardExpectedTimeline: (from: string, to: string) =>
 		clientApi
 			.get<DashboardExpectedTimeline>('/admin/stats/revenue/timeline', { params: { from, to } })
+			.then((res) => res.data),
+
+	getTraffic: (from: string, to: string) =>
+		clientApi.get<TrafficReport>('/admin/stats/traffic', { params: { from, to } }).then((res) => res.data),
+
+	getTourFunnel: (from: string, to: string, eventId?: string) =>
+		clientApi
+			.get<TourFunnelRow[]>('/admin/stats/tours', { params: { from, to, eventId } })
 			.then((res) => res.data),
 
 	getRevenueBySource: (from: string, to: string) =>

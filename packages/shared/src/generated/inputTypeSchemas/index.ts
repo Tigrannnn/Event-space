@@ -1,6 +1,7 @@
 export { TransactionIsolationLevelSchema } from './TransactionIsolationLevelSchema';
 export { ChannelScalarFieldEnumSchema } from './ChannelScalarFieldEnumSchema';
 export { SourceScalarFieldEnumSchema } from './SourceScalarFieldEnumSchema';
+export { AnalyticsEventScalarFieldEnumSchema } from './AnalyticsEventScalarFieldEnumSchema';
 export { SourceVisitScalarFieldEnumSchema } from './SourceVisitScalarFieldEnumSchema';
 export { CategoryScalarFieldEnumSchema } from './CategoryScalarFieldEnumSchema';
 export { CategoryTranslationScalarFieldEnumSchema } from './CategoryTranslationScalarFieldEnumSchema';
@@ -28,6 +29,7 @@ export { QueryModeSchema } from './QueryModeSchema';
 export { NullsOrderSchema } from './NullsOrderSchema';
 export { EventDifficultySchema } from './EventDifficultySchema';
 export { EventStatusSchema } from './EventStatusSchema';
+export { AnalyticsEventTypeSchema } from './AnalyticsEventTypeSchema';
 export { PaymentMethodSchema } from './PaymentMethodSchema';
 export { LocaleSchema } from './LocaleSchema';
 export { ReviewStatusSchema } from './ReviewStatusSchema';

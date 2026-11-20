@@ -70,7 +70,7 @@ import {
 	CheckInSchema,
 } from '@event-space/shared';
 import { ADMIN_CONFIG } from '@event-space/shared/constants';
-import { AppErrorCode } from '@event-space/shared';
+import { AppErrorCode, isUuid } from '@event-space/shared';
 import type {
 	BookingAuthor,
 	BookingDisplayStatus,
@@ -101,6 +101,7 @@ import { UpdateShadowUserSchema } from '@event-space/shared';
 import { getReference } from '@infra/swagger/swagger.utils';
 import { EventService } from '@modules/event/event.service';
 import { AdminSourcesService } from './sources/admin-sources.service';
+import { AdminAnalyticsService } from './analytics/admin-analytics.service';
 
 const MAX_REVENUE_RANGE_DAYS = 366;
 
@@ -129,6 +130,7 @@ export class AdminController {
 		private readonly dashboardFlowService: DashboardFlowService,
 		private readonly dashboardRevenueService: DashboardRevenueService,
 		private readonly sourcesService: AdminSourcesService,
+		private readonly analyticsService: AdminAnalyticsService,
 		private readonly dashboardSnapshotService: DashboardSnapshotService,
 		private readonly bookingStatusHistoryService: BookingStatusHistoryService,
 		private readonly bookingService: BookingService,
@@ -193,6 +195,41 @@ export class AdminController {
 		assertRevenueRange(from, to);
 
 		return this.sourcesService.revenue(from, to);
+	}
+
+	@Get('stats/traffic')
+	@ApiOperation({ summary: 'Visitors of the site over a period, by day and by source' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	async getTraffic(@Query('from') fromRaw: string, @Query('to') toRaw: string) {
+		const { from, to } = this.revenueRange(fromRaw, toRaw);
+		return this.analyticsService.traffic(from, to);
+	}
+
+	@Get('stats/tours')
+	@ApiOperation({ summary: 'Per tour: who looked, saved, started booking and booked over a period' })
+	@ApiQuery({ name: 'from', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'to', required: true, description: 'YYYY-MM-DD' })
+	@ApiQuery({ name: 'eventId', required: false })
+	async getTourFunnel(
+		@Query('from') fromRaw: string,
+		@Query('to') toRaw: string,
+		@Query('eventId') eventId?: string,
+	) {
+		const { from, to } = this.revenueRange(fromRaw, toRaw);
+		return this.analyticsService.tours(from, to, eventId && isUuid(eventId) ? eventId : undefined);
+	}
+
+	private revenueRange(fromRaw: string, toRaw: string) {
+		const from = parseOptionalQueryDate(fromRaw, 'from');
+		const to = parseOptionalQueryDate(toRaw, 'to');
+
+		if (!from || !to) {
+			throw new AppException(AppErrorCode.INVALID_QUERY_PARAM, { field: from ? 'to' : 'from' });
+		}
+
+		assertRevenueRange(from, to);
+		return { from, to };
 	}
 
 	@Get('stats/revenue/timeline')

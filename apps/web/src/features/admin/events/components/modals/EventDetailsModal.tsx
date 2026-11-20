@@ -20,6 +20,7 @@ import {
 import { useFormatDate, useFormatCurrency } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
 import { useState } from 'react';
+import EventFunnelCard from '@/features/admin/analytics/EventFunnelCard';
 
 /** Attended first, then paid, then what still might convert, then what no longer counts. */
 const BOOKING_STATUS_ORDER = ['CHECKED_IN', 'CONFIRMED', 'PENDING', 'CANCELLED'] as const;
@@ -384,6 +385,8 @@ export default function EventDetailsModal() {
 									)}
 								</div>
 							)}
+
+							<EventFunnelCard eventId={event.id} />
 
 							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">

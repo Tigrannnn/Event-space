@@ -7,6 +7,7 @@ import { AdminChannelsController } from './channels/admin-channels.controller';
 import { AdminChannelsService } from './channels/admin-channels.service';
 import { AdminSourcesController } from './sources/admin-sources.controller';
 import { AdminSourcesService } from './sources/admin-sources.service';
+import { AdminAnalyticsService } from './analytics/admin-analytics.service';
 import { AdminCategoriesService } from './categories/admin-categories.service';
 import { AdminPromoCodesService } from './promo-codes/admin-promo-codes.service';
 import { DashboardStatsService } from './dashboard/dashboard-stats.service';
@@ -30,6 +31,7 @@ import { StripeModule } from '@infra/stripe/stripe.module';
 		AdminCategoriesService,
 		AdminChannelsService,
 		AdminSourcesService,
+		AdminAnalyticsService,
 		AdminPromoCodesService,
 		DashboardStatsService,
 		DashboardSnapshotService,

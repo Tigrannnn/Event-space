@@ -76,6 +76,31 @@ model Source {
   @@map("sources")
 }
 
+enum AnalyticsEventType {
+  VISIT
+  TOUR_VIEW
+  BOOKING_STARTED
+}
+
+model AnalyticsEvent {
+  id String @id @default(uuid())
+
+  type      AnalyticsEventType
+  visitorId String             @map("visitor_id") @db.VarChar(40)
+  day       String             @db.VarChar(10)
+  targetKey String             @default("") @map("target_key") @db.VarChar(40)
+  eventId   String?            @map("event_id")
+  event     Event?             @relation("event_analytics", fields: [eventId], references: [id], onDelete: Cascade)
+  sourceRef String?            @map("source_ref") @db.VarChar(60)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([type, visitorId, day, targetKey])
+  @@index([type, day])
+  @@index([eventId, type, day])
+  @@map("analytics_events")
+}
+
 model SourceVisit {
   id String @id @default(uuid())
 
@@ -181,6 +206,7 @@ model Event {
   images      EventImage[]      @relation("event_images")
   favorites   Favorite[]        @relation("event_favorites")
   banners     Banner[]          @relation("event_banners")
+  analytics   AnalyticsEvent[]  @relation("event_analytics")
   reviews     Review[]          @relation("event_reviews")
 
   cancellationRules CancellationPolicyRule[] @relation("event_cancellation_rules")
