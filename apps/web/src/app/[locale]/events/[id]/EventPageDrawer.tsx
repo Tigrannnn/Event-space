@@ -187,7 +187,7 @@ export default function EventPageDrawer({ initialEvent }: EventPageDrawerProps) 
 				</div>
 			)}
 
-			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
+			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] xl:grid-cols-[minmax(0,1fr)_26rem] lg:grid-rows-[auto_1fr]">
 				<div className="min-w-0 space-y-8 lg:col-start-1 lg:row-start-1">
 					<div className="flex flex-wrap gap-3">
 						<span className="bg-primary/10 flex items-center gap-2 rounded-full px-4 py-2.5 text-gray-800 dark:text-gray-100">

@@ -152,9 +152,9 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 
 			{/* Main Content */}
 			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
-				<div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3 lg:gap-12">
+				<div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3 lg:grid-rows-[auto_1fr] lg:gap-12">
 					{/* Left Column - Event Details */}
-					<div className="space-y-6 sm:space-y-8 lg:col-span-2">
+					<div className="space-y-6 sm:space-y-8 lg:col-span-2 lg:col-start-1 lg:row-start-1">
 						<div>
 							<h1 className="text-primary mb-3 text-3xl leading-tight font-black sm:mb-4 sm:text-4xl md:text-5xl">
 								{eventTranslation.title}
@@ -227,16 +227,18 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 								))}
 							</div>
 						</div>
-
-						<EventReviews event={event} />
-						<WriteReviewButton eventId={event.id} />
 					</div>
 
 					{/* Right Column - Booking Sidebar */}
-					<div className="lg:col-span-1">
+					<div className="lg:col-start-3 lg:row-span-2 lg:row-start-1">
 						<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
 							<BookingSidebar event={event} />
 						</div>
+					</div>
+
+					<div className="min-w-0 space-y-6 sm:space-y-8 lg:col-span-2 lg:col-start-1 lg:row-start-2">
+						<EventReviews event={event} />
+						<WriteReviewButton eventId={event.id} />
 					</div>
 				</div>
 			</div>

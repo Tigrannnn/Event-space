@@ -188,8 +188,8 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 				</PhotoStrip>
 			)}
 
-			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
-				<div className="space-y-6 lg:col-span-2">
+			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+				<div className="space-y-6 lg:col-span-2 lg:col-start-1 lg:row-start-1">
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
 						{facts.map(({ Icon, label, value }) => (
 							<div
@@ -229,18 +229,20 @@ export default function EventPageSoft({ initialEvent }: EventPageSoftProps) {
 							</ul>
 						</section>
 					)}
+				</div>
 
+				<div className="lg:col-start-3 lg:row-span-2 lg:row-start-1">
+					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
+						<BookingSidebar event={event} />
+					</div>
+				</div>
+
+				<div className="min-w-0 space-y-6 lg:col-span-2 lg:col-start-1 lg:row-start-2">
 					<section className={`${card} empty:hidden`}>
 						<EventReviews event={event} />
 					</section>
 
 					<WriteReviewButton eventId={event.id} />
-				</div>
-
-				<div className="lg:col-span-1">
-					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
-						<BookingSidebar event={event} />
-					</div>
 				</div>
 			</div>
 		</div>

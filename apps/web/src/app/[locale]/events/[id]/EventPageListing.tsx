@@ -246,8 +246,8 @@ export default function EventPageListing({ initialEvent }: EventPageListingProps
 				</div>
 			)}
 
-			<div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-				<div className="space-y-5 lg:col-span-2">
+			<div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+				<div className="space-y-5 lg:col-span-2 lg:col-start-1 lg:row-start-1">
 					<div className="grid grid-cols-1 divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
 						{facts.map(({ Icon, label, value }) => (
 							<div key={label} className="flex items-center gap-3 p-4">
@@ -300,18 +300,20 @@ export default function EventPageListing({ initialEvent }: EventPageListingProps
 							</ul>
 						</section>
 					)}
+				</div>
 
+				<div className="lg:col-start-3 lg:row-span-2 lg:row-start-1">
+					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
+						<BookingSidebar event={event} />
+					</div>
+				</div>
+
+				<div className="min-w-0 space-y-5 lg:col-span-2 lg:col-start-1 lg:row-start-2">
 					<section id="reviews" className={`${box} empty:hidden`}>
 						<EventReviews event={event} />
 					</section>
 
 					<WriteReviewButton eventId={event.id} />
-				</div>
-
-				<div className="lg:col-span-1">
-					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
-						<BookingSidebar event={event} />
-					</div>
 				</div>
 			</div>
 		</div>

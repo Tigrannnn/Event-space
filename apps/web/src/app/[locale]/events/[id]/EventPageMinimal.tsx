@@ -179,8 +179,8 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 				</div>
 			)}
 
-			<div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-16">
-				<div className="space-y-8 lg:col-span-2">
+			<div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3 lg:gap-16 lg:grid-rows-[auto_1fr]">
+				<div className="space-y-8 lg:col-span-2 lg:col-start-1 lg:row-start-1">
 					<div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-gray-800 dark:text-gray-100">
 						<span className="flex items-center gap-2">
 							<Clock className="size-5 text-gray-500" />
@@ -220,18 +220,20 @@ export default function EventPageMinimal({ initialEvent }: EventPageMinimalProps
 							</ul>
 						</section>
 					)}
+				</div>
 
+				<div className="lg:col-start-3 lg:row-span-2 lg:row-start-1">
+					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
+						<BookingSidebar event={event} />
+					</div>
+				</div>
+
+				<div className="min-w-0 space-y-8 lg:col-span-2 lg:col-start-1 lg:row-start-2">
 					<section className={hairline}>
 						<EventReviews event={event} />
 					</section>
 
 					<WriteReviewButton eventId={event.id} />
-				</div>
-
-				<div className="lg:col-span-1">
-					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
-						<BookingSidebar event={event} />
-					</div>
 				</div>
 			</div>
 		</div>

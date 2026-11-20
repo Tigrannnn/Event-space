@@ -93,8 +93,8 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] xl:grid-cols-[minmax(0,1fr)_26rem]">
-				<div className="min-w-0 space-y-4">
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] xl:grid-cols-[minmax(0,1fr)_26rem] lg:grid-rows-[auto_1fr]">
+				<div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-1">
 					<div>
 						<h1 className="text-2xl leading-tight font-bold text-gray-900 sm:text-3xl dark:text-white">
 							{eventTranslation.title}
@@ -236,18 +236,20 @@ export default function EventPageMarket({ initialEvent }: EventPageMarketProps) 
 							</ul>
 						</section>
 					)}
+				</div>
 
+				<div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
+						<BookingSidebar event={event} />
+					</div>
+				</div>
+
+				<div className="min-w-0 space-y-4 lg:col-start-1 lg:row-start-2">
 					<section className={card}>
 						<EventReviews event={event} />
 					</section>
 
 					<WriteReviewButton eventId={event.id} />
-				</div>
-
-				<div>
-					<div className="sticky top-[calc(var(--header-height,6rem)+1rem)]">
-						<BookingSidebar event={event} />
-					</div>
 				</div>
 			</div>
 		</div>
