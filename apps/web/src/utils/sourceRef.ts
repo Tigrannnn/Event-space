@@ -14,6 +14,15 @@ export function refFromSearch(search: string): string | null {
 	return null;
 }
 
+export function withoutSourceParams(href: string): string {
+	const url = new URL(href);
+	const keys = [...url.searchParams.keys()].filter((key) => key === 'ref' || key.startsWith('utm_'));
+	if (keys.length === 0) return href;
+
+	for (const key of keys) url.searchParams.delete(key);
+	return url.toString();
+}
+
 export function rememberSourceRef(ref: string): void {
 	const maxAge = SOURCE_REF_MAX_AGE_DAYS * 24 * 60 * 60;
 	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
