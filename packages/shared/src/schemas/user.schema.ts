@@ -1,6 +1,7 @@
 import { z } from './openapi';
 import { UserSchema as GeneratedUser } from '../generated/modelSchema/UserSchema';
 import { EmailSchema, NameSchema, PhoneSchema } from './atoms';
+import { SourceRefSchema } from './source.schema';
 import { UserRoleSchema } from '../generated/inputTypeSchemas/UserRoleSchema';
 import { DateOnlySchema } from './common.schema';
 
@@ -36,9 +37,12 @@ export type UserData = z.infer<typeof UserSchema>;
 export const SafeUserSchema = UserSchema.omit({
 	passwordHash: true,
 	googleId: true,
+	sourceId: true,
 })
 	.extend({
 		hasPassword: z.boolean().optional(),
+		source: SourceRefSchema.nullish(),
+		bookingsCount: z.number().int().optional(),
 	})
 	.openapi({
 		description: 'User information without sensitive fields',

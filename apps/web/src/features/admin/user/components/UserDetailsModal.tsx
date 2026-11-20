@@ -4,7 +4,10 @@ import { Modal, ModalHeader } from '@/components/ui/Modal';
 import { localeNames } from '@/lib/i18n/config';
 import { useModalData, useModalStore } from '@/stores/modalStore';
 import { ModalType } from '@/stores';
-import { Copy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Copy, Ticket } from 'lucide-react';
+import Button from '@/components/ui/Buttons/Button';
+import { useSourceLabel } from '@/hooks/labels/useSourceLabel';
 import { useCopyToClipboard } from '@/hooks/clipboard';
 import { useTranslation } from '@/hooks/translation';
 import { useLabels } from '@/hooks/labels/useLabels';
@@ -16,6 +19,8 @@ export default function UserDetailsModal() {
 	const { USER_ROLE_LABELS } = useLabels();
 	const locale = translate.locale;
 	const { closeModal } = useModalStore();
+	const router = useRouter();
+	const sourceLabel = useSourceLabel();
 	const copyToClipboard = useCopyToClipboard();
 	const modalData = useModalData(ModalType.UserDetails);
 	const user = modalData?.user;
@@ -26,6 +31,11 @@ export default function UserDetailsModal() {
 
 	const handleCopyId = () => {
 		void copyToClipboard(user.id, 'admin.copyId');
+	};
+
+	const openBookings = () => {
+		closeModal();
+		router.push(`/admin/bookings?search=${encodeURIComponent(user.email ?? user.name)}`);
 	};
 
 	return (
@@ -63,6 +73,25 @@ export default function UserDetailsModal() {
 								>
 									<Copy className="h-3 w-3" />
 								</button>
+							</div>
+
+							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.userBookingsTotal')}
+									</p>
+									<p className="mt-1 text-lg font-semibold text-gray-900 dark:text-white">{user.bookingsCount ?? '—'}</p>
+									<Button type="button" size="xs" variant="secondary" className="mt-2" onClick={openBookings}>
+										<Ticket className="h-4 w-4" />
+										{translate('admin.userAllBookings')}
+									</Button>
+								</div>
+								<div className="rounded-2xl bg-white p-3 shadow-sm dark:bg-gray-900">
+									<p className="text-xs tracking-[0.18em] text-gray-500 uppercase dark:text-gray-400">
+										{translate('admin.userSource')}
+									</p>
+									<p className="mt-1 font-medium text-gray-900 dark:text-white">{sourceLabel(user)}</p>
+								</div>
 							</div>
 
 							<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

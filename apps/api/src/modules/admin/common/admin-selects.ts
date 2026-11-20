@@ -15,6 +15,16 @@ export const safeUserSelect = {
 	updatedAt: true,
 };
 
+export const adminUserSelect = {
+	...safeUserSelect,
+	source: SOURCE_REF,
+	_count: { select: { bookings: true } },
+};
+
+export function toAdminUser<T extends { _count: { bookings: number } }>({ _count, ...user }: T) {
+	return { ...user, bookingsCount: _count.bookings };
+}
+
 export const bookingInclude = {
 	channel: CHANNEL_REF,
 	source: SOURCE_REF,

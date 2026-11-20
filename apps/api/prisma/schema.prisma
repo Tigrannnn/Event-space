@@ -77,6 +77,7 @@ model Source {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   bookings Booking[] @relation("source_bookings")
+  users    User[]    @relation("user_source")
 
   @@map("sources")
 }
@@ -473,6 +474,10 @@ model User {
   locale    Locale?
 
   googleId  String?  @unique @map("google_id")
+
+  sourceId String? @map("source_id")
+  source   Source? @relation("user_source", fields: [sourceId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -485,6 +490,7 @@ model User {
 
   searchQueries SearchQuery[] @relation("user_search_queries")
 
+  @@index([sourceId])
   @@map("users")
 }
 

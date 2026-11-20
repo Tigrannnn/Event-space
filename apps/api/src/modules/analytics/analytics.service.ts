@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import type { TrackAnalyticsData } from '@event-space/shared';
-import { resolveSourceRef } from '@modules/source/source-access';
+import { rememberUserSource, resolveSourceRef } from '@modules/source/source-access';
 import { toDateKey } from '../../shared/utils/app-day.util';
 import { isBot } from './is-bot';
 
@@ -41,5 +41,10 @@ export class AnalyticsService {
 			}
 			throw error;
 		}
+	}
+
+	async rememberUserSource(userId: string, ref: string | undefined): Promise<void> {
+		const source = await resolveSourceRef(this.prisma, ref);
+		await rememberUserSource(this.prisma, userId, source);
 	}
 }

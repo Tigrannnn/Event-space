@@ -22,6 +22,14 @@ export const TrackAnalyticsSchema = z
 
 export type TrackAnalyticsData = z.infer<typeof TrackAnalyticsSchema>;
 
+export const RememberUserSourceSchema = z
+	.object({
+		ref: z.string().max(200).optional(),
+	})
+	.openapi({ description: 'Where the signed-in user came from, kept once on the account' });
+
+export type RememberUserSourceData = z.infer<typeof RememberUserSourceSchema>;
+
 export const TourFunnelRowSchema = z.object({
 	eventId: z.string(),
 	titles: z.array(z.object({ locale: z.string(), title: z.string() })),

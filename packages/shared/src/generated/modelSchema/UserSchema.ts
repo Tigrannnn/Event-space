@@ -18,6 +18,7 @@ export const UserSchema = z.object({
   isShadow: z.boolean(),
   phone: z.string().nullable(),
   googleId: z.string().nullable(),
+  sourceId: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })

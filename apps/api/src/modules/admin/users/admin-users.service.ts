@@ -9,7 +9,7 @@ import type {
 	UpdateShadowUserData,
 	UserRoleType,
 } from '@event-space/shared';
-import { safeUserSelect } from '../common/admin-selects';
+import { adminUserSelect, safeUserSelect, toAdminUser } from '../common/admin-selects';
 import { buildDayRangeFilter, toPage } from '../common/query-helpers';
 
 interface FindAllUsersParams extends PaginatedParams {
@@ -59,16 +59,17 @@ export class AdminUsersService {
 				skip,
 				take: limit + 1,
 				orderBy: { createdAt: 'desc' },
-				select: safeUserSelect,
+				select: adminUserSelect,
 			}),
 			this.prisma.user.count({ where }),
 		]);
 
-		return toPage(users, total, skip, limit);
+		return toPage(users.map(toAdminUser), total, skip, limit);
 	}
 
-	findOne(id: string): Promise<SafeUserData | null> {
-		return this.prisma.user.findUnique({ where: { id }, select: safeUserSelect });
+	async findOne(id: string): Promise<SafeUserData | null> {
+		const user = await this.prisma.user.findUnique({ where: { id }, select: adminUserSelect });
+		return user ? toAdminUser(user) : null;
 	}
 
 	async updateRole(adminId: string, id: string, role: UserRoleType): Promise<SafeUserData> {

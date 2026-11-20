@@ -4,7 +4,7 @@ import { type Locale } from '@prisma/client';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { DEFAULT_LOCALE } from '@infra/mail/mail-strings';
 import { requireChannelFor } from '@modules/channel/channel-access';
-import { requireActiveSource, resolveSourceRef } from '@modules/source/source-access';
+import { requireActiveSource, sourceForUser } from '@modules/source/source-access';
 import {
 	AppErrorCode,
 	BookingWithEstimate,
@@ -149,7 +149,7 @@ export class BookingCreationService {
 				// carrying it into a new attempt would confirm this booking without payment.
 				// Only a still-PENDING booking is in the same cycle and may keep its intent.
 				const keepsPaymentIntent = existing?.status === 'PENDING';
-				const source = await resolveSourceRef(tx, data.ref);
+				const source = await sourceForUser(tx, userId, data.ref);
 
 				const upserted = await tx.booking.upsert({
 					where: { userId_occurrenceId: { userId, occurrenceId: occurrence.id } },
