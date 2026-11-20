@@ -44,18 +44,22 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
+const FILTER_PARAMS = [
+	'search',
+	'startDate',
+	'endDate',
+	'category',
+	'categories',
+	'minPrice',
+	'maxPrice',
+	'guests',
+	'difficulty',
+] as const;
+
+type FilterParam = (typeof FILTER_PARAMS)[number];
+
 interface HomePageProps {
-	searchParams: Promise<{
-		search?: string;
-		startDate?: string;
-		endDate?: string;
-		category?: string;
-		categories?: string;
-		minPrice?: string;
-		maxPrice?: string;
-		guests?: string;
-		difficulty?: string;
-	}>;
+	searchParams: Promise<Partial<Record<FilterParam, string>> & Record<string, string | string[] | undefined>>;
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
@@ -66,9 +70,10 @@ export default async function Home({ searchParams }: HomePageProps) {
 	const searchQuery = params.search || '';
 
 	const urlSearchParams = new URLSearchParams();
-	Object.entries(params).forEach(([key, value]) => {
-		if (value) urlSearchParams.set(key, value);
-	});
+	for (const key of FILTER_PARAMS) {
+		const value = params[key];
+		if (typeof value === 'string' && value) urlSearchParams.set(key, value);
+	}
 
 	const filters = parseFiltersFromSearchParams(urlSearchParams);
 
