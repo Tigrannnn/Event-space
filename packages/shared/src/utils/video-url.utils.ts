@@ -15,7 +15,7 @@ const YOUTUBE_HOSTS = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com'
 function youtube(id: string, isVertical: boolean): ParsedVideo | null {
 	if (!YOUTUBE_ID.test(id)) return null;
 	return {
-		embedUrl: `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`,
+		embedUrl: `https://www.youtube-nocookie.com/embed/${id}?rel=0&modestbranding=1&playsinline=1`,
 		thumbnailUrl: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
 		watchUrl: `https://www.youtube.com/watch?v=${id}`,
 		isVertical,
