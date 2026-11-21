@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { BrandDiscountsInterceptor } from './shared/interceptors/brand-discounts.interceptor';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
@@ -52,5 +54,6 @@ import { AnalyticsModule } from '@modules/analytics/analytics.module';
 		AnalyticsModule,
 	],
 	controllers: [AppController],
+	providers: [{ provide: APP_INTERCEPTOR, useClass: BrandDiscountsInterceptor }],
 })
 export class AppModule {}

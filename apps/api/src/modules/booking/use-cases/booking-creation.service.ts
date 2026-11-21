@@ -15,7 +15,7 @@ import {
 	CreateManualBookingData,
 	EnvKey,
 } from '@event-space/shared';
-import { AppException } from '@shared';
+import { AppException, effectiveDateDiscount } from '@shared';
 import { StripeService } from '@infra/stripe/stripe.service';
 import {
 	CANCELABLE_PAYMENT_INTENT_STATUSES,
@@ -119,7 +119,7 @@ export class BookingCreationService {
 					});
 				}
 
-				let pricing = priceBooking(event.price, occurrence.discountPercent, quantity);
+				let pricing = priceBooking(event.price, effectiveDateDiscount(occurrence.discountPercent, brandHost), quantity);
 				let promoCodeId: string | null = null;
 
 				if (data.promoCode) {
@@ -139,7 +139,7 @@ export class BookingCreationService {
 						promoCode,
 						event.price,
 						quantity,
-						occurrence.discountPercent,
+						effectiveDateDiscount(occurrence.discountPercent, brandHost),
 					);
 					promoCodeId = promoCode.id;
 				}
@@ -535,7 +535,7 @@ export class BookingCreationService {
 			}
 
 			let pricing = agreeBookingAmount(
-				priceBooking(event.price, occurrence.discountPercent, quantity),
+				priceBooking(event.price, effectiveDateDiscount(occurrence.discountPercent, brandHost), quantity),
 				agreedAmount,
 			);
 			let promoCodeId: string | null = null;
@@ -551,7 +551,12 @@ export class BookingCreationService {
 					await this.promoCodes.redeem(tx, promoCode);
 				}
 
-				pricing = this.promoCodes.quote(promoCode, event.price, quantity, occurrence.discountPercent);
+				pricing = this.promoCodes.quote(
+					promoCode,
+					event.price,
+					quantity,
+					effectiveDateDiscount(occurrence.discountPercent, brandHost),
+				);
 				promoCodeId = promoCode.id;
 			}
 
@@ -649,7 +654,11 @@ export class BookingCreationService {
 			}
 
 			const quantity = data.quantity ?? booking.quantity;
-			const pricing = priceBooking(occurrence.event.price, occurrence.discountPercent, quantity);
+			const pricing = priceBooking(
+				occurrence.event.price,
+				effectiveDateDiscount(occurrence.discountPercent, booking.brandHost),
+				quantity,
+			);
 
 			const reserved = await tx.eventOccurrence.updateMany({
 				where: {

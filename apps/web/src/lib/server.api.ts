@@ -1,4 +1,4 @@
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { EnvKey } from '@event-space/shared';
 
 const BASE_URL = process.env[EnvKey.API_URL] || 'http://localhost:5000';
@@ -8,6 +8,7 @@ export async function serverFetch<T = unknown>(
   options: RequestInit = {}
 ): Promise<T> {
   const cookieStore = await cookies();
+  const brandHost = (await headers()).get('host');
 
   const getCookieHeader = () =>
     cookieStore.getAll()
@@ -21,6 +22,7 @@ export async function serverFetch<T = unknown>(
       headers: {
         'Content-Type': 'application/json',
         ...Object.fromEntries(new Headers(options.headers)),
+        ...(brandHost && { 'X-Brand-Host': brandHost }),
         ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
         Cookie: cookieHeader,
       },

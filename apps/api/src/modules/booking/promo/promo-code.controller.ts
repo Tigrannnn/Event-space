@@ -3,7 +3,13 @@ import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { AccessTokenGuard } from '@modules/auth/guards/access-token.guard';
 import { RateLimiterService } from '@infra/rate-limiter/rate-limiter.service';
-import { AppException, GetCurrentUserId, ZodValidationPipe } from '@shared';
+import {
+	AppException,
+	effectiveDateDiscount,
+	GetBrandHost,
+	GetCurrentUserId,
+	ZodValidationPipe,
+} from '@shared';
 import { AppErrorCode, ApplyPromoCodeSchema } from '@event-space/shared';
 import { BOOKING_CONFIG } from '@event-space/shared/constants';
 import type { ApplyPromoCodeData } from '@event-space/shared';
@@ -32,6 +38,7 @@ export class PromoCodeController {
 	@ApiBody(getReference('ApplyPromoCodeSchema'))
 	async validate(
 		@GetCurrentUserId() userId: string,
+		@GetBrandHost() brandHost: string | undefined,
 		@Body(new ZodValidationPipe(ApplyPromoCodeSchema)) data: ApplyPromoCodeData,
 	) {
 		// Caps scripted guessing of codes: a real typo or two is never blocked, since this
@@ -59,7 +66,7 @@ export class PromoCodeController {
 			promoCode,
 			occurrence.event.price,
 			data.quantity,
-			occurrence.discountPercent,
+			effectiveDateDiscount(occurrence.discountPercent, brandHost),
 		);
 
 		return {

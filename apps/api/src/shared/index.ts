@@ -4,3 +4,4 @@ export * from './exceptions';
 export * from './filters';
 export * from './pipes';
 export * from './utils';
+export * from './interceptors/brand-discounts.interceptor';

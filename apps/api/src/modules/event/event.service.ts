@@ -13,7 +13,7 @@ import {
 	UpdateEventData,
 	UserRoleType,
 } from '@event-space/shared';
-import { AppException } from '@shared';
+import { AppException, dateDiscountsEnabled } from '@shared';
 import { UploadService } from '@infra/upload/upload.service';
 import { PrismaService } from '@infra/prisma/prisma.service';
 import { EventImage, Prisma } from '@prisma/client';
@@ -91,6 +91,7 @@ export class EventService {
 		maxPrice?: number,
 		guests?: number,
 		difficulties?: EventDifficulty[],
+		brandHost?: string,
 	) {
 		const categoryFilter = categorySlug
 			? {
@@ -125,7 +126,20 @@ export class EventService {
 		// `event.price` is only ever the listed price — a discounted date can charge well under
 		// or over it, so the match has to look at each date's actual price, not the DB column.
 		const matchesPrice = (event: Parameters<typeof eventMatchesPrice>[0]) =>
-			eventMatchesPrice(event, minPrice, maxPrice, occurrenceDateWindow);
+			eventMatchesPrice(
+				dateDiscountsEnabled(brandHost)
+					? event
+					: {
+							...event,
+							occurrences: event.occurrences?.map((occurrence) => ({
+								...occurrence,
+								discountPercent: null,
+							})),
+						},
+				minPrice,
+				maxPrice,
+				occurrenceDateWindow,
+			);
 
 		const searchWords = search ? parseSearchQuery(search) : [];
 

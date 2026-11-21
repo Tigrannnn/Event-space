@@ -33,6 +33,7 @@ import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import {
 	GetCurrentUser,
 	GetCurrentUserId,
+	GetBrandHost,
 	GetOptionalUserId,
 	Roles,
 	RolesGuard,
@@ -66,6 +67,7 @@ export class EventController {
 	@ApiResponse({ status: 200, description: 'Returns paginated events' })
 	findAll(
 		@GetOptionalUserId() userId: string | undefined,
+		@GetBrandHost() brandHost: string | undefined,
 		@Query('cursor') cursor?: string,
 		@Query('limit', new DefaultValuePipe(8), ParseIntPipe) limit: number = 8,
 		@Query('search') search?: string,
@@ -94,6 +96,7 @@ export class EventController {
 			maxPrice,
 			guests,
 			difficulties,
+			brandHost,
 		);
 	}
 
