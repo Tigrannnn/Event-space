@@ -6,6 +6,14 @@
  * The four skins that live on a neutral palette rather than the classic blue-tinted grey, as one
  * variant: `neutral:rounded-none` reads "in minimal, listing, market and drawer".
  */
+@custom-variant dark {
+	@media (prefers-color-scheme: dark) {
+		&:where(:root:not([data-look='capsule']), :root:not([data-look='capsule']) *) {
+			@slot;
+		}
+	}
+}
+
 @custom-variant neutral (:where([data-skin='minimal'], [data-skin='listing'], [data-skin='market'], [data-skin='drawer']) &);
 
 /*
@@ -17,7 +25,7 @@
 @media (prefers-color-scheme: dark) {
 	:root[data-skin='minimal'],
 	:root[data-skin='listing'],
-	:root[data-skin='market'],
+	:root[data-skin='market']:not([data-look='capsule']),
 	:root[data-skin='drawer'] {
 		--color-gray-50: oklch(98.5% 0 0);
 		--color-gray-100: oklch(97% 0 0);
@@ -55,7 +63,7 @@
 		scrollbar-color: var(--color-gray-300) transparent;
 	}
 	@media (prefers-color-scheme: dark) {
-		* {
+		:root:not([data-look='capsule']) * {
 			scrollbar-color: var(--color-gray-700) transparent;
 		}
 	}
@@ -187,7 +195,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root[data-skin='market'],
+	:root[data-skin='market']:not([data-look='capsule']),
 	:root[data-skin='drawer'] {
 		--panel-border: #262626;
 		--panel-bg: #171717;
@@ -196,6 +204,7 @@
 }
 
 :root[data-look='capsule'] {
+	color-scheme: light;
 	--font-sans: var(--font-montserrat), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
 	--panel-radius: 1.5rem;
 	--control-radius: 9999px;

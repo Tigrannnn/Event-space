@@ -31,7 +31,7 @@ interface EventPageCapsuleProps {
 
 function SectionTitle({ children }: { children: ReactNode }) {
 	return (
-		<h2 className="text-primary mb-4 flex items-center gap-3 text-xl font-extrabold sm:text-2xl dark:text-white">
+		<h2 className="text-primary mb-4 flex items-center gap-3 text-xl font-extrabold sm:text-2xl">
 			<span className="text-sm text-(--brand-accent)">✦</span>
 			{children}
 		</h2>
@@ -77,10 +77,10 @@ export default function EventPageCapsule({ initialEvent }: EventPageCapsuleProps
 	const ratingCount = event.ratingCount ?? 0;
 
 	const roundButton =
-		'text-primary flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-bold transition-colors hover:bg-gray-200 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800';
+		'text-primary flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-bold transition-colors hover:bg-gray-200';
 	const fact =
-		'text-primary flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold dark:border-neutral-800 dark:text-white';
-	const card = 'rounded-[2rem] bg-gray-50 p-6 sm:p-8 dark:bg-neutral-900';
+		'text-primary flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-sm font-semibold';
+	const card = 'rounded-[2rem] bg-gray-50 p-6 sm:p-8';
 
 	return (
 		<div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
@@ -104,16 +104,16 @@ export default function EventPageCapsule({ initialEvent }: EventPageCapsuleProps
 						(event.category?.slug ? (
 							<Link
 								href={localizePath(`/category/${event.category.slug}`, locale)}
-								className="bg-primary/10 text-primary mb-4 inline-flex rounded-full px-4 py-1.5 text-xs font-bold tracking-wider uppercase dark:bg-white/10 dark:text-white"
+								className="bg-primary/10 text-primary mb-4 inline-flex rounded-full px-4 py-1.5 text-xs font-bold tracking-wider uppercase"
 							>
 								{categoryTranslation.name}
 							</Link>
 						) : (
-							<span className="bg-primary/10 text-primary mb-4 inline-flex rounded-full px-4 py-1.5 text-xs font-bold tracking-wider uppercase dark:bg-white/10 dark:text-white">
+							<span className="bg-primary/10 text-primary mb-4 inline-flex rounded-full px-4 py-1.5 text-xs font-bold tracking-wider uppercase">
 								{categoryTranslation.name}
 							</span>
 						))}
-					<h1 className="text-primary text-3xl leading-[1.08] font-black tracking-tight break-words sm:text-5xl dark:text-white">
+					<h1 className="text-primary text-3xl leading-[1.08] font-black tracking-tight break-words sm:text-5xl">
 						{eventTranslation.title}
 					</h1>
 					<div className="mt-6 flex flex-wrap gap-2">
@@ -166,7 +166,7 @@ export default function EventPageCapsule({ initialEvent }: EventPageCapsuleProps
 									onClick={() => openPreview(pill.src)}
 									aria-label={`${index + 1} / ${pills.length}`}
 									className={cn(
-										'relative cursor-zoom-in overflow-hidden rounded-full bg-gray-100 dark:bg-neutral-900',
+										'relative cursor-zoom-in overflow-hidden rounded-full bg-gray-100',
 										index === 1 ? 'h-[72%] self-start' : 'h-full',
 									)}
 								>
@@ -200,7 +200,7 @@ export default function EventPageCapsule({ initialEvent }: EventPageCapsuleProps
 				<div className="min-w-0 space-y-6 lg:col-start-1 lg:row-start-1">
 					<section className={card}>
 						<SectionTitle>{translate('event.aboutTour')}</SectionTitle>
-						<p className="leading-relaxed font-medium whitespace-pre-line text-gray-700 dark:text-gray-300">
+						<p className="leading-relaxed font-medium whitespace-pre-line text-gray-700">
 							{eventTranslation.description}
 						</p>
 					</section>
@@ -210,11 +210,8 @@ export default function EventPageCapsule({ initialEvent }: EventPageCapsuleProps
 							<SectionTitle>{translate('event.whatsIncluded')}</SectionTitle>
 							<ul className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
 								{eventTranslation.whatsIncluded.map((item: string, index: number) => (
-									<li
-										key={index}
-										className="flex items-start gap-3 font-medium text-gray-700 dark:text-gray-300"
-									>
-										<span className="bg-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-white dark:bg-white/15">
+									<li key={index} className="flex items-start gap-3 font-medium text-gray-700">
+										<span className="bg-primary mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-white">
 											<Check className="size-3" strokeWidth={3} />
 										</span>
 										{item}

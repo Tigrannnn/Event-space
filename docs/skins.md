@@ -289,7 +289,8 @@
 Как устроено:
 - `useLook()` (`providers/BrandProvider.tsx`) возвращает вид или `undefined`; переключатели проверяют его раньше скина.
 - `data-look="capsule"` на `<html>` (`app/[locale]/layout.tsx`) и блок `:root[data-look='capsule']` в `globals.css`: шрифт Montserrat (`next/font/google`, переменная `--font-montserrat`, латиница и кириллица; армянский по-прежнему из Noto Sans Armenian), радиус панелей 1.5rem, поля и контролы таблетками.
-- `Brand.logo` — картинка-надпись для шапки вместо названия текстом (у Luna `lunatour-logo.svg`, перерисована в SVG: значок из иконки, надпись шрифтом Urbanist 625 в контуры). В тёмной теме лого красится в белый (`dark:brightness-0 dark:invert`).
+- Тёмной темы у вида нет: свой вариант `dark` в `globals.css` не срабатывает под `[data-look='capsule']`, тёмные токены `market` для него отключены (`:not([data-look='capsule'])`), `color-scheme: light`, а `useSystemTheme()` отдаёт `light` (форма оплаты Stripe).
+- `Brand.logo` — картинка-надпись для шапки вместо названия текстом (у Luna `lunatour-logo.svg`, перерисована в SVG: значок из иконки, надпись шрифтом Urbanist 625 в контуры).
 
 | Файл | Как |
 |---|---|

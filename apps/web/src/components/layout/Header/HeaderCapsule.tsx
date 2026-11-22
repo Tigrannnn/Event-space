@@ -99,7 +99,7 @@ export default function HeaderCapsule() {
 	);
 
 	return (
-		<header className="relative z-40 flex items-stretch border-b border-gray-100 bg-white dark:border-neutral-800 dark:bg-neutral-950">
+		<header className="relative z-40 flex items-stretch border-b border-gray-100 bg-white">
 			<div className="mx-auto flex max-w-[1400px] min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3 sm:px-6 md:flex-nowrap md:py-4 lg:px-8">
 				<Link
 					href={localizePath('/', navigation.locale)}
@@ -114,25 +114,23 @@ export default function HeaderCapsule() {
 							height={42}
 							priority
 							unoptimized
-							className="h-8 w-auto sm:h-9 dark:brightness-0 dark:invert"
+							className="h-8 w-auto sm:h-9"
 						/>
 					) : (
-						<span className="text-primary text-2xl font-black tracking-tight dark:text-white">
-							{brand.name}
-						</span>
+						<span className="text-primary text-2xl font-black tracking-tight">{brand.name}</span>
 					)}
 				</Link>
 
 				<nav className="hidden shrink-0 items-center gap-3 xl:flex">
 					{links.map((link, index) => (
 						<Fragment key={link.href}>
-							{index > 0 && <span className="text-primary/40 text-xs dark:text-white/30">✦</span>}
+							{index > 0 && <span className="text-primary/40 text-xs">✦</span>}
 							<Link
 								href={localizePath(link.href, navigation.locale)}
 								className={cn(
-									'text-primary relative py-1 text-[15px] font-bold transition-colors dark:text-white',
+									'text-primary relative py-1 text-[15px] font-bold transition-colors',
 									isRouteActive(pathname, link.href) &&
-										'after:bg-primary after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full dark:after:bg-white',
+										'after:bg-primary after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full',
 								)}
 							>
 								{link.label}
@@ -148,7 +146,7 @@ export default function HeaderCapsule() {
 
 				<div
 					ref={searchBox.containerRef}
-					className="focus-within:border-primary/40 relative order-last flex w-full items-center rounded-full border border-gray-200 bg-gray-50 p-1 pl-5 transition-colors md:order-0 md:w-auto md:min-w-0 md:flex-1 dark:border-neutral-800 dark:bg-neutral-900"
+					className="focus-within:border-primary/40 relative order-last flex w-full items-center rounded-full border border-gray-200 bg-gray-50 p-1 pl-5 transition-colors md:order-0 md:w-auto md:min-w-0 md:flex-1"
 				>
 					<input
 						{...SEARCH_INPUT_PROPS}
@@ -160,13 +158,13 @@ export default function HeaderCapsule() {
 						onFocus={() => searchBox.setOpen(true)}
 						onKeyDown={handleKeyDown}
 						placeholder={translate('header.searchPlaceholder')}
-						className="text-primary min-w-0 flex-1 bg-transparent py-2 text-[15px] font-medium placeholder-gray-400 focus:outline-none dark:text-white"
+						className="text-primary min-w-0 flex-1 bg-transparent py-2 text-[15px] font-medium placeholder-gray-400 focus:outline-none"
 					/>
 					{inputValue && (
 						<button
 							type="button"
 							onClick={() => setInputValue('')}
-							className="px-2 text-gray-400 hover:text-gray-700 dark:hover:text-white"
+							className="px-2 text-gray-400 hover:text-gray-700"
 							aria-label={translate('common.clearSearch')}
 						>
 							<X className="size-4" />
