@@ -44,4 +44,7 @@ export const common = {
 	nextImage: 'Next photo',
 	video: 'Video',
 	photoNumber: 'Photo {number}',
+	footerContacts: 'Contacts',
+	footerFindUs: 'Find us:',
+	footerOffice: 'Our office',
 };

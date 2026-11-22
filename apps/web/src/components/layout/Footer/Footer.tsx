@@ -11,18 +11,19 @@ import { getCategoryTranslation } from '@event-space/shared';
 import { useLook, useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import ContactIcons from '../Header/ContactIcons';
+import FooterCapsule from './FooterCapsule';
 
 export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const skin = useSkin();
+	const look = useLook();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
-	const isCapsule = useLook() === 'capsule';
-	const onColor = isListing || isSoft || isCapsule;
+	const onColor = isListing || isSoft;
 	const muted = onColor
 		? 'text-white/75'
 		: isDrawer
@@ -39,6 +40,8 @@ export default function Footer() {
 
 	if (pathname.includes('/admin')) return null;
 
+	if (look === 'capsule') return <FooterCapsule />;
+
 	return (
 		<footer
 			className={cn(
@@ -48,21 +51,9 @@ export default function Footer() {
 				isDrawer &&
 					'mt-16 rounded-t-[2.5rem] border-transparent bg-white/70 pt-10 text-gray-900 backdrop-blur-xl sm:px-8 sm:pt-14 sm:pb-8 dark:border-transparent dark:bg-neutral-900/80 dark:text-white',
 				isMarket &&
-					!isCapsule &&
 					'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
-				isCapsule &&
-					'mt-16 overflow-hidden rounded-t-[2.5rem] pt-10 sm:rounded-t-[4rem] sm:px-8 sm:pt-14 sm:pb-8',
 			)}
 		>
-			{isCapsule && (
-				<p
-					aria-hidden
-					className="mx-auto mb-8 max-w-7xl text-5xl leading-none font-black tracking-tight text-white/15 select-none sm:mb-12 sm:text-8xl lg:text-9xl"
-				>
-					{brand.name}
-				</p>
-			)}
-
 			{isDrawer && (
 				<p className="mx-auto mb-8 max-w-[1400px] text-4xl font-black tracking-tight sm:text-6xl">
 					{brand.name}

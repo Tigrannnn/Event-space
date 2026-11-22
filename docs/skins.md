@@ -290,6 +290,7 @@
 - `useLook()` (`providers/BrandProvider.tsx`) возвращает вид или `undefined`; переключатели проверяют его раньше скина.
 - `data-look="capsule"` на `<html>` (`app/[locale]/layout.tsx`) и блок `:root[data-look='capsule']` в `globals.css`: шрифт Montserrat (`next/font/google`, переменная `--font-montserrat`, латиница и кириллица; армянский по-прежнему из Noto Sans Armenian), радиус панелей 1.5rem, поля и контролы таблетками.
 - Тёмной темы у вида нет: свой вариант `dark` в `globals.css` не срабатывает под `[data-look='capsule']`, тёмные токены `market` для него отключены (`:not([data-look='capsule'])`), `color-scheme: light`, а `useSystemTheme()` отдаёт `light` (форма оплаты Stripe).
+- В `BrandContact` появились `telegram`, `facebook`, `extraPhones`, `extraEmails`; пока их показывает только подвал capsule.
 - `Brand.logo` — картинка-надпись для шапки вместо названия текстом (у Luna `lunatour-logo.svg`, перерисована в SVG: значок из иконки, надпись шрифтом Urbanist 625 в контуры).
 
 | Файл | Как |
@@ -299,6 +300,6 @@
 | `events-grid.ts`, `EventCardSkeleton.tsx` | сетка 2/3/4 колонки до `max-w-[1400px]`; скелетон аркой. `eventsGridClass(skin, look)` |
 | `BannerSlide.tsx`, `BannerCarousel.tsx` | слайд без подложки: крупный заголовок `font-black` слева, справа три фото-капсулы из одной картинки (лево, центр, право; средняя короче), как облака на lunatour.am. Без стрелок, точки-таблетки под слайдом |
 | `EventPageCapsule.tsx` (новый) | слева категория, огромное название и факты таблетками (оценка, место, длительность, сложность); справа три капсулы из фото тура (или одна фотография, разрезанная на три), под средней кнопка со счётом фото; ниже разделы на серой подложке с ✦ в заголовке, панель бронирования от `market` |
-| `Footer.tsx` | тёмно-синяя плита со скруглённым верхом и огромным бледным названием бренда (как их бегущая строка «Best destinations for you») |
+| `components/layout/Footer/FooterCapsule.tsx` (новый), `Footer.tsx` | как подвал lunatour.am: тёмно-синий фон с бледным узором (`.capsule-footer` в `globals.css`), четыре колонки: белое лого (`Brand.logoOnDark`), ссылки заглавными (о нас, главная, до четырёх категорий), контакты (все почты и телефоны), соцсети (Telegram, Instagram, Facebook) и офис; снизу линия, © и правовые ссылки |
 
 Как добавить ещё один вид: значение в `BrandLook`, ветка `look === '...'` в тех же переключателях (`HeaderWrapper`, `EventCard`, `EventCardSkeleton`, `eventsGridClass`, `EventPageContent`, `BannerSlide`/`BannerCarousel`, `Footer`) и блок `:root[data-look='...']` в `globals.css`. Базовый скин бренда выбирать тот, на чьи модалки и страницы вид ложится лучше.

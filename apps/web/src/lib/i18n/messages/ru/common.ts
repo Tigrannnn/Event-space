@@ -46,4 +46,7 @@ export const common: Messages['common'] = {
 	nextImage: 'Следующее фото',
 	video: 'Видео',
 	photoNumber: 'Фото {number}',
+	footerContacts: 'Контакты',
+	footerFindUs: 'Найдите нас:',
+	footerOffice: 'Наш офис',
 };
