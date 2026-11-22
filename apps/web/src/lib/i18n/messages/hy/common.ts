@@ -47,6 +47,5 @@ export const common: Messages['common'] = {
 	video: 'Տեսանյութ',
 	photoNumber: 'Լուսանկար {number}',
 	footerContacts: 'Կոնտակտներ',
-	footerFindUs: 'Գտեք մեզ՝',
 	footerOffice: 'Մեր գրասենյակը',
 };

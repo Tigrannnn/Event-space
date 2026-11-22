@@ -8,8 +8,6 @@ export const siteConfig = {
 
 export interface BrandContact {
 	instagram?: string;
-	telegram?: string;
-	facebook?: string;
 	phone?: string;
 	extraPhones?: string[];
 	email?: string;
@@ -377,10 +375,8 @@ const brands: Record<string, Brand> = {
 		logoOnDark: '/brands/lunatour-logo-light.svg',
 		contact: {
 			instagram: 'https://www.instagram.com/luna__tour/',
-			telegram: 'https://t.me/luna_tour',
-			facebook: 'https://www.facebook.com/lunatourarmenia',
 			phone: '+374 10 600058',
-			extraPhones: ['+374 10 600068', '+374 91 546974', '+374 94 546974'],
+			extraPhones: ['+374 91 546974'],
 			email: 'info@lunatour.am',
 			extraEmails: ['incoming@lunatour.am'],
 			location: { address: 'Paronyan 15/1, Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Paronyan+15/1,+Yerevan,+Armenia' },

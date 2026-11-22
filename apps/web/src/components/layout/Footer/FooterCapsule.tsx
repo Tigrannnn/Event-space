@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Facebook, Instagram, Send } from 'lucide-react';
 import { getCategoryTranslation } from '@event-space/shared';
+import ContactTile from '../Header/ContactTile';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
@@ -22,11 +22,6 @@ export default function FooterCapsule() {
 	const logo = brand.logoOnDark ?? brand.logo;
 	const emails = [...(contact.extraEmails ?? []), ...(contact.email ? [contact.email] : [])];
 	const phones = [...(contact.phone ? [contact.phone] : []), ...(contact.extraPhones ?? [])];
-	const socials = [
-		{ href: contact.telegram, label: 'Telegram', Icon: Send },
-		{ href: contact.instagram, label: 'Instagram', Icon: Instagram },
-		{ href: contact.facebook, label: 'Facebook', Icon: Facebook },
-	].filter((social) => social.href);
 
 	const navLinks = [
 		{ href: '/about', label: translate('about.title') },
@@ -88,25 +83,7 @@ export default function FooterCapsule() {
 				)}
 
 				<div className="flex flex-col items-start gap-5">
-					{socials.length > 0 && (
-						<>
-							<p className={heading}>{translate('common.footerFindUs')}</p>
-							<div className="flex items-center gap-6">
-								{socials.map(({ href, label, Icon }) => (
-									<a
-										key={label}
-										href={href}
-										target="_blank"
-										rel="noopener noreferrer"
-										aria-label={label}
-										className={link}
-									>
-										<Icon className="size-8" />
-									</a>
-								))}
-							</div>
-						</>
-					)}
+					<ContactTile onDark className="h-11 rounded-full px-4" />
 					{contact.location && (
 						<>
 							<p className={`${heading} mt-4`}>{translate('common.footerOffice')}</p>
