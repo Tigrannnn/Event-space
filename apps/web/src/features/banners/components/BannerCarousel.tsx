@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Banner, BrandSkin } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-import { useSkin } from '@/providers/BrandProvider';
+import { useLook, useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import BannerSlide from './BannerSlide';
 
@@ -128,6 +128,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = useLook() === 'capsule';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -231,6 +232,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 				isListing && 'mx-auto w-full max-w-[1336px]',
 				isMarket && 'mx-auto w-full max-w-[1400px]',
 				isDrawer && 'mx-auto w-full max-w-[1400px]',
+				isCapsule && 'mx-auto w-full max-w-[1400px] py-6 sm:py-10',
 			)}
 			onMouseEnter={() => setIsPaused(true)}
 			onMouseLeave={() => setIsPaused(false)}
@@ -243,17 +245,19 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 				onWheel={clearTarget}
 				className={cn(
 					'flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overflow-y-hidden rounded-2xl [&::-webkit-scrollbar]:hidden',
-					isMinimal
-						? 'h-[23rem] border border-gray-200 sm:h-72 dark:border-neutral-800'
-						: isListing
-							? 'h-56 rounded-lg border border-gray-200 sm:h-80 dark:border-neutral-800'
-							: isSoft
-								? 'aspect-16/9 rounded-3xl shadow-lg ring-4 ring-white sm:aspect-16/6 dark:ring-gray-800'
-								: isDrawer
-									? 'aspect-4/3 rounded-[2rem] sm:aspect-16/6'
-									: isMarket
-										? 'aspect-2/1 sm:aspect-16/5'
-										: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
+					isCapsule
+						? 'h-[36rem] rounded-none sm:h-[26rem] lg:h-[30rem]'
+						: isMinimal
+							? 'h-[23rem] border border-gray-200 sm:h-72 dark:border-neutral-800'
+							: isListing
+								? 'h-56 rounded-lg border border-gray-200 sm:h-80 dark:border-neutral-800'
+								: isSoft
+									? 'aspect-16/9 rounded-3xl shadow-lg ring-4 ring-white sm:aspect-16/6 dark:ring-gray-800'
+									: isDrawer
+										? 'aspect-4/3 rounded-[2rem] sm:aspect-16/6'
+										: isMarket
+											? 'aspect-2/1 sm:aspect-16/5'
+											: 'aspect-16/9 sm:aspect-16/5 sm:rounded-3xl',
 				)}
 			>
 				{banners.map((banner, index) => (
@@ -271,35 +275,54 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 
 			{banners.length > 1 && (
 				<>
-					{(['prev', 'next'] as const).map((direction) => {
-						const isPrev = direction === 'prev';
-						const look = ARROW[skin];
-						const Icon = look.arrows
-							? isPrev
-								? ArrowLeft
-								: ArrowRight
-							: isPrev
-								? ChevronLeft
-								: ChevronRight;
+					{!isCapsule &&
+						(['prev', 'next'] as const).map((direction) => {
+							const isPrev = direction === 'prev';
+							const look = ARROW[skin];
+							const Icon = look.arrows
+								? isPrev
+									? ArrowLeft
+									: ArrowRight
+								: isPrev
+									? ChevronLeft
+									: ChevronRight;
 
-						return (
-							<button
-								key={direction}
-								type="button"
-								onClick={() => goTo(activeIndex + (isPrev ? -1 : 1))}
-								aria-label={translate(isPrev ? 'common.previousBanner' : 'common.nextBanner')}
-								className={cn(
-									'absolute top-1/2 hidden -translate-y-1/2 cursor-pointer items-center justify-center transition sm:flex',
-									look.base,
-									isPrev ? look.prev : look.next,
-								)}
-							>
-								<Icon className={look.icon} />
-							</button>
-						);
-					})}
+							return (
+								<button
+									key={direction}
+									type="button"
+									onClick={() => goTo(activeIndex + (isPrev ? -1 : 1))}
+									aria-label={translate(isPrev ? 'common.previousBanner' : 'common.nextBanner')}
+									className={cn(
+										'absolute top-1/2 hidden -translate-y-1/2 cursor-pointer items-center justify-center transition sm:flex',
+										look.base,
+										isPrev ? look.prev : look.next,
+									)}
+								>
+									<Icon className={look.icon} />
+								</button>
+							);
+						})}
 
-					{isDrawer ? (
+					{isCapsule ? (
+						<div className="mt-6 flex justify-center gap-2 sm:justify-start">
+							{banners.map((banner, index) => (
+								<button
+									key={banner.id}
+									type="button"
+									onClick={() => goTo(index)}
+									aria-label={`${translate('common.goToBanner')} ${index + 1}`}
+									aria-current={index === activeIndex}
+									className={cn(
+										'h-2 cursor-pointer rounded-full transition-all',
+										index === activeIndex
+											? 'bg-primary w-8 dark:bg-white'
+											: 'bg-primary/20 hover:bg-primary/40 w-2 dark:bg-white/30',
+									)}
+								/>
+							))}
+						</div>
+					) : isDrawer ? (
 						<div
 							aria-live="polite"
 							className={cn('flex items-center gap-3 text-white tabular-nums', INDICATOR.drawer.container)}

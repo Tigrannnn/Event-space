@@ -1,7 +1,10 @@
-import type { BrandSkin } from '@event-space/shared';
+import type { BrandLook, BrandSkin } from '@event-space/shared';
 
 /** The catalogue grid, shared by the list and its skeleton so they never differ in shape. */
-export function eventsGridClass(skin: BrandSkin): string {
+export function eventsGridClass(skin: BrandSkin, look?: BrandLook): string {
+	if (look === 'capsule')
+		return 'mx-auto grid w-full max-w-[1400px] grid-cols-2 gap-x-3 gap-y-8 py-6 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-10 sm:py-8 lg:grid-cols-4';
+
 	if (skin === 'soft') return 'grid grid-cols-1 gap-5 py-5 sm:grid-cols-2 sm:gap-6 sm:py-6 lg:grid-cols-3 2xl:grid-cols-4';
 
 	if (skin === 'drawer')

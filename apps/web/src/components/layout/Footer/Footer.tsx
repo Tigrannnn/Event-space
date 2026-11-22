@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
 import { useCategories } from '@/features/categories/hooks/useCategories';
 import { getCategoryTranslation } from '@event-space/shared';
-import { useSkin } from '@/providers/BrandProvider';
+import { useLook, useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import ContactIcons from '../Header/ContactIcons';
 
@@ -21,8 +21,13 @@ export default function Footer() {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
-	const onColor = isListing || isSoft;
-	const muted = onColor ? 'text-white/75' : isDrawer ? 'text-gray-500 dark:text-white/60' : 'text-gray-500 dark:text-gray-400';
+	const isCapsule = useLook() === 'capsule';
+	const onColor = isListing || isSoft || isCapsule;
+	const muted = onColor
+		? 'text-white/75'
+		: isDrawer
+			? 'text-gray-500 dark:text-white/60'
+			: 'text-gray-500 dark:text-gray-400';
 	const linkHover = onColor
 		? 'hover:text-white hover:underline'
 		: isDrawer
@@ -42,11 +47,26 @@ export default function Footer() {
 				isSoft && 'mt-16 rounded-t-[2rem] sm:rounded-t-[2.5rem] sm:py-8',
 				isDrawer &&
 					'mt-16 rounded-t-[2.5rem] border-transparent bg-white/70 pt-10 text-gray-900 backdrop-blur-xl sm:px-8 sm:pt-14 sm:pb-8 dark:border-transparent dark:bg-neutral-900/80 dark:text-white',
-				isMarket && 'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
+				isMarket &&
+					!isCapsule &&
+					'mt-12 rounded-t-3xl border-transparent bg-gray-100 sm:py-8 dark:border-transparent dark:bg-neutral-900',
+				isCapsule &&
+					'mt-16 overflow-hidden rounded-t-[2.5rem] pt-10 sm:rounded-t-[4rem] sm:px-8 sm:pt-14 sm:pb-8',
 			)}
 		>
+			{isCapsule && (
+				<p
+					aria-hidden
+					className="mx-auto mb-8 max-w-7xl text-5xl leading-none font-black tracking-tight text-white/15 select-none sm:mb-12 sm:text-8xl lg:text-9xl"
+				>
+					{brand.name}
+				</p>
+			)}
+
 			{isDrawer && (
-				<p className="mx-auto mb-8 max-w-[1400px] text-4xl font-black tracking-tight sm:text-6xl">{brand.name}</p>
+				<p className="mx-auto mb-8 max-w-[1400px] text-4xl font-black tracking-tight sm:text-6xl">
+					{brand.name}
+				</p>
 			)}
 
 			{(isMinimal || isSoft || isMarket) && !isDrawer && (
@@ -56,7 +76,9 @@ export default function Footer() {
 			)}
 
 			{categories && categories.length > 0 && (
-				<nav className={`mx-auto mb-5 flex ${isDrawer ? 'max-w-[1400px]' : 'max-w-7xl'} flex-wrap gap-x-5 gap-y-2 text-sm ${muted}`}>
+				<nav
+					className={`mx-auto mb-5 flex ${isDrawer ? 'max-w-[1400px]' : 'max-w-7xl'} flex-wrap gap-x-5 gap-y-2 text-sm ${muted}`}
+				>
 					{categories.map((category) => (
 						<Link
 							key={category.id}

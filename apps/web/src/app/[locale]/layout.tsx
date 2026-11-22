@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist_Mono, Manrope } from 'next/font/google';
+import { Geist_Mono, Manrope, Montserrat } from 'next/font/google';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/fraunces';
 import '@fontsource-variable/noto-sans-armenian';
@@ -38,6 +38,13 @@ const fontSans = Manrope({
 	variable: '--font-sans-latin',
 	subsets: ['latin', 'cyrillic'],
 	weight: ['400', '500', '600', '700', '800'],
+	display: 'swap',
+});
+
+const fontMontserrat = Montserrat({
+	variable: '--font-montserrat',
+	subsets: ['latin', 'cyrillic'],
+	weight: ['400', '500', '600', '700', '800', '900'],
 	display: 'swap',
 });
 
@@ -115,7 +122,8 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			className={`notranslate ${fontSans.variable} ${geistMono.variable}`}
+			data-look={brand.look}
+			className={`notranslate ${fontSans.variable} ${fontMontserrat.variable} ${geistMono.variable}`}
 			suppressHydrationWarning
 		>
 			<head>

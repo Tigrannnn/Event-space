@@ -6,8 +6,8 @@ import { getBannerHref, getBannerTranslation, optimizeImageUrl } from '@event-sp
 import type { Banner, Locale } from '@event-space/shared';
 import { localizePath } from '@/lib/i18n/config';
 import { cn } from '@/utils/cn';
-import { useSkin } from '@/providers/BrandProvider';
-import { ArrowRight } from 'lucide-react';
+import { useLook, useSkin } from '@/providers/BrandProvider';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 interface BannerSlideProps {
 	banner: Banner;
@@ -49,6 +49,51 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = useLook() === 'capsule';
+
+	const capsuleContent = (
+		<div className="grid h-full w-full grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-6 sm:grid-cols-[1fr_1.15fr] sm:grid-rows-1 sm:gap-10 lg:gap-16">
+			<div className="flex flex-col justify-center gap-4 sm:gap-6">
+				{text.title && (
+					<p className="text-primary text-[2rem] leading-[1.05] font-black tracking-tight sm:text-5xl lg:text-6xl dark:text-white">
+						{text.title}
+					</p>
+				)}
+				{text.subtitle && (
+					<p className="max-w-md text-base font-medium text-gray-600 sm:text-lg dark:text-gray-300">
+						{text.subtitle}
+					</p>
+				)}
+				{href && (
+					<span className="bg-primary flex size-12 items-center justify-center rounded-full text-white sm:size-14">
+						<ArrowUpRight className="size-6" strokeWidth={2.5} />
+					</span>
+				)}
+			</div>
+			<div className="grid min-h-0 grid-cols-3 gap-2 sm:gap-4">
+				{[0, 50, 100].map((position) => (
+					<div
+						key={position}
+						className={cn(
+							'relative min-h-0 overflow-hidden rounded-full bg-gray-100 dark:bg-neutral-900',
+							position === 50 ? 'h-[72%]' : 'h-full',
+						)}
+					>
+						<Image
+							src={optimizeImageUrl(banner.imageUrl)}
+							alt=""
+							fill
+							sizes="(min-width: 640px) 20vw, 33vw"
+							priority={isPriority}
+							className="object-cover"
+							style={{ objectPosition: `${position}% 50%` }}
+							unoptimized
+						/>
+					</div>
+				))}
+			</div>
+		</div>
+	);
 
 	const minimalContent = (
 		<div className="grid h-full w-full grid-rows-[11rem_1fr] bg-gray-50 sm:grid-cols-5 sm:grid-rows-1 dark:bg-neutral-900">
@@ -79,7 +124,9 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 		</div>
 	);
 
-	const content = isMinimal ? (
+	const content = isCapsule ? (
+		capsuleContent
+	) : isMinimal ? (
 		minimalContent
 	) : (
 		<>
@@ -107,7 +154,9 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 					<p
 						className={cn(
 							'max-w-xl text-xl leading-tight font-black sm:text-3xl lg:text-4xl',
-							isSoft ? 'font-(family-name:--font-display)' : !isListing && !isMarket && !isDrawer && 'uppercase',
+							isSoft
+								? 'font-(family-name:--font-display)'
+								: !isListing && !isMarket && !isDrawer && 'uppercase',
 							isDark ? 'text-white' : 'text-gray-900',
 						)}
 					>

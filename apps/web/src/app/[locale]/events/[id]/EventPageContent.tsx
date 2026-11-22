@@ -32,12 +32,13 @@ import BookingSidebar from '@/features/bookings/components/BookingSidebar';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatDate } from '@/hooks/format';
 import { useLabels } from '@/hooks/labels/useLabels';
-import { useSkin } from '@/providers/BrandProvider';
+import { useLook, useSkin } from '@/providers/BrandProvider';
 import EventPageMinimal from './EventPageMinimal';
 import EventPageListing from './EventPageListing';
 import EventPageSoft from './EventPageSoft';
 import EventPageMarket from './EventPageMarket';
 import EventPageDrawer from './EventPageDrawer';
+import EventPageCapsule from './EventPageCapsule';
 
 interface EventPageContentProps {
 	initialEvent: Event;
@@ -248,7 +249,9 @@ function EventPageClassic({ initialEvent }: EventPageContentProps) {
 
 export default function EventPageContent(props: EventPageContentProps) {
 	const skin = useSkin();
+	const look = useLook();
 
+	if (look === 'capsule') return <EventPageCapsule {...props} />;
 	if (skin === 'minimal') return <EventPageMinimal {...props} />;
 	if (skin === 'listing') return <EventPageListing {...props} />;
 	if (skin === 'soft') return <EventPageSoft {...props} />;

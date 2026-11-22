@@ -28,6 +28,12 @@ export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market' | 
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
 
+/**
+ * A look built on top of a skin: it keeps the skin's pages, forms and modals, and replaces the
+ * parts a visitor sees first (font, header, banner, tour cards, tour page, footer).
+ */
+export type BrandLook = 'capsule';
+
 export type BrandModule = 'promoCodes' | 'dateDiscounts';
 
 export function isBrandModuleEnabled(brand: Brand, module: BrandModule): boolean {
@@ -37,6 +43,9 @@ export function isBrandModuleEnabled(brand: Brand, module: BrandModule): boolean
 export interface Brand {
 	name: string;
 	skin?: BrandSkin;
+	look?: BrandLook;
+	/** The wordmark drawn in the header instead of the name, for looks that show one. */
+	logo?: string;
 	disabledModules?: BrandModule[];
 	colorPrimary: string;
 	colorAccent: string;
@@ -349,6 +358,23 @@ const brands: Record<string, Brand> = {
 			location: { address: 'Teghut, Dilijan, Armenia', mapsUrl: 'https://maps.google.com/?q=Teghut,+Dilijan,+Armenia' },
 		},
 		about: placeholderAbout('Werelk Hiking Club'),
+	},
+	'lunatour.event-space.space': {
+		name: 'Luna Tour',
+		skin: 'market',
+		look: 'capsule',
+		colorPrimary: '#041D56',
+		colorAccent: '#4D6FE3',
+		description: siteConfig.description,
+		ogImage: '/brands/lunatour-icon.png',
+		logo: '/brands/lunatour-logo.svg',
+		contact: {
+			instagram: 'https://www.instagram.com/luna__tour/',
+			phone: '+374 93 546974',
+			email: 'info@lunatour.am',
+			location: { address: 'Paronyan 15/1, Yerevan, Armenia', mapsUrl: 'https://maps.google.com/?q=Paronyan+15/1,+Yerevan,+Armenia' },
+		},
+		about: placeholderAbout('Luna Tour'),
 	},
 };
 

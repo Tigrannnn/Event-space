@@ -4,6 +4,7 @@ import { createContext, useContext } from 'react';
 import {
 	DEFAULT_BRAND_SKIN,
 	isBrandModuleEnabled,
+	type BrandLook,
 	type BrandModule,
 	type BrandSkin,
 } from '@event-space/shared';
@@ -25,6 +26,10 @@ export function useBrand(): Brand {
 
 export function useSkin(): BrandSkin {
 	return useBrand().skin ?? DEFAULT_BRAND_SKIN;
+}
+
+export function useLook(): BrandLook | undefined {
+	return useBrand().look;
 }
 
 export function useModuleEnabled(module: BrandModule): boolean {
