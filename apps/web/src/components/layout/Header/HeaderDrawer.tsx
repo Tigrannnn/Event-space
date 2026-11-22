@@ -66,10 +66,7 @@ export default function HeaderDrawer() {
 					{inputValue && (
 						<button
 							type="button"
-							onClick={() => {
-								setInputValue('');
-								navigation.push('/', { scroll: false });
-							}}
+							onClick={() => setInputValue('')}
 							className="px-1 text-gray-400 hover:text-gray-700 dark:hover:text-white"
 							aria-label={translate('common.clearSearch')}
 						>

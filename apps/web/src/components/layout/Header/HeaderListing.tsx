@@ -122,10 +122,7 @@ export default function HeaderListing() {
 					{inputValue && (
 						<button
 							type="button"
-							onClick={() => {
-								setInputValue('');
-								navigation.push('/', { scroll: false });
-							}}
+							onClick={() => setInputValue('')}
 							className="px-2 text-gray-400 hover:text-gray-700"
 							aria-label={translate('common.clearSearch')}
 						>

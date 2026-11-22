@@ -127,10 +127,7 @@ export default function HeaderSoft() {
 					{inputValue && (
 						<button
 							type="button"
-							onClick={() => {
-								setInputValue('');
-								navigation.push('/', { scroll: false });
-							}}
+							onClick={() => setInputValue('')}
 							className="mr-1 rounded-full p-1.5 text-gray-400 hover:text-gray-700"
 							aria-label={translate('common.clearSearch')}
 						>
