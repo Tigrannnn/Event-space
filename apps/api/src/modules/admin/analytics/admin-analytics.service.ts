@@ -43,7 +43,7 @@ export class AdminAnalyticsService {
 	async sources(from: string, to: string): Promise<SourceStats> {
 		const createdAt = { gte: startOfDay(from), lte: endOfDay(to) };
 
-		const [byRef, overall, perDay, bookings, sources, partners] = await Promise.all([
+		const [byRef, overall, perDay, newPerDay, bookings, sources, partners] = await Promise.all([
 			this.prisma.$queryRaw<ActivityRow[]>(Prisma.sql`
 				SELECT source_ref AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
 				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
@@ -57,6 +57,14 @@ export class AdminAnalyticsService {
 				where: { type: 'VISIT', day: { gte: from, lte: to } },
 				_count: { _all: true },
 			}),
+			this.prisma.$queryRaw<{ day: string; count: bigint | number }[]>(Prisma.sql`
+				SELECT first_day AS day, COUNT(*) AS count
+				FROM (
+					SELECT MIN(day) AS first_day FROM analytics_events
+					WHERE type = 'VISIT' GROUP BY visitor_id
+				) AS firsts
+				WHERE first_day BETWEEN ${from} AND ${to}
+				GROUP BY first_day`),
 			this.prisma.booking.findMany({
 				where: { createdAt, status: 'CONFIRMED' },
 				select: { sourceId: true, createdByAdminId: true, amount: true },
@@ -84,7 +92,11 @@ export class AdminAnalyticsService {
 			counts(source.id)[field] += Number(row.count);
 		}
 
-		const totals = emptyCounts();
+		const newVisitorsByDay = new Map(newPerDay.map((row) => [row.day, Number(row.count)]));
+		const totals = {
+			...emptyCounts(),
+			newVisitors: [...newVisitorsByDay.values()].reduce((sum, count) => sum + count, 0),
+		};
 		for (const row of overall) {
 			const field = ACTIVITY_FIELD[row.type];
 			if (field) totals[field] = Number(row.count);
@@ -105,7 +117,11 @@ export class AdminAnalyticsService {
 
 		return {
 			totals,
-			days: daysBetween(from, to).map((date) => ({ date, visitors: visitorsByDay.get(date) ?? 0 })),
+			days: daysBetween(from, to).map((date) => ({
+				date,
+				visitors: visitorsByDay.get(date) ?? 0,
+				newVisitors: newVisitorsByDay.get(date) ?? 0,
+			})),
 			rows: [...rows.entries()]
 				.map(([key, sum]) => ({ source: key === NONE ? null : (sourceById.get(key) ?? null), ...sum }))
 				.sort(

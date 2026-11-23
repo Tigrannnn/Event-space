@@ -29,6 +29,7 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 
 	const numbers = [
 		{ label: translate('admin.statsVisitors'), value: data?.totals.visitors },
+		{ label: translate('admin.statsNewVisitors'), value: data?.totals.newVisitors },
 		{ label: translate('admin.statsViewedTours'), value: data?.totals.viewedTours },
 		{ label: translate('admin.statsStartedBooking'), value: data?.totals.startedBooking },
 		{ label: translate('admin.statsSiteBookings'), value: data?.totals.siteBookings },
@@ -38,7 +39,7 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 		<section className="rounded-lg border border-gray-500 p-5 shadow-sm">
 			<h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">{translate('admin.statsSummaryTitle')}</h2>
 
-			<div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+			<div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
 				{numbers.map((item) => (
 					<div key={item.label} className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
 						<p className="text-xs text-gray-500">{item.label}</p>
@@ -82,6 +83,15 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 									name={translate('admin.statsVisitorsPerDay')}
 									stroke="var(--color-primary)"
 									fill="var(--color-primary)"
+									fillOpacity={0.15}
+									strokeWidth={2}
+								/>
+								<Area
+									type="monotone"
+									dataKey="newVisitors"
+									name={translate('admin.statsNewVisitorsPerDay')}
+									stroke="#10b981"
+									fill="#10b981"
 									fillOpacity={0.15}
 									strokeWidth={2}
 								/>
