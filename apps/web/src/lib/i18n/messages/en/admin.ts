@@ -214,7 +214,7 @@ export const admin = {
 	addChannelOption: '+ Add a channel',
 	noChannels: 'No channels yet',
 	channelSaveFailed: 'Could not save the channel',
-	sources: 'Sources',
+	sources: 'Partners',
 	sourcesHint: 'Partners who send you customers: hotels, guides, friends. Each gets its own link and QR code, and whoever comes by them counts for that partner. Instagram, Google and other platforms are recognised by themselves and need no link.',
 	addSource: 'Add partner',
 	editSource: 'Edit partner',

@@ -86,7 +86,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CHANNEL_SYSTEM_LOCKED]: 'Системный канал изменить нельзя.',
 	[AppErrorCode.SOURCE_NOT_FOUND]: 'Источник не найден.',
 	[AppErrorCode.SOURCE_NOT_AVAILABLE]: 'Этот источник в архиве. Верните его или выберите другой.',
-	[AppErrorCode.SOURCE_NAME_TAKEN]: 'Источник с таким названием уже есть. Возможно, он в архиве.',
+	[AppErrorCode.SOURCE_NAME_TAKEN]: 'Партнёр с таким названием уже есть. Возможно, он в архиве.',
 	[AppErrorCode.SOURCE_CODE_TAKEN]: 'Партнёр с такой ссылкой уже есть. Возможно, он в архиве.',
 	[AppErrorCode.SOURCE_PLATFORM_LOCKED]: 'Площадки определяются сами, их нельзя изменить.',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'На эту дату не осталось мест.',

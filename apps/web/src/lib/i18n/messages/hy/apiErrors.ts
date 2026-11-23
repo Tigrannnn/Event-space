@@ -86,7 +86,7 @@ export const apiErrors: Messages['apiErrors'] = {
 	[AppErrorCode.CHANNEL_SYSTEM_LOCKED]: 'Համակարգային ալիքը փոխել հնարավոր չէ։',
 	[AppErrorCode.SOURCE_NOT_FOUND]: 'Աղբյուրը չի գտնվել։',
 	[AppErrorCode.SOURCE_NOT_AVAILABLE]: 'Այս աղբյուրը արխիվում է։ Վերադարձրեք այն կամ ընտրեք մեկ այլ։',
-	[AppErrorCode.SOURCE_NAME_TAKEN]: 'Այս անվանումով աղբյուր արդեն կա։ Հնարավոր է՝ արխիվում է։',
+	[AppErrorCode.SOURCE_NAME_TAKEN]: 'Այս անվանումով գործընկեր արդեն կա։ Հնարավոր է՝ արխիվում է։',
 	[AppErrorCode.SOURCE_CODE_TAKEN]: 'Այս հղումով գործընկեր արդեն կա։ Հնարավոր է՝ արխիվում է։',
 	[AppErrorCode.SOURCE_PLATFORM_LOCKED]: 'Հարթակները որոշվում են ինքնաշխատ, դրանք փոխել հնարավոր չէ։',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'Այս ամսաթվին տեղեր չեն մնացել։',

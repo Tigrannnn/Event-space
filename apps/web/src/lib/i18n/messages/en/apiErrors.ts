@@ -92,7 +92,7 @@ export const apiErrors: Record<AppErrorCode, string> = {
 	[AppErrorCode.CHANNEL_SYSTEM_LOCKED]: 'A system channel cannot be changed.',
 	[AppErrorCode.SOURCE_NOT_FOUND]: 'Source not found.',
 	[AppErrorCode.SOURCE_NOT_AVAILABLE]: 'This source is archived. Restore it or pick another one.',
-	[AppErrorCode.SOURCE_NAME_TAKEN]: 'A source with this name already exists. It may be archived.',
+	[AppErrorCode.SOURCE_NAME_TAKEN]: 'A partner with this name already exists. It may be archived.',
 	[AppErrorCode.SOURCE_CODE_TAKEN]: 'A partner with this link already exists. It may be archived.',
 	[AppErrorCode.SOURCE_PLATFORM_LOCKED]: 'Platforms are recognised by themselves and cannot be changed.',
 	[AppErrorCode.NO_SPOTS_AVAILABLE]: 'No spots are left for this date.',
