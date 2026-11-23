@@ -36,16 +36,6 @@ const nextConfig: NextConfig = {
 	turbopack: {
 		resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
 	},
-	async redirects() {
-		return [
-			{ source: '/admin/sources', destination: '/admin/partners', permanent: true },
-			{
-				source: '/:locale(hy|ru|en)/admin/sources',
-				destination: '/:locale/admin/partners',
-				permanent: true,
-			},
-		];
-	},
 	async rewrites() {
 		return [
 			{
