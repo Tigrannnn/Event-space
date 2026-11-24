@@ -130,10 +130,14 @@ export const SourceStatsDaySchema = z.object({
 	date: z.string(),
 	visitors: z.number().int(),
 	newVisitors: z.number().int(),
+	visits: z.number().int(),
 });
 
 export const SourceStatsSchema = z.object({
-	totals: SourceStatsRowSchema.omit({ source: true }).extend({ newVisitors: z.number().int() }),
+	totals: SourceStatsRowSchema.omit({ source: true }).extend({
+		newVisitors: z.number().int(),
+		visits: z.number().int(),
+	}),
 	rows: z.array(SourceStatsRowSchema),
 	days: z.array(SourceStatsDaySchema),
 });

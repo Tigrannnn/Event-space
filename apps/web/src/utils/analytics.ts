@@ -1,4 +1,6 @@
 import {
+	ANALYTICS_VISIT_COOKIE,
+	ANALYTICS_VISIT_IDLE_MINUTES,
 	ANALYTICS_VISITOR_COOKIE,
 	ANALYTICS_VISITOR_MAX_AGE_DAYS,
 	type AnalyticsEventType,
@@ -22,18 +24,44 @@ function newId(): string {
 	});
 }
 
+function writeCookie(name: string, value: string, maxAgeSeconds: number): void {
+	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+	document.cookie = `${name}=${value}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax${secure}`;
+}
+
 function visitorId(): string {
 	const existing = readCookie(ANALYTICS_VISITOR_COOKIE);
 	const id = existing && UUID_PATTERN.test(existing) ? existing : newId();
-
-	const maxAge = ANALYTICS_VISITOR_MAX_AGE_DAYS * 24 * 60 * 60;
-	const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-	document.cookie = `${ANALYTICS_VISITOR_COOKIE}=${id}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+	writeCookie(ANALYTICS_VISITOR_COOKIE, id, ANALYTICS_VISITOR_MAX_AGE_DAYS * 24 * 60 * 60);
 	return id;
+}
+
+function continueVisit(): { id: string; isNew: boolean } {
+	const today = new Date().toLocaleDateString('en-CA');
+	const [existing, day] = (readCookie(ANALYTICS_VISIT_COOKIE) ?? '').split('_');
+	const isNew = !existing || !UUID_PATTERN.test(existing) || day !== today;
+	const id = isNew ? newId() : existing;
+	writeCookie(ANALYTICS_VISIT_COOKIE, `${id}_${today}`, ANALYTICS_VISIT_IDLE_MINUTES * 60);
+	return { id, isNew };
+}
+
+function trackVisit(): void {
+	const visit = continueVisit();
+	if (!visit.isNew) return;
+
+	void clientApi
+		.post('/analytics/track', {
+			type: 'VISIT',
+			visitorId: visitorId(),
+			visitId: visit.id,
+			ref: readSourceRef(),
+		})
+		.catch(() => writeCookie(ANALYTICS_VISIT_COOKIE, '', 0));
 }
 
 export function trackAnalytics(type: AnalyticsEventType, eventId?: string): void {
 	if (typeof window === 'undefined') return;
+	if (type === 'VISIT') return trackVisit();
 
 	const key = `${type}:${eventId ?? ''}:${new Date().toDateString()}`;
 	if (sent.has(key)) return;

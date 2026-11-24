@@ -52,11 +52,10 @@ export class AdminAnalyticsService {
 				SELECT NULL AS ref, type::text AS type, COUNT(DISTINCT visitor_id) AS count
 				FROM analytics_events WHERE day BETWEEN ${from} AND ${to}
 				GROUP BY type`),
-			this.prisma.analyticsEvent.groupBy({
-				by: ['day'],
-				where: { type: 'VISIT', day: { gte: from, lte: to } },
-				_count: { _all: true },
-			}),
+			this.prisma.$queryRaw<{ day: string; visitors: bigint | number; visits: bigint | number }[]>(Prisma.sql`
+				SELECT day, COUNT(DISTINCT visitor_id) AS visitors, COUNT(*) AS visits
+				FROM analytics_events WHERE type = 'VISIT' AND day BETWEEN ${from} AND ${to}
+				GROUP BY day`),
 			this.prisma.$queryRaw<{ day: string; count: bigint | number }[]>(Prisma.sql`
 				SELECT first_day AS day, COUNT(*) AS count
 				FROM (
@@ -96,6 +95,7 @@ export class AdminAnalyticsService {
 		const totals = {
 			...emptyCounts(),
 			newVisitors: [...newVisitorsByDay.values()].reduce((sum, count) => sum + count, 0),
+			visits: perDay.reduce((sum, row) => sum + Number(row.visits), 0),
 		};
 		for (const row of overall) {
 			const field = ACTIVITY_FIELD[row.type];
@@ -113,14 +113,15 @@ export class AdminAnalyticsService {
 
 		for (const partner of partners) counts(partner.id);
 
-		const visitorsByDay = new Map(perDay.map((row) => [row.day, row._count._all]));
+		const visitorsByDay = new Map(perDay.map((row) => [row.day, row]));
 
 		return {
 			totals,
 			days: daysBetween(from, to).map((date) => ({
 				date,
-				visitors: visitorsByDay.get(date) ?? 0,
+				visitors: Number(visitorsByDay.get(date)?.visitors ?? 0),
 				newVisitors: newVisitorsByDay.get(date) ?? 0,
+				visits: Number(visitorsByDay.get(date)?.visits ?? 0),
 			})),
 			rows: [...rows.entries()]
 				.map(([key, sum]) => ({ source: key === NONE ? null : (sourceById.get(key) ?? null), ...sum }))

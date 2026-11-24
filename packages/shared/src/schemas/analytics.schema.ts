@@ -3,6 +3,8 @@ import { AnalyticsEventTypeSchema } from '../generated/inputTypeSchemas/Analytic
 
 export const ANALYTICS_VISITOR_COOKIE = 'es_vid';
 export const ANALYTICS_VISITOR_MAX_AGE_DAYS = 365;
+export const ANALYTICS_VISIT_COOKIE = 'es_visit';
+export const ANALYTICS_VISIT_IDLE_MINUTES = 30;
 
 export const AnalyticsEventTypeEnum = AnalyticsEventTypeSchema;
 export type AnalyticsEventType = z.infer<typeof AnalyticsEventTypeEnum>;
@@ -11,6 +13,7 @@ export const TrackAnalyticsSchema = z
 	.object({
 		type: AnalyticsEventTypeEnum,
 		visitorId: z.string().uuid(),
+		visitId: z.string().uuid().optional(),
 		eventId: z.string().uuid().optional(),
 		ref: z.string().max(200).optional(),
 	})

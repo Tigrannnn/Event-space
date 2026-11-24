@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+	Area,
+	AreaChart,
+	CartesianGrid,
+	ResponsiveContainer,
+	Tooltip,
+	XAxis,
+	YAxis,
+} from 'recharts';
 import { useSourceStats } from '@/features/admin/hooks/useAdmin';
 import { useFormatDate } from '@/hooks/format';
 import { useSourceLabel } from '@/hooks/labels/useSourceLabel';
@@ -25,11 +33,14 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 	const { data, isLoading } = useSourceStats(from, to);
 
 	const href = `${localizePath('/admin/traffic', translate.locale)}?from=${from}&to=${to}`;
-	const top = (data?.rows ?? []).filter((row) => row.source && row.visitors > 0).slice(0, TOP_SOURCES);
+	const top = (data?.rows ?? [])
+		.filter((row) => row.source && row.visitors > 0)
+		.slice(0, TOP_SOURCES);
 
 	const numbers = [
 		{ label: translate('admin.statsVisitors'), value: data?.totals.visitors },
 		{ label: translate('admin.statsNewVisitors'), value: data?.totals.newVisitors },
+		{ label: translate('admin.statsVisits'), value: data?.totals.visits },
 		{ label: translate('admin.statsViewedTours'), value: data?.totals.viewedTours },
 		{ label: translate('admin.statsStartedBooking'), value: data?.totals.startedBooking },
 		{ label: translate('admin.statsSiteBookings'), value: data?.totals.siteBookings },
@@ -37,9 +48,11 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 
 	return (
 		<section className="rounded-lg border border-gray-500 p-5 shadow-sm">
-			<h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">{translate('admin.statsSummaryTitle')}</h2>
+			<h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100">
+				{translate('admin.statsSummaryTitle')}
+			</h2>
 
-			<div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+			<div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
 				{numbers.map((item) => (
 					<div key={item.label} className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
 						<p className="text-xs text-gray-500">{item.label}</p>
@@ -79,6 +92,15 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 								/>
 								<Area
 									type="monotone"
+									dataKey="visits"
+									name={translate('admin.statsVisitsPerDay')}
+									stroke="#f59e0b"
+									fill="#f59e0b"
+									fillOpacity={0.08}
+									strokeWidth={2}
+								/>
+								<Area
+									type="monotone"
 									dataKey="visitors"
 									name={translate('admin.statsVisitorsPerDay')}
 									stroke="var(--color-primary)"
@@ -108,7 +130,9 @@ export default function SourceSummaryWidget({ from, to }: SourceSummaryWidgetPro
 						{top.map((row) => (
 							<li key={row.source?.id} className="flex justify-between gap-3">
 								<span className="truncate text-gray-900 dark:text-gray-100">{sourceLabel(row)}</span>
-								<span className="font-medium text-gray-900 tabular-nums dark:text-gray-100">{row.visitors}</span>
+								<span className="font-medium text-gray-900 tabular-nums dark:text-gray-100">
+									{row.visitors}
+								</span>
 							</li>
 						))}
 						{!isLoading && top.length === 0 && <li className="text-gray-500">—</li>}

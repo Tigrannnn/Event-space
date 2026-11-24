@@ -45,6 +45,18 @@ describe('AnalyticsService.track', () => {
 		});
 	});
 
+	it('keys a visit by its arrival, so every arrival of the day is its own row', async () => {
+		const { service, createMany } = setup();
+		const first = '0b6f6a1e-8c1d-4b8e-9a51-2a6f0c3d4e5f';
+		const second = '7d2e4c90-1f3a-4b6c-8d9e-0a1b2c3d4e5f';
+
+		await service.track({ type: 'VISIT', visitorId: VISITOR, visitId: first }, { userAgent: CHROME }, NOW);
+		await service.track({ type: 'VISIT', visitorId: VISITOR, visitId: second }, { userAgent: CHROME }, NOW);
+
+		expect(createMany.mock.calls.map((call) => call[0].data[0].targetKey)).toEqual([first, second]);
+		expect(createMany.mock.calls[0][0].data[0].eventId).toBeNull();
+	});
+
 	it('keys a tour view by the tour', async () => {
 		const { service, createMany } = setup();
 

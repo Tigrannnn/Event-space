@@ -27,7 +27,7 @@ export class AnalyticsService {
 						type: data.type,
 						visitorId: data.visitorId,
 						day: toDateKey(now),
-						targetKey: eventId ?? '',
+						targetKey: data.type === 'VISIT' ? (data.visitId ?? '') : (eventId ?? ''),
 						eventId,
 						sourceRef,
 					},
