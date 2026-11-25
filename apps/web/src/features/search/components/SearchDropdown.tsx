@@ -8,6 +8,7 @@ import { useSkin } from '@/providers/BrandProvider';
 import { useTranslation } from '@/hooks/translation';
 import { useFormatCurrency, useFormatDate } from '@/hooks/format';
 import { EventImageWithFallback } from '@/features/events/components/EventImage';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { cn } from '@/utils/cn';
 import type { SearchBox, SearchItem } from '../hooks/useSearchBox';
 
@@ -115,6 +116,28 @@ const LOOK: Record<BrandSkin, Look> = {
 };
 
 /** Skins whose whole header stands out while the search is open, instead of just the field. */
+const PLACEHOLDER_ROWS = 4;
+
+function PlaceholderRows({ look }: { look: Look }) {
+	return (
+		<div aria-busy>
+			<div className={look.heading}>
+				<Skeleton className="h-4 w-32" />
+			</div>
+			{Array.from({ length: PLACEHOLDER_ROWS }, (_, index) => (
+				<div key={index} className={cn(look.row, 'cursor-default')}>
+					<Skeleton className={cn('size-11 shrink-0', look.thumb)} />
+					<span className="flex min-w-0 flex-1 flex-col gap-2">
+						<Skeleton className="h-3.5 w-3/5" />
+						<Skeleton className="h-3 w-2/5" />
+					</span>
+					<Skeleton className="h-4 w-14" />
+				</div>
+			))}
+		</div>
+	);
+}
+
 const HEADER_STANDS_OUT: ReadonlySet<BrandSkin> = new Set(['listing', 'market', 'soft']);
 
 /**
@@ -167,7 +190,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 	const { formatDateShort } = useFormatDate();
 
 	if (!box.open) return null;
-	if (box.items.length === 0) return <SearchClickCatcher box={box} skin={skin} />;
+	if (box.items.length === 0 && !box.isLoading) return <SearchClickCatcher box={box} skin={skin} />;
 
 	const eventRow = (item: Extract<SearchItem, { kind: 'event' }>, index: number) => {
 		const event: SearchSuggestedEvent = item.event;
@@ -269,6 +292,7 @@ export function SearchDropdown({ box }: { box: SearchBox }) {
 					look.panel,
 				)}
 			>
+				{box.items.length === 0 && <PlaceholderRows look={look} />}
 				{box.nothingFound && (
 					<p className={cn('px-5 py-3', look.meta)}>
 						{translate('search.nothingFound', { query: box.text })}

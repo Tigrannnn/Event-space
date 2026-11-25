@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
 	SearchHistoryItem,
 	SearchSuggestedCategory,
@@ -15,6 +15,10 @@ import { SEARCH_HISTORY_KEY, useForgetSearchQuery } from './useSearchHistory';
 const MIN_QUERY_LENGTH = 2;
 const TYPING_DELAY_MS = 200;
 const HISTORY_MATCHES_SHOWN = 3;
+const RECOMMENDED_KEY = ['search', 'recommended'];
+const RECOMMENDED_STALE_MS = 5 * 60 * 1000;
+const HISTORY_STALE_MS = 60 * 1000;
+const IDLE_TIMEOUT_MS = 3000;
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
 
@@ -35,6 +39,47 @@ function useTypingDelay(value: string): string {
 	return delayed;
 }
 
+function whenIdle(task: () => void): () => void {
+	if (typeof window.requestIdleCallback === 'function') {
+		const id = window.requestIdleCallback(task, { timeout: IDLE_TIMEOUT_MS });
+		return () => window.cancelIdleCallback(id);
+	}
+	const id = window.setTimeout(task, IDLE_TIMEOUT_MS / 2);
+	return () => window.clearTimeout(id);
+}
+
+function usePrefetchEmptyField(userId: string | undefined) {
+	const queryClient = useQueryClient();
+
+	useEffect(
+		() =>
+			whenIdle(() => {
+				void queryClient
+					.fetchQuery({
+						queryKey: RECOMMENDED_KEY,
+						queryFn: () => searchApi.getRecommended(),
+						staleTime: RECOMMENDED_STALE_MS,
+					})
+					.then((tours) => {
+						for (const tour of tours) if (tour.imageUrl) new Image().src = tour.imageUrl;
+					})
+					.catch(() => undefined);
+			}),
+		[queryClient],
+	);
+
+	useEffect(() => {
+		if (!userId) return;
+		return whenIdle(() => {
+			void queryClient.prefetchQuery({
+				queryKey: SEARCH_HISTORY_KEY,
+				queryFn: () => searchApi.getHistory(),
+				staleTime: HISTORY_STALE_MS,
+			});
+		});
+	}, [queryClient, userId]);
+}
+
 interface UseSearchBoxParams {
 	value: string;
 	setValue: (value: string) => void;
@@ -49,6 +94,7 @@ interface UseSearchBoxParams {
 export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 	const navigation = useLocalizedNavigation();
 	const { data: user } = useCurrentUser();
+	usePrefetchEmptyField(user?.id);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [open, setOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(-1);
@@ -66,17 +112,17 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 	});
 
 	const recommended = useQuery({
-		queryKey: ['search', 'recommended'],
+		queryKey: RECOMMENDED_KEY,
 		queryFn: () => searchApi.getRecommended(),
 		enabled: open && !typing,
-		staleTime: 5 * 60 * 1000,
+		staleTime: RECOMMENDED_STALE_MS,
 	});
 
 	const history = useQuery({
 		queryKey: SEARCH_HISTORY_KEY,
 		queryFn: () => searchApi.getHistory(),
 		enabled: open && Boolean(user),
-		staleTime: 60 * 1000,
+		staleTime: HISTORY_STALE_MS,
 	});
 
 	const forget = useForgetSearchQuery();
@@ -233,7 +279,9 @@ export function useSearchBox({ value, setValue, submit }: UseSearchBoxParams) {
 		close,
 		onKeyDown,
 		forgetHistory: (id: string) => forget.mutate(id),
-		isLoading: typing ? suggestions.isFetching && !suggestions.data : false,
+		isLoading: typing
+			? suggestions.isFetching && !suggestions.data
+			: recommended.isPending || (Boolean(user) && history.isPending),
 		nothingFound:
 			typing &&
 			suggestions.isSuccess &&
