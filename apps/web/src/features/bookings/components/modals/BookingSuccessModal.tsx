@@ -201,7 +201,7 @@ function DetailRow({ skin, icon, label, value, href }: DetailRowProps) {
 		<p className={row.value}>{value}</p>
 	);
 
-	if (skin === 'listing' || skin === 'market' || skin === 'drawer') {
+	if (skin === 'listing' || skin === 'market' || skin === 'drawer' || skin === 'capsule') {
 		return (
 			<div className={row.box}>
 				<span className={row.icon}>{icon}</span>
@@ -352,6 +352,23 @@ const SUCCESS_UI: Record<BrandSkin, SuccessUi> = {
 			'mt-4 rounded-[1.75rem] bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10',
 		includedLabel: 'text-primary font-(family-name:--font-display) text-base font-semibold',
 	},
+	// An arch of the brand's deep colour, like the photos in the catalogue, with the tick inside.
+	capsule: {
+		hero: 'capsule-pattern mt-8 rounded-t-[999px] rounded-b-[2rem] px-6 pt-14 pb-8 text-white',
+		badge: 'mb-4 flex size-14 items-center justify-center rounded-full bg-white',
+		badgeIcon: 'text-primary size-7',
+		heroText: '',
+		title: 'text-2xl font-black tracking-tight sm:text-3xl',
+		lead: 'mt-2 max-w-md text-sm font-medium text-white/75',
+		ref: 'mt-5 rounded-full bg-(--capsule-wash) px-6 py-4 text-center',
+		refLabel: 'capsule-star text-primary/60 text-xs font-bold',
+		refRow: 'mt-1 flex items-center justify-center gap-2',
+		refNumber: 'text-primary text-2xl font-black tracking-wider',
+		refTip: 'mt-0.5 text-xs font-medium text-gray-500',
+		grid: 'mt-4 grid gap-2 sm:grid-cols-2',
+		included: 'mt-4 rounded-[2rem] border border-(--capsule-line) p-5',
+		includedLabel: 'capsule-star text-primary text-sm font-extrabold',
+	},
 };
 
 interface DetailUi {
@@ -404,5 +421,12 @@ const DETAIL_UI: Record<BrandSkin, DetailUi> = {
 		label: 'text-xs font-medium',
 		value:
 			'mt-2 block font-(family-name:--font-display) text-base font-semibold text-gray-900 dark:text-white',
+	},
+	capsule: {
+		box: 'flex items-center gap-3 rounded-[1.75rem] bg-(--capsule-wash) py-2 pr-5 pl-2',
+		head: '',
+		icon: 'text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm',
+		label: 'text-[11px] font-semibold text-gray-500',
+		value: 'text-primary text-sm font-bold',
 	},
 };

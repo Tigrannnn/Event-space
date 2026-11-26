@@ -23,6 +23,7 @@ const WRAPPER: Record<BrandSkin, string> = {
 	soft: 'right-4 bottom-24 left-4 sm:right-8 sm:bottom-8 sm:left-auto sm:w-96',
 	market: 'right-4 bottom-20 left-4 items-center sm:right-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2',
 	drawer: 'right-4 bottom-20 left-4 items-center sm:right-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2',
+	capsule: 'top-4 right-4 left-4 items-center sm:top-24 sm:right-auto sm:left-1/2 sm:-translate-x-1/2',
 };
 
 const VARIANTS: Record<BrandSkin, Variants> = {
@@ -32,6 +33,7 @@ const VARIANTS: Record<BrandSkin, Variants> = {
 	soft: ToastVariantsByPlacement.fromBottom,
 	market: ToastVariantsByPlacement.fromBottom,
 	drawer: ToastVariantsByPlacement.fromBottom,
+	capsule: ToastVariantsByPlacement.fromTop,
 };
 
 function ClassicToast({ toast }: { toast: Toast }) {
@@ -107,6 +109,32 @@ function SoftToast({ toast }: { toast: Toast }) {
 	);
 }
 
+const CAPSULE_MARK: Record<ToastType, string> = {
+	success: 'bg-white text-primary',
+	error: 'bg-red-500 text-white',
+	info: 'bg-white/15 text-white',
+};
+
+/** A deep-coloured capsule dropping in from the top, the icon in a white circle at its start. */
+function CapsuleToast({ toast }: { toast: Toast }) {
+	const Icon = ICON[toast.type];
+
+	return (
+		<div className="capsule-pattern flex max-w-md items-center gap-3 rounded-full py-2 pr-6 pl-2 text-white shadow-xl">
+			<span
+				className={cn(
+					'flex size-9 shrink-0 items-center justify-center rounded-full',
+					CAPSULE_MARK[toast.type],
+				)}
+			>
+				<Icon className="size-4.5" strokeWidth={2.5} />
+			</span>
+			<p className="flex-1 text-sm font-semibold">{toast.message}</p>
+			<span className="text-xs text-white/40">✦</span>
+		</div>
+	);
+}
+
 const BODY: Record<BrandSkin, (props: { toast: Toast }) => React.ReactElement> = {
 	classic: ClassicToast,
 	minimal: MinimalToast,
@@ -114,6 +142,7 @@ const BODY: Record<BrandSkin, (props: { toast: Toast }) => React.ReactElement> =
 	soft: SoftToast,
 	market: MinimalToast,
 	drawer: MinimalToast,
+	capsule: CapsuleToast,
 };
 
 export function ToastContainer() {

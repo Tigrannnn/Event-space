@@ -34,6 +34,7 @@ export default function BookingsPageContent() {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
 	const {
 		data,
@@ -146,6 +147,8 @@ export default function BookingsPageContent() {
 			className={
 				isListing
 					? 'mx-auto min-h-full w-full max-w-[1336px] px-4 py-6 sm:px-6 lg:px-8'
+					: isCapsule
+						? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 lg:px-8'
 					: isDrawer
 						? 'mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8'
 						: isSoft
@@ -156,7 +159,7 @@ export default function BookingsPageContent() {
 			}
 		>
 			<div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-				<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white in-data-[skin=drawer]:text-4xl in-data-[skin=drawer]:font-black in-data-[skin=drawer]:tracking-tight">
+				<h1 className="flex items-center gap-3 text-3xl font-bold text-gray-900 dark:text-white in-data-[skin=drawer]:text-4xl in-data-[skin=drawer]:font-black in-data-[skin=drawer]:tracking-tight in-data-[skin=capsule]:capsule-star in-data-[skin=capsule]:block in-data-[skin=capsule]:text-primary in-data-[skin=capsule]:text-4xl in-data-[skin=capsule]:font-black in-data-[skin=capsule]:tracking-tight">
 					{isSoft && (
 						<span className="bg-accent/10 text-accent flex size-11 items-center justify-center rounded-full">
 							<Ticket className="size-5" />
@@ -164,6 +167,39 @@ export default function BookingsPageContent() {
 					)}
 					{translate('booking.myBookings')}
 				</h1>
+				{isCapsule ? (
+					// The statuses as pills in one pale capsule instead of a dropdown.
+					<div
+						role="radiogroup"
+						aria-label={translate('booking.myBookings')}
+						className="flex max-w-full gap-1 overflow-x-auto rounded-full bg-(--capsule-wash) p-1 [scrollbar-width:none]"
+					>
+						{(
+							[
+								['ALL', 'booking.filterAll'],
+								['CONFIRMED', 'booking.filterConfirmed'],
+								['CHECKED_IN', 'booking.filterCheckedIn'],
+								['PENDING', 'booking.filterPending'],
+								['CANCELLED', 'booking.filterCancelled'],
+							] as const
+						).map(([value, label]) => (
+							<button
+								key={value}
+								type="button"
+								role="radio"
+								aria-checked={statusFilter === value}
+								onClick={() => setStatusFilter(value)}
+								className={`h-10 shrink-0 cursor-pointer rounded-full px-4 text-sm font-bold whitespace-nowrap transition-colors ${
+									statusFilter === value
+										? 'bg-primary text-white shadow-md shadow-primary/20'
+										: 'text-primary hover:bg-white'
+								}`}
+							>
+								{translate(label)}
+							</button>
+						))}
+					</div>
+				) : (
 				<div
 					className={`relative flex items-center border ${
 						isListing
@@ -191,6 +227,7 @@ export default function BookingsPageContent() {
 					</select>
 					<ChevronDown className="pointer-events-none absolute right-4 h-4 w-4 text-gray-500 dark:text-gray-400" />
 				</div>
+				)}
 			</div>
 
 			{bookings.length === 0 ? (
@@ -198,6 +235,8 @@ export default function BookingsPageContent() {
 					className={`p-8 text-center text-sm text-gray-500 dark:text-gray-400 ${
 						isListing
 							? 'rounded-lg border border-gray-200 bg-white dark:border-neutral-800 dark:bg-neutral-900'
+							: isCapsule
+								? 'text-primary rounded-full bg-(--capsule-wash) font-bold'
 							: isDrawer
 								? 'rounded-[2rem] bg-white dark:bg-neutral-900'
 							: isMinimal
@@ -214,6 +253,8 @@ export default function BookingsPageContent() {
 					className={
 						isListing
 							? 'grid grid-cols-1 gap-4 xl:grid-cols-2'
+							: isCapsule
+								? 'grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
 							: isSoft
 								? 'grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4'
 								: isDrawer

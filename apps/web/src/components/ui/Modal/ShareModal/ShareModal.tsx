@@ -68,7 +68,7 @@ export default function ShareModal() {
 
 	return (
 		<Modal ariaLabel={translate('event.share')} onClose={closeModal} size="sm" position="center">
-			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent">
+			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent in-data-[skin=capsule]:rounded-none in-data-[skin=capsule]:bg-transparent in-data-[skin=capsule]:shadow-none">
 				<h3 className="text-primary neutral:text-gray-900 neutral:dark:text-white mb-1 text-center text-xl font-black neutral:font-bold">
 					{translate('event.shareTitle')}
 				</h3>
@@ -82,7 +82,7 @@ export default function ShareModal() {
 							target="_blank"
 							rel="noopener noreferrer"
 							onClick={closeModal}
-							className="hover:border-primary flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 px-2 py-3 text-xs font-medium text-gray-700 transition-colors dark:border-gray-700 dark:text-gray-200 neutral:rounded-lg neutral:border-gray-300 neutral:dark:border-neutral-700"
+							className="hover:border-primary flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 px-2 py-3 text-xs font-medium text-gray-700 transition-colors dark:border-gray-700 dark:text-gray-200 neutral:rounded-lg neutral:border-gray-300 neutral:dark:border-neutral-700 in-data-[skin=capsule]:rounded-[1.5rem] in-data-[skin=capsule]:border-transparent in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:font-bold in-data-[skin=capsule]:text-primary in-data-[skin=capsule]:hover:border-primary"
 						>
 							<Icon className={`size-6 ${color ? '' : (tone ?? 'text-primary')}`} style={color ? { color } : undefined} />
 							{name}
@@ -90,7 +90,7 @@ export default function ShareModal() {
 					))}
 				</div>
 
-				<div className="mb-5 overflow-hidden rounded-xl bg-gray-100 p-3 text-center font-mono text-xs break-all dark:bg-gray-700 dark:text-gray-200 neutral:border neutral:border-gray-200 neutral:bg-gray-50 neutral:dark:border-neutral-700 neutral:dark:bg-neutral-800">
+				<div className="mb-5 overflow-hidden rounded-xl bg-gray-100 p-3 text-center font-mono text-xs break-all dark:bg-gray-700 dark:text-gray-200 neutral:border neutral:border-gray-200 neutral:bg-gray-50 neutral:dark:border-neutral-700 neutral:dark:bg-neutral-800 in-data-[skin=capsule]:rounded-full in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:text-primary">
 					{data.url}
 				</div>
 

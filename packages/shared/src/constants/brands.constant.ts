@@ -26,15 +26,9 @@ export interface BrandAboutContent {
  * How a site looks beyond its colours: layout of the header, the tour cards and the catalogue.
  * Two companies that sell side by side should not read as one site in two paints.
  */
-export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market' | 'drawer';
+export type BrandSkin = 'classic' | 'minimal' | 'listing' | 'soft' | 'market' | 'drawer' | 'capsule';
 
 export const DEFAULT_BRAND_SKIN: BrandSkin = 'classic';
-
-/**
- * A look built on top of a skin: it keeps the skin's pages, forms and modals, and replaces the
- * parts a visitor sees first (font, header, banner, tour cards, tour page, footer).
- */
-export type BrandLook = 'capsule';
 
 export type BrandModule = 'promoCodes' | 'dateDiscounts';
 
@@ -45,8 +39,7 @@ export function isBrandModuleEnabled(brand: Brand, module: BrandModule): boolean
 export interface Brand {
 	name: string;
 	skin?: BrandSkin;
-	look?: BrandLook;
-	/** The wordmark drawn in the header instead of the name, for looks that show one. */
+	/** The wordmark drawn in the header instead of the name, for skins that show one. */
 	logo?: string;
 	/** The same wordmark in light colours, for dark surfaces such as the capsule footer. */
 	logoOnDark?: string;
@@ -365,8 +358,7 @@ const brands: Record<string, Brand> = {
 	},
 	'lunatour.event-space.space': {
 		name: 'Luna Tour',
-		skin: 'market',
-		look: 'capsule',
+		skin: 'capsule',
 		colorPrimary: '#041D56',
 		colorAccent: '#4D6FE3',
 		description: siteConfig.description,

@@ -1,13 +1,12 @@
 'use client';
 
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 
 export default function EventCardSkeleton() {
 	const skin = useSkin();
-	const look = useLook();
 
-	if (look === 'capsule') {
+	if (skin === 'capsule') {
 		return (
 			<div>
 				<Skeleton className="aspect-4/5 w-full rounded-t-[999px] rounded-b-[2rem]" />

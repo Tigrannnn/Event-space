@@ -124,6 +124,26 @@ function BookingsSkeletonMarket() {
 	);
 }
 
+function BookingsSkeletonCapsule() {
+	return (
+		<div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+			<div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+				<Skeleton className="h-11 w-56 rounded-full" />
+				<Skeleton className="h-12 w-72 rounded-full" />
+			</div>
+			<div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
+				{Array.from({ length: 4 }).map((_, index) => (
+					<div key={index}>
+						<Skeleton className="aspect-4/5 w-full rounded-t-[999px] rounded-b-[2rem]" />
+						<Skeleton className="mt-4 h-5 w-4/5 rounded-full" />
+						<Skeleton className="mt-4 h-11 w-full rounded-full" />
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
 function BookingsSkeletonDrawer() {
 	return (
 		<div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">
@@ -143,7 +163,7 @@ function BookingsSkeletonDrawer() {
 export default function BookingsSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden in-data-[skin=capsule]:hidden">
 				<BookingsSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -160,6 +180,9 @@ export default function BookingsSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=drawer]:block">
 				<BookingsSkeletonDrawer />
+			</div>
+			<div className="hidden in-data-[skin=capsule]:block">
+				<BookingsSkeletonCapsule />
 			</div>
 		</>
 	);

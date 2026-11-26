@@ -133,6 +133,41 @@ export function FavoriteButton({ eventId, className, variant = 'overlay' }: Favo
 		);
 	}
 
+	if (skin === 'capsule') {
+		// A white circle with the heart in the brand's colour; once saved the circle fills with that
+		// colour and the heart turns white.
+		return (
+			<button
+				type="button"
+				onClick={handleClick}
+				aria-label={isFavorite ? translate('favorites.remove') : translate('favorites.add')}
+				aria-pressed={isFavorite}
+				className={cn(
+					'relative z-20 flex size-10 items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95',
+					isFavorite
+						? 'bg-primary shadow-md shadow-primary/30'
+						: variant === 'plain'
+							? 'bg-(--capsule-wash)'
+							: 'bg-white shadow-sm',
+					className,
+				)}
+				disabled={isUserLoading || isFavoritesLoading}
+			>
+				{isUserLoading || (isFavoritesLoading && user) ? (
+					<Skeleton className="size-4 rounded-full" />
+				) : (
+					<Heart
+						className={cn(
+							'size-4.5 transition-colors',
+							isFavorite ? 'fill-white stroke-white' : 'stroke-primary fill-transparent',
+						)}
+						strokeWidth={2.25}
+					/>
+				)}
+			</button>
+		);
+	}
+
 	if (isMarket) {
 		// The marketplace heart: a flat white disc on the photo (grey on the page), an outline
 		// that fills red once saved.

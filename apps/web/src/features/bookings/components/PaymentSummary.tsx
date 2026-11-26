@@ -36,7 +36,32 @@ export default function PaymentSummary({ title, date, quantity, total }: Payment
 		);
 	}
 
-	if ((skin === 'market' || skin === 'drawer')) {
+	if (skin === 'capsule') {
+		// A deep-coloured capsule: the tour and date on top, seats and total as two white pills.
+		return (
+			<div className="capsule-pattern rounded-[2rem] p-5 text-white">
+				{title && <p className="text-base font-extrabold">{title}</p>}
+				{date && (
+					<p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-white/70">
+						<Calendar className="size-4 shrink-0" />
+						{date}
+					</p>
+				)}
+				<div className="mt-4 flex items-center gap-2">
+					<span className="text-primary inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-bold">
+						<Users className="size-4" />
+						{quantity} {spotsLabel}
+					</span>
+					<span className="text-primary ml-auto inline-flex items-baseline gap-2 rounded-full bg-white px-4 py-2">
+						<span className="text-xs font-semibold text-gray-500">{totalLabel}</span>
+						<span className="text-lg font-black">{total}</span>
+					</span>
+				</div>
+			</div>
+		);
+	}
+
+	if (skin === 'market' || skin === 'drawer') {
 		return (
 			<div className="rounded-2xl border border-gray-200 p-4 dark:border-neutral-700">
 				{title && <p className="text-sm font-bold text-gray-900 dark:text-white">{title}</p>}

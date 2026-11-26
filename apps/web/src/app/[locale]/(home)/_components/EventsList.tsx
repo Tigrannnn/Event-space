@@ -12,7 +12,7 @@ import HomeError from '../error';
 import PageState from '@/components/ui/PageState';
 import { useTranslation } from '@/hooks/translation';
 import { useCategories } from '@/features/categories/hooks/useCategories';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 import { CATALOGUE_FETCH_LIMIT, CATALOGUE_MOBILE_PAGE, cataloguePageSize, eventsGridClass } from './events-grid';
 import {
 	EventsFiltersBar,
@@ -42,7 +42,6 @@ export default function EventsList({
 }: EventsListProps) {
 	const translate = useTranslation();
 	const skin = useSkin();
-	const look = useLook();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const locale = translate.locale;
@@ -218,7 +217,7 @@ export default function EventsList({
 	return (
 		<div>
 			{filtersBar}
-			<div ref={gridRef} className={eventsGridClass(skin, look)}>
+			<div ref={gridRef} className={eventsGridClass(skin)}>
 				{visibleEvents.map((event) => (
 					<EventCard key={event.id} event={event} />
 				))}

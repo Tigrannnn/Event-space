@@ -8,7 +8,7 @@ import HeaderSoft from './HeaderSoft';
 import HeaderMarket from './HeaderMarket';
 import HeaderDrawer from './HeaderDrawer';
 import HeaderCapsule from './HeaderCapsule';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 import TopBar from '@/components/ui/TopBar';
 import { usePathname } from 'next/navigation';
 import { isRouteActive } from '@/utils/route';
@@ -26,7 +26,6 @@ const SHOW_TOP_BAR_AT = 16;
 export default function HeaderWrapper() {
 	const pathname = usePathname();
 	const skin = useSkin();
-	const look = useLook();
 	const isAdminPage = isRouteActive(pathname, '/admin');
 	const headerRef = useRef<HTMLDivElement>(null);
 
@@ -86,7 +85,7 @@ export default function HeaderWrapper() {
 	return (
 		<Suspense fallback={<div className="h-20 animate-pulse bg-gray-100" />}>
 			<div ref={headerRef} className="sticky top-0 z-50">
-				{look === 'capsule' ? (
+				{skin === 'capsule' ? (
 					<HeaderCapsule />
 				) : skin === 'minimal' ? (
 					<HeaderMinimal />

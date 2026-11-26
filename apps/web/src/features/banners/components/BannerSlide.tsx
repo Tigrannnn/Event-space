@@ -6,7 +6,7 @@ import { getBannerHref, getBannerTranslation, optimizeImageUrl } from '@event-sp
 import type { Banner, Locale } from '@event-space/shared';
 import { localizePath } from '@/lib/i18n/config';
 import { cn } from '@/utils/cn';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 interface BannerSlideProps {
@@ -49,7 +49,7 @@ export default function BannerSlide({ banner, locale, isPriority }: BannerSlideP
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
-	const isCapsule = useLook() === 'capsule';
+	const isCapsule = skin === 'capsule';
 
 	const capsuleContent = (
 		<div className="grid h-full w-full grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-6 sm:grid-cols-[1fr_1.15fr] sm:grid-rows-1 sm:gap-10 lg:gap-16">

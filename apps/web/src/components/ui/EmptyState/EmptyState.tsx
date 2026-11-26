@@ -49,6 +49,26 @@ export default function EmptyState({
 		);
 	}
 
+	if (skin === 'capsule') {
+		// An empty arch of the brand's deep colour where the cards would stand, the icon inside it.
+		return (
+			<div className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-6 py-14 sm:flex-row sm:gap-12">
+				<div className="capsule-pattern flex h-64 w-48 shrink-0 items-end justify-center rounded-t-[999px] rounded-b-[2rem] pb-10">
+					<span className="text-primary flex size-16 items-center justify-center rounded-full bg-white">
+						<Icon className="size-7" strokeWidth={2} />
+					</span>
+				</div>
+				<div className="text-center sm:text-left">
+					<Heading className="capsule-star text-primary text-3xl font-black tracking-tight">{title}</Heading>
+					<p className="mt-3 text-base font-medium text-gray-500">{description}</p>
+					<Button variant="primary" className="mt-7 px-7" onClick={onAction}>
+						{actionLabel} ↗
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'market') {
 		return (
 			<div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 py-16 text-center">

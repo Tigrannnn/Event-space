@@ -122,7 +122,6 @@ export default async function Layout({ children, params }: LayoutProps) {
 			lang={locale}
 			translate="no"
 			data-skin={skin}
-			data-look={brand.look}
 			className={`notranslate ${fontSans.variable} ${fontMontserrat.variable} ${geistMono.variable}`}
 			suppressHydrationWarning
 		>
@@ -153,7 +152,9 @@ export default async function Layout({ children, params }: LayoutProps) {
 						? 'bg-gray-50 dark:bg-gray-900'
 						: skin === 'drawer'
 							? 'bg-stone-50 dark:bg-neutral-950'
-							: isFlat
+							: skin === 'capsule'
+								? 'bg-white'
+								: isFlat
 								? skin === 'listing'
 									? 'bg-slate-50 dark:bg-neutral-950'
 									: 'bg-white dark:bg-neutral-950'

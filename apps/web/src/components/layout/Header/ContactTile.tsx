@@ -89,10 +89,20 @@ const LOOK = {
 		title: 'font-(family-name:--font-display) text-base font-semibold',
 		arrow: true,
 	},
+	capsule: {
+		trigger: 'h-10 gap-1.5 rounded-full border px-4 text-sm font-bold',
+		light: 'border-(--capsule-line) bg-white text-primary hover:border-primary',
+		dark: 'border-white/25 bg-transparent text-white hover:bg-white hover:text-primary',
+		panel: 'flex w-80 flex-col gap-1 rounded-[2rem] p-2 shadow-xl ring-1 ring-(--capsule-line)',
+		row: 'rounded-full py-1.5 pr-4 pl-1.5 hover:bg-(--capsule-wash)',
+		icon: 'capsule-pattern size-10 rounded-full text-white',
+		title: 'text-sm font-bold text-primary!',
+		arrow: true,
+	},
 } as const;
 
 /**
- * The contacts of the market and soft skins as one tile next to the language tile: it opens a list of the
+ * The contacts of the market, soft and capsule skins as one tile next to the language tile: it opens a list of the
  * company's channels, each a direct link (profile, call, mail, map) instead of a card of its own.
  */
 export default function ContactTile({
@@ -102,7 +112,8 @@ export default function ContactTile({
 	className?: string;
 	onDark?: boolean;
 }) {
-	const look = LOOK[useSkin() === 'soft' ? 'soft' : 'market'];
+	const skin = useSkin();
+	const look = LOOK[skin === 'soft' || skin === 'capsule' ? skin : 'market'];
 	const translate = useTranslation();
 	const [isOpen, setIsOpen] = useState(false);
 

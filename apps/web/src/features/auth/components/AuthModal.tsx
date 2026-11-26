@@ -11,7 +11,8 @@ import VerifyEmailForm from './VerifyEmailForm';
 import { authModalConfig } from './authModalConfig';
 import ForgotPasswordForm from './ForgotPasswordForm';
 import { useTranslation } from '@/hooks/translation';
-import { Check } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowUpRight, Check } from 'lucide-react';
 import { useBrand, useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 
@@ -28,6 +29,7 @@ export default function AuthModal() {
 	const skin = useSkin();
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 	const isSwitchable = activeModal === ModalType.Login || activeModal === ModalType.Register;
 
 	const forgotMode = useModalData(ModalType.ForgotPassword)?.mode ?? 'signIn';
@@ -57,6 +59,44 @@ export default function AuthModal() {
 		>
 			{config && (
 				<div className={cn(isMarket && 'md:grid md:grid-cols-[5fr_7fr]')}>
+				{isCapsule && (
+					// The same deep-coloured block as the corner of the capsule header: the wordmark on
+					// the left and "Log in / Sign up" as two pills on the right.
+					<div className="capsule-pattern flex flex-wrap items-center justify-between gap-4 rounded-b-[2.5rem] px-6 py-5 sm:px-8">
+						{brand.logoOnDark ? (
+							<Image
+								src={brand.logoOnDark}
+								alt={brand.name}
+								width={160}
+								height={36}
+								unoptimized
+								className="h-8 w-auto"
+							/>
+						) : (
+							<span className="text-2xl font-black tracking-tight text-white">{brand.name}</span>
+						)}
+						{isSwitchable && (
+							<div role="tablist" className="flex items-center gap-1 rounded-full bg-white/10 p-1">
+								{([ModalType.Login, ModalType.Register] as const).map((type) => (
+									<button
+										key={type}
+										type="button"
+										role="tab"
+										aria-selected={activeModal === type}
+										onClick={() => activeModal !== type && openModal(type)}
+										className={cn(
+											'flex h-9 cursor-pointer items-center gap-1 rounded-full px-4 text-sm font-bold transition-colors',
+											activeModal === type ? 'text-primary bg-white' : 'text-white/80 hover:text-white',
+										)}
+									>
+										{translate(type === ModalType.Login ? 'header.logIn' : 'header.signUp')}
+										{activeModal === type && <ArrowUpRight className="size-4" strokeWidth={2.5} />}
+									</button>
+								))}
+							</div>
+						)}
+					</div>
+				)}
 				{isMarket && (
 					<aside className="bg-primary/10 hidden flex-col justify-between gap-10 p-8 md:flex dark:bg-neutral-800">
 						<span className="text-primary text-3xl font-black tracking-tight dark:text-white">{brand.name}</span>
@@ -72,7 +112,7 @@ export default function AuthModal() {
 						</ul>
 					</aside>
 				)}
-				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:shadow-none in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:md:p-8 in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900">
+				<div className="w-full rounded-2xl bg-white p-5 shadow-2xl sm:rounded-3xl sm:p-6 md:p-8 lg:p-10 dark:bg-gray-900 dark:shadow-black/50 in-data-[skin=minimal]:shadow-none in-data-[skin=listing]:shadow-none in-data-[skin=market]:shadow-none in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:shadow-none in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=market]:sm:rounded-2xl in-data-[skin=market]:md:p-8 in-data-[skin=minimal]:sm:rounded-2xl in-data-[skin=listing]:sm:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=capsule]:rounded-none in-data-[skin=capsule]:shadow-none in-data-[skin=capsule]:sm:rounded-none in-data-[skin=capsule]:pt-6">
 					{isDrawer && (
 						<div className="mb-5 flex flex-col items-center gap-4 sm:mb-6">
 							<span className="text-primary text-3xl font-black tracking-tight">{brand.name}</span>
@@ -123,7 +163,7 @@ export default function AuthModal() {
 						</>
 					)}
 
-					{config.footerQuestion && !(isDrawer && isSwitchable) && (
+					{config.footerQuestion && !((isDrawer || isCapsule) && isSwitchable) && (
 						<ModalFooter
 							question={translate(config.footerQuestion)}
 							actionLabel={config.footerAction ? translate(config.footerAction) : ''}

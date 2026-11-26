@@ -3,12 +3,12 @@
 @import 'shadcn/tailwind.css';
 
 /*
- * The four skins that live on a neutral palette rather than the classic blue-tinted grey, as one
+ * The skins that live on a neutral palette rather than the classic blue-tinted grey, as one
  * variant: `neutral:rounded-none` reads "in minimal, listing, market and drawer".
  */
 @custom-variant dark {
 	@media (prefers-color-scheme: dark) {
-		&:where(:root:not([data-look='capsule']), :root:not([data-look='capsule']) *) {
+		&:where(:root:not([data-skin='capsule']), :root:not([data-skin='capsule']) *) {
 			@slot;
 		}
 	}
@@ -25,7 +25,7 @@
 @media (prefers-color-scheme: dark) {
 	:root[data-skin='minimal'],
 	:root[data-skin='listing'],
-	:root[data-skin='market']:not([data-look='capsule']),
+	:root[data-skin='market'],
 	:root[data-skin='drawer'] {
 		--color-gray-50: oklch(98.5% 0 0);
 		--color-gray-100: oklch(97% 0 0);
@@ -63,7 +63,7 @@
 		scrollbar-color: var(--color-gray-300) transparent;
 	}
 	@media (prefers-color-scheme: dark) {
-		:root:not([data-look='capsule']) * {
+		:root:not([data-skin='capsule']) * {
 			scrollbar-color: var(--color-gray-700) transparent;
 		}
 	}
@@ -195,7 +195,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	:root[data-skin='market']:not([data-look='capsule']),
+	:root[data-skin='market'],
 	:root[data-skin='drawer'] {
 		--panel-border: #262626;
 		--panel-bg: #171717;
@@ -203,12 +203,49 @@
 	}
 }
 
-:root[data-look='capsule'] {
+/*
+ * The capsule skin: airy and light only. Montserrat, arches and pills, the brand's deep colour
+ * for every solid surface and a cool wash of it instead of grey. No dark theme: the `dark`
+ * variant above never fires under it, so a visitor on a dark system still gets the light site.
+ */
+:root[data-skin='capsule'] {
 	color-scheme: light;
 	--font-sans: var(--font-montserrat), var(--font-sans-armenian), ui-sans-serif, system-ui, sans-serif;
-	--panel-radius: 1.5rem;
+	--shadow-sm: 0 1px 2px color-mix(in srgb, var(--color-primary) 6%, transparent);
+	--shadow: 0 2px 6px color-mix(in srgb, var(--color-primary) 7%, transparent);
+	--shadow-md: 0 6px 18px color-mix(in srgb, var(--color-primary) 8%, transparent);
+	--shadow-lg: 0 14px 36px color-mix(in srgb, var(--color-primary) 10%, transparent);
+	--shadow-xl: 0 22px 50px color-mix(in srgb, var(--color-primary) 12%, transparent);
+	--capsule-wash: color-mix(in srgb, var(--color-primary) 5%, #ffffff);
+	--capsule-line: color-mix(in srgb, var(--color-primary) 12%, #ffffff);
+	--panel-radius: 1.75rem;
 	--control-radius: 9999px;
 	--field-radius: 9999px;
+	--accent-solid: var(--color-primary);
+	--accent-solid-fg: #ffffff;
+	--range-bg: color-mix(in srgb, var(--color-primary) 8%, transparent);
+	--field-fg: var(--color-primary);
+	--panel-border: var(--capsule-line);
+	--panel-bg: #ffffff;
+	--field-border: var(--capsule-line);
+}
+
+/* The capsule's marker: a four-pointed star before a heading, as on the brand's own site. */
+@utility capsule-star {
+	&::before {
+		content: '✦';
+		margin-inline-end: 0.5rem;
+		font-size: 0.7em;
+		vertical-align: 0.15em;
+		color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+	}
+}
+
+/* The deep-coloured surfaces of the skin carry the same faint pattern as its footer. */
+@utility capsule-pattern {
+	background-color: var(--color-primary);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.06' stroke-width='14'%3E%3Cpath d='M90 6 174 90 90 174 6 90Z'/%3E%3Crect x='54' y='54' width='72' height='72' rx='6'/%3E%3C/g%3E%3C/svg%3E");
+	background-size: 180px 180px;
 }
 
 .capsule-footer {
@@ -244,7 +281,8 @@
 :root[data-skin='soft'] .filter-panel,
 :root[data-skin='listing'] .filter-panel,
 :root[data-skin='market'] .filter-panel ,
-:root[data-skin='drawer'] .filter-panel {
+:root[data-skin='drawer'] .filter-panel,
+:root[data-skin='capsule'] .filter-panel {
 	border-radius: var(--panel-radius);
 	border-color: var(--panel-border);
 	background: var(--panel-bg);
@@ -256,7 +294,8 @@
 :root[data-skin='soft'] .filter-panel [data-slot='button'][data-variant='default'],
 :root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='default'],
 :root[data-skin='market'] .filter-panel [data-slot='button'][data-variant='default'],
-:root[data-skin='drawer'] .filter-panel [data-slot='button'][data-variant='default'] {
+:root[data-skin='drawer'] .filter-panel [data-slot='button'][data-variant='default'],
+:root[data-skin='capsule'] .filter-panel [data-slot='button'][data-variant='default'] {
 	border-radius: var(--control-radius);
 	background: var(--accent-solid);
 	color: var(--accent-solid-fg);
@@ -266,7 +305,8 @@
 :root[data-skin='soft'] .filter-panel [data-slot='button'][data-variant='outline'],
 :root[data-skin='listing'] .filter-panel [data-slot='button'][data-variant='outline'],
 :root[data-skin='market'] .filter-panel [data-slot='button'][data-variant='outline'],
-:root[data-skin='drawer'] .filter-panel [data-slot='button'][data-variant='outline'] {
+:root[data-skin='drawer'] .filter-panel [data-slot='button'][data-variant='outline'],
+:root[data-skin='capsule'] .filter-panel [data-slot='button'][data-variant='outline'] {
 	border-radius: var(--control-radius);
 	border-color: var(--field-border);
 	background: transparent;
@@ -276,7 +316,8 @@
 :root[data-skin='soft'] .price-field,
 :root[data-skin='listing'] .price-field,
 :root[data-skin='market'] .price-field ,
-:root[data-skin='drawer'] .price-field {
+:root[data-skin='drawer'] .price-field,
+:root[data-skin='capsule'] .price-field {
 	border-radius: var(--field-radius);
 	border-color: var(--field-border);
 	color: var(--field-fg);
@@ -286,7 +327,8 @@
 :root[data-skin='soft'] .price-field:focus,
 :root[data-skin='listing'] .price-field:focus,
 :root[data-skin='market'] .price-field:focus ,
-:root[data-skin='drawer'] .price-field:focus {
+:root[data-skin='drawer'] .price-field:focus,
+:root[data-skin='capsule'] .price-field:focus {
 	border-color: var(--accent-solid);
 }
 
@@ -332,7 +374,8 @@
 :root[data-skin='soft'] .filter-panel [data-slot='slider-range'],
 :root[data-skin='listing'] .filter-panel [data-slot='slider-range'],
 :root[data-skin='market'] .filter-panel [data-slot='slider-range'],
-:root[data-skin='drawer'] .filter-panel [data-slot='slider-range'] {
+:root[data-skin='drawer'] .filter-panel [data-slot='slider-range'],
+:root[data-skin='capsule'] .filter-panel [data-slot='slider-range'] {
 	background: var(--accent-solid);
 }
 
@@ -340,7 +383,8 @@
 :root[data-skin='soft'] .filter-panel [data-slot='slider-thumb'],
 :root[data-skin='listing'] .filter-panel [data-slot='slider-thumb'],
 :root[data-skin='market'] .filter-panel [data-slot='slider-thumb'],
-:root[data-skin='drawer'] .filter-panel [data-slot='slider-thumb'] {
+:root[data-skin='drawer'] .filter-panel [data-slot='slider-thumb'],
+:root[data-skin='capsule'] .filter-panel [data-slot='slider-thumb'] {
 	width: 1rem;
 	height: 1rem;
 	border: 2px solid var(--accent-solid);
@@ -354,14 +398,17 @@
 :root[data-skin='listing'] .filter-panel [data-selected-single='true'],
 :root[data-skin='market'] .filter-panel [data-selected-single='true'],
 :root[data-skin='drawer'] .filter-panel [data-selected-single='true'],
+:root[data-skin='capsule'] .filter-panel [data-selected-single='true'],
 :root[data-skin='soft'] .filter-panel [data-range-start='true'],
 :root[data-skin='listing'] .filter-panel [data-range-start='true'],
 :root[data-skin='market'] .filter-panel [data-range-start='true'],
 :root[data-skin='drawer'] .filter-panel [data-range-start='true'],
+:root[data-skin='capsule'] .filter-panel [data-range-start='true'],
 :root[data-skin='soft'] .filter-panel [data-range-end='true'],
 :root[data-skin='listing'] .filter-panel [data-range-end='true'],
 :root[data-skin='market'] .filter-panel [data-range-end='true'],
-:root[data-skin='drawer'] .filter-panel [data-range-end='true'] {
+:root[data-skin='drawer'] .filter-panel [data-range-end='true'],
+:root[data-skin='capsule'] .filter-panel [data-range-end='true'] {
 	border-radius: var(--control-radius);
 	background: var(--accent-solid);
 	color: var(--accent-solid-fg);
@@ -371,7 +418,8 @@
 :root[data-skin='soft'] .filter-panel [data-range-middle='true'],
 :root[data-skin='listing'] .filter-panel [data-range-middle='true'],
 :root[data-skin='market'] .filter-panel [data-range-middle='true'],
-:root[data-skin='drawer'] .filter-panel [data-range-middle='true'] {
+:root[data-skin='drawer'] .filter-panel [data-range-middle='true'],
+:root[data-skin='capsule'] .filter-panel [data-range-middle='true'] {
 	background: var(--range-bg);
 	color: inherit;
 }
@@ -384,18 +432,22 @@
 :root[data-skin='listing'] .filter-panel .rdp-range_start,
 :root[data-skin='market'] .filter-panel .rdp-range_start,
 :root[data-skin='drawer'] .filter-panel .rdp-range_start,
+:root[data-skin='capsule'] .filter-panel .rdp-range_start,
 :root[data-skin='soft'] .filter-panel .rdp-range_end,
 :root[data-skin='listing'] .filter-panel .rdp-range_end,
 :root[data-skin='market'] .filter-panel .rdp-range_end,
 :root[data-skin='drawer'] .filter-panel .rdp-range_end,
+:root[data-skin='capsule'] .filter-panel .rdp-range_end,
 :root[data-skin='soft'] .filter-panel .rdp-range_start::after,
 :root[data-skin='listing'] .filter-panel .rdp-range_start::after,
 :root[data-skin='market'] .filter-panel .rdp-range_start::after,
 :root[data-skin='drawer'] .filter-panel .rdp-range_start::after,
+:root[data-skin='capsule'] .filter-panel .rdp-range_start::after,
 :root[data-skin='soft'] .filter-panel .rdp-range_end::after,
 :root[data-skin='listing'] .filter-panel .rdp-range_end::after,
 :root[data-skin='market'] .filter-panel .rdp-range_end::after ,
-:root[data-skin='drawer'] .filter-panel .rdp-range_end::after {
+:root[data-skin='drawer'] .filter-panel .rdp-range_end::after,
+:root[data-skin='capsule'] .filter-panel .rdp-range_end::after {
 	background: var(--range-bg);
 }
 
@@ -403,7 +455,8 @@
 :root[data-skin='soft'] .filter-panel .rdp-today:not(.rdp-selected),
 :root[data-skin='listing'] .filter-panel .rdp-today:not(.rdp-selected),
 :root[data-skin='market'] .filter-panel .rdp-today:not(.rdp-selected) ,
-:root[data-skin='drawer'] .filter-panel .rdp-today:not(.rdp-selected) {
+:root[data-skin='drawer'] .filter-panel .rdp-today:not(.rdp-selected),
+:root[data-skin='capsule'] .filter-panel .rdp-today:not(.rdp-selected) {
 	background: transparent;
 	font-weight: 700;
 }

@@ -11,6 +11,7 @@ import { FlashValue } from '@/components/ui/FlashValue';
 import { useSkin } from '@/providers/BrandProvider';
 import { OccurrenceChips } from './OccurrenceChips';
 import { OccurrenceRows } from './OccurrenceRows';
+import { OccurrencePills } from './OccurrencePills';
 
 export interface OccurrencePickerProps {
 	occurrences: EventOccurrence[];
@@ -208,6 +209,7 @@ export function OccurrencePicker(props: OccurrencePickerProps) {
 
 	if (skin === 'minimal' || skin === 'market') return <OccurrenceChips {...props} />;
 	if (skin === 'listing') return <OccurrenceRows {...props} />;
+	if (skin === 'capsule') return <OccurrencePills {...props} />;
 
 	return <OccurrencePickerClassic {...props} />;
 }

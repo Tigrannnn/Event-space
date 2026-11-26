@@ -113,6 +113,18 @@ const LOOK: Record<BrandSkin, Look> = {
 		remove:
 			'rounded-full p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-neutral-700 dark:hover:text-white',
 	},
+	capsule: {
+		panel: 'overflow-hidden rounded-[2rem] bg-white p-2 shadow-xl ring-1 ring-(--capsule-line)',
+		heading: 'capsule-star text-primary px-4 pt-3 pb-1.5 text-sm font-extrabold',
+		row: 'flex w-full cursor-pointer items-center gap-3 rounded-full py-1.5 pr-4 pl-1.5 text-left',
+		rowActive: 'bg-(--capsule-wash)',
+		thumb: 'rounded-full',
+		title: 'text-primary text-[15px] font-bold',
+		meta: 'text-xs font-medium text-gray-500',
+		price: 'text-primary rounded-full bg-(--capsule-wash) px-3 py-1 text-sm font-extrabold whitespace-nowrap',
+		icon: 'text-primary/50',
+		remove: 'rounded-full p-1.5 text-gray-400 hover:bg-(--capsule-wash) hover:text-primary',
+	},
 };
 
 /** Skins whose whole header stands out while the search is open, instead of just the field. */
@@ -138,7 +150,7 @@ function PlaceholderRows({ look }: { look: Look }) {
 	);
 }
 
-const HEADER_STANDS_OUT: ReadonlySet<BrandSkin> = new Set(['listing', 'market', 'soft']);
+const HEADER_STANDS_OUT: ReadonlySet<BrandSkin> = new Set(['listing', 'market', 'soft', 'capsule']);
 
 /**
  * Takes the clicks meant for the page behind the search while it is open, so nothing in it can

@@ -8,7 +8,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { ToastType, useToastStore } from '@/stores/toastStore';
 import { EnvKey, type StartQuantityPayment } from '@event-space/shared';
 import { clientEnv } from '@/config/env';
-import useSystemTheme from '@/hooks/systemTheme';
+import { useStripeAppearance } from '@/features/bookings/hooks/useStripeAppearance';
 import { localizePath } from '@/lib/i18n/config';
 import { useTranslation } from '@/hooks/translation';
 import { useApiError } from '@/hooks/apiError';
@@ -160,7 +160,7 @@ function QuantityPaymentFormContent({
 }
 
 export default function QuantityPaymentForm(props: QuantityPaymentFormProps) {
-	const theme = useSystemTheme();
+	const appearance = useStripeAppearance();
 	const translate = useTranslation();
 	const publishableKey = clientEnv[EnvKey.STRIPE_PUBLISHABLE_KEY];
 
@@ -178,7 +178,7 @@ export default function QuantityPaymentForm(props: QuantityPaymentFormProps) {
 			stripe={stripePromise}
 			options={{
 				clientSecret: props.payment.clientSecret,
-				appearance: { theme: theme === 'dark' ? 'night' : 'stripe' },
+				appearance,
 			}}
 		>
 			<QuantityPaymentFormContent {...props} />

@@ -8,7 +8,7 @@ import { useTranslation } from '@/hooks/translation';
 import { useBrand } from '@/providers/BrandProvider';
 import { useCategories } from '@/features/categories/hooks/useCategories';
 import { getCategoryTranslation } from '@event-space/shared';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import ContactIcons from '../Header/ContactIcons';
 import FooterCapsule from './FooterCapsule';
@@ -17,7 +17,6 @@ export default function Footer() {
 	const translate = useTranslation();
 	const brand = useBrand();
 	const skin = useSkin();
-	const look = useLook();
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
@@ -40,7 +39,7 @@ export default function Footer() {
 
 	if (pathname.includes('/admin')) return null;
 
-	if (look === 'capsule') return <FooterCapsule />;
+	if (skin === 'capsule') return <FooterCapsule />;
 
 	return (
 		<footer

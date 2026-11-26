@@ -26,6 +26,7 @@ import { VerticalScroll } from '@/components/ui/VerticalScroll';
 import { OccurrencePrice } from '../OccurrencePrice';
 import { OccurrenceChips } from '../OccurrencePicker/OccurrenceChips';
 import { OccurrenceRows } from '../OccurrencePicker/OccurrenceRows';
+import { OccurrencePills } from '../OccurrencePicker/OccurrencePills';
 import { useModuleEnabled, useSkin } from '@/providers/BrandProvider';
 import { FlashValue } from '@/components/ui/FlashValue';
 import { useApiError } from '@/hooks/apiError';
@@ -66,7 +67,8 @@ export default function BookingForm({
 	const isMinimal = skin === 'minimal';
 	const isListing = skin === 'listing';
 	const isMarket = skin === 'market';
-	const DatePicker = isListing ? OccurrenceRows : OccurrenceChips;
+	const isCapsule = skin === 'capsule';
+	const DatePicker = isListing ? OccurrenceRows : isCapsule ? OccurrencePills : OccurrenceChips;
 	const selectedRef = useRef<HTMLButtonElement>(null);
 	const apiError = useApiError();
 	const promoQuote = usePromoCodeQuote(selectedOccurrence?.id, quantity, appliedPromoCode);
@@ -180,7 +182,7 @@ export default function BookingForm({
 					{translate('booking.selectDate')}
 				</p>
 				<TimeZoneNote />
-				{futureOccurrences.length > 0 && (isMinimal || isListing || isMarket) ? (
+				{futureOccurrences.length > 0 && (isMinimal || isListing || isMarket || isCapsule) ? (
 					<DatePicker
 						occurrences={futureOccurrences}
 						selectedId={selectedOccurrence?.id}

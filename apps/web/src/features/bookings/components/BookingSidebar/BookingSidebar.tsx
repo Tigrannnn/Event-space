@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { BookOpen, Calendar, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
+import { ArrowUpRight, BookOpen, Calendar, MapPin, Navigation, Plus, Ticket } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -42,6 +42,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market' || skin === 'drawer';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 	const cardClassName = isMinimal
 		? 'rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-neutral-800 dark:bg-neutral-900'
 		: 'rounded-2xl border border-gray-100 bg-white p-5 shadow-xl sm:rounded-[2.5rem] sm:p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800 dark:shadow-gray-900/50';
@@ -113,6 +114,14 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	};
 
 	const eventIsAvailable = isEventAvailable(event);
+
+	if (!upcomingOccurrences.length && isCapsule) {
+		return (
+			<div className="rounded-[2.5rem] bg-(--capsule-wash) px-6 py-10 text-center">
+				<p className="text-primary text-sm font-bold">✦ {translate('event.noUpcomingOccurrences')}</p>
+			</div>
+		);
+	}
 
 	if (!upcomingOccurrences.length) {
 		return (
@@ -376,6 +385,140 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 						)}
 						{placeRow(
 							<Navigation className="size-5" />,
+							translate('event.meetingLocationLabel'),
+							eventTranslation.meetingLocation,
+							event.meetingLocationUrl,
+						)}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (isCapsule) {
+		// A card whose top is a deep-coloured band: price and seats in white, then the dates as pills,
+		// one round button and the two places as soft capsules.
+		const capsulePlace = (icon: React.ReactNode, label: string, text: string, url?: string | null) => (
+			<div className="flex items-center gap-3 rounded-[1.75rem] bg-(--capsule-wash) py-2 pr-4 pl-2">
+				<span className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+					{icon}
+				</span>
+				<div className="min-w-0">
+					<p className="text-[11px] font-semibold text-gray-500">{label}</p>
+					{url ? (
+						<a
+							href={url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-primary block text-sm font-bold underline-offset-4 hover:underline"
+						>
+							{text}
+						</a>
+					) : (
+						<p className="text-primary text-sm font-bold">{text}</p>
+					)}
+				</div>
+			</div>
+		);
+
+		return (
+			<div className="overflow-hidden rounded-[2.5rem] bg-white shadow-lg ring-1 ring-(--capsule-line)">
+				<div className="capsule-pattern rounded-b-[2.5rem] px-6 pt-7 pb-6 text-white sm:px-7">
+					{quote.discountPercent > 0 && (
+						<span className="mb-3 inline-block rounded-full bg-(--brand-accent) px-3 py-1 text-xs font-extrabold">
+							{translate('event.discountOff', { percent: quote.discountPercent })}
+						</span>
+					)}
+					<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+						<span className="text-4xl font-black tracking-tight">{formatCurrency(quote.unitPrice)}</span>
+						{quote.discountPercent > 0 && (
+							<span className="text-base font-semibold text-white/50 line-through">
+								{formatCurrency(quote.baseUnitPrice)}
+							</span>
+						)}
+						<span className="text-sm font-medium text-white/70">{translate('event.perPerson')}</span>
+					</div>
+
+					<div className="mt-5 flex items-center gap-3">
+						<div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
+							<div
+								className="h-1.5 rounded-full bg-white transition-all duration-500"
+								style={{ width: `${progressPercentage}%` }}
+							/>
+						</div>
+						<FlashValue watch={spotsLeft} className="text-sm font-bold whitespace-nowrap">
+							{spotsLeft} {translate('event.spotsLeft')}
+						</FlashValue>
+					</div>
+					{spotsLeft <= 5 && !isSoldOut && (
+						<p className="mt-2 text-xs font-bold text-white/80">✦ {translate('event.sellingFast')}</p>
+					)}
+				</div>
+
+				<div className="px-5 pt-6 pb-6 sm:px-6">
+					<p className="capsule-star text-primary mb-3 text-sm font-extrabold">{translate('event.date')}</p>
+					<OccurrencePicker
+						occurrences={upcomingOccurrences}
+						selectedId={selectedOccurrence?.id}
+						onSelect={setSelectedOccId}
+						price={event.price}
+						isBooked={isOccurrenceBooked}
+					/>
+					<TimeZoneNote className="mt-2" />
+
+					<div className="mt-6">
+						{!eventIsAvailable ? (
+							<p className="rounded-full bg-(--capsule-wash) px-5 py-4 text-center text-sm font-bold text-gray-600">
+								{translate('event.eventEnded')}
+							</p>
+						) : isUserLoading || isMyBookingsLoading ? (
+							<Skeleton className="h-13 w-full rounded-full" />
+						) : hasBooking ? (
+							<div className="flex items-center gap-2">
+								<button
+									type="button"
+									onClick={handleViewBooking}
+									className="text-primary flex h-13 flex-1 items-center justify-center gap-2 rounded-full bg-(--capsule-wash) px-4 text-sm font-bold transition-colors hover:bg-(--capsule-line)"
+								>
+									<Ticket className="size-4 shrink-0" />
+									<span className="truncate">{translate('event.viewMyBooking')}</span>
+								</button>
+								<button
+									type="button"
+									onClick={handleBookClick}
+									aria-label={translate('event.bookAnotherSpot')}
+									title={translate('event.bookAnotherSpot')}
+									className="bg-primary flex size-13 shrink-0 items-center justify-center rounded-full text-white transition-all hover:brightness-125"
+								>
+									<Plus className="size-5" strokeWidth={2.5} />
+								</button>
+							</div>
+						) : (
+							<button
+								type="button"
+								onClick={handleBookClick}
+								disabled={isSoldOut}
+								className="bg-primary flex h-13 w-full items-center justify-center gap-2 rounded-full text-base font-bold text-white transition-all hover:brightness-125 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+							>
+								{isSoldOut ? translate('event.noSpotsLeft') : translate('event.bookTour')}
+								{!isSoldOut && <ArrowUpRight className="size-5" strokeWidth={2.5} />}
+							</button>
+						)}
+						<p className="mt-3 flex items-center justify-center gap-1.5 text-xs font-semibold text-gray-500">
+							<CheckIcon className="size-3.5" />
+							{translate('event.secureBooking')}
+						</p>
+					</div>
+
+					<div className="mt-6 flex flex-col gap-2">
+						{capsulePlace(
+							<MapPin className="size-4.5" />,
+							translate('event.location'),
+							eventTranslation.location,
+							event.locationUrl,
+						)}
+						{capsulePlace(
+							<Navigation className="size-4.5" />,
 							translate('event.meetingLocationLabel'),
 							eventTranslation.meetingLocation,
 							event.meetingLocationUrl,

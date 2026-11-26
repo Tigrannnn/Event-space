@@ -6,6 +6,7 @@ import Button from '@/components/ui/Buttons/Button';
 import { ModalType, useModalStore } from '@/stores';
 import {
 	ArrowRight,
+	ArrowUpRight,
 	CogIcon,
 	Heart,
 	LogOut,
@@ -48,6 +49,7 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 
 	if (hasInitialUser && isLoading) {
 		return <ProfileSkeleton />;
@@ -205,6 +207,72 @@ export default function ProfileContent({ initialUser }: ProfileContentProps) {
 						<LogOut className="size-4" />
 						{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
 					</button>
+				</div>
+			);
+		}
+
+		if (isCapsule) {
+			// The visitor as one of the catalogue's arches: a tall deep-coloured arch with the initial
+			// in a white circle, and the sections as long pills beside it.
+			return (
+				<div className="mx-auto w-full max-w-[1400px] px-4 py-6 pb-24 sm:px-6 sm:py-10 md:pb-14 lg:px-8">
+					<h1 className="capsule-star text-primary mb-6 text-3xl font-black tracking-tight sm:text-4xl">
+						{translate('header.profile')}
+					</h1>
+					<div className="grid grid-cols-1 gap-6 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
+						<div className="capsule-pattern flex flex-col items-center rounded-t-[999px] rounded-b-[2.5rem] px-6 pt-14 pb-8 text-center text-white">
+							<div className="text-primary flex size-24 items-center justify-center rounded-full bg-white text-4xl font-black shadow-lg">
+								{initial}
+							</div>
+							<p className="mt-5 text-2xl leading-tight font-black tracking-tight break-words">{user.name}</p>
+							<p className="mt-1.5 text-sm font-medium break-words text-white/70">
+								{[user.email, user.phone].filter(Boolean).join(' · ')}
+							</p>
+							<span className="mt-3 inline-block rounded-full bg-white/15 px-3.5 py-1 text-xs font-bold">
+								✦ {USER_ROLE_LABELS[user.role]}
+							</span>
+							<button
+								type="button"
+								onClick={handleLogout}
+								disabled={isLoggingOut}
+								className="mt-7 flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-white/30 text-sm font-bold transition-colors hover:bg-white hover:text-primary disabled:opacity-50"
+							>
+								<LogOut className="size-4" />
+								{isLoggingOut ? translate('profile.loggingOut') : translate('profile.logOut')}
+							</button>
+						</div>
+
+						<div className="flex flex-col content-start gap-3">
+							{rows.map((row) => {
+								const content = (
+									<>
+										<span className="text-primary flex size-14 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+											<row.icon className="size-6" strokeWidth={2} />
+										</span>
+										<span className="min-w-0 flex-1">
+											<span className="text-primary block text-lg font-extrabold">{row.title}</span>
+											<span className="block text-sm font-medium text-gray-500">{row.hint}</span>
+										</span>
+										<span className="bg-primary flex size-11 shrink-0 items-center justify-center rounded-full text-white transition-transform group-hover:rotate-45">
+											<ArrowUpRight className="size-5" strokeWidth={2.5} />
+										</span>
+									</>
+								);
+								const tile =
+									'group flex w-full cursor-pointer items-center gap-4 rounded-full bg-(--capsule-wash) py-2.5 pr-2.5 pl-2.5 text-left transition-colors hover:bg-(--capsule-line)';
+
+								return row.href ? (
+									<Link key={row.key} href={row.href} className={tile}>
+										{content}
+									</Link>
+								) : (
+									<button key={row.key} type="button" onClick={row.onClick} className={tile}>
+										{content}
+									</button>
+								);
+							})}
+						</div>
+					</div>
 				</div>
 			);
 		}

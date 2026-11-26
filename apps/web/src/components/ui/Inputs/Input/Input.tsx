@@ -13,14 +13,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 				{label && (
 					<label
 						htmlFor={props.id}
-						className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-200"
+						className="mb-1 block text-sm font-semibold text-gray-700 in-data-[skin=capsule]:mb-1.5 in-data-[skin=capsule]:pl-4 in-data-[skin=capsule]:font-bold in-data-[skin=capsule]:text-primary dark:text-gray-200"
 					>
 						{label}
 					</label>
 				)}
 				<input
 					ref={ref}
-					className={cn(`focus:border-primary w-full rounded-xl in-data-[skin=soft]:rounded-2xl in-data-[skin=soft]:border-gray-200 in-data-[skin=soft]:bg-white border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 in-data-[skin=minimal]:border in-data-[skin=listing]:border in-data-[skin=market]:border in-data-[skin=market]:bg-white in-data-[skin=market]:border-gray-300 in-data-[skin=market]:dark:bg-neutral-950 in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=drawer]:rounded-2xl in-data-[skin=drawer]:border in-data-[skin=drawer]:border-gray-300 in-data-[skin=drawer]:bg-white in-data-[skin=drawer]:dark:border-neutral-700 in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=minimal]:bg-white in-data-[skin=listing]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=listing]:focus:border-gray-900 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:dark:bg-neutral-950 in-data-[skin=minimal]:dark:focus:border-gray-300 in-data-[skin=listing]:dark:focus:border-gray-300 ${
+					className={cn(`focus:border-primary w-full rounded-xl in-data-[skin=soft]:rounded-2xl in-data-[skin=soft]:border-gray-200 in-data-[skin=soft]:bg-white border-2 border-transparent bg-gray-100 px-4 py-3 transition-all focus:bg-white focus:outline-none dark:bg-gray-800 dark:text-white dark:focus:bg-gray-900 in-data-[skin=minimal]:border in-data-[skin=listing]:border in-data-[skin=market]:border in-data-[skin=market]:bg-white in-data-[skin=market]:border-gray-300 in-data-[skin=market]:dark:bg-neutral-950 in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=drawer]:rounded-2xl in-data-[skin=drawer]:border in-data-[skin=drawer]:border-gray-300 in-data-[skin=drawer]:bg-white in-data-[skin=drawer]:dark:border-neutral-700 in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=minimal]:bg-white in-data-[skin=listing]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=listing]:focus:border-gray-900 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:dark:bg-neutral-950 in-data-[skin=minimal]:dark:focus:border-gray-300 in-data-[skin=listing]:dark:focus:border-gray-300 in-data-[skin=capsule]:rounded-full in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:px-5 in-data-[skin=capsule]:font-medium in-data-[skin=capsule]:text-primary in-data-[skin=capsule]:placeholder:text-gray-400 in-data-[skin=capsule]:focus:bg-white ${
 						error
 							? 'border-red-500 dark:border-red-400'
 							: 'in-data-[skin=minimal]:border-gray-300 in-data-[skin=listing]:border-gray-300 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=listing]:dark:border-neutral-700'

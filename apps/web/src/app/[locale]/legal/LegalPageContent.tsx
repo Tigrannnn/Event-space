@@ -165,6 +165,60 @@ export default function LegalPageContent({ document }: LegalPageContentProps) {
 		);
 	}
 
+	if (skin === 'capsule') {
+		// A deep-coloured block with the corner cut round like the header's, the contents as a row
+		// of pills under it and each section opening with its number in a circle.
+		return (
+			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-6 pb-14 sm:px-6 sm:py-10 lg:px-8">
+				<div className="capsule-pattern rounded-[2.5rem] rounded-bl-none px-7 py-10 text-white sm:px-12 sm:py-14">
+					<p className="text-sm font-bold text-white/60">✦ {brand.name}</p>
+					<h1 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">{content.title}</h1>
+					<p className="mt-3 text-sm font-medium text-white/70">{translate('legal.updated')}</p>
+				</div>
+
+				<nav className="sticky top-2 z-10 mt-4 flex gap-1.5 overflow-x-auto rounded-full bg-(--capsule-wash)/95 p-1.5 backdrop-blur [scrollbar-width:none]">
+					{content.sections.map((section, index) => (
+						<a
+							key={section.title}
+							href={`#section-${index + 1}`}
+							className="text-primary shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold whitespace-nowrap shadow-sm transition-colors hover:bg-primary hover:text-white"
+						>
+							{index + 1}. {section.title}
+						</a>
+					))}
+				</nav>
+
+				<div className="mx-auto mt-10 max-w-4xl">
+					<p className="text-lg leading-relaxed font-medium text-gray-700">{withCompany(content.intro)}</p>
+					<div className="mt-10 flex flex-col gap-10">
+						{content.sections.map((section, index) => (
+							<section key={section.title} id={`section-${index + 1}`} className="flex scroll-mt-28 gap-5">
+								<span className="bg-primary flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-black text-white">
+									{index + 1}
+								</span>
+								<div className="min-w-0 pt-2">
+									<h2 className="text-primary text-xl font-extrabold">{section.title}</h2>
+									<div className="mt-3 flex flex-col gap-3">
+										{section.body.map((paragraph) => (
+											<p key={paragraph} className="leading-relaxed text-gray-600">
+												{withCompany(paragraph)}
+											</p>
+										))}
+									</div>
+								</div>
+							</section>
+						))}
+					</div>
+					{contact && (
+						<p className="text-primary mt-10 rounded-full bg-(--capsule-wash) px-6 py-4 text-sm font-semibold">
+							{contact}
+						</p>
+					)}
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'market') {
 		return (
 			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">

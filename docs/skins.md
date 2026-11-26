@@ -1,8 +1,8 @@
-# Скины сайта (classic, minimal, listing, soft, market, drawer), вид capsule и как добавить ещё один
+# Скины сайта (classic, minimal, listing, soft, market, drawer, capsule) и как добавить ещё один
 
 Скин — это то, как выглядит и как устроен сайт компании кроме цветов: шапка, карточки, страница тура, модалки. Нужен, чтобы сайты разных компаний-конкурентов не выглядели одним сайтом в разных красках. Админка скинов не имеет.
 
-Сейчас четыре скина: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour и One Day Tour, `listing` у Ampar и 1000+1 Travel, `classic` у Yerivar (как по умолчанию).
+Сейчас семь скинов (`classic`, `minimal`, `listing`, `soft`, `market`, `drawer`, `capsule`); основные: `classic` (по умолчанию, все бренды) и `minimal` (в духе Airbnb и hyurservice: белый фон, один цвет, плоские поверхности). Назначается в `packages/shared/src/constants/brands.constant.ts`, поле `skin` у бренда. Сейчас `minimal` у Buggy Tour и One Day Tour, `listing` у Ampar и 1000+1 Travel, `classic` у Yerivar (как по умолчанию).
 
 ## Как это устроено
 
@@ -282,14 +282,13 @@
 
 `drawer` назначен RS Tour и Meet Dilijan (у Meet Dilijan светло-коричневый основной цвет `#9c6b45` и зелёный второй `#3f8f4f`); бренд по умолчанию остаётся на `classic`.
 
-## Вид `capsule` поверх скина `market` (сделан 23.11.2026 под Luna Tour)
+## Скин `capsule` (седьмой, полноценный; Luna Tour)
 
-Не отдельный скин, а «вид» (`Brand.look`, тип `BrandLook`): у бренда `skin: 'market'` и `look: 'capsule'`. Всё, что не перечислено ниже (профиль, брони, избранное, отзывы, правовые страницы, 404, модалки, вход, панель бронирования, фильтры, токены панелей), берётся от `market` без единой правки: `data-skin="market"` на `<html>` остаётся, `useSkin()` возвращает `market`. Свои у вида только те части, которые посетитель видит первыми. Так новый облик не требует проходить по сорока местам, где у `market` своя ветка.
+Полноценный скин: `skin: 'capsule'` у бренда, `data-skin="capsule"` на `<html>`, `useSkin()` возвращает `capsule`. Прежний `Brand.look`/`BrandLook`/`useLook`/`data-look` удалены. Внутренние экраны (бронирование, оплата, модалки, вход, профиль, брони, избранное, отзывы, «О нас», правовые, 404, фильтры, тосты, поиск, скелетоны) имеют собственные ветки `capsule`, а не наследуются от `market`. Вариант `neutral` его намеренно не включает.
 
 Как устроено:
-- `useLook()` (`providers/BrandProvider.tsx`) возвращает вид или `undefined`; переключатели проверяют его раньше скина.
-- `data-look="capsule"` на `<html>` (`app/[locale]/layout.tsx`) и блок `:root[data-look='capsule']` в `globals.css`: шрифт Montserrat (`next/font/google`, переменная `--font-montserrat`, латиница и кириллица; армянский по-прежнему из Noto Sans Armenian), радиус панелей 1.5rem, поля и контролы таблетками.
-- Тёмной темы у вида нет: свой вариант `dark` в `globals.css` не срабатывает под `[data-look='capsule']`, тёмные токены `market` для него отключены (`:not([data-look='capsule'])`), `color-scheme: light`, а `useSystemTheme()` отдаёт `light` (форма оплаты Stripe).
+- блок `:root[data-skin='capsule']` в `globals.css`: шрифт Montserrat (`next/font/google`, переменная `--font-montserrat`, латиница и кириллица; армянский по-прежнему из Noto Sans Armenian), радиус панелей 1.5rem, поля и контролы таблетками.
+- Тёмной темы у вида нет: свой вариант `dark` в `globals.css` не срабатывает под `[data-skin='capsule']`, тёмные токены `market` для него отключены (`:not([data-skin='capsule'])`), `color-scheme: light`, а `useSystemTheme()` отдаёт `light` (форма оплаты Stripe).
 - В `BrandContact` появились `telegram`, `facebook`, `extraPhones`, `extraEmails`; пока их показывает только подвал capsule.
 - `Brand.logo` — картинка-надпись для шапки вместо названия текстом (у Luna `lunatour-logo.svg`, перерисована в SVG: значок из иконки, надпись шрифтом Urbanist 625 в контуры).
 
@@ -297,9 +296,9 @@
 |---|---|
 | `components/layout/Header/HeaderCapsule.tsx` (новый) | лого-картинка, от `xl` меню «Главная ✦ О нас» с подчёркиванием активного, поиск-таблетка с круглой кнопкой, контакты и язык таблетками; справа во всю высоту тёмно-синий блок со скруглённым нижним левым углом: «Войти ↗» и «Регистрация» или избранное, брони, профиль белым. На телефоне блока нет (вход в нижней панели) |
 | `features/events/components/EventCard/EventCardCapsule.tsx` (новый) | фото аркой (`rounded-t-[999px] rounded-b-[2rem]`, `aspect-4/5`), дата белой таблеткой и сердечко внизу на фото, скидка таблеткой по центру; название, цена и оценка в строку; кнопка-таблетка «Забронировать ↗» |
-| `events-grid.ts`, `EventCardSkeleton.tsx` | сетка 2/3/4 колонки до `max-w-[1400px]`; скелетон аркой. `eventsGridClass(skin, look)` |
+| `events-grid.ts`, `EventCardSkeleton.tsx` | сетка 2/3/4 колонки до `max-w-[1400px]`; скелетон аркой. `eventsGridClass(skin)` |
 | `BannerSlide.tsx`, `BannerCarousel.tsx` | слайд без подложки: крупный заголовок `font-black` слева, справа три фото-капсулы из одной картинки (лево, центр, право; средняя короче), как облака на lunatour.am. Без стрелок, точки-таблетки под слайдом |
 | `EventPageCapsule.tsx` (новый) | слева категория, огромное название и факты таблетками (оценка, место, длительность, сложность); справа три капсулы из фото тура (или одна фотография, разрезанная на три), под средней кнопка со счётом фото; ниже разделы на серой подложке с ✦ в заголовке, панель бронирования от `market` |
 | `components/layout/Footer/FooterCapsule.tsx` (новый), `Footer.tsx` | как подвал lunatour.am: тёмно-синий фон с бледным узором (`.capsule-footer` в `globals.css`), четыре колонки: белое лого (`Brand.logoOnDark`), ссылки заглавными (о нас, главная, до четырёх категорий), контакты (все почты и телефоны), соцсети (Telegram, Instagram, Facebook) и офис; снизу линия, © и правовые ссылки |
 
-Как добавить ещё один вид: значение в `BrandLook`, ветка `look === '...'` в тех же переключателях (`HeaderWrapper`, `EventCard`, `EventCardSkeleton`, `eventsGridClass`, `EventPageContent`, `BannerSlide`/`BannerCarousel`, `Footer`) и блок `:root[data-look='...']` в `globals.css`. Базовый скин бренда выбирать тот, на чьи модалки и страницы вид ложится лучше.
+Как добавить ещё один скин: значение в `BrandSkin` (`brands.constant.ts`), записи во всех `Record<BrandSkin, …>` (TypeScript подскажет), mail-скин в `mail-skin.ts`, блок `:root[data-skin='...']` в `globals.css`.

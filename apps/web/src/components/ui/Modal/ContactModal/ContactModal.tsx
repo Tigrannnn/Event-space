@@ -90,15 +90,15 @@ export default function ContactModal() {
 
 	return (
 		<Modal ariaLabel={translate(getTitleKey())} onClose={closeModal} size="sm" position="center">
-			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent">
+			<div className="rounded-2xl bg-white p-5 shadow-xl sm:p-6 dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent in-data-[skin=capsule]:rounded-none in-data-[skin=capsule]:bg-transparent in-data-[skin=capsule]:shadow-none">
 				<div className="mb-4 flex justify-center">
-					<span className="neutral:bg-primary/10 neutral:rounded-2xl neutral:p-4">{getIcon()}</span>
+					<span className="neutral:bg-primary/10 neutral:rounded-2xl neutral:p-4 in-data-[skin=capsule]:capsule-pattern in-data-[skin=capsule]:rounded-full in-data-[skin=capsule]:p-4 in-data-[skin=capsule]:text-white in-data-[skin=capsule]:[&_svg]:text-white">{getIcon()}</span>
 				</div>
 				<h3 className="text-primary neutral:text-gray-900 neutral:dark:text-white mb-2 text-center text-xl font-black neutral:font-bold">{translate(getTitleKey())}</h3>
 				<p className="mb-4 text-center text-gray-600 dark:text-gray-300">{translate(getDescriptionKey())}</p>
 				{/* A profile URL or address has few break opportunities, so let it break
 				    mid-word rather than push the modal wider than the screen. */}
-				<div className="mb-6 overflow-hidden rounded-xl bg-gray-100 p-4 text-center font-mono text-sm break-words dark:bg-gray-700 dark:text-gray-200 neutral:border neutral:border-gray-200 neutral:bg-gray-50 neutral:dark:border-neutral-700 neutral:dark:bg-neutral-800">
+				<div className="mb-6 overflow-hidden rounded-xl bg-gray-100 p-4 text-center font-mono text-sm break-words dark:bg-gray-700 dark:text-gray-200 neutral:border neutral:border-gray-200 neutral:bg-gray-50 neutral:dark:border-neutral-700 neutral:dark:bg-neutral-800 in-data-[skin=capsule]:rounded-full in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:font-sans in-data-[skin=capsule]:font-bold in-data-[skin=capsule]:text-primary">
 					{data.value}
 				</div>
 

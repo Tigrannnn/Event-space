@@ -3,7 +3,7 @@ import { mailSkinVariables, resolveMailSkin } from './mail-skin';
 import { buildBrandLogoBlock, type MailBrand } from './mail-brand';
 import type { BrandSkin } from '@event-space/shared';
 
-const SKINS: BrandSkin[] = ['classic', 'minimal', 'listing', 'soft', 'market', 'drawer'];
+const SKINS: BrandSkin[] = ['classic', 'minimal', 'listing', 'soft', 'market', 'drawer', 'capsule'];
 
 const VARIABLES = {
 	TITLE: 'Подтверждение',
@@ -72,6 +72,17 @@ describe('mail skins', () => {
 
 		expect(outlined).toContain('border:1px solid #e5e7eb');
 		expect(plain).not.toContain('border:1px solid #e5e7eb');
+	});
+
+	it('gives the capsule skin pill buttons, a band of the brand colour and its own heading face', async () => {
+		const html = await service.render('verification', {
+			...VARIABLES,
+			...mailSkinVariables('capsule', '#041d56'),
+		});
+
+		expect(html).toContain('Montserrat');
+		expect(html).toContain('border-radius:36px');
+		expect(html).toContain('background:#041d56');
 	});
 
 	it('falls back to classic for a skin it does not know', () => {

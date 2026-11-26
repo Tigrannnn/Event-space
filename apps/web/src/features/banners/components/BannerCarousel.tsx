@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Banner, BrandSkin } from '@event-space/shared';
 import { useTranslation } from '@/hooks/translation';
-import { useLook, useSkin } from '@/providers/BrandProvider';
+import { useSkin } from '@/providers/BrandProvider';
 import { cn } from '@/utils/cn';
 import BannerSlide from './BannerSlide';
 
@@ -59,6 +59,12 @@ const INDICATOR: Record<
 		dot: '',
 		active: '',
 		inactive: '',
+	},	// Drawn by the capsule branch below the slides: long pill for the active slide.
+	capsule: {
+		container: 'mt-6 justify-center gap-2 sm:justify-start',
+		dot: 'h-2 rounded-full',
+		active: 'w-8 bg-primary',
+		inactive: 'w-2 bg-primary/20 hover:bg-primary/40',
 	},
 };
 
@@ -117,6 +123,13 @@ const ARROW: Record<
 		next: 'top-auto right-8 bottom-9 translate-y-0',
 		arrows: true,
 		icon: 'h-4 w-4',
+	},	// The capsule banner has no arrows: it is moved by the pills under it or by swiping.
+	capsule: {
+		base: 'hidden',
+		prev: '',
+		next: '',
+		arrows: false,
+		icon: '',
 	},
 };
 
@@ -128,7 +141,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market';
 	const isDrawer = skin === 'drawer';
-	const isCapsule = useLook() === 'capsule';
+	const isCapsule = skin === 'capsule';
 	const scrollerRef = useRef<HTMLDivElement>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isPaused, setIsPaused] = useState(false);
@@ -316,8 +329,8 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
 									className={cn(
 										'h-2 cursor-pointer rounded-full transition-all',
 										index === activeIndex
-											? 'bg-primary w-8 dark:bg-white'
-											: 'bg-primary/20 hover:bg-primary/40 w-2 dark:bg-white/30',
+											? 'bg-primary w-8'
+											: 'bg-primary/20 hover:bg-primary/40 w-2',
 									)}
 								/>
 							))}

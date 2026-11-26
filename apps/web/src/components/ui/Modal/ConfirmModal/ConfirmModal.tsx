@@ -26,8 +26,8 @@ export default function ConfirmModal() {
 
 	return (
 		<Modal ariaLabel={data.title} onClose={handleCancel} size={data.size ?? 'sm'} position="center">
-			<div className="max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent">
-				<h3 className="text-primary neutral:text-gray-900 neutral:dark:text-white neutral:font-bold mb-2 text-xl font-black">{data.title}</h3>
+			<div className="max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800 neutral:rounded-none neutral:bg-transparent neutral:shadow-none neutral:dark:bg-transparent in-data-[skin=capsule]:rounded-none in-data-[skin=capsule]:bg-transparent in-data-[skin=capsule]:shadow-none">
+				<h3 className="text-primary neutral:text-gray-900 neutral:dark:text-white neutral:font-bold mb-2 text-xl font-black in-data-[skin=capsule]:capsule-star in-data-[skin=capsule]:text-2xl in-data-[skin=capsule]:tracking-tight">{data.title}</h3>
 				<div className="mb-6 leading-relaxed text-gray-600 dark:text-gray-300">{data.message}</div>
 
 				<div className="flex gap-3">

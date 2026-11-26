@@ -43,12 +43,12 @@ export function EventReviews({ event }: { event: Event }) {
 	return (
 		<section className="space-y-5">
 			<div className="flex flex-wrap items-center gap-3">
-				<h2 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white">
+				<h2 className="text-xl font-bold text-gray-900 sm:text-2xl dark:text-white in-data-[skin=capsule]:capsule-star in-data-[skin=capsule]:text-primary in-data-[skin=capsule]:font-black">
 					{translate('review.sectionTitle')}
 				</h2>
 				{average !== null && (
 					<span className="flex items-center gap-2">
-						<span className="text-2xl font-black text-gray-900 dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:rounded-md in-data-[skin=listing]:rounded-bl-none in-data-[skin=listing]:bg-primary in-data-[skin=listing]:px-2 in-data-[skin=listing]:py-0.5 in-data-[skin=listing]:text-xl in-data-[skin=listing]:text-white in-data-[skin=market]:rounded-lg in-data-[skin=market]:bg-amber-100 in-data-[skin=market]:px-2 in-data-[skin=market]:py-0.5 in-data-[skin=market]:text-xl in-data-[skin=market]:font-bold in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:bg-amber-400 in-data-[skin=market]:dark:text-gray-900">{average}</span>
+						<span className="text-2xl font-black text-gray-900 dark:text-white in-data-[skin=minimal]:font-semibold in-data-[skin=listing]:rounded-md in-data-[skin=listing]:rounded-bl-none in-data-[skin=listing]:bg-primary in-data-[skin=listing]:px-2 in-data-[skin=listing]:py-0.5 in-data-[skin=listing]:text-xl in-data-[skin=listing]:text-white in-data-[skin=market]:rounded-lg in-data-[skin=market]:bg-amber-100 in-data-[skin=market]:px-2 in-data-[skin=market]:py-0.5 in-data-[skin=market]:text-xl in-data-[skin=market]:font-bold in-data-[skin=market]:text-gray-900 in-data-[skin=market]:dark:bg-amber-400 in-data-[skin=market]:dark:text-gray-900 in-data-[skin=capsule]:flex in-data-[skin=capsule]:size-12 in-data-[skin=capsule]:items-center in-data-[skin=capsule]:justify-center in-data-[skin=capsule]:rounded-full in-data-[skin=capsule]:bg-primary in-data-[skin=capsule]:text-lg in-data-[skin=capsule]:text-white">{average}</span>
 						<StarRating value={average} size="md" />
 						<span className="text-sm text-gray-500">
 							{translate('review.count', { count: event.ratingCount ?? 0 })}
@@ -62,7 +62,7 @@ export function EventReviews({ event }: { event: Event }) {
 					{mine.map((review) => (
 						<li
 							key={review.id}
-							className="border-primary/40 bg-primary/5 rounded-2xl border p-4 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md"
+							className="border-primary/40 bg-primary/5 rounded-2xl border p-4 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:bg-transparent in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md in-data-[skin=capsule]:rounded-[2rem] in-data-[skin=capsule]:rounded-tl-md in-data-[skin=capsule]:border-0 in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:p-6"
 						>
 							<div className="flex flex-wrap items-center gap-2">
 								<span className="text-primary text-xs font-bold tracking-wide uppercase">
@@ -119,17 +119,17 @@ export function EventReviews({ event }: { event: Event }) {
 				</ul>
 			)}
 
-			<ul className="space-y-4 in-data-[skin=market]:grid in-data-[skin=market]:gap-3 in-data-[skin=market]:space-y-0 in-data-[skin=market]:md:grid-cols-2 in-data-[skin=drawer]:grid in-data-[skin=drawer]:gap-3 in-data-[skin=drawer]:space-y-0">
+			<ul className="space-y-4 in-data-[skin=market]:grid in-data-[skin=market]:gap-3 in-data-[skin=market]:space-y-0 in-data-[skin=market]:md:grid-cols-2 in-data-[skin=drawer]:grid in-data-[skin=drawer]:gap-3 in-data-[skin=drawer]:space-y-0 in-data-[skin=capsule]:grid in-data-[skin=capsule]:gap-4 in-data-[skin=capsule]:space-y-0 in-data-[skin=capsule]:md:grid-cols-2">
 				{reviews.map((review) => (
 					<li
 						key={review.id}
-						className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:pb-5 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=market]:border-0 in-data-[skin=market]:bg-gray-50 in-data-[skin=market]:dark:bg-neutral-800 in-data-[skin=drawer]:rounded-[1.75rem] in-data-[skin=drawer]:border-0 in-data-[skin=drawer]:bg-primary/5 in-data-[skin=drawer]:p-5 in-data-[skin=drawer]:dark:bg-neutral-800"
+						className="rounded-2xl border border-gray-200 p-4 dark:border-gray-700 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-t-0 in-data-[skin=minimal]:px-0 in-data-[skin=minimal]:pb-5 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=market]:border-0 in-data-[skin=market]:bg-gray-50 in-data-[skin=market]:dark:bg-neutral-800 in-data-[skin=drawer]:rounded-[1.75rem] in-data-[skin=drawer]:border-0 in-data-[skin=drawer]:bg-primary/5 in-data-[skin=drawer]:p-5 in-data-[skin=drawer]:dark:bg-neutral-800 in-data-[skin=capsule]:rounded-[2rem] in-data-[skin=capsule]:rounded-tl-md in-data-[skin=capsule]:border-0 in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:p-6"
 					>
 						<div className="flex flex-wrap items-center gap-2">
-							<span className="bg-primary hidden size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white uppercase in-data-[skin=market]:flex in-data-[skin=drawer]:flex in-data-[skin=drawer]:size-10">
+							<span className="bg-primary hidden size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white uppercase in-data-[skin=market]:flex in-data-[skin=drawer]:flex in-data-[skin=drawer]:size-10 in-data-[skin=capsule]:flex in-data-[skin=capsule]:size-11 in-data-[skin=capsule]:text-base">
 								{(review.authorName ?? review.user?.name ?? '?').trim().charAt(0)}
 							</span>
-							<span className="font-semibold text-gray-900 dark:text-gray-100">
+							<span className="font-semibold text-gray-900 dark:text-gray-100 in-data-[skin=capsule]:font-bold in-data-[skin=capsule]:text-primary">
 								{review.authorName ?? review.user?.name}
 							</span>
 							<StarRating value={review.rating} />
@@ -146,7 +146,7 @@ export function EventReviews({ event }: { event: Event }) {
 						<ReviewPhotos images={review.images} />
 
 						{review.adminReply && (
-							<div className="mt-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-l-4 in-data-[skin=listing]:border-primary in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border-l-4 in-data-[skin=market]:border-primary in-data-[skin=market]:bg-white in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-2xl in-data-[skin=drawer]:bg-white in-data-[skin=drawer]:dark:bg-neutral-900">
+							<div className="mt-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800 in-data-[skin=minimal]:rounded-lg in-data-[skin=minimal]:dark:bg-neutral-900 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:border-l-4 in-data-[skin=listing]:border-primary in-data-[skin=listing]:dark:bg-neutral-800 in-data-[skin=market]:rounded-xl in-data-[skin=market]:border-l-4 in-data-[skin=market]:border-primary in-data-[skin=market]:bg-white in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:rounded-2xl in-data-[skin=drawer]:bg-white in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=capsule]:rounded-[1.5rem] in-data-[skin=capsule]:bg-white in-data-[skin=capsule]:px-4">
 								<p className="text-xs font-semibold text-gray-500 uppercase">
 									{translate('review.companyReply')}
 								</p>

@@ -131,6 +131,22 @@ function ProfileSkeletonMarket() {
 	);
 }
 
+function ProfileSkeletonCapsule() {
+	return (
+		<div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+			<Skeleton className="mb-6 h-10 w-48 rounded-full" />
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[22rem_minmax(0,1fr)] lg:gap-10">
+				<Skeleton className="h-[26rem] w-full rounded-t-[999px] rounded-b-[2.5rem]" />
+				<div className="flex flex-col gap-3">
+					{Array.from({ length: 4 }).map((_, index) => (
+						<Skeleton key={index} className="h-[4.75rem] w-full rounded-full" />
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 function ProfileSkeletonDrawer() {
 	return (
 		<div className="mx-auto max-w-3xl px-4 py-4 sm:px-6 sm:py-6">
@@ -147,7 +163,7 @@ function ProfileSkeletonDrawer() {
 export default function ProfileSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
+			<div className="in-data-[skin=minimal]:hidden in-data-[skin=listing]:hidden in-data-[skin=soft]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden in-data-[skin=capsule]:hidden">
 				<ProfileSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -164,6 +180,9 @@ export default function ProfileSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=drawer]:block">
 				<ProfileSkeletonDrawer />
+			</div>
+			<div className="hidden in-data-[skin=capsule]:block">
+				<ProfileSkeletonCapsule />
 			</div>
 		</>
 	);

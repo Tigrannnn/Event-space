@@ -83,6 +83,39 @@ export default function NotFound() {
 		);
 	}
 
+	if (skin === 'capsule') {
+		// "404" as the three tall capsules of the brand's banner, the middle one shorter.
+		return (
+			<div className="mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center gap-10 px-4 py-14 md:flex-row md:gap-14">
+				<div className="flex shrink-0 items-end gap-3" aria-hidden>
+					{['4', '0', '4'].map((digit, index) => (
+						<span
+							key={index}
+							className={`capsule-pattern flex w-20 items-center justify-center rounded-full text-5xl font-black text-white sm:w-24 sm:text-6xl ${index === 1 ? 'h-36 sm:h-44' : 'h-48 sm:h-56'}`}
+						>
+							{digit}
+						</span>
+					))}
+				</div>
+				<div className="text-center md:text-left">
+					<h1 className="capsule-star text-primary text-3xl font-black tracking-tight sm:text-4xl">
+						{translate('common.notFoundTitle')}
+					</h1>
+					<p className="mt-3 text-lg font-medium text-gray-500">{translate('common.notFoundDescription')}</p>
+					<div className="mt-8 flex flex-col gap-3 sm:flex-row md:justify-start">
+						<Button className="px-7" onClick={() => navigation.push('/')}>
+							{translate('common.goHome')} ↗
+						</Button>
+						<Button variant="secondary" className="px-7" onClick={() => history.back()}>
+							<ArrowLeft className="size-4" />
+							{translate('event.back')}
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'market') {
 		return (
 			<div className="mx-auto flex min-h-[60vh] max-w-2xl items-center px-4 py-12">

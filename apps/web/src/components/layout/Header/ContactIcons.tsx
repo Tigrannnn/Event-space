@@ -33,6 +33,12 @@ const LOOK = {
 	},
 	drawer: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
 	classic: { light: BARE_LIGHT, dark: BARE_DARK, stroke: 1.6 },
+	// Capsule draws one "Contact" pill instead of a row (see ContactTile); kept for completeness.
+	capsule: {
+		light: 'rounded-full bg-(--capsule-wash) text-primary hover:bg-primary hover:text-white',
+		dark: 'rounded-full bg-white/10 text-white hover:bg-white hover:text-primary',
+		stroke: 2,
+	},
 } as const;
 
 /** The company's own channels as a row of icons, each opening the contact card on click. */
@@ -49,7 +55,7 @@ export default function ContactIcons({
 	const translate = useTranslation();
 	const { openModal } = useModalStore();
 
-	if (skin === 'market' || skin === 'soft') {
+	if (skin === 'market' || skin === 'soft' || skin === 'capsule') {
 		return <ContactTile onDark={onDark} className={className} />;
 	}
 

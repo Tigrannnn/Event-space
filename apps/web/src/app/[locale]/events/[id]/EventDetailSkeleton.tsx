@@ -129,6 +129,33 @@ function EventDetailSkeletonMarket() {
 	);
 }
 
+function EventDetailSkeletonCapsule() {
+	return (
+		<div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+			<div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+				<div className="space-y-4">
+					<Skeleton className="h-5 w-32 rounded-full" />
+					<Skeleton className="h-14 w-11/12 rounded-full" />
+					<div className="flex flex-wrap gap-2">
+						{Array.from({ length: 4 }).map((_, index) => (
+							<Skeleton key={index} className="h-10 w-28 rounded-full" />
+						))}
+					</div>
+				</div>
+				<div className="grid grid-cols-3 items-end gap-3">
+					<Skeleton className="h-72 w-full rounded-full" />
+					<Skeleton className="h-60 w-full rounded-full" />
+					<Skeleton className="h-72 w-full rounded-full" />
+				</div>
+			</div>
+			<div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_26rem]">
+				<Skeleton className="h-80 w-full rounded-[2.5rem]" />
+				<Skeleton className="h-[30rem] w-full rounded-[2.5rem]" />
+			</div>
+		</div>
+	);
+}
+
 function EventDetailSkeletonDrawer() {
 	return (
 		<div className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
@@ -153,7 +180,7 @@ function EventDetailSkeletonDrawer() {
 export default function EventDetailSkeleton() {
 	return (
 		<>
-			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden">
+			<div className="in-data-[skin=listing]:hidden in-data-[skin=minimal]:hidden in-data-[skin=market]:hidden in-data-[skin=drawer]:hidden in-data-[skin=capsule]:hidden">
 				<EventDetailSkeletonClassic />
 			</div>
 			<div className="hidden in-data-[skin=minimal]:block">
@@ -167,6 +194,9 @@ export default function EventDetailSkeleton() {
 			</div>
 			<div className="hidden in-data-[skin=drawer]:block">
 				<EventDetailSkeletonDrawer />
+			</div>
+			<div className="hidden in-data-[skin=capsule]:block">
+				<EventDetailSkeletonCapsule />
 			</div>
 		</>
 	);

@@ -123,6 +123,21 @@ const MAIL_SKINS: Record<BrandSkin, MailSkin> = {
 		topBand: false,
 		titleColor: '#111827',
 	},
+	capsule: {
+		pageBg: '#eef2fa',
+		cardRadius: '36px',
+		cardPadding: '40px',
+		cardBorder: 'none',
+		buttonRadius: '999px',
+		codeRadius: '24px',
+		logoRadius: '999px',
+		headingFont: `Montserrat, ${SYSTEM_FONT}`,
+		headingWeight: '800',
+		titleSpacing: '-0.5px',
+		headerAlign: 'left',
+		topBand: true,
+		titleColor: null,
+	},
 };
 
 export function resolveMailSkin(skin: BrandSkin | undefined): BrandSkin {

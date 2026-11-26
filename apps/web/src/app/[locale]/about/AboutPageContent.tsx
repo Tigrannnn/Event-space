@@ -112,6 +112,45 @@ export default function AboutPageContent() {
 		);
 	}
 
+	if (skin === 'capsule') {
+		// The name large on the left and three deep-coloured arches on the right, as on the home
+		// banner; the sections below stand as three white arches of their own.
+		return (
+			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-8 pb-14 sm:px-6 sm:py-12 lg:px-8">
+				<div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+					<div>
+						<p className="capsule-star text-primary/60 text-sm font-bold">{translate('header.aboutUs')}</p>
+						<h1 className="text-primary mt-3 text-4xl leading-[1.05] font-black tracking-tight sm:text-6xl">
+							{brand.name}
+						</h1>
+						<p className="mt-5 max-w-xl text-lg font-medium text-gray-600">{about.tagline}</p>
+					</div>
+					<div className="hidden items-end justify-center gap-4 sm:flex" aria-hidden>
+						{['h-64', 'h-52', 'h-64'].map((height, index) => (
+							<span key={index} className={`capsule-pattern w-28 rounded-full ${height}`} />
+						))}
+					</div>
+				</div>
+
+				<div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
+					{sections.map(({ key, title, body, Icon }) => (
+						<section
+							key={key}
+							className="flex flex-col items-center rounded-t-[999px] rounded-b-[2.5rem] bg-(--capsule-wash) px-7 pt-14 pb-9 text-center"
+						>
+							<span className="capsule-pattern flex size-16 items-center justify-center rounded-full text-white">
+								<Icon className="size-7" strokeWidth={1.75} />
+							</span>
+							<h2 className="text-primary mt-6 text-xl font-extrabold">{title}</h2>
+							<p className="mt-3 font-medium text-gray-600">{body}</p>
+							{key === 'contact' && <ContactIcons className="mt-5" />}
+						</section>
+					))}
+				</div>
+			</div>
+		);
+	}
+
 	if (skin === 'market') {
 		return (
 			<div className="mx-auto min-h-full w-full max-w-[1400px] px-4 py-4 pb-10 sm:px-6 sm:py-6 lg:px-8">

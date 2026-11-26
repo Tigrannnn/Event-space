@@ -26,6 +26,7 @@ export function FilterTriggerButton({
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market' || skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 
 	return (
 		<Button
@@ -33,7 +34,9 @@ export function FilterTriggerButton({
 			variant={variant}
 			size={size}
 			className={cn(
-				isMarket
+				isCapsule
+					? 'text-primary flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border-0 bg-white px-4 text-sm font-bold shadow-sm transition-colors hover:bg-white hover:text-primary hover:ring-1 hover:ring-primary/30'
+					: isMarket
 					? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-xl border-0 bg-gray-100 px-4 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-200 hover:text-gray-900 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700 dark:hover:text-white'
 					: isMinimal
 					? `${isListing ? 'rounded-md' : 'rounded-full'} flex h-10 shrink-0 items-center justify-between gap-2 border border-gray-300 bg-white px-4 text-sm font-medium text-gray-900 transition-colors hover:border-gray-900 hover:bg-white dark:border-neutral-700 dark:bg-neutral-950 dark:text-gray-100 dark:hover:border-gray-300 dark:hover:bg-neutral-950`
@@ -41,7 +44,9 @@ export function FilterTriggerButton({
 						? 'flex h-10 shrink-0 items-center justify-between gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-800 shadow-sm transition-all hover:border-primary/50 hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-white'
 						: 'border-primary/50 bg-background hover:bg-accent/30 hover:text-accent-foreground flex h-9 shrink-0 items-center justify-between gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-all',
 				isActive &&
-					(isMarket
+					(isCapsule
+						? 'bg-primary text-white hover:bg-primary hover:text-white'
+						: isMarket
 						? 'bg-primary/10 text-primary ring-primary hover:bg-primary/10 dark:bg-primary/20 ring-1'
 						: isListing
 						? 'border-primary bg-primary/10 text-primary ring-primary hover:bg-primary/10 dark:bg-primary/20 ring-1'
@@ -75,19 +80,26 @@ export function CategoryPill({
 	const isListing = skin === 'listing';
 	const isSoft = skin === 'soft';
 	const isMarket = skin === 'market' || skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 
 	return (
 		<button
 			type="button"
 			className={cn(
-				isMarket
+				isCapsule
+					? 'h-10 shrink-0 rounded-full border-0 px-4 text-sm font-bold transition-colors'
+					: isMarket
 					? 'h-10 shrink-0 rounded-xl border-0 px-4 text-sm font-medium transition-colors'
 					: isMinimal
 					? `h-10 shrink-0 ${isListing ? 'rounded-md' : 'rounded-full'} border px-4 text-sm font-medium transition-colors`
 					: isSoft
 						? 'h-10 shrink-0 rounded-full border px-4 text-sm font-semibold shadow-sm transition-all duration-200'
 						: 'h-9 shrink-0 rounded-full border px-4 text-sm font-medium shadow-sm transition-all duration-200',
-				isMarket
+				isCapsule
+					? isActive
+						? 'bg-primary text-white shadow-md shadow-primary/20'
+						: 'text-primary bg-white shadow-sm hover:ring-1 hover:ring-primary/30'
+					: isMarket
 					? isActive
 						? 'bg-primary text-white'
 						: 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-neutral-800 dark:text-gray-100 dark:hover:bg-neutral-700'

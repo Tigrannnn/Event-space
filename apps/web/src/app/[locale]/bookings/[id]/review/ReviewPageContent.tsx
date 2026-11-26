@@ -21,10 +21,10 @@ import { cn } from '@/utils/cn';
 import ReviewFormSkeleton from './ReviewFormSkeleton';
 
 const fieldClassName =
-	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100 in-data-[skin=minimal]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-700 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-2xl in-data-[skin=soft]:border-gray-200 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=market]:bg-white in-data-[skin=drawer]:bg-white in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=drawer]:dark:border-neutral-700 in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:dark:bg-neutral-900';
+	'focus:border-primary w-full rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm text-gray-900 outline-none dark:border-gray-600 dark:text-gray-100 in-data-[skin=minimal]:bg-white in-data-[skin=minimal]:focus:border-gray-900 in-data-[skin=minimal]:dark:border-neutral-700 in-data-[skin=minimal]:dark:bg-neutral-950 in-data-[skin=listing]:rounded-md in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-700 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-2xl in-data-[skin=soft]:border-gray-200 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=market]:bg-white in-data-[skin=drawer]:bg-white in-data-[skin=market]:dark:border-neutral-700 in-data-[skin=drawer]:dark:border-neutral-700 in-data-[skin=market]:dark:bg-neutral-900 in-data-[skin=drawer]:dark:bg-neutral-900 in-data-[skin=capsule]:rounded-[1.75rem] in-data-[skin=capsule]:border-transparent in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:px-5 in-data-[skin=capsule]:font-medium in-data-[skin=capsule]:text-primary in-data-[skin=capsule]:focus:bg-white';
 
 const noticeClassName =
-	'flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-solid in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:border-solid in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-[2rem] in-data-[skin=soft]:border-gray-300 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:border-gray-600 in-data-[skin=soft]:dark:bg-gray-800';
+	'flex flex-col items-center gap-4 rounded-2xl border border-dashed border-gray-300 p-10 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400 in-data-[skin=minimal]:rounded-none in-data-[skin=minimal]:border-x-0 in-data-[skin=minimal]:border-solid in-data-[skin=minimal]:border-gray-200 in-data-[skin=minimal]:dark:border-neutral-800 in-data-[skin=listing]:rounded-lg in-data-[skin=listing]:border-solid in-data-[skin=listing]:border-gray-200 in-data-[skin=listing]:bg-white in-data-[skin=listing]:dark:border-neutral-800 in-data-[skin=listing]:dark:bg-neutral-900 in-data-[skin=soft]:rounded-[2rem] in-data-[skin=soft]:border-gray-300 in-data-[skin=soft]:bg-white in-data-[skin=soft]:dark:border-gray-600 in-data-[skin=soft]:dark:bg-gray-800 in-data-[skin=capsule]:rounded-[2.5rem] in-data-[skin=capsule]:border-0 in-data-[skin=capsule]:bg-(--capsule-wash) in-data-[skin=capsule]:text-primary';
 
 export default function ReviewPageContent({ bookingId }: { bookingId: string }) {
 	const searchParams = useSearchParams();
@@ -108,7 +108,13 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 	const goToEvent = () => navigation.push(state.event ? `/events/${state.event.id}` : '/bookings');
 
 	return (
-		<div className={cn('mx-auto w-full max-w-2xl px-4 py-10', skin === 'minimal' && 'max-w-xl')}>
+		<div
+			className={cn(
+				'mx-auto w-full max-w-2xl px-4 py-10',
+				skin === 'minimal' && 'max-w-xl',
+				skin === 'capsule' && 'max-w-3xl py-12',
+			)}
+		>
 			<div
 				className={cn(
 					skin === 'listing' &&
@@ -116,6 +122,9 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 					skin === 'soft' && 'rounded-[2rem] bg-white p-6 shadow-md sm:p-10 dark:bg-gray-800',
 					skin === 'market' &&
 						'rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 dark:border-neutral-800 dark:bg-neutral-900',
+					// The form under an arch of the brand's colour, like the catalogue's photos.
+					skin === 'capsule' &&
+						'rounded-t-[12rem] rounded-b-[2.5rem] bg-white px-6 pt-16 pb-8 shadow-lg ring-1 ring-(--capsule-line) sm:px-12',
 				)}
 			>
 				<h1
@@ -123,6 +132,7 @@ export default function ReviewPageContent({ bookingId }: { bookingId: string }) 
 						'text-2xl font-bold text-gray-900 sm:text-3xl dark:text-white',
 						skin === 'minimal' && 'font-semibold tracking-tight',
 						skin === 'soft' && 'text-primary',
+						skin === 'capsule' && 'capsule-star text-primary font-black tracking-tight sm:text-4xl',
 					)}
 				>
 					{translate('review.pageTitle')}

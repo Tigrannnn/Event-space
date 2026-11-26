@@ -28,6 +28,7 @@ export function EventsFiltersBar({
 	const isMinimal = isFlatSkin(skin);
 	const isListing = skin === 'listing';
 	const isMarket = skin === 'market' || skin === 'drawer';
+	const isCapsule = skin === 'capsule';
 	const hasActiveFilters = countActiveFilters(filters) > 0;
 
 	const handleReset = () => {
@@ -91,14 +92,22 @@ export function EventsFiltersBar({
 		<div
 			className={cn(
 				'sticky top-0 z-30 -mx-4 mb-4 border-b px-4 py-2.5 backdrop-blur-md sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8',
-				skin === 'drawer'
+				isCapsule
+					? 'border-0 bg-white/90 backdrop-blur-md'
+					: skin === 'drawer'
 					? 'border-gray-200/60 bg-transparent backdrop-blur-xl dark:border-white/10 dark:bg-transparent'
 					: isMinimal
 					? 'border-gray-200 bg-white/95 dark:border-neutral-800 dark:bg-neutral-950/95'
 					: 'border-gray-200/70 bg-gray-50/90 shadow-sm dark:border-gray-700/70 dark:bg-gray-900/85',
 			)}
 		>
-			<div className={cn(isMarket && 'mx-auto max-w-[1400px]')}>
+			<div
+				className={cn(
+					isMarket && 'mx-auto max-w-[1400px]',
+					// The whole row sits in one long pale capsule; the filters are white pills inside it.
+					isCapsule && 'mx-auto max-w-[1400px] rounded-full bg-(--capsule-wash) px-2 py-1.5',
+				)}
+			>
 				<div className="md:hidden">
 					<EventsFiltersDrawer
 						categories={categories}
@@ -113,7 +122,11 @@ export function EventsFiltersBar({
 					<HorizontalScroll
 						className="min-h-11 items-center gap-3"
 						fadeClassName={
-							isMinimal ? 'from-white dark:from-neutral-950' : 'from-gray-50 dark:from-gray-900'
+							isCapsule
+								? 'from-(--capsule-wash)'
+								: isMinimal
+									? 'from-white dark:from-neutral-950'
+									: 'from-gray-50 dark:from-gray-900'
 						}
 					>
 						<div className="flex min-w-0 shrink-0 items-center">
