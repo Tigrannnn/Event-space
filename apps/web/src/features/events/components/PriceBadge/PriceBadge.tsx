@@ -29,7 +29,7 @@ export const PriceBadge = ({ price, basePrice, discountPercent }: PriceBadgeProp
 					</span>
 				)}
 				<span
-					className={`${isDiscounted ? 'text-red-500' : 'text-primary'} text-[11px] leading-none font-black tracking-wide sm:text-[12px] md:text-[14px]`}
+					className="text-primary text-[11px] leading-none font-black tracking-wide sm:text-[12px] md:text-[14px]"
 					suppressHydrationWarning
 				>
 					{isDiscounted ? `${translate('event.priceFrom')} ` : ''}

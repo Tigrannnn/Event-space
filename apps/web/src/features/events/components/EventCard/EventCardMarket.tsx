@@ -104,7 +104,7 @@ export default function EventCardMarket({ event }: EventCardProps) {
 					<span
 						className={
 							isDiscounted
-								? 'text-xl font-bold text-red-500'
+								? 'text-xl font-bold text-(--brand-accent)'
 								: 'text-xl font-bold text-gray-900 dark:text-white'
 						}
 					>

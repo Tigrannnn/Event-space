@@ -120,7 +120,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 								{formatCurrency(pricing.basePrice as number | string)}
 							</div>
 						)}
-						<div className={`truncate font-semibold ${isDiscounted ? 'text-red-500' : ''}`}>
+						<div className="truncate font-semibold">
 							{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
 							{formatCurrency(pricing.fromPrice)}
 						</div>

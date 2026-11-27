@@ -109,7 +109,9 @@ export default function EventCardCapsule({ event }: EventCardProps) {
 				<div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1" suppressHydrationWarning>
 					<span
 						className={
-							isDiscounted ? 'text-xl font-extrabold text-red-500' : 'text-primary text-xl font-extrabold'
+							isDiscounted
+								? 'text-xl font-extrabold text-(--brand-accent)'
+								: 'text-primary text-xl font-extrabold'
 						}
 					>
 						{isDiscounted ? `${translate('event.priceFrom')} ` : ''}

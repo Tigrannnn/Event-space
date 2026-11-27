@@ -136,9 +136,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 								{formatCurrency(pricing.basePrice as number | string)}
 							</div>
 						)}
-						<div
-							className={`text-xl font-bold ${isDiscounted ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}
-						>
+						<div className="text-xl font-bold text-gray-900 dark:text-white">
 							{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
 							{formatCurrency(pricing.fromPrice)}
 						</div>
