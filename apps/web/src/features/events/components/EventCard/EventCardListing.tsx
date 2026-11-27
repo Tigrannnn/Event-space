@@ -121,13 +121,12 @@ export default function EventCardListing({ event }: EventCardProps) {
 					<Calendar className="text-primary size-4 shrink-0" />
 					<span className="truncate">{occurrenceLabel}</span>
 				</p>
-
 			</div>
 
 			<div className="flex shrink-0 flex-col justify-end gap-3 border-t border-gray-200 p-4 sm:w-52 sm:border-t-0 sm:border-l lg:w-60 dark:border-neutral-800">
 				<div className="flex items-end justify-between gap-2 sm:flex-col sm:items-end sm:justify-end sm:gap-1">
 					{isDiscounted && (
-						<span className="rounded bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white">
+						<span className="rounded bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
 							{translate('event.discountOff', { percent })}
 						</span>
 					)}
@@ -138,7 +137,7 @@ export default function EventCardListing({ event }: EventCardProps) {
 							</div>
 						)}
 						<div className="text-xl font-bold text-gray-900 dark:text-white">
-							{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
+							{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
 							{formatCurrency(pricing.fromPrice)}
 						</div>
 						<div className="text-xs text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</div>

@@ -86,7 +86,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 					/>
 				</div>
 				{isDiscounted && (
-					<span className="absolute top-3 left-3 z-20 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 shadow-sm">
+					<span className="absolute top-3 left-3 z-20 rounded-full bg-red-500 px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
 						{translate('event.discountOff', { percent })}
 					</span>
 				)}
@@ -121,7 +121,7 @@ export default function EventCardMinimal({ event }: EventCardProps) {
 							</div>
 						)}
 						<div className="truncate font-semibold">
-							{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
+							{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
 							{formatCurrency(pricing.fromPrice)}
 						</div>
 					</div>

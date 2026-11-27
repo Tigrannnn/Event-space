@@ -119,11 +119,11 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 		</div>
 	);
 
-	const price = (oldTone: string, fromTone: string) => (
+	const price = (oldTone: string) => (
 		<div className="min-w-0 flex-1">
 			{isDiscounted && (
 				<span className="block text-xs">
-					<span className={`mr-1 font-medium ${fromTone}`}>{translate('event.priceFrom')}</span>
+					<span className="mr-1 font-medium text-red-500">{translate('event.priceFrom')}</span>
 					<span className={`line-through ${oldTone}`}>{formatCurrency(pricing.basePrice)}</span>
 				</span>
 			)}
@@ -153,7 +153,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 
 				<div className="absolute top-3 right-3 left-3 z-20 flex items-start justify-between gap-2">
 					{isDiscounted ? (
-						<span className="rounded-full bg-(--brand-accent) px-2.5 py-1 text-xs font-bold text-white">
+						<span className="rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white">
 							{translate('event.discountOff', { percent })}
 						</span>
 					) : (
@@ -171,7 +171,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 					</div>
 					<div className="h-px bg-white/15" />
 					<div className="flex items-center justify-between gap-3" suppressHydrationWarning>
-						{price('text-white/60', 'text-white/70')}
+						{price('text-white/60')}
 						{control(true)}
 					</div>
 				</div>
@@ -186,7 +186,7 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 					className="flex items-center justify-between gap-2 text-gray-900 dark:text-white"
 					suppressHydrationWarning
 				>
-					{price('text-gray-400', 'text-gray-500 dark:text-gray-400')}
+					{price('text-gray-400')}
 					{control(false)}
 				</div>
 			</div>

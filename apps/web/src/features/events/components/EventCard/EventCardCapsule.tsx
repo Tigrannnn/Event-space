@@ -86,7 +86,7 @@ export default function EventCardCapsule({ event }: EventCardProps) {
 					/>
 				</div>
 				{isDiscounted && (
-					<span className="absolute top-[18%] left-1/2 z-20 -translate-x-1/2 rounded-full bg-(--brand-accent) px-3 py-1 text-xs font-extrabold text-white">
+					<span className="absolute top-[18%] left-1/2 z-20 -translate-x-1/2 rounded-full bg-red-500 px-3 py-1 text-xs font-extrabold text-white">
 						{translate('event.discountOff', { percent })}
 					</span>
 				)}
@@ -114,7 +114,7 @@ export default function EventCardCapsule({ event }: EventCardProps) {
 								: 'text-primary text-xl font-extrabold'
 						}
 					>
-						{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
+						{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
 						{formatCurrency(pricing.fromPrice)}
 					</span>
 					{isDiscounted && (

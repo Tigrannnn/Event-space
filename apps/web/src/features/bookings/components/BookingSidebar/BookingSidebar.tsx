@@ -77,8 +77,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 		hasBooking: isOccurrenceBooked,
 		bookingIdFor,
 		isLoading: isMyBookingsLoading,
-	} =
-		useHasBookingForOccurrence();
+	} = useHasBookingForOccurrence();
 
 	const hasBooking = isOccurrenceBooked(selectedOccurrence?.id);
 
@@ -164,7 +163,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="p-6 sm:p-7">
 					<div className="flex flex-wrap items-center gap-2">
 						{quote.discountPercent > 0 && (
-							<span className="rounded-full bg-(--brand-accent) px-2.5 py-1 text-xs font-bold text-white">
+							<span className="rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white">
 								{translate('event.discountOff', { percent: quote.discountPercent })}
 							</span>
 						)}
@@ -279,7 +278,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				<div className="bg-primary/8 border-b border-gray-200 px-5 py-4 dark:border-neutral-800">
 					<div className="flex flex-wrap items-center gap-x-2 gap-y-1">
 						{quote.discountPercent > 0 && (
-							<span className="rounded bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white">
+							<span className="rounded bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
 								{translate('event.discountOff', { percent: quote.discountPercent })}
 							</span>
 						)}
@@ -398,7 +397,12 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 	if (isCapsule) {
 		// A card whose top is a deep-coloured band: price and seats in white, then the dates as pills,
 		// one round button and the two places as soft capsules.
-		const capsulePlace = (icon: React.ReactNode, label: string, text: string, url?: string | null) => (
+		const capsulePlace = (
+			icon: React.ReactNode,
+			label: string,
+			text: string,
+			url?: string | null,
+		) => (
 			<div className="flex items-center gap-3 rounded-[1.75rem] bg-(--capsule-wash) py-2 pr-4 pl-2">
 				<span className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
 					{icon}
@@ -425,7 +429,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 			<div className="overflow-hidden rounded-[2.5rem] bg-white shadow-lg ring-1 ring-(--capsule-line)">
 				<div className="capsule-pattern rounded-b-[2.5rem] px-6 pt-7 pb-6 text-white sm:px-7">
 					{quote.discountPercent > 0 && (
-						<span className="mb-3 inline-block rounded-full bg-(--brand-accent) px-3 py-1 text-xs font-extrabold">
+						<span className="mb-3 inline-block rounded-full bg-red-500 px-3 py-1 text-xs font-extrabold">
 							{translate('event.discountOff', { percent: quote.discountPercent })}
 						</span>
 					)}
@@ -456,7 +460,9 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				</div>
 
 				<div className="px-5 pt-6 pb-6 sm:px-6">
-					<p className="capsule-star text-primary mb-3 text-sm font-extrabold">{translate('event.date')}</p>
+					<p className="capsule-star text-primary mb-3 text-sm font-extrabold">
+						{translate('event.date')}
+					</p>
 					<OccurrencePicker
 						occurrences={upcomingOccurrences}
 						selectedId={selectedOccurrence?.id}
@@ -555,7 +561,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 				</div>
 				{quote.discountPercent > 0 && (
 					<span
-						className={`mt-2 inline-block bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white ${isDrawer ? 'rounded-full px-3 py-1' : 'rounded-md'}`}
+						className={`mt-2 inline-block bg-red-500 px-2 py-0.5 text-xs font-bold text-white ${isDrawer ? 'rounded-full px-3 py-1' : 'rounded-md'}`}
 					>
 						{translate('event.discountOff', { percent: quote.discountPercent })}
 					</span>
@@ -661,7 +667,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 					<span className="text-gray-500 dark:text-gray-400">{translate('event.perPerson')}</span>
 				</div>
 				{quote.discountPercent > 0 && (
-					<p className="mt-1 text-sm font-medium text-gray-900 dark:text-white">
+					<p className="mt-1 text-sm font-medium text-red-500">
 						{translate('event.discountOff', { percent: quote.discountPercent })}
 					</p>
 				)}

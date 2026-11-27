@@ -90,7 +90,7 @@ export default function EventCardMarket({ event }: EventCardProps) {
 					/>
 				</div>
 				{isDiscounted && (
-					<span className="absolute bottom-2 left-2 z-20 rounded-md bg-(--brand-accent) px-2 py-0.5 text-xs font-bold text-white">
+					<span className="absolute bottom-2 left-2 z-20 rounded-md bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
 						{translate('event.discountOff', { percent })}
 					</span>
 				)}
@@ -108,7 +108,7 @@ export default function EventCardMarket({ event }: EventCardProps) {
 								: 'text-xl font-bold text-gray-900 dark:text-white'
 						}
 					>
-						{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
+						{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
 						{formatCurrency(pricing.fromPrice)}
 					</span>
 					{isDiscounted && (
@@ -137,7 +137,6 @@ export default function EventCardMarket({ event }: EventCardProps) {
 						</span>
 					)}
 				</div>
-
 
 				<div className="mt-auto pt-3">{control}</div>
 			</div>

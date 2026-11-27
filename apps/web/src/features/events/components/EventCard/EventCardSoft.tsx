@@ -91,7 +91,7 @@ export default function EventCardSoft({ event }: EventCardProps) {
 					<span className="truncate">{occurrenceLabel}</span>
 				</span>
 				{isDiscounted && (
-					<span className="absolute top-3 left-3 z-20 rounded-full bg-(--brand-accent) px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+					<span className="absolute top-3 left-3 z-20 rounded-full bg-red-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
 						{translate('event.discountOff', { percent })}
 					</span>
 				)}
@@ -121,12 +121,10 @@ export default function EventCardSoft({ event }: EventCardProps) {
 				<div className="mt-auto flex items-center justify-between gap-3 border-t border-dashed border-gray-300 pt-4 dark:border-gray-600">
 					<div className="min-w-0" suppressHydrationWarning>
 						{isDiscounted && (
-							<div className="text-xs text-gray-400 line-through">
-								{formatCurrency(pricing.basePrice)}
-							</div>
+							<div className="text-xs text-gray-400 line-through">{formatCurrency(pricing.basePrice)}</div>
 						)}
 						<div className="font-(family-name:--font-display) text-xl font-bold text-gray-900 dark:text-white">
-							{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
+							{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
 							{formatCurrency(pricing.fromPrice)}
 						</div>
 					</div>
