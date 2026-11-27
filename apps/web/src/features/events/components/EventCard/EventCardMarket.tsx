@@ -104,11 +104,11 @@ export default function EventCardMarket({ event }: EventCardProps) {
 					<span
 						className={
 							isDiscounted
-								? 'text-xl font-bold text-(--brand-accent)'
+								? 'text-xl font-bold text-red-500'
 								: 'text-xl font-bold text-gray-900 dark:text-white'
 						}
 					>
-						{isDiscounted && <span className="text-red-500">{translate('event.priceFrom')} </span>}
+						{isDiscounted ? `${translate('event.priceFrom')} ` : ''}
 						{formatCurrency(pricing.fromPrice)}
 					</span>
 					{isDiscounted && (

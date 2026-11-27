@@ -546,7 +546,7 @@ export default function BookingSidebar({ event }: BookingSidebarProps) {
 			>
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
 					<span
-						className={`${isDrawer ? 'text-4xl font-black tracking-tight' : 'text-3xl font-bold'} ${quote.discountPercent > 0 ? 'text-(--brand-accent)' : 'text-gray-900 dark:text-white'}`}
+						className={`${isDrawer ? 'text-4xl font-black tracking-tight' : 'text-3xl font-bold'} ${quote.discountPercent > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}
 					>
 						{formatCurrency(quote.unitPrice)}
 					</span>

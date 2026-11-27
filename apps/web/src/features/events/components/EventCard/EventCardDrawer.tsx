@@ -127,7 +127,9 @@ export default function EventCardDrawer({ event }: EventCardProps) {
 					<span className={`line-through ${oldTone}`}>{formatCurrency(pricing.basePrice)}</span>
 				</span>
 			)}
-			<span className="block text-lg leading-tight font-black whitespace-nowrap">
+			<span
+				className={`block text-lg leading-tight font-black whitespace-nowrap ${isDiscounted ? 'text-red-500' : ''}`}
+			>
 				{formatCurrency(pricing.fromPrice)}
 			</span>
 		</div>
